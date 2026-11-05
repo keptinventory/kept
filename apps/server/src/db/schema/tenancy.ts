@@ -45,6 +45,10 @@ export const userProfiles = pgTable(
     theme: theme.col().notNull().default('system'),
     digits: digits.col().notNull().default('western'),
     suggestLocation: boolean('suggest_location').notNull().default(false),
+    /** Hide the Personal location from this person's own lists, a preference only (#392). It
+     * takes effect through kept.hidden_location_ids(), which ignores it while Personal is the only
+     * location the session can see, so no path that ends a membership has to clear it. */
+    hidePersonal: boolean('hide_personal').notNull().default(false),
     digestTime: time('digest_time'),
     quietFrom: time('quiet_from'),
     quietTo: time('quiet_to'),

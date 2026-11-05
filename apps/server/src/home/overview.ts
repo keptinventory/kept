@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { LISTED_SOURCES } from '../agenda/query.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { Sums, spending } from '../insights/service.js';
+import { notHidden } from '../locations/hidden.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 
 // Home's overview (1.6, D240; builds D138, D194, D234): what the redesigned
@@ -114,6 +115,7 @@ async function locationsOf(tx: Tx, client: pg.ClientBase, scope: Scope): Promise
     `SELECT l.id, l.kind = 'personal' AS personal, extract(year FROM now() AT TIME ZONE l.timezone)::int AS this_year
        FROM public.locations l
       WHERE l.id IN (SELECT kept.visible_location_ids()) AND l.deleted_at IS NULL
+        AND ${notHidden('l.id')}
       ORDER BY CASE WHEN l.kind = 'personal' THEN 0 ELSE 1 END, lower(l.name), l.id`,
   );
   const out: Loc[] = [];
@@ -139,7 +141,8 @@ async function agenda(client: pg.ClientBase) {
        SELECT a.location_id, a.state, a.source_type, a.source_id, a.kind, a.due_period,
               a.due_on, a.thing_id, a.place_id, a.title
          FROM public.agenda_items a
-        WHERE a.state IN ('overdue', 'due', 'expiring') AND a.source_type = ANY ($1::text[])),
+        WHERE a.state IN ('overdue', 'due', 'expiring') AND a.source_type = ANY ($1::text[])
+          AND ${notHidden('a.location_id')}),
      first AS (
        SELECT DISTINCT ON (a.state) a.*
          FROM a
@@ -193,7 +196,7 @@ async function loans(client: pg.ClientBase) {
          FROM public.loans o
          JOIN public.things t ON t.id = o.thing_id
         WHERE o.returned_at IS NULL AND t.deleted_at IS NULL
-          AND kept.module_on(o.location_id, 'lending'))
+          AND kept.module_on(o.location_id, 'lending') AND ${notHidden('o.location_id')})
      SELECT
        (SELECT coalesce(json_agg(c), '[]'::json) FROM (
           SELECT location_id, count(*)::int AS n FROM o WHERE direction = 'out'
@@ -218,17 +221,19 @@ async function things(client: pg.ClientBase) {
     `SELECT
        (SELECT coalesce(json_agg(c), '[]'::json) FROM (
           SELECT t.location_id, count(*)::int AS n FROM public.things t
-           WHERE t.deleted_at IS NULL AND t.location_uncertain GROUP BY t.location_id) c)
+           WHERE t.deleted_at IS NULL AND t.location_uncertain AND ${notHidden('t.location_id')}
+           GROUP BY t.location_id) c)
          AS counts,
        (SELECT json_build_object('location_id', t.location_id, 'name', t.name)
           FROM public.things t
-         WHERE t.deleted_at IS NULL AND t.location_uncertain
+         WHERE t.deleted_at IS NULL AND t.location_uncertain AND ${notHidden('t.location_id')}
          ORDER BY t.updated_at DESC, t.id LIMIT 1) AS uncertain,
        (SELECT json_build_object('location_id', t.location_id, 'name', t.name,
                                  'last_seen_at', t.last_seen_at)
           FROM public.things t JOIN public.locations l ON l.id = t.location_id
          WHERE t.deleted_at IS NULL AND t.lifecycle = 'in_use'
            AND t.last_seen_at < now() - make_interval(months => l.long_unseen_months)
+           AND ${notHidden('t.location_id')}
          ORDER BY t.last_seen_at, t.id LIMIT 1) AS unseen`,
   );
   return rows[0] ?? { counts: [], uncertain: null, unseen: null };
@@ -245,7 +250,7 @@ async function lowStock(client: pg.ClientBase) {
        SELECT r.location_id, t.id, t.name, t.quantity, r.min_quantity
          FROM public.stock_rules r JOIN public.things t ON t.id = r.thing_id
         WHERE t.deleted_at IS NULL AND t.lifecycle = 'in_use' AND t.quantity < r.min_quantity
-          AND kept.module_on(r.location_id, 'consumables'))
+          AND kept.module_on(r.location_id, 'consumables') AND ${notHidden('r.location_id')})
      SELECT
        (SELECT coalesce(json_agg(c), '[]'::json) FROM (
           SELECT location_id, count(*)::int AS n FROM low GROUP BY location_id) c) AS counts,

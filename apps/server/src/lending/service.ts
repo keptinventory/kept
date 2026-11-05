@@ -9,6 +9,7 @@ import type { AttachmentView } from '../files/views.js';
 import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { AppError, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { createItem } from '../registries/service.js';
 import { requireModule } from '../schedules/service.js';
 import { gateFor } from '../serialize/gates.js';
@@ -423,7 +424,7 @@ export async function listLoans(
   const offset = offsetOf(query.cursor);
   const q = query.q?.trim() ? query.q.trim() : null;
   const scope = `kept.module_on(o.location_id, 'lending') AND ${LISTED_SQL}
-     AND ($1::uuid IS NULL OR o.location_id = $1)
+     AND ${namedOrShown('o.location_id', '$1')}
      AND ($2::uuid IS NULL OR o.person_id = $2)`;
   const scoped = [query.locationId?.toLowerCase() ?? null, query.personId?.toLowerCase() ?? null];
   const { rows: counted } = await client.query<{ out: number; in: number; overdue: number }>(

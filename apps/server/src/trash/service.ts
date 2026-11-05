@@ -10,6 +10,7 @@ import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import { filterOf, lowerIds, manyOf, matchOf, notOf, When } from '../http/list-filters.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
+import { shownFilter } from '../locations/hidden.js';
 import {
   type RestoreResult,
   restorePlace,
@@ -421,7 +422,7 @@ export async function listTrash(
   // location named either way must be one the caller can see (404, review #36).
   const locationIds = lowerIds(query.locationId);
   for (const id of locationIds) await requireMembership(client, id);
-  const location = filterOf(locationIds, 'locationId', query.not);
+  const location = await shownFilter(client, filterOf(locationIds, 'locationId', query.not));
   if (location) {
     where.push(matchOf(`x.location_id = ANY (${v(location.values)}::uuid[])`, location.not));
   }

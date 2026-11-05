@@ -28,7 +28,7 @@ import { api, isApiError } from '@/api/client';
 import { householdKeys } from '@/api/household/queries';
 import { inventoryPaths } from '@/api/inventory/paths';
 import type { MeterReplacedBody, ReadingConflictDetails } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { vehicleKeys, vehiclesApi } from '@/api/vehicles/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { CameraIcon, XIcon } from '@/components/icons';
@@ -90,7 +90,7 @@ export function useReadingStore(): OfflineStore | null {
 
 /** Whether the caller may log a reading in a location (`logs.add`: not a viewer). */
 export function useCanLogReading() {
-  const locations = useLocations();
+  const locations = useAllLocations();
   return (locationId: string) => {
     const role = locations.data?.find((l) => l.id === locationId)?.role;
     return !!role && roleCan(role, 'logs.add');
@@ -169,7 +169,7 @@ export function LogReadingForm({
   const checkText = useReadingCheckText();
   const unitOf = useMeterUnit();
   const typed = useTypedNumber();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const role = locations.data?.find((l) => l.id === target.locationId)?.role;
   const mayReplace = !!role && roleCan(role, 'meters.manage');
   const { meter } = target;

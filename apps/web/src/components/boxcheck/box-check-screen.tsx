@@ -18,7 +18,7 @@ import { captureApi } from '@/api/capture/queries';
 import type { BoxCheckBody, BoxCheckResult } from '@/api/capture/types';
 import { isApiError } from '@/api/client';
 import { inventoryApi } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import type { Detect } from '@/camera/label-recogniser';
 import { appDetect } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
@@ -103,7 +103,7 @@ export function BoxCheckScreen({
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: 0,
   });
-  const locations = useLocations();
+  const locations = useAllLocations();
   const [phoneRole, setPhoneRole] = useState<Role | null>(null);
   const locationId = box.data?.container.locationId ?? null;
   useEffect(() => {

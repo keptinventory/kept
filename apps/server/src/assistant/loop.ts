@@ -294,7 +294,8 @@ async function steps(
       );
     }
     // The candidates: the person's locations where the assistant is on, with their tools.
-    const reach = await toolsFor(toolCtx);
+    // A hidden Personal (#392) only for a thread opened on it.
+    const reach = await toolsFor(toolCtx, undefined, context.locationId ?? null);
     const candidates: Candidate[] = reach
       .filter((r) => r.tools.length > 0)
       .map((r) => ({

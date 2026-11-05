@@ -11,6 +11,7 @@ import {
 } from '../files/views.js';
 import { pageOf } from '../http/conventions.js';
 import { invalid } from '../http/errors.js';
+import { notHidden } from '../locations/hidden.js';
 import { snippetOf } from '../search/documents.js';
 import { Params, termsCte, termsOf } from '../search/query.js';
 import { gateFor } from '../serialize/gates.js';
@@ -129,6 +130,7 @@ export async function listPaperwork(
   ];
   if (query.locationId)
     where.push(`a.location_id = ${p.add(query.locationId.toLowerCase())}::uuid`);
+  else where.push(notHidden('a.location_id'));
   if (query.role) where.push(`a.role = ${p.add(query.role)}::text`);
   if (query.subjectType) where.push(`j.subject->>'type' = ${p.add(query.subjectType)}::text`);
   if (query.expiry === 'expiring' || query.expiry === 'expired') {

@@ -29,7 +29,7 @@ import { isApiError } from '@/api/client';
 import { conditionApi, conditionKeys, useConditionReport } from '@/api/condition/queries';
 import type { ConditionPhoto, ConditionReport, ConditionRoom } from '@/api/condition/types';
 import { thingApi } from '@/api/inventory/thing-api';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { CheckCircleIcon, PlusIcon, PrinterIcon, TrashIcon } from '@/components/icons';
 import { ErrorState, LoadingRows, Notice, Page, Pill, useErrorText } from '@/components/page';
 import { accessOf } from '@/components/schedules/access';
@@ -104,7 +104,7 @@ export function ConditionReportScreen({ id, compare }: { id: string; compare?: s
 
 function ReportHeader({ report, compare }: { report: ConditionReport; compare?: string }) {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const location = locations.data?.find((l) => l.id === report.locationId);
   const access = accessOf(location);
@@ -311,7 +311,7 @@ function NotesField({ report, canWrite }: { report: ConditionReport; canWrite: b
 // ----- recording -------------------------------------------------------------------------------
 
 function Rooms({ report }: { report: ConditionReport }) {
-  const locations = useLocations();
+  const locations = useAllLocations();
   const location = locations.data?.find((l) => l.id === report.locationId);
   const canWrite = !report.finishedAt && accessOf(location).can('things.edit');
   return (

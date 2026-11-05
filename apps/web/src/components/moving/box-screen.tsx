@@ -20,7 +20,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { movingApi } from '@/api/moving/queries';
 import type { Move, MoveBox } from '@/api/moving/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { loadBox } from '@/components/boxcheck/load';
 import { BoxIcon, DocumentIcon, HomeIcon, QrIcon, TagIcon, TruckIcon } from '@/components/icons';
 import { IdChip, LabelTape } from '@/components/id-chip';
@@ -91,7 +91,7 @@ function BoxView({ move, box }: { move: Move; box: MoveBox }) {
   const boxTitle = useBoxTitle();
   const refresh = useRefreshBoard();
   const write = useBoxWrite({ store, online, onQueued: kick });
-  const locations = useLocations().data ?? [];
+  const locations = useAllLocations().data ?? [];
   const from = locations.find((l) => l.id === move.locationId);
   const canWrite = !!from && can(from.role, 'things.edit') && move.status === 'active';
   const [unpacking, setUnpacking] = useState(false);

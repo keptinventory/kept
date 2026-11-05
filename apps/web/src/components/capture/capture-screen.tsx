@@ -97,6 +97,7 @@ import {
   isNewHome,
   rememberTarget,
   roomsOf,
+  shownLocations,
   writable,
 } from './target';
 
@@ -105,6 +106,8 @@ export type OpenTarget = { kind: 'thing' | 'place'; id: string } | { kind: 'code
 export type CaptureScreenProps = {
   store: OfflineStore;
   personalLocationId: string | null;
+  /** A hidden Personal (#392): left out of what capture offers. */
+  hiddenLocationId?: string | null;
   /** A box to capture into (`?into=`). */
   into?: string;
   /** A place to capture into (`?place=`, "Capture here"). */
@@ -184,6 +187,7 @@ const imageThumb = (q: Queued, image: CapturedImage | null): string | null => {
 export function CaptureScreen({
   store,
   personalLocationId,
+  hiddenLocationId = null,
   into,
   placeId,
   labelFor,
@@ -293,18 +297,20 @@ export function CaptureScreen({
         locations: world.locations,
         placesOf,
         personalLocationId,
+        hiddenLocationId,
         into: box,
         placeId: placeId ?? null,
       });
       setTarget(first);
       let next = first;
       if (first && first.why !== 'scanned' && first.why !== 'chosen' && suggestWhereOn() && geo) {
-        const near = await locate(world.locations);
+        const near = await locate(shownLocations(world.locations, hiddenLocationId));
         if (near && near.id !== first.locationId) {
           next = defaultTarget({
             locations: world.locations,
             placesOf,
             personalLocationId,
+            hiddenLocationId,
             nearby: near,
           });
           setTarget((cur) => (cur?.why === 'chosen' ? cur : next));
@@ -318,7 +324,18 @@ export function CaptureScreen({
         }
       }
     })();
-  }, [world, into, placeId, labelFor, personalLocationId, placesOf, store, geo, locate]);
+  }, [
+    world,
+    into,
+    placeId,
+    labelFor,
+    personalLocationId,
+    hiddenLocationId,
+    placesOf,
+    store,
+    geo,
+    locate,
+  ]);
 
   const pick = (t2: ChipTarget) => {
     setTarget(t2);
@@ -1248,7 +1265,7 @@ export function CaptureScreen({
           isOpen={readingSheet}
           onClose={() => setReadingSheet(false)}
           store={store}
-          locations={world.locations}
+          locations={shownLocations(world.locations, hiddenLocationId)}
           value={reading}
           onPick={(r) => {
             setReading(r);
@@ -1260,7 +1277,12 @@ export function CaptureScreen({
         <PlaceSheet
           isOpen={sheet}
           onClose={() => setSheet(false)}
-          locations={world.locations}
+          // A hidden Personal only while captures are going there.
+          locations={world.locations.filter(
+            (l) =>
+              l.id === target.locationId ||
+              shownLocations(world.locations, hiddenLocationId).includes(l),
+          )}
           placesOf={placesOf}
           value={target}
           onPick={(locationId, pid) => {
@@ -1275,12 +1297,13 @@ export function CaptureScreen({
               return;
             }
             setSuggest('finding');
-            void locate(world.locations).then((near) => {
+            void locate(shownLocations(world.locations, hiddenLocationId)).then((near) => {
               if (near) {
                 const next = defaultTarget({
                   locations: world.locations,
                   placesOf,
                   personalLocationId,
+                  hiddenLocationId,
                   nearby: near,
                 });
                 if (next) setTarget(next);

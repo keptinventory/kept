@@ -12,7 +12,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, type ErrorComponentProps } from '@tanstack/react-router';
 import { useThreads } from '@/api/assistant/queries';
 import type { ThreadSummary, ThreadsParams } from '@/api/assistant/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations, useLocations } from '@/api/queries';
 import { showThread } from '@/assistant/store';
 import { RetentionNote, ThreadRow } from '@/assistant/threads-list';
 import { dateBounds, filterParams } from '@/components/filters/params';
@@ -57,6 +57,8 @@ function AssistantPage() {
   const f = useFilterRegistry();
   const whenGroup = useWhenGroup();
   const all = locations.data ?? [];
+  // A thread opened on a hidden Personal stays in this list: it keeps its name.
+  const everyLocation = useAllLocations().data ?? [];
   const params: ThreadsParams = {
     ...(list.q ? { q: list.q } : {}),
     ...filterParams(list, { location: 'locationId' }),
@@ -74,7 +76,7 @@ function AssistantPage() {
   ];
   const groupOf = (thread: ThreadSummary, by: string) => {
     if (by === 'when') return whenGroup(thread.updatedAt);
-    const l = all.find((x) => x.id === thread.context.locationId);
+    const l = everyLocation.find((x) => x.id === thread.context.locationId);
     return l ? { key: l.id, label: locationName(l) } : { key: '', label: t`No location` };
   };
 

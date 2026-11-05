@@ -10,7 +10,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import type { PaperworkRow, SubjectRef } from '@/api/household/types';
 import type { AttachmentView } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { DOCUMENT_TONE, noonOf, useDocumentKindLabels } from '@/components/documents/labels';
 import { BoxIcon, ClockIcon, DocumentIcon, HomeIcon, ShareIcon } from '@/components/icons';
 import { Pill } from '@/components/page';
@@ -77,7 +77,7 @@ export function FileOpenButton({
 
 /** Whether you may have originals where this row sits: your role in its location (D117). */
 export function useMayHaveOriginal(): (subject: SubjectRef) => boolean {
-  const locations = useLocations();
+  const locations = useAllLocations();
   const all = locations.data ?? [];
   return (subject) => {
     const here = subject.type === 'location' ? all.find((l) => l.id === subject.id) : undefined;
