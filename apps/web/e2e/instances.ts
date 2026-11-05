@@ -172,27 +172,32 @@ export const LAN_WEEK_INSTANCE: Instance & {
  * The other three rows of e2e/http-sign-in.spec.ts, each on an instance of its own. That spec signs
  * the seed's admin in at both sizes and edits his newest session row, so on a shared instance it
  * spends another spec's sign-in limit (5 for an address and path, counted until 60 s pass with none)
- * and could expire its session. Keys for KEPT_E2E_INSTANCES: `lanOff`, `httpsOff`, `httpsWeek`.
+ * and could expire its session. They believe X-Forwarded-For, so a retry or --repeat-each signs in
+ * from new addresses and doesn't spend its own limit. Keys for KEPT_E2E_INSTANCES: `lanOff`,
+ * `httpsOff`, `httpsWeek`.
  */
-export const LAN_OFF_INSTANCE: Instance & { publicHost: string } = {
+export const LAN_OFF_INSTANCE: Instance & { publicHost: string; trustProxy: true } = {
   name: 'lan-off',
   port: 8215,
   seed: true,
   publicHost: 'kept.lan',
+  trustProxy: true,
 };
-export const HTTPS_OFF_INSTANCE: TlsInstance = {
+export const HTTPS_OFF_INSTANCE: TlsInstance & { trustProxy: true } = {
   name: 'https-off',
   port: 8216,
   seed: true,
   https: true,
+  trustProxy: true,
 };
 /** KEPT_HTTP_SIGN_IN_DAYS does nothing over https; the spec holds this instance to that. */
-export const HTTPS_WEEK_INSTANCE: TlsInstance & { httpSignInDays: number } = {
+export const HTTPS_WEEK_INSTANCE: TlsInstance & { httpSignInDays: number; trustProxy: true } = {
   name: 'https-week',
   port: 8217,
   seed: true,
   https: true,
   httpSignInDays: 7,
+  trustProxy: true,
 };
 
 /**

@@ -7,6 +7,10 @@
  * context, so no passkeys there; passkeys on a secure address are e2e/sign-in-security.spec.ts's.
  * The other lengths (1 and 30 days) and every sign-in method on every row are in
  * apps/server/src/auth/http-sign-in-days.test.ts.
+ *
+ * The first request after a session falls due renews it, and only that request gets the cookie. An
+ * open app sends its own requests, so what asserts on a renewal runs from a page with no app code
+ * (`leaveApp`), and sessions are found by the browser's own cookie, not by who signed in last.
  */
 import { randomUUID } from 'node:crypto';
 import {
@@ -42,6 +46,19 @@ const SIZES = {
 };
 const WEEK_URL = `http://${LAN_WEEK_INSTANCE.publicHost}:${LAN_WEEK_INSTANCE.port}`;
 const week = signInKit(LAN_WEEK_INSTANCE, { phone: 40, desktop: 50 });
+
+let addresses = 0;
+/**
+ * An address no other sign-in here has used: every instance here believes X-Forwarded-For, so a
+ * retry or --repeat-each doesn't run into the per-address limits (5 sign-ins a minute, 3 mailed
+ * links an hour). Each retry and repeat is a new worker with this file loaded again, so they are
+ * part of the address. 198.18.0.0/15 is reserved for testing.
+ */
+const nextAddress = () => {
+  const { repeatEachIndex, retry } = test.info();
+  addresses += 1;
+  return `198.18.${repeatEachIndex * 10 + retry}.${addresses}`;
+};
 const MAILPIT = 'http://localhost:8025';
 
 type Row = {
@@ -104,6 +121,8 @@ function person(browser: Browser, url: string, viewport = SIZES.desktop): Promis
     baseURL: url,
     viewport,
     ignoreHTTPSErrors: url.startsWith('https:'),
+    // A service worker would answer leaveApp's navigation with the app.
+    serviceWorkers: 'block',
     timezoneId: 'Africa/Cairo',
     locale: 'en-GB',
   });
@@ -136,23 +155,34 @@ async function expectCookie(context: BrowserContext, line: string, row: Row) {
   expect(Math.abs((cookie?.expires ?? 0) - (Date.now() / 1000 + row.lifetime))).toBeLessThan(120);
 }
 
-type SessionRow = { id: string; lifetime: number; left: number; created: string };
+type SessionRow = {
+  id: string;
+  lifetime: number;
+  left: number;
+  created: string;
+  /** To the microsecond: any renewal, by any request, changes it. */
+  expires: string;
+};
 
-/** The person's newest sign-in: its length as written, what's left, and when it began. */
-function latestSession(instance: Instance, email: string): Promise<SessionRow> {
+/** The sign-in this browser holds, by the token in its cookie: its length as written, what's left,
+ * and when it began. */
+async function sessionOf(instance: Instance, context: BrowserContext): Promise<SessionRow> {
+  const cookie = await sessionCookie(context);
+  // The cookie is `<token>.<signature>`, URL-encoded.
+  const token = decodeURIComponent(cookie?.value ?? '').split('.')[0];
   const { asAuth } = signInKit(instance, { phone: 0, desktop: 0 });
   return asAuth(async (q) => {
     const { rows } = await q(
-      `SELECT s.id,
-              round(extract(epoch FROM s.expires_at - s.created_at))::int AS lifetime,
-              extract(epoch FROM s.expires_at - now())::int AS left,
-              s.created_at::text AS created
-         FROM auth.session s JOIN auth."user" u ON u.id = s.user_id
-        WHERE u.email = $1
-        ORDER BY s.created_at DESC, s.id LIMIT 1`,
-      [email],
+      `SELECT id,
+              round(extract(epoch FROM expires_at - created_at))::int AS lifetime,
+              extract(epoch FROM expires_at - now())::int AS left,
+              created_at::text AS created,
+              expires_at::text AS expires
+         FROM auth.session
+        WHERE token = $1`,
+      [token],
     );
-    if (!rows[0]) throw new Error(`no session for ${email}`);
+    if (!rows[0]) throw new Error(`${instance.name}: no session for this browser's cookie`);
     return rows[0] as SessionRow;
   });
 }
@@ -193,7 +223,20 @@ function fetchIn(page: Page, url: string, body?: unknown) {
   );
 }
 
-/** The next API request's response, with the Set-Cookie it carried, if any. */
+/**
+ * Takes the page out of the app, onto Kept's own /readyz (JSON, so no app code), so the requests
+ * that follow are the only ones this browser sends. A blank page made up in the test won't do:
+ * Chromium then counts it as public and refuses its requests to a loopback address. The session
+ * must not be due yet: the request at the end sees out anything the app had already sent, which
+ * then can't renew it.
+ */
+async function leaveApp(page: Page) {
+  await page.goto('/readyz');
+  expect((await fetchIn(page, '/api/v1/me/sessions')).status).toBe(200);
+}
+
+/** The next API request's response, with the Set-Cookie it carried, if any. From `leaveApp`'s page:
+ * in the app, another request may have taken the renewal first. */
 async function nextRequest(page: Page) {
   const response = page.waitForResponse((r) => r.url().endsWith('/api/v1/me/sessions'));
   const { status } = await fetchIn(page, '/api/v1/me/sessions');
@@ -220,40 +263,40 @@ for (const row of ROWS) {
       test.setTimeout(180_000);
       const context = await person(browser, row.url, viewport);
       const page = await context.newPage();
-      if (row.instance === LAN_WEEK_INSTANCE) {
-        await page.setExtraHTTPHeaders({ 'x-forwarded-for': week.nextAddress() });
-      }
+      await page.setExtraHTTPHeaders({ 'x-forwarded-for': nextAddress() });
 
       const line = await setCookieLine(await signIn(page, IBRAHIM));
       await expect(page).toHaveURL(/\/$/);
       await expectCookie(context, line, row);
-      const first = await latestSession(row.instance, IBRAHIM);
+      const first = await sessionOf(row.instance, context);
       expect(first.lifetime).toBe(row.lifetime);
 
       await go(page, '/admin/status');
       const tile = page.getByText('Sign-in length', { exact: true }).locator('..');
       await expect(tile.getByText(row.tile, { exact: true })).toBeVisible();
       await expect(tile).toContainText(row.detail);
+      await leaveApp(page);
 
-      // None where none is due.
+      // None where none is due: no cookie, on a request the session answered, and the row untouched.
       await setLeft(
         row.instance,
         first.id,
         row.renewsAfter === null ? HOUR : row.lifetime - row.renewsAfter + 60,
       );
-      const before = await latestSession(row.instance, IBRAHIM);
+      const before = await sessionOf(row.instance, context);
       expect(await nextRequest(page)).toBe('');
-      expect((await latestSession(row.instance, IBRAHIM)).left).toBeLessThanOrEqual(before.left);
+      expect((await sessionOf(row.instance, context)).expires).toBe(before.expires);
 
       if (row.renewsAfter !== null) {
         // Renewal once it is due: the whole length again, and the sign-in's age kept.
         await setLeft(row.instance, first.id, row.lifetime - row.renewsAfter - 60);
         await expectCookie(context, await nextRequest(page), row);
-        const renewed = await latestSession(row.instance, IBRAHIM);
+        const renewed = await sessionOf(row.instance, context);
         expect(renewed.id).toBe(first.id);
         expect(renewed.left).toBeGreaterThan(row.lifetime - 120);
         expect(renewed.created).toBe(first.created);
         expect(await nextRequest(page)).toBe('');
+        expect((await sessionOf(row.instance, context)).expires).toBe(renewed.expires);
       }
 
       // Run out: the next page is the sign-in page, and the API says so.
@@ -272,7 +315,7 @@ for (const row of ROWS) {
 async function weekPerson(browser: Browser) {
   const context = await person(browser, WEEK_URL);
   const page = await context.newPage();
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': week.nextAddress() });
+  await page.setExtraHTTPHeaders({ 'x-forwarded-for': nextAddress() });
   return { context, page };
 }
 
@@ -313,17 +356,26 @@ test('the setting on 7: an email link gives the same week', async ({ browser }) 
   await page.getByRole('button', { name: 'Continue' }).click();
   await expectCookie(context, await setCookieLine(await response), WEEK_ROW);
   await expect(page).toHaveURL(/\/$/);
-  expect((await latestSession(LAN_WEEK_INSTANCE, 'louis@kept.test')).lifetime).toBe(7 * DAY);
+  expect((await sessionOf(LAN_WEEK_INSTANCE, context)).lifetime).toBe(7 * DAY);
   await context.close();
 });
 
 test('the setting on 7: a password and a 2FA code give the same week', async ({ browser }) => {
   test.setTimeout(180_000);
   const login = 'bruce@kept.test';
-  // With mail on, an unverified address may not turn two-factor on (D197).
-  await week.asAuth((q) =>
-    q('UPDATE auth."user" SET email_verified = true WHERE email = $1', [login]),
-  );
+  // With mail on, an unverified address may not turn two-factor on (D197). And off to begin with,
+  // the last code forgotten too: a retry runs this again on the same instance, from a new worker
+  // that doesn't know which 30-second step that code used (e2e/totp.ts).
+  await week.asAuth(async (q) => {
+    const { rows } = await q(`SELECT id FROM auth."user" WHERE email = $1`, [login]);
+    const id = (rows[0] as { id: string }).id;
+    await q('DELETE FROM auth.two_factor WHERE user_id = $1', [id]);
+    await q('DELETE FROM auth.verification WHERE identifier = $1', [`totp-step:${id}`]);
+    await q(
+      'UPDATE auth."user" SET email_verified = true, two_factor_enabled = false WHERE id = $1',
+      [id],
+    );
+  });
   const { context, page } = await weekPerson(browser);
   await signIn(page, login);
   await expect(page).toHaveURL(/\/$/);
@@ -336,7 +388,7 @@ test('the setting on 7: a password and a 2FA code give the same week', async ({ 
   expect(verified.status).toBe(200);
   await context.clearCookies();
 
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': week.nextAddress() });
+  await page.setExtraHTTPHeaders({ 'x-forwarded-for': nextAddress() });
   await signIn(page, login);
   await expect(page).toHaveURL(/\/signin\/two-factor/);
   await page.getByLabel('6-digit code').fill(await freshCode(page, secret, login));
@@ -344,7 +396,7 @@ test('the setting on 7: a password and a 2FA code give the same week', async ({ 
   await page.getByRole('button', { name: 'Continue' }).click();
   await expectCookie(context, await setCookieLine(await response), WEEK_ROW);
   await expect(page).toHaveURL(/\/$/);
-  expect((await latestSession(LAN_WEEK_INSTANCE, login)).lifetime).toBe(7 * DAY);
+  expect((await sessionOf(LAN_WEEK_INSTANCE, context)).lifetime).toBe(7 * DAY);
   await context.close();
 });
 
@@ -355,9 +407,9 @@ test("the setting on 7: a managed account's admin code gives the same week", asy
   const admin = await weekPerson(browser);
   await signIn(admin.page, IBRAHIM);
   await expect(admin.page).toHaveURL(/\/$/);
-  const { id, email } = await week.asAuth(async (q) => {
-    const { rows } = await q(`SELECT id, email FROM auth."user" WHERE username = $1`, ['peter']);
-    return rows[0] as { id: string; email: string };
+  const id = await week.asAuth(async (q) => {
+    const { rows } = await q(`SELECT id FROM auth."user" WHERE username = $1`, ['peter']);
+    return (rows[0] as { id: string }).id;
   });
   const issued = await fetchIn(admin.page, `/api/v1/managed-accounts/${id}/reset-code`, {});
   expect(issued.status).toBe(200);
@@ -371,7 +423,7 @@ test("the setting on 7: a managed account's admin code gives the same week", asy
   const response = page.waitForResponse((r) => r.url().includes('/api/v1/auth/sign-in/'));
   await page.getByRole('button', { name: 'Set password and sign in' }).click();
   await expectCookie(context, await setCookieLine(await response), WEEK_ROW);
-  expect((await latestSession(LAN_WEEK_INSTANCE, email)).lifetime).toBe(7 * DAY);
+  expect((await sessionOf(LAN_WEEK_INSTANCE, context)).lifetime).toBe(7 * DAY);
   await context.close();
 });
 
@@ -395,6 +447,7 @@ test('the setting on 7: secrets stay refused, recent sign-in stays, sign out eve
   const admin = await weekPerson(browser);
   await signIn(admin.page, IBRAHIM);
   await expect(admin.page).toHaveURL(/\/$/);
+  await leaveApp(admin.page);
 
   const places = await fetchIn(admin.page, '/api/v1/locations');
   const homes = places.json?.locations as { id: string; name: string }[];
@@ -418,9 +471,9 @@ test('the setting on 7: secrets stay refused, recent sign-in stays, sign out eve
   }
 
   // The password is asked for, however new the sign-in, and a renewal doesn't change that.
-  const session = await latestSession(LAN_WEEK_INSTANCE, IBRAHIM);
+  const session = await sessionOf(LAN_WEEK_INSTANCE, admin.context);
   await setLeft(LAN_WEEK_INSTANCE, session.id, 7 * DAY - DAY - 60);
-  expect(await nextRequest(admin.page)).not.toBe('');
+  await expectCookie(admin.context, await nextRequest(admin.page), WEEK_ROW);
   const change = await fetchIn(admin.page, '/api/v1/me/email-change', {
     newEmail: 'someone-else@kept.test',
   });
