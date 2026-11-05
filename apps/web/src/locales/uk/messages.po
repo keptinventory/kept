@@ -30839,3 +30839,7 @@ msgstr "Основна адреса. <0/> додає інші."
 #: src/routes/_app/admin.status.tsx
 msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
 msgstr "Основна адреса, до якої прив’язані посилання, пошта й ключі доступу. Також задано в <0/>:"
+
+#: src/components/languages.tsx
+msgid "Find a language"
+msgstr "Знайти мову"

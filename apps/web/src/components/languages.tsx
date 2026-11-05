@@ -5,6 +5,9 @@
  *
  * The flag for each language is the maintainer's choice and changes here, in one line each.
  */
+
+import { findLanguages, languageSearch } from '@kept/shared';
+import { useLingui } from '@lingui/react/macro';
 import DE from 'country-flag-icons/react/3x2/DE';
 import EG from 'country-flag-icons/react/3x2/EG';
 import FR from 'country-flag-icons/react/3x2/FR';
@@ -12,14 +15,16 @@ import GB from 'country-flag-icons/react/3x2/GB';
 import IT from 'country-flag-icons/react/3x2/IT';
 import UA from 'country-flag-icons/react/3x2/UA';
 import VN from 'country-flag-icons/react/3x2/VN';
+import { useMemo } from 'react';
 import type { Key } from 'react-aria-components';
 import { directionOf, LOCALES, type Locale, localeOfTag } from '@/lib/prefs';
 import { cn } from '@/lib/utils';
-import { Select, SelectItem } from './ui/select';
+import { Combobox, ComboboxItem } from './ui/combobox';
 
 type Flag = typeof GB;
 
-export type Language = { id: Locale; name: string };
+/** `label` is the list's text value, for screen readers and the box: the name in itself. */
+export type Language = { id: Locale; name: string; label: string };
 
 /** Each language's name in itself, so a reader finds theirs whatever the interface says. */
 export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
@@ -45,6 +50,7 @@ const FLAGS: Readonly<Record<Locale, Flag>> = {
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({
   id,
   name: LANGUAGE_NAMES[id],
+  label: LANGUAGE_NAMES[id],
 }));
 
 /** A 3:2 flag, decorative: the language's name always sits beside it. */
@@ -71,7 +77,27 @@ export function LanguageName({ locale }: { locale: Locale }) {
   );
 }
 
-/** The interface language: one choice (Settings → Me, the sign-in pages). */
+/** A Combobox filter for the languages (#450): the matcher the docs site's menu uses too. */
+function useLanguageFilter() {
+  const { i18n } = useLingui();
+  return useMemo(() => {
+    const search = languageSearch(LANGUAGES, i18n.locale);
+    // React Aria hands the filter an item's text value, and own names are unique.
+    return (ownName: string, query: string) =>
+      findLanguages(search, query).some((language) => language.name === ownName);
+  }, [i18n.locale]);
+}
+
+function LanguageItem({ item }: { item: Language }) {
+  return <ComboboxItem item={item} content={<LanguageName locale={item.id} />} />;
+}
+
+/**
+ * The interface language: one choice (Settings → Me, the sign-in pages). Typing only filters the
+ * list: the language changes when one is chosen, and a box left empty or with anything else in it
+ * goes back to the current language's name. The box's direction stays the page's, so its text
+ * doesn't jump sides when typing starts; the name's letters still run the right way.
+ */
 export function LanguageSelect({
   label,
   value,
@@ -82,28 +108,29 @@ export function LanguageSelect({
   label: string;
   value: Locale;
   onChange: (locale: Locale) => void;
-  /** No visible label and a small trigger (the sign-in header); the label stays accessible. */
+  /** No visible label and a small box (the sign-in header); the label stays accessible. */
   compact?: boolean;
   className?: string;
 }) {
+  const filter = useLanguageFilter();
   return (
-    <Select<Language>
+    <Combobox<Language>
       {...(compact ? { 'aria-label': label } : { label })}
       items={LANGUAGES}
-      value={value}
-      onChange={(key) => {
+      defaultFilter={filter}
+      selectedKey={value}
+      onSelectionChange={(key) => {
+        // A cleared box reports no selection: that isn't a choice.
         if (key != null && key !== value) onChange(key as Locale);
       }}
-      renderValue={([item]) => (item ? <LanguageName locale={item.id} /> : null)}
-      triggerClassName={compact ? 'min-h-10 w-auto py-1.5 text-[14px]' : undefined}
-      className={className}
+      showsChoice
+      leading={<LanguageFlag locale={value} />}
+      placeholder={LANGUAGE_NAMES[value]}
+      inputProps={{ lang: value, className: compact ? 'min-h-10 py-1.5' : undefined }}
+      className={cn(compact && 'w-44 shrink-0', className)}
     >
-      {(item) => (
-        <SelectItem id={item.id} textValue={item.name}>
-          <LanguageName locale={item.id} />
-        </SelectItem>
-      )}
-    </Select>
+      {(item) => <LanguageItem item={item} />}
+    </Combobox>
   );
 }
 
@@ -125,6 +152,8 @@ export function LanguagesMultiSelect({
   onChange: (tags: string[]) => void;
   isDisabled?: boolean;
 }) {
+  const { t } = useLingui();
+  const filter = useLanguageFilter();
   const chosen = new Set(value.map(localeOfTag).filter((l): l is Locale => l !== null));
   const change = (keys: Key[]) => {
     const next = new Set(keys as Locale[]);
@@ -136,21 +165,20 @@ export function LanguagesMultiSelect({
     onChange([...kept, ...added]);
   };
   return (
-    <Select<Language, 'multiple'>
+    <Combobox<Language, 'multiple'>
       label={label}
       description={description}
       selectionMode="multiple"
       items={LANGUAGES}
+      defaultFilter={filter}
       value={[...chosen]}
       onChange={change}
       isDisabled={isDisabled ?? false}
+      showsChoice
+      placeholder={t`Find a language`}
       renderValue={(items) => items.map((item) => <LanguageName key={item.id} locale={item.id} />)}
     >
-      {(item) => (
-        <SelectItem id={item.id} textValue={item.name}>
-          <LanguageName locale={item.id} />
-        </SelectItem>
-      )}
-    </Select>
+      {(item) => <LanguageItem item={item} />}
+    </Combobox>
   );
 }

@@ -1,8 +1,8 @@
 // Kept's documentation site (D102, D199): Starlight, built to static files in dist/.
 //
-// Five locales: English at the root and complete; Arabic right to left, with the key
-// pages written in Arabic; French, German and Italian fall back to English under Starlight's own
-// "not translated yet" notice until the translation platform (D106) fills them in.
+// The locales are in src/locales.mjs: English at the root and complete; Arabic right to left, with
+// the key pages written in Arabic; the others fall back to English under Starlight's own "not
+// translated yet" notice until their pages are translated.
 //
 // The API reference is generated at build time from Kept's own OpenAPI document
 // (scripts/openapi.ts, no database needed), into the git-ignored openapi/kept.json. The

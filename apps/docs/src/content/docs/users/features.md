@@ -74,7 +74,7 @@ a location turns them on in **Location settings → What to track**
   one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
   name and a Tailscale name.
 - **Languages**: English, Arabic (right to left), French, German, Italian, Vietnamese and
-  Ukrainian; dates in your region's style, or as you choose.
+  Ukrainian; type to find yours in the picker, and dates in your region's style, or as you choose.
 
 ## On your phone
 

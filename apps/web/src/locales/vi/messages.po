@@ -2275,6 +2275,10 @@ msgstr "Tìm một thương hiệu"
 msgid "Find a filter"
 msgstr "Tìm một bộ lọc"
 
+#: src/components/languages.tsx
+msgid "Find a language"
+msgstr "Tìm một ngôn ngữ"
+
 msgid "Find a location"
 msgstr "Tìm một địa điểm"
 

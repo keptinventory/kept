@@ -1,8 +1,8 @@
 /**
- * Select: a React Aria Select, for a short fixed list where typing to filter adds nothing (the
- * interface language, a location's languages). Never a native <select> or an OS picker (the
- * maintainer's no-native-controls rule); React Aria's own hidden, aria-hidden <select> is only for
- * browser autofill and is never shown. Longer or searchable lists use the Combobox.
+ * Select: a React Aria Select, for a short fixed list where typing to filter adds nothing. Never a
+ * native <select> or an OS picker (the maintainer's no-native-controls rule); React Aria's own
+ * hidden, aria-hidden <select> is only for browser autofill and is never shown. Longer or
+ * searchable lists use the Combobox.
  *
  * Single choice by default; `selectionMode="multiple"` keeps the popover open and shows every
  * choice in the trigger. Enter/Space or ArrowDown opens it, arrows move, Escape closes. The popover

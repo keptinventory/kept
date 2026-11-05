@@ -37,7 +37,7 @@ async function switchDigits(locale: Locale, digits: Digits) {
   setDigits(digits);
 }
 
-/** The sign-in pages' language picker: flags and each language's own name, in a small trigger. */
+/** The sign-in pages' language picker: flags and each language's own name, in a small box. */
 export function LanguageToggle() {
   const { t } = useLingui();
   const { locale, digits } = usePrefs();

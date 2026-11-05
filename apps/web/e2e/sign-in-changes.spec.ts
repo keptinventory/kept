@@ -487,7 +487,7 @@ test('in Arabic on a phone: the section reads right to left, and the add sheet t
   await signInWithPassword(page, login);
   await expect(page).toHaveURL(/\/$/);
   await go(page, '/settings');
-  await page.getByRole('button', { name: /Language/ }).click();
+  await page.getByRole('combobox', { name: 'Language' }).click();
   await page.getByRole('option', { name: /العربية/ }).click();
   const section = page.locator('#sign-in-security');
   await expect(section.getByRole('heading', { name: 'تسجيل الدخول والأمان' })).toBeVisible();

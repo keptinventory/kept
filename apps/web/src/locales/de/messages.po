@@ -3307,6 +3307,10 @@ msgstr "Marke suchen"
 msgid "Find a filter"
 msgstr "Filter suchen"
 
+#: src/components/languages.tsx
+msgid "Find a language"
+msgstr "Sprache suchen"
+
 #: src/components/filters/registry.tsx
 msgid "Find a location"
 msgstr "Standort suchen"
