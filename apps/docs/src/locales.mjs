@@ -1,4 +1,4 @@
-// The site's five locales (plan Q19), in one place: astro.config.mjs hands them to Starlight, and
+// The site's locales (plan Q19), in one place: astro.config.mjs hands them to Starlight, and
 // the language menu (components/language/LanguageSelect.astro) lists them. `root` is English, at
 // the site's root.
 export const locales = {
@@ -7,4 +7,6 @@ export const locales = {
   fr: { label: 'Français', lang: 'fr' },
   de: { label: 'Deutsch', lang: 'de' },
   it: { label: 'Italiano', lang: 'it' },
+  vi: { label: 'Tiếng Việt', lang: 'vi' },
+  uk: { label: 'Українська', lang: 'uk' },
 };

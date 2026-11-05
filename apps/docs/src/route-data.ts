@@ -29,7 +29,7 @@
  *   are the English text under the "not translated yet" notice) and Arabic has a few; the API
  *   reference has no other locale at all, so its alternates were 404s. Now: `en` and x-default
  *   always, `ar` when src/content/docs/ar/ has the page.
- * - A fallback page (English text at /fr/…, /de/…, /it/…, or an untranslated /ar/… page) is a
+ * - A fallback page (English text under a locale such as /fr/… or an untranslated /ar/… page) is a
  *   duplicate of the English one, so its canonical and og:url point there. astro.config.mjs keeps
  *   the same pages out of the sitemap.
  * - The API reference's pages had no description of their own (all 424 shared the site's), and

@@ -11,6 +11,8 @@ const LANGUAGES = [
   ['fr', 'Français'],
   ['de', 'Deutsch'],
   ['it', 'Italiano'],
+  ['vi', 'Tiếng Việt'],
+  ['uk', 'Українська'],
 ];
 
 function markup(current: string): string {
@@ -162,7 +164,7 @@ describe('the language menu', () => {
     press('ArrowDown');
     expect(active()).toBe(link('العربية'));
     press('End');
-    expect(active()).toBe(link('Italiano'));
+    expect(active()).toBe(link('Українська'));
     press('Home');
     expect(active()).toBe(link('English'));
     press('End');
@@ -185,7 +187,7 @@ describe('the language menu', () => {
     details().open = false;
     summary().focus();
     press('ArrowUp');
-    expect(active()).toBe(link('Italiano'));
+    expect(active()).toBe(link('Українська'));
   });
 
   it('closes with Escape from the box, returns to the button, and clears the filter', async () => {
