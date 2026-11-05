@@ -3,6 +3,51 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.5 (2026-11-05)
+
+### Highlights
+
+- **Caddy or Ollama: one step before you upgrade.** `compose.yaml` now runs Kept alone. If you use either, download `compose.full.yaml` and set `COMPOSE_FILE=compose.full.yaml` in `.env`, or the next download of `compose.yaml` leaves Kept on plain http. Behind your own proxy, `KEPT_TRUSTED_PROXIES` in `.env` now takes effect. New settings need the new `compose.yaml`: bumping only `KEPT_IMAGE` keeps the old file (#414).
+- **One Kept on more than one address, and longer sign-ins over http.** `KEPT_EXTRA_ADDRESSES` adds a tailnet or LAN address beside your main one, and `KEPT_HTTP_SIGN_IN_DAYS` keeps you signed in longer over plain http. Admin, Status shows both (#405, #404).
+  <!-- whats-new ![settings](addresses.webp) -->
+- **Connectors stay signed in.** MCP connectors now use refresh tokens. Each existing one sees the consent page once, then stays connected (#411).
+- **Ukrainian, Hide Personal, and a place tree you can size.** Kept now comes in Ukrainian. Personal can leave your menu, Home, lists and search. Drag the place tree's edge to change its width, or collapse it (#444, #392, #427).
+  <!-- whats-new ![places](place-tree.mp4) -->
+
+### Fixes
+
+- **server:** issue refresh tokens to MCP connectors (#413, closes #411) (23d8e4d)
+
+### Translations
+
+- add Ukrainian (uk) translation (#444) (5583f68)
+
+### Other
+
+- Fixes from the final review before the release (#456) (1260551)
+- Homebox import: Paperless links take their title from Paperless (#454, closes #422) (655b054)
+- Places: trashing and restoring write a history line for the places they move (#455, closes #441) (8310758)
+- One Kept on more than one address (#440, closes #405) (f0653d2)
+- Longer sign-ins over plain http, set by the admin (#434, closes #404) (4671fde)
+- Hide the Personal location (#438, closes #392) (6f99e0e)
+- Consent page: say the app stays signed in after you sign out here (#430, closes #423) (a0cd12c)
+- Small fixes left from the last two reviews (#439, closes #425) (3d67712)
+- Nightly cleanup: remove expired refresh tokens (#442, closes #424) (65b27d4)
+- Place tree: drag its edge to change its width, and collapse it like the main navigation (#433, closes #427, reported by @strausmann) (587209c)
+- Place tree: a box's name stays readable, its count goes under it when the row is narrow (#431, closes #426, reported by @strausmann) (ee9775a)
+- Paperless: the start of a word finds it in Link from Paperless (#429, closes #420, reported by @jpbaril) (c8218a7)
+- Dates: a date with no time shows the right day west of UTC (#428, closes #417, reported by @jpbaril) (491177b)
+- Compose: a reverse proxy named in .env is trusted; the settings check catches fixed values (#416) (624e8f4)
+- Install: compose.yaml runs Kept alone; Caddy and Ollama move to compose.full.yaml (#415, closes #414) (4b70a79)
+
+### Documentation
+
+- **release:** the 1.14.4 record, and the Home Assistant app at 1.14.4 (#410) (624a4b5)
+
+### Contributors
+
+@BrunIF · @ibrahimroshdy · @strausmann
+
 ## 1.14.4 (2026-11-03)
 
 ### Highlights

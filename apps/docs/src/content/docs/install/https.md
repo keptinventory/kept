@@ -46,9 +46,9 @@ Caddy reads `docker/caddy/Caddyfile` next to the Compose file. A checkout of the
 both files; an install without one downloads them once:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.full.yaml
 mkdir -p docker/caddy
-curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/docker/caddy/Caddyfile
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
 

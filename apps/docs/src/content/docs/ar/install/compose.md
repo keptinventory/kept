@@ -14,7 +14,7 @@ sidebar:
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
@@ -47,7 +47,7 @@ docker compose up -d
 والعامل في تعليقات. ويعمل هو أيضًا وحده. ولاستخدامه بدلًا من `compose.yaml`:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.4/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.full.yaml
 docker compose -f compose.full.yaml run --rm init
 echo COMPOSE_FILE=compose.full.yaml >> .env
 docker compose up -d
