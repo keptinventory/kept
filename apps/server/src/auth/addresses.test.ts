@@ -62,6 +62,9 @@ describe('parseExtraAddresses', () => {
     ['https://＊.kept.lan:8443', 'wildcard'],
     ['http://？.example.com', 'valid'],
     ['http://﹖.example.com', 'valid'],
+    // Forms IDNA maps to `,`: Better Auth and the env list both read that as two addresses.
+    ['http://a，b.lan', 'valid'],
+    ['http://a﹐b.lan', 'valid'],
     ['http://user@kept.lan', 'login'],
     ['http://user:secret@kept.lan', 'login'],
     ['http://kept.lan@evil.example', 'login'],
