@@ -585,6 +585,117 @@ describe('the assistant and MCP', () => {
   });
 });
 
+describe('a thread opened on a hidden Personal', () => {
+  /** runTool as the assistant, from a thread on `thread`, with Home's assistant on or off. */
+  const tools = (me: Person, thread: string | null) => {
+    const ran: string[][] = [];
+    const embedded: unknown[] = [];
+    const ctx: ToolContext = {
+      deps: {
+        pools: db.pools,
+        jobs: null,
+        files: null,
+        providerResolved: async () => true,
+        semantic: async (_scope, q, filter) => {
+          embedded.push({ q, filter });
+          return null;
+        },
+      },
+      principal: { userId: me.userId, mfa: false, scope: 'write' },
+      locale: 'en',
+      requestId: 'hide-personal-thread',
+      via: 'assistant',
+      threadLocation: thread,
+      onLocations: (ids) => ran.push(ids),
+    };
+    return { ctx, ran, embedded };
+  };
+  const assistantOff = async (me: Person, at: Loc) =>
+    ok(
+      await call(t, `/api/v1/locations/${at.id}/modules`, {
+        as: me,
+        body: { module: 'ai_assistant', enabled: false },
+      }),
+    );
+  const itemsOf = (env: unknown) =>
+    (env as { data: { items: { untrusted: { name: string } }[] } }).data.items;
+
+  it('reaches Personal, and never searches a location where the assistant is off', async () => {
+    const { me, personal, home } = await someone('thread-off');
+    await createThing(t, me, personal, { name: 'Passport' });
+    await createThing(t, me, home, { name: 'Sofa' });
+    await hide(me);
+    await assistantOff(me, home);
+
+    const { ctx, ran, embedded } = tools(me, personal.id);
+    const found = await runTool(ctx, 'search_things', { query: 'passport' });
+    expect(itemsOf(found).map((i) => i.untrusted.name)).toEqual(['Passport']);
+    expect(ran.at(-1)).toEqual([personal.id]);
+    // The stored result has its location, so losing it redacts the result (D164).
+    expect(embedded.at(-1)).toEqual({ q: 'passport', filter: { locationIds: [personal.id] } });
+
+    for (const tool of ['search_things', 'where_is'] as const) {
+      expect(JSON.stringify(await runTool(ctx, tool, { query: 'sofa' })), tool).not.toContain(
+        'Sofa',
+      );
+    }
+
+    // A read that needs one location takes the thread's, once it is the only candidate.
+    const tags = (await runTool(ctx, 'list_tags', {})) as { error?: string };
+    expect(tags.error).toBeUndefined();
+    expect(ran.at(-1)).toEqual([personal.id]);
+  });
+
+  it('with no location to run in, a global tool answers nothing rather than searching', async () => {
+    const { me, personal, home } = await someone('nowhere');
+    await createThing(t, me, personal, { name: 'Passport' });
+    await createThing(t, me, home, { name: 'Sofa' });
+    await hide(me);
+    await assistantOff(me, home);
+
+    // No thread on Personal: nothing is eligible.
+    const { ctx, ran, embedded } = tools(me, null);
+    for (const [tool, args] of [
+      ['search_things', { query: 'sofa' }],
+      ['where_is', { query: 'sofa' }],
+      ['find_documents', { query: 'sofa' }],
+      ['find_documents', {}],
+      ['upcoming', {}],
+      ['list_locations', {}],
+    ] as const) {
+      const env = await runTool(ctx, tool, args);
+      expect(env, `${tool} ${JSON.stringify(args)}`).toMatchObject({ data: { items: [] } });
+      expect(ran.at(-1)).toEqual([]);
+    }
+    expect(embedded).toEqual([]);
+    const caps = (await runTool(ctx, 'capabilities', {})) as {
+      data: { scope: string; locations: unknown[] };
+    };
+    expect(caps.data).toEqual({ scope: 'write', locations: [] });
+  });
+
+  it('with the assistant on in Home too: a call with no location never answers from Home alone', async () => {
+    const { me, personal, home } = await someone('thread-on');
+    await createThing(t, me, personal, { name: 'Passport' });
+    await createThing(t, me, home, { name: 'Sofa' });
+    await hide(me);
+
+    const { ctx, ran } = tools(me, personal.id);
+    const found = await runTool(ctx, 'search_things', { query: 'passport' });
+    expect(itemsOf(found).map((i) => i.untrusted.name)).toEqual(['Passport']);
+    expect(new Set(ran.at(-1))).toEqual(new Set([personal.id, home.id]));
+    const tags = (await runTool(ctx, 'list_tags', {})) as { error?: string; hint?: string };
+    expect(tags.error).toBe('validation');
+    expect(tags.hint).toContain('location_id');
+
+    // A thread on Home keeps Personal out, as the menu does.
+    const onHome = tools(me, home.id);
+    const fromHome = await runTool(onHome.ctx, 'search_things', { query: 'passport' });
+    expect(itemsOf(fromHome)).toEqual([]);
+    expect(onHome.ran.at(-1)).toEqual([home.id]);
+  });
+});
+
 describe('Who pays: a personal key with Personal hidden', () => {
   async function addKey(scope: 'user' | 'account', who: Person, account: string) {
     const [row] = await own<{ id: string }>(

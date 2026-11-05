@@ -278,6 +278,8 @@ async function steps(
     requestId,
     via: 'assistant' as const,
     now,
+    // A tool reaches what the thread's candidates reached: a hidden Personal, in a thread on it.
+    threadLocation: context.locationId ?? null,
   };
 
   while (step < TURN_LIMITS.maxSteps) {
@@ -295,7 +297,7 @@ async function steps(
     }
     // The candidates: the person's locations where the assistant is on, with their tools.
     // A hidden Personal (#392) only for a thread opened on it.
-    const reach = await toolsFor(toolCtx, undefined, context.locationId ?? null);
+    const reach = await toolsFor(toolCtx, undefined, toolCtx.threadLocation);
     const candidates: Candidate[] = reach
       .filter((r) => r.tools.length > 0)
       .map((r) => ({
