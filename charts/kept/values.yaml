@@ -173,7 +173,7 @@ jobs:
 # More variables for Kept's containers (the Jobs included), as Kubernetes EnvVar entries, e.g.
 # `- {name: KEPT_HSTS, value: "off"}` when plain-http services share the ingress's host name, or
 # `- {name: KEPT_HTTP_SIGN_IN_DAYS, value: "7"}` for sign-ins of that many days (1 to 30) over plain
-# http; a copied sign-in cookie then works that long. No effect over https. Or
+# http; a copied sign-in cookie then keeps working for as long as it's used. No effect over https. Or
 # `- {name: KEPT_EXTRA_ADDRESSES, value: "https://kept-lan.example.org"}` for other exact addresses
 # this Kept answers on, comma-separated, on the same scheme as the public URL. Your ingress must
 # route them too.

@@ -60,7 +60,7 @@ KEPT_HTTP_SIGN_IN_DAYS=7
 Then `docker compose up -d`. In the Home Assistant app it's the **Sign-in length over http** option.
 
 **The cost:** over plain HTTP a sign-in cookie can be copied by anyone who can see the traffic.
-With the setting on, a copied one works for days instead of hours. So keep it to a network you
+With the setting on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out. So keep it to a network you
 trust, and sign out on a device you lose.
 
 | | Unset | Set |

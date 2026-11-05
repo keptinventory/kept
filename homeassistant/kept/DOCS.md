@@ -75,7 +75,7 @@ Over plain http a sign-in lasts 12 hours and isn't renewed. **Sign-in length ove
 that many days, renewed as it is used; restart the app after changing it.
 
 - **The cost:** over plain http a sign-in cookie can be copied by anyone who can see the traffic.
-  With this on, a copied one works for days instead of hours.
+  With this on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out.
 - **What stays:** Kept still refuses what reveals or changes a secret over http, and sensitive
   actions still need your password or a recent sign-in.
 - **Under Home Assistant's sidebar:** the app's address decides, not the page around it. An `http`

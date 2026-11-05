@@ -256,7 +256,7 @@ const schema = z.object({
     .pipe(z.number().max(30))
     .optional()
     .describe(
-      'whole days, 1 to 30: how long a sign-in lasts over plain http, renewed as it is used; unset: 12 hours, not renewed. No effect over https (30 days). Anyone who can see the traffic can copy a sign-in cookie, and a copied one then works for days ([Staying on your network](/install/home-network/#staying-on-your-network))',
+      'whole days, 1 to 30: how long a sign-in lasts over plain http, renewed as it is used; unset: 12 hours, not renewed. No effect over https (30 days). Anyone who can see the traffic can copy a sign-in cookie, and a copied one then keeps working for as long as it is used ([Staying on your network](/install/home-network/#staying-on-your-network))',
     ),
   // #405 (D275): beside the public URL, never in the app, as it widens where a sign-in is accepted.
   // Exact origins, read once (auth/addresses.ts); loadEnv() checks them against the public URL.

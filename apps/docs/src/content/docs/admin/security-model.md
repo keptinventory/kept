@@ -96,7 +96,7 @@ over plain HTTP last that many days, renewed as it is used. It's the one setting
 this, it can't be changed from the app, and it does nothing over HTTPS. Secrets stay refused over
 HTTP, the ten minutes stay, and signing out everywhere still ends every sign-in. The cost: over
 plain HTTP a sign-in cookie can be copied by anyone who can see the traffic, and with the setting
-on, a copied one works for days instead of hours
+on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out
 ([Staying on your network](/install/home-network/#staying-on-your-network)).
 
 **Requests from other sites** are refused: a write that carries Kept's cookie must come from the

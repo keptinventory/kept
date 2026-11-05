@@ -38,8 +38,8 @@ configuration:
     description: >-
       Days a sign-in lasts over plain http, 1 to 30, renewed as it is used; 7 suits a home network.
       Empty: 12 hours, not renewed. No effect with https on. Over plain http a sign-in cookie can
-      be copied by anyone who can see the traffic; with this on, a copied one works for days
-      instead of hours.
+      be copied by anyone who can see the traffic; with this on, a copied one keeps working for
+      as long as it's used, until that device signs out or your other devices are signed out.
   extra_addresses:
     name: Extra addresses
     description: >-
