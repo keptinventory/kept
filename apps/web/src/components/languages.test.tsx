@@ -78,6 +78,7 @@ describe('LanguageSelect', () => {
       'Italiano',
       'Tiếng Việt',
       'Українська',
+      'Español',
     ]);
     const arabic = screen.getByRole('option', { name: 'العربية' });
     expect(arabic.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');
@@ -104,6 +105,8 @@ describe('LanguageSelect', () => {
     ['deutsch', 'Deutsch'],
     ['francais', 'Français'],
     ['vietnames', 'Tiếng Việt'],
+    ['spanish', 'Español'],
+    ['espanol', 'Español'],
     ['العربية', 'العربية'],
     ['arabic', 'العربية'],
   ])('finds "%s" and shows only %s', async (query, name) => {
@@ -297,7 +300,7 @@ describe('LanguageSelect on a phone', () => {
 
 describe('LanguagesMultiSelect', () => {
   it('shows every chosen language, with its flag, and describes the box with them', async () => {
-    await renderUI(<Several start={['fr', 'ar-EG', 'es']} />);
+    await renderUI(<Several start={['fr', 'ar-EG', 'pt']} />);
     const box = screen.getByRole('combobox', { name: 'Languages spoken here' });
     expect(box).toHaveValue('');
     const described = document.getElementById(box.getAttribute('aria-describedby') ?? '');
@@ -322,10 +325,10 @@ describe('LanguagesMultiSelect', () => {
 
   it('removes one from the list, keeping stored region tags and other tags', async () => {
     const onChange = vi.fn();
-    const { user } = await renderUI(<Several start={['ar-EG', 'fr', 'es']} onChange={onChange} />);
+    const { user } = await renderUI(<Several start={['ar-EG', 'fr', 'pt']} onChange={onChange} />);
     await user.click(screen.getByRole('combobox'));
     await user.click(screen.getByRole('option', { name: 'Français' }));
-    expect(onChange).toHaveBeenLastCalledWith(['ar-EG', 'es']);
+    expect(onChange).toHaveBeenLastCalledWith(['ar-EG', 'pt']);
   });
 
   it('keeps the choices when the box is cleared and left, and empties the box', async () => {

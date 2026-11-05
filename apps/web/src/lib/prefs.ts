@@ -9,7 +9,7 @@ import { useSyncExternalStore } from 'react';
 
 export type ThemePref = 'light' | 'dark' | 'system';
 /** D204: the launch languages. Arabic is the only right-to-left one. */
-export type Locale = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi' | 'uk';
+export type Locale = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi' | 'uk' | 'es';
 /** D143: in Arabic, Western (0123) or Eastern Arabic (٠١٢٣) digits. Other languages are always Western. */
 export type Digits = 'western' | 'eastern';
 /** D203: page content in the readable column (the default) or across the whole space. */
@@ -34,7 +34,7 @@ export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
 export const REGION_KEY = 'kept.region';
 export const DATE_FORMAT_KEY = 'kept.dateFormat';
-export const LOCALES: readonly Locale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk'];
+export const LOCALES: readonly Locale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);

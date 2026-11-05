@@ -67,9 +67,9 @@
           } catch {}
           theme = dark ? 'dark' : 'light';
         }
-        // The app's languages (D204, and later Vietnamese and Ukrainian); the browser's language
-        // when it is one of them.
-        const locales = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk'];
+        // The app's languages (D204, and later Vietnamese, Ukrainian and Spanish); the browser's
+        // language when it is one of them.
+        const locales = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
         if (!locales.includes(locale)) {
           const nav = (navigator.language || 'en').toLowerCase().split(/[-_]/)[0];
           locale = locales.includes(nav) ? nav : 'en';

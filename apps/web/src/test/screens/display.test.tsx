@@ -38,6 +38,7 @@ describe('Settings → Me → Display', () => {
       'Italiano',
       'Tiếng Việt',
       'Українська',
+      'Español',
     ]);
     // A flag (SVG, never an emoji) beside every name, marked decorative.
     for (const o of options) {
@@ -340,11 +341,11 @@ describe('Location settings → General: languages', () => {
     expectLogicalOnly();
   });
 
-  it('keeps a stored regional tag and tags outside the five', async () => {
+  it('keeps a stored regional tag and tags outside the list', async () => {
     const { user, mock } = await renderApp(`/settings/location/${IDS.home}/general`, {
       setup: (m) => {
         const loc = m.state.locations.find((l) => l.id === IDS.home);
-        if (loc) loc.languages = ['ar-EG', 'es'];
+        if (loc) loc.languages = ['ar-EG', 'pt'];
       },
     });
     await findHeading('General');
@@ -359,7 +360,7 @@ describe('Location settings → General: languages', () => {
     await user.click(screen.getAllByRole('button', { name: 'Save' })[0] as HTMLElement);
     await waitFor(() =>
       expect(mock.lastCall('PATCH', paths.location(IDS.home))?.body).toEqual({
-        languages: ['ar-EG', 'es', 'it'],
+        languages: ['ar-EG', 'pt', 'it'],
       }),
     );
   });

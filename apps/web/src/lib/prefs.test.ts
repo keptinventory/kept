@@ -40,15 +40,17 @@ afterEach(() => {
 
 describe('languages', () => {
   it('has the languages, and knows a tag by its language', () => {
-    expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk']);
+    expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es']);
     expect(isLocale('it')).toBe(true);
     expect(isLocale('vi')).toBe(true);
     expect(isLocale('uk')).toBe(true);
-    expect(isLocale('es')).toBe(false);
+    expect(isLocale('es')).toBe(true);
+    expect(isLocale('pt')).toBe(false);
     expect(localeOfTag('ar-EG')).toBe('ar');
     expect(localeOfTag('fr_CA')).toBe('fr');
     expect(localeOfTag('DE-at')).toBe('de');
-    expect(localeOfTag('es-ES')).toBeNull();
+    expect(localeOfTag('es-ES')).toBe('es');
+    expect(localeOfTag('pt-BR')).toBeNull();
   });
 
   it('formats in the language itself; only Arabic carries a numbering system', () => {
@@ -62,10 +64,10 @@ describe('languages', () => {
     expect(new Intl.NumberFormat(formatLocale('de', 'western')).format(1234.5)).toBe('1.234,5');
   });
 
-  it('starts in the stored language, else the browser’s when it is one of the five', () => {
+  it('starts in the stored language, else the browser’s when it is one of them', () => {
     vi.stubGlobal('navigator', { language: 'it-IT' });
     expect(initialLocale()).toBe('it');
-    vi.stubGlobal('navigator', { language: 'es-ES' });
+    vi.stubGlobal('navigator', { language: 'pt-BR' });
     expect(initialLocale()).toBe('en');
     localStorage.setItem('kept.locale', 'de');
     expect(initialLocale()).toBe('de');
@@ -213,13 +215,18 @@ describe('the pre-paint script (index.html)', () => {
   it('falls back to the browser language when it is one of the five, else English', () => {
     expect(prePaint({}, 'fr-CA').lang).toBe('fr');
     expect(prePaint({}, 'it').lang).toBe('it');
-    expect(prePaint({}, 'es-ES').lang).toBe('en');
+    expect(prePaint({}, 'pt-BR').lang).toBe('en');
     expect(prePaint({ 'kept.width': 'wide' }).width).toBe('centered');
   });
 
   it('knows Ukrainian, left to right, whether stored or the browser’s', () => {
     expect(prePaint({ 'kept.locale': 'uk' })).toMatchObject({ lang: 'uk', dir: 'ltr' });
     expect(prePaint({}, 'uk-UA')).toMatchObject({ lang: 'uk', dir: 'ltr' });
+  });
+
+  it('knows Spanish, left to right, whether stored or the browser’s', () => {
+    expect(prePaint({ 'kept.locale': 'es' })).toMatchObject({ lang: 'es', dir: 'ltr' });
+    expect(prePaint({}, 'es-MX')).toMatchObject({ lang: 'es', dir: 'ltr' });
   });
 
   it('makes the same place tree choices as prefs.ts, before React loads', () => {
