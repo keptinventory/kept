@@ -11,6 +11,7 @@ import type { Role, SnapLocation, SnapPlace, SnapshotPage, SnapThing } from '@ke
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { keys } from '@/api/queries';
 import type { Detected } from '@/camera/label-recogniser';
 import type { CameraEnv } from '@/camera/session';
 import { MemoryStore } from '@/offline/store';
@@ -154,8 +155,16 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-async function render(props: Partial<SessionScreenProps> & { store: MemoryStore }) {
+async function render({
+  me,
+  ...props
+}: Partial<SessionScreenProps> & {
+  store: MemoryStore;
+  /** What the frame has already read of the signed-in person. */
+  me?: { user: { id: string }; personalHidden: boolean; personalLocationId: string };
+}) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  if (me) qc.setQueryData(keys.me, me);
   const all: SessionScreenProps = {
     persist: memoryPersist(),
     online: false,
@@ -411,6 +420,65 @@ describe('pack into', () => {
     await waitFor(() => expect(startButton).toBeEnabled());
     fireEvent.click(startButton);
     expect(await screen.findByText('Going into Box 15')).toBeInTheDocument();
+  });
+});
+
+describe('a hidden Personal', () => {
+  const PERSONAL = '01926f00-0000-7000-8000-00000000e0c1';
+  const PERSONAL_UNPLACED = '01926f00-0000-7000-8000-00000000e0c2';
+
+  async function withPersonal(homeRole: Role) {
+    const store = await phone(homeRole);
+    await store.applySnapshot({
+      asOf: '2026-10-20T10:00:01.000Z',
+      payloadVersion: 1,
+      minPayloadVersion: 1,
+      locations: [
+        ...(await store.locations()),
+        {
+          id: PERSONAL,
+          name: 'Personal',
+          kind: 'personal',
+          timezone: 'Africa/Cairo',
+          languages: ['en'],
+          role: 'owner',
+          effectiveModules: ['labels'],
+          unplacedPlaceId: PERSONAL_UNPLACED,
+          suggestRadiusM: 150,
+        },
+      ],
+      types: { hash: 'h', items: [] },
+      changes: { places: [], things: [], codes: [], legacyCodes: [] },
+      removed: [],
+      revokedLocationIds: [],
+      nextCursor: 'c2',
+      complete: true,
+    });
+    return store;
+  }
+  const hiddenMe = {
+    user: { id: 'u-me' },
+    personalHidden: true,
+    personalLocationId: PERSONAL,
+  };
+
+  it('is not offered to scan, while the other location is', async () => {
+    await render({ store: await withPersonal('member'), me: hiddenMe });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(await screen.findByRole('radio', { name: 'All of Home' })).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: 'All of Personal' })).not.toBeInTheDocument();
+  });
+
+  it('does not offer packing to someone who can only view everywhere they scan', async () => {
+    await render({ store: await withPersonal('viewer'), me: hiddenMe });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(screen.queryByRole('radio', { name: /Pack into/ })).not.toBeInTheDocument();
+  });
+
+  it('is offered while it is showing', async () => {
+    await render({ store: await withPersonal('member') });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(await screen.findByRole('radio', { name: 'All of Personal' })).toBeInTheDocument();
   });
 });
 

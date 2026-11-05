@@ -45,6 +45,7 @@ import { useMe } from '@/api/queries';
 import type { Detect, Detected } from '@/camera/label-recogniser';
 import { appDetect, type FrameDecoder } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
+import { shownLocations } from '@/components/capture/target';
 import { ShowMe } from '@/components/hints/show-me';
 import { XIcon } from '@/components/icons';
 import { usePlaceName } from '@/components/places/labels';
@@ -56,6 +57,7 @@ import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
+import { useHiddenLocationId } from '@/lib/personal-name';
 import { useHoldUpdates } from '@/pwa/register';
 import { type BatchDeps, resolveBatch, type ScanStore } from '../resolve';
 import { type Flash, SessionCamera } from './camera';
@@ -957,7 +959,11 @@ function SessionSetup({
     },
     [world],
   );
-  const anyEdit = world.locations.some((l) => canEdit(l.id));
+  // A hidden Personal isn't offered (it stays in `world`: a session started on it still reads its
+  // role there), as Capture and the Where picker leave it out.
+  const hidden = useHiddenLocationId();
+  const shown = useMemo(() => shownLocations(world.locations, hidden), [world, hidden]);
+  const anyEdit = shown.some((l) => canEdit(l.id)) || (!!fixed && canEdit(fixed.locationId));
   const [mode, setMode] = useState<ScanSessionMode>(start?.mode ?? 'count');
   const [inside, setInside] = useState(true);
   const [contents, setContents] = useState(false);
@@ -966,7 +972,7 @@ function SessionSetup({
 
   const options: TargetOption[] = useMemo(() => {
     const out: TargetOption[] = [];
-    for (const l of world.locations) {
+    for (const l of shown) {
       if (mode !== 'count' && !canEdit(l.id)) continue;
       if (mode === 'count')
         out.push({
@@ -1010,7 +1016,7 @@ function SessionSetup({
         });
     }
     return out;
-  }, [world, mode, t, placeName, canEdit, locName]);
+  }, [world, shown, mode, t, placeName, canEdit, locName]);
 
   const chosen: SessionTarget | null =
     fixed &&
