@@ -56,7 +56,7 @@ export const CreateClaimPackBody = z
         .object({ locationId: z.uuid(), thingIds: z.array(z.uuid()).min(1).max(MAX_PACK_THINGS) })
         .strict(),
     ]),
-    locale: z.enum(['en', 'ar', 'fr', 'de', 'it', 'vi']).optional(),
+    locale: z.enum(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk']).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
     /** D158: the "this includes prices and documents" warning was shown and accepted. */
     acknowledged: z.boolean().optional(),

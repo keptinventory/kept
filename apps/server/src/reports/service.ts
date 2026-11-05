@@ -356,8 +356,8 @@ export const InsuranceReportBody = z
       .optional(),
     include: z.object({ photos: z.boolean().optional() }).strict().optional(),
     /** The web's languages; a report is written in English or Arabic (D201), so French, German,
-     * Italian and Vietnamese readers get English. Omitted: the requester's own. */
-    locale: z.enum(['en', 'ar', 'fr', 'de', 'it', 'vi']).optional(),
+     * Italian, Vietnamese and Ukrainian readers get English. Omitted: the requester's own. */
+    locale: z.enum(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk']).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
     /** 1.3 (D228): mail the PDF to the requester when it is done. */
     email: z.boolean().optional(),
