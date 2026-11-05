@@ -255,6 +255,13 @@ describe('what hidden takes out of the lists', () => {
       201,
     );
     ok(
+      await call(t, `/api/v1/locations/${personal.id}/condition-reports`, {
+        as: me,
+        body: { kind: 'move_in', heldOn: '2026-09-01' },
+      }),
+      201,
+    );
+    ok(
       await call(t, `/api/v1/locations/${personal.id}/incidents`, {
         as: me,
         body: { kind: 'fire', occurredOn: '2026-09-01' },
@@ -299,6 +306,12 @@ describe('what hidden takes out of the lists', () => {
       [
         'incidents',
         '/api/v1/incidents',
+        `?locationId=${personal.id}`,
+        (b) => b.includes(personal.id),
+      ],
+      [
+        'condition reports',
+        '/api/v1/condition-reports',
         `?locationId=${personal.id}`,
         (b) => b.includes(personal.id),
       ],

@@ -23,6 +23,7 @@ import {
 import { assertClientId, checkVersion, pageOf } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { namedOrShown } from '../locations/hidden.js';
 import { placeOrderSql, treeWalk } from '../places/order.js';
 import type { FileStorage } from '../storage/blob-store.js';
 
@@ -338,7 +339,7 @@ export async function listReports(
   const { rows } = await client.query<ReportRecord>(
     `SELECT ${REPORT_COLUMNS} FROM public.condition_reports r
        JOIN public.locations l ON l.id = r.location_id AND l.deleted_at IS NULL
-      WHERE ($1::uuid IS NULL OR r.location_id = $1)
+      WHERE ${namedOrShown('r.location_id', '$1')}
         AND ($2::text IS NULL OR r.kind = $2)
         AND ($3::text IS NULL OR (r.finished_at IS NOT NULL) = ($3 = 'finished'))
         AND ($4::date IS NULL OR (r.held_on, r.id) < ($4::date, $5::uuid))
