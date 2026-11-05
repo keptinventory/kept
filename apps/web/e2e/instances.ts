@@ -200,6 +200,30 @@ export const HTTPS_WEEK_INSTANCE: TlsInstance & { httpSignInDays: number; trustP
   trustProxy: true,
 };
 
+/**
+ * One Kept on several addresses (e2e/extra-addresses.spec.ts, its own project): the main one is
+ * http://kept.lan:8218, not a secure context. Listed in KEPT_EXTRA_ADDRESSES: http://kept-ts.lan:8218,
+ * likewise, and http://kept-ts.localhost:8218, which browsers count as secure, so passkeys would be
+ * on offer there. It mails through the dev Mailpit, believes X-Forwarded-For and has sign-ins of a
+ * week. Key for KEPT_E2E_INSTANCES: `lanExtra`.
+ */
+export const LAN_EXTRA_INSTANCE: Instance & {
+  publicHost: string;
+  trustProxy: true;
+  mail: true;
+  httpSignInDays: number;
+  extraAddresses: string;
+} = {
+  name: 'lan-extra',
+  port: 8218,
+  seed: true,
+  publicHost: 'kept.lan',
+  trustProxy: true,
+  mail: true,
+  httpSignInDays: 7,
+  extraAddresses: 'http://kept-ts.lan:8218,http://kept-ts.localhost:8218',
+};
+
 export const urlOf = (i: Instance & { https?: boolean }) =>
   `${i.https ? 'https' : 'http'}://localhost:${i.port}`;
 

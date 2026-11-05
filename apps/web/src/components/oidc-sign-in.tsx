@@ -15,7 +15,7 @@ import { keys } from '@/api/queries';
 import { KeyIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
-import { publicOrigin, underIngress } from '@/lib/base-path';
+import { mainAddressElsewhere, publicOrigin, underIngress } from '@/lib/base-path';
 import { leave } from '@/lib/leave';
 
 /** The configured provider's name, or null when OIDC is off (or the server predates it). */
@@ -74,8 +74,9 @@ export function OidcSignInButton({
         isPending={start.isPending}
         onPress={() =>
           // Under Home Assistant ingress (D273) the provider returns to Kept's own address, not to
-          // Home Assistant: sign in there, in a tab of its own.
-          underIngress()
+          // Home Assistant, and on an extra address (D275) to the main one: sign in there, in a
+          // tab of its own.
+          underIngress() || mainAddressElsewhere()
             ? window.open(`${publicOrigin()}/signin`, '_blank', 'noopener')
             : start.mutate()
         }

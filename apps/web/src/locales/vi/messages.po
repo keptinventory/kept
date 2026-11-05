@@ -20867,3 +20867,35 @@ msgstr "Mở rộng vị trí"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Đổi độ rộng danh sách vị trí"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Khóa truy cập chỉ hoạt động ở <0/>, vì trình duyệt gắn khóa truy cập với một địa chỉ. Ở đây, hãy dùng mật khẩu hoặc liên kết qua email."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Liên kết sẽ mở ở <0/> và đăng nhập cho bạn ở đó, không phải ở địa chỉ này. Không truy cập được từ đây? Hãy dùng mật khẩu."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Liên kết sẽ mở ở <0/>. Hãy đặt mật khẩu mới ở đó, rồi đăng nhập ở đây bằng mật khẩu đó."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Khóa truy cập chỉ hoạt động ở <0/>, vì trình duyệt gắn khóa truy cập với một địa chỉ. Hãy thêm khóa truy cập ở đó."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Để liên kết, hãy đến <0/>: đăng nhập bên ngoài sẽ quay về địa chỉ đó."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Địa chỉ"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "Địa chỉ chính. <0/> thêm các địa chỉ khác."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "Địa chỉ chính, nơi giữ liên kết, thư và khóa truy cập. Ngoài ra, do <0/> đặt:"

@@ -1,4 +1,5 @@
 /** First run, the signed-in person, their devices, and the build info (D147). */
+import { noteMainAddress } from '@/lib/base-path';
 import { api } from './client';
 import { paths } from './paths';
 import type {
@@ -15,7 +16,11 @@ import type {
 
 export const getVersion = () => api.get<VersionInfo>(paths.version);
 
-export const getSetupStatus = () => api.get<SetupStatus>(paths.setup);
+export const getSetupStatus = () =>
+  api.get<SetupStatus>(paths.setup).then((status) => {
+    noteMainAddress(status.mainAddress);
+    return status;
+  });
 export const completeSetup = (body: SetupBody) => api.post<SetupResult>(paths.setup, body);
 
 export const getMe = () => api.get<Me>(paths.me);

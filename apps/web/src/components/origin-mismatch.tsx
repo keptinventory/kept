@@ -20,6 +20,18 @@ function OpenThere({ expected }: { expected: string }) {
   );
 }
 
+/** The main address (D275) as a link to this same page there, inside a sentence. */
+export function MainAddress({ main }: { main: string }) {
+  return (
+    <a
+      href={sameRouteAt(main)}
+      className="ltr font-semibold text-ink underline underline-offset-2 outline-none [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-info"
+    >
+      <bdi>{main}</bdi>
+    </a>
+  );
+}
+
 function Sentence({ expected }: { expected: string }) {
   return (
     <Trans>

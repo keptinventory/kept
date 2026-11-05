@@ -32,6 +32,7 @@ import { keys } from '@/api/queries';
 import type { PasskeyView, SignInSecurity as SignInState } from '@/api/types';
 import { KeyIcon, ShieldCheckIcon, ShieldIcon } from '@/components/icons';
 import { ReauthSheet } from '@/components/ops/reauth-sheet';
+import { MainAddress } from '@/components/origin-mismatch';
 import {
   ErrorState,
   IconTile,
@@ -50,6 +51,7 @@ import { Dialog, DialogFooter, Modal } from '@/components/ui/dialog';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { mainAddressElsewhere } from '@/lib/base-path';
 import { sep, useFormat } from '@/lib/format';
 import { servedOverHttp } from '@/lib/https';
 import { describeUserAgent } from '@/lib/user-agent';
@@ -86,7 +88,11 @@ export function SignInSecurity() {
 function Passkeys({ state }: { state: SignInState }) {
   const { t } = useLingui();
   const [adding, setAdding] = useState(false);
-  const supported = passkeysSupported();
+  const browserCan = passkeysSupported();
+  // On one of KEPT_EXTRA_ADDRESSES (D275): a passkey made here couldn't sign in anywhere. The ones
+  // already made can still be renamed or removed.
+  const main = mainAddressElsewhere();
+  const supported = browserCan && !main;
   return (
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -107,7 +113,12 @@ function Passkeys({ state }: { state: SignInState }) {
       </p>
       {supported ? null : (
         <p className="m-0 text-small text-ink-2">
-          {servedOverHttp() ? (
+          {browserCan && main ? (
+            <Trans>
+              Passkeys work only at <MainAddress main={main} />, because browsers tie a passkey to
+              one address. Add one there.
+            </Trans>
+          ) : servedOverHttp() ? (
             <Trans>
               Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on
               HTTPS to add one.

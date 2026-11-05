@@ -57,7 +57,7 @@ export type AuthDeps = {
   /** A pool logged in as kept_auth (KEPT_AUTH_DATABASE_URL); DML on `auth.*` only. */
   pool: pg.Pool;
   env: Pick<Env, 'KEPT_AUTH_SECRET' | 'KEPT_PUBLIC_URL'> &
-    Partial<Pick<Env, 'KEPT_HTTP_SIGN_IN_DAYS'>>;
+    Partial<Pick<Env, 'KEPT_HTTP_SIGN_IN_DAYS' | 'KEPT_EXTRA_ADDRESSES'>>;
   mail: AuthMail;
   /** Defaults to on. Better Auth enables it only when NODE_ENV=production otherwise. */
   rateLimitEnabled?: boolean;
@@ -301,18 +301,21 @@ export function createAuth(deps: AuthDeps) {
   // returns, so the late binding is safe.
   let lookup: ((headers: Headers) => Promise<SessionLike | null>) | undefined;
 
+  const extraAddresses = env.KEPT_EXTRA_ADDRESSES ?? [];
   const auth = betterAuth({
     appName: 'Kept',
     baseURL: env.KEPT_PUBLIC_URL,
     basePath: AUTH_BASE_PATH,
-    // KEPT_PUBLIC_URL's origin always; in the Home Assistant app, for an ingress request, also
-    // Home Assistant's, which auth/http.ts authHeaders() puts in INGRESS_ORIGIN_HEADER from
-    // req.ingress (D273), after removing any the client sent. Outside app mode: not set at all.
-    ...(deps.ingress
+    // KEPT_PUBLIC_URL's origin always, and KEPT_EXTRA_ADDRESSES (D275), exact origins that hold no
+    // wildcard (auth/addresses.ts: Better Auth reads `*` and `?` in one as a pattern). In the Home
+    // Assistant app, for an ingress request, also Home Assistant's, which auth/http.ts
+    // authHeaders() puts in INGRESS_ORIGIN_HEADER from req.ingress (D273), after removing any the
+    // client sent: the extra addresses add to it, never replace it. Neither: not set at all.
+    ...(deps.ingress || extraAddresses.length > 0
       ? {
           trustedOrigins: (request?: Request) => {
-            const ingress = request?.headers.get(INGRESS_ORIGIN_HEADER);
-            return ingress ? [ingress] : [];
+            const ingress = deps.ingress ? request?.headers.get(INGRESS_ORIGIN_HEADER) : null;
+            return ingress ? [...extraAddresses, ingress] : [...extraAddresses];
           },
         }
       : {}),

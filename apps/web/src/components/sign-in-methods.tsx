@@ -24,10 +24,12 @@ import { keys } from '@/api/queries';
 import { KeyIcon } from '@/components/icons';
 import { OidcError, useGoogleOn, useOidcName } from '@/components/oidc-sign-in';
 import { ReauthSheet } from '@/components/ops/reauth-sheet';
+import { MainAddress } from '@/components/origin-mismatch';
 import { IconTile, List, LoadingRows, Notice, Pill, Row, Section } from '@/components/page';
 import { useSignOut } from '@/components/sign-out';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
+import { mainAddressElsewhere } from '@/lib/base-path';
 import { leave } from '@/lib/leave';
 
 const methodsKey = ['me', 'sign-in-methods'] as const;
@@ -74,6 +76,8 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
     onError: refused,
   });
   if (outside.length === 0) return null;
+  // On one of KEPT_EXTRA_ADDRESSES (D275).
+  const main = mainAddressElsewhere();
   const failedName =
     via === GOOGLE_PROVIDER_ID ? 'Google' : via === OIDC_PROVIDER_ID ? oidcName : null;
 
@@ -130,7 +134,7 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
                       >
                         <Trans>Unlink</Trans>
                       </Button>
-                    ) : (
+                    ) : main ? null : (
                       <Button
                         size="small"
                         variant="secondary"
@@ -147,6 +151,14 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
           })}
         </List>
       )}
+      {main ? (
+        <p className="m-0 text-small text-ink-2">
+          <Trans>
+            To link one, go to <MainAddress main={main} />: outside sign-ins come back to that
+            address.
+          </Trans>
+        </p>
+      ) : null}
       {unlinking ? (
         <UnlinkSheet
           name={unlinking.name}

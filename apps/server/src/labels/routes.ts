@@ -117,7 +117,7 @@ export async function labelRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
   });
 
   // Former hostnames (D120).
-  app.addHook('onRequest', formerHostHook(pools.system, publicUrl));
+  app.addHook('onRequest', formerHostHook(pools.system, publicUrl, deps.env.KEPT_EXTRA_ADDRESSES));
 
   app.post(
     '/api/v1/labels/batches',

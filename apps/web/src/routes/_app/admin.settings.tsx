@@ -45,6 +45,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { publicOrigin } from '@/lib/base-path';
 
 export const Route = createFileRoute('/_app/admin/settings')({ component: SettingsPage });
 
@@ -334,8 +335,9 @@ function FormerHostnames({ hosts }: { hosts: string[] }) {
       setError(t`Enter a host name only, like kept.home.example: no https:// and no port.`);
       return;
     }
-    // The page's own host stands in for the public URL's (inferred: Kept is served from it).
-    if (host === window.location.hostname.toLowerCase()) {
+    // The page's own host and the address links use (the server checks the public URL's too).
+    const main = new URL(publicOrigin()).hostname.toLowerCase();
+    if (host === window.location.hostname.toLowerCase() || host === main) {
       setError(t`That is this server's own address.`);
       return;
     }

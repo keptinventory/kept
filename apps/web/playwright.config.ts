@@ -17,7 +17,8 @@
  * both sizes, on a Kept whose address is http://kept.lan:<port>: Chromium maps kept.lan to
  * 127.0.0.1 (`--host-resolver-rules`), so the page is plain HTTP on a network name, not a secure
  * context, as on a home network. A fourth, `http-sign-in`, runs e2e/http-sign-in.spec.ts alone: how
- * long a sign-in lasts on each kind of address.
+ * long a sign-in lasts on each kind of address. A fifth, `extra-addresses`, runs
+ * e2e/extra-addresses.spec.ts alone: one Kept on several addresses.
  *
  * Chromium runs with a fake camera playing e2e/fixtures/camera-thing.y4m
  * (e2e/camera.ts), and step3.spec.ts runs on the `capture` instance, whose AI is the mock.
@@ -35,6 +36,7 @@ import {
   HTTPS_WEEK_INSTANCE,
   INSTANCES,
   type Instance,
+  LAN_EXTRA_INSTANCE,
   LAN_INSTANCE,
   LAN_OFF_INSTANCE,
   LAN_WEEK_INSTANCE,
@@ -85,6 +87,7 @@ type Served = Instance & {
   google?: boolean;
   publicHost?: string;
   httpSignInDays?: number;
+  extraAddresses?: string;
 };
 
 /** Every instance, by key: step 1–2's, step 3's capture instance, step 5's vehicles and steps
@@ -104,6 +107,7 @@ const ALL: Record<string, Served> = {
   lanOff: LAN_OFF_INSTANCE,
   httpsOff: HTTPS_OFF_INSTANCE,
   httpsWeek: HTTPS_WEEK_INSTANCE,
+  lanExtra: LAN_EXTRA_INSTANCE,
 };
 
 /** The instances to start: all, or those KEPT_E2E_INSTANCES names (e.g. `capture`). */
@@ -119,7 +123,7 @@ function selected(): Served[] {
 }
 
 const server = (i: Served) => ({
-  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}${i.mail ? ' --mail' : ''}${i.google ? ' --google' : ''}${i.publicHost ? ` --public-host=${i.publicHost}` : ''}${i.httpSignInDays ? ` --http-sign-in-days=${i.httpSignInDays}` : ''}`,
+  command: `node --conditions=kept-dist e2e/serve.mjs ${i.name} ${i.port}${i.seed ? ' --seed' : ''}${i.aiMock ? ' --ai-mock' : ''}${i.https ? ' --https' : ''}${i.owner ? ' --owner' : ''}${i.trustProxy ? ' --trust-proxy' : ''}${i.mail ? ' --mail' : ''}${i.google ? ' --google' : ''}${i.publicHost ? ` --public-host=${i.publicHost}` : ''}${i.httpSignInDays ? ` --http-sign-in-days=${i.httpSignInDays}` : ''}${i.extraAddresses ? ` --extra-addresses=${i.extraAddresses}` : ''}`,
   url: `${urlOf(i)}/readyz`,
   // The --https instances' certificate is self-signed, made for the run.
   ignoreHTTPSErrors: !!i.https,
@@ -158,6 +162,7 @@ const serveAll = (list: Served[]) => ({
           google,
           publicHost,
           httpSignInDays,
+          extraAddresses,
         }) => ({
           name,
           port,
@@ -170,6 +175,7 @@ const serveAll = (list: Served[]) => ({
           google,
           publicHost,
           httpSignInDays,
+          extraAddresses,
         }),
       ),
     ),
@@ -186,6 +192,8 @@ const serveAll = (list: Served[]) => ({
 const INSECURE_SPEC = 'insecure.spec.ts';
 /** The spec only the `http-sign-in` project runs: it opens each instance's own address itself. */
 const HTTP_SIGN_IN_SPEC = 'http-sign-in.spec.ts';
+/** The spec only the `extra-addresses` project runs: it opens each address itself. */
+const EXTRA_ADDRESSES_SPEC = 'extra-addresses.spec.ts';
 
 /** KEPT_E2E_IGNORE's files (a comma list): CI runs e2e/audit.spec.ts as a job of its own. */
 const ignored = (process.env.KEPT_E2E_IGNORE ?? '')
@@ -228,7 +236,7 @@ export default defineConfig({
         baseURL: urlOf(INSTANCES.phone),
         launchOptions: { args: fakeCameraArgs() },
       },
-      testIgnore: [...ignored, INSECURE_SPEC, HTTP_SIGN_IN_SPEC],
+      testIgnore: [...ignored, INSECURE_SPEC, HTTP_SIGN_IN_SPEC, EXTRA_ADDRESSES_SPEC],
     },
     {
       name: 'desktop',
@@ -239,7 +247,7 @@ export default defineConfig({
         baseURL: urlOf(INSTANCES.desktop),
         launchOptions: { args: fakeCameraArgs() },
       },
-      testIgnore: [...ignored, INSECURE_SPEC, HTTP_SIGN_IN_SPEC],
+      testIgnore: [...ignored, INSECURE_SPEC, HTTP_SIGN_IN_SPEC, EXTRA_ADDRESSES_SPEC],
     },
     {
       // Plain HTTP on a network name (http://kept.lan:<port>), not a secure context. The spec sets
@@ -274,6 +282,24 @@ export default defineConfig({
           args: [
             ...fakeCameraArgs(),
             `--host-resolver-rules=MAP ${LAN_WEEK_INSTANCE.publicHost} 127.0.0.1`,
+          ],
+        },
+      },
+    },
+    {
+      // One Kept on `kept.lan` and two listed addresses, with other names mapped here too: an
+      // unlisted one, and a lookalike that ends in a listed one's name.
+      name: 'extra-addresses',
+      testMatch: EXTRA_ADDRESSES_SPEC,
+      testIgnore: ignored,
+      use: {
+        ...devices['Desktop Chrome'],
+        ...browser,
+        viewport: { width: 1280, height: 800 },
+        launchOptions: {
+          args: [
+            ...fakeCameraArgs(),
+            `--host-resolver-rules=MAP ${LAN_EXTRA_INSTANCE.publicHost} 127.0.0.1,MAP kept-ts.lan 127.0.0.1,MAP kept-other.lan 127.0.0.1,MAP kept-ts.lan.example.com 127.0.0.1`,
           ],
         },
       },

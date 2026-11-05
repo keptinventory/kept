@@ -40,6 +40,13 @@ configuration:
       Empty: 12 hours, not renewed. No effect with https on. Over plain http a sign-in cookie can
       be copied by anyone who can see the traffic; with this on, a copied one keeps working for
       as long as it's used, until that device signs out or your other devices are signed out.
+  extra_addresses:
+    name: Extra addresses
+    description: >-
+      Other addresses this Kept answers on, comma-separated, exactly as the browser shows them:
+      http://192.0.2.20:8080. No wildcards, and the same http or https as Kept's address. Each
+      signs in separately. Links, mail, passkeys and AI apps stay on Kept's address. List only
+      addresses that reach this Kept.
   oidc_issuer:
     name: OIDC issuer
     description: >-

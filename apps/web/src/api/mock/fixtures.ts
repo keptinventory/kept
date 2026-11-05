@@ -574,6 +574,7 @@ function base(): MockState {
         recoveryKitAcknowledged: false,
         mail: { configured: true },
         signIn: { hours: 720, renewed: true, https: true, setting: null },
+        addresses: { main: 'https://kept.example.org', extra: [] },
         reminders: { lastRunAt: ago(0.1), lastOkAt: ago(0.1), occurrences: 3, durationMs: 412 },
       },
     },

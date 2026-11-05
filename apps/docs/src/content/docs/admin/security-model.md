@@ -101,7 +101,17 @@ on, a copied one keeps working for as long as it's used, until that device signs
 
 **Requests from other sites** are refused: a write that carries Kept's cookie must come from the
 origin of `KEPT_PUBLIC_URL`, or it gets 403 before the session is even read. So must first-run
-setup, which has no cookie yet, before its setup code is tried. The pages are served
+setup, which has no cookie yet, before its setup code is tried.
+
+`KEPT_EXTRA_ADDRESSES` (unset by default) lets whoever runs the server list other exact origins
+that count as Kept. They're read once at startup and compared whole against the browser's `Origin`;
+`Host` and `X-Forwarded-*` play no part. A wildcard, or a mix of `http` and `https`, stops startup.
+The refusal names `KEPT_PUBLIC_URL` and never the list. Passkeys, outside sign-ins, OAuth and every
+link stay on `KEPT_PUBLIC_URL`: a passkey is checked against that address whatever the request says.
+The cost: a page served at a listed address can act for whoever is signed in there
+([More than one address](/install/home-network/#more-than-one-address)).
+
+The pages are served
 with a `default-src 'self'` content security policy, may not be framed, and get HSTS when the
 public URL is HTTPS, unless `KEPT_HSTS=off` ([HSTS](/install/reverse-proxy/#hsts)).
 
