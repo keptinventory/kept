@@ -121,9 +121,11 @@ function MePage() {
         </List>
       </Section>
 
-      <Section title={<Trans>Your locations</Trans>}>
-        <HidePersonal />
-      </Section>
+      {me.data?.personalLocationId ? (
+        <Section title={<Trans>Your locations</Trans>}>
+          <HidePersonal />
+        </Section>
+      ) : null}
 
       <Section title={<Trans>Your data</Trans>}>
         <List>

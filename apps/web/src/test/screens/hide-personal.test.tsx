@@ -1,8 +1,18 @@
 /** Hide the Personal location (#392): Settings → Me, what leaves the app, and what stays. */
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { firstRunScenario, IDS, ownerScenario } from '@/api/mock/fixtures';
+import { capturePaths } from '@/api/capture/paths';
+import type { ImportRun } from '@/api/capture/types';
+import {
+  firstRunScenario,
+  IDS,
+  type MockState,
+  memberScenario,
+  ownerScenario,
+} from '@/api/mock/fixtures';
+import { MockReply } from '@/api/mock/server';
 import { paths } from '@/api/paths';
+import { PORTABILITY_IDS, pt } from '@/api/portability/mock/state';
 import { defaultTarget, shownLocations } from '@/components/capture/target';
 import { findHeading, renderApp } from '@/test/app';
 
@@ -16,6 +26,39 @@ const hidden = () => {
   );
   return state;
 };
+
+const hideIn = (state: MockState) => {
+  state.me.profile = { ...state.me.profile, hidePersonal: true };
+  state.me.personalHidden = true;
+  state.locations = state.locations.map((l) =>
+    l.kind === 'personal' ? { ...l, hidden: true } : l,
+  );
+  return state;
+};
+
+/** A past spreadsheet import, stopped part way, in `locationId`. */
+const csvRun = (locationId: string): ImportRun => ({
+  id: '01926f00-0000-7000-8000-00000000e301',
+  locationId,
+  source: 'csv',
+  status: 'failed',
+  mapping: { Name: 'name' },
+  choices: {
+    placeSeparator: '>',
+    createPlaces: true,
+    dateFormat: 'YYYY-MM-DD',
+    defaultTarget: { unplaced: true },
+    typeByName: true,
+  },
+  progress: 400,
+  total: 1000,
+  createdAt: new Date().toISOString(),
+  startedAt: new Date().toISOString(),
+  finishedAt: null,
+  error: 'The database went away.',
+  updatedAt: new Date().toISOString(),
+  rowVersion: 3,
+});
 
 const nav = () => screen.getAllByRole('navigation')[0] as HTMLElement;
 
@@ -41,7 +84,7 @@ describe('Settings → Me → Hide Personal', () => {
     const { mock } = await renderApp('/settings', { state: firstRunScenario() });
     const toggle = await screen.findByRole('switch', { name: 'Hide Personal' });
     expect(toggle).toBeDisabled();
-    expect(screen.getByText(/is your only location, so it stays/)).toBeInTheDocument();
+    expect(await screen.findByText(/is your only location, so it stays/)).toBeInTheDocument();
     expect(mock.lastCall('PATCH', paths.me)).toBeUndefined();
   });
 
@@ -51,8 +94,47 @@ describe('Settings → Me → Hide Personal', () => {
     await renderApp('/settings', { state });
     const toggle = await screen.findByRole('switch', { name: 'Hide Personal' });
     expect(toggle).toBeEnabled();
-    expect(screen.getByText(/is showing because it's your only location/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/is showing because it's your only location/),
+    ).toBeInTheDocument();
     expect(await within(nav()).findByRole('link', { name: /Personal/ })).toBeInTheDocument();
+  });
+});
+
+describe('Settings → Me, before and without a Personal', () => {
+  it('claims nothing about being the only location while the locations load', async () => {
+    await renderApp('/settings', {
+      setup: (m) => m.on('GET', paths.locations, () => new Promise(() => {})),
+    });
+    const toggle = await screen.findByRole('switch', { name: 'Hide Personal' });
+    expect(toggle).toBeDisabled();
+    expect(screen.queryByText(/your only location/)).not.toBeInTheDocument();
+  });
+
+  it('claims nothing about being the only location when the locations fail', async () => {
+    await renderApp('/settings', {
+      setup: (m) =>
+        m.on('GET', paths.locations, () => new MockReply(500, { error: 'x', code: 'internal' })),
+    });
+    await screen.findByRole('switch', { name: 'Hide Personal' });
+    await waitFor(() => expect(screen.queryByText(/your only location/)).not.toBeInTheDocument());
+    // Give the failure time to land: the sentence must not come with it.
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByText(/your only location/)).not.toBeInTheDocument();
+  });
+
+  it('has no "Your locations" heading with nothing under it', async () => {
+    const state = ownerScenario();
+    state.me.personalLocationId = null;
+    await renderApp('/settings', { state });
+    await findHeading('Settings');
+    await screen.findByRole('heading', { name: 'Your data' });
+    expect(screen.queryByRole('heading', { name: 'Your locations' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the heading when there is a Personal to hide', async () => {
+    await renderApp('/settings');
+    expect(await screen.findByRole('heading', { name: 'Your locations' })).toBeInTheDocument();
   });
 });
 
