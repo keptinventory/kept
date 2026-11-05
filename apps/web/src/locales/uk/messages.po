@@ -30735,3 +30735,107 @@ msgstr "Наблизити"
 #: src/map/map-view.tsx
 msgid "Zoom out"
 msgstr "Віддалити"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Тривалість входу"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Подовжується під час використання."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Подовжується під час використання. <0/> не діє через HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Через звичайний HTTP не подовжується. <0/> збільшує тривалість."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Через звичайний HTTP, задано в <0/>. Подовжується під час використання."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# година} few {# години} many {# годин} other {# години}}"
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> приховано, тому її немає в цьому файлі. Щоб експортувати її, виберіть її в розділі «Експортувати локацію»."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> приховано з вашого меню, «Головної», списків і пошуку. Це посилання все одно її відкриває."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Особистий ключ <0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> показано, бо це ваша єдина локація. Її знову буде приховано, коли у вас з’явиться інша."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> — ваша єдина локація, тому вона залишається. Спочатку додайте іншу або приєднайтеся до іншої."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "Приховати <0>{personal}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Вона зникне з меню, «Головної», списків і пошуку лише для вас. У ній нічого не зміниться, посилання на неї все одно її відкриватиме, а її нагадування й далі надходитимуть вам. Показати її знову можна тут будь-коли."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Показати знову"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Цей ключ оплачує всі домівки <0>{ownerName}</0>: <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Використовується для ваших приватних ланцюжків, питань, які охоплюють власників, <0>{personal}</0> та локації, якою ви володієте й користуєтеся самі та яка не має ключа облікового запису."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "Ваш власний ключ призначений для ваших приватних ланцюжків і питань, які охоплюють власників."
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# посилання зберігає назву з Homebox: Kept не зміг отримати її з Paperless.} few {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} many {# посилань зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} other {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.}}"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Тут скористайтеся паролем або посиланням з електронного листа."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Посилання відкривається на <0/> і виконує вхід там, а не на цій адресі. Не можете дістатися туди звідси? Скористайтеся паролем."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Посилання відкривається на <0/>. Задайте новий пароль там, а потім увійдіть із ним тут."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Додайте його там."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Щоб прив’язати спосіб входу, перейдіть на <0/>: зовнішні входи повертаються на цю адресу."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Адреси"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "Основна адреса. <0/> додає інші."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "Основна адреса, до якої прив’язані посилання, пошта й ключі доступу. Також задано в <0/>:"
