@@ -20,7 +20,7 @@ import { canvasToJpeg, decodeWithBitmap, drawScaled } from '@/camera/image';
 import { useProviderName } from '@/components/ai/labels';
 import { useErrorText } from '@/components/page';
 import { Sheet } from '@/components/things/sheet';
-import { putFile } from '@/components/things/upload';
+import { nameOfFile, putFile } from '@/components/things/upload';
 import { Button } from '@/components/ui/button';
 import { useFormat } from '@/lib/format';
 import { TRY } from '@/try/flag';
@@ -109,10 +109,13 @@ export function StartPlanSheet({
     try {
       const sent = await planUpload(picked.file);
       const file = await putFile({ file: sent.file, locationId });
+      const fileName = nameOfFile(picked.file);
       const plan = await mapApi.startPlan(locationId, {
         fileId: file.deduplicatedFrom ?? file.id,
         sha256: file.sha256,
         turn,
+        // Its own name, not the re-encoded copy's: what a kept document is called.
+        ...(fileName ? { name: fileName } : {}),
       });
       onStarted(plan, picked.preview);
       onOpenChange(false);

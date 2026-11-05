@@ -83,10 +83,13 @@ endpoint and either **Available** or **Needs an https public URL**.
 2. The app finds Kept's sign-in from the address and sends you to Kept. Sign in.
 3. Kept shows **_App_ wants to use your Kept**. The name is the one the app gives itself; Kept
    can't confirm who made it. Choose **What it can do** and **Where** (pick only the locations it
-   needs), then **Allow** or **Deny**.
+   needs), then **Allow** or **Deny**. The page also says the app stays signed in after you sign
+   out of this browser, and that anything that signs out all your other devices makes it sign in
+   again.
 4. The app appears under **Connected apps** in **Settings → Connections**.
 
-The app stays connected until you remove it. Each access token it gets lasts an hour and the app
+The app stays connected until you remove it, or until it goes 30 days without being used; then it
+has to sign in again. Each access token it gets lasts an hour and the app
 renews it without asking you again; Kept checks your grant on every call, so removing the app in
 **Settings → Connections** works at once. The app has to sign in again after anything that signs
 out your other devices: a new password or a password
