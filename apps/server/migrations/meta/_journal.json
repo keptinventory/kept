@@ -1188,15 +1188,22 @@
     {
       "idx": 169,
       "version": "7",
-      "when": 1793825289810,
-      "tag": "0169_hide_personal",
+      "when": 1793838419045,
+      "tag": "0169_prune_expired_refresh_tokens",
       "breakpoints": true
     },
     {
       "idx": 170,
       "version": "7",
-      "when": 1793825326178,
-      "tag": "0170_hide_personal_rls",
+      "when": 1793838479045,
+      "tag": "0170_hide_personal",
+      "breakpoints": true
+    },
+    {
+      "idx": 171,
+      "version": "7",
+      "when": 1793838539045,
+      "tag": "0171_hide_personal_rls",
       "breakpoints": true
     }
   ]

@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import type { Many } from '../http/list-filters.js';
 
-// A hidden Personal location (#392), as the lists read it. kept.hidden_location_ids() (0170) says
+// A hidden Personal location (#392), as the lists read it. kept.hidden_location_ids() (0171) says
 // which location that is, worked out on every read: empty while Personal is the only location the
 // session sees, and for a token, which sees what it was granted.
 //

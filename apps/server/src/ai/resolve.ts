@@ -40,7 +40,7 @@ export type LocationFacts = {
   ownerAccountId: string;
   ownerUserId: string;
   personal: boolean;
-  /** Its owner hid Personal and is the only one here (kept.ai_cascade, 0170). */
+  /** Its owner hid Personal and is the only one here (kept.ai_cascade, 0171). */
   ownerAloneWithPersonalHidden?: boolean;
 };
 

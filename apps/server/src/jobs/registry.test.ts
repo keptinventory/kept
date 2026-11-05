@@ -563,6 +563,7 @@ describe('the maintenance jobs', () => {
     expect(await pruneStaleRows(db.pools)).toEqual({
       'auth.sign_in_failures': 1,
       'auth.session_mfa': 1,
+      'auth.oauth_refresh_token': 0,
       idempotency_keys: 1,
       sync_ops: 1,
       inbox_items: 1,
