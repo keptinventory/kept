@@ -9,9 +9,11 @@
  * (T21; frames 107, 108): the page reads OpsAdminStatus, and its backups, restore drill, repository
  * check, bucket versioning, disk, release, failed-jobs and update tiles (components/ops/
  * status-tiles.tsx) replace the alpha's backup line. A server whose database didn't answer sends
- * the step-1 summary alone; the page then shows what it has.
+ * the step-1 summary alone; the page then shows what it has. The sign-in length tile (D274) shows
+ * what is in force, so KEPT_HTTP_SIGN_IN_DAYS isn't hidden in a `.env` file; the addresses tile
+ * (D275) does the same for KEPT_EXTRA_ADDRESSES.
  */
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { acknowledgeRecoveryKit } from '@/api/admin';
@@ -29,6 +31,81 @@ import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 
 export const Route = createFileRoute('/_app/admin/status')({ component: StatusPage });
+
+const SettingName = () => <code className="ltr whitespace-nowrap">KEPT_HTTP_SIGN_IN_DAYS</code>;
+const AddressesName = () => <code className="ltr whitespace-nowrap">KEPT_EXTRA_ADDRESSES</code>;
+
+/** The addresses in force (D275), so KEPT_EXTRA_ADDRESSES isn't hidden in a `.env` file either. */
+function AddressesTile({ addresses }: { addresses: NonNullable<AdminStatus['addresses']> }) {
+  return (
+    <Tile
+      label={<Trans>Addresses</Trans>}
+      ok={null}
+      detail={
+        addresses.extra.length === 0 ? (
+          <Trans>
+            The main address. <AddressesName /> adds more.
+          </Trans>
+        ) : (
+          <div className="grid gap-1">
+            <div>
+              <Trans>
+                The main address, where links, mail and passkeys stay. Also, set by{' '}
+                <AddressesName />:
+              </Trans>
+            </div>
+            <ul className="m-0 grid list-none gap-1 p-0">
+              {addresses.extra.map((address) => (
+                <li key={address} className="[overflow-wrap:anywhere]">
+                  <bdi className="ltr">{address}</bdi>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    >
+      <bdi className="ltr">{addresses.main}</bdi>
+    </Tile>
+  );
+}
+
+/** How long a sign-in lasts here, and where that comes from (D274). */
+function SignInTile({ signIn }: { signIn: NonNullable<AdminStatus['signIn']> }) {
+  const d = signIn.hours / 24;
+  const h = signIn.hours;
+  return (
+    <Tile
+      label={<Trans>Sign-in length</Trans>}
+      ok={null}
+      detail={
+        signIn.https ? (
+          signIn.setting === null ? (
+            <Trans>Renewed as it is used.</Trans>
+          ) : (
+            <Trans>
+              Renewed as it is used. <SettingName /> has no effect over HTTPS.
+            </Trans>
+          )
+        ) : signIn.setting === null ? (
+          <Trans>
+            Over plain HTTP, not renewed. <SettingName /> makes it longer.
+          </Trans>
+        ) : (
+          <Trans>
+            Over plain HTTP, set by <SettingName />. Renewed as it is used.
+          </Trans>
+        )
+      }
+    >
+      {Number.isInteger(d) ? (
+        <Plural value={d} one="# day" other="# days" />
+      ) : (
+        <Plural value={h} one="# hour" other="# hours" />
+      )}
+    </Tile>
+  );
+}
 
 /**
  * D193: the acknowledgement later steps ask for before the first secret, AI key or backup
@@ -237,6 +314,8 @@ function StatusPage() {
         <Tile label={<Trans>Mail</Trans>} ok={s.mail.configured}>
           {s.mail.configured ? <Trans>Sending</Trans> : <Trans>Not configured</Trans>}
         </Tile>
+        {s.signIn ? <SignInTile signIn={s.signIn} /> : null}
+        {s.addresses ? <AddressesTile addresses={s.addresses} /> : null}
         <OpsTiles s={s} kitTile={<RecoveryKitTile acknowledged={s.recoveryKitAcknowledged} />} />
         {s.reminders !== undefined ? <RemindersTile reminders={s.reminders} /> : null}
       </div>

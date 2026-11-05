@@ -304,6 +304,37 @@ describe('app mode, through ingress', () => {
     expect(port.statusCode).toBe(403);
   });
 
+  // #404: over plain http nothing used to renew, so this is the first cookie a renewal sends here.
+  it('with longer sign-ins on, a renewal stays scoped to the prefix', async () => {
+    const week = await testApp(db, {
+      appMode: true,
+      web,
+      trustedProxies: PROXIES,
+      httpSignInDays: 7,
+    });
+    const email = await signedUpEmail(week);
+    const res = await signIn(week, email, { ...viaIngress(), origin: HA }, HA_SUPERVISOR_ADDRESS);
+    expect(res.statusCode).toBe(200);
+    const line = setCookies(res).find((c) => c.includes('session_token=')) ?? '';
+    expect(line).toContain(`Max-Age=${7 * 86_400};`);
+    expect(line).toContain(`; Path=${PREFIX}/`);
+    await db.pools.auth.query(
+      `UPDATE auth.session s SET expires_at = now() + interval '6 days' - interval '1 minute'
+         FROM auth."user" u WHERE u.id = s.user_id AND u.email = $1`,
+      [email],
+    );
+    const later = await fromSupervisor(week, {
+      url: `/api/v1/me/sessions`,
+      headers: { ...viaIngress(), origin: HA, cookie: jar(res) },
+    });
+    expect(later.statusCode, later.body).toBe(200);
+    const renewed = setCookies(later).find((c) => c.includes('session_token=')) ?? '';
+    expect(renewed).toContain(`Max-Age=${7 * 86_400};`);
+    expect(renewed).toContain(`; Path=${PREFIX}/`);
+    expect(renewed).not.toMatch(/; Path=\/(;|$)/);
+    await week.app.close();
+  });
+
   it('sends a share that reached the server back under the prefix', async () => {
     const res = await fromSupervisor(t, { method: 'POST', url: '/share', headers: viaIngress() });
     expect(res.statusCode).toBe(303);

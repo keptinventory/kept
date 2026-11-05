@@ -204,6 +204,8 @@ services:
       KEPT_TRUSTED_PROXIES: ${KEPT_TRUSTED_PROXIES:-172.29.72.200}
       # HSTS over https (#403): off sends max-age=0, for plain-http services on the same hostname.
       KEPT_HSTS: ${KEPT_HSTS:-}
+      KEPT_HTTP_SIGN_IN_DAYS: ${KEPT_HTTP_SIGN_IN_DAYS:-}
+      KEPT_EXTRA_ADDRESSES: ${KEPT_EXTRA_ADDRESSES:-}
       KEPT_SMTP_URL: ${KEPT_SMTP_URL:-}
       KEPT_SMTP_FROM: ${KEPT_SMTP_FROM:-}
       KEPT_LOG_LEVEL: ${KEPT_LOG_LEVEL:-info}

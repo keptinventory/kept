@@ -28739,6 +28739,30 @@ msgstr "Saisissez un nombre entier."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Le nouveau reçu est ajouté, mais l’ancien n’a pas pu être retiré"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Durée de connexion"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Renouvelée à l'usage."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Renouvelée à l'usage. <0/> est sans effet en HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "En HTTP simple, non renouvelée. <0/> l'allonge."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "En HTTP simple, définie par <0/>. Renouvelée à l'usage."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# heure} other {# heures}}"
+
 #: src/components/export/export-sheet.tsx
 msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
 msgstr "<0>{hiddenName}</0> est masqué, il n’est donc pas dans ce fichier. Pour l’exporter, choisissez-le dans Exporter un lieu."
@@ -28794,3 +28818,35 @@ msgstr "Développer les emplacements"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "Redimensionner les emplacements"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Les clés d’accès ne fonctionnent qu’à l’adresse <0/>, car les navigateurs lient une clé d’accès à une seule adresse. Ici, utilisez votre mot de passe ou un lien par e-mail."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Le lien s’ouvre à l’adresse <0/> et vous y connecte, pas à celle-ci. Vous ne pouvez pas l’atteindre d’ici ? Utilisez votre mot de passe."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Le lien s’ouvre à l’adresse <0/>. Définissez-y le nouveau mot de passe, puis connectez-vous ici avec."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Les clés d’accès ne fonctionnent qu’à l’adresse <0/>, car les navigateurs lient une clé d’accès à une seule adresse. Ajoutez-en une là-bas."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Pour en lier une, allez à l’adresse <0/> : les connexions externes reviennent à cette adresse."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Adresses"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "L’adresse principale. <0/> en ajoute d’autres."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "L’adresse principale, où restent les liens, le courrier et les clés d’accès. Et aussi, définies par <0/> :"

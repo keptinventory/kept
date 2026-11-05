@@ -80,7 +80,7 @@ password (above). On managed Postgres, check the four logins exist
 - **The API:** 403, "The request did not come from this site."
 
 **Cause:** a write that carries Kept's cookie must come from the exact origin of
-`KEPT_PUBLIC_URL`: scheme, host and port. Kept compares it with the browser's `Origin` header,
+`KEPT_PUBLIC_URL`, or one of `KEPT_EXTRA_ADDRESSES`: scheme, host and port. Kept compares it with the browser's `Origin` header,
 which is the address in the address bar; a reverse proxy in between changes nothing. Opening Kept
 at another address (an IP instead of the name, `http` instead of `https`, a different port, the
 proxy's internal address) makes every write a 403. Links, QR codes and invitation mails are built

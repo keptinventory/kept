@@ -24,6 +24,8 @@ const keys = fixedSecretKeys(keyringOf({ version: 1, key: randomBytes(32), retir
 let db: TestDb;
 let files: TestFiles;
 let plain: TestApp;
+/** The same database and sign-ins, with longer sign-ins over http on (#404): nothing changes. */
+let week: TestApp;
 let admin: Person;
 let locationId: string;
 let safe: string;
@@ -34,6 +36,7 @@ beforeAll(async () => {
   files = await testFiles();
   // No publicUrl: the test app's own, plain http.
   plain = await peopleApp(db, { files, secretKeys: keys, sent: [] });
+  week = await peopleApp(db, { files, secretKeys: keys, sent: [], httpSignInDays: 7 });
   admin = await person(plain, db, 'bruce');
   await ownerTx(db, (c) =>
     c.query('INSERT INTO public.instance_admins (user_id) VALUES ($1)', [admin.userId]),
@@ -58,6 +61,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await plain?.app.close();
+  await week?.app.close();
   await files?.cleanup();
 });
 
@@ -129,10 +133,13 @@ const REFUSED: Refused[] = [
   },
 ];
 
-describe('over plain http', () => {
+describe.each([
+  { over: 'over plain http', app: () => plain },
+  { over: 'over plain http with KEPT_HTTP_SIGN_IN_DAYS on', app: () => week },
+])('$over', ({ app }) => {
   for (const r of REFUSED) {
     it(`refuses ${r.what}: 403 https_required, nothing in the answer, nothing made`, async () => {
-      const res = await call(plain, r.path(), {
+      const res = await call(app(), r.path(), {
         as: admin,
         method: r.method ?? 'POST',
         body: r.body(),
@@ -145,7 +152,9 @@ describe('over plain http', () => {
       expect(await r.none()).toHaveLength(0);
     });
   }
+});
 
+describe('over plain http', () => {
   it('starts an export without secret values', async () => {
     const res = await call(plain, '/api/v1/exports', {
       as: admin,

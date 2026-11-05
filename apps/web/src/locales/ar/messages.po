@@ -28739,6 +28739,30 @@ msgstr "أدخل عددًا صحيحًا."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "أُضيف الإيصال الجديد، لكن تعذّرت إزالة القديم"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "مدة تسجيل الدخول"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "تتجدد مع الاستخدام."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "تتجدد مع الاستخدام. لا أثر لـ <0/> عبر HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "عبر HTTP العادي، بلا تجديد. يطيلها <0/>."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "عبر HTTP العادي، يحددها <0/>. تتجدد مع الاستخدام."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, zero {لا ساعات} one {ساعة واحدة} two {ساعتان} few {# ساعات} many {# ساعة} other {# ساعة}}"
+
 #: src/components/export/export-sheet.tsx
 msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
 msgstr "<0>{hiddenName}</0> مخفي، لذا ليس في هذا الملف. لتصديره، اختره من تصدير موقع."
@@ -28794,3 +28818,35 @@ msgstr "توسيع الأماكن"
 #: src/components/page-aside.tsx
 msgid "Resize places"
 msgstr "تغيير عرض الأماكن"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "مفاتيح المرور تعمل فقط على <0/>، لأن المتصفحات تربط مفتاح المرور بعنوان واحد. هنا، استخدم كلمة المرور أو رابطًا بالبريد."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "يُفتح الرابط على <0/> ويسجّل دخولك هناك، لا على هذا العنوان. لا يمكنك الوصول إليه من هنا؟ استخدم كلمة المرور."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "يُفتح الرابط على <0/>. عيّن كلمة المرور الجديدة هناك، ثم سجّل الدخول بها هنا."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "مفاتيح المرور تعمل فقط على <0/>، لأن المتصفحات تربط مفتاح المرور بعنوان واحد. أضف مفتاحًا هناك."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "لربط واحدة، انتقل إلى <0/>: تسجيلات الدخول الخارجية تعود إلى ذلك العنوان."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "العناوين"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "العنوان الرئيسي. يضيف <0/> المزيد."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "العنوان الرئيسي، وعليه تبقى الروابط والبريد ومفاتيح المرور. وأيضًا، بتحديد <0/>:"
