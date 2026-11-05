@@ -11,6 +11,8 @@ a location turns them on in **Location settings → What to track**
 
 - **[Locations, rooms and boxes](/users/locations/)**: homes, garages, storage units; places
   inside places. Move a box and what's in it moves too. A place tree you can widen or collapse.
+- **[Hide Personal](/users/locations/#hide-personal)**: take your Personal location out of the
+  menu, Home, lists and search, and show it again any time.
 - **[Furniture with compartments](/users/locations/#furniture-with-compartments)**: a cube shelf or
   a chest of drawers, each compartment its own place. Turn it on its side, merge or split
   compartments; their labels keep working.
@@ -67,7 +69,10 @@ a location turns them on in **Location settings → What to track**
 - **[Sharing a location](/users/sharing/)**: invite people with a role (admin, member, viewer)
   and an optional end date; managed accounts for people without email; read-only share links for
   someone without an account.
-- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in.
+- **[Sign-in and security](/users/sign-in-security/)**: passkeys and two-factor sign-in; on a home
+  network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network);
+  one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
+  name and a Tailscale name.
 - **Six languages**: English, Arabic (right to left), French, German, Italian and Vietnamese;
   dates in your region's style, or as you choose.
 

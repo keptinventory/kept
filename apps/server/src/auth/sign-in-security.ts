@@ -11,7 +11,13 @@ import { AppError, conflict, forbidden, invalid, notFound, pgErrorOf } from '../
 import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import type { Auth } from './auth.js';
 import { isUndeliverableEmail } from './emails.js';
-import { authHeaders, forwardCookies, rateLimited, requireScope } from './http.js';
+import {
+  assertNotOnExtraAddress,
+  authHeaders,
+  forwardCookies,
+  rateLimited,
+  requireScope,
+} from './http.js';
 import { requireReauthentication } from './reauth.js';
 import {
   lockAccount,
@@ -147,6 +153,9 @@ export type SignInSecurityOptions = {
   auth: Auth;
   pools: Pick<Pools, 'app' | 'auth' | 'system'>;
   trustedProxies: readonly string[];
+  /** KEPT_PUBLIC_URL and KEPT_EXTRA_ADDRESSES: a passkey is added on the main address only. */
+  publicUrl: string;
+  extraAddresses?: readonly string[];
   /** Mail is delivered (KEPT_SMTP_URL), so an email link is a way in for a verified address. */
   mailConfigured: boolean;
 };
@@ -293,6 +302,8 @@ export async function signInSecurityRoutes(
 
   app.post('/api/v1/me/passkeys/confirm', { schema: { body: ReauthBody } }, async (req, reply) => {
     const scope = requireScope(req);
+    // The first step of adding one: a passkey made here would belong to the main address (D275).
+    assertNotOnExtraAddress(req, new URL(opts.publicUrl).origin, opts.extraAddresses);
     await confirmItsYou(req, reply, req.body.password);
     const sessionId = req.authSession?.sessionId;
     if (!sessionId) throw forbidden();

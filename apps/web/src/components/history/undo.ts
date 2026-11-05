@@ -29,7 +29,7 @@ import type { UndoRefusedDetails } from '@/api/capture/types';
 import { api, isApiError } from '@/api/client';
 import { inventoryPaths as p } from '@/api/inventory/paths';
 import type { HistoryEvent, UndoResult } from '@/api/inventory/types';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useMe } from '@/api/queries';
 import { type ToastContentData, toast } from '@/components/ui/toast';
 import { useFieldLabel } from './labels';
 
@@ -206,7 +206,7 @@ function useReportUndo() {
 export function useUndo() {
   const qc = useQueryClient();
   const me = useMe();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const report = useReportUndo();
   const { t } = useLingui();
   const meId = me.data?.user.id;

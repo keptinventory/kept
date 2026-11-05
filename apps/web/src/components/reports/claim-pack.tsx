@@ -26,7 +26,7 @@ import { ProgressBar } from 'react-aria-components';
 import { ApiError } from '@/api/client';
 import { householdApi, householdKeys, useClaimPack, useIncident } from '@/api/household/queries';
 import type { ClaimPack, ClaimPackLink, CreateClaimPackBody } from '@/api/household/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { AlertIcon, DocumentIcon, ShareIcon } from '@/components/icons';
 import { TickBox } from '@/components/incidents/incident-sheet';
 import { useIncidentName } from '@/components/incidents/labels';
@@ -68,7 +68,7 @@ async function fetchZip(url: string, day: string): Promise<File> {
 
 export function ClaimPackScreen({ search }: { search: ReportSearch }) {
   const { t } = useLingui();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const incident = useIncident(search.incident ?? '');
   const nameIncident = useIncidentName();
   const locationName = useLocationName();

@@ -12,7 +12,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
 import { useRouterState } from '@tanstack/react-router';
 import { inventoryApi, inventoryKeys } from '@/api/inventory/queries';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { usePlaceName } from '@/components/places/labels';
 import { isUuid, locationIdOf, resolveAddress } from '@/lib/address';
 import { useLocationName } from '@/lib/labels';
@@ -75,7 +75,7 @@ export function usePageContext(): PageContext | null {
   const { t } = useLingui();
   const key = usePageKey();
   const [kind = '', param = ''] = key.split('|');
-  const locations = useLocations();
+  const locations = useAllLocations();
   const locationName = useLocationName();
   const placeName = usePlaceName();
   const thingId = useAddressId('thing', param, kind === 'thing');

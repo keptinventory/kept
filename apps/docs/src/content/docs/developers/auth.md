@@ -124,10 +124,23 @@ except a rename signs out the other sessions and mails the owner.
 
 A request that carries a cookie and isn't a safe method must come from Kept's own pages
 (`csrfHook` in [`auth/http.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/http.ts)):
-its `Origin` is the origin of `KEPT_PUBLIC_URL`, or, when the browser sent no usable `Origin`,
-`Sec-Fetch-Site: same-origin`. Anything else is 403 `forbidden` before the session is looked up
-or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the address the browser shows. A
-request with a bearer token carries no cookie authority and skips it.
+its `Origin` is the origin of `KEPT_PUBLIC_URL`, or exactly one of `KEPT_EXTRA_ADDRESSES`
+([`auth/addresses.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/auth/addresses.ts)),
+or, when the browser sent no usable `Origin`, `Sec-Fetch-Site: same-origin`. Anything else is 403
+before the session is looked up or the body read. This is why `KEPT_PUBLIC_URL` must be exactly the
+address the browser shows. A request with a bearer token carries no cookie authority and skips it.
+
+Better Auth's `trustedOrigins` holds the same list. A request whose `Origin` is an extra address is
+refused on `/passkey/*`, `/sign-in/social`, `/link-social`, `/oauth2/*` and the consent route, as
+`origin_mismatch` naming `KEPT_PUBLIC_URL`. This goes by `Origin`, so a request with none isn't
+refused: `GET /oauth2/authorize` at an extra address's name answers as on the main address, sending
+the browser to the consent page there, and an app's call to the token endpoint gets the main
+address's issuer. A code goes only to the client's registered redirect URI. `/callback/*` isn't on
+the list: a provider comes back by a GET, with no `Origin`, to `KEPT_PUBLIC_URL`.
+
+Under Home Assistant ingress the page is Home Assistant's, so the check stays that one origin: the
+list applies on Kept's own port. No link or relying party comes from a request's `Host` or
+`X-Forwarded-*`.
 
 ## How a route declares who may call it
 

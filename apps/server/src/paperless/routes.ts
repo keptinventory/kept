@@ -11,10 +11,9 @@ import { audited } from '../audit/audited.js';
 import { lastChangedBy } from '../audit/undo.js';
 import { rateLimited, requireScope } from '../auth/http.js';
 import { limiterKey, reserveInWindow } from '../auth/sign-in-limiter.js';
-import type { Sealed } from '../crypto/envelope.js';
 import type { SecretKeys } from '../crypto/keyring.js';
 import { PAPERLESS_KINDS, type PaperlessKind } from '../db/schema/paperless.js';
-import { type Scope, type Tx, withSystem } from '../db/scope.js';
+import type { Scope, Tx } from '../db/scope.js';
 import { createAttachment } from '../files/attachments.js';
 import { ingestFile } from '../files/ingest.js';
 import { receive } from '../files/upload.js';
@@ -36,14 +35,15 @@ import {
   PaperlessClient,
   type PaperlessDocument,
   PaperlessError,
+  paperlessTitle,
 } from './client.js';
 import {
-  openPaperlessConfig,
   type PaperlessConfig,
   paperlessRoot,
   paperlessToken,
   sealPaperlessConfig,
 } from './config.js';
+import { openConnection } from './connection.js';
 import { kindOf } from './kinds.js';
 
 // Paperless-ngx (1.x, D248). The web's contract is apps/web/src/api/paperless/{paths,types}.ts
@@ -425,7 +425,7 @@ async function describe(client: PaperlessClient, docs: PaperlessDocument[]): Pro
       return n ? [n] : [];
     });
     return {
-      title: clip(d.title, 300) ?? `#${d.id}`,
+      title: paperlessTitle(d.title) ?? `#${d.id}`,
       kind: kindOf(typeName, tagNames),
       typeName: clip(typeName, 128),
       correspondent: clip(d.correspondent ? correspondents.get(d.correspondent) : null, 128),
@@ -454,23 +454,7 @@ export async function paperlessRoutes(app: KeptApp, deps: InventoryDeps): Promis
   }
 
   /** The location's connection with its token, opened (kept_system, after kept_app's checks). */
-  async function connectionOf(
-    locationId: string,
-  ): Promise<{ id: string; config: PaperlessConfig } | null> {
-    const row = await withSystem(pools.system, async (_tx, c) => {
-      const { rows } = await c.query<{ id: string; config_ciphertext: Sealed }>(
-        'SELECT id, config_ciphertext FROM kept.paperless_config($1)',
-        [locationId],
-      );
-      return rows[0] ?? null;
-    });
-    if (!row) return null;
-    const keys = keysOf();
-    return {
-      id: row.id,
-      config: openPaperlessConfig(keys.get().keyring, row.id, row.config_ciphertext),
-    };
-  }
+  const connectionOf = (locationId: string) => openConnection(pools.system, keysOf, locationId);
 
   async function clientOf(locationId: string) {
     const conn = await connectionOf(locationId);

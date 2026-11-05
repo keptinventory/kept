@@ -1,0 +1,1 @@
+ALTER TABLE "user_profiles" ADD COLUMN "hide_personal" boolean DEFAULT false NOT NULL;

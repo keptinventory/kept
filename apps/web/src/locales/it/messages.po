@@ -30735,3 +30735,431 @@ msgstr "Ingrandisci"
 #: src/map/map-view.tsx
 msgid "Zoom out"
 msgstr "Riduci"
+
+msgid "Your own key is for Personal, your private threads, and questions that span owners."
+msgstr "La tua chiave è per Personale, le tue conversazioni private e le domande che riguardano più proprietari."
+
+#: src/routes/_app/settings.index.tsx
+msgid "Your Personal location, profile and preferences, and your AI calls, as one file."
+msgstr "Il tuo luogo Personale, profilo e preferenze, e le tue chiamate all'IA, in un unico file."
+
+#: src/components/export/export-sheet.tsx
+msgid "Your Personal location with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
+msgstr "Il tuo luogo Personale con i suoi file, profilo e preferenze, e le chiamate all'IA che hai fatto. I luoghi di tua proprietà si esportano uno per uno."
+
+#: src/components/search/semantic-note.tsx
+msgid "Keyword search only here (no embeddings model)"
+msgstr "Qui solo ricerca per parole (nessun modello di embedding)"
+
+#: src/routes/_app/settings.index.tsx
+msgid "After 30 days, with your Personal location. You can keep it until then."
+msgstr "Dopo 30 giorni, insieme al tuo luogo personale. Fino ad allora puoi tenerlo."
+
+#: src/components/delete-account.tsx
+msgid "Your account, your Personal location and everything in it are deleted 30 days from now. Until then you can sign in and keep the account; nothing else opens."
+msgstr "Il tuo account, il tuo luogo personale e tutto ciò che contiene vengono eliminati tra 30 giorni. Fino ad allora puoi accedere e tenere l’account; nient’altro si apre."
+
+#: src/components/delete-account.tsx
+msgid "Your Personal location, profile and preferences, as one file."
+msgstr "Il tuo luogo personale, il profilo e le preferenze, in un unico file."
+
+#: src/components/delete-account.tsx
+msgid "You asked for it, with your Personal location and everything in it. Until then nothing else in Kept opens. Keep the account to go back to it as it was."
+msgstr "L’hai chiesto tu, insieme al tuo luogo personale e a tutto ciò che contiene. Fino ad allora in Kept non si apre nient’altro. Tieni l’account per ritrovarlo com’era."
+
+#: src/components/import/track-step.tsx
+msgid "Also for Personal"
+msgstr "Anche per Personale"
+
+#: src/components/import/track-step.tsx
+msgid "Personal, your own location, tracks the same from when the import runs. The menu shows what any of your locations tracks."
+msgstr "Personale, il tuo luogo, monitora lo stesso da quando parte l’importazione. Il menu mostra ciò che monitora uno qualsiasi dei tuoi luoghi."
+
+msgid "Date format"
+msgstr "Formato data"
+
+msgctxt "date format"
+msgid "Default"
+msgstr "Predefinito"
+
+msgid "Default leaves the year off this year’s dates. Purchase and warranty dates always show it."
+msgstr "Predefinito omette l’anno nelle date di quest’anno. Le date di acquisto e di garanzia lo mostrano sempre."
+
+msgid "How dates and times are written in English."
+msgstr "Come si scrivono date e ore in inglese."
+
+msgid "United Kingdom"
+msgstr "Regno Unito"
+
+msgid "United States"
+msgstr "Stati Uniti"
+
+msgid "Name {title}"
+msgstr "Assegna un nome a {title}"
+
+msgid "Name cleared"
+msgstr "Nome rimosso"
+
+msgid "Named {0}"
+msgstr "Nome assegnato: {0}"
+
+msgid "What it is, e.g. Insurance 2026. Leave it empty to show its kind."
+msgstr "Che cos’è, ad es. Assicurazione 2026. Lascia vuoto per mostrarne il tipo."
+
+msgid "{others, plural, one {This receipt has # other thing on it: the date and shop change for it too.} other {This receipt has # other things on it: the date and shop change for them too.}}"
+msgstr "{others, plural, one {Questa ricevuta riporta # altro oggetto: data e negozio cambiano anche per esso.} other {Questa ricevuta riporta altri # oggetti: data e negozio cambiano anche per essi.}}"
+
+msgid "Add a receipt"
+msgstr "Aggiungi una ricevuta"
+
+msgid "Add the purchase"
+msgstr "Aggiungi l’acquisto"
+
+msgid "Add the purchase of {0}"
+msgstr "Aggiungi l’acquisto di {0}"
+
+msgid "Choose the day it was bought."
+msgstr "Scegli il giorno dell’acquisto."
+
+msgid "Edit the purchase"
+msgstr "Modifica l’acquisto"
+
+msgid "No purchase recorded: when and where it was bought, and what it cost."
+msgstr "Nessun acquisto registrato: quando e dove è stato comprato, e quanto è costato."
+
+msgid "Price of one"
+msgstr "Prezzo unitario"
+
+msgid "Purchase of {0}"
+msgstr "Acquisto di {0}"
+
+msgid "Purchase saved"
+msgstr "Acquisto salvato"
+
+msgid "These are the purchase’s receipts: every thing bought on it shows them. A receipt added under Paperwork is this thing’s own and shows only there."
+msgstr "Queste sono le ricevute dell’acquisto: ogni oggetto comprato con esso le mostra. Una ricevuta aggiunta in Documenti è di questo oggetto e compare solo lì."
+
+msgid "This purchase is kept in another location; change it there."
+msgstr "Questo acquisto è registrato in un altro luogo; modificalo lì."
+
+msgid "Also in Paperwork"
+msgstr "Anche in Documenti"
+
+msgid "At most 300 characters."
+msgstr "Al massimo 300 caratteri."
+
+msgid "Couldn't change the receipt"
+msgstr "Impossibile modificare la ricevuta"
+
+msgid "How the receipt names it."
+msgstr "Come lo chiama la ricevuta."
+
+msgid "It comes off the purchase. The file itself stays until it's purged."
+msgstr "Viene tolta dall’acquisto. Il file resta finché non viene eliminato."
+
+msgid "Its date, shop, price and receipts go. The thing stays."
+msgstr "Data, negozio, prezzo e ricevute vengono rimossi. L’oggetto resta."
+
+msgid "Left empty, it is the price times the quantity."
+msgstr "Se vuoto, è il prezzo per la quantità."
+
+msgid "No receipt yet."
+msgstr "Ancora nessuna ricevuta."
+
+msgid "Purchase notes"
+msgstr "Note sull’acquisto"
+
+msgid "Purchase removed"
+msgstr "Acquisto rimosso"
+
+msgid "Receipt replaced"
+msgstr "Ricevuta sostituita"
+
+msgid "Receipt total"
+msgstr "Totale della ricevuta"
+
+msgid "Remove {0}?"
+msgstr "Rimuovere {0}?"
+
+msgid "Remove {label}"
+msgstr "Rimuovi {label}"
+
+msgid "Remove this purchase?"
+msgstr "Rimuovere questo acquisto?"
+
+msgid "Take {0} off this receipt?"
+msgstr "Togliere {0} da questa ricevuta?"
+
+msgid "Take it off"
+msgstr "Toglilo"
+
+msgid "Taken off the receipt"
+msgstr "Tolto dalla ricevuta"
+
+msgid "The receipt and its other things stay as they are."
+msgstr "La ricevuta e gli altri oggetti restano come sono."
+
+#: src/components/places/compartments.tsx
+msgid "As you face it."
+msgstr "Visto di fronte."
+
+#: src/components/places/compartments.tsx
+msgid "Choose compartments side by side to merge them, or one merged compartment to split it again."
+msgstr "Scegli vani affiancati per unirli, oppure un vano unito per dividerlo di nuovo."
+
+#: src/components/places/compartments.tsx
+msgid "Compartments after turning"
+msgstr "Vani dopo la rotazione"
+
+#: src/components/places/compartments.tsx
+msgid "Each gets the number and code of where it now stands, top left first. An old code opens the compartment now in its place; printed labels stay with theirs."
+msgstr "Ogni vano prende il numero e il codice della posizione in cui si trova ora, partendo in alto a sinistra. Un vecchio codice apre il vano che ora è al suo posto; le etichette stampate restano con il proprio vano."
+
+#: src/components/places/compartments.tsx
+msgid "Its compartments"
+msgstr "I suoi vani"
+
+#: src/components/places/compartments.tsx
+msgid "Its top went"
+msgstr "La parte alta ora è"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Keep the codes"
+msgstr "Mantieni i codici"
+
+#: src/components/places/compartments.tsx
+msgid "Merge or split…"
+msgstr "Unisci o dividi…"
+
+#: src/components/history/labels.ts
+msgid "Merged compartments of {name}"
+msgstr "Vani di {name} uniti"
+
+#: src/components/places/compartments.tsx
+msgid "Merged into {merged}"
+msgstr "Uniti in {merged}"
+
+#: src/components/places/compartments.tsx
+msgid "Only how it stands changes: each keeps its number, name and codes."
+msgstr "Cambia solo come sta: ogni vano mantiene numero, nome e codici."
+
+#: src/components/places/compartments.tsx
+msgid "Print their labels"
+msgstr "Stampa le loro etichette"
+
+#: src/components/places/compartments.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Renumber"
+msgstr "Rinumera"
+
+#: src/components/places/compartments.tsx
+msgid "Renumbered. Print their labels again for the new names."
+msgstr "Rinumerati. Ristampa le loro etichette con i nuovi nomi."
+
+#: src/components/history/labels.ts
+msgid "Split a compartment of {name}"
+msgstr "Diviso un vano di {name}"
+
+#: src/components/places/compartments.tsx
+msgid "The numbers and codes are as they were."
+msgstr "Numeri e codici sono come prima."
+
+#: src/components/places/compartments.tsx
+msgid "To the left"
+msgstr "A sinistra"
+
+#: src/components/places/compartments.tsx
+msgid "To the right"
+msgstr "A destra"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the left"
+msgstr "Parte alta a sinistra"
+
+#: src/assistant/confirm-card.tsx
+msgid "Top to the right"
+msgstr "Parte alta a destra"
+
+#: src/components/places/compartments.tsx
+msgid "Turn {unit}"
+msgstr "Ruota {unit}"
+
+#: src/components/places/compartments.tsx
+msgid "Turn it…"
+msgstr "Ruotalo…"
+
+#: src/components/places/compartments.tsx
+msgid "Turned {unit}"
+msgstr "{unit} ruotato"
+
+#: src/components/places/room-size.tsx
+msgid "Length"
+msgstr "Lunghezza"
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} m across."
+msgstr "Una stanza misura almeno {min} m per lato."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} m across."
+msgstr "Una stanza misura al massimo {max} m per lato."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Give the width and the length, or neither."
+msgstr "Indica larghezza e lunghezza, oppure nessuna delle due."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "On the map at its size."
+msgstr "Sulla mappa, nelle sue misure reali."
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Size on the map"
+msgstr "Misure sulla mappa"
+
+#: src/components/places/add-here-sheet.tsx
+msgid "Optional, to the centimetre. Leave it empty and the map sizes the room itself."
+msgstr "Facoltativo, al centimetro. Lascia vuoto e la mappa dimensiona la stanza da sola."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under 50 cm: too small for the map."
+msgstr "Sotto 50 cm: troppo piccola per la mappa."
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Decrease {label}"
+msgstr "{label}: riduci"
+
+#: src/components/places/room-size.tsx
+#: src/map/size.tsx
+msgid "Increase {label}"
+msgstr "{label}: aumenta"
+
+#: src/components/places/room-size.tsx
+#: src/map/height.tsx
+msgid "Enter metres, like {example}."
+msgstr "Inserisci un valore in metri, ad esempio {example}."
+
+#: src/map/size.tsx
+msgid "Enter a whole number."
+msgstr "Inserisci un numero intero."
+
+#: src/components/things/purchase-sheet.tsx
+msgid "The new receipt is added, but the old one couldn't be removed"
+msgstr "La nuova ricevuta è stata aggiunta, ma non è stato possibile rimuovere quella vecchia"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Durata dell'accesso"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Si rinnova con l'uso."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Si rinnova con l'uso. <0/> non ha effetto su HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Su HTTP semplice, non si rinnova. <0/> la allunga."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Su HTTP semplice, impostata da <0/>. Si rinnova con l'uso."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# ora} other {# ore}}"
+
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> è nascosto, quindi non è in questo file. Per esportarlo, sceglilo in Esporta un luogo."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> è nascosto dal menu, dalla Home, dagli elenchi e dalla ricerca. Questo link lo apre comunque."
+
+#: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Chiave personale di <0>{payer}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> è visibile perché è il tuo unico luogo. Tornerà nascosto quando ne avrai un altro."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> è il tuo unico luogo, quindi resta. Prima aggiungine o raggiungine un altro."
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "Nascondi <0>{personal}</0>"
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Esce dal menu, dalla Home, dagli elenchi e dalla ricerca, solo per te. Al suo interno non cambia nulla, un link lo apre ancora e i suoi promemoria continuano ad arrivarti. Puoi mostrarlo di nuovo qui quando vuoi."
+
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Mostralo di nuovo"
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Questa chiave paga per tutte le case di <0>{ownerName}</0>: <1>{list}</1>."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Usata per le tue conversazioni private, le domande che riguardano più proprietari, <0>{personal}</0> e un luogo di cui sei proprietario, che usi da solo e che non ha una chiave dell’account."
+
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "La tua chiave è per le tue conversazioni private e le domande che riguardano più proprietari."
+
+#: src/components/page-aside.tsx
+msgid "Collapse places"
+msgstr "Comprimi posti"
+
+#: src/components/page-aside.tsx
+msgid "Expand places"
+msgstr "Espandi posti"
+
+#: src/components/page-aside.tsx
+msgid "Resize places"
+msgstr "Ridimensiona posti"
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# link mantiene il titolo di Homebox: Kept non è riuscito a ottenerlo da Paperless.} other {# link mantengono il titolo di Homebox: Kept non è riuscito a ottenerli da Paperless.}}"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Le passkey funzionano solo su <0/>, perché i browser legano una passkey a un solo indirizzo. Qui usa la password o un link via email."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Il link si apre su <0/> e ti fa accedere lì, non su questo indirizzo. Non riesci a raggiungerlo da qui? Usa la password."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Il link si apre su <0/>. Imposta lì la nuova password, poi accedi qui con quella."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Le passkey funzionano solo su <0/>, perché i browser legano una passkey a un solo indirizzo. Aggiungine una lì."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Per collegarne uno, vai su <0/>: gli accessi esterni tornano a quell'indirizzo."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Indirizzi"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "L'indirizzo principale. <0/> ne aggiunge altri."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "L'indirizzo principale, dove restano link, email e passkey. Inoltre, impostati da <0/>:"

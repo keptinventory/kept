@@ -93,7 +93,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Inventory.** Locations, places, boxes and things, with photos, documents, purchases, tags,
   custom fields, quantities, saved views, search, an archive for what you no longer use and a trash
   you can restore from. Furniture with compartments you can turn, merge and split. A place tree you
-  can widen or collapse.
+  can widen or collapse. Hide your Personal location if you don't use it.
 - **3D map and graph.** Each location in 3D, rooms at their real size, started from a floor plan
   if you have one; its places and things as a graph
   ([the map](https://keptinventory.info/users/location-map/)).
@@ -121,8 +121,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
-- **Your own network or HTTPS.** Works over plain http at home; an export with secret values needs
-  HTTPS.
+- **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set
+  and more than one address; an export with secret values needs HTTPS.
 - **Six languages:** English, Arabic (right to left), French, German, Italian and Vietnamese.
 
 <p align="center">

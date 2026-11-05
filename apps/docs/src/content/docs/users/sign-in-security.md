@@ -27,7 +27,9 @@ or turned off, and when new backup codes are made. Managed accounts (a username,
 ## Passkeys
 
 A passkey signs you in with Face ID, a fingerprint or your phone's screen lock, with no password
-to type. Kept never sees it: it stays on the device or in your password manager.
+to type. Kept never sees it: it stays on the device or in your password manager. It belongs to one
+address: on a Kept with [more than one](/install/home-network/#more-than-one-address), add and use
+it at the main one.
 
 | | |
 |---|---|

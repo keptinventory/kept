@@ -21,13 +21,13 @@ import type { AiProvider, AiScope, ProviderScope } from '@/api/capture/types';
 import { api } from '@/api/client';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { inventoryKeys, useAccounts } from '@/api/inventory/queries';
-import { useLocations, useMe } from '@/api/queries';
+import { useAllLocations, useLocations, useMe } from '@/api/queries';
 import { ChartIcon } from '@/components/icons';
 import { ErrorState, List, LoadingRows, Notice, Section } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { hashHref } from '@/lib/base-path';
 import { useLocationName } from '@/lib/labels';
-import { usePersonalName } from '@/lib/personal-name';
+import { usePersonalHidden, usePersonalName } from '@/lib/personal-name';
 import { Advanced } from './advanced';
 import { CapBars } from './cap-bars';
 import { CapSuggest } from './cap-suggest';
@@ -102,6 +102,7 @@ function NotAnOwner() {
   const accounts = useAccounts();
   const nameOf = useLocationName();
   const personal = usePersonalName();
+  const hidden = usePersonalHidden();
   const shared = (locations.data ?? []).filter((l) => l.kind !== 'personal');
   const statuses = useQueries({
     queries: shared.map((l) => ({
@@ -138,10 +139,14 @@ function NotAnOwner() {
           })}
         </List>
         <p className="m-0 text-small text-ink-2">
-          <Trans>
-            Your own key is for <bdi>{personal}</bdi>, your private threads, and questions that span
-            owners.
-          </Trans>{' '}
+          {hidden ? (
+            <Trans>Your own key is for your private threads and questions that span owners.</Trans>
+          ) : (
+            <Trans>
+              Your own key is for <bdi>{personal}</bdi>, your private threads, and questions that
+              span owners.
+            </Trans>
+          )}{' '}
           <Link
             to="/settings/me/ai"
             className="font-semibold text-ink underline underline-offset-2"
@@ -162,7 +167,7 @@ function NotAnOwner() {
 function KeySettings({ scope, provider }: { scope: ProviderScope; provider: AiProvider | null }) {
   const { t } = useLingui();
   const me = useMe();
-  const locations = useLocations();
+  const locations = useAllLocations();
   const accounts = useAccounts();
   const nameOf = useLocationName();
   const providerName = useProviderName();

@@ -23,7 +23,7 @@ import { KeyIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
-import { appHref } from '@/lib/base-path';
+import { appHref, mainAddressElsewhere } from '@/lib/base-path';
 import { nextSearch } from '@/lib/next';
 
 export const Route = createFileRoute('/signin/two-factor')({
@@ -138,7 +138,7 @@ function TwoFactorPage() {
             <Trans>Use a backup code instead</Trans>
           )}
         </Button>
-        {passkeysSupported() ? (
+        {passkeysSupported() && !mainAddressElsewhere() ? (
           <Button
             variant="secondary"
             isPending={passkey.isPending}

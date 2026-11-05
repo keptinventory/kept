@@ -46,6 +46,8 @@ export type SetupStatus = {
   /** D272: only in the Home Assistant app. `codeNeeded: false` for a Home Assistant
    * administrator through ingress, who sets up without the code (D273). */
   homeAssistant?: { codeNeeded: boolean };
+  /** D275: KEPT_PUBLIC_URL's origin, only with KEPT_EXTRA_ADDRESSES set. Never the list. */
+  mainAddress?: string;
 };
 
 /** One way into the account, as Better Auth lists it (never its tokens). `id` is Better Auth's
@@ -129,6 +131,8 @@ export type Me = {
   twoFactorHidden?: TwoFactorHiddenLocation[];
   /** Null only while it's hidden from this session (require_2fa without a second factor). */
   personalLocationId: string | null;
+  /** Personal is out of this person's lists right now (#392). */
+  personalHidden?: boolean;
   /** Display preferences. `locale` is `en` or `ar`. */
   profile: {
     timezone: string;
@@ -138,6 +142,8 @@ export type Me = {
     digits: 'western' | 'eastern';
     /** "Suggest where I am" (D153): the person's choice, on every device. */
     suggestLocation?: boolean;
+    /** "Hide Personal" as they set it; `personalHidden` is whether it applies right now. */
+    hidePersonal?: boolean;
   };
   /** The locations this session can see, with the user's role and end date in each. */
   memberships: {
@@ -214,6 +220,8 @@ export type LocationSummary = {
  * step 2's mock fixtures (api/inventory/mock) predate them; read them with a fallback.
  */
 export type LocationDetail = LocationSummary & {
+  /** The caller's own Personal, hidden from their lists (#392). A direct link still opens it. */
+  hidden?: boolean;
   /** Modules switched on here (location_modules), before dependencies and provider gating. */
   modules: ModuleId[];
   /** An AI provider resolves for this location (D113, D191). */
@@ -527,6 +535,14 @@ export type AdminStatus = {
   recoveryKitAcknowledged: boolean;
   /** `configured: false`: KEPT_SMTP_URL is unset, so no link, invite or alert mail goes out. */
   mail: { configured: boolean };
+  /**
+   * How long a sign-in lasts here (D274): `hours`, whether it's `renewed` as it's used, whether the
+   * public URL is `https`, and KEPT_HTTP_SIGN_IN_DAYS as it stands (null: unset; no effect over
+   * https).
+   */
+  signIn?: { hours: number; renewed: boolean; https: boolean; setting: number | null };
+  /** The addresses in force (D275): KEPT_PUBLIC_URL's origin, and KEPT_EXTRA_ADDRESSES. */
+  addresses?: { main: string; extra: string[] };
   /**
    * The nightly backup (D207): `configured: false` while no KEPT_BACKUP_DIR or
    * KEPT_BACKUP_S3_BUCKET is set; the last run and the last good one. Absent from servers before

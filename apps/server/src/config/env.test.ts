@@ -897,6 +897,41 @@ describe('KEPT_HSTS (#403)', () => {
   });
 });
 
+describe('KEPT_HTTP_SIGN_IN_DAYS (#404)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv({ ...validEnv, ...extra }, { configDir: await unusedConfigDir() });
+
+  it('is a whole number of days, 1 to 30', async () => {
+    for (const days of [1, 7, 30]) {
+      expect((await load({ KEPT_HTTP_SIGN_IN_DAYS: String(days) })).KEPT_HTTP_SIGN_IN_DAYS).toBe(
+        days,
+      );
+    }
+  });
+
+  it('unset and the empty value compose passes both leave it unset', async () => {
+    expect((await load({})).KEPT_HTTP_SIGN_IN_DAYS).toBeUndefined();
+    expect((await load({ KEPT_HTTP_SIGN_IN_DAYS: '' })).KEPT_HTTP_SIGN_IN_DAYS).toBeUndefined();
+  });
+
+  it('stops startup on anything else, saying what it takes', async () => {
+    for (const bad of ['0', '31', '7d', '-1', ' ', '1.5', '1e1', '0x10', '07', '+7', 'seven']) {
+      await expect(
+        load({ KEPT_HTTP_SIGN_IN_DAYS: bad }),
+        JSON.stringify(bad),
+      ).rejects.toMatchObject({
+        code: 'invalid_env',
+        message:
+          'invalid environment: KEPT_HTTP_SIGN_IN_DAYS (a whole number of days from 1 to 30; leave it out for 12 hours)',
+      });
+    }
+  });
+
+  it('is in the settings reference with no default of its own', () => {
+    expect(renderEnvReference()).toMatch(/^\| `KEPT_HTTP_SIGN_IN_DAYS` \| {2}\| .*1 to 30/m);
+  });
+});
+
 describe('embeddings and OIDC (S6.7)', () => {
   const load = async (extra: Record<string, string>, available?: () => boolean) =>
     loadEnv(
@@ -981,5 +1016,72 @@ describe('embeddings and OIDC (S6.7)', () => {
     await expect(load({ KEPT_GOOGLE_CLIENT_SECRET: 'google-secret-value' })).rejects.toMatchObject({
       code: 'google_incomplete',
     });
+  });
+});
+
+describe('KEPT_EXTRA_ADDRESSES (#405)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv(
+      { ...validEnv, KEPT_PUBLIC_URL: 'http://kept.lan:8080', ...extra },
+      { configDir: await unusedConfigDir() },
+    );
+
+  it('reads a comma list into the origins a browser sends', async () => {
+    const env = await load({ KEPT_EXTRA_ADDRESSES: 'HTTP://kept-ts.lan:8080/, http://100.64.0.7' });
+    expect(env.KEPT_EXTRA_ADDRESSES).toEqual(['http://kept-ts.lan:8080', 'http://100.64.0.7']);
+  });
+
+  it('unset and the empty value compose passes both leave it empty', async () => {
+    expect((await load({})).KEPT_EXTRA_ADDRESSES).toEqual([]);
+    expect((await load({ KEPT_EXTRA_ADDRESSES: '' })).KEPT_EXTRA_ADDRESSES).toEqual([]);
+  });
+
+  it('drops the main address, which needs no listing', async () => {
+    const env = await load({ KEPT_EXTRA_ADDRESSES: 'http://kept.lan:8080/,http://a.lan' });
+    expect(env.KEPT_EXTRA_ADDRESSES).toEqual(['http://a.lan']);
+  });
+
+  it.each([
+    ['http://*.lan', 'no wildcards'],
+    ['http://＊.lan', 'no wildcards'],
+    ['*', 'no wildcards'],
+    ['http://kept.lan/app', 'no path'],
+    ['http://kept.lan.', 'no dot'],
+    ['kept.lan:8080', 'starts with http'],
+  ])('stops startup on %s, saying why', async (value, why) => {
+    const refused = load({ KEPT_EXTRA_ADDRESSES: value });
+    await expect(refused).rejects.toMatchObject({ code: 'invalid_env' });
+    await expect(refused).rejects.toThrow('KEPT_EXTRA_ADDRESSES (address 1: ');
+    await expect(refused).rejects.toThrow(why);
+  });
+
+  it('never repeats a login when it stops startup', async () => {
+    const refused = load({ KEPT_EXTRA_ADDRESSES: 'http://alfred:hunter2@kept.lan' });
+    await expect(refused).rejects.toMatchObject({ code: 'invalid_env' });
+    await expect(refused).rejects.not.toThrow(/alfred|hunter2/);
+    const split = load({ KEPT_EXTRA_ADDRESSES: 'http://alfred:hun,ter2@kept.lan' });
+    await expect(split).rejects.toMatchObject({ code: 'invalid_env' });
+    await expect(split).rejects.not.toThrow(/alfred|hun|ter2/);
+  });
+
+  it('stops startup on a mix of http and https, either way round', async () => {
+    await expect(load({ KEPT_EXTRA_ADDRESSES: 'https://kept-ts.lan' })).rejects.toMatchObject({
+      code: 'invalid_env',
+      message: expect.stringContaining(
+        'KEPT_EXTRA_ADDRESSES: https://kept-ts.lan is not on http, as KEPT_PUBLIC_URL is',
+      ),
+    });
+    await expect(
+      load({ KEPT_PUBLIC_URL: 'https://kept.lan', KEPT_EXTRA_ADDRESSES: 'http://kept-ts.lan' }),
+    ).rejects.toMatchObject({
+      code: 'invalid_env',
+      message: expect.stringContaining(
+        'KEPT_EXTRA_ADDRESSES: http://kept-ts.lan is not on https, as KEPT_PUBLIC_URL is',
+      ),
+    });
+  });
+
+  it('is in the settings reference with no default of its own', () => {
+    expect(renderEnvReference()).toMatch(/^\| `KEPT_EXTRA_ADDRESSES` \| {2}\| .*exact/m);
   });
 });

@@ -39,7 +39,7 @@ import type {
   ReorderResult,
   ThingListParams,
 } from '@/api/inventory/types';
-import { keys, useLocations } from '@/api/queries';
+import { keys, useAllLocations } from '@/api/queries';
 import type { LocationKind, Role } from '@/api/types';
 
 export const placeApi = {
@@ -132,9 +132,13 @@ export type LocationTree = {
  * The place trees of every location the caller can see (the move picker's search, D45). One
  * request per location; a household has a handful.
  */
-export function useAllPlaceTrees(): { trees: LocationTree[]; isPending: boolean } {
-  const locations = useLocations();
-  const list = locations.data ?? [];
+export function useAllPlaceTrees(also: readonly string[] = []): {
+  trees: LocationTree[];
+  isPending: boolean;
+} {
+  const locations = useAllLocations();
+  // A hidden Personal only when the caller names it (a thing already in it, moving).
+  const list = (locations.data ?? []).filter((l) => !l.hidden || also.includes(l.id));
   const results = useQueries({
     queries: list.map((l) => ({
       queryKey: k.places.tree(l.id),

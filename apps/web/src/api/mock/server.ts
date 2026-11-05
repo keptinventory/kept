@@ -186,10 +186,28 @@ export function createMockApi(state: MockState): MockApi {
   add('PATCH', paths.me, ({ body }) => {
     const gate = requireSession();
     if (gate) return gate;
-    const on = (body as { suggestLocation?: unknown }).suggestLocation;
-    if (typeof on !== 'boolean') return err(400, 'validation', 'The request is not valid.');
-    state.me.profile = { ...state.me.profile, suggestLocation: on };
-    return { suggestLocation: on };
+    const { suggestLocation: on, hidePersonal: hide } = body as {
+      suggestLocation?: unknown;
+      hidePersonal?: unknown;
+    };
+    if (typeof on !== 'boolean' && typeof hide !== 'boolean')
+      return err(400, 'validation', 'The request is not valid.');
+    const others = state.locations.some((l) => l.kind !== 'personal');
+    if (hide === true && !state.me.profile.hidePersonal && !others)
+      return err(409, 'conflict', 'That conflicts with the current state.');
+    state.me.profile = {
+      ...state.me.profile,
+      ...(typeof on === 'boolean' ? { suggestLocation: on } : {}),
+      ...(typeof hide === 'boolean' ? { hidePersonal: hide } : {}),
+    };
+    state.me.personalHidden = state.me.profile.hidePersonal === true && others;
+    state.locations = state.locations.map((l) =>
+      l.kind === 'personal' ? { ...l, hidden: state.me.personalHidden === true } : l,
+    );
+    return {
+      suggestLocation: state.me.profile.suggestLocation === true,
+      hidePersonal: state.me.profile.hidePersonal === true,
+    };
   });
   add('GET', paths.mySessions, () => requireSession() ?? { sessions: state.sessions });
   add('POST', paths.myEmailChange, ({ body }) => {

@@ -106,10 +106,22 @@ export function rememberTarget(t: Target): void {
 
 // ----- the default ----------------------------------------------------------------------------
 
+/** The locations to offer: all but a hidden Personal, unless it is all there is. */
+export function shownLocations<L extends { id: string }>(
+  locations: readonly L[],
+  hiddenLocationId: string | null | undefined,
+): L[] {
+  const shown = locations.filter((l) => l.id !== hiddenLocationId);
+  return shown.length > 0 ? shown : [...locations];
+}
+
 export type DefaultInput = {
   locations: readonly SnapLocation[];
   placesOf: (locationId: string) => readonly SnapPlace[];
   personalLocationId: string | null;
+  /** A hidden Personal (#392): where captures start only if you can write nowhere else, or a box
+   * or place in it was asked for. */
+  hiddenLocationId?: string | null;
   /** The nearby location (D153), when suggestions are on and one is in range. */
   nearby?: SnapLocation | null;
   /** A box to capture into ("Capture into Box 3", or a link's `into`). */
@@ -120,8 +132,10 @@ export type DefaultInput = {
 
 export function defaultTarget(input: DefaultInput): ChipTarget | null {
   const usable = writable(input.locations);
-  const byId = new Map(usable.map((l) => [l.id, l]));
-  if (input.into && byId.has(input.into.locationId))
+  const everywhere = new Map(usable.map((l) => [l.id, l]));
+  const shown = shownLocations(usable, input.hiddenLocationId);
+  const byId = new Map(shown.map((l) => [l.id, l]));
+  if (input.into && everywhere.has(input.into.locationId))
     return {
       locationId: input.into.locationId,
       placeId: null,
@@ -140,7 +154,7 @@ export function defaultTarget(input: DefaultInput): ChipTarget | null {
     nearby ??
     (last ? byId.get(last) : undefined) ??
     (input.personalLocationId ? byId.get(input.personalLocationId) : undefined) ??
-    usable[0];
+    shown[0];
   if (!loc) return null;
   const places = input.placesOf(loc.id);
   const lastPlace = lastPlaceIn(loc.id);

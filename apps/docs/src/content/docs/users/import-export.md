@@ -138,7 +138,7 @@ What comes over:
 | Sold details | With a buyer or a price (more than 0): the thing ended as sold, with its date, price, buyer and notes. A sold date alone isn't a sale: the thing stays in use, the date in its notes |
 | Tags | Tags with their colours (nested tags flattened) |
 | Photos, manuals, receipts, warranty files | Photos, manuals, the purchase's receipt, the warranty's document |
-| Links | Links. A link to a document of the [Paperless-ngx](/users/paperless/) the location is connected to (the same address) comes in as a Paperless link, as **Link from Paperless** makes; connect Paperless before you import |
+| Links | Links. A link to a document of the [Paperless-ngx](/users/paperless/) the location is connected to (the same address) comes in as a Paperless link, as **Link from Paperless** makes, with its title from Paperless (Homebox's if Paperless can't give one; the report says how many); connect Paperless before you import |
 | Completed maintenance | Service records |
 | Scheduled maintenance | One-off schedules |
 | Templates | Account templates, as far as they map |
@@ -249,7 +249,8 @@ location's languages, the way captured things get them ([AI providers](/users/ai
 - **Export a location**, one you own or administer: every thing, place, photo, document,
   condition report and move is always in it.
 - **Export my data**: your Personal location with its files, your profile and preferences, and
-  your own AI calls.
+  your own AI calls. With [Personal hidden](/users/locations/#hide-personal) it carries the first
+  other location you own, and Personal is on **Export a location**.
 
 **What goes in** besides: archived and ended things (sold, given away, thrown out), the Trash, the history, the
 AI calls, and **A copy you can read without Kept**: web pages, spreadsheets, thumbnails and

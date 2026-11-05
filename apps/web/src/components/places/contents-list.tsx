@@ -32,7 +32,7 @@ import { type InfiniteData, type UseInfiniteQueryResult, useMutation } from '@ta
 import { type DragEvent, lazy, type ReactNode, Suspense, useMemo, useRef, useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { Page, PlaceNode, ThingListParams, ThingRow } from '@/api/inventory/types';
-import { useLocations } from '@/api/queries';
+import { useAllLocations } from '@/api/queries';
 import { ListExport } from '@/components/filters/list-export';
 import { filterParams } from '@/components/filters/params';
 import { useFilterRegistry } from '@/components/filters/registry';
@@ -247,7 +247,7 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
     setSelection(NO_SELECTION);
     setSettingField(false);
   };
-  const here = useLocations().data?.find((l) => l.id === parent.locationId);
+  const here = useAllLocations().data?.find((l) => l.id === parent.locationId);
   const accountId = useLocationAccountId(here);
   const canTrash = !!here && can(here.role, 'things.trash');
   const online = useOnline();

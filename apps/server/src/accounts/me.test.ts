@@ -40,6 +40,7 @@ describe('GET /api/v1/me', () => {
       },
       mfa: false,
       personalLocationId: me.personalLocationId,
+      personalHidden: false,
       profile: {
         timezone: 'UTC',
         locale: 'en',
@@ -47,6 +48,7 @@ describe('GET /api/v1/me', () => {
         theme: 'system',
         digits: 'western',
         suggestLocation: false,
+        hidePersonal: false,
       },
       memberships: [
         {
@@ -163,7 +165,7 @@ describe('GET /api/v1/me', () => {
       body: { suggestLocation: true },
     });
     expect(on.statusCode, on.body).toBe(200);
-    expect(on.json()).toEqual({ suggestLocation: true });
+    expect(on.json()).toEqual({ suggestLocation: true, hidePersonal: false });
     const read = await call(t, '/api/v1/me', { as: me });
     expect(read.json().profile.suggestLocation).toBe(true);
     const events = await ownerTx(

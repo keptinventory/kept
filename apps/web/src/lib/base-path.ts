@@ -76,13 +76,51 @@ export function withBaseDeep<T>(body: T): T {
   return walk(body) as T;
 }
 
+const MAIN_ADDRESS_KEY = 'kept.main-address';
+let mainAddress: string | null | undefined;
+
+/** `GET /setup`'s `mainAddress` (D275): set only when the server has KEPT_EXTRA_ADDRESSES. Kept on
+ * this device too, for a cold start offline, where the frame draws without asking (D210). */
+export function noteMainAddress(value: unknown): void {
+  let origin: string | null = null;
+  try {
+    if (typeof value === 'string' && new URL(value).origin === value) origin = value;
+  } catch {}
+  mainAddress = origin;
+  try {
+    if (origin) localStorage.setItem(MAIN_ADDRESS_KEY, origin);
+    else localStorage.removeItem(MAIN_ADDRESS_KEY);
+  } catch {
+    // No storage: this page knows it, and asks again next time.
+  }
+}
+
+function knownMainAddress(): string | null {
+  if (mainAddress !== undefined) return mainAddress;
+  try {
+    mainAddress = localStorage.getItem(MAIN_ADDRESS_KEY);
+  } catch {
+    mainAddress = null;
+  }
+  return mainAddress;
+}
+
+/** The main address when this page is on another one (KEPT_EXTRA_ADDRESSES, D275), else null:
+ * passkeys and outside sign-ins work there only. Under ingress, Home Assistant's own rules. */
+export function mainAddressElsewhere(): string | null {
+  if (typeof location === 'undefined' || underIngress()) return null;
+  const main = knownMainAddress();
+  return main && main !== location.origin ? main : null;
+}
+
 /**
  * Kept's own address for what leaves the page (a copied link, a label's QR code, a Shortcuts
  * recipe): under ingress the page's origin is Home Assistant's, which works only inside a Home
- * Assistant session, so the server names KEPT_PUBLIC_URL instead. Elsewhere the page's origin.
+ * Assistant session, so the server names KEPT_PUBLIC_URL instead; on an extra address (D275), so
+ * does `GET /setup`, as a printed label must work from anywhere. Elsewhere the page's origin.
  */
 export function publicOrigin(): string {
-  const named = underIngress() ? meta('kept-public-url') : null;
+  const named = underIngress() ? meta('kept-public-url') : mainAddressElsewhere();
   if (named) {
     try {
       return new URL(named).origin;
