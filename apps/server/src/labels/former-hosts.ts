@@ -68,15 +68,24 @@ function hostOf(req: FastifyRequest): string | null {
   }
 }
 
+/** The host names of KEPT_EXTRA_ADDRESSES (D275), which an admin's list can't send away. */
+export const extraHostnames = (extraAddresses: readonly string[] | undefined): string[] =>
+  (extraAddresses ?? []).map((origin) => new URL(origin).hostname.toLowerCase());
+
 /** The onRequest hook. `publicUrl` is KEPT_PUBLIC_URL. */
-export function formerHostHook(system: pg.Pool, publicUrl: string): onRequestAsyncHookHandler {
+export function formerHostHook(
+  system: pg.Pool,
+  publicUrl: string,
+  extraAddresses?: readonly string[],
+): onRequestAsyncHookHandler {
   const target = new URL(publicUrl);
   const base = publicUrl.replace(/\/+$/, '');
+  const inUse = new Set([target.hostname.toLowerCase(), ...extraHostnames(extraAddresses)]);
   return async function formerHost(req: FastifyRequest, reply: FastifyReply) {
     // Under Home Assistant ingress the Host is Home Assistant's, never a former address of Kept's.
     if (req.ingress) return;
     const host = hostOf(req);
-    if (!host || host === target.hostname.toLowerCase()) return;
+    if (!host || inUse.has(host)) return;
     const hosts = await formerHosts(system);
     if (!hosts.has(host)) return;
     if (req.method === 'GET' || req.method === 'HEAD') {

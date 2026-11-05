@@ -46,6 +46,8 @@ export type SetupStatus = {
   /** D272: only in the Home Assistant app. `codeNeeded: false` for a Home Assistant
    * administrator through ingress, who sets up without the code (D273). */
   homeAssistant?: { codeNeeded: boolean };
+  /** D275: KEPT_PUBLIC_URL's origin, only with KEPT_EXTRA_ADDRESSES set. Never the list. */
+  mainAddress?: string;
 };
 
 /** One way into the account, as Better Auth lists it (never its tokens). `id` is Better Auth's
@@ -533,6 +535,14 @@ export type AdminStatus = {
   recoveryKitAcknowledged: boolean;
   /** `configured: false`: KEPT_SMTP_URL is unset, so no link, invite or alert mail goes out. */
   mail: { configured: boolean };
+  /**
+   * How long a sign-in lasts here (D274): `hours`, whether it's `renewed` as it's used, whether the
+   * public URL is `https`, and KEPT_HTTP_SIGN_IN_DAYS as it stands (null: unset; no effect over
+   * https).
+   */
+  signIn?: { hours: number; renewed: boolean; https: boolean; setting: number | null };
+  /** The addresses in force (D275): KEPT_PUBLIC_URL's origin, and KEPT_EXTRA_ADDRESSES. */
+  addresses?: { main: string; extra: string[] };
   /**
    * The nightly backup (D207): `configured: false` while no KEPT_BACKUP_DIR or
    * KEPT_BACKUP_S3_BUCKET is set; the last run and the last good one. Absent from servers before

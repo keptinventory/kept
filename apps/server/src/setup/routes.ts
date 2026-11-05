@@ -10,6 +10,7 @@ import { isUndeliverableEmail } from '../auth/emails.js';
 import { googleStatus } from '../auth/google.js';
 import {
   ANONYMOUS_BODY_LIMIT,
+  alsoAccepted,
   assertFromThisSite,
   authHeaders,
   expectedOrigin,
@@ -74,6 +75,7 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
   const { auth, pools, trustedProxies } = deps;
   const origin = new URL(deps.publicUrl).origin;
   const appMode = app.env.KEPT_HA === true;
+  const extras = app.env.KEPT_EXTRA_ADDRESSES ?? [];
   // Only where the Supervisor sets X-Remote-User-Groups itself (KEPT_HA_TRUST_GROUPS).
   const haAdmin = (ctx: Parameters<typeof isHomeAssistantAdmin>[0]) =>
     app.env.KEPT_HA_TRUST_GROUPS === true && isHomeAssistantAdmin(ctx);
@@ -93,6 +95,11 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
             // D272: the Home Assistant app only. `codeNeeded: false` for a Home Assistant
             // administrator through ingress.
             homeAssistant: z.object({ codeNeeded: z.boolean() }).optional(),
+            // D275: with KEPT_EXTRA_ADDRESSES set, the main address, so a page on another one can
+            // keep its links there and say why it offers no passkey. Never the list; the
+            // origin-mismatch answer already names this address to anyone. Under ingress the page
+            // has it (http/web.ts).
+            mainAddress: z.string().optional(),
           }),
         },
       },
@@ -104,6 +111,7 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
         ...(oidc.configured && !oidc.error && oidc.name ? { oidc: { name: oidc.name } } : {}),
         ...(googleStatus().configured ? { google: true } : {}),
         ...(appMode ? { homeAssistant: { codeNeeded: !haAdmin(req.ingress) } } : {}),
+        ...(extras.length > 0 && !req.ingress ? { mainAddress: origin } : {}),
       };
     },
   );
@@ -119,8 +127,9 @@ export async function setupRoutes(app: KeptApp, deps: SetupDeps): Promise<void> 
       },
     },
     async (req, reply) => {
-      // Kept's own setup page, or Home Assistant's through ingress: that origin, nothing else.
-      assertFromThisSite(req, expectedOrigin(req, origin));
+      // Kept's own setup page, on any address it answers on, or Home Assistant's through ingress:
+      // that origin, nothing else.
+      assertFromThisSite(req, expectedOrigin(req, origin), alsoAccepted(req, extras));
       const viaHomeAssistant = haAdmin(req.ingress) ? req.ingress?.haUser : null;
       if (!(await setupNeeded(pools.system))) throw conflict('Kept is already set up.');
       const headers = authHeaders(req, trustedProxies);

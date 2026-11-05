@@ -28739,6 +28739,30 @@ msgstr "Gib eine ganze Zahl ein."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Der neue Beleg ist hinzugefügt, aber der alte konnte nicht entfernt werden"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Dauer der Anmeldung"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Verlängert sich bei Nutzung."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Verlängert sich bei Nutzung. <0/> wirkt über HTTPS nicht."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Über einfaches HTTP, ohne Verlängerung. <0/> macht sie länger."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Über einfaches HTTP, festgelegt durch <0/>. Verlängert sich bei Nutzung."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# Stunde} other {# Stunden}}"
+
 #: src/components/export/export-sheet.tsx
 msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
 msgstr "<0>{hiddenName}</0> ist ausgeblendet und deshalb nicht in dieser Datei. Um ihn zu exportieren, wähle ihn unter Einen Standort exportieren."
@@ -28798,3 +28822,35 @@ msgstr "Breite der Orte ändern"
 #: src/components/import/labels.ts
 msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
 msgstr "{count, plural, one {# Link behält seinen Homebox-Titel: Kept konnte ihn nicht von Paperless abrufen.} other {# Links behalten ihre Homebox-Titel: Kept konnte sie nicht von Paperless abrufen.}}"
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Passkeys funktionieren nur unter <0/>, weil Browser einen Passkey an eine einzige Adresse binden. Hier nutzt du dein Passwort oder einen Link per E-Mail."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Der Link öffnet sich unter <0/> und meldet dich dort an, nicht auf dieser Adresse. Von hier nicht erreichbar? Nutze dein Passwort."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Der Link öffnet sich unter <0/>. Lege dort das neue Passwort fest und melde dich dann hier damit an."
+
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Passkeys funktionieren nur unter <0/>, weil Browser einen Passkey an eine einzige Adresse binden. Füge dort einen hinzu."
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Zum Verknüpfen geh zu <0/>: Externe Anmeldungen kehren zu dieser Adresse zurück."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Adressen"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "Die Hauptadresse. <0/> fügt weitere hinzu."
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "Die Hauptadresse, bei der Links, E-Mails und Passkeys bleiben. Außerdem, festgelegt durch <0/>:"
