@@ -147,6 +147,59 @@ export const LAN_INSTANCE: Instance & { publicHost: string } = {
   publicHost: 'kept.lan',
 };
 
+/**
+ * `lan` with longer sign-ins over plain HTTP on (e2e/http-sign-in.spec.ts, its own project):
+ * KEPT_HTTP_SIGN_IN_DAYS=7 at http://kept.lan:8214, not a secure context. It mails through the dev
+ * Mailpit for the sign-in link, and believes X-Forwarded-For so each sign-in has an address of its
+ * own. Key for KEPT_E2E_INSTANCES: `lanWeek`.
+ */
+export const LAN_WEEK_INSTANCE: Instance & {
+  publicHost: string;
+  trustProxy: true;
+  mail: true;
+  httpSignInDays: number;
+} = {
+  name: 'lan-week',
+  port: 8214,
+  seed: true,
+  publicHost: 'kept.lan',
+  trustProxy: true,
+  mail: true,
+  httpSignInDays: 7,
+};
+
+/**
+ * The other three rows of e2e/http-sign-in.spec.ts, each on an instance of its own. That spec signs
+ * the seed's admin in at both sizes and edits his newest session row, so on a shared instance it
+ * spends another spec's sign-in limit (5 for an address and path, counted until 60 s pass with none)
+ * and could expire its session. They believe X-Forwarded-For, so a retry or --repeat-each signs in
+ * from new addresses and doesn't spend its own limit. Keys for KEPT_E2E_INSTANCES: `lanOff`,
+ * `httpsOff`, `httpsWeek`.
+ */
+export const LAN_OFF_INSTANCE: Instance & { publicHost: string; trustProxy: true } = {
+  name: 'lan-off',
+  port: 8215,
+  seed: true,
+  publicHost: 'kept.lan',
+  trustProxy: true,
+};
+export const HTTPS_OFF_INSTANCE: TlsInstance & { trustProxy: true } = {
+  name: 'https-off',
+  port: 8216,
+  seed: true,
+  https: true,
+  trustProxy: true,
+};
+/** KEPT_HTTP_SIGN_IN_DAYS does nothing over https; the spec holds this instance to that. */
+export const HTTPS_WEEK_INSTANCE: TlsInstance & { httpSignInDays: number; trustProxy: true } = {
+  name: 'https-week',
+  port: 8217,
+  seed: true,
+  https: true,
+  httpSignInDays: 7,
+  trustProxy: true,
+};
+
 export const urlOf = (i: Instance & { https?: boolean }) =>
   `${i.https ? 'https' : 'http'}://localhost:${i.port}`;
 

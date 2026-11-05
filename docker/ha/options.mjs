@@ -32,6 +32,7 @@ export const SECRET_VARIABLES = [
 
 /** Kept's bounds for KEPT_MAX_FILE_MB (apps/server/src/config/env.ts). */
 const MAX_FILE_MB = [1, 2048];
+const HTTP_SIGN_IN_DAYS = [1, 30];
 /** The OIDC options: any of them set without a working issuer and client id is said in the log. */
 const OIDC_OPTIONS = [
   'oidc_issuer',
@@ -161,6 +162,19 @@ export function appEnv({ options, info, self }) {
   // to every port on it, 8123 included. off sends max-age=0; unset, Kept's default (on) holds.
   const hsts = opts.hsts === true ? 'on' : opts.hsts === false ? 'off' : text(opts.hsts);
   if (hsts === 'on' || hsts === 'off') env.KEPT_HSTS = hsts;
+
+  // Sign-in length over plain http (#404). Most app installs are on http://<host>.local:<port>.
+  const signInDays = opts.http_sign_in_days;
+  if (signInDays !== undefined && signInDays !== null && signInDays !== '') {
+    const days = Number(signInDays);
+    if (Number.isInteger(days) && days >= HTTP_SIGN_IN_DAYS[0] && days <= HTTP_SIGN_IN_DAYS[1]) {
+      env.KEPT_HTTP_SIGN_IN_DAYS = String(days);
+    } else {
+      lines.push(
+        `The sign-in length is ignored: a whole number of days from ${HTTP_SIGN_IN_DAYS[0]} to ${HTTP_SIGN_IN_DAYS[1]}. Kept's default (12 hours over http) holds.`,
+      );
+    }
+  }
 
   const maxFile = opts.max_file_mb;
   if (maxFile !== undefined && maxFile !== null && maxFile !== '') {

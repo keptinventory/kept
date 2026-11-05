@@ -32,7 +32,8 @@ address, which Kept can't change.
 | Passkeys | Needs HTTPS | The browser: no passkeys on a plain-HTTP address |
 | The camera, installing Kept, working offline, push notifications, location | Needs HTTPS | The browser |
 
-Over plain HTTP a sign-in also lasts 12 hours and isn't renewed; over HTTPS it lasts 30 days.
+Over plain HTTP a sign-in also lasts 12 hours and isn't renewed; over HTTPS it lasts 30 days. To
+change the 12 hours, see [Staying on your network](#staying-on-your-network).
 
 Get started on Home asks an instance admin to put Kept on HTTPS. If you're staying on your home
 network, choose **Staying on my home network** and the step counts as done. The HTTPS line at the
@@ -40,6 +41,42 @@ top of each page can be dismissed too.
 
 `localhost` counts as a secure address in browsers, but Kept goes by `KEPT_PUBLIC_URL`: while it is
 `http:`, Kept's own refusals above apply on `localhost` too.
+
+## Staying on your network
+
+If you won't add HTTPS, whoever runs Kept can change this on the server. It can't be changed from
+the app, and Admin → Status shows what is in force.
+
+### Longer sign-ins over plain HTTP
+
+Over plain HTTP you sign in again every 12 hours. `KEPT_HTTP_SIGN_IN_DAYS` in `.env` makes it that
+many days, 1 to 30, renewed as you use it. 7 suits a home network or Tailscale:
+
+```sh
+KEPT_HTTP_SIGN_IN_DAYS=7
+```
+
+Then `docker compose up -d`. In the Home Assistant app it's the **Sign-in length over http** option.
+
+**The cost:** over plain HTTP a sign-in cookie can be copied by anyone who can see the traffic.
+With the setting on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out. So keep it to a network you
+trust, and sign out on a device you lose.
+
+| | Unset | Set |
+|---|---|---|
+| A sign-in over plain HTTP lasts | 12 hours | That many days |
+| Renewed | No | Once a day of use (at 1 day, after half a day) |
+| Over HTTPS | 30 days, renewed | 30 days, renewed: the setting does nothing |
+| Secrets and keys over plain HTTP | Refused | Refused |
+| Sensitive actions | Password, or a sign-in in the last ten minutes | The same; a renewal doesn't count as a sign-in |
+| Sign out everywhere | Ends every sign-in | Ends every sign-in |
+
+Any other value (0, 31, `7d`) stops Kept at startup with a message saying what it takes. Leaving it
+empty is the same as leaving it out.
+
+Turned on, a sign-in already made takes the longer length the next time it's used. Turned off, one
+runs out in its own time, up to the length it had; to end them sooner, use **Sign out everywhere**
+in Admin → Users.
 
 ## Add HTTPS: Tailscale first
 

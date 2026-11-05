@@ -246,6 +246,17 @@ const schema = z.object({
     .describe(
       '`on` · `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent',
     ),
+  // #404 (D274): the admin's choice, in `.env` beside the public URL, never in the app: it loosens
+  // what a copied cookie is worth. auth/auth.ts sessionPolicy() is what reads it.
+  KEPT_HTTP_SIGN_IN_DAYS: z
+    .string()
+    .regex(/^[1-9][0-9]?$/)
+    .transform(Number)
+    .pipe(z.number().max(30))
+    .optional()
+    .describe(
+      'whole days, 1 to 30: how long a sign-in lasts over plain http, renewed as it is used; unset: 12 hours, not renewed. No effect over https (30 days). Anyone who can see the traffic can copy a sign-in cookie, and a copied one then keeps working for as long as it is used ([Staying on your network](/install/home-network/#staying-on-your-network))',
+    ),
   KEPT_METRICS_TOKEN: z
     .string()
     .optional()
@@ -755,8 +766,15 @@ function withoutEmpty(source: Source): Source {
   );
 }
 
+/** What a setting takes, added to its name in the refusal where the name alone doesn't say. */
+const SETTING_RULES: Record<string, string> = {
+  KEPT_HTTP_SIGN_IN_DAYS: 'a whole number of days from 1 to 30; leave it out for 12 hours',
+};
+
 function issuePaths(error: z.ZodError): string {
-  return [...new Set(error.issues.map((issue) => issue.path.join('.')))].join(', ');
+  return [...new Set(error.issues.map((issue) => issue.path.join('.')))]
+    .map((name) => (SETTING_RULES[name] ? `${name} (${SETTING_RULES[name]})` : name))
+    .join(', ');
 }
 
 // Hex is recognised only as whole bytes, at least 32 of them (`openssl rand -hex 32`).

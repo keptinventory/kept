@@ -897,6 +897,41 @@ describe('KEPT_HSTS (#403)', () => {
   });
 });
 
+describe('KEPT_HTTP_SIGN_IN_DAYS (#404)', () => {
+  const load = async (extra: Record<string, string>) =>
+    loadEnv({ ...validEnv, ...extra }, { configDir: await unusedConfigDir() });
+
+  it('is a whole number of days, 1 to 30', async () => {
+    for (const days of [1, 7, 30]) {
+      expect((await load({ KEPT_HTTP_SIGN_IN_DAYS: String(days) })).KEPT_HTTP_SIGN_IN_DAYS).toBe(
+        days,
+      );
+    }
+  });
+
+  it('unset and the empty value compose passes both leave it unset', async () => {
+    expect((await load({})).KEPT_HTTP_SIGN_IN_DAYS).toBeUndefined();
+    expect((await load({ KEPT_HTTP_SIGN_IN_DAYS: '' })).KEPT_HTTP_SIGN_IN_DAYS).toBeUndefined();
+  });
+
+  it('stops startup on anything else, saying what it takes', async () => {
+    for (const bad of ['0', '31', '7d', '-1', ' ', '1.5', '1e1', '0x10', '07', '+7', 'seven']) {
+      await expect(
+        load({ KEPT_HTTP_SIGN_IN_DAYS: bad }),
+        JSON.stringify(bad),
+      ).rejects.toMatchObject({
+        code: 'invalid_env',
+        message:
+          'invalid environment: KEPT_HTTP_SIGN_IN_DAYS (a whole number of days from 1 to 30; leave it out for 12 hours)',
+      });
+    }
+  });
+
+  it('is in the settings reference with no default of its own', () => {
+    expect(renderEnvReference()).toMatch(/^\| `KEPT_HTTP_SIGN_IN_DAYS` \| {2}\| .*1 to 30/m);
+  });
+});
+
 describe('embeddings and OIDC (S6.7)', () => {
   const load = async (extra: Record<string, string>, available?: () => boolean) =>
     loadEnv(

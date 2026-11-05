@@ -197,7 +197,8 @@ export function sessionHook(opts: SessionHookOptions) {
     if (opts.auth && req.headers.cookie) {
       headers = authHeaders(req, opts.trustedProxies);
       const resolved = await resolveSession(opts.auth, opts.pools.auth, headers);
-      // A sliding refresh re-issues the cookie (D181: never over plain HTTP).
+      // A sliding refresh re-issues the cookie (D181: over plain HTTP only with
+      // KEPT_HTTP_SIGN_IN_DAYS, D274).
       forwardCookies(reply, resolved.responseHeaders);
       session = resolved.session;
     }

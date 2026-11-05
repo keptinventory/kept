@@ -20788,6 +20788,30 @@ msgstr "Nhập một số nguyên."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Đã thêm biên lai mới, nhưng không gỡ được biên lai cũ"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Thời hạn đăng nhập"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Được gia hạn khi sử dụng."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Được gia hạn khi sử dụng. <0/> không có tác dụng qua HTTPS."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Qua HTTP thường, không gia hạn. <0/> giúp kéo dài."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Qua HTTP thường, do <0/> đặt. Được gia hạn khi sử dụng."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# giờ} other {# giờ}}"
+
 #: src/components/export/export-sheet.tsx
 msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
 msgstr "<0>{hiddenName}</0> đang bị ẩn nên không có trong tệp này. Để xuất địa điểm đó, hãy chọn trong Xuất một địa điểm."

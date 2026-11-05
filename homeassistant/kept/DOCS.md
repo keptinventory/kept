@@ -57,6 +57,7 @@ phone app then don't open.
 | https on Kept's port | off | Serve the port over https with a certificate in `/ssl` (the DuckDNS or Let's Encrypt apps put one there). Restart the app after the certificate renews. |
 | Certificate file, Private key file | `fullchain.pem`, `privkey.pem` | File names in `/ssl`. |
 | HSTS | `on` | With https on, browsers use https for the host name on every port. `off` when Home Assistant itself, or another app on that host name, is on plain http ([below](#hsts-and-home-assistant-on-plain-http)). |
+| Sign-in length over http | empty: 12 hours | Days a sign-in lasts over plain http, 1 to 30, renewed as it is used. 7 suits a home network ([below](#sign-in-length-over-http)). No effect with https on. |
 | OIDC issuer, client id, client secret | empty: off | Sign-in with your own identity provider. Issuer and client id turn it on; the secret is for a confidential client. |
 | OIDC button name, sign-up by email domain or group, groups claim, scopes | `OIDC`, invite only, `groups`, `openid email profile` | As Kept's `KEPT_OIDC_*` settings. Domains and groups are comma-separated. |
 | Google client id, Google client secret | empty: off | Sign-in with Google, both set. Existing accounts and invited people only. Needs Kept's address on https with a public domain name. |
@@ -66,6 +67,19 @@ phone app then don't open.
 
 An option Kept would refuse (an OIDC issuer without its client id, Google with only one of its
 two) is left out, and the **Log** tab says why: Kept still starts, with that sign-in off.
+
+### Sign-in length over http
+
+Over plain http a sign-in lasts 12 hours and isn't renewed. **Sign-in length over http** makes it
+that many days, renewed as it is used; restart the app after changing it.
+
+- **The cost:** over plain http a sign-in cookie can be copied by anyone who can see the traffic.
+  With this on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out.
+- **What stays:** Kept still refuses what reveals or changes a secret over http, and sensitive
+  actions still need your password or a recent sign-in.
+- **Under Home Assistant's sidebar:** the app's address decides, not the page around it. An `http`
+  address counts as http here even when Home Assistant itself is on https.
+- **Admin → Status** shows the length in force.
 
 ### HSTS and Home Assistant on plain http
 

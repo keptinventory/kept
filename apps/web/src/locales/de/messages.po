@@ -28739,6 +28739,30 @@ msgstr "Gib eine ganze Zahl ein."
 msgid "The new receipt is added, but the old one couldn't be removed"
 msgstr "Der neue Beleg ist hinzugefügt, aber der alte konnte nicht entfernt werden"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Dauer der Anmeldung"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Verlängert sich bei Nutzung."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Verlängert sich bei Nutzung. <0/> wirkt über HTTPS nicht."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Über einfaches HTTP, ohne Verlängerung. <0/> macht sie länger."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Über einfaches HTTP, festgelegt durch <0/>. Verlängert sich bei Nutzung."
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# Stunde} other {# Stunden}}"
+
 #: src/components/export/export-sheet.tsx
 msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
 msgstr "<0>{hiddenName}</0> ist ausgeblendet und deshalb nicht in dieser Datei. Um ihn zu exportieren, wähle ihn unter Einen Standort exportieren."

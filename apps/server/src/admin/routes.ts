@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { SIGNUP_OPEN_KEY } from '../accounts/sign-up.js';
 import { SSRF_ALLOW_PRIVATE_KEY } from '../ai/runtime.js';
 import { audited } from '../audit/audited.js';
+import { signInStatus } from '../auth/auth.js';
 import { googleStatus } from '../auth/google.js';
 import { requireScope } from '../auth/http.js';
 import { oidcStatus } from '../auth/oidc.js';
@@ -127,6 +128,13 @@ const AdminStatus = z.object({
   updates: AdminOpsStatusShape.updates.optional(),
   jobs: AdminOpsStatusShape.jobs.optional(),
   https: AdminOpsStatusShape.https.optional(),
+  /** D274: how long a sign-in lasts here, and KEPT_HTTP_SIGN_IN_DAYS as it stands (null: unset). */
+  signIn: z.object({
+    hours: z.number().int(),
+    renewed: z.boolean(),
+    https: z.boolean(),
+    setting: z.number().int().nullable(),
+  }),
   /** Step 6 (D125): the MCP URL, and whether OAuth connectors can be offered (https). */
   connectors: z.object({ mcpUrl: z.string(), oauth: z.enum(['available', 'needs_https']) }),
   /** The reminder scan's last pass (reminders/status.ts); null before the first. */
@@ -716,6 +724,7 @@ export async function adminRoutes(app: KeptApp, deps: AdminDeps): Promise<void> 
           oidc: oidcStatus(),
           google: googleStatus(),
           connectors: connectorsStatus(env.KEPT_PUBLIC_URL),
+          signIn: signInStatus(env.KEPT_PUBLIC_URL, env.KEPT_HTTP_SIGN_IN_DAYS),
           ...(env.KEPT_HA ? { homeAssistant: true as const } : {}),
         };
         try {

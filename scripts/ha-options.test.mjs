@@ -314,6 +314,23 @@ describe('sign-in, sign-up and uploads', () => {
     }
   });
 
+  // #404: Kept stops at startup on a bad value, so a bad option is left out and said in the Log tab.
+  it('passes the sign-in length within Kept’s bounds, 1 to 30 days', () => {
+    expect(run({ http_sign_in_days: 1 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('1');
+    expect(run({ http_sign_in_days: 7 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('7');
+    expect(run({ http_sign_in_days: 30 }).env.KEPT_HTTP_SIGN_IN_DAYS).toBe('30');
+    for (const value of [undefined, null, '']) {
+      const { env, lines } = run({ http_sign_in_days: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_HTTP_SIGN_IN_DAYS');
+      expect(lines.join('\n')).not.toContain('sign-in length');
+    }
+    for (const value of [0, 31, -1, 1.5, '7d']) {
+      const { env, lines } = run({ http_sign_in_days: value });
+      expect(env, String(value)).not.toHaveProperty('KEPT_HTTP_SIGN_IN_DAYS');
+      expect(lines.join('\n')).toContain('The sign-in length is ignored');
+    }
+  });
+
   it('passes the upload limit within Kept’s bounds, 1 to 2048 MB', () => {
     expect(run({ max_file_mb: 100 }).env.KEPT_MAX_FILE_MB).toBe('100');
     expect(run({ max_file_mb: 1 }).env.KEPT_MAX_FILE_MB).toBe('1');

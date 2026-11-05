@@ -88,7 +88,16 @@ Kept uses Better Auth on its own login and schema. What an account can sign in w
 **Sessions** last 30 days over HTTPS, extended once a day of use, with `Secure`, `__Secure-`
 prefixed cookies. Over plain HTTP they last 12 hours and are never extended, and Kept refuses
 the actions that reveal or change a secret ([HTTPS](/install/https/)). Sensitive actions ask for
-the password again, or a sign-in in the last ten minutes.
+the password again, or a sign-in in the last ten minutes; renewing a sign-in doesn't reset those
+ten minutes.
+
+`KEPT_HTTP_SIGN_IN_DAYS` (1 to 30, unset by default) lets whoever runs the server make a sign-in
+over plain HTTP last that many days, renewed as it is used. It's the one setting that loosens
+this, it can't be changed from the app, and it does nothing over HTTPS. Secrets stay refused over
+HTTP, the ten minutes stay, and signing out everywhere still ends every sign-in. The cost: over
+plain HTTP a sign-in cookie can be copied by anyone who can see the traffic, and with the setting
+on, a copied one keeps working for as long as it's used, until that device signs out or your other devices are signed out
+([Staying on your network](/install/home-network/#staying-on-your-network)).
 
 **Requests from other sites** are refused: a write that carries Kept's cookie must come from the
 origin of `KEPT_PUBLIC_URL`, or it gets 403 before the session is even read. So must first-run

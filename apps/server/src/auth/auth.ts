@@ -56,7 +56,8 @@ export type AuthMail = {
 export type AuthDeps = {
   /** A pool logged in as kept_auth (KEPT_AUTH_DATABASE_URL); DML on `auth.*` only. */
   pool: pg.Pool;
-  env: Pick<Env, 'KEPT_AUTH_SECRET' | 'KEPT_PUBLIC_URL'>;
+  env: Pick<Env, 'KEPT_AUTH_SECRET' | 'KEPT_PUBLIC_URL'> &
+    Partial<Pick<Env, 'KEPT_HTTP_SIGN_IN_DAYS'>>;
   mail: AuthMail;
   /** Defaults to on. Better Auth enables it only when NODE_ENV=production otherwise. */
   rateLimitEnabled?: boolean;
@@ -95,9 +96,44 @@ export type AuthDeps = {
 };
 
 /** Session lifetimes (D181). Over HTTPS: 30 days, sliding (refreshed once a day of use). Over
- * plain HTTP: 12 hours, never renewed. */
+ * plain HTTP: 12 hours, never renewed, unless KEPT_HTTP_SIGN_IN_DAYS says otherwise (D274). */
 export const SESSION_DAYS_HTTPS = 30;
 export const SESSION_HOURS_HTTP = 12;
+
+const HOUR_SECONDS = 3_600;
+const DAY_SECONDS = 86_400;
+
+/** How long a sign-in lasts and, in seconds since its last renewal, when a request renews it. */
+export type SessionPolicy = { expiresIn: number; updateAge: number | null };
+
+/**
+ * The one place the lifetimes are decided; createAuth() and Admin → Status both read it.
+ * KEPT_HTTP_SIGN_IN_DAYS has no effect over HTTPS. It renews once a day of use, except at 1 day:
+ * Better Auth renews when `updateAge` has passed since the last renewal and refuses a session
+ * past `expiresIn`, so an `updateAge` equal to `expiresIn` would never renew at all.
+ */
+export function sessionPolicy(publicUrl: string, httpDays: number | undefined): SessionPolicy {
+  if (new URL(publicUrl).protocol === 'https:') {
+    return { expiresIn: SESSION_DAYS_HTTPS * DAY_SECONDS, updateAge: DAY_SECONDS };
+  }
+  if (httpDays === undefined)
+    return { expiresIn: SESSION_HOURS_HTTP * HOUR_SECONDS, updateAge: null };
+  return {
+    expiresIn: httpDays * DAY_SECONDS,
+    updateAge: httpDays === 1 ? DAY_SECONDS / 2 : DAY_SECONDS,
+  };
+}
+
+/** What Admin → Status shows: the length in force, and the setting as it stands. */
+export function signInStatus(publicUrl: string, httpDays: number | undefined) {
+  const { expiresIn, updateAge } = sessionPolicy(publicUrl, httpDays);
+  return {
+    hours: expiresIn / HOUR_SECONDS,
+    renewed: updateAge !== null,
+    https: new URL(publicUrl).protocol === 'https:',
+    setting: httpDays ?? null,
+  };
+}
 
 /** How long a magic link works. */
 export const MAGIC_LINK_SECONDS = 15 * 60;
@@ -224,6 +260,7 @@ export function createAuth(deps: AuthDeps) {
   const { pool, env, mail } = deps;
   const publicUrl = new URL(env.KEPT_PUBLIC_URL);
   const https = publicUrl.protocol === 'https:';
+  const lifetime = sessionPolicy(env.KEPT_PUBLIC_URL, env.KEPT_HTTP_SIGN_IN_DAYS);
   // Step 6 (D125): OAuth connectors are on by themselves with an https public URL, their
   // client metadata fetched through the SSRF guard; `deps.oauth` overrides (tests, null = off).
   const oauth =
@@ -335,17 +372,15 @@ export function createAuth(deps: AuthDeps) {
           },
         }
       : {}),
-    session: https
-      ? {
-          expiresIn: SESSION_DAYS_HTTPS * 86_400,
-          updateAge: 86_400,
-          freshAge: FRESH_SESSION_SECONDS,
-        }
-      : {
-          expiresIn: SESSION_HOURS_HTTP * 3_600,
-          disableSessionRefresh: true,
-          freshAge: FRESH_SESSION_SECONDS,
-        },
+    session: {
+      expiresIn: lifetime.expiresIn,
+      ...(lifetime.updateAge === null
+        ? { disableSessionRefresh: true }
+        : { updateAge: lifetime.updateAge }),
+      // Measured from the row's created_at, which a renewal doesn't touch: a sign-in kept alive
+      // for days is still not a recent one.
+      freshAge: FRESH_SESSION_SECONDS,
+    },
     databaseHooks: {
       // The IdP's access, refresh and id tokens are never stored (auth/oidc.ts).
       ...(external ? { account: DROP_IDP_TOKENS } : {}),

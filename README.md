@@ -121,8 +121,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
-- **Your own network or HTTPS.** Works over plain http at home; an export with secret values needs
-  HTTPS.
+- **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set;
+  an export with secret values needs HTTPS.
 - **Six languages:** English, Arabic (right to left), French, German, Italian and Vietnamese.
 
 <p align="center">
