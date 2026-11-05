@@ -91,7 +91,7 @@ describe('formatRoomSideField: the field’s number', () => {
 });
 
 /** Every display a field makes, read back, in every UI language and both Arabic digit sets. */
-const LOCALES = ['en', 'fr', 'de', 'it', 'vi', 'uk', 'ar-u-nu-arab', 'ar-u-nu-latn'];
+const LOCALES = ['en', 'fr', 'de', 'it', 'vi', 'uk', 'es', 'ar-u-nu-arab', 'ar-u-nu-latn'];
 
 describe('a field’s own display reads back (1.14.4 final review)', () => {
   it('for every room side from 50 cm to 100 m', () => {
@@ -148,7 +148,7 @@ describe('readLength: what was typed (1.14.4 review)', () => {
     expect(readLength('3.58m', 'en-GB')).toBe(3.58);
     expect(readLength('.5', 'en')).toBe(0.5);
     expect(readLength('4', 'en')).toBe(4);
-    for (const l of ['fr', 'de', 'it', 'vi', 'uk']) {
+    for (const l of ['fr', 'de', 'it', 'vi', 'uk', 'es']) {
       expect(readLength('0,8', l)).toBe(0.8);
       expect(readLength('0,80\u202fm', l)).toBe(0.8);
     }
