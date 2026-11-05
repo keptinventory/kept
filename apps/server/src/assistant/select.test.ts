@@ -112,6 +112,72 @@ describe('choosing the tools a step offers', () => {
     ['أضف مطبخ ٤ في ٣', 'create_place'],
     ['Pin AA còn mấy cái?', 'adjust_stock'],
     ['Lịch bảo trì của máy lọc nước', 'upcoming'],
+    // Ukrainian, inflected as it is asked.
+    ['Я позичив дриль Луїсу', 'lend_thing'],
+    ['Позичила драбину Брюсу', 'lend_thing'],
+    ['Кому я дав камеру?', 'lend_thing'],
+    ['У кого драбина?', 'lend_thing'],
+    ['Хто взяв камеру?', 'lend_thing'],
+    ['Брюс забрав камеру', 'lend_thing'],
+    ['Ми передали камеру Талії', 'lend_thing'],
+    ['Луїс повернув драбину', 'return_thing'],
+    ['Дриль повернули', 'return_thing'],
+    ['Що треба зробити цього тижня?', 'upcoming'],
+    ['Що на цьому тижні?', 'upcoming'],
+    ['Яке обслуговування прострочене?', 'upcoming'],
+    ['Нагадай про фільтр', 'upcoming'],
+    ['Який наступний термін?', 'upcoming'],
+    ['Завдання виконано', 'complete_schedule'],
+    ['Відклади обслуговування котла на травень', 'snooze_schedule'],
+    ['Де чек на телевізор?', 'find_documents'],
+    ['Де чек?', 'find_documents'],
+    ['Немає чека на чайник', 'find_documents'],
+    ['Знайди квитанцію', 'find_documents'],
+    ['Де інструкція до чайника?', 'find_documents'],
+    ['Покажи документи на телевізор', 'find_documents'],
+    ['Рахунку за чайник немає', 'find_documents'],
+    ['У телевізора гарантія на два роки', 'add_warranty'],
+    ['Чайник ще на гарантії?', 'add_warranty'],
+    ['Гарантійний талон на чайник', 'add_warranty'],
+    ['Відкрий рекламацію на чайник', 'open_claim'],
+    ['Чайник зламався', 'open_claim'],
+    ['Телевізор не працює, потрібен ремонт', 'open_claim'],
+    ['Заправив автомобіль: 40 літрів', 'log_fuel'],
+    ['Залив бензин в авто', 'log_fuel'],
+    ['Заправив мою машину', 'log_fuel'],
+    ['Пробіг 52 300 км', 'log_reading'],
+    ['Показання лічильника електроенергії', 'log_reading'],
+    ['Пройшов техогляд автівки', 'log_service'],
+    ['Замінили шини на зимові', 'log_service'],
+    ['Замінив масло в машині', 'log_service'],
+    ['Закінчились батарейки AA', 'adjust_stock'],
+    ['Скільки мила залишилось?', 'adjust_stock'],
+    ['Поповни запас мила', 'adjust_stock'],
+    ['Запасів батарейок немає', 'adjust_stock'],
+    ['Використали всі фільтри', 'adjust_stock'],
+    ['Що сталося з чайником?', 'thing_history'],
+    ['Хто перемістив вебкамеру?', 'thing_history'],
+    ['Історія телевізора', 'thing_history'],
+    ['Коли я купив чайник?', 'thing_history'],
+    ['Додай полицю в кабінеті', 'create_place'],
+    ['Створи кімнату', 'create_place'],
+    ['Що у спальні?', 'create_place'],
+    ['Шафа в коридорі', 'create_place'],
+    ['Перейменуй кабінет на офіс', 'update_place'],
+    ['Зміни порядок полиць', 'update_place'],
+    ['Поверни Kallax на бік', 'update_place'],
+    ['Перетвори ящики на коробки', 'turn_into_boxes'],
+    ['Додай фото чека', 'attach_link'],
+    ['Постав тег кемпінг на намет', 'tag_things'],
+    ['Які теги у нас є?', 'list_tags'],
+    ['Познач намет міткою', 'tag_things'],
+    ['Скільки міток?', 'list_tags'],
+    // A Ukrainian room with its size; a phone's "х" is often the Cyrillic letter.
+    ['Додай майстерню 4 на 3', 'create_place'],
+    ['Додай майстерню 4 м на 3 м', 'create_place'],
+    ['Додай майстерню, 4 метри на 3', 'create_place'],
+    ['Майстерня 3,5 на 2,5', 'create_place'],
+    ['Майстерня 4х3', 'create_place'],
   ] as const)('“%s” offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
     // The core is always there.
@@ -136,6 +202,40 @@ describe('choosing the tools a step offers', () => {
     ['Thẻ nhớ ở đâu?', 'tag_things'],
     ['Lịch sử của cái TV', 'upcoming'],
     ['Đồ du lịch để ở đâu?', 'upcoming'],
+    ['Де мій фотоапарат?', 'create_place'],
+    ['Де спальний мішок?', 'create_place'],
+    ['Де кухонний ніж?', 'create_place'],
+    ['Де місцевий путівник?', 'create_place'],
+    ['Де кімнатна рослина?', 'create_place'],
+    ['Де ванночка?', 'create_place'],
+    ['Де сканер?', 'create_place'],
+    ['Де шафран?', 'create_place'],
+    ['Який розмір телевізора?', 'create_place'],
+    ['Де рулетка на 5 метрів?', 'create_place'],
+    ['Хто увімкнув обігрівач?', 'update_place'],
+    ['Де вертикальний пилосос?', 'update_place'],
+    ['Все в порядку?', 'update_place'],
+    ['Я чекаю на посилку', 'find_documents'],
+    ['Де паперові рушники?', 'find_documents'],
+    ['Де пральна машина?', 'log_fuel'],
+    ['Де автор цієї книги?', 'log_fuel'],
+    ['Де автомат?', 'log_fuel'],
+    ['Де шинка?', 'log_fuel'],
+    ['Де газонокосарка?', 'log_fuel'],
+    ['Де бензопила?', 'log_fuel'],
+    ['Де вершкове масло?', 'log_service'],
+    ['Де сервіз?', 'log_service'],
+    ['Де запасне колесо?', 'adjust_stock'],
+    ['Я залишила ключі на столі', 'adjust_stock'],
+    ['Де розкладний стіл?', 'upcoming'],
+    ['Де термінал?', 'upcoming'],
+    ['Де графіка до книги?', 'upcoming'],
+    ['Давно купив дриль', 'lend_thing'],
+    ['Де передавач?', 'lend_thing'],
+    ['Де віддалений пульт?', 'lend_thing'],
+    ['Де поверхня столу?', 'return_thing'],
+    ['Де колиска?', 'thing_history'],
+    ['Де колишній телевізор?', 'thing_history'],
   ] as const)('“%s” is an ordinary question: no %s', (question, tool) => {
     expect(offered(question)).not.toContain(tool);
   });
@@ -148,6 +248,17 @@ describe('choosing the tools a step offers', () => {
   it('matches Vietnamese whole words with their tone marks: “muốn” (want) is not “mượn” (borrow)', () => {
     expect(offered('Tôi muốn tìm máy khoan')).not.toContain('lend_thing');
     expect(offered('Tôi muốn tìm máy khoan')).toEqual(offered('Are you working?'));
+  });
+
+  it('matches a Ukrainian stem at a word’s start, and a short word whole: “чекаю” (wait) is not “чек”', () => {
+    expect(offered('Я чекаю на посилку')).toEqual(offered('Are you working?'));
+    expect(offered('Де дриль?')).toEqual(offered('Are you working?'));
+  });
+
+  it('folds й and ї in Ukrainian on both sides, whichever way a keyboard writes them', () => {
+    expect(offered('Що у гарантіі?')).toContain('add_warranty');
+    expect(offered('Перейменуи кабінет')).toContain('update_place');
+    expect(offered('Перейменуй кабінет'.normalize('NFD'))).toContain('update_place');
   });
 
   it('keeps a tool the thread already used, and one the model asked for and was not offered', () => {

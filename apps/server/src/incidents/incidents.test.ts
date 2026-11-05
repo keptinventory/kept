@@ -607,6 +607,20 @@ describe('the insurance report', () => {
     expect((text.match(/[؀-ۿ]/g) ?? []).length).toBeGreaterThan(100);
   });
 
+  it('takes a Ukrainian reader’s report, and writes it in English', async () => {
+    const res = await call(t, '/api/v1/reports/insurance', {
+      as: ibrahim,
+      body: { scope: { locationId: home.id }, locale: 'uk' },
+    });
+    const body = ok(res, 202);
+    const [row] = await own<{ options: { locale: string } }>(
+      db,
+      'SELECT options FROM public.report_runs WHERE id = $1',
+      [body.id],
+    );
+    expect(row?.options.locale).toBe('en');
+  });
+
   it('is refused to a viewer who cannot see money, and to a member for an incident', async () => {
     const viewer = await call(t, '/api/v1/reports/insurance', {
       as: talia,
@@ -714,6 +728,16 @@ describe('claim packs', () => {
       body: { scope, acknowledged: true },
     });
     expect(member.statusCode).toBe(403);
+  });
+
+  it('takes a Ukrainian reader’s pack, its report in English', async () => {
+    sent.length = 0;
+    const res = await call(t, '/api/v1/claim-packs', {
+      as: ibrahim,
+      body: { scope: { locationId: home.id, thingIds: [tv] }, locale: 'uk', acknowledged: true },
+    });
+    ok(res, 202);
+    expect(sent.findLast((s) => s.name === 'claim-pack')?.data).toMatchObject({ locale: 'en' });
   });
 
   // catalogue: POST /api/v1/claim-packs

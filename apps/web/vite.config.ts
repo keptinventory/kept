@@ -421,7 +421,7 @@ export default defineConfig(({ command }) => ({
     ...(TRY ? [tryHtml()] : []),
     // The service worker: src/sw.ts is
     // built to dist/sw.js with the precache manifest injected. The precache is the shell, the
-    // fonts Kept renders (Latin and Arabic), the icons and the scanner's wasm, so capture and scan
+    // fonts Kept renders (Latin, Cyrillic and Arabic), the icons and the scanner's wasm, so capture and scan
     // work offline (D101). Never /api or /f: authenticated responses stay out of the Cache API
     // (D181, sw.ts). scripts/check-bundle.mjs holds its size budget.
     // Not in the Try build (D246): see TRY above.
@@ -443,9 +443,11 @@ export default defineConfig(({ command }) => ({
           'sw.js',
           // What's new's pictures and clips (whats-new-plugin.ts): fetched when the card opens.
           'whats-new/**',
-          // Font subsets Kept never renders: its languages are Latin-script (Vietnamese among
-          // them, whose subset is precached so it reads right offline) and Arabic (D204).
-          'assets/ibm-plex-*-{cyrillic,cyrillic-ext,greek}-*.woff2',
+          // Font subsets no language of Kept's needs: they are Latin-script (Vietnamese among them,
+          // whose subset is precached so it reads right offline), Arabic (D204) and Cyrillic
+          // (Ukrainian, ready for its catalogue). cyrillic-ext holds no Ukrainian letter, and the
+          // ₴ it holds also comes in latin-ext, which is declared later and so is what's used.
+          'assets/ibm-plex-*-{cyrillic-ext,greek}-*.woff2',
         ],
       }),
   ],
