@@ -1,0 +1,147 @@
+---
+title: Самостійно розміщений домашній інвентар
+description: "Open-source, самостійно розміщений домашній інвентар для вашого домашнього сервера: де речі, що це, що спливає. 3D-карта, QR-етикетки, гарантії, офлайн-додаток на телефоні."
+template: splash
+hero:
+  title: Самостійно розміщений домашній інвентар
+  tagline: Де речі. Що це. Що спливає.
+  actions:
+    - text: Встановити
+      link: /uk/install/compose/
+      variant: primary
+    - text: Спробувати Kept
+      link: /uk/try/kept/
+      variant: secondary
+    - text: Спробувати карту
+      link: /uk/try/map/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/keptinventory/kept
+      variant: minimal
+      icon: github
+---
+
+import Section from '../../../components/landing/Section.astro';
+import Cards from '../../../components/landing/Cards.astro';
+import Opened from '../../../components/landing/Opened.astro';
+import Integrations from '../../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
+import Gallery from '../../../components/landing/Gallery.astro';
+import LoopClip from '../../../components/landing/LoopClip.astro';
+import clipDarkMp4 from '../../../assets/clips/map-add-tv-short-dark.mp4?url';
+import clipDarkPoster from '../../../assets/clips/map-add-tv-short-dark-poster.webp?url';
+import clipDarkWebm from '../../../assets/clips/map-add-tv-short-dark.webm?url';
+import clipMp4 from '../../../assets/clips/map-add-tv-short.mp4?url';
+import clipPoster from '../../../assets/clips/map-add-tv-short-poster.webp?url';
+import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
+
+<Section title="Поставте телевізор на карту" id="map-clip" split>
+  <Fragment slot="lede">Виберіть телевізор. Його форма береться з типу.</Fragment>
+  <LoopClip
+    light={{ webm: clipWebm, mp4: clipMp4, poster: clipPoster }}
+    dark={{ webm: clipDarkWebm, mp4: clipDarkMp4, poster: clipDarkPoster }}
+    width={960}
+    height={514}
+    label="Постановка телевізора на карту в пробному домашньому господарстві Try Kept: вітальня, Arrange, телевізор Samsung зі списку, його картка з написом Shape: TV, з типу, потім Done."
+    pause="Pause the clip"
+    play="Play the clip"
+  />
+</Section>
+
+<Section eyebrow="Kept, opened" title="Один інвентар, на вашому комп'ютері та телефоні" id="opened" split>
+  <Fragment slot="points">
+    <li><span><strong>Головна:</strong> що потребує вас, з першого погляду.</span></li>
+    <li><span><strong>Локації:</strong> кімнати, полиці, коробки. Карта кожної.</span></li>
+    <li><span><strong>Телефон:</strong> знімати, сканувати, шукати. Також офлайн.</span></li>
+  </Fragment>
+  <Opened
+    desktopAlt="Головна Kept на настільному комп'ютері: Початок, плитки «Потребує вас» від прострочених до давно невидимих, локації з попередніми переглядами карт, ярлики та Аналітика"
+    phoneAlt="Головна Kept на телефоні: Початок, плитки «Потребує вас» і ярлики, над панеллю вкладок із кнопкою Знімання"
+  />
+</Section>
+
+<Section eyebrow="Features" title="Можливості домашнього інвентарю" id="features">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'map', title: '3D-карта', body: 'Поверхи, кімнати, меблі. Позначки для того, що потребує вас.', href: '/uk/users/location-map/' },
+      { icon: 'places', title: 'Кімнати і коробки', body: 'Місця всередині місць. Перемістіть коробку; те, що в ній, рухається також.', href: '/uk/users/everyday-use/#локації-кімнати-та-коробки' },
+      { icon: 'qrcode', title: 'QR-етикетки', body: 'Короткий ідентифікатор на всьому. Відскануйте коробку, побачте всередині.', href: '/uk/users/everyday-use/#короткі-id-та-ярлики' },
+      { icon: 'schedule', title: 'Гарантії та обслуговування', body: 'За датою або показанням лічильника. У порядку закінчення.', href: '/uk/users/everyday-use/#нагадування-та-сповіщення' },
+      { icon: 'phone', title: 'Додаток на телефоні, офлайн', body: 'Знімати, сканувати, шукати без сигналу. Синхронізується пізніше.', href: '/uk/users/phone-app/' },
+      { icon: 'insurance', title: 'Звіти для страхування', body: 'Фото, серійні номери, чеки. PDF і пакет для претензії.', href: '/uk/users/everyday-use/#звіти-інвентар-страхування-та-претензії' },
+      { icon: 'lending', title: 'Позичання', body: 'Кому позичено, коли повернути. Позичальникам не потрібен обліковий запис.', href: '/uk/users/lending/' },
+      { icon: 'moving', title: 'Переїзд', body: 'Пронумеровані коробки, відстеження в автофургоні, розпакування скануванням.', href: '/uk/users/moving/' },
+      { icon: 'tool', title: 'Комплекти та передачі', body: 'Позичте коробку з усім усередині. Кожна річ повертається окремо.', href: '/uk/users/kits/' },
+    ]}
+  />
+  <details class="kd-more">
+    <summary>Ще п'ять</summary>
+    <Cards
+      compact
+      heading="h3"
+      items={[
+        { icon: 'vehicle', title: 'Транспорт і машини', body: 'Показання, обслуговування, пальне, витрати.', href: '/uk/users/everyday-use/#транспортні-засоби-та-техніка' },
+        { icon: 'stock', title: 'Витратні матеріали та запаси', body: 'Мінімум для кожної речі. Попередження, коли закінчується.', href: '/uk/users/everyday-use/#транспортні-засоби-та-техніка' },
+        { icon: 'condition', title: 'Звіти про стан', body: 'Заселення, виселення, кімната за кімнатою. З фото.', href: '/uk/users/everyday-use/#звіти-про-стан-оренда' },
+        { icon: 'insights', title: 'Аналітика', body: 'Витрати за роком, вартість за місцем. Ніколи не оцінено.', href: '/uk/users/everyday-use/#аналітика' },
+        { icon: 'language', title: 'Вашою мовою', body: 'English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська, Español.', href: '/uk/users/first-run/#6-мова-та-тема' },
+      ]}
+    />
+  </details>
+  <p><a href="/uk/users/features/">Усі можливості →</a></p>
+</Section>
+
+<Section eyebrow="Integrations" title="Що надходить у Kept" id="integrations">
+  <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
+</Section>
+
+<Section eyebrow="A look around" title="Екрани" id="screens">
+  <Gallery
+    label="Екрани Kept з його демонстраційного домашнього господарства"
+    items={[
+      { name: 'claude-mcp', title: 'Claude через MCP', caption: 'Попросіть Claude додати річ. Вона потрапляє в правильну кімнату, з маркою, моделлю та серійним номером.', alt: 'Claude Code: «Додай мій телевізор у вітальню: Samsung QE55Q80C, серійний номер 0B7H3CJT500123», і його відповідь, що телевізор у Kept під Головна › Вітальня' },
+      { name: 'place', title: 'Кімната', caption: "Кухня: що в ній, що закінчилося, її документи.", alt: 'Кухня в Kept: батарейки AA, вогнегасник і старий чайник із позначкою «закінчено»' },
+      { name: 'search-phone', title: 'Пошук', caption: 'Частина назви. Де кожен збіг, до коробки.', alt: 'Пошук «cable» на телефоні: коробка кабелів і кабель HDMI, кожен із типом, шляхом і етикеткою' },
+      { name: 'capture-phone', title: 'Знімання', caption: 'Один фото на річ, у вибране місце. Назвіть пізніше.', alt: 'Екран знімання на телефоні, камера наведена на промарковану коробку на полицях гаража' },
+      { name: 'inbox', title: 'Вхідні', caption: 'Що потребує рішення: чернетки, чек без валюти, незвичайне показання лічильника.', alt: "Вхідні Kept: показання лічильника автомобіля нижче за попереднє, зі способами вирішення" },
+      { name: 'labels', title: 'Етикетки', caption: 'Речі без друкованої етикетки. Ваш запас етикеток, попередній перегляд перед друком.', alt: 'Друк етикеток: шість речей у Головній без друкованої етикетки, на аркуші A4 з 24, кожна етикетка — QR-код із назвою, місцем і коротким ідентифікатором' },
+      { name: 'expiring', title: 'Те, що спливає', caption: 'Гарантії, страхування, оренда, вогнегасник. У порядку спливання.', alt: 'Список того, що спливає: страховка житла скоро закінчується, потім гарантії, вогнегасник і оренда' },
+      { name: 'vehicles', title: 'Транспорт', caption: 'Останнє показання, наступне обслуговування, дата дозволу, витрата пального.', alt: 'Транспорт: автомобіль, генератор і другий автомобіль, з показаннями лічильників і тим, що підлягає виконанню' },
+      { name: 'lending', title: 'Позичання', caption: "Що ви позичили, кому. Що позичили ви. Що прострочено.", alt: 'Позичання: дриль, позичена і прострочена на два дні, і позичена драбина' },
+      { name: 'assistant', title: 'Помічник', caption: 'Запитайте, де щось є. Відповідь посилається на знайдене; зміни чекають на вас.', alt: 'Помічник відповідає, де кабель HDMI, посилаючись на кабель і його коробку, з переміщенням для підтвердження' },
+      { name: 'connections', title: 'Підключення', caption: 'Токени для AI-додатків і скриптів, кожен обмежений вибраними локаціями. Вебхуки.', alt: 'Налаштування підключень: два особисті токени, один підключений додаток і вебхуки' },
+      { name: 'track', title: 'Що відстежувати', caption: 'На локацію: найпотрібніше, для господарства або повністю. Потім кожен модуль окремо.', alt: "Налаштування «Що відстежувати» локації: вибрано пресет для господарства, із увімкненими модулями" },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Yours to run" title="Відкритий код, у вашому домашньому сервері, ваші дані" id="trust">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'license', title: 'Відкритий код', body: 'AGPL-3.0. Код і випуски на GitHub.', href: 'https://github.com/keptinventory/kept' },
+      { icon: 'server', title: 'Самостійно розміщений', body: 'Один контейнер, Postgres. Перевірено на 1 GB, 1 core.', href: '/uk/install/hardware/' },
+      { icon: 'private', title: 'Без телеметрії', body: 'AI необов’язковий. Ваш провайдер або ніхто.', href: '/uk/admin/security-model/#що-залишає-сервер' },
+      { icon: 'signature', title: 'Підписані випуски', body: 'Підписи cosign і SBOM.', href: '/uk/admin/verify-release/' },
+      { icon: 'backup', title: 'Нічні резервні копії', body: 'Зашифрований restic. Диск, S3 або SFTP.', href: '/uk/admin/backups/' },
+      { icon: 'book', title: 'Читабельно без Kept', body: 'Вебсторінки і таблиці в кожній резервній копії.', href: '/uk/admin/read-with-restic/' },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Find your way" title="З чого почати">
+  <Cards
+    compact
+    columns={4}
+    items={[
+      { icon: 'people', title: 'Використовувати Kept', body: 'Встановлення, перший вхід, щоденне використання.', href: '/uk/users/first-run/' },
+      { icon: 'server', title: 'Запускати Kept', body: 'Конфігурація, оновлення, набір відновлення.', href: '/uk/reference/configuration/' },
+      { icon: 'code', title: 'Будувати на Kept', body: 'Архітектура, API, MCP, синхронізація.', href: '/uk/developers/architecture/' },
+      { icon: 'tool', title: 'Підтримувати Kept', body: 'Випуски, підписування, тріаж, рішення.', href: '/uk/maintainers/releasing/' },
+    ]}
+  />
+</Section>

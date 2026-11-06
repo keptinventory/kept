@@ -1,0 +1,23 @@
+---
+title: Prova la mappa
+description: "La mappa 3D di Kept nel tuo browser, con una casa di esempio: piani, stanze, scaffali e scatole, e spilli per ciò che è basso, prestato o in scadenza. Niente viene salvato."
+template: splash
+---
+
+import TryMap from '../../../../components/try-map/TryMap.astro';
+
+<TryMap lang="en" />
+
+## Cosa provare
+
+- Tocca una stanza, uno scaffale o una scatola: la scheda dice dove si trova e cosa contiene. **Dettagli** ha il resto: il suo tipo e i tag, una foto su alcuni oggetti, e il codice QR della sua etichetta.
+- **Cosa c'è** sotto la mappa elenca tutti gli oggetti delle stanze. Trovalo per nome o tramite l'ID corto sulla sua etichetta, scegli un piano, o passa a **Da guardare**. Un codice appare come nastro ambra solo sugli oggetti con etichetta stampata.
+- **Pianta** guarda dall'alto. I pulsanti del piano (**G**, **F**, **R**) vanno su e giù; **Tutti** li impila.
+- **Scorte basse**, **Prestati** e **In scadenza** attivano e disattivano i loro spilli.
+- **Sistema**: trascina gli oggetti, tieni premuto il pavimento di una stanza e spostalo altrove (ciò che contiene va anche esso), ridimensiona una stanza dal suo angolo ambra, disegna una stanza. **Metti su…** mette un oggetto piccolo su una scrivania o uno scaffale. **Fatto** lo mantiene finché lasci la pagina, e offre **Annulla**; **Annulla** chiede prima.
+- Disattiva **Modelli dettagliati** e la mappa non scarica nessun modello.
+
+Questa è la mappa che Kept distribuisce, con gli stessi modelli. [La mappa delle posizioni](/it/users/location-map/)
+spiega come una posizione reale ottiene i suoi piani e le sue stanze. L'intera app con una famiglia di esempio:
+[Prova Kept](/it/try/kept/). Per eseguire Kept sul tuo server, inizia con
+[Installa con Docker Compose](/it/install/compose/).

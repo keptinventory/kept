@@ -1,0 +1,156 @@
+---
+title: Home Assistant
+description: "Kept في Home Assistant: مستشعرات للمتأخر والمستحق وقرب الانتهاء، وقراءة كل مركبة وخدمة قادمة، وتقويم، وإرسال القراءات عكسياً."
+---
+
+import { Image } from 'astro:assets';
+import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
+
+يكشف تكامل Kept لـ [Home Assistant](https://www.home-assistant.io/) ما يحتاج إليك في
+كل موقع ويرسل القراءات عكسياً، مثل عداد المسافات الذي يعرفه تكامل سيارة بالفعل. يقرأ Kept باستخدام
+[رمز شخصي](/ar/users/mcp-clients/#اصنع-رمزًا-شخصيًا).
+
+التكامل: [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant)،
+يُثبت بـ [HACS](https://hacs.xyz/) كمستودع مخصص.
+
+اختياري: فقط إذا كنت تشغّل [Home Assistant](https://www.home-assistant.io/installation/) بالفعل.
+يعمل Kept بنفس الطريقة دونه.
+
+## التطبيق والتكامل
+
+<Image src={diagramLight} alt="Kept، على خادمك أو كتطبيق Home Assistant، وتكامل Kept داخل Home Assistant: التكامل يقرأ Kept كل ٥ دقائق ويرسل القراءات عكسياً، ومُستشعراته وتقويمه وإجراءاته تُغذي لوحات التحكم والأتمتة والتقويم" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept، على خادمك أو كتطبيق Home Assistant، وتكامل Kept داخل Home Assistant: التكامل يقرأ Kept كل ٥ دقائق ويرسل القراءات عكسياً، ومُستشعراته وتقويمه وإجراءاته تُغذي لوحات التحكم والأتمتة والتقويم" class="kd-only-dark" />
+
+- **التطبيق** يشغّل Kept على Home Assistant OS ([ثبّته](/ar/install/home-assistant/)). يعمل Kept على خادمك الخاص بنفس الطريقة.
+- **التكامل** يجلب Kept إلى Home Assistant: المُستشعرات والتقويم والإجراءات.
+  فقط التكامل يستطيع إضافة الكيانات، لذا لا يستطيع التطبيق ذلك.
+- **مستخدمو التطبيق يشغّلون https أولاً:** خيار التطبيق **https على منفذ Kept**. يُنشئ Kept الرموز فقط عبر https.
+
+## قبل البدء
+
+| تحتاج إلى | السبب |
+|---|---|
+| **Home Assistant ٢٠٢٦.١٠ أو أحدث** | التكامل مُصنّع ومُختبر عليه |
+| **HACS** في Home Assistant | يثبت التكامل. [حمّل HACS](https://hacs.xyz/docs/use/download/download/) ([ما يحتاجه](https://hacs.xyz/docs/use/download/prerequisites/)) |
+| **Kept 1.8.0 أو أحدث** | يضيف الملخص الذي تقرأه المُستشعرات |
+| **رمز شخصي** | التطبيق يُنشئها فقط عبر HTTPS ([HTTPS](/ar/install/https/)); على شبكة منزلية عبر `http`، [أنشئها على الخادم](/ar/admin/cli/#رمز-من-الخادم) |
+| **Home Assistant يستطيع الوصول إلى Kept** | نفس الشبكة، أو VPN مثل Tailscale، أو عنوان عام. اختبره: افتح عنوان Kept من الجهاز الذي يشغّل Home Assistant |
+
+## ما تحصل عليه
+
+كل موقع جهاز في Home Assistant:
+
+| الكيان | ما يعرضه |
+|---|---|
+| **متأخر**، **مستحق**، **قرب الانتهاء** | العدادات على رئيسية Kept. السمة `items` تُدرج أول ١٠، الأكثر إلحاحاً أولاً |
+| **مُعار**، **مُستعار منهم** | الإعارات المفتوحة. فقط حيث الإعارة مفعلة |
+| **مكانها غير مؤكد**، **غائب منذ مدة** | الأشياء التي مكانها موضع شك، أو لم تُرَ منذ أشهر الموقع |
+| **مخزون منخفض** | الأشياء دون حدها الأدنى. فقط حيث المستهلكات مفعلة |
+| **بلا مكان**، الأشياء | معطلة افتراضياً؛ فعّلها في Home Assistant |
+| **المواعيد** (تقويم) | كل شيء له يوم مستحق، كحدث طوال اليوم |
+
+كل مركبة (شيء بعداد، تحت **المركبات**) جهاز في موقعه:
+
+| الكيان | ما يعرضه |
+|---|---|
+| **قراءة** | أحدث قراءة، بالكم أو الميل أو الساعات |
+| **خدمة قادمة** | اليوم المستحق، أو تقدير Kept من قراءاتك |
+| **خدمة قادمة عند** | القراءة المستحقة عندها |
+
+موقع أو مركبة تُضاف في Kept لاحقاً تظهر بعد إعادة تحميل التكامل.
+
+## الإعداد
+
+١. **أنشئ رمزاً.** في Kept، **الإعدادات → الربط → رمز جديد**. حدّد المواقع التي يجب أن يراها Home Assistant.
+   **قراءة فقط** تكفي للمُستشعرات والتقويم؛ **قراءة وتغيير** تتيح أيضاً للإجراءات أدناه إرسال القراءات ووضع علامة على الجداول كمُنجزة. التطبيق يُنشئ الرموز فقط عندما يُقدّم Kept عبر `https` ([HTTPS](/ar/install/https/)); عبر `http`، مدير الخادم ينشئها بـ
+   [`kept admin token create`](/ar/admin/cli/#رمز-من-الخادم).
+٢. **ثبّت.** في HACS، **⋮ → مستودعات مخصصة** ([كيف](https://hacs.xyz/docs/faq/custom_repositories/)): أضف
+   `https://github.com/keptinventory/kept-homeassistant`، النوع **تكامل**. ثبّت **Kept**، وأعد تشغيل Home Assistant.
+٣. **أضفه.** **الإعدادات → الأجهزة والخدمات → إضافة تكامل → Kept**. أدخل عنوان Kept
+   (`https://kept.example.org`) والرمز. أوقف **تحقّق من شهادة HTTPS** فقط لشهادة موقعة ذاتياً على شبكتك الخاصة.
+٤. **تحقّق.** الخطوة التالية تسمّي إصدار Kept لديك والمواقع التي يصلها الرمز.
+   **إرسال** يضيفها.
+
+ماذا يخبرك الإعداد عند وجود خطأ:
+
+| الرسالة | ماذا تفعل |
+|---|---|
+| لا يمكن الوصول إلى Kept | تحقّق من العنوان وأن Home Assistant يستطيع الوصول لذلك المضيف |
+| ليس Kept | العنوان يستجيب، لكن بشيء آخر: صفحة وسيط، تطبيق آخر |
+| ذلك العنوان يعيد توجيهه إلى HTTPS | استخدم عنوان `https://` الذي يسمّيه |
+| شهادة HTTPS غير موثوقة | استخدم شهادة موثوقة، أو أوقف التحقّق لشهادة موقعة ذاتياً |
+| فشل HTTPS | Kept مُقدّم عبر `http` عادي على ذلك المنفذ: استخدم `http://` |
+| Kept رفض الرمز | أُلغي، انتهى، أو خطأ مطبعي: أنشئ جديداً |
+| هذا Kept لا يقدّم الملخص | حدّث Kept |
+
+**ضبط** على التكامل يختار أياً من مواقع الرمز تعرض وتكرار قراءة Kept (كل ٥ دقائق؛ ١ إلى ٦٠). عند إلغاء الرمز أو انتهائه، يطلب Home Assistant رمزاً جديداً.
+
+## على لوحة التحكم
+
+معرفات الكيانات تأتي من الأسماء في Kept. لموقع اسمه **الرئيسية** وسيارة اسمها
+**Corolla**: `sensor.home_overdue`، `sensor.home_due`، `sensor.home_expiring`،
+`sensor.home_lent_out`، `sensor.home_low_stock`، `calendar.home_due_dates`،
+`sensor.corolla_reading`، `sensor.corolla_next_service`. تحقّق من خاصتك تحت **الإعدادات → الأجهزة
+والخدمات → Kept**.
+
+بطاقة [مربّعة](https://www.home-assistant.io/dashboards/tile/) لكل عدد، أو بطاقة
+[كيانات](https://www.home-assistant.io/dashboards/entities/) واحدة:
+
+```yaml
+type: entities
+title: Kept · Home
+entities:
+  - sensor.home_overdue
+  - sensor.home_due
+  - sensor.home_expiring
+  - sensor.home_lent_out
+  - sensor.home_low_stock
+  - sensor.corolla_next_service
+```
+
+تقويم **المواعيد** يظهر في لوحة **تقويم** Home Assistant.
+
+## الإجراءات
+
+**Kept: سجّل قراءة** (`kept.log_reading`) يرسل قراءة لمركبة (أو عداد، بمعرّفه: `meter_id` لمُستشعر **القراءة**). تظهر في Kept كقراءة من Home Assistant. يرفض Kept قراءة أقل من السابقة، ويفشل الإجراء بسبب Kept؛ قفزة يجدها Kept غير محتملة تنتظر مراجعة في **الوارد**.
+
+**Kept: ضع علامة على جدول كمُنجز** (`kept.complete_schedule`) يضع علامة على جدول كمُنجز في يوم (اليوم، في منطقة الموقع الزمنية) ويسجل الخدمة، مع القراءة لجدول بعداد. الجدول المنفرد يصبح مُنجزاً ويترك العدادات؛ وضع علامة عليه مجدداً يفشل.
+
+كلاهما يحتاج رمز **قراءة وتغيير**.
+
+### عداد المسافات للسيارة، يُرسل إلى Kept
+
+عندما يستقر عداد مسافات السيارة لـ ١٠ دقائق (السيارة مركونة):
+
+```yaml
+alias: Odometer to Kept
+triggers:
+  - trigger: state
+    entity_id: sensor.my_car_odometer
+    for: "00:10:00"
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: kept.log_reading
+    data:
+      device_id: YOUR_KEPT_VEHICLE_DEVICE_ID
+      value: "{{ trigger.to_state.state | float }}"
+mode: queued
+```
+
+`sensor.my_car_odometer` هو مُستشعر تكامل سيارتك. في محرر الأتمتة، اختر مركبة Kept في حقل **المركبة** بالإجراء لملء `device_id`. أرسل القراءة بوحدة عداد المركبة في Kept.
+
+## تحديث أو إزالة
+
+- **تحديث:** إصدار جديد يظهر تحت **الإعدادات → التحديثات** (HACS يضيفه هناك). ثبّته وأعد تشغيل Home Assistant.
+- **إزالة:** **الإعدادات → الأجهزة والخدمات → Kept → ⋮ → حذف**، ثم أزل **Kept** في
+  HACS وأعد التشغيل. ألغِ الرمز في Kept: **الإعدادات → الربط**.
+
+## ما يقرأه
+
+كل بضع دقائق، بالرمز: `GET /api/v1/summary` (العدادات لكل موقع)،
+`GET /api/v1/vehicles` والصفحة الأولى من `GET /api/v1/agenda`. التقويم يقرأ
+`GET /api/v1/agenda` للأيام التي يعرضها. الإجراءات تستخدم `POST /api/v1/meters/{id}/readings`
+و `POST /api/v1/schedules/{id}/complete`. الرمز يرى فقط مواقعه الخاصة، ولا أكثر مما تستطيع. نفس الملخص يُغذي [أدوات لوحات التحكم](/ar/users/dashboards/).

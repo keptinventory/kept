@@ -1,0 +1,173 @@
+---
+title: Home Assistant
+description: "Kept trong Home Assistant: cảm biến cho những gì quá hạn, đến hạn và sắp hết hạn, chỉ số và bảo dưỡng tiếp theo của từng phương tiện, lịch, và đọc số km gửi ngược lại."
+---
+
+import { Image } from 'astro:assets';
+import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
+
+Tích hợp Kept cho [Home Assistant](https://www.home-assistant.io/) cho thấy những gì cần bạn ở
+mỗi địa điểm và gửi các chỉ số ngược lại, chẳng hạn như số km mà tích hợp xe đã biết. Nó
+đọc Kept bằng [token cá nhân](/vi/users/mcp-clients/#tạo-token-cá-nhân).
+
+Tích hợp: [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant),
+cài đặt với [HACS](https://hacs.xyz/) dưới dạng kho tùy chỉnh.
+
+Tùy chọn: chỉ khi bạn đã chạy [Home Assistant](https://www.home-assistant.io/installation/).
+Kept hoạt động y hệt khi không có nó.
+
+## Ứng dụng và tích hợp
+
+<Image src={diagramLight} alt="Kept, trên máy chủ của bạn hoặc dưới dạng ứng dụng Home Assistant, và tích hợp Kept bên trong Home Assistant: tích hợp đọc Kept mỗi 5 phút và gửi chỉ số ngược lại, cảm biến, lịch và hành động của nó cung cấp cho bảng điều khiển, tự động hóa và lịch" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept, trên máy chủ của bạn hoặc dưới dạng ứng dụng Home Assistant, và tích hợp Kept bên trong Home Assistant: tích hợp đọc Kept mỗi 5 phút và gửi chỉ số ngược lại, cảm biến, lịch và hành động của nó cung cấp cho bảng điều khiển, tự động hóa và lịch" class="kd-only-dark" />
+
+- **Ứng dụng** chạy Kept trên Home Assistant OS ([cài đặt nó](/vi/install/home-assistant/)). Kept trên
+  máy chủ của bạn hoạt động y hệt.
+- **Tích hợp** đưa Kept vào Home Assistant: các cảm biến, lịch và hành động.
+  Chỉ tích hợp mới thêm được thực thể, nên ứng dụng không thể.
+- **Người dùng ứng dụng bật https trước:** tùy chọn **https trên cổng Kept** của ứng dụng. Kept chỉ tạo
+  token qua https.
+
+## Trước khi bắt đầu
+
+| Bạn cần | Tại sao |
+|---|---|
+| **Home Assistant 2026.10 hoặc mới hơn** | Tích hợp được xây dựng và kiểm thử dựa trên nó |
+| **HACS** trong Home Assistant | Nó cài đặt tích hợp. [Tải HACS](https://hacs.xyz/docs/use/download/download/) ([nó cần gì](https://hacs.xyz/docs/use/download/prerequisites/)) |
+| **Kept 1.8.0 hoặc mới hơn** | Nó thêm bản tóm tắt mà các cảm biến đọc |
+| **Một token cá nhân** | Ứng dụng chỉ tạo token qua HTTPS ([HTTPS](/vi/install/https/)); trên mạng gia đình qua `http`, [tạo token trên máy chủ](/vi/admin/cli/#mã-thông-báo-từ-máy-chủ) |
+| **Home Assistant truy cập được Kept** | Cùng mạng, VPN như Tailscale, hoặc địa chỉ công cộng. Thử: mở địa chỉ Kept từ máy chạy Home Assistant |
+
+## Những gì bạn nhận được
+
+Mỗi địa điểm là một thiết bị trong Home Assistant:
+
+| Thực thể | Nội dung hiển thị |
+|---|---|
+| **Quá hạn**, **Đến hạn**, **Sắp hết hạn** | Số lượng trên Trang chủ của Kept. Thuộc tính `items` liệt kê 10 mục đầu, gấp gáp nhất trước |
+| **Đã cho mượn**, **Mượn về** | Các khoản cho mượn đang mở. Chỉ ở nơi Cho mượn đang bật |
+| **Không chắc chắn**, **Lâu không thấy** | Đồ vật có vị trí đáng ngờ, hoặc chưa thấy trong số tháng của địa điểm |
+| **Tồn kho thấp** | Đồ vật dưới mức tối thiểu. Chỉ ở nơi Tiêu hao đang bật |
+| **Chưa có vị trí**, Đồ vật | Tắt ban đầu; bật chúng trong Home Assistant |
+| **Ngày đến hạn** (lịch) | Mọi đồ vật có ngày đến hạn, là sự kiện cả ngày |
+
+Mỗi phương tiện (một đồ vật có chỉ số, dưới **Phương tiện**) là một thiết bị trong địa điểm của nó:
+
+| Thực thể | Nội dung hiển thị |
+|---|---|
+| **Chỉ số** | Chỉ số mới nhất, tính bằng km, dặm hoặc giờ |
+| **Bảo dưỡng tiếp theo** | Ngày đến hạn, hoặc ước lượng của Kept từ các chỉ số của bạn |
+| **Bảo dưỡng tiếp theo ở** | Chỉ số đến hạn |
+
+Một địa điểm hoặc phương tiện thêm sau trong Kept sẽ hiện ra sau khi bạn tải lại tích hợp.
+
+## Thiết lập
+
+1. **Tạo token.** Trong Kept, **Cài đặt → Kết nối → Token mới**. Chọn các địa điểm Home
+   Assistant cần thấy. **Chỉ đọc** đủ cho cảm biến và lịch; **Đọc và thay đổi**
+   cũng cho phép các hành động dưới gửi chỉ số và đánh dấu lịch đã xong. Ứng dụng chỉ tạo
+   token khi Kept phục vụ qua `https` ([HTTPS](/vi/install/https/)); qua `http`, người quản trị máy chủ tạo bằng
+   [`kept admin token create`](/vi/admin/cli/#mã-thông-báo-từ-máy-chủ).
+2. **Cài đặt.** Trong HACS, **⋮ → Kho tùy chỉnh** ([cách làm](https://hacs.xyz/docs/faq/custom_repositories/)): thêm
+   `https://github.com/keptinventory/kept-homeassistant`, loại **Integration**. Cài đặt **Kept**,
+   và khởi động lại Home Assistant.
+3. **Thêm tích hợp.** **Cài đặt → Thiết bị & dịch vụ → Thêm tích hợp → Kept**. Nhập địa chỉ
+   Kept (`https://kept.example.org`) và token. Tắt **Kiểm tra chứng chỉ HTTPS** chỉ cho
+   chứng chỉ tự ký trên mạng của bạn.
+4. **Kiểm tra.** Bước tiếp theo nêu tên phiên bản Kept của bạn và các địa điểm token chạm tới.
+   **Gửi** thêm chúng.
+
+Thiết lập báo gì khi có lỗi:
+
+| Thông báo | Điều cần làm |
+|---|---|
+| Không truy cập được Kept | Kiểm tra địa chỉ và Home Assistant truy cập được máy chủ đó |
+| Đó không phải Kept | Địa chỉ trả lời, nhưng bằng thứ khác: trang proxy, ứng dụng khác |
+| Địa chỉ đó chuyển hướng sang HTTPS | Dùng địa chỉ `https://` mà nó nêu |
+| Chứng chỉ HTTPS không được tin cậy | Dùng chứng chỉ tin cậy, hoặc tắt kiểm tra cho chứng chỉ tự ký |
+| HTTPS thất bại | Kept phục vụ `http` thuần túy trên cổng đó: dùng `http://` |
+| Kept từ chối token | Token bị thu hồi, hết hạn hoặc gõ sai: tạo token mới |
+| Kept này không cung cấp bản tóm tắt | Cập nhật Kept |
+
+**Cấu hình** trên tích hợp chọn những địa điểm nào của token sẽ hiện và tần suất đọc
+Kept (mỗi 5 phút; 1 đến 60). Khi token bị thu hồi hoặc hết hạn, Home Assistant yêu cầu
+token mới.
+
+## Trên bảng điều khiển
+
+ID thực thể xuất phát từ tên trong Kept. Với địa điểm gọi là **Trang chủ** và xe gọi là
+**Corolla**: `sensor.home_overdue`, `sensor.home_due`, `sensor.home_expiring`,
+`sensor.home_lent_out`, `sensor.home_low_stock`, `calendar.home_due_dates`,
+`sensor.corolla_reading`, `sensor.corolla_next_service`. Xem của bạn tại **Cài đặt → Thiết bị &
+dịch vụ → Kept**.
+
+Một [thẻ tile](https://www.home-assistant.io/dashboards/tile/) cho mỗi số lượng, hoặc một
+[thẻ entities](https://www.home-assistant.io/dashboards/entities/):
+
+```yaml
+type: entities
+title: Kept · Home
+entities:
+  - sensor.home_overdue
+  - sensor.home_due
+  - sensor.home_expiring
+  - sensor.home_lent_out
+  - sensor.home_low_stock
+  - sensor.corolla_next_service
+```
+
+Lịch **Ngày đến hạn** hiển thị trong bảng **Lịch** của Home Assistant.
+
+## Hành động
+
+**Kept: Ghi chỉ số** (`kept.log_reading`) gửi chỉ số cho một phương tiện (hoặc chỉ số, bằng id của nó:
+`meter_id` của cảm biến **Chỉ số**). Nó hiện trong Kept như chỉ số từ Home Assistant. Kept
+từ chối chỉ số thấp hơn chỉ số trước, và hành động thất bại với lý do của Kept; một nhảy
+Kept cho là không chắc chắn chờ duyệt trong Hộp thư đến.
+
+**Kept: Đánh dấu lịch đã xong** (`kept.complete_schedule`) đánh dấu lịch xong vào một ngày (hôm nay,
+theo múi giờ của địa điểm) và ghi nhận bảo dưỡng, kèm chỉ số cho lịch theo chỉ số.
+Lịch một lần sau đó xong và rời khỏi số lượng; đánh dấu xong lại sẽ thất bại.
+
+Cả hai cần token **Đọc và thay đổi**.
+
+### Số km xe, gửi đến Kept
+
+Khi số km xe đã ổn định 10 phút (xe đã đỗ):
+
+```yaml
+alias: Odometer to Kept
+triggers:
+  - trigger: state
+    entity_id: sensor.my_car_odometer
+    for: "00:10:00"
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: kept.log_reading
+    data:
+      device_id: YOUR_KEPT_VEHICLE_DEVICE_ID
+      value: "{{ trigger.to_state.state | float }}"
+mode: queued
+```
+
+`sensor.my_car_odometer` là cảm biến của tích hợp xe của bạn. Trong trình soạn tự động hóa, chọn
+phương tiện Kept trong trường **Phương tiện** của hành động để điền `device_id`. Gửi chỉ số theo đơn vị
+của chỉ số phương tiện trong Kept.
+
+## Cập nhật hoặc xóa
+
+- **Cập nhật:** bản phát hành mới hiện dưới **Cài đặt → Cập nhật** (HACS thêm nó vào đó). Cài đặt nó và
+  khởi động lại Home Assistant.
+- **Xóa:** **Cài đặt → Thiết bị & dịch vụ → Kept → ⋮ → Xóa**, sau đó xóa **Kept** trong
+  HACS và khởi động lại. Thu hồi token trong Kept: **Cài đặt → Kết nối**.
+
+## Nó đọc gì
+
+Mỗi vài phút, với token: `GET /api/v1/summary` (số lượng theo địa điểm),
+`GET /api/v1/vehicles` và trang đầu của `GET /api/v1/agenda`. Lịch đọc
+`GET /api/v1/agenda` cho các ngày nó hiển thị. Hành động dùng `POST /api/v1/meters/{id}/readings`
+và `POST /api/v1/schedules/{id}/complete`. Token chỉ thấy địa điểm của nó, và không bao giờ
+nhiều hơn những gì bạn thấy. Cùng bản tóm tắt cấp cho [tiện ích bảng điều khiển](/vi/users/dashboards/).

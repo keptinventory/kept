@@ -1,0 +1,17 @@
+---
+title: "Integrations: imports, notifications, sign-in and AI"
+sidebar:
+  label: Integrations
+description: "Kept integrations for a self-hosted homelab: Homebox and LubeLogger import, CSV, email-in, ntfy, Telegram, Apprise, OIDC, OpenAI, Anthropic, Ollama."
+---
+
+import IntegrationList from '../../../components/landing/IntegrationList.astro';
+import { Image } from 'astro:assets';
+import integrations from '../../../assets/landing/kept-integrations.webp';
+
+Qué toma Kept, quién avisa, cómo la gente inicia sesión y con qué habla.
+Una entrada cada una, con la página que la configura. Todo esto está en Kept hoy.
+
+<Image src={integrations} alt="Kept en el medio, vinculado ambas vías a Home Assistant y Paperless-ngx; importaciones desde Homebox, LubeLogger y hojas de cálculo; notificaciones a través de ntfy, Telegram, Slack, Discord, Matrix, Signal, correo y webhooks; el servidor MCP de Kept para Claude y ChatGPT; modelos de IA de OpenAI, Anthropic, Gemini, Groq, OpenRouter y Ollama" widths={[800, 1600]} sizes="(min-width: 50rem) 48rem, 100vw" loading="eager" />
+
+<IntegrationList />

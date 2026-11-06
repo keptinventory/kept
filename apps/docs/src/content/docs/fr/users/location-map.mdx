@@ -1,0 +1,451 @@
+---
+title: La carte des lieux
+description: Voir un lieu sous forme de carte 3D de ses étages et de ses pièces, trouver où se trouvent les objets et organiser vous-même les pièces, les étagères et les boîtes.
+---
+
+import Clip from '../../../../components/Clip.astro';
+import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
+import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
+import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
+
+La page d'un lieu a cinq dispositions : **Liste**, **Grille**, [**Graphique**](/fr/users/graph/), **Tableau** et
+**Carte**. La carte dessine le lieu en 3D : chaque étage, ses pièces et les étagères, placards et
+boîtes qu'ils contiennent. Touchez n'importe quoi pour voir ce que c'est, où c'est et ce qu'il y a
+dedans. Liste reste par défaut ; Kept mémorise votre choix pour chaque lieu sur chaque appareil. Dans
+Carte, la carte guide et remplit l'écran ; les boutons du lieu (Imprimer l'inventaire, Imprimer les
+étiquettes et les autres), **Ajouter ici** et **Sans emplacement** la suivent.
+
+La page d'un étage ou d'une pièce a aussi **Carte** : la même carte, ouverte sur ce lieu. Un étage
+s'ouvre sur cet étage, une pièce s'ouvre à l'intérieur avec sa fiche, et une étagère ou un placard
+est sélectionné dans sa pièce. Un lieu que la carte ne dessine pas s'ouvre sur sa pièce avec une
+note. Kept mémorise le choix pour chaque lieu.
+
+Pour le voir avant d'installer quoi que ce soit, [essayez la carte](/fr/try/map/) avec une maison
+exemple dans votre navigateur.
+
+![Une maison sur sa carte : des pièces avec leurs étages et leurs murs, un meuble TV sélectionné avec sa fiche affichant Dans · 5 et Détails, le sélecteur Liste · Grille · Carte en haut](../../../../assets/screens/map-desktop-light.webp)
+
+![La même maison sur la carte en thème sombre](../../../../assets/screens/map-desktop-dark.webp)
+
+La carte a besoin d'une connexion : elle ne fait pas partie de la copie hors ligne du téléphone.
+Elle ne se charge que quand vous l'ouvrez, pour que le reste de Kept reste aussi rapide qu'avant.
+
+## Ce qui est sur la carte
+
+| Sur la carte | D'où ça vient |
+|---|---|
+| **Étages** | Les lieux du genre **Étage** en haut du lieu. S'il n'y en a pas, le lieu est sur un seul niveau. |
+| **Pièces** | Tout lieu directement sur un étage (ou en haut, s'il n'y a pas d'étage), quel que soit son genre. |
+| **Étagères, placards, zones** | Les lieux directement dans une pièce. |
+| **Boîtes et autres conteneurs** | Les conteneurs directement dans une pièce. |
+| **Tout le reste** | Un objet que vous mettez vous-même sur la carte, comme la TV ou la voiture. |
+
+Les noms ne se chevauchent ni ne sont coupés : quand deux se toucheraient, le nom de la pièce
+reste et ce qui est dans une étagère ou une boîte apparaît quand on zoome assez. Ce que vous
+avez sélectionné garde toujours son nom.
+
+Le reste est compté : une étagère indique combien d'objets sont dessus, et sa fiche les liste.
+Nul besoin d'arranger quoi que ce soit d'abord. Les pièces que personne n'a arrangées sont
+disposées côte à côte dans l'ordre de la liste des lieux, et ce qui s'y trouve en rangées ;
+**Organiser** les déplace à leur vraie place. Une pièce appelée "Jardin", "Balcon" ou "Terrasse" est
+dessinée en une seule.
+
+Des épingles montrent ce qui demande attention : **Stock bas** (consommables), **Prêtés** (prêts)
+et **Bientôt dû** (calendriers, garanties et documents). Une épingle se trouve sur l'étagère ou la
+boîte qui contient l'objet. Les pastilles en haut activent ou désactivent chaque type.
+
+## Se déplacer
+
+| | Avec une souris | Sur un téléphone |
+|---|---|---|
+| Panoramique | Glisser | Glisser avec un doigt |
+| Zoom | Défiler, ou **+** et **−** | Pincer, ou **+** et **−** |
+| Tourner | Les boutons pour tourner | Tourner avec deux doigts, ou le bouton pour tourner |
+| Ouvrir une pièce | Double-cliquer dessus, ou **Ouvrir** sur sa fiche | Double-taper dessus, ou **Ouvrir** |
+| Retour | Le nom du lieu ou l'étage en haut, ou le bouton maison | Les mêmes |
+
+Les boutons d'étage fonctionnent comme un ascenseur : **R**, **1**, **G** et ainsi de suite, chacun
+nommé d'après son étage, et **Tout** empile tous les étages. Sur un téléphone, ils sont en une
+ligne en bas avec les boutons de zoom et de rotation, et s'effacent pendant qu'une fiche est
+ouverte. **Plan** voit d'en haut, avec les noms et ce qu'il y a dans chaque étagère. Les
+escaliers sur la carte vous mènent à l'étage au-dessus ou en dessous.
+
+Une pièce s'ouvre face à l'avant de ses écrans (un écran, une TV, un ordinateur portable), pour
+que vous les voyiez et non leur dos. Tournez-la autrement et elle s'ouvrira ainsi la prochaine
+fois sur cet appareil. Un mur qui se trouverait entre vous et une pièce descend à un bas trottoir
+pendant que vous regardez de ce côté, et se redresse quand vous revenez ; ce qui y est accroché
+part et revient avec lui. Plan garde tous les murs.
+
+![Plan : la même maison vue d'en haut, chaque pièce nommée](../../../../assets/screens/map-plan-light.webp)
+
+![La carte sur un téléphone : le sélecteur Liste · Grille · Carte, les boutons 3D et Plan, et la fiche d'un objet sélectionné en bas](../../../../assets/screens/map-phone-light.webp)
+
+## La fiche
+
+Taper sur quelque chose ouvre une courte fiche : son nom, où il est, son identifiant court (sous
+forme de ruban ambre quand il a une étiquette imprimée) et ce qui est à échéance. **Détails**
+ajoute sa photo, son étiquette (le même code QR qu'une étiquette imprimée porte), ses
+informations et **Ouvrir l'objet** ou **Ouvrir le lieu**. **Dans** liste ce qui est dedans ;
+touchez-en un pour le voir. Avec une souris, survoler affiche le nom, et l'identifiant court d'un
+objet étiqueté, sans clic.
+
+Où il se trouve se lit depuis la pièce : "Espace ouvert › Bureau 3" pour un portable gardé dans
+Bureau 3 et posé dessus. Sur une fenêtre courte ou un téléphone, les détails défilent dans la
+fiche, et **Ouvrir** reste au bord inférieur de la fiche.
+
+**Meuble à compartiments** ([une étagère à cases, une bibliothèque, une commode](/fr/users/locations/#mobilier-à-compartiments))
+montre ses compartiments : soulignés sur sa façade pendant qu'il est sélectionné, et sous forme
+de grille de nombres sur sa fiche. Touchez un compartiment sur la carte ou sur la fiche pour
+ouvrir sa propre fiche : ce qui est dedans, son étiquette et **Ouvrir le lieu**.
+
+## Ce qu'il y a dans le lieu
+
+Sous la carte, **Ce qu'il y a dans** liste chaque pièce avec ce qui s'y tient et repose. Cherchez
+par nom ou identifiant court, choisissez un étage, ou passez à **À surveiller** pour tout ce qui
+est bas, prêté ou à échéance. Un appui le montre sur la carte. La recherche, l'étage et la vue
+sont dans l'adresse, pour que vous puissiez les partager ou les mettre en signet.
+
+Pour les lecteurs d'écran et les claviers, **Lieux à cet étage** liste les pièces de l'étage et
+ce qui s'y trouve, à côté de la carte.
+
+## Arrangement
+
+Les propriétaires, admins et membres peuvent organiser un lieu ; les visiteurs le voient tel
+qu'organisé. **Organiser** démarre :
+
+- **Déplacer** : glissez n'importe quoi. Les petits objets (un ordinateur portable, une lampe,
+  une boîte) peuvent se poser sur un comptoir, un bureau, une étagère ou une boîte, et se
+  déplacent avec ; une webcam se clipse sur le bord supérieur d'un écran. Glissez un objet dans
+  une autre pièce pour le déplacer aussi dans Kept. Les petits objets bougent d'un centimètre à
+  la fois, les autres de 5 cm et les meubles de 10 cm ; sur un bureau ou une étagère, ils
+  s'alignent avec ses bords. Sur un ordinateur, maintenez **Alt** (**Option** sur un Mac) pour
+  glisser librement.
+- **Déplacer une pièce** avec tout ce qu'elle contient : meubles, étagères, boîtes et ce qui est
+  posé dessus. Avec une souris, sélectionnez la pièce, puis glissez-la. Sur un téléphone,
+  maintenez son sol un moment, puis glissez ; un balayage rapide déplace encore la vue. Avec une
+  pièce sélectionnée, chaque touche fléchée la déplace d'un mètre dans la direction où la vue
+  est tournée, et **Maj** avec une touche fléchée de 10 cm ; un lecteur d'écran entend où elle
+  est allée ("Moved Bedroom left."). Glissez le **coin ambre** d'une pièce pour la
+  redimensionner. Les pièces se déplacent, se redimensionnent et se dessinent par tranches de
+  10 cm, au moins 50 cm de côté, et restent sur leur étage ; celle qui chevaucherait une autre
+  pièce glisse le long à la place ("Rooms can't overlap.").
+- **Dessiner une pièce** sur sol vide. Cela devient tout de suite un nouveau lieu sur cet étage.
+- **Depuis un plan** lit les pièces d'un plan d'étage (ci-dessous).
+- **Ajouter un étage** ajoute un lieu du genre Étage, avec une pièce dedans.
+- Sélectionnez une pièce pour définir son **genre** (pièce, balcon, terrasse, jardin), son **sol**
+  (bois, carrelage, béton, terrasse, gazon) et sa **Largeur** et sa **Longueur**, ou pour
+  **mettre un objet de cette pièce sur la carte**. Voir [La vraie taille d'une pièce](#la-vraie-taille-dune-pièce).
+- Sélectionnez un objet pour le **tourner**, changer sa **forme** (voir ci-dessous), le **poser
+  sur** un bureau, une étagère ou un écran, **ajouter des objets dessus**, régler la hauteur à
+  laquelle il est accroché à un mur (**Hauteur**), ou l'**enlever de la carte** (seulement ce
+  que vous y avez mis vous-même).
+
+**Terminé** enregistre tout l'arrangement d'un coup, et le message qui suit propose **Annuler**.
+**Annuler** remet la carte en place ; quand quelque chose a changé, il demande d'abord (**Jeter
+ces changements ?**). Les pièces et étages que vous avez ajoutés restent dans Kept dans tous les
+cas. Si quelqu'un d'autre a organisé le même lieu pendant ce temps, Kept le dit et montre le
+sien, plutôt que d'écraser le vôtre. Sur un téléphone, la fiche d'une pièce ou d'un objet
+sélectionné se trouve sous les outils d'Organiser, pour que **Terminé** et **Annuler** restent à
+portée pendant qu'elle est ouverte.
+
+![Organisation : Déplacer, Dessiner une pièce, Ajouter un étage et Annuler au-dessus de la carte, le coin ambre de chaque pièce pour la redimensionner, et Terminé dans la barre du haut](../../../../assets/screens/map-arrange-light.webp)
+
+L'arrangement voyage dans un export Kept, donc le passage à un autre serveur garde la carte. Un
+import Homebox part de la disposition automatique.
+
+### La vraie taille d'une pièce
+
+Une pièce peut avoir sa vraie taille, au centimètre près : un balcon étroit de 0,80 × 3,58 m, un
+couloir de 1,15 × 6,40 m.
+
+- **Quand vous l'ajoutez :** **Ajouter ici → Pièce ou endroit**, en haut d'un lieu ou sur un
+  étage, a **Taille sur la carte** : **Largeur** et **Longueur** en mètres. Laissez les deux
+  vides et la carte dimensionne la pièce elle-même. Avec une taille, la pièce va sur la carte à
+  cette taille, à droite des pièces déjà organisées sur son étage, et l'**Annuler** du message
+  reprend la pièce et sa place sur la carte ensemble.
+- **Pendant l'arrangement :** sélectionnez la pièce et saisissez sa **Largeur** et sa
+  **Longueur**, ou faites-les avancer d'un centimètre à la fois avec **−**, **+** ou les touches
+  fléchées. Le coin de la pièce reste où il est, et ce qui s'y tient reste à l'intérieur.
+- **Largeur** va de gauche à droite en vue plan, **Longueur** de haut en bas. Les deux marques
+  décimales fonctionnent dans toutes les langues : 0.80 ou 0,80.
+- Une pièce fait **au moins 50 cm** et au plus 100 m de côté. Une taille qu'elle ne peut pas
+  prendre, ou qui entrerait dans une autre pièce, reste dans le champ et dit pourquoi ; la pièce
+  garde la sienne.
+- La fiche de la pièce indique sa taille (**0.8 × 3.58 m**), et la vue plan l'écrit sous le
+  nom de la pièce.
+- **Les applications IA et l'assistant** ajoutent une pièce avec sa taille de la même façon :
+  `create_place` prend `width_cm` et `length_cm` ([Applications IA](/fr/users/mcp-clients/)).
+
+Glisser le coin ambre fait toujours 10 cm à la fois ; une taille saisie reste telle quelle tant
+que vous ne glissez pas le coin au-delà.
+
+## Mettre des objets sur la carte
+
+Les étagères, placards, zones et boîtes posés directement dans une pièce sont déjà sur la carte.
+Tout le reste, comme la TV, un bureau ou la voiture, est sur la carte une fois que vous l'y avez
+mis. Les propriétaires, admins et membres peuvent le faire.
+
+### Dans une pièce que vous avez déjà
+
+1. Ouvrez le lieu et choisissez **Carte**.
+2. Sélectionnez la pièce : touchez son sol, ou touchez-la dans **Ce qu'il y a dans** sous la
+   carte. Pour travailler de plus près, **Ouvrir** sur sa fiche entre dans la pièce.
+3. Touchez **Organiser**. La fiche de la pièce a maintenant **Mettre sur la carte**, listant les
+   objets qui traînent dans la pièce et ne sont pas encore sur la carte. Ce qui est dans une
+   boîte, un placard ou sur une étagère sur la carte n'est pas listé : ça va où va sa boîte.
+4. Saisissez une partie du nom ou de l'identifiant court dans **Trouver un objet dans** la pièce,
+   puis touchez l'objet. Il apparaît au milieu de la pièce, sélectionné.
+5. Sa fiche dit quelle forme il a obtenue et pourquoi : **Forme : TV, selon son type** ou **selon
+   son nom**. Quand Kept n'est pas sûr, la fiche dit **une supposition** et affiche **Choisir une
+   forme**.
+6. **Modifier** (ou **Choisir une forme**) ouvre les formes. **Suggéré** vient d'abord, puis
+   toutes les formes de son groupe (meubles, rangement, au mur, électronique, cuisine et
+   buanderie, outils, plantes et extérieur, véhicules, escaliers et zones), chacune avec une
+   image. **Trouver une forme** cherche les noms et leurs autres mots dans toutes les langues de
+   Kept : "fridge", "Kühlschrank" et " television" trouvent tous le frigo. Pendant que vous
+   tapez, seules les correspondances s'affichent, et les formes dont le nom ou le mot commence
+   par ce que vous avez tapé viennent d'abord : "ca" trouve Car, Camera et Webcam avant Tool
+   cart. Les mots dans votre langue et en anglais correspondent dès le début ; un mot dans une
+   autre langue correspond une fois que vous l'avez tapé en entier. Effacez la recherche pour
+   revoir Suggéré et les groupes. Sur un téléphone, les formes restent au-dessus du clavier et
+   défilent. Touchez une forme pour l'utiliser. Toutes les formes, avec leur taille et leurs
+   mots, sont dans la [bibliothèque de formes](/fr/users/map-shapes/) ; **Il manque une forme ? Demandez-la**
+   sous les formes ouvre un formulaire GitHub pour en demander une.
+   Deux formes prennent leur taille chez vous : une **Étagère à cases** a **Cases en largeur** et
+   **Cases en hauteur** sur sa fiche (2 × 2 au début ; **Coucher sur le côté** couche un 1 × 4
+   en 4 × 1), et une **Grande bibliothèque** a sa **Largeur**, sa **Profondeur** et sa
+   **Hauteur** en centimètres et ses **Niveaux** (80 × 28 × 202 cm avec 6 au début). La carte
+   dessine chaque case et chaque niveau.
+7. Glissez l'objet où il se tient. Les petits objets peuvent se poser sur un bureau, un
+   comptoir, une étagère ou une boîte. **Tourner** le fait pivoter d'un quart.
+8. Touchez **Terminé**. Le message propose **Annuler**. **Annuler** avant Terminé jette toute la
+   session, après avoir demandé.
+
+<Clip
+  webm={clipWebm}
+  mp4={clipMp4}
+  poster={clipPoster}
+  width={960}
+  height={698}
+  label="Putting a TV on the map in the sample household: Arrange, the living room, Put on the map, the Samsung TV, its card saying Shape: TV, from its type, the shape picker with Suggested first and a search for TV, then a drag towards the wall and Done."
+  caption="Putting the TV on the map in Try Kept's sample household. The card says the shape came from its type; the picker shows Suggested first, and a search for TV finds it."
+/>
+
+### Poser des petits objets sur un bureau, une étagère ou un écran
+
+Une webcam fait quelques pixels de large au zoom pièce, donc pas besoin de la glisser. Dans
+**Organiser** :
+
+1. Sélectionnez le petit objet, comme la webcam, et touchez **Poser sur…**. Cela liste ce que la
+   même pièce peut porter, chacun avec l'image de sa forme : "Bureau", "Écran", "Étagère 2".
+2. Touchez-en un. L'objet s'y accroche, au milieu ou à côté de ce qui y est déjà.
+3. Pour aller dans l'autre sens, sélectionnez le bureau ou l'écran et touchez **Ajouter dessus**.
+   Choisissez un ou plusieurs des petits objets de la pièce qui ne sont pas encore sur quoi que
+   ce soit, puis **Poser 3 dessus**. Ils se placent côte à côte, pas les uns sur les autres.
+   Les petits objets qui traînent dans la pièce et ne sont pas encore sur la carte sont aussi
+   là, sous **Pas encore sur la carte**, avec la forme qu'ils auraient : en choisir un le met
+   sur la carte et sur le bureau en une fois.
+4. **Retirer**, dans **Poser sur…**, remet l'objet sur le sol de la pièce à côté de son support.
+
+![Poser sur… pour une webcam : le bureau et l'écran de la pièce, chacun avec son image](../../../../assets/screens/map-put-on-phone-light.webp)
+
+Ce qui peut porter quoi :
+
+- **Dessus** : un bureau, une table, un comptoir, une étagère, un meuble TV ou une boîte porte
+  les petits objets.
+- **Sur le bord supérieur** : un écran, une TV ou l'écran d'un ordinateur portable porte une
+  webcam, une enceinte intelligente ou une lampe : de petits objets jusqu'à 12 cm de profondeur
+  et 20 cm de haut, pas plus larges que l'écran.
+- **Sur un bras** : un **bras pour écran** se tient sur un bureau et porte un écran, un **bras
+  double pour écrans** en porte deux, côte à côte et surélevés au-dessus du bureau. **Ajouter
+  dessus** sur un bras liste les écrans de la pièce et dit quand le bras est plein. Une webcam
+  sur un écran sur un bras marche toujours. Un bras se serre sur le bord arrière du bureau, le
+  côté opposé à la chaise : au milieu, ou à un coin arrière quand le milieu est pris. Ses écrans
+  surplombent le bureau devant lui, et le glisser le fait coulisser le long du bord arrière.
+- **Depuis des crochets** : un **mur à outils** (une planche perforée) ou des **crochets**
+  portent des outils, des sacs et d'autres petits objets, suspendus en rangée devant eux (voir
+  ci-dessous).
+
+Déplacer un support déplace ce qui est dessus : déplacez le bureau et son bras, les écrans et
+leur webcam vont avec. Tournez le bureau et ils tournent avec. C'est seulement la carte : poser
+une webcam sur un écran change où elle se tient sur la carte, pas sa place dans Kept. **Terminé**
+l'enregistre avec le reste de la session, et **Annuler** le reprend. Les visiteurs le voient et
+ne peuvent pas le changer.
+
+### Accrocher des objets à un mur
+
+Une TV sur un support, une étagère, une horloge : dans **Organiser**, glissez-en une près d'un
+mur et elle se met à plat contre lui, face à la pièce.
+
+1. Donnez à l'objet une forme murale : **Télé murale**, **Étagère murale**, **Meuble haut**,
+   **Image ou miroir**, **Horloge murale**, **Crochets** ou **Mur à outils**, sous **Au mur**
+   dans les formes. Un objet appelé "Wall TV", "Floating shelf", "Mirror" ou "Pegboard" en
+   obtient une tout seul.
+2. Ça va sur le mur le plus proche. Glissez-le le long du mur, ou vers un autre mur ; il avance
+   par pas, comme tout le reste, et Alt (Option) le glisse librement.
+3. Sa fiche a **Hauteur** : hauteur de son milieu au-dessus du sol. Chaque forme commence
+   quelque part de sensé : une TV à hauteur des yeux (1,2 m), une étagère ou une image à 1,5 m,
+   une horloge à 1,8 m. **−** et **+** la déplacent de 5 cm, et les touches fléchées aussi ; ou
+   saisissez une hauteur. Elle reste entre le sol et 3 m.
+4. Les objets sur un mur ne tournent pas : ils font toujours face à la pièce.
+
+![Organisation : une TV sur le mur du salon au-dessus du meuble TV, sa fiche avec Forme : Télé murale et Hauteur 1,2 m](../../../../assets/screens/map-wall-light.webp)
+
+Une étagère murale porte des petits objets dessus, comme toute étagère : une petite plante, une
+enceinte, un cadre photo. Un mur à outils ou des crochets portent des outils et des sacs,
+suspendus devant eux. Utilisez **Poser sur…** sur le petit objet, ou **Ajouter dessus** sur
+l'étagère, le mur à outils ou les crochets, comme ci-dessus ; glisser un petit objet dessus
+fonctionne aussi.
+
+Les objets debout sous une étagère murale ou une TV restent où ils sont : la TV est accrochée
+au-dessus du meuble TV, et les deux sont dessinés. Dans **Plan**, les objets sur un mur sont une
+fine bande le long de leur mur, pour ne pas cacher ce qui est en dessous ; ce qui est sur une
+étagère murale ou des crochets est nommé sur son étiquette quand on zoome.
+
+Les murs d'une pièce se dressent là où quelque chose y est accroché, assez hauts pour ça.
+Tournez la vue pour qu'un mur se trouve entre vous et la pièce, et il descend à un trottoir avec
+ce qui y est accroché ; revenez et ils sont de nouveau là. Une pièce s'ouvre face à sa TV, sur le
+mur ou pas.
+
+C'est seulement la carte : accrocher un objet change où il est sur la carte, pas sa place dans
+Kept. **Terminé** l'enregistre avec le reste de la session, et **Annuler** le reprend. La
+hauteur voyage dans un export Kept avec le reste de l'arrangement. Les visiteurs voient où les
+objets sont accrochés et ne peuvent pas changer ça.
+
+### Comment Kept choisit la forme
+
+- **D'abord selon le type.** Un objet dont le type est TV, car, bicycle, motorbike ou box obtient
+  cette forme tout de suite. Un type qui ne fait que l'affiner (électronique, un appareil, un
+  outil) met les formes probables d'abord dans **Suggéré** et vous laisse choisir. Un type que
+  vous avez créé vous-même compte par son nom : un type appelé "Television" fonctionne comme le
+  type TV.
+- **Puis le nom**, mot par mot, en anglais, arabe, français, allemand et italien, avec d'autres
+  mots courants ("couch", "telly", "Kühlschrank", " television"). Un nom qui pointe vers une
+  forme ("Samsung TV") l'obtient tout seul ; un qui pourrait en être deux ("Screen" : une TV ou
+  un écran) est une supposition.
+- **L'électronique courante a ses propres formes**, à ses vraies tailles : webcam, camera, desk
+  speaker, portable speaker, tall speaker, boombox, smart speaker, soundbar, headphones, headset,
+  earbuds, keyboard, mouse, desktop PC, laptop, monitor, monitor arm, dual monitor arm, router,
+  printer, game console, game controller, phone, tablet, power strip et external drive. Un objet
+  nommé "HD webcam" obtient la webcam tout seul, "AirPods Pro" les earbuds, "JBL Flip 6" le
+  portable speaker et "Ergotron LX" le monitor arm. Un simple "Speaker" pourrait être n'importe
+  quelle taille, donc Kept suggère toutes les enceintes et vous laisse choisir.
+- **Matériel homelab aussi** : racks serveur au mur (6U, 12U) et au sol (24U, 42U), qui tiennent
+  le matériel dedans comme un placard, et un mini PC, NAS, Raspberry Pi ou SBC, network switch,
+  patch panel et UPS. "Intel NUC" obtient le mini PC, "Synology DS923+" le NAS, "8-port switch"
+  le network switch et "12U wall rack" le rack mural 12U. Un simple "Server rack" pourrait être
+  n'importe quelle taille, donc Kept suggère tous les racks et vous laisse choisir ; un simple
+  "Rack" reste une étagère.
+- **Les accessoires sont une supposition.** "Phone case", "TV remote" ou "Laptop stand"
+  nomment ce pour quoi c'est, pas ce que c'est, donc Kept suggère des formes et vous laisse
+  choisir.
+- **Rien ne va ?** Les objets sans forme à eux, comme un thermostat, un hub ou un chargeur, se
+  voient suggérer le **Petit appareil**, la taille d'un gadget. Tout le reste commence comme le
+  **Petit objet**.
+- **Le meuble à compartiments** sans forme à lui se dessine à partir de sa grille : une étagère à
+  cases par ses cases, une bibliothèque par ses étagères, une commode.
+- **Votre choix reste.** Kept ne change jamais une forme choisie par quelqu'un, et les objets
+  déjà sur la carte gardent la leur.
+
+### Dans un lieu sans pièces pour l'instant
+
+Un bureau ou un local de stockage commence souvent avec tout dans **Sans emplacement** et aucune
+pièce. Sa carte dit **Aucune pièce sur le plan pour l’instant**, avec **Partir d’un plan
+d’étage** (section suivante) et **Organiser**. Pour dessiner vous-même les pièces :
+
+1. Ouvrez le lieu, choisissez **Carte** et touchez **Organiser**.
+2. Choisissez **Dessiner une pièce** et glissez sur le sol vide. La pièce est tout de suite un
+   nouveau lieu dans Kept, nommée Pièce 1 ; renommez-la depuis **Ouvrir le lieu** sur sa fiche.
+3. Touchez **Terminé**.
+4. Donnez aux objets un lieu dans cette pièce. Sur le lieu, **Les ranger** parcourt Sans
+   emplacement un objet à la fois avec un sélecteur de lieu ; ou ouvrez un objet et utilisez
+   **Actions → Déplacer**.
+5. De retour sur la carte, mettez-les dessus comme ci-dessus : **Organiser**, la pièce, **Mettre
+   sur la carte**.
+
+### Partir d’un plan d’étage
+
+Un plan d'étage montre déjà les pièces d'une maison, leurs noms et leurs tailles : une fiche
+d'agent immobilier, un PDF de constructeur, une capture d'une annonce, une photo d'un croquis.
+Kept peut le lire et vous proposer un brouillon des pièces à vérifier. Rien n'est ajouté tant
+que vous ne l'avez pas dit.
+
+Les propriétaires, admins et membres peuvent en lancer un, là où la capture IA est activée et où
+un fournisseur qui lit les photos est configuré ([Fournisseurs IA](/fr/users/ai-providers/)). Sinon la carte
+dit pourquoi, dans les mêmes mots que le mode Pièce de Capture, et propose **Organiser** seul.
+
+1. Sur une carte vide, touchez **Partir d’un plan d’étage** ; sur n'importe quelle carte,
+   **Organiser → Depuis un plan**.
+2. **Choisir un fichier** (une image JPEG, PNG, WebP, HEIC ou GIF, ou un PDF) ou **Prendre une
+   photo** d'un plan papier. **Tourner** le d'un quart de tour à la fois s'il est de côté. Pour
+   un PDF, seule la première page est lue.
+3. La feuille indique environ combien de jetons la lecture peut prendre et quel fournisseur la
+   lit. Touchez **Lire le plan**.
+4. La carte dit **Lecture du plan…**. Vous pouvez partir : le plan attend sur la carte, et tout
+   membre voit **Un plan d'étage est prêt à vérifier** quand il est lu. Touchez **Le vérifier**.
+
+**Ce qui est envoyé, et ce qui est gardé.** Kept envoie une copie du plan à votre fournisseur,
+réencodée sans ses données de lieu ni d'appareil photo (pour un PDF, sa première page dessinée
+comme une image, avec le texte de cette page), et rien de Kept lui-même : ni noms de lieu, ni de
+pièce, ni d'étage. Le téléversement reste avec le plan pendant que vous le vérifiez, vu par les
+membres et uniquement en haut, et est supprimé quand vous ajoutez les pièces ou jetez le plan,
+sauf si vous cochez **Garder le plan avec** le lieu, ce qui le garde comme un des documents du
+lieu. Un plan que personne ne termine est jeté après 30 jours.
+
+**Vérifier.** La carte passe en **Plan** et montre les pièces du plan sous forme de contours
+**violet en pointillés** : en pointillés veut dire pas encore ajouté, violet veut dire lu par
+l'IA. Avec **Afficher le plan** activé, le plan lui-même se trouve sous eux, pour que vous
+puissiez voir si chaque contour se trouve sur la pièce qu'il nomme. Les pièces déjà sur la carte
+restent immobiles pendant la vérification. Le panneau, **Pièces du plan**, liste chaque pièce
+avec :
+
+- un interrupteur pour l'ajouter ou la laisser de côté ;
+- son **nom** tel qu'imprimé (une pièce sans étiquette s'appelle Pièce 1, Pièce 2, etc.), que
+  vous pouvez changer ;
+- sa **taille**, au 10 cm près, et son **genre** (pièce, balcon, terrasse, jardin) ;
+- au plus une note, par exemple **Le plan dit 4.00 x 8.40 m.** (touchez-la pour utiliser la
+  taille imprimée), **Pas un rectangle : dessiné selon sa plus grande partie.**, **Moins de 50
+  cm : trop petit pour la carte.**, **Déjà sur la carte.** ou **Utilise votre Cuisine**, quand
+  une pièce de ce nom était dans Kept mais pas encore sur la carte (**Créer une nouvelle pièce**
+  en fait une à la place).
+
+Chaque étage du plan a un sélecteur **Étage** : un des vôtres, ou un nouvel étage créé quand
+vous ajoutez les pièces. Glissez une pièce en pointillés pour la déplacer, ou son coin ambre
+pour la redimensionner ; les touches fléchées déplacent celle sélectionnée d'un mètre et **Maj**
+avec une touche fléchée de 10 cm. **Tourner les pièces** les fait toutes pivoter d'un quart de
+tour, pour un plan dessiné de côté.
+
+**L'échelle.** La ligne sous le titre du panneau dit d'où viennent les tailles : les tailles
+imprimées sur le plan (et combien d'entre elles concordent), sa barre d'échelle, ses portes
+(prises pour 80 cm de large), ou rien du tout, quand **c'est une supposition**. Si les tailles
+ont l'air fausses, touchez **Définir la taille d'une pièce**, saisissez la vraie largeur et
+profondeur d'une pièce, et **Remettre à l'échelle** : chaque pièce est redessinée à partir de
+ça.
+
+**Ajouter.** **Ajouter 5 pièces** (le nombre de pièces activées) crée les pièces, et tout nouvel
+étage, comme des lieux ordinaires, et les met sur la carte à côté de ce qui y était. Le message
+propose **Annuler**, qui les enlève toutes de la carte et met les pièces créées à la corbeille,
+tant que rien n'a été mis dedans et qu'aucune n'a été renommée ou déplacée depuis. L'historique
+montre une ligne : **Ajout de 5 pièces depuis un plan d'étage**. **Jeter** jette le plan ; rien
+n'est ajouté.
+
+La qualité avec laquelle un modèle lit un plan dépend du plan et du modèle : vérifiez chaque
+pièce contre le plan avant d'ajouter. Les murs, portes et fenêtres ne sont pas dessinés, et
+une pièce qui n'est pas un rectangle devient son plus grand rectangle.
+
+### Ce que Sans emplacement veut dire ici
+
+**Sans emplacement** contient les objets qui n'ont pas encore de lieu. Ils ne sont dans aucune
+pièce, donc ils ne sont pas sur la carte et **Mettre sur la carte** ne les liste pas. Donnez
+d'abord un lieu dans une pièce à un objet ; il apparaît ensuite dans la liste de cette pièce.
+
+## Modèles détaillés
+
+Les meubles, plantes et unités de climatisation extérieures sont dessinés avec des modèles
+gratuits de [Poly Haven](https://polyhaven.com) (CC0), rétrécis pour les téléphones : environ 150 Ko
+chacun au plus, environ 1,5 Mo pour tous, et seul l'étage à l'écran charge les siens. Tout le
+reste est dessiné par Kept lui-même. Désactivez **Modèles détaillés** sous la carte et rien
+n'est téléchargé du tout ; Kept s'en souvient sur cet appareil.
+
+Si le navigateur ne peut pas dessiner en 3D (un vieux téléphone, ou le graphisme désactivé), la
+carte le dit et la liste sous elle a toujours tout.

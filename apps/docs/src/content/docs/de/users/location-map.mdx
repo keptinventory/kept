@@ -1,0 +1,448 @@
+---
+title: "Die Standortkarte"
+description: "Einen Standort als 3D-Karte seiner Etagen und Räume sehen, finden, wo Gegenstände sind, und die Räume, Regale und Kisten selbst anordnen."
+---
+
+import Clip from '../../../../components/Clip.astro';
+import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
+import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
+import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
+
+Die Seite eines Standorts hat fünf Ansichten: **Liste**, **Raster**, [**Graph**](/de/users/graph/), **Tabelle** und
+**Karte**. Die Karte zeichnet den Standort in 3D: jede Etage, ihre Räume und die Regale, Schränke und
+Kisten darin. Antippe irgendwas, um zu sehen, was es ist, wo es ist und was drin ist. Liste bleibt
+Standard; Kept merkt sich deine Wahl für jeden Standort auf jedem Gerät. In Karte führt die Karte und
+füllt den Bildschirm; die Buttons des Standorts (Bestand drucken, Etiketten drucken und der Rest),
+**Hier hinzufügen** und **Ohne Ort** folgen ihr.
+
+Eine Etagen- oder Raumbesitzt **Karte** auch: dieselbe Karte, geöffnet an diesem Ort. Eine Etage öffnet
+sich auf dieser Etage, ein Raum öffnet sich darin mit seiner Karte, und ein Regal oder Schrank ist in
+seinem Raum ausgewählt. Ein Ort, den die Karte nicht zeichnet, öffnet sich an seinem Raum mit einem
+Hinweis. Kept merkt sich die Wahl für jeden Ort.
+
+Um es vor der Installation zu sehen, [probier die Karte](/de/try/map/) mit einem Beispiel-Zuhause in deinem Browser aus.
+
+![Ein Zuhause auf seiner Karte: Räume mit ihren Etagen und Wänden, ein TV-Schrank ausgewählt mit seiner Karte, die Innerhalb · 5 und Details zeigt, der Liste · Raster · Karte-Schalter oben](../../../../assets/screens/map-desktop-light.webp)
+
+![Dasselbe Zuhause auf der Karte im dunklen Theme](../../../../assets/screens/map-desktop-dark.webp)
+
+Die Karte braucht eine Verbindung: sie ist nicht Teil der Offline-Kopie des Handys. Sie lädt nur, wenn
+du sie öffnest, damit der Rest von Kept so schnell bleibt wie vorher.
+
+## Was auf der Karte ist
+
+| Auf der Karte | Wo es herkommt |
+|---|---|
+| **Etagen** | Orte der Art **Etage** ganz oben im Standort. Ohne welche ist der Standort eine Ebene. |
+| **Räume** | Jeder Ort direkt auf einer Etage (oder ganz oben, wenn es keine Etagen gibt), egal welche Art. |
+| **Regale, Schränke, Bereiche** | Die Orte direkt in einem Raum. |
+| **Kisten und andere Behälter** | Die Behälter direkt in einem Raum. |
+| **Alles andere** | Ein Gegenstand, den du selbst auf die Karte setzt, wie den Fernseher oder das Auto. |
+
+Namen überlappen sich nie und werden nie abgeschnitten: wenn zwei sich berühren würden, bleibt der
+Name des Raums und was in einem Regal oder einer Kiste ist, zeigt sich, sobald du nah genug
+heranzoomst. Der Gegenstand, den du ausgewählt hast, behält immer seinen Namen.
+
+Alles andere wird gezählt: ein Regal sagt, wie viele Gegenstände darauf sind, und seine Karte listet
+sie. Niemand muss erst irgendwas anordnen. Räume, die niemand angeordnet hat, werden nebeneinander
+in der Reihenfolge der Ortsliste ausgelegt, und was darin steht in Reihen; **Anordnen** verschiebt
+sie dahin, wo sie wirklich sind. Ein Raum namens „Garten“, „Balkon“ oder „Terrasse“ wird als einer
+gezeichnet.
+
+Nadeln zeigen, was Aufmerksamkeit braucht: **Wenig Vorrat** (Verbrauchsmaterial), **Verliehen**
+(Verleihen) und **Bald fällig** (Zeitpläne, Garantien und Dokumente). Eine Nadel sitzt auf dem Regal
+oder der Kiste, die den Gegenstand hält. Die Chips oben schalten jede Art an oder aus.
+
+## Sich bewegen
+
+| | Mit Maus | Auf dem Handy |
+|---|---|---|
+| Verschieben | Ziehen | Mit einem Finger ziehen |
+| Zoomen | Scrollen, oder **+** und **−** | Kneifen, oder **+** und **−** |
+| Drehen | Die Drehbuttons | Mit zwei Fingern drehen, oder der Drehbutton |
+| Einen Raum öffnen | Doppelklick, oder **Öffnen** auf seiner Karte | Doppeltippen, oder **Öffnen** |
+| Zurück | Der Name des Standorts oder die Etage oben, oder der Hausbutton | Dasselbe |
+
+Die Etagenbuttons funktionieren wie ein Aufzug: **E**, **1**, **EG** usw., jeder benannt nach seiner
+Etage, und **Alle** stapelt jede Etage. Auf dem Handy sitzen sie in einer Reihe unten mit den
+Zoom- und Drehbuttons und treten zur Seite, während eine Karte offen ist. **Grundriss** schaut
+senkrecht nach unten, mit Namen und was in jedem Regal ist. Treppen auf der Karte bringen dich auf
+die Etage darüber oder darunter.
+
+Ein Raum öffnet sich mit Blick auf die Front seiner Bildschirme (ein Monitor, ein Fernseher, ein
+Laptop), damit du sie siehst, nicht ihre Rückseiten. Dreh ihn anders herum und er öffnet sich
+nächstes Mal auf diesem Gerät so.
+Eine Wand, die zwischen dir und einem Raum stünde, sinkt zu einem niedrigen Bordstein, während du
+von dieser Seite schaust, und steht wieder, wenn du zurückdrehst; was daran hängt, geht und kommt
+mit. Grundriss behält jede Wand.
+
+![Grundriss: dasselbe Zuhause von oben gesehen, jeder Raum benannt](../../../../assets/screens/map-plan-light.webp)
+
+![Die Karte auf dem Handy: der Liste · Raster · Karte-Schalter, die 3D- und Grundriss-Buttons, und die Karte eines ausgewählten Gegenstands unten](../../../../assets/screens/map-phone-light.webp)
+
+## Die Karte
+
+Antippen von etwas öffnet eine kurze Karte: seinen Namen, wo er ist, seine kurze ID (als
+Bernsteinband, wenn er ein gedrucktes Etikett hat) und alles, was fällig ist.
+**Details** fügt sein Foto hinzu, sein Etikett (derselbe QR-Code wie ein gedrucktes Etikett), seine
+Fakten und **Gegenstand öffnen** oder **Ort öffnen**. **Innerhalb** listet, was drin ist; tippe
+einen an, um ihn zu sehen. Mit Maus zeigt Hovern den Namen und die kurze ID eines etikettierten
+Gegenstands, ohne Klick.
+
+„Wo er ist“ liest sich aus dem Raum in: „Freifläche › Schreibtisch 3“ für einen Laptop, der in
+Schreibtisch 3 liegt und darauf steht. Auf einem schmalen Fenster oder Handy scrollen die Details
+in der Karte, und **Öffnen** bleibt am unteren Rand der Karte.
+
+**Möbel mit Fächern** ([ein Würfelregal, ein Bücherregal, eine Kommode](/de/users/locations/#möbel-mit-fächern))
+zeigen ihre Fächer: umrandet an ihrer Front, während sie ausgewählt sind, und als Zahlenraster auf
+ihrer Karte. Tippe ein Fach auf der Karte oder auf der Karte an, um seine eigene Karte zu öffnen:
+was drin ist, sein Etikett und **Ort öffnen**.
+
+## Was im Standort ist
+
+Unter der Karte listet **Was drin ist** jeden Raum mit dem, was darin steht und liegt. Nach Name
+oder kurzer ID suchen, eine Etage wählen, oder zu **Braucht Aufmerksamkeit** wechseln für alles,
+was wenig, verliehen oder fällig ist. Ein Tippen zeigt es auf der Karte. Die Suche, die Etage und
+die Ansicht sind in der Adresse, damit du sie teilen oder als Lesezeichen setzen kannst.
+
+Für Screenreader und Tastaturen listet **Orte auf diesem Stockwerk** die Räume der Etage und was
+darin steht, neben der Karte.
+
+## Anordnen
+
+Besitzer, Admins und Mitglieder können einen Standort anordnen; Betrachter sehen ihn so, wie er
+angeordnet ist. **Anordnen** startet:
+
+- **Verschieben**: zieh irgendwas. Kleine Dinge (ein Laptop, eine Lampe, eine Kiste) können auf
+  einer Arbeitsplatte, einem Schreibtisch, einem Regal oder einer Kiste stehen und bewegen sich
+  mit; eine Webcam klemmt an der oberen Kante eines Monitors. Zieh einen Gegenstand in einen
+  anderen Raum, um ihn in Kept auch dorthin zu verschieben. Kleine Dinge bewegen sich Zentimeter
+  für Zentimeter, andere Dinge 5 cm und Möbel 10 cm; auf einem Schreibtisch oder Regal richten sie
+  sich an seinen Kanten aus. Am Computer halte **Alt** (**Wahl** auf dem Mac), um frei zu ziehen.
+- **Einen Raum mit allem darin verschieben**: Möbel, Regale, Kisten und was darauf steht. Mit Maus
+  den Raum wählen, dann ziehen. Auf dem Handy seine Etage kurz gedrückt halten, dann ziehen; ein
+  kurzes Wischen bewegt noch die Ansicht. Mit ausgewähltem Raum bewegt jede Pfeiltaste ihn einen
+  Meter in die Richtung, in die die Ansicht gedreht ist, und **Umschalt** mit Pfeiltaste 10 cm;
+  ein Screenreader hört, wo er hinging („Schlafzimmer nach links verschoben.“). Zieh an der
+  **bernsteinfarbenen Ecke** eines Raums, um ihn zu vergrößern. Räume bewegen sich, werden
+  vergrößert und zeichnen sich 10 cm für 10 cm, mindestens 50 cm pro Seite, und bleiben auf ihrer
+  Etage; einer, der einen anderen überlagern würde, gleitet stattdessen entlang („Räume können
+  sich nicht überlappen.“).
+- **Einen Raum zeichnen** auf freiem Boden. Er wird sofort ein neuer Ort auf dieser Etage.
+- **Aus einem Grundriss** liest die Räume eines Grundrisses (unten).
+- **Stockwerk hinzufügen** fügt einen Ort der Art Etage hinzu, mit einem Raum darin.
+- Wähl einen Raum, um seine **Art** (Raum, Balkon, Terrasse, Garten), seinen **Boden** (Holz,
+  Fliesen, Beton, Deck, Gras) und seine **Breite** und **Länge** festzulegen, oder um **einen
+  Gegenstand dieses Raums auf die Karte zu setzen**. Sieh [Die echte Größe eines Raums](#die-echte-größe-eines-raums).
+- Wähl einen Gegenstand, um ihn zu **drehen**, seine **Form** zu ändern (siehe unten), ihn **auf
+  etwas zu stellen** einen Schreibtisch, ein Regal oder einen Monitor, **Dinge darauf hinzuzufügen**,
+  einzustellen, wie hoch er an einer Wand hängt (**Höhe**), oder ihn **von der Karte zu nehmen**
+  (nur was du selbst dort hingesetzt hast).
+
+**Erledigt** speichert die ganze Anordnung auf einmal, und der Toast danach bietet **Rückgängig**.
+**Abbrechen** setzt die Karte zurück; wenn sich was geändert hat, fragt es erst („Diese Änderungen
+verwerfen?“). Räume und Etagen, die du hinzugefügt hast, bleiben in Kept in jedem Fall. Wenn
+jemand anders denselben Standort anordnete, während du es tatest, sagt Kept das und zeigt seins,
+statt es zu überschreiben. Auf dem Handy sitzt die Karte eines ausgewählten Raums oder Gegenstands
+unter Anordnen-Werkzeugen, damit **Erledigt** und **Abbrechen** in Reichweite bleiben, während sie
+offen ist.
+
+![Anordnen: Verschieben, Raum zeichnen, Stockwerk hinzufügen und Abbrechen über der Karte, die bernsteinfarbene Ecke jedes Raums zum Vergrößern, und Erledigt in der oberen Leiste](../../../../assets/screens/map-arrange-light.webp)
+
+Die Anordnung wandert in einem Kept-Export mit, damit ein Umzug auf einen anderen Server die Karte
+behält. Ein Homebox-Import startet vom automatischen Layout.
+
+### Die echte Größe eines Raums
+
+Ein Raum kann seine echte Größe haben, auf den Zentimeter: ein schmaler Balkon von 0,80 × 3,58 m,
+ein Flur von 1,15 × 6,40 m.
+
+- **Beim Hinzufügen:** **Hier hinzufügen → Raum oder Platz**, ganz oben in einem Standort oder auf
+  einer Etage, hat **Größe auf der Karte**: **Breite** und **Länge** in Metern. Lass beide leer
+  und die Karte dimensioniert den Raum selbst. Mit einer Größe kommt der Raum in dieser Größe auf
+  die Karte, rechts von den bereits angeordneten Räumen auf seiner Etage, und der Toasts
+  **Rückgängig** nimmt den Raum und seinen Platz auf der Karte zusammen zurück.
+- **Während Anordnen:** wähl den Raum und tippe seine **Breite** und **Länge**, oder steppe sie
+  Zentimeter für Zentimeter mit **−**, **+** oder den Pfeiltasten. Die Ecke des Raums bleibt, wo
+  sie ist, und was darin steht, bleibt drin.
+- **Breite** läuft links nach rechts in der Grundrissansicht, **Länge** oben nach unten. Beide
+  Dezimalzeichen funktionieren in jeder Sprache: 0,80 oder 0.80.
+- Ein Raum ist **mindestens 50 cm** und höchstens 100 m pro Seite. Eine Größe, die er nicht nehmen
+  kann, oder die in einen anderen Raum laufen würde, bleibt im Feld und sagt warum; der Raum
+  behält seine eigene.
+- Die Karte des Raums sagt seine Größe (**0,8 × 3,58 m**), und die Grundrissansicht schreibt sie
+  unter den Namen des Raums.
+- **KI-Apps und der Assistent** fügen einen Raum mit seiner Größe genauso hinzu: `create_place`
+  nimmt `width_cm` und `length_cm` ([KI-Apps](/de/users/mcp-clients/)).
+
+Das Ziehen an der bernsteinfarbenen Ecke geht weiter 10 cm auf einmal; eine Größe, die du
+eingegeben hast, bleibt so, bis du die Ecke weiter ziehst als das.
+
+## Gegenstände auf die Karte setzen
+
+Regale, Schränke, Bereiche und Kisten, die direkt in einem Raum stehen, sind schon auf der Karte.
+Alles andere, wie der Fernseher, ein Schreibtisch oder das Auto, kommt auf die Karte, sobald du es
+dort hinsetzt. Besitzer, Admins und Mitglieder können das.
+
+### In einem Raum, den du schon hast
+
+1. Öffne den Standort und wähl **Karte**.
+2. Wähl den Raum: tippe seine Etage, oder tippe ihn in **Was drin ist** unter der Karte. Um näher
+   ranzugehen, **Öffnen** auf seiner Karte geht in den Raum.
+3. Tippe **Anordnen**. Die Karte des Raums hat jetzt **Auf die Karte setzen**, was die Gegenstände
+   auflistet, die lose im Raum liegen und noch nicht auf der Karte sind. Was in einer Kiste, einem
+   Schrank oder auf einem Regal auf der Karte ist, wird nicht aufgelistet: es geht dahin, wo seine
+   Kiste hingeht.
+4. Tippe einen Teil des Namens oder der kurzen ID in **Einen Gegenstand in** dem Raum finden, dann
+   tippe den Gegenstand. Er erscheint in der Mitte des Raums, ausgewählt.
+5. Seine Karte sagt, welche Form er bekam und warum: **Form: Fernseher, aus seinem Typ** oder
+   **aus seinem Namen**. Wenn Kept unsicher ist, sagt die Karte **ein Tipp** und zeigt **Form
+   suchen**.
+6. **Ändern** (oder **Form suchen**) öffnet die Formen. **Vorgeschlagen** kommt zuerst, dann jede
+   Form in ihrer Gruppe (Möbel, Aufbewahrung, an der Wand, Elektronik, Küche und Wäsche, Werkzeug,
+   Pflanzen und Außenbereich, Fahrzeuge, Treppen und Bereiche), jede mit Bild. **Form suchen**
+   sucht die Namen und ihre anderen Wörter in allen Sprachen von Kept: „Kühlschrank“, „fridge“ und
+   „ثلاجة“ finden alle den Kühlschrank. Während du tippst, zeigen nur die Treffer, und Formen,
+   deren Name oder Wort mit dem beginnt, was du getippt hast, kommen zuerst: „ka“ findet Kamera,
+   Kamera und Webcam vor Werkzeugwagen. Wörter in deiner Sprache und Englisch passen vom Anfang
+   an; ein Wort in einer anderen Sprache passt, sobald du es ganz getippt hast. Suche leeren, um
+   Vorgeschlagen und die Gruppen wieder zu sehen. Auf dem Handy bleiben die Formen über der
+   Tastatur und scrollen. Tippe eine Form, um sie zu nehmen. Jede Form, mit ihrer Größe und
+   Wörtern, ist in der
+   [Formbibliothek](/de/users/map-shapes/); **Fehlt eine Form? Anfragen** unter den Formen öffnet ein
+   GitHub-Formular, um eine zu bitten.
+   Zwei Formen nehmen ihre Größe von dir: ein **Würfelregal** hat **Fächer nebeneinander** und
+   **Fächer übereinander** auf seiner Karte (2 × 2 am Anfang; **Auf die Seite legen** legt ein
+   1 × 4 als 4 × 1 hin), und ein **Hohes Bücherregal** hat seine **Breite**, **Tiefe** und
+   **Höhe** in Zentimetern und seine **Ebenen** (80 × 28 × 202 cm mit 6 am Anfang). Die Karte
+   zeichnet jedes Fach und jede Ebene.
+7. Zieh den Gegenstand dahin, wo er steht. Kleine Dinge können auf einem Schreibtisch, einer
+   Arbeitsplatte, einem Regal oder einer Kiste stehen. **Drehen** dreht ihn um ein Viertel.
+8. Tippe **Erledigt**. Der Toast bietet **Rückgängig**. **Abbrechen** vor Erledigt wirft die
+   ganze Session weg, nach Nachfragen.
+
+<Clip
+  webm={clipWebm}
+  mp4={clipMp4}
+  poster={clipPoster}
+  width={960}
+  height={698}
+  label="Einen Fernseher auf die Karte setzen im Beispiel-Haushalt: Anordnen, das Wohnzimmer, Auf die Karte setzen, der Samsung-Fernseher, seine Karte sagt Form: Fernseher, aus seinem Typ, der Formwähler mit Vorgeschlagen zuerst und Suche nach Fernseher, dann ein Ziehen zur Wand und Erledigt."
+  caption="Den Fernseher auf die Karte setzen in Probier Kepts Beispiel-Haushalt. Die Karte sagt, die Form kam aus seinem Typ; der Wähler zeigt Vorgeschlagen zuerst, und eine Suche nach Fernseher findet ihn."
+/>
+
+### Kleine Dinge auf einen Schreibtisch, ein Regal oder einen Monitor setzen
+
+Eine Webcam ist bei Raumzoom nur wenige Pixel breit, du musst sie nicht ziehen. In **Anordnen**:
+
+1. Wähl das kleine Ding, wie die Webcam, und tippe **Stellen auf…**. Es listet, was im selben Raum
+   es tragen kann, jedes mit dem Bild seiner Form: „Schreibtisch“, „Monitor“, „Regal 2“.
+2. Tippe eins an. Das Ding schnappt darauf, in die Mitte oder neben das, was schon da ist.
+3. Für den anderen Weg, wähl den Schreibtisch oder den Monitor und tippe **Darauf stellen**. Such
+   dir ein oder mehrere der kleinen Dinge des Raums, die noch auf nichts sind, dann **3 darauf
+   stellen**. Sie gehen nebeneinander, nicht übereinander.
+   Die losen kleinen Dinge des Raums, die noch nicht auf der Karte sind, sind auch da, unter **Noch
+   nicht auf der Karte**, mit der Form, die jedes bekäme: eins nehmen setzt es auf die Karte und
+   auf den Schreibtisch in einem Zug.
+4. **Herunternehmen**, in **Stellen auf…**, setzt das Ding zurück auf den Boden des Raums neben
+   seinen Träger.
+
+![Stellen auf… für eine Webcam: der Schreibtisch und der Monitor des Raums, jedes mit seinem Bild](../../../../assets/screens/map-put-on-phone-light.webp)
+
+Was was tragen kann:
+
+- **Oben drauf**: ein Schreibtisch, Tisch, Arbeitsplatte, Regal, TV-Schrank oder eine Kiste trägt
+  kleine Dinge.
+- **An der oberen Kante**: ein Monitor, ein Fernseher oder ein Laptop-Bildschirm trägt eine
+  Webcam, einen Smart Speaker oder ein Licht: kleine Dinge bis 12 cm tief und 20 cm hoch, nicht
+  breiter als der Bildschirm.
+- **An einem Arm**: ein **Monitorarm** steht auf einem Schreibtisch und hält einen Monitor, ein
+  **Dualer Monitorarm** zwei, nebeneinander und angehoben vom Schreibtisch. **Darauf stellen** auf
+  einem Arm listet die Monitore des Raums und sagt, wann der Arm voll ist. Eine Webcam auf einem
+  Monitor auf einem Arm funktioniert noch. Ein Arm klemmt an der hinteren Kante des Schreibtischs,
+  der Seite weg vom Stuhl: in der Mitte, oder an einer hinteren Ecke, wenn die Mitte besetzt ist.
+  Seine Monitore hängen über dem Schreibtisch vor ihm, und Ziehen schiebt ihn entlang der
+  Rückseite.
+
+- **Von Haken**: eine **Werkzeugwand** (ein Lochbrett) oder **Haken** tragen Werkzeug, Taschen und
+  andere kleine Dinge, hängend in einer Reihe davor (siehe unten).
+
+Einen Träger bewegen, bewegt, was darauf ist: den Schreibtisch und seinen Arm bewegen, die Monitore
+und ihre Webcam gehen mit. Den Schreibtisch drehen, und sie drehen mit. Das ist nur die Karte:
+eine Webcam auf einen Monitor setzen ändert, wo sie auf der Karte steht, nicht ihren Ort in Kept.
+**Erledigt** speichert es mit dem Rest der Session, und **Rückgängig** nimmt es zurück. Betrachter
+sehen es, und können es nicht ändern.
+
+### Dinge an einer Wand hängen
+
+Ein Fernseher an einer Halterung, ein Regal, eine Uhr: in **Anordnen** zieh eins nah an eine Wand
+und es dreht sich flach dagegen, in den Raum gerichtet.
+
+1. Gib dem Ding eine Wandform: **Wandfernseher**, **Wandregal**, **Hängeschrank**, **Bild oder
+   Spiegel**, **Wanduhr**, **Haken** oder **Werkzeugwand**, unter **An der Wand** in den Formen.
+   Ein Ding namens „Wandfernseher“, „Schweberegal“, „Spiegel“ oder „Lochbrett“ bekommt eine von
+   selbst.
+2. Es geht an die nächste Wand. Zieh es entlang der Wand, oder zu einer anderen; es bewegt sich in
+   Schritten, wie alles andere, und Alt (Wahl) zieht es frei.
+3. Seine Karte hat **Höhe**: wie hoch seine Mitte über dem Boden ist. Jede Form fängt irgendwo
+   sinnvoll an: ein Fernseher auf Augenhöhe (1,2 m), ein Regal oder Bild bei 1,5 m, eine Uhr bei
+   1,8 m. **−** und **+** bewegen es 5 cm, und so tun die Pfeiltasten; oder tippe eine Höhe. Es
+   bleibt zwischen Boden und 3 m.
+4. Dinge an einer Wand drehen nicht: sie schauen immer in den Raum.
+
+![Anordnen: ein Fernseher an der Wand des Wohnzimmers über dem TV-Schrank, seine Karte mit Form: Wandfernseher und Höhe 1,2 m](../../../../assets/screens/map-wall-light.webp)
+
+Ein Wandregal trägt kleine Dinge oben drauf, wie jedes Regal: eine kleine Pflanze, einen Speaker,
+einen Bilderrahmen. Eine Werkzeugwand oder Haken tragen Werkzeug und Taschen, hängend davor.
+Benutz **Stellen auf…** auf dem kleinen Ding, oder **Darauf stellen** auf dem Regal, der
+Werkzeugwand oder den Haken, wie oben; ein kleines Ding daraufziehen funktioniert auch.
+
+Dinge, die unter einem Wandregal oder Fernseher stehen, bleiben, wo sie sind: der Fernseher hängt
+über dem TV-Schrank, und beide werden gezeichnet. In **Grundriss** sind Dinge an einer Wand ein
+dünner Streifen entlang ihrer Wand, damit sie nicht verstecken, was darunter steht; was auf einem
+Wandregal oder Haken ist, wird auf seinem Etikett benannt, sobald du nah genug heranzoomst.
+
+Die Wände eines Raums stehen, wo was daran hängt, hoch genug dafür. Dreh die Ansicht so, dass eine
+Wand zwischen dir und dem Raum steht, und sie sinkt zu einem Bordstein mit dem, was daran hängt;
+dreh zurück und sie sind wieder da. Ein Raum öffnet sich mit Blick auf seinen Fernseher, an der
+Wand oder nicht.
+
+Das ist nur die Karte: ein Ding aufhängen ändert, wo es auf der Karte ist, nicht seinen Ort in
+Kept. **Erledigt** speichert es mit dem Rest der Session, und **Rückgängig** nimmt es zurück. Die
+Höhe wandert in einem Kept-Export mit dem Rest der Anordnung mit. Betrachter sehen, wo Dinge
+hängen, und können es nicht ändern.
+
+### Wie Kept die Form wählt
+
+- **Zuerst vom Typ.** Ein Ding, dessen Typ Fernseher, Auto, Fahrrad, Motorrad oder Kiste ist,
+  bekommt diese Form sofort. Ein Typ, der es nur eingrenzt (Elektronik, ein Gerät, ein Werkzeug),
+  setzt die wahrscheinlichen Formen zuerst in **Vorgeschlagen** und lässt dir die Wahl. Ein Typ,
+  den du selbst gemacht hast, zählt nach seinem Namen: ein Typ namens „Fernseher“ funktioniert wie
+  der Fernseher-Typ.
+- **Dann der Name**, Wort für Wort, in Englisch, Arabisch, Französisch, Deutsch und Italienisch,
+  mit gängigen anderen Wörtern („Couch“, „Glotze“, „Kühlschrank“, „تلفزيون“). Ein Name, der auf
+  eine Form deutet („Samsung Fernseher“), bekommt sie von selbst; einer, der zwei sein könnte
+  („Bildschirm“: ein Fernseher oder ein Monitor), ist ein Tipp.
+- **Alltägliche Elektronik hat eigene Formen**, in ihren echten Größen: Webcam, Kamera,
+  Desktop-Speaker, portabler Speaker, hoher Speaker, Ghettoblaster, Smart Speaker, Soundbar,
+  Kopfhörer, Headset, Ohrhörer, Tastatur, Maus, Desktop-PC, Laptop, Monitor, Monitorarm, Dualer
+  Monitorarm, Router, Drucker, Spielkonsole, Gamecontroller, Handy, Tablet, Steckdosenleiste und
+  externe Festplatte. Ein Ding namens „HD Webcam“ bekommt die Webcam von selbst, „AirPods Pro“ die
+  Ohrhörer, „JBL Flip 6“ den portablen Speaker und „Ergotron LX“ den Monitorarm. Einfaches
+  „Speaker“ könnte jede Größe sein, also schlägt Kept jeden Speaker vor und lässt dich wählen.
+- **Homelab-Zeug auch**: Server-Racks an der Wand (6HE, 12HE) und am Boden (24HE, 42HE), die
+  das Zeug darin halten wie ein Schrank, und ein Mini-PC, NAS, Raspberry Pi oder SBC, Netzwerk-
+  Switch, Patchpanel und USV. „Intel NUC“ bekommt den Mini-PC, „Synology DS923+“ das NAS, „8-Port
+  Switch“ den Netzwerk-Switch und „12HE Wandrack“ das 12HE Wandrack. Einfaches „Server-Rack“
+  könnte jede Größe sein, also schlägt Kept jedes Rack vor und lässt dich wählen; einfaches
+  „Rack“ bleibt ein Regal.
+- **Zubehör ist ein Tipp.** „Handyhülle“, „Fernbedienung“ oder „Laptopständer“ nennt, wofür es ist,
+  nicht was es ist, also schlägt Kept Formen vor und lässt dich wählen.
+- **Nichts passt?** Dinge ohne eigene Form, wie ein Thermostat, ein Hub oder ein Ladegerät, werden
+  **Kleines Gerät** vorgeschlagen, in der Größe eines Gadgets. Alles andere fängt als **Kleines
+  Ding** an.
+- **Möbel mit Fächern** ohne eigene Form werden aus ihrem Raster gezeichnet, wie sie stehen: ein
+  Würfelregal aus seinen Fächern, ein Bücherregal aus seinen Regalen, eine Kommode aus ihren
+  Schubladen.
+- **Deine Wahl bleibt.** Kept ändert nie eine Form, die jemand gewählt hat, und Dinge, die schon
+  auf der Karte sind, behalten ihre.
+
+### In einem Standort ohne Räume
+
+Ein Büro oder Lager startet oft mit allem in **Ohne Ort** und ohne Räume. Seine Karte sagt **Noch
+keine Räume auf der Karte**, mit **Mit einem Grundriss beginnen** (nächster Abschnitt) und
+**Anordnen**. Um die Räume selbst zu zeichnen:
+
+1. Öffne den Standort, wähl **Karte** und tippe **Anordnen**.
+2. Wähl **Raum zeichnen** und zieh auf dem leeren Boden. Der Raum ist sofort ein neuer Ort in
+   Kept, heißt Raum 1; benenn ihn um über **Ort öffnen** auf seiner Karte.
+3. Tippe **Erledigt**.
+4. Gib den Dingen einen Ort in diesem Raum. Im Standort geht **Einsortieren** durch Ohne Ort einen
+   Gegenstand nach dem anderen mit einem Ortswähler; oder öffne einen Gegenstand und nutze
+   **Aktionen → Verschieben**.
+5. Zurück auf der Karte, setz sie darauf wie oben: **Anordnen**, der Raum, **Auf die Karte
+   setzen**.
+
+### Mit einem Grundriss beginnen
+
+Ein Grundriss zeigt schon die Räume eines Zuhauses, ihre Namen und Größen: ein Maklerblatt, ein
+Bau-PDF, ein Screenshot eines Inserats, ein Foto einer Skizze. Kept kann ihn lesen und die Räume
+für dich zum Prüfen entwerfen. Nichts wird hinzugefügt, bevor du es sagst.
+
+Besitzer, Admins und Mitglieder können einen starten, wo KI-Erfassung an ist und ein Anbieter, der
+Fotos liest, eingerichtet ist ([KI-Anbieter](/de/users/ai-providers/)). Sonst sagt die Karte warum, in denselben
+Worten wie Erfassungs Raum-Modus, und bietet **Anordnen** allein.
+
+1. Auf einer leeren Karte tippe **Mit einem Grundriss beginnen**; auf jeder Karte,
+   **Anordnen → Aus einem Grundriss**.
+2. **Datei wählen** (ein JPEG, PNG, WebP, HEIC oder GIF Bild, oder ein PDF) oder **Foto
+   aufnehmen** eines Papierplans. **Drehen** es viertelweise, wenn es quer liegt. Bei einem PDF
+   wird nur die erste Seite gelesen.
+3. Das Blatt sagt ungefähr, wie viele Tokens das Lesen brauchen kann und welcher Anbieter es liest.
+   Tippe **Grundriss lesen**.
+4. Die Karte sagt **Grundriss wird gelesen …**. Du kannst gehen: der Plan wartet auf der Karte, und
+   jedes Mitglied sieht **Ein Grundriss ist bereit zu prüfen**, wenn er gelesen ist. Tippe **Prüfen**.
+
+**Was gesendet wird, und was bleibt.** Kept sendet eine Kopie des Plans an deinen Anbieter,
+neu kodiert ohne seine Orts- oder Kameradaten (für ein PDF, seine erste Seite als Bild gezeichnet,
+mit dem Text dieser Seite), und nichts von Kept selbst: kein Standort, Raum- oder Etagenname. Der
+Upload bleibt beim Plan, während du prüfst, für Mitglieder sichtbar und nur hoch, und wird
+gelöscht, wenn du die Räume hinzufügst oder den Plan verwirfst, es sei denn, du hakst **Plan beim
+Standort behalten** an, was ihn als eines der Dokumente des Standorts behält. Ein Plan, den niemand
+fertigstellt, wird nach 30 Tagen verworfen.
+
+**Prüfen.** Die Karte wechselt zu **Grundriss** und zeigt die Räume des Plans als **gestrichelte
+violette** Umrisse: gestrichelt heißt noch nicht hinzugefügt, violett heißt KI hat ihn gelesen.
+Mit **Grundriss zeigen** an, liegt der Plan selbst darunter, damit du siehst, ob jeder Umriss auf
+dem Raum sitzt, den er benennt. Räume, die schon auf der Karte sind, stehen still, während du
+prüfst. Das Panel, **Räume aus dem Grundriss**, listet jeden Raum mit:
+
+- einem Schalter, um ihn hinzuzufügen oder wegzulassen;
+- seinem **Namen** wie gedruckt (ein unbeschrifteter Raum heißt Raum 1, Raum 2 usw.), den du
+  ändern kannst;
+- seiner **Größe**, auf 10 cm, und seiner **Art** (Raum, Balkon, Terrasse, Garten);
+- höchstens einem Hinweis, zum Beispiel **Der Plan sagt 4,00 x 8,40 m.** (tippe, um die
+  gedruckte Größe zu nehmen), **Kein Rechteck: als größter Teil gezeichnet.**, **Unter 50 cm: zu
+  klein für die Karte.**, **Schon auf der Karte.** oder **Nutzt deine Küche**, wenn ein Raum
+  dieses Namens in Kept war, aber noch nicht auf der Karte (**Neuen Raum anlegen** macht einen
+  statt dessen).
+
+Jede Etage des Plans hat einen **Etage**-Wähler: eine deiner, oder eine neue Etage, die entsteht,
+wenn du die Räume hinzufügst. Zieh einen gestrichelten Raum, um ihn zu verschieben, oder seine
+bernsteinfarbene Ecke, um ihn zu vergrößern; die Pfeiltasten bewegen einen gewählten einen Meter
+und **Umschalt** mit Pfeiltaste 10 cm. **Räume drehen** dreht sie alle um ein Viertel, für einen
+quer gezeichneten Plan.
+
+**Der Maßstab.** Die Zeile unter der Panel-Überschrift sagt, woher die Größen kamen: die Größen,
+die auf dem Plan gedruckt sind (und wie viele davon übereinstimmen), sein Maßstabsbalken, seine
+Türen (als 80 cm breit genommen), oder gar nichts, wenn **das sind Tipps**. Wenn die Größen falsch
+aussehen, tippe **Größe eines Raums festlegen**, tippe die echte Breite und Tiefe eines Raums, und
+**Neu skalieren**: jeder Raum wird davon neu gezeichnet.
+
+**Hinzufügen.** **5 Räume hinzufügen** (die Anzahl der angeschalteten Räume) macht die Räume und
+etwaige neue Etagen als normale Orte und setzt sie auf die Karte neben das, was da war. Der Toast
+bietet **Rückgängig**, was sie alle von der Karte nimmt und die Räume, die er machte, in den Müll
+legt, solange nichts hineingelegt wurde und keiner umbenannt oder verschoben wurde seit dem.
+Verlauf zeigt eine Zeile: **5 Räume aus einem Grundriss hinzugefügt**. **Verwerfen** wirft den
+Plan weg; nichts wird hinzugefügt.
+
+Wie gut ein Modell einen Plan liest, hängt vom Plan und Modell ab: prüf jeden Raum gegen den Plan,
+bevor du hinzufügst. Wände, Türen und Fenster werden nicht gezeichnet, und ein Raum, der kein
+Rechteck ist, wird sein größtes Rechteck.
+
+### Was Ohne Ort hier heißt
+
+**Ohne Ort** hält die Gegenstände, die noch keinen Ort haben. Sie sind in keinem Raum, also sind
+sie nicht auf der Karte und **Auf die Karte setzen** listet sie nicht. Gib einem Gegenstand erst
+einen Ort in einem Raum; er taucht dann in der Liste dieses Raums auf.
+
+## Detaillierte Modelle
+
+Möbel, Pflanzen und Außengeräte für Klima werden mit freien Modellen von
+[Poly Haven](https://polyhaven.com) (CC0) gezeichnet, verkleinert für Handys: höchstens etwa 150 KB jedes,
+etwa 1,5 MB für alle, und nur die Etage in Sicht lädt ihre eigenen. Alles andere zeichnet Kept
+selbst. **Detaillierte Modelle** unter der Karte ausschalten und gar nichts wird heruntergeladen;
+Kept merkt sich das auf diesem Gerät.
+
+Wenn der Browser 3D nicht zeichnen kann (ein altes Handy, oder Grafik aus), sagt die Karte das und
+die Liste darunter hat trotzdem alles.

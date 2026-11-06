@@ -1,0 +1,147 @@
+---
+title: Inventaire domestique auto-hébergé
+description: "Source ouverte, inventaire domestique auto-hébergé pour votre homelab : où se trouvent les objets, ce qu'ils sont, ce qui est dû. Carte 3D, étiquettes QR, garanties, application téléphone hors ligne."
+template: splash
+hero:
+  title: Un inventaire domestique auto-hébergé
+  tagline: Où se trouvent les objets. Ce qu'ils sont. Ce qui est dû.
+  actions:
+    - text: Installer
+      link: /fr/install/compose/
+      variant: primary
+    - text: Essayer Kept
+      link: /fr/try/kept/
+      variant: secondary
+    - text: Essayer la carte
+      link: /fr/try/map/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/keptinventory/kept
+      variant: minimal
+      icon: github
+---
+
+import Section from '../../../components/landing/Section.astro';
+import Cards from '../../../components/landing/Cards.astro';
+import Opened from '../../../components/landing/Opened.astro';
+import Integrations from '../../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
+import Gallery from '../../../components/landing/Gallery.astro';
+import LoopClip from '../../../components/landing/LoopClip.astro';
+import clipDarkMp4 from '../../../assets/clips/map-add-tv-short-dark.mp4?url';
+import clipDarkPoster from '../../../assets/clips/map-add-tv-short-dark-poster.webp?url';
+import clipDarkWebm from '../../../assets/clips/map-add-tv-short-dark.webm?url';
+import clipMp4 from '../../../assets/clips/map-add-tv-short.mp4?url';
+import clipPoster from '../../../assets/clips/map-add-tv-short-poster.webp?url';
+import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
+
+<Section title="Placer un téléviseur sur la carte" id="map-clip" split>
+  <Fragment slot="lede">Sélectionnez le téléviseur. Sa forme provient de son type.</Fragment>
+  <LoopClip
+    light={{ webm: clipWebm, mp4: clipMp4, poster: clipPoster }}
+    dark={{ webm: clipDarkWebm, mp4: clipDarkMp4, poster: clipDarkPoster }}
+    width={960}
+    height={514}
+    label="Mise d'un téléviseur sur la carte dans l'essai de Kept avec le ménage d'exemple : le salon, Arrange, le téléviseur Samsung de la liste, sa carte indiquant Forme : téléviseur, provenant de son type, puis Terminé."
+    pause="Pause the clip"
+    play="Play the clip"
+  />
+</Section>
+
+<Section eyebrow="Kept, opened" title="Un inventaire, sur votre bureau et votre téléphone" id="opened" split>
+  <Fragment slot="points">
+    <li><span><strong>Accueil :</strong> ce dont vous avez besoin, en un coup d'œil.</span></li>
+    <li><span><strong>Emplacements :</strong> pièces, étagères, boîtes. Une carte de chacun.</span></li>
+    <li><span><strong>Téléphone :</strong> capturer, scanner, rechercher. Hors ligne aussi.</span></li>
+  </Fragment>
+  <Opened
+    desktopAlt="L'accueil de Kept sur un bureau : Commencer, les tuiles « Ce dont vous avez besoin », des éléments en retard à ceux longtemps invisibles, les emplacements avec leurs aperçus de carte, les raccourcis et les Perspectives"
+    phoneAlt="L'accueil de Kept sur un téléphone : Commencer, les tuiles « Ce dont vous avez besoin » et les raccourcis, au-dessus de la barre d'onglets avec son bouton Capturer"
+  />
+</Section>
+
+<Section eyebrow="Features" title="Fonctionnalités de l'inventaire domestique" id="features">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'map', title: 'Carte 3D', body: 'Étages, pièces, meubles. Épingles pour ce dont vous avez besoin.', href: '/fr/users/location-map/' },
+      { icon: 'places', title: 'Pièces et boîtes', body: "Des places dans des places. Déplacez une boîte ; ce qu'elle contient se déplace aussi.", href: '/fr/users/everyday-use/#lieux-pièces-et-boîtes' },
+      { icon: 'qrcode', title: 'Étiquettes QR', body: "Un court identifiant sur tout. Scannez une boîte, voyez ce qu'elle contient.", href: '/fr/users/everyday-use/#id-courts-et-étiquettes' },
+      { icon: 'schedule', title: 'Garanties et services', body: "Par date ou lecture du compteur. Dans l'ordre où ils expirent.", href: '/fr/users/everyday-use/#rappels-et-notifications' },
+      { icon: 'phone', title: 'Application téléphone, hors ligne', body: 'Capturez, scannez, recherchez sans réseau. Synchronisation ultérieure.', href: '/fr/users/phone-app/' },
+      { icon: 'insurance', title: "Rapports d'assurance", body: 'Photos, numéros de série, reçus. Un PDF et un dossier de réclamation.', href: '/fr/users/everyday-use/#rapports--linventaire-lassurance-et-les-réclamations' },
+      { icon: 'lending', title: 'Prêt', body: "Prêté à qui, dû quand. Les emprunteurs n'ont pas besoin de compte.", href: '/fr/users/lending/' },
+      { icon: 'moving', title: 'Déménagement', body: 'Boîtes numérotées, suivies dans le camion, déballées par scan.', href: '/fr/users/moving/' },
+      { icon: 'tool', title: 'Kits et transferts', body: "Prêtez une boîte avec tout ce qu'elle contient. Chaque objet revient individuellement.", href: '/fr/users/kits/' },
+    ]}
+  />
+  <details class="kd-more">
+    <summary>Cinq autres</summary>
+    <Cards
+      compact
+      heading="h3"
+      items={[
+        { icon: 'vehicle', title: 'Véhicules et machines', body: 'Lectures, services, carburant, coûts.', href: '/fr/users/everyday-use/#véhicules-et-machines' },
+        { icon: 'stock', title: 'Consommables et stock', body: "Un minimum par objet. Prévenu lorsqu'il vient à manquer.", href: '/fr/users/everyday-use/#véhicules-et-machines' },
+        { icon: 'condition', title: "Rapport d'état", body: 'Entrée des lieux, sortie des lieux, pièce par pièce. Avec photos.', href: '/fr/users/everyday-use/#états-des-lieux-location' },
+        { icon: 'insights', title: 'Perspectives', body: 'Dépenses par année, valeur par lieu. Jamais estimées.', href: '/fr/users/everyday-use/#statistiques' },
+        { icon: 'language', title: 'Dans votre langue', body: 'English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українska, Español.', href: '/fr/users/first-run/#6-langue-et-thème' },
+      ]}
+    />
+  </details>
+  <p><a href="/fr/users/features/">Toutes les fonctionnalités →</a></p>
+</Section>
+
+<Section eyebrow="Integrations" title="Ce qui alimente Kept" id="integrations">
+  <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
+</Section>
+
+<Section eyebrow="A look around" title="Les écrans" id="screens">
+  <Gallery
+    label="Écrans de Kept, provenant de son ménage de démonstration"
+    items={[
+      { name: 'claude-mcp', title: 'Claude, via MCP', caption: "Demandez à Claude d'ajouter un objet. Il apparaît dans la bonne pièce, avec marque, modèle et numéro de série.", alt: 'Claude Code : « Ajoutez mon téléviseur au salon : Samsung QE55Q80C, numéro de série 0B7H3CJT500123 », et sa réponse que le téléviseur est dans Kept sous Accueil › Salon' },
+      { name: 'place', title: 'Une pièce', caption: "La cuisine : ce qu'elle contient, ce qui s'est terminé, ses documents.", alt: 'La Cuisine dans Kept : piles AA, un extincteur et une ancienne bouilloire marquée comme terminée' },
+      { name: 'search-phone', title: 'Recherche', caption: "Une partie d'un nom. Où chaque correspondance se trouve, jusqu'à la boîte.", alt: 'Recherche de câble sur un téléphone : la boîte de câble et le câble HDMI, chacun avec son type, son chemin et son étiquette' },
+      { name: 'capture-phone', title: 'Capture', caption: "Une photo par objet, dans l'emplacement choisi. Nommez-le plus tard.", alt: "L'écran de capture sur un téléphone, son appareil photo sur une boîte étiquetée sur les étagères du garage" },
+      { name: 'inbox', title: 'Boîte de réception', caption: 'Ce qui nécessite une décision : brouillons, un reçu sans devise, une lecture de compteur inhabituelle.', alt: "La boîte de réception de Kept : la lecture du compteur d'une voiture inférieure à la dernière, avec des moyens de la résoudre" },
+      { name: 'labels', title: 'Étiquettes', caption: "Objets sans étiquette imprimée. Votre stock d'étiquettes, aperçu avant impression.", alt: "Impression d'étiquettes : les six objets dans Accueil sans étiquette imprimée, sur une feuille A4 de 24, chaque étiquette un code QR avec son nom, son emplacement et son identifiant court" },
+      { name: 'expiring', title: 'Expiration', caption: "Garanties, assurances, un bail, un extincteur. Dans l'ordre où ils expirent.", alt: "La liste d'expiration : l'assurance habitation expire bientôt, puis les garanties, un extincteur et un bail" },
+      { name: 'vehicles', title: 'Véhicules', caption: 'Dernière lecture, prochain service, date du permis, consommation de carburant.', alt: 'Véhicules : une voiture, un générateur et une deuxième voiture, avec lectures du compteur et ce qui est dû' },
+      { name: 'lending', title: 'Prêt', caption: "Ce que vous avez prêté, à qui. Ce que vous avez emprunté. Ce qui est en retard.", alt: 'Prêt : une perceuse prêtée et deux jours en retard, et une échelle empruntée' },
+      { name: 'assistant', title: 'Assistant', caption: "Demandez où se trouve quelque chose. La réponse cite ce qu'il a trouvé ; les changements attendent votre action.", alt: "L'assistant répondant où se trouve le câble HDMI, citant le câble et sa boîte, avec un déplacement à confirmer" },
+      { name: 'connections', title: 'Connexions', caption: 'Jetons pour les applications IA et les scripts, chacun limité aux emplacements que vous choisissez. Webhooks.', alt: 'Paramètres des connexions : deux jetons personnels, une application connectée et les webhooks' },
+      { name: 'track', title: "Ce qu'il faut suivre", caption: 'Par emplacement : essentiels, ménage ou complet. Ensuite, chaque module séparément.', alt: "Les paramètres « Ce qu'il faut suivre » d'un emplacement : le préréglage ménage choisi, avec ses modules activés" },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Yours to run" title="Code source ouvert, dans votre homelab, vos données" id="trust">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'license', title: 'Code source ouvert', body: 'AGPL-3.0. Code et versions sur GitHub.', href: 'https://github.com/keptinventory/kept' },
+      { icon: 'server', title: 'Auto-hébergé', body: 'Un conteneur, PostgreSQL. Testé sur 1 Go, 1 cœur.', href: '/fr/install/hardware/' },
+      { icon: 'private', title: 'Pas de télémétrie', body: 'IA facultative. Votre fournisseur, ou aucun.', href: '/fr/admin/security-model/#ce-qui-quitte-le-serveur' },
+      { icon: 'signature', title: 'Versions signées', body: 'Signatures cosign et une nomenclature des composants logiciels.', href: '/fr/admin/verify-release/' },
+      { icon: 'backup', title: 'Sauvegardes nocturnes', body: 'Restic chiffré. Disque, S3 ou SFTP.', href: '/fr/admin/backups/' },
+      { icon: 'book', title: 'Lisible sans Kept', body: 'Pages web et feuilles de calcul dans chaque sauvegarde.', href: '/fr/admin/read-with-restic/' },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Find your way" title="Par où commencer">
+  <Cards
+    compact
+    colonnes={4}
+    items={[
+      { icon: 'people', title: 'Utiliser Kept', body: "Installez, première connexion, l'usage quotidien.", href: '/fr/users/first-run/' },
+      { icon: 'server', title: 'Exécuter Kept', body: 'Configuration, mises à jour, la trousse de récupération.', href: '/fr/reference/configuration/' },
+      { icon: 'code', title: 'Développer sur Kept', body: "Architecture, l'API, MCP, synchronisation.", href: '/fr/developers/architecture/' },
+      { icon: 'tool', title: 'Maintenir Kept', body: 'Versions, signature, triage, décisions.', href: '/fr/maintainers/releasing/' },
+    ]}
+  />
+</Section>

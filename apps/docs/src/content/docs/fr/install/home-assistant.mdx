@@ -1,0 +1,99 @@
+---
+title: Installer Kept comme application Home Assistant
+description: Installer Kept depuis la boutique d’applications de Home Assistant, avec sa propre base de données, sauvegardée avec les sauvegardes de Home Assistant et ouverte depuis la barre latérale.
+sidebar:
+  order: 2
+  label: Home Assistant
+---
+
+import HomeAssistantButton from '../../../../components/HomeAssistantButton.astro';
+
+Kept fonctionne comme une application Home Assistant : Kept et sa propre base de données dans une même application, sous Home Assistant OS. Pas de Docker Compose, pas de mot de passe à créer, et les sauvegardes de Home Assistant l’incluent.
+
+## Application Home Assistant ou installation normale ?
+
+Même Kept, même version, mêmes fonctionnalités : objets, lieux, la carte et le graphe, scan, étiquettes, IA, MCP, imports, Paperless, plusieurs personnes.
+
+| | Application Home Assistant | [Compose](/fr/install/compose/) ou [Kubernetes](/fr/install/kubernetes/) |
+|---|---|---|
+| Ouverture | Barre latérale de Home Assistant, et l’adresse propre de Kept (port 8080) | Adresse propre de Kept |
+| Installation, mise à jour | Boutique d’applications de Home Assistant | `docker compose`, `helm` |
+| Premier compte | Un administrateur Home Assistant configure sans le code | Le code de configuration depuis le journal de Kept |
+| Paramètres | Onglet **Configuration** de l’application | `.env` ou les valeurs du chart |
+| Hors ligne, installation de l’application téléphone, push | Adresse propre de Kept en https ; pas dans la barre latérale | En https |
+| Clés d’accès, OIDC, Google | Adresse propre de Kept (https pour les clés d’accès ; https et un nom de domaine public pour Google) | Adresse de Kept |
+| Sauvegardes | Sauvegardes de Home Assistant ; hors de la box via ses [emplacements de sauvegarde](https://www.home-assistant.io/common-tasks/general/backups/) | Sauvegardes nocturnes propres à Kept : restic vers un dossier, S3 ou SFTP |
+| Photos et fichiers | Dans les données de l’application | Sur disque, ou S3 |
+
+- **L’application :** vous exécutez déjà Home Assistant OS.
+- **Compose ou Kubernetes :** tout autre cas ; ou photos et fichiers sur S3 ; ou les sauvegardes hors box propres à Kept.
+
+## Install
+
+<HomeAssistantButton />
+
+1. **Paramètres → Applications → Installer l’application → ⋮ → Dépôts**, ajoutez
+   `https://github.com/keptinventory/kept` (ou utilisez le bouton ci-dessus).
+2. Trouvez **Kept**, puis **Installer**, puis **Commencer**.
+3. **Ouvrir l’interface Web**. Kept s’ouvre dans Home Assistant, et aussi dans la barre latérale.
+
+| Vous avez besoin | |
+|---|---|
+| Home Assistant OS | Les applications ont besoin du Supervisor : pas Home Assistant Container ni Core. Supervisor 2026.10.4 ou ultérieur |
+| `aarch64` ou `amd64` | Un Raspberry Pi 4 ou 5 en 64 bits, un mini-PC, une machine virtuelle |
+| 4 Go de mémoire | 2 Go suffisent avec peu d’autres applications ; Kept avec sa base de données utilise environ 250–320 Mo au repos |
+
+## Premier démarrage
+
+- Un **administrateur** Home Assistant qui ouvre Kept depuis Home Assistant le configure sans code
+  (Supervisor 2026.10.4 ou ultérieur ; avant, le code est nécessaire).
+- Toute autre personne saisit le code de configuration depuis l’onglet **Journal** de l’application (`KEPT SETUP CODE: XXX-XXX`).
+- Kept a ses propres comptes. On se connecte à Kept une seule fois, aussi dans Home Assistant ; les membres du foyer n’ont pas besoin d’être administrateurs Home Assistant pour l’utiliser depuis la barre latérale.
+
+## L’adresse de Kept
+
+Dans Home Assistant, Kept s’ouvre depuis la barre latérale. Les téléphones, les étiquettes QR imprimées, les liens par courriel, l’intégration et les applications d’IA ont besoin d’une adresse qui fonctionne hors d’une session Home Assistant, donc l’application sert aussi Kept sur le **port 8080**. L’onglet **Journal** l’indique, par exemple
+`Kept is at http://homeassistant.local:8080`.
+
+| Option | Quoi |
+|---|---|
+| L’adresse de Kept | Définissez-la quand `homeassistant.local` ne se résout pas sur votre réseau, ou quand le port a changé. `http(s)://host[:port]`, sans chemin. |
+| https sur le port de Kept | Sert le port en https avec le certificat de Home Assistant depuis `/ssl` (depuis les applications DuckDNS ou Let’s Encrypt). Redémarrez l’application après le renouvellement du certificat. |
+| HSTS | `on` par défaut. `off` quand Home Assistant lui-même, ou une autre application sur ce nom d’hôte, est en http simple : le HSTS de Kept couvre le nom d’hôte sur tous les ports, 8123 inclus ([HSTS](/fr/install/reverse-proxy/#hsts)). |
+| Durée de connexion sur http | Vide : 12 heures, non renouvelées. Nombre de jours qu’une connexion dure en http simple, de 1 à 30, renouvelée à l’usage. Sans effet si https est activé ; le coût est dans [Rester sur votre réseau](/fr/install/home-network/#rester-sur-votre-réseau). |
+| Adresses supplémentaires | Autres adresses auxquelles ce Kept répond, séparées par des virgules, comme `http://192.0.2.20:8080`. Vide : une. Ajoutées à celles de Home Assistant, jamais à leur place ([plus d’une adresse](/fr/install/home-network/#plusieurs-adresses)). |
+| Courrier sortant | Une URL `smtps://` : liens de connexion, invitations et rappels par courriel. |
+| OIDC, Google | Connexion avec votre propre fournisseur d’identité ou avec Google. Vide : désactivé. |
+| Serveur Apprise | Le serveur d’API Apprise pour les canaux de notification Apprise. Vide : aucun. |
+| Inscription | `true` ou `false` verrouille l’ouverture ou la fermeture ; non défini, un administrateur décide. |
+| Limite de téléversement (Mo) | De 1 à 2048 ; 25 par défaut. |
+
+Le fournisseur renvoie les personnes vers l’adresse propre de Kept, jamais vers Home Assistant. URL de redirection à enregistrer : `<Kept's address>/api/v1/auth/callback/oidc` pour OIDC, `<Kept's address>/api/v1/auth/callback/google` pour Google. L’onglet **Journal** l’affiche une fois la connexion configurée. Dans Home Assistant, **Se connecter avec …** ouvre l’adresse de Kept dans un nouvel onglet.
+
+Google refuse une URL de redirection en http, avec un nom `.local` ou avec une adresse IP ([Règles de Google](https://developers.google.com/identity/protocols/oauth2/web-server#uri-validation)) : définissez **L’adresse de Kept** en https avec un nom de domaine public, par exemple un nom DuckDNS avec **https sur le port de Kept**. L’onglet **Journal** avertit si ce n’est pas possible.
+
+Désactiver le port 8080 (Configuration → Réseau) ne laisse que la barre latérale : les étiquettes et l’application téléphone ne s’ouvrent alors pas.
+
+## Ce qui demande https
+
+| | http simple | https |
+|---|---|---|
+| Objets, lieux, recherche, étiquettes, photos depuis un fichier | oui | oui |
+| Jetons personnels (l’intégration), affichage des secrets, exports | non | oui |
+| Clés d’accès, la caméra, installation de l’application téléphone, push | non | oui |
+
+Dans Home Assistant, Kept compte comme https seulement si Home Assistant lui-même est servi en https. Un proxy devant Home Assistant qui termine le TLS doit envoyer `X-Forwarded-Proto: https`, sinon Kept voit du http simple. Les clés d’accès appartiennent à l’adresse propre de Kept : connectez-vous avec l’une là-bas. En savoir plus sur [le réseau domestique](/fr/install/home-network/).
+
+## Sauvegardes et mises à jour
+
+- **Sauvegardes :** les sauvegardes de Home Assistant incluent Kept : la base de données en vidage, les photos, les fichiers et les clés de Kept. Gardez le chiffrement des sauvegardes de Home Assistant activé. Restaurer la sauvegarde ramène Kept ; le premier démarrage après une restauration prend un peu plus longtemps.
+- **Une sauvegarde alors que Kept est arrêté** contient le vidage que Kept a écrit lors de son dernier arrêt propre : Home Assistant demande une nouvelle sauvegarde seulement à une application en cours d’exécution. Après un plantage, démarrez Kept avant de sauvegarder.
+- **Les sauvegardes propres à Kept** ne sont pas dans l’application : elles ont besoin de l’identifiant du propriétaire de la base de données, que l’application garde depuis le serveur en cours d’exécution. Administration → Sauvegardes le dit et renvoie vers les sauvegardes de Home Assistant.
+- **Hors de la box :** ajoutez un partage réseau ou un emplacement dans le cloud dans les paramètres de sauvegarde de Home Assistant ([Sauvegardes de Home Assistant](https://www.home-assistant.io/common-tasks/general/backups/)).
+- **Mises à jour :** la version de l’application est celle de Kept. Une mise à jour conserve les données de Kept et met à niveau sa base de données au démarrage. Activez **Conserver une sauvegarde de la dernière version** dans la boîte de dialogue de mise à jour de Home Assistant : l’instantané avant mise à niveau propre à Kept est désactivé dans l’application.
+
+## L’intégration
+
+Cette application exécute Kept ; une intégration distincte l’intègre dans Home Assistant. Activez **https sur le port de Kept** avant de la connecter ([l’application et l’intégration](/fr/users/home-assistant/#lapplication-et-lintégration)).
+
+[L’intégration Kept](/fr/users/home-assistant/) fait entrer dans Home Assistant ce qui est dû. Donnez-lui l’adresse de Kept et un jeton personnel créé en https. La configuration sans jeton, directement depuis l’application, arrivera dans une version ultérieure.
