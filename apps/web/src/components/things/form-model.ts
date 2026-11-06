@@ -8,7 +8,7 @@
  * `theirs` the latest version read after a 412. `toPatch(from, to)` turns the difference into
  * the PATCH body, converting back to wire types.
  */
-import { AmountError, parseAmount } from '@kept/shared';
+import { AmountError, decimalCommaAsPoint, parseAmount } from '@kept/shared';
 import type { Condition, ResolvedField, ThingView, UpdateThingBody } from '@/api/inventory/types';
 
 export type Money = { amount: string; currency: string };
@@ -104,16 +104,17 @@ export function formValues(thing: ThingView): FormValues {
 }
 
 const LOCAL_DIGITS = /[٠-٩۰-۹]/g;
-/** Eastern Arabic and Persian digits to 0–9, and `٫` to `.` (D172). */
+/** Eastern Arabic and Persian digits to 0–9, `٫` and a decimal comma to `.` (D172), and grouping
+ * marks dropped. */
 export function westernNumber(s: string): string {
-  return s
+  const western = s
     .trim()
     .replace(LOCAL_DIGITS, (d) => {
       const c = d.charCodeAt(0);
       return String(c >= 0x06f0 ? c - 0x06f0 : c - 0x0660);
     })
-    .replace(/٫/g, '.')
-    .replace(/[٬,]/g, '');
+    .replace(/٫/g, '.');
+  return decimalCommaAsPoint(western).replace(/[٬,]/g, '');
 }
 
 export function parseNumber(s: string): number | null {

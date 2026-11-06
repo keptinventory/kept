@@ -28,6 +28,7 @@ import {
   foldDigits,
   type ImportChoices,
   legacyCodeOf,
+  numberCell,
   parseBoolean,
   parseDate,
   parsePrice,
@@ -556,12 +557,8 @@ function customValue(
     switch (field.kind) {
       case 'text':
         return s;
-      case 'number': {
-        const t = foldDigits(s)
-          .replace(/٫/g, '.')
-          .replace(/[\s,٬]/g, '');
-        return /^-?\d+(?:\.\d+)?$/.test(t) ? Number(t) : undefined;
-      }
+      case 'number':
+        return numberCell(s);
       case 'date':
         return parseDate(s, choices.dateFormat) ?? undefined;
       case 'boolean':
