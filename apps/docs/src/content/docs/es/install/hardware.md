@@ -43,7 +43,7 @@ máquina, incluido Docker. Sin memoria, el sistema mató el proceso de Kept y Do
 - **1 GB, 1 o 2 núcleos:** probado, todas las ejecuciones pasaron, con unos 150 MB de margen en
   el pico.
 - **2 GB:** margen de sobra, para otros servicios además de Kept.
-- **768 MB:** Kept funcionó, al igual que Hacer copia de seguridad ahora (el camino de la copia de seguridad programada); `kept admin backup`
+- **768 MB:** Kept funcionó, al igual que Ejecutar ahora (el camino de la copia de seguridad programada); `kept admin backup`
   mientras se subían fotos se quedó sin memoria. No recomendado.
 
 ## Raspberry Pi

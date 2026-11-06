@@ -16,21 +16,21 @@ Agregar una llave de acceso pide también la contraseña en una cuenta que tiene
 
 Desvincular Google o tu inicio de sesión con OIDC en **Métodos de inicio de sesión** pide lo mismo.
 
-Cada cambio cierra la sesión en todos los demás dispositivos, excepto renombrar una llave de acceso. Kept te envía un correo cuando se agrega o elimina una llave de acceso, cuando se desvincula un inicio de sesión externo, cuando se activa, configura de nuevo o desactiva la autenticación de dos factores, y cuando se crean nuevos códigos de respaldo. Las cuentas administradas (con nombre de usuario, sin correo) no reciben correo.
+Cada cambio cierra la sesión en todos los demás dispositivos, excepto renombrar una llave de acceso. Kept te envía un correo cuando se agrega o elimina una llave de acceso, cuando se desvincula un inicio de sesión externo, cuando se activa, configura de nuevo o desactiva la autenticación de dos factores, y cuando se crean nuevos códigos de respaldo. Las cuentas gestionadas (con nombre de usuario, sin correo) no reciben correo.
 
 ## Llaves de acceso
 
-Una llave de acceso te permite iniciar sesión con Face ID, una huella digital o el bloqueo de pantalla de tu teléfono, sin tener que escribir una contraseña. Kept nunca lo ve: se queda en el dispositivo o en tu gestor de contraseñas. Pertenece a una sola dirección: en un Kept con [más de una](/es/install/home-network/#más-de-una-dirección), agrégalo y úsalo en la principal.
+Una llave de acceso te permite iniciar sesión con Face ID, una huella digital o el bloqueo de pantalla de tu teléfono, sin tener que escribir una contraseña. Kept nunca la ve: se queda en el dispositivo o en tu gestor de contraseñas. Pertenece a una sola dirección: en un Kept con [más de una](/es/install/home-network/#más-de-una-dirección), agrégala y úsala en la principal.
 
 | | |
 |---|---|
-| **Agrega una llave de acceso** | Nómbralo (Kept sugiere el dispositivo: "Mac", "iPhone"), luego responde al diálogo del navegador. Cerrar ese diálogo no cambia nada. |
-| **Sincronizado** | Tu gestor de contraseñas o la plataforma también lo mantiene en tus otros dispositivos. |
+| **Agrega una llave de acceso** | Nómbrala (Kept sugiere el dispositivo: "Mac", "iPhone"), luego responde al diálogo del navegador. Cerrar ese diálogo no cambia nada. |
+| **Sincronizado** | Tu gestor de contraseñas o la plataforma también la mantiene en tus otros dispositivos. |
 | **Solo este dispositivo** | Vive en este único dispositivo o llave de seguridad. |
 | **Renombrar** | El nombre es tuyo, hasta 64 caracteres. |
-| **Eliminar** | Deja de hacer que puedas iniciar sesión. Elimínalo también en el dispositivo si ya no lo quieres ahí. |
+| **Eliminar** | Ya no te permite iniciar sesión. Elimínala también en el dispositivo si ya no la quieres ahí. |
 
-Toda llave de acceso que agrega Kept comprueba que seas tú (Face ID, una huella digital o un PIN), así que iniciar sesión con una llave de acceso cuenta como autenticación de dos factores por sí solo, incluidas las ubicaciones que la piden.
+Toda llave de acceso que agrega Kept comprueba que seas tú (Face ID, una huella digital o un PIN), así que iniciar sesión con una llave de acceso cuenta como autenticación de dos factores por sí solo, incluso en las ubicaciones que la piden.
 
 ## La app de autenticación
 
@@ -47,7 +47,7 @@ Autenticación de dos factores con una app como 1Password, Google Authenticator 
 El servidor rechaza estas acciones, sin importar lo que muestre la pantalla:
 
 - **Eliminar tu última forma de entrar.** No se puede eliminar una llave de acceso ni desvincular Google o tu inicio de sesión con OIDC cuando no quedaría nada más para iniciar sesión: una contraseña, otra llave de acceso, Google o el inicio de sesión con OIDC (mientras este Kept siga ofreciéndolo), o un enlace por correo (cuando este Kept envía correo y tu dirección está confirmada).
-- **Desactivar la autenticación de dos factores donde una ubicación la necesita.** Mientras una ubicación a la que perteneces pide la autenticación de dos factores y no tienes una llave de acceso, la app de autenticación sigue activa. Agrega primero una llave de acceso. De la misma manera, tu última llave de acceso se mantiene mientras esa ubicación dependa de él y la app esté desactivada.
+- **Desactivar la autenticación de dos factores donde una ubicación la necesita.** Mientras una ubicación a la que perteneces pide la autenticación de dos factores y no tienes una llave de acceso, la app de autenticación sigue activa. Agrega primero una llave de acceso. De la misma manera, tu última llave de acceso se mantiene mientras una ubicación así dependa de ella y la app esté desactivada.
 - **Agregar una llave de acceso o la app antes de confirmar tu dirección**, cuando este Kept envía correo. Inicia sesión una vez con un enlace enviado a la dirección y luego inténtalo de nuevo.
 
 ## El bloqueo de la app no es una llave de acceso

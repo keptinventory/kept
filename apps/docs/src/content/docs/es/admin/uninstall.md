@@ -1,5 +1,5 @@
 ---
-title: Desinstalando
+title: Desinstalar
 description: Elimina Kept y todo lo que almacenó - después de guardar lo que quieras mantener.
 sidebar:
   order: 9
@@ -8,7 +8,7 @@ sidebar:
 **Saca tus datos primero.** Una vez que los volúmenes se hayan ido, nada los devuelve excepto una copia de seguridad.
 
 1. Cada propietario exporta sus ubicaciones (**Configuración → Exportar**), o guarda la última copia de seguridad y el
-   [kit de recuperación](/es/admin/recovery-kit/) en un lugar seguro: con restic solo puedes todavía
+   [kit de recuperación](/es/admin/recovery-kit/) en un lugar seguro: solo con restic todavía puedes
    [leer tu inventario](/es/admin/read-with-restic/) más tarde.
 
 2. Detén y elimina los contenedores **y sus volúmenes**, en la carpeta con `.env`:
@@ -24,8 +24,8 @@ sidebar:
    `kept:local` para tu propia compilación), y `.env` junto al archivo Compose.
 
 4. Fuera de la máquina, elimina lo que configuraste para Kept tú mismo:
-   - **el depósito de archivos**, con `KEPT_STORAGE=s3` (y sus versiones antiguas, si estaba activada la versión);
-   - **la copia de seguridad**: el directorio `restic` en el disco de copia de seguridad, el prefijo `restic/` en el depósito de copias de seguridad,
+   - **el bucket de archivos**, con `KEPT_STORAGE=s3` (y sus versiones antiguas, si el versionado estaba activado);
+   - **la copia de seguridad**: el directorio `restic` en el disco de copia de seguridad, el prefijo `restic/` en el bucket de copias de seguridad,
      o el repositorio en el servidor SFTP, y cualquier `runs/` y `blobs/` de la versión alfa que haya al lado;
    - la base de datos, si era de un proveedor: los roles `kept_*` y la base de datos misma;
-   - los registros DNS, las rutas de proxy y el `serve` de Tailscale que añadiste;
+   - los registros DNS, las rutas de proxy y el `serve` de Tailscale que añadiste.
