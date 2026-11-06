@@ -15015,7 +15015,7 @@ msgstr "{0, plural, one {# reclamación} other {# reclamaciones}}"
 #. placeholder {0}: things.length
 #: src/components/reports/claim-pack.tsx
 msgid "{0, plural, one {# thing in {where}} other {# things in {where}}}"
-msgstr "{0, plural, one {# objeto in {where}} other {# objetos in {where}}}"
+msgstr "{0, plural, one {# objeto en {where}} other {# objetos en {where}}}"
 
 #. placeholder {0}: thingIds.length
 #: src/components/incidents/incident-sheet.tsx
@@ -24469,15 +24469,15 @@ msgstr "Creó un informe de mudanza para {name}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Made # blank label} other {Made # blank labels}}"
-msgstr "{count, plural, one {Made # blank etiqueta} other {Made # blank etiquetas}}"
+msgstr "{count, plural, one {Se creó # etiqueta en blanco} other {Se crearon # etiquetas en blanco}}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Made labels for # thing} other {Made labels for # things}}"
-msgstr "{count, plural, one {Made etiquetas for # objeto} other {Made etiquetas for # objetos}}"
+msgstr "{count, plural, one {Se crearon etiquetas para # objeto} other {Se crearon etiquetas para # objetos}}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Made labels for # place} other {Made labels for # places}}"
-msgstr "{count, plural, one {Made etiquetas for # lugar} other {Made etiquetas for # lugares}}"
+msgstr "{count, plural, one {Se crearon etiquetas para # lugar} other {Se crearon etiquetas para # lugares}}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Arranged the map: # change} other {Arranged the map: # changes}}"

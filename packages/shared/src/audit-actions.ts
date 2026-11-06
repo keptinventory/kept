@@ -3,7 +3,7 @@
  * it (and `member.join`, which the database's invite function writes itself, migration 0010).
  * apps/server's AuditEventInput takes only these, so a write with a new action fails the
  * typecheck until it is listed here; the summary tests (server and web) then fail until it has a
- * sentence of its own in five languages.
+ * sentence of its own in every language (the web's catalogues).
  */
 export const AUDIT_ACTIONS = [
   'account.deletion_cancel',
@@ -373,7 +373,7 @@ export type SummaryKey = (typeof SUMMARY_KEYS)[number];
 
 /**
  * The detail lines a row may carry under its summary (#140): an arrangement's changes, one per
- * map node, and what a report or a trash covered. Each has a sentence in five languages.
+ * map node, and what a report or a trash covered. Each has a sentence in every language.
  */
 export const SUMMARY_LINE_KEYS = [
   'map.put',
