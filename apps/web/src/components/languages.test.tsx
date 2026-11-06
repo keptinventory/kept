@@ -156,6 +156,44 @@ describe('LanguageSelect', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
+  it('chooses the first match with Enter alone', async () => {
+    const onChange = vi.fn();
+    const { user } = await renderUI(<Picker onChange={onChange} />);
+    const box = screen.getByRole('combobox');
+    await user.tab();
+    await user.keyboard('ger{Enter}');
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('de');
+    await waitFor(() => expect(box).toHaveValue('Deutsch'));
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('keeps the language when Enter has nothing to choose', async () => {
+    const onChange = vi.fn();
+    const { user } = await renderUI(<Picker start="fr" onChange={onChange} />);
+    const box = screen.getByRole('combobox');
+    // The whole list, opened by a click, with nothing typed.
+    await user.click(box);
+    await user.keyboard('{Enter}');
+    expect(screen.queryByRole('listbox')).toBeNull();
+    // Nothing matches.
+    await user.click(box);
+    await user.keyboard('zzz{Enter}');
+    await waitFor(() => expect(box).toHaveValue('Français'));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('closes the list and goes back to the current language when one fails to load', async () => {
+    const { user } = await renderUI(
+      <LanguageSelect label="Language" value="fr" onChange={() => Promise.resolve(false)} />,
+    );
+    const box = screen.getByRole('combobox');
+    await user.click(box);
+    await user.click(screen.getByRole('option', { name: 'Deutsch' }));
+    await waitFor(() => expect(box).toHaveValue('Français'));
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(box).toHaveAttribute('lang', 'fr');
+  });
+
   it('replaces the name on the first keystroke, and that keystroke loses nothing', async () => {
     const onChange = vi.fn();
     const { user, container } = await renderUI(<Picker start="it" onChange={onChange} />);
@@ -231,6 +269,16 @@ describe('LanguageSelect', () => {
     const box = screen.getByRole('combobox');
     expect(box.className).toContain('text-[16px]');
     expect(box.className).not.toContain('text-[14px]');
+  });
+});
+
+describe('LanguagesMultiSelect with the keyboard', () => {
+  it('adds the first match with Enter alone', async () => {
+    const onChange = vi.fn();
+    const { user } = await renderUI(<Several start={['en']} onChange={onChange} />);
+    await user.tab();
+    await user.keyboard('german{Enter}');
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(['en', 'de']);
   });
 });
 

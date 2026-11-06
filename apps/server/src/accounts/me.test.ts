@@ -157,6 +157,50 @@ describe('GET /api/v1/me', () => {
   });
 
   // catalogue: PATCH /api/v1/me
+  it('PATCH keeps the language on the person, so mail follows the app, and audits it', async () => {
+    const me = await person(t, db, 'lang');
+    const set = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale: 'es' } });
+    expect(set.statusCode, set.body).toBe(200);
+    expect(set.json()).toEqual({ suggestLocation: false, hidePersonal: false, locale: 'es' });
+    expect((await call(t, '/api/v1/me', { as: me })).json().profile.locale).toBe('es');
+    const mailLanguage = await ownerTx(db, (c) =>
+      c.query<{ locale: string }>('SELECT kept.mail_locale($1) AS locale', [me.email]),
+    );
+    expect(mailLanguage.rows[0]?.locale).toBe('es');
+    const events = await ownerTx(
+      db,
+      async (c) =>
+        (
+          await c.query<{ diff: unknown }>(
+            `SELECT diff FROM public.audit_events WHERE actor_id = $1 AND action = 'me.preferences'`,
+            [me.userId],
+          )
+        ).rows,
+    );
+    expect(events).toEqual([{ diff: { locale: { before: 'en', after: 'es', class: 'plain' } } }]);
+
+    await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale: 'es' } });
+    expect(
+      (
+        await ownerTx(db, (c) =>
+          c.query(
+            `SELECT 1 FROM public.audit_events WHERE actor_id = $1 AND action = 'me.preferences'`,
+            [me.userId],
+          ),
+        )
+      ).rowCount,
+    ).toBe(1);
+
+    for (const locale of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
+      const ok = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale } });
+      expect(ok.statusCode, locale).toBe(200);
+    }
+    for (const locale of ['xx', 'es-MX', 'EN', '', 7]) {
+      const bad = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale } });
+      expect(bad.statusCode, String(locale)).toBe(400);
+    }
+  });
+
   it('PATCH keeps "Suggest where I am" on the person, across devices, and audits it', async () => {
     const me = await person(t, db, 'me');
     const on = await call(t, '/api/v1/me', {
@@ -165,7 +209,7 @@ describe('GET /api/v1/me', () => {
       body: { suggestLocation: true },
     });
     expect(on.statusCode, on.body).toBe(200);
-    expect(on.json()).toEqual({ suggestLocation: true, hidePersonal: false });
+    expect(on.json()).toMatchObject({ suggestLocation: true, hidePersonal: false });
     const read = await call(t, '/api/v1/me', { as: me });
     expect(read.json().profile.suggestLocation).toBe(true);
     const events = await ownerTx(

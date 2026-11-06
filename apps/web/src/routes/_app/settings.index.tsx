@@ -94,7 +94,7 @@ function MePage() {
 
       <Section title={<Trans>Display</Trans>}>
         <div className="rounded-[10px] border border-line bg-surface p-3.5">
-          <DisplayPrefs />
+          <DisplayPrefs signedIn />
         </div>
       </Section>
 

@@ -79,7 +79,7 @@ describe('PATCH /api/v1/me {hidePersonal}', () => {
 
     const hidden = await hide(me);
     expect(hidden.statusCode, hidden.body).toBe(200);
-    expect(hidden.json()).toEqual({ suggestLocation: false, hidePersonal: true });
+    expect(hidden.json()).toMatchObject({ suggestLocation: false, hidePersonal: true });
     expect(await isHidden(me)).toBe(true);
     expect((await meOf(me)).profile.hidePersonal).toBe(true);
 
@@ -104,8 +104,8 @@ describe('PATCH /api/v1/me {hidePersonal}', () => {
       body: { suggestLocation: true },
     });
     expect(res.statusCode, res.body).toBe(200);
-    expect(res.json()).toEqual({ suggestLocation: true, hidePersonal: false });
-    expect((await hide(me)).json()).toEqual({ suggestLocation: true, hidePersonal: true });
+    expect(res.json()).toMatchObject({ suggestLocation: true, hidePersonal: false });
+    expect((await hide(me)).json()).toMatchObject({ suggestLocation: true, hidePersonal: true });
   });
 
   it('refuses an empty body', async () => {

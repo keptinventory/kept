@@ -16,7 +16,7 @@ import GB from 'country-flag-icons/react/3x2/GB';
 import IT from 'country-flag-icons/react/3x2/IT';
 import UA from 'country-flag-icons/react/3x2/UA';
 import VN from 'country-flag-icons/react/3x2/VN';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Key } from 'react-aria-components';
 import { directionOf, LOCALES, type Locale, localeOfTag } from '@/lib/prefs';
 import { cn } from '@/lib/utils';
@@ -110,26 +110,33 @@ export function LanguageSelect({
 }: {
   label: string;
   value: Locale;
-  onChange: (locale: Locale) => void;
+  /** A promise says the change is still happening; it mustn't reject (say what went wrong here). */
+  onChange: (locale: Locale) => void | Promise<unknown>;
   /** No visible label and a small box (the sign-in header); the label stays accessible. */
   compact?: boolean;
   className?: string;
 }) {
   const filter = useLanguageFilter();
+  // The list closes when the selection changes, and a language can take a moment to load, or fail
+  // to. Until then the box holds the choice; if the value doesn't follow, it goes back to the value.
+  const [choosing, setChoosing] = useState<Locale | null>(null);
+  const shown = choosing ?? value;
   return (
     <Combobox<Language>
       {...(compact ? { 'aria-label': label } : { label })}
       items={LANGUAGES}
       defaultFilter={filter}
-      selectedKey={value}
+      selectedKey={shown}
       onSelectionChange={(key) => {
         // A cleared box reports no selection: that isn't a choice.
-        if (key != null && key !== value) onChange(key as Locale);
+        if (key == null || key === value) return;
+        setChoosing(key as Locale);
+        void Promise.resolve(onChange(key as Locale)).finally(() => setChoosing(null));
       }}
       showsChoice
-      leading={<LanguageFlag locale={value} />}
-      placeholder={LANGUAGE_NAMES[value]}
-      inputProps={{ lang: value, className: compact ? 'min-h-10 py-1.5' : undefined }}
+      leading={<LanguageFlag locale={shown} />}
+      placeholder={LANGUAGE_NAMES[shown]}
+      inputProps={{ lang: shown, className: compact ? 'min-h-10 py-1.5' : undefined }}
       className={cn(compact && 'w-44 shrink-0', className)}
     >
       {(item) => <LanguageItem item={item} />}

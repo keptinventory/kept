@@ -5,8 +5,12 @@
  * (language only) and the gallery.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
-import { LanguageSelect } from '@/components/languages';
+import { useQueryClient } from '@tanstack/react-query';
+import { setAccountLocale } from '@/api/account';
+import { keys } from '@/api/queries';
+import { LANGUAGE_NAMES, LanguageSelect } from '@/components/languages';
 import { Segmented } from '@/components/ui/segmented';
+import { toast } from '@/components/ui/toast';
 import { activateLocale } from '@/i18n/i18n';
 import { makeFormatter } from '@/lib/format';
 import {
@@ -32,6 +36,23 @@ export async function switchLocale(locale: Locale, digits: Digits) {
   setLocale(locale);
 }
 
+/**
+ * Changes the language, or says why it can't. Offline, a catalogue never loaded online isn't cached
+ * (sw.ts), so the language stays as it was. Resolves to whether it changed.
+ */
+function useSwitchLocale(digits: Digits) {
+  const { t } = useLingui();
+  return async (locale: Locale) => {
+    try {
+      await switchLocale(locale, digits);
+      return true;
+    } catch {
+      toast({ title: t`Needs a connection`, description: LANGUAGE_NAMES[locale], tone: 'danger' });
+      return false;
+    }
+  };
+}
+
 async function switchDigits(locale: Locale, digits: Digits) {
   await activateLocale(locale, digits);
   setDigits(digits);
@@ -41,19 +62,23 @@ async function switchDigits(locale: Locale, digits: Digits) {
 export function LanguageToggle() {
   const { t } = useLingui();
   const { locale, digits } = usePrefs();
-  return (
-    <LanguageSelect
-      compact
-      label={t`Language`}
-      value={locale}
-      onChange={(l) => void switchLocale(l, digits)}
-    />
-  );
+  const change = useSwitchLocale(digits);
+  return <LanguageSelect compact label={t`Language`} value={locale} onChange={change} />;
 }
 
-export function DisplayPrefs() {
+/** `signedIn`: a language chosen here is also kept on the account, which mail goes by. */
+export function DisplayPrefs({ signedIn = false }: { signedIn?: boolean }) {
   const { t } = useLingui();
   const { theme, locale, digits, region, dateFormat, width } = usePrefs();
+  const qc = useQueryClient();
+  const change = useSwitchLocale(digits);
+  const choose = async (next: Locale) => {
+    if (!(await change(next)) || !signedIn) return;
+    // This device has its language either way; a failure here only leaves mail as it was.
+    void setAccountLocale(next)
+      .then(() => qc.invalidateQueries({ queryKey: keys.me }))
+      .catch(() => undefined);
+  };
   // Each format shown as today's date written that way (#362).
   const today = new Date().toISOString();
   const tag = formatLocale(locale, digits, region);
@@ -63,7 +88,7 @@ export function DisplayPrefs() {
       <LanguageSelect
         label={t`Language`}
         value={locale}
-        onChange={(l) => void switchLocale(l, digits)}
+        onChange={choose}
         className="md:max-w-sm"
       />
       {/* D204: the digit choice only means something in Arabic, so only Arabic shows it. */}

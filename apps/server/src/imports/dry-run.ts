@@ -25,7 +25,6 @@ import { type ResolvedFieldView, resolvedFields, typeCapabilities } from '../thi
 import { fitsField } from '../things/validate.js';
 import {
   cell,
-  foldDigits,
   type ImportChoices,
   legacyCodeOf,
   numberCell,

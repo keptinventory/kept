@@ -25,10 +25,13 @@ export const completeSetup = (body: SetupBody) => api.post<SetupResult>(paths.se
 
 export const getMe = () => api.get<Me>(paths.me);
 /** PATCH /api/v1/me: "Suggest where I am" (D153, T19), audited `me.preferences`. */
+type MePreferences = { suggestLocation: boolean; hidePersonal: boolean; locale: string };
 export const setSuggestLocation = (suggestLocation: boolean) =>
-  api.patch<{ suggestLocation: boolean; hidePersonal: boolean }>(paths.me, { suggestLocation });
+  api.patch<MePreferences>(paths.me, { suggestLocation });
 export const setHidePersonal = (hidePersonal: boolean) =>
-  api.patch<{ suggestLocation: boolean; hidePersonal: boolean }>(paths.me, { hidePersonal });
+  api.patch<MePreferences>(paths.me, { hidePersonal });
+/** The language chosen in the app, kept on the account: mail follows it. */
+export const setAccountLocale = (locale: string) => api.patch<MePreferences>(paths.me, { locale });
 
 export const listMySessions = () =>
   api.get<{ sessions: DeviceSession[] }>(paths.mySessions).then((r) => r.sessions);
