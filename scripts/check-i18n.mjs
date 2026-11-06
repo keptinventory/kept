@@ -8,10 +8,10 @@
 // i18n:extract` uses) in memory, writes nothing, and fails (exit 1) when an extracted message is
 // absent from any locale's catalogue. Run `pnpm --filter @kept/web i18n:extract` to fix it.
 //
-// It also fails when a message has an empty translation in a non-source locale (every Arabic msgstr is written; an empty one would show English in the Arabic UI).
+// It also fails when a message has an empty translation in a non-source locale (every msgstr is written; an empty one would show English in that language's UI).
 //
-// D204: the five launch languages (English, Arabic, French, German, Italian) must all be in the
-// Lingui config, and each must be complete. A translation must also keep its source's shape: the
+// Every language the app ships (English, Arabic, French, German, Italian, Vietnamese, Ukrainian,
+// Spanish) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
 // same placeholders ({name}, {0}), the same numbered tags (<0>…</0>) and the same number of ICU
 // plurals, or the message would drop a value or break at runtime.
 //
@@ -49,8 +49,8 @@ export function compareCatalogues(extracted, catalogues, sourceLocale = 'en') {
   return result;
 }
 
-/** The launch languages (D204). Removing one from lingui.config.ts fails the check. */
-export const REQUIRED_LOCALES = ['en', 'ar', 'fr', 'de', 'it'];
+/** The languages the app ships. Removing one from lingui.config.ts fails the check. */
+export const REQUIRED_LOCALES = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
 
 /** Required locales the config doesn't list. */
 export function missingLocales(configLocales) {
@@ -192,7 +192,7 @@ async function main() {
   if (absent.length > 0) {
     failed = true;
     console.error(
-      `check-i18n: lingui.config.ts must list every launch language (D204); missing: ${absent.join(', ')}.`,
+      `check-i18n: lingui.config.ts must list every language the app ships; missing: ${absent.join(', ')}.`,
     );
   }
   for (const catalog of catalogs) {
