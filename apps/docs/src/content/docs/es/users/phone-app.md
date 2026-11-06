@@ -25,7 +25,7 @@ El teléfono conserva una copia de cada ubicación a la que perteneces, actualiz
 |---|---|
 | Explorar ubicaciones, habitaciones, cajas y objetos | Editar los detalles de un objeto, ajustes, administración |
 | Buscar, etiquetado **En este teléfono** | El asistente y el nombrado con IA |
-| Capturar, mover, marcar como visto, no está aquí | Importaciones, exportaciones e informes |
+| Capturar, mover, marcar como visto o ausente | Importaciones, exportaciones e informes |
 | Registrar una lectura, añadir una habitación o un lugar | Registrar un servicio (implica dinero) |
 | Comprobación de caja, para una caja abierta una vez con conexión | Cualquier cosa con dinero o valores secretos |
 | Escanear una etiqueta, reclamar una etiqueta en blanco | |

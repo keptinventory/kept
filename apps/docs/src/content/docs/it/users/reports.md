@@ -26,7 +26,7 @@ Il **Report per l'assicurazione** (dove puoi vedere i soldi) elenca ogni oggetto
 modello, seriale, data di acquisto, prezzo, valore attuale e ricevute, con totali per posto e per
 valuta, come PDF e CSV.
 
-**Also total in** adds one converted total when your exchange rates cover every currency.
+**Totale anche in** aggiunge un totale convertito quando i tuoi tassi di cambio coprono tutte le valute.
 
 ## Sinistri e pacchetti sinistro
 

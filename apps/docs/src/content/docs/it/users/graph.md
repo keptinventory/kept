@@ -27,7 +27,7 @@ Selezionando un nodo porta il suo ramo in avanti: tutto ciò che è fuori svanis
 
 ## Pini e tag
 
-I punti su un nodo mostrano cosa richiede attenzione al suo interno, nei colori della mappa: **Scorte basse** (rosso), **Prestati** (blu) e **In scadenza** (arancione). Provengono dagli stessi posti dei pin della mappa: Consumabili, Prestiti, e programmazioni, garanzie e documenti. Anche il nome del nodo per uno screen reader li dice ("Garage, Stanza, 9 oggetti, 1 prestato").
+I punti su un nodo mostrano cosa richiede attenzione al suo interno, nei colori della mappa: **Scorte basse** (rosso), **Prestati** (blu) e **A breve** (arancione). Provengono dagli stessi posti dei pin della mappa: Consumabili, Prestiti, e programmazioni, garanzie e documenti. Anche il nome del nodo per uno screen reader li dice ("Garage, Stanza, 9 oggetti, 1 prestato").
 
 Attiva **Tag** per aggiungere i tuoi tag come chip nei loro colori, ciascuno collegato ai luoghi e alle scatole che contengono gli oggetti su cui sono. Seleziona un tag per elencare cosa lo trasporta.
 

@@ -90,9 +90,9 @@ sudo chmod 700 /mnt/backup/kept
 - **Wie lange sie aufbewahrt werden:** der neueste Snapshot von jedem der letzten **7 Tage, 4 Wochen und 6
   Monate** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). Des Alphas `KEPT_BACKUP_KEEP` wird
   für eine Release als Tagesanzahl gelesen. Vor einem Upgrade angelegte Snapshots behalten ihre letzten 3.
-- **Ein verdächtig kleines Backup** (ein Dump unter der Hälfte der Größe des letzten guten, oder deutlich fewer
-  things, places or files) is still taken, but nothing old is removed that night and admins are
-  alerted, so a bad night can never push the good snapshots out.
+- **Ein verdächtig kleines Backup** (ein Dump unter der Hälfte der Größe des letzten guten, oder deutlich weniger
+  Dinge, Orte oder Dateien) wird trotzdem erstellt, aber in dieser Nacht wird nichts Altes entfernt und Admins werden
+  benachrichtigt, sodass eine schlechte Nacht die guten Snapshots nie verdrängen kann.
 
 ## Überwachung
 

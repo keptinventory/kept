@@ -13,7 +13,7 @@ mehrere gleichzeitig, und einmal gezählt. Nutze sie, um:
 
 Eine Sitzung fasst bis zu 5.000 Etiketten und funktioniert ohne Verbindung, sobald das Telefon eine Sitzung online geöffnet hat: Der Bildschirm wird beim ersten Verwenden geladen und dann auf dem Telefon behalten.
 
-Eine Sitzung liest QR-Codes und Barcodes. Ein Etikett ohne QR-Code (schmales Etikettendrucker-Band) öffnet stattdessen einzeln aus **Scannen** über seine gedruckte Kurz-ID ([scanning a code with no QR code](/de/users/short-ids/#scannen-eines-codes-ohne-qr-code)).
+Eine Sitzung liest QR-Codes und Barcodes. Ein Etikett ohne QR-Code (schmales Etikettendrucker-Band) öffnet stattdessen einzeln aus **Scannen** über seine gedruckte Kurz-ID ([Scannen eines Codes ohne QR-Code](/de/users/short-ids/#scannen-eines-codes-ohne-qr-code)).
 
 ## Sitzung starten
 

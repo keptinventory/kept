@@ -35,7 +35,7 @@ es sei denn, er wurde dazu eingeladen.
 |---|---|
 | **Eigentümer** | Alles, einschließlich Zwei-Faktor-Regeln, Übertragung und Löschung. Es gibt einen Eigentümer. |
 | **Administrator** | Einladen und entfernen von Mitgliedern und Betrachtern, Einstellungen und Module ändern, Import und Export, Teil-Links erstellen und Anspruchspakete beanspruchen, dauerhaft löschen. Nur der Eigentümer kann Administratoren ernennen oder entfernen. |
-| **Mitglied** | Hinzufügen, bearbeiten, bewegen, verleihen und löschen von Dingen; Messwerte und Dienstleistungen protokollieren; Etiketten drucken; KI-Erfassung verwenden. Geld ist sichtbar. |
+| **Mitglied** | Hinzufügen, bearbeiten, bewegen, verleihen und löschen von Dingen; Messwerte und Wartungen protokollieren; Etiketten drucken; KI-Erfassung verwenden. Geld ist sichtbar. |
 | **Betrachter** | Nur suchen und anschauen. Geld ist versteckt, außer der Standort erlaubt Betrachtern, es zu sehen. Der Assistent antwortet aber kann nichts ändern. |
 
 ## Geteilte Links
@@ -43,7 +43,7 @@ es sei denn, er wurde dazu eingeladen.
 Geteilte Links zeigen jemandem ohne Konto, was in einer Box, einem Ort oder einer Suche enthalten ist, schreibgeschützt.
 Eigentümer und Administratoren erstellen einen wie folgt:
 
-- Die Box's **Aktionen → Einen Link nur zum Ansehen teilen**.
+- **Aktionen → Einen Link nur zum Ansehen teilen** einer Box.
 - Der Abschnitt **Verwalten** des Ortes.
 - **Diese Liste teilen** bei Suche: Eine Suche, gefiltert auf einen Standort, ohne Zustand- oder Preis-Filter.
 

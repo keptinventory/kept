@@ -1,5 +1,5 @@
 ---
-title: Sign-in and security
+title: Anmeldung und Sicherheit
 description: Passkeys und die Authenticator-App in Einstellungen, Backup-Codes, App neu einrichten, ausschalten, was Kept ablehnt und warum, und warum die App-Sperre kein Passkey ist.
 ---
 
@@ -71,5 +71,4 @@ Das lehnt der Server ab, egal was der Bildschirm zeigt:
 
 **Einstellungen → Dieses Gerät → Mit Face ID oder Fingerabdruck entsperren** entsperrt Kept auf genau diesem Gerät,
 nachdem du bereits angemeldet bist ([die App-Sperre](/de/users/phone-app/#die-app-sperre)). Sie kann dich nicht anmelden.
-Wenn der Browser sie bei der Anmeldung anbietet und Kept mit *That passkey isn't one this account
-signs in with* antwortet, melde dich auf anderem Weg an und füge dann hier einen echten Passkey hinzu.
+Wenn der Browser sie bei der Anmeldung anbietet und Kept mit *Dieser Passkey gehört nicht zu den Anmeldungen dieses Kontos* antwortet, melde dich auf anderem Weg an und füge dann hier einen echten Passkey hinzu.

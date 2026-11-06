@@ -23,7 +23,7 @@ docker compose up -d
 `compose.yaml` funciona por sí solo, así que también se puede pegar en Portainer, Dockge y similares (consulta
 [sin terminal](#sin-terminal)).
 
-:::note[Images]
+:::note[Imágenes]
 Las versiones se publican en `ghcr.io/keptinventory/kept`, etiquetadas `1`, `1.2` y `1.2.3`, nunca
 `latest`; `1.0.0` es la primera firmada. Las mismas imágenes, firmadas con la misma clave, están en Docker
 Hub como `keptinventory/kept`. `compose.yaml` ejecuta la versión con la que se publicó, salvo que

@@ -1,11 +1,11 @@
 ---
-title: Prometheus and Grafana
+title: Prometheus y Grafana
 description: "Haz scraping a /metrics de Kept con Prometheus, haz gráficos en Grafana y alerta sobre copias de seguridad, disco y reinicios."
 
 ---
 
-A walkthrough for watching Kept with Prometheus and Grafana. The metrics themselves, the health
-checks, logs and tracing are on [Monitoring](/es/admin/observability/).
+Una guía para vigilar Kept con Prometheus y Grafana. Las métricas, las comprobaciones de estado,
+los registros y el rastreo están en [Monitoreo](/es/admin/observability/).
 
 ## 1. Activa `/metrics`
 
@@ -127,7 +127,7 @@ groups:
 
 Las 36 horas y el 85% coinciden con las alertas administrativas de Kept ([viendo copias de seguridad](/es/admin/backups/#supervisarlo)). El `> 0` mantiene la regla de copia de seguridad estancada en un Kept que no ha hecho su primera copia de seguridad: la métrica es 0 hasta entonces.
 
-## Related
+## Relacionado
 
 - [Monitoreo](/es/admin/observability/): revisiones de salud, métricas, logs, rastreo y informes.
 - [Copias de seguridad](/es/admin/backups/) para activar copias de seguridad.

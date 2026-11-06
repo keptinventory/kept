@@ -10,7 +10,7 @@ par défaut) ou dans un bucket compatible S3 (`KEPT_STORAGE=s3` avec les variabl
 `KEPT_STORAGE` seul ne déplace rien : les fichiers déjà stockés restent où ils étaient et Kept
 ne peut plus les trouver. Les déplacer, c'est les copier.
 
-## Moving
+## Déplacer les fichiers
 
 Les fichiers ne changent jamais une fois stockés, la copie est donc sûre pendant que Kept fonctionne
 et elle peut être répétée : un fichier déjà présent à destination avec le bon hash est ignoré.

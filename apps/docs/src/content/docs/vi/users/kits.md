@@ -15,7 +15,7 @@ cho ra, một ghi chú và ảnh. Đó là một **hand-over**, với một dòn
 - Một thứ bên trong đã được cho mượn, đang sửa hoặc không còn dùng nữa sẽ ở lại; Kept báo như vậy.
 - Một bộ cũng liệt kê **các bộ phận không trong bộ** ("Spare battery is in the living room"): tích
   những thứ để cho mượn thêm.
-- Không có gì di chuyển: mỗi đồ vật đọc **With Sam (in Camera bag) since 3 Oct**.
+- Không có gì di chuyển: mỗi đồ vật đọc **Đang ở chỗ Sam (trong Túi máy ảnh) từ 3 thg 10**.
 - **Hoàn tác** lấy cả hand-over trở lại trong 7 ngày, miễn là không có gì của nó đã thay đổi.
 
 Kept nhắc bạn hai ngày trước hạn, và khi quá hạn. Nó không bao giờ nhắn tin cho họ.
@@ -31,7 +31,7 @@ thay đổi nếu bạn không nói.
 **Đánh dấu tất cả đã trả lại** (trên hộp, hoặc trên trang của người đó) hiển thị mọi đồ vật vẫn còn
 ở ngoài, mỗi thứ tích **Đã trả lại**. Với mỗi thứ, chọn:
 
-| Choice | What happens |
+| Lựa chọn | Điều gì xảy ra |
 |---|---|
 | Came back | Nó về đúng chỗ cũ; thêm tình trạng khi nó trở về |
 | Damaged | Cái y hệt, với ghi chú và **Cập nhật tình trạng của nó** |
@@ -57,8 +57,8 @@ ra, cho mượn nó hoặc mất nó, và bộ vẫn biết.
 
 - **Bộ phận → Biến thứ này thành một bộ** trên một container: nội dung của nó được tích làm bộ phận; thêm
   nữa bằng tìm kiếm. Một đồ vật là bộ phận của tối đa một bộ, ở vị trí của bộ.
-- Tab **Bộ phận** nói **Hoàn thành**, "2 parts not in the kit" hoặc **With Sam since 3 Oct**, và
-  mỗi bộ phận: In the kit, Elsewhere (với **Đặt lại**), Missing, With someone, hoặc In the Trash.
+- Tab **Bộ phận** nói **Hoàn thành**, "2 bộ phận không nằm trong bộ" hoặc **Đang ở chỗ Sam từ 3 thg 10**, và
+  mỗi bộ phận: Trong bộ, Ở nơi khác (với **Đặt lại**), Còn thiếu, Ở chỗ ai đó, hoặc Trong Thùng rác.
 - **Kiểm tra bộ này** đếm nó bằng một [phiên quét](/vi/users/scanning-sessions/): danh sách của nó là
   các bộ phận, bất kể chúng ở đâu.
 - **Sửa bộ phận** và **Không còn là bộ** có thể hoàn tác trong 7 ngày.

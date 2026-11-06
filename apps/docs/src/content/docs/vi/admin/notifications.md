@@ -56,7 +56,7 @@ Người bật đẩy trên mỗi thiết bị với **Bật** trong **Cách Kep
 
 Những gì rời khỏi máy chủ: Kept gửi mỗi đẩy qua HTTPS đến dịch vụ đẩy trình duyệt đã đăng ký, nên nó cần kết nối internet ra ngoài; địa chỉ riêng tư và cục bộ bị từ chối. Một đẩy mang một tiêu đề, một dòng văn bản và một liên kết, dưới 3 KB, không bao giờ chứa tiền hoặc chi tiết liên hệ. Dịch vụ đẩy giữ nó trong tối đa một ngày khi thiết bị ngoại tuyến. Một đăng ký mà dịch vụ báo cáo là đã mất bị xóa.
 
-:::caution[Losing the key]
+:::caution[Khi mất khóa]
 Nếu khóa riêng được lưu không thể mở, vì khóa bí mật dùng để đóng kín nó đã mất, Kept tạo một cặp mới và xoá mọi đăng ký đẩy. Không gì khác bị mất: người bật đẩy lại trên mỗi thiết bị. Giữ [bộ khôi phục](/vi/admin/recovery-kit/) và điều này không bao giờ xảy ra khi khôi phục hoặc một [di chuyển](/vi/admin/move-server/).
 :::
 

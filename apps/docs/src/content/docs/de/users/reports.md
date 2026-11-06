@@ -26,7 +26,7 @@ Der **Versicherungsbericht** (wo du Geld sehen kannst) führt jedes Ding mit sei
 
 Ein **Schadenpaket** ist eine ZIP-Datei des Versicherungsberichts mit jedem Beleg, Rechnung, Foto und Seriennummer für den Vorfall, geteilt mit dem Versicherer über einen Download-Link, der 1 bis 7 Tage gültig ist, einmal angezeigt wird und widerrufen werden kann. Eigentümer und Administratoren erstellen sie.
 
-## Related
+## Siehe auch
 
 [Tägliche Nutzung](/de/users/everyday-use/) für das größere Bild.
 [Import und Export](/de/users/import-export/) für das Exportieren eines Standorts als vollständigen Export.

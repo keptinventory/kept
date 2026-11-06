@@ -75,7 +75,7 @@ Ohne KI warten Aufnahmen im **Eingang** auf einen Namen: benenne sie dort, oder 
 
 Was die KI ausfüllt, ist ein Vorschlag. Öffne das Objekt und korrigiere Name, Marke, Modell oder Typ.
 
-## Labels
+## Etiketten
 
 ### Ein Label lässt sich nicht scannen
 

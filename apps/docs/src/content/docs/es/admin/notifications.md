@@ -56,7 +56,7 @@ La gente activa el push por dispositivo con **Activar** bajo **Cómo Kept te alc
 
 Lo que sale del servidor: Kept envía cada push por HTTPS al servicio de push al que se suscribió el navegador, así que necesita acceso a internet saliente; se rechazan las direcciones privadas y locales. Un push lleva un título, una línea de texto y un enlace, de menos de 3 KB, nunca dinero ni datos de contacto. El servicio de push lo guarda hasta un día mientras un dispositivo está offline. Una suscripción que el servicio informa como desaparecida se elimina.
 
-:::caution[Losing the key]
+:::caution[Si pierdes la clave]
 Si no se puede abrir la clave privada almacenada, porque la clave secreta con la que se selló se ha ido, Kept hace un nuevo par y descarta todas las suscripciones push. No se pierde nada más: la gente vuelve a activar el push en cada dispositivo. Mantén [el kit de recuperación](/es/admin/recovery-kit/) y esto no ocurre nunca en una restauración ni en un [traslado](/es/admin/move-server/).
 :::
 

@@ -1,6 +1,6 @@
 ---
 title: Einblicke
-description: \"Ausgaben für Dinge, Wert nach Ort, Fahrzeugkosten und Garantieabdeckung über deine Standorte, pro Währung und niemals umgerechnet.\"
+description: "Ausgaben für Dinge, Wert nach Ort, Fahrzeugkosten und Garantieabdeckung über deine Standorte, pro Währung und niemals umgerechnet."
 ---
 
 **Einblicke** (in der Sidebar, und unter Mehr auf einem Telefon) zeigt Zahlen über deine Standorte mit Geld eingeschaltet, oder einen Standort ausgewählt mit dem **Standort**-Chip.

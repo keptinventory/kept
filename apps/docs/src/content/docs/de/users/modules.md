@@ -12,7 +12,7 @@ Du wählst die Voreinstellung beim Erstellen des Standorts ([Deine ersten Minute
 - **Basis**: Dinge finden: Räume, Kisten, Etiketten und Suche.
 - **Haushalt**: fügt Belege und Garantien, Erinnerungen, Verleih, Unterlagen und Fahrzeuge hinzu.
 -vehicles hinzu.
-- **Erledigen**: fügt Treibstoff, Dinge die zur Neige gehen, Passwörter und Codes, Umzug und „ChatGPT oder Claude verbinden“ hinzu.
+- **Erledigen**: fügt Tanken, Dinge die zur Neige gehen, Passwörter und Codes, Umzug und „ChatGPT oder Claude verbinden“ hinzu.
 
 Die Zeitzone und Währung gehören nicht zur Voreinstellung: sie befinden sich unter **Standorteinstellungen → Allgemein**.
 
@@ -29,7 +29,7 @@ Die folgenden Namen sind die Schalter unter **Was erfasst wird**.
 | **Verleihen** | Household | Dinge verleihen und borgen. |
 | **Unterlagen** | Household | Die Unterlagen-Bibliothek; Dokumentdaten lösen Erinnerungen aus. |
 | **Fahrzeuge** | Household | Fahrzeuge und Maschinen. |
-| **Treibstoff** | Complete | Treibstoff und Laden. Benötigt **Fahrzeuge**. |
+| **Tanken** | Complete | Tanken und Laden. Benötigt **Fahrzeuge**. |
 | **Dinge die zur Neige gehen** | Complete | **Mindestens behalten** bei etwas; niedriger Bestand zeigt eine Erinnerung an. |
 | **Umzug** | Complete | Umzugsmodus. Benötigt **Etiketten und QR-Codes**. |
 | **Passwörter und Codes** | Complete | Geheimfelder: verborgen bis jemand zugelassen einen enthüllt, was protokolliert wird. |
@@ -43,8 +43,8 @@ KI-Erfassung und der Assistent werden in jeder Voreinstellung aktiv, sobald ein 
 
 Ein ausgeschaltetes Modul wird überall ausgeblendet, wo es erscheinen würde (seine Bildschirme, Menüeinträge, Filter) und seine Erinnerungen pausieren. Das Wiedereinschalten bringt alles zurück, da nichts gelöscht wurde.
 
-- **Erinnerungen pausieren mit ihrem Modul.** Zeitpläne und ablaufen Wartenden warten mit **Erinnerungen**, Garantie- und Registrierungsdaten mit **Belegen und Garantien**, Dokumentdaten mit **Unterlagen** (die Dokumente eines Fahrzeugs laufen auch weiter, während **Fahrzeuge** eingeschaltet ist), Kredite mit **Verleihen**, niedriger Bestand mit **Dingen die zur Neige gehen**. Erinnerungen über längst nicht gelesene Zähler laufen ständig weiter.
-- **Abhängigkeiten gehen ebenfalls mit.** Treibstoff benötigt Fahrzeuge, und Umzug benötigt Etiketten und QR-Codes: das Ausschalten des benötigten Moduls schaltet auch dieses Modul aus. Sein Schalter zeigt dann *Benötigt Fahrzeuge · aus in diesem Standort*.
+- **Erinnerungen pausieren mit ihrem Modul.** Zeitpläne und ablaufende Dinge warten mit **Erinnerungen**, Garantie- und Registrierungsdaten mit **Belegen und Garantien**, Dokumentdaten mit **Unterlagen** (die Dokumente eines Fahrzeugs laufen auch weiter, während **Fahrzeuge** eingeschaltet ist), Ausleihen mit **Verleihen**, niedriger Bestand mit **Dingen die zur Neige gehen**. Erinnerungen über längst nicht gelesene Zähler laufen ständig weiter.
+- **Abhängigkeiten gehen ebenfalls mit.** Tanken benötigt Fahrzeuge, und Umzug benötigt Etiketten und QR-Codes: das Ausschalten des benötigten Moduls schaltet auch dieses Modul aus. Sein Schalter zeigt dann *Benötigt Fahrzeuge · aus in diesem Standort*.
 - **Das Menü folgt allen deinen Standorten.** Unter **Nachverfolgung** erscheint ein Eintrag (Zeitpläne, Verleih, Unterlagen, Verbrauchsgüter, Fahrzeuge, Umzug, Einblicke) einmal, wenn sein Modul in einem deiner Standorte eingeschaltet ist. Unter **Werkzeuge** erscheint **Etiketten**, solange Etikett irgendwo eingeschaltet ist, und **Zählungen** ist immer dort vorhanden. Aktivität, Papierkorb und Benachrichtigungen sind ebenfalls immer vorhanden.
 
 ## Später ändern

@@ -3,7 +3,7 @@ title: Prestar y pedir prestado
 description: "Quién tiene qué y cuándo debe devolverlo. Presta a quien quieras por nombre, sin necesidad de cuenta; recordatorios antes y después de la fecha de vencimiento; una lista de todo lo prestado y tomado prestado."
 ---
 
-Kept recuerda quién tiene tus objetos. Presta el taladro a un vecino con una fecha de vencimiento, y Kept te recuerda dos días antes de que vence y nuevamente cuando está atrasado. Los objetos que tomaste prestado se rastrean de la misma manera.
+Kept recuerda quién tiene tus objetos. Presta el taladro a un vecino con una fecha de vencimiento, y Kept te recuerda dos días antes de que venza y nuevamente cuando está atrasado. Los objetos que tomaste prestados se registran de la misma manera.
 
 ## Activarlo
 

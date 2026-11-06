@@ -41,6 +41,8 @@ Servez Kept sur un nom d'hôte dont le domaine parent ne comporte aucun site que
 
 ## "Ce Kept est configuré pour …"
 
+L'application affiche "Ce Kept est configuré pour *adresse*. Ouvrez-le à cette adresse." lorsqu'elle est ouverte à une autre adresse que `KEPT_PUBLIC_URL`.
+
 - **Pourquoi :** Kept n'accepte les écritures qu'à partir de l'adresse présente dans `KEPT_PUBLIC_URL`, selon l'`Origin` du navigateur : schéma, hôte et port, exactement. Le proxy n'y est pour rien ; sa propre adresse et ses en-têtes `X-Forwarded-*` ne la changent pas.
 - **Correction :** définissez `KEPT_PUBLIC_URL` exactement sur l'adresse que les gens ouvrent (`https://kept.example.org`, pas l'amont du proxy `http://kept:8080`), et redémarrez Kept.
 - **Plus d'une adresse :** `KEPT_EXTRA_ADDRESSES` répertorie les autres, et chacune doit aussi atteindre Kept à travers votre proxy ([Plus d'une adresse](/fr/install/home-network/#plusieurs-adresses)).

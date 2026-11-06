@@ -31,7 +31,7 @@ Er dreht sich langsam von allein, bis du ihn berührst, und bleibt still, wenn d
 
 Das Auswählen eines Knotens bringt seinen Zweig nach vorne: Alles außerhalb davon blendet aus, und es nennt, was darin enthalten ist. Kept merkt sich 2D oder 3D für dich auf jedem Gerät.
 
-## Pins and tags
+## Pins und Schlagwörter
 
 Punkte auf einem Knoten zeigen, was darin Aufmerksamkeit benötigt, in den Farben der Karte: **Wenig Vorrat** (rot), **Verliehen** (blau) und **Bald fällig** (orange).
 Sie stammen aus denselben Orten wie die Marker der Karte: Verbrauchsgüter, Ausleihe sowie Pläne, Garantien und Dokumente.
@@ -39,17 +39,17 @@ Der Name jedes Knotens für einen Bildschirmlesegerät nennt sie ebenfalls ("Gar
 
 Schalte **Schlagwörter** ein, um deine Schlagwörter als Chips in ihren eigenen Farben hinzuzufügen, jeweils verbunden mit den Orten und Behältern, die die Dinge darauf enthalten. Wähle ein Schlagwort, um aufzulisten, was es trägt.
 
-## The card
+## Die Karte
 
 Die Karte zeigt, wo ein Knoten ist, was er ist, wie viele Dinge darin sind, seine Marker und was darin enthalten ist (nimm irgendeinen davon).
 **Öffnen** geht zu seiner Seite, **Auf der Karte zeigen** öffnet die Karte darauf (oder auf dem Ort, der etwas enthält), und **Hineingehen** platziert es in der Mitte des 2D-Graphen.
 Auf einem Telefon ist die Karte ein Blatt am unteren Rand; **×** oder Escape schließt sie.
 
-## With a keyboard or a screen reader
+## Mit Tastatur oder Screenreader
 
 Jeder Knoten ist eine Schaltfläche. Tab bewegt sich durch sie in der Baum-Reihenfolge, Enter wählt einen aus und Enter wieder geht hinein, und Escape schließt die Karte und geht dann eine Ebene hoch.
 Unter dem Graphen zeigt eine Liste dessen, was es anzeigt (für Bildschirmlesegeräte und angezeigt, wenn du hineintabbst), das gleiche.
 
-## Large locations
+## Große Standorte
 
 Kept zeichnet bis zu 2.000 Dingen in einem Graphen. Darüber hinaus werden die restlichen in ihren Orten und Behältern gezählt, aber nicht dargestellt. In 3D zeigt ein Standort mit mehr als etwa 450 Orten, Behältern und Dingen die Dinge nur für den von dir gewählten Zweig an.

@@ -19,6 +19,6 @@ Le chart utilise la même image que Compose, avec les mêmes [variables d'enviro
 - **Les sauvegardes s'exécutent dans le worker**, jamais dans un CronJob : la même tâche nocturne que dans Compose, configurée dans Administration → Sauvegardes ou verrouillée par les valeurs du chart.
 - **Déploiement séparé web et worker** est une option ; le worker est une seule réplique.
 - **Les volumes sont conservés** lors de `helm uninstall` ; supprimez les revendications vous‑même pour supprimer les données.
-- helm test interroge le Kept en cours d'exécution pour `/readyz` et `/version`.
+- `helm test` interroge le Kept en cours d'exécution pour `/readyz` et `/version`.
 
 La version du chart correspond à la version de Kept : la version 1.0.1 publie le chart 1.0.1. Il est publié en tant qu'artefact OCI signé à côté de l'image à chaque release ; voir [vérification d'une release](/fr/admin/verify-release/).

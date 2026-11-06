@@ -23,7 +23,7 @@ Wenn Kept zum ersten Mal ohne Admin startet, gibt es einen einmaligen Einrichtun
 
 **Einrichtung abschließen** bringt dich zu Home.
 
-:::caution[Finish it straight away]
+:::caution[Schließe es sofort ab]
 Bis die Einrichtung abgeschlossen ist, könnte jeder, der die Adresse öffnen kann, versuchen, den Server zu beanspruchen.
 :::
 
@@ -187,7 +187,7 @@ zeigt ein Slide anstelle seines Bildes das Symbol seines Abschnitts. Es wird nie
 Erfassen oder Scannen angezeigt. Die Highlights sind in jeder Sprache auf Englisch, mit einem Link zu den vollständigen Release-Notes
 auf GitHub.
 
-:::tip[Keep the keys]
+:::tip[Bewahre die Schlüssel auf]
 Bevor der erste KI-Schlüssel, geheime Wert oder Backup, Kept wartet, bis der Instanzadministrator die
 [Wiederherstellungs-Kit](/de/admin/recovery-kit/) gespeichert hat (Admin → Status fragt danach). Ohne das Kit kann ein Backup
 KI-Schlüssel oder gespeicherte Passwörter auf einem neuen Server nicht wiederherstellen.

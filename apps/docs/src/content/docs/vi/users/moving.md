@@ -7,7 +7,7 @@ description: "Đóng gói ngôi nhà thành các thùng có số thứ tự, in 
 
 Nó hoạt động trên điện thoại không có sóng, điều thường xảy ra trong ngày chuyển nhà.
 
-![Một lần chuyển nhà từ Garra đến Trang chủ: 2 đã đóng gói, 2 đang vận chuyển, 1 đã dỡ, bốn thùng còn lại chưa dỡ, và mọi thùng có phòng nó chuyển đến](../../../../assets/screens/moving-desktop-light.webp)
+![Một lần chuyển nhà từ Nhà để xe đến Nhà: 2 đã đóng gói, 2 đang vận chuyển, 1 đã dỡ, bốn thùng còn lại chưa dỡ, và mọi thùng có phòng nó chuyển đến](../../../../assets/screens/moving-desktop-light.webp)
 
 ![Cùng một lần chuyển nhà ở giao diện tối](../../../../assets/screens/moving-desktop-dark.webp)
 

@@ -20,10 +20,10 @@ Busca por lo que se contó y filtra por tipo (conteos, revisiones de caja), luga
 | Lista | Qué significa |
 |---|---|
 | Encontrado | Leído durante el conteo: marcado como visto |
-| Faltante | En la lista, no leído y no marcado como no aquí |
+| Faltante | En la lista, no leído y no marcado como ausente |
 | Encontrado en otro lugar | Leído aquí, pero Kept lo tenía en otro lugar, y lo dejaste allí |
 | Movido aquí | Encontrado en otro lugar y movido aquí |
-| Marcado como no aquí | Elegido en el resumen |
+| Marcado como ausente | Elegido en el resumen |
 | Prestado, En reparación, En la papelera | Nunca faltante: fuera por un motivo que Kept conoce |
 | No contado: Repisa trasera | En un área que nadie contó (ver más abajo) |
 
@@ -43,7 +43,7 @@ Un conteo de un lugar con lugares dentro (o de una ubicación completa) tiene **
 
 ## Contando cantidades
 
-Un objeto con una cantidad (6 latas) cuenta como todas ellas cuando se lee su etiqueta. Usa **−** y **+** en su fila para decir cuántos encontraste. Si encontraste menos, elige **Marcar el resto como no aquí** para él: el resto se separa como su propia fila, marcado como no aquí, como hace una revisión de caja. Deshacer los vuelve a unir.
+Un objeto con una cantidad (6 latas) cuenta como todas ellas cuando se lee su etiqueta. Usa **−** y **+** en su fila para decir cuántos encontraste. Si encontraste menos, elige **Marcar el resto como ausente** para él: el resto se separa como su propia fila, marcado como ausente, como hace una revisión de caja. Deshacer los vuelve a unir.
 
 ## Contando juntos
 

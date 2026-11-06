@@ -7,7 +7,7 @@ description: "Cosa ti serve e dove si trovano le cose: la striscia Per iniziare,
 
 - **Per iniziare**: una riga con i tuoi progressi e il prossimo passo. La freccia apre i passi; **×** lo nasconde definitivamente (Annulla nel messaggio; **Aiuto → Elenco Per iniziare** lo riporta indietro). Scompare da solo quando ogni passo è completato.
 
-- **Tocca a te**: sei conteggi, sempre nello stesso posto: **In ritardo**, **In scadenza**, **In scadenza**, **In prestito**, **Incerto** e **Scorta bassa**. Uno zero è grigiastro, non nascosto. **Preso in prestito** e **Non visti da tempo** compaiono quando hanno qualcosa. Su un computer ciascuno indica l'elemento più urgente. Tocca uno per aprire quell'elenco, già filtrato. **In prestito** mostra dove Lending è attivo, **Scorta bassa** dove Consumables è attivo.
+- **Tocca a te**: sei conteggi, sempre nello stesso posto: **In ritardo**, **Da fare**, **In scadenza**, **In prestito**, **Incerto** e **Scorta bassa**. Uno zero è grigiastro, non nascosto. **Preso in prestito** e **Non visti da tempo** compaiono quando hanno qualcosa. Su un computer ciascuno indica l'elemento più urgente. Tocca uno per aprire quell'elenco, già filtrato. **In prestito** mostra dove Lending è attivo, **Scorta bassa** dove Consumables è attivo.
 
 - **Scorciatoie**: **Acquisisci**, **Scansiona un’etichetta**, **Registra una lettura** (qualcosa ha un contatore) e **Aggiungi un oggetto**.
 

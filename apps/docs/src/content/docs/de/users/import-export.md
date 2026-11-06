@@ -47,7 +47,7 @@ weglassen würde:
 
 | Homebox-Spalte | Kept |
 |---|---|
-| `HB.asset_id`, and the item's link in `HB.url` (v0.13 and later) | Alte Labels: ein gedrucktes Homebox-Label öffnet das Ding |
+| `HB.asset_id` und der Link des Eintrags in `HB.url` (ab v0.13) | Alte Labels: ein gedrucktes Homebox-Label öffnet das Ding |
 | `HB.sold_*` | Mit einem Käufer oder einem Preis: das Ding endete als verkauft, mit Datum, Käufer, Notizen und Preis. Ein reines Verkaufsdatum bleibt in den Notizen |
 | `HB.archived` | Deine Wahl: **Archiviert** (Standard: auch in Kept archiviert, bleibt deins, weggelegt), **In Gebrauch** oder **Weglassen**. Eines mit Verkauf endet verkauft |
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Eine Garantie ab Kaufdatum, wo Garantien an ist |

@@ -1,5 +1,5 @@
 ---
-title: Tags
+title: Tag
 description: Tags dicono cos'altro è un oggetto, oltre dove si trova. Aggiungi i tag ovunque, filtra per diversi, apri la pagina di un tag, e aggiungi tag su un telefono senza segnale.
 ---
 

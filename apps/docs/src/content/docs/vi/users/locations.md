@@ -3,7 +3,7 @@ title: Địa điểm, phòng và hộp
 description: "Cây mà mọi thứ nằm trong: địa điểm, phòng và vị trí, hộp và thùng chứa, Chưa có vị trí, các bố cục của một địa điểm (Danh sách, Lưới, Sơ đồ, Bảng, Bản đồ), và Chọn cho nhiều đồ vật cùng lúc."
 ---
 
-Mọi thứ nằm trong một cây: một địa điểm (Trang chủ, Nhà để xe, một đơn vị lưu trữ) chứa **phòng và vị trí** ("phòng hoặc vị trí" là từ của Kept cho bất kỳ nơi nào), chứa đồ vật. Một đồ vật có thể là một **hộp hoặc thùng chứa** chứa các đồ vật khác, sâu bao nhiêu cũng được. Mỗi địa điểm cũng có **Chưa có vị trí**, cho các đồ vật chưa có nơi.
+Mọi thứ nằm trong một cây: một địa điểm (Nhà, Nhà để xe, một đơn vị lưu trữ) chứa **phòng và vị trí** ("phòng hoặc vị trí" là từ của Kept cho bất kỳ nơi nào), chứa đồ vật. Một đồ vật có thể là một **hộp hoặc thùng chứa** chứa các đồ vật khác, sâu bao nhiêu cũng được. Mỗi địa điểm cũng có **Chưa có vị trí**, cho các đồ vật chưa có nơi.
 
 - Trên một địa điểm, phòng hoặc hộp, **Thêm tại đây** thêm một Đồ vật, một **Hộp / thùng chứa** hoặc một **Phòng hoặc vị trí**, hoặc [đồ nội thất có ngăn](#đồ-nội-thất-có-ngăn).
 - Các danh sách có ô tìm kiếm, **+ Bộ lọc**, **Chế độ xem** đã lưu, và nút **Hiển thị** cho thứ tự sắp xếp và nhóm. Bộ lọc nằm trong địa chỉ, nên danh sách đã lọc có thể được thêm vào bookmark hoặc chia sẻ.

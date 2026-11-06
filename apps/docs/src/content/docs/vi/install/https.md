@@ -16,6 +16,8 @@ Kept chạy qua HTTP thuần, nhưng điện thoại coi địa chỉ HTTP thu�
 
 Kept từ chối hoàn toàn một số chức năng khi `KEPT_PUBLIC_URL` là `http:`, kể cả trên `localhost`, vì chúng cung cấp hoặc thay đổi một bí mật: hiển thị một giá trị bí mật, một bản xuất có giá trị bí mật, mở các bí mật của một bản xuất khi nhập nó, tạo mã thông báo truy cập trong trình duyệt, kết nối một ứng dụng với OAuth, tải bộ khôi phục xuống, và thay đổi hoặc kiểm tra cài đặt sao lưu. Một bản xuất không có giá trị bí mật vẫn hoạt động, và một lần nhập không có chúng cũng vậy. Phiên cũng ngắn hơn qua HTTP. Trong khi Kept được phục vụ qua HTTP, danh sách kiểm tra Bắt đầu trên Trang chủ đặt "Đặt Kept chạy qua HTTPS" ở đầu, cho đến khi một quản trị viên chọn "Giữ ở mạng nhà tôi". Mọi thứ vẫn hoạt động qua HTTP thuần, trong một bảng: [Kept trên một mạng nhà](/vi/install/home-network/).
 
+Dù chọn cách nào, hãy đặt `KEPT_PUBLIC_URL` thành địa chỉ `https://` mà mọi người sẽ mở, rồi khởi động lại Kept.
+
 ## Hồ sơ Caddy của Compose
 
 Với một tên miền trỏ đến máy này, các cổng 80 và 443 có thể tiếp cận từ internet (Caddy chứng minh tên miền với Let's Encrypt hoặc ZeroSSL qua chúng). Caddy đi kèm với `compose.full.yaml`, không phải `compose.yaml` ([Caddy và Ollama](/vi/install/compose/#caddy-và-ollama)):

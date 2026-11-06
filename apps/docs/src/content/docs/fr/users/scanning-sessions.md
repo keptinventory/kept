@@ -15,8 +15,7 @@ Une session prend en charge jusqu'à 5 000 étiquettes et fonctionne sans signal
 en ligne : l'écran est récupéré la première fois qu'il est utilisé, puis conservé sur le téléphone.
 
 Une session lit les codes QR et les codes-barres. Une étiquette sans code QR (ruban étroit pour étiqueteuse) s'ouvre
-depuis **Scanner** une à la fois, par son court ID imprimé ([scanning a code with no QR
-code](/fr/users/short-ids/#scanner-un-code-sans-qr-code)).
+depuis **Scanner** une à la fois, par son court ID imprimé ([Scanner un code sans QR code](/fr/users/short-ids/#scanner-un-code-sans-qr-code)).
 
 ## Démarrer une session
 

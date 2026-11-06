@@ -7,7 +7,7 @@ sidebar:
 
 Las funciones de IA de Kept (rellenar campos a partir de fotos y recibos, el asistente, la búsqueda semántica) funcionan con el proveedor que conecta el dueño de una ubicación en **Configuración → IA**. Ollama ejecuta el modelo en tu propio hardware, así que nada sale de él; Kept se comunica con él como un proveedor **compatible con OpenAI**.
 
-:::caution[Not tested]
+:::caution[Sin probar]
 Ollama no se ha probado con Kept. Un modelo comparte la memoria de la máquina con Kept, así que considera más de [1 GB en el que se prueba Kept](/es/install/hardware/), y espera que un modelo pequeño sea más lento y menos preciso que uno alojado al leer recibos.
 :::
 

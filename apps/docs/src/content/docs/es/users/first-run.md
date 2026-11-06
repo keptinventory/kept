@@ -22,7 +22,7 @@ La primera vez que Kept arranca sin administrador, imprime un código de configu
 
 **Terminar configuración** te lleva a Inicio.
 
-:::caution[Finish it straight away]
+:::caution[Termínalo enseguida]
 Hasta que la configuración termine, cualquiera que pueda abrir la dirección podría intentar reclamar el servidor.
 :::
 
@@ -189,7 +189,7 @@ diapositiva muestra el icono de su sección en lugar de su imagen. Nunca se mues
 Capturar o Escanear. Los aspectos destacados están en inglés en todos los idiomas, con un enlace a las notas de
 la versión completas en GitHub.
 
-:::tip[Keep the keys]
+:::tip[Guarda las claves]
 Antes de la primera clave de IA, valor secreto o copia de seguridad, Kept espera hasta que el administrador de la instancia haya guardado el
 [kit de recuperación](/es/admin/recovery-kit/) (Administrador → Estado lo solicita). Sin el kit, una copia de seguridad no puede
 restaurar claves de IA ni contraseñas guardadas en un servidor nuevo.
