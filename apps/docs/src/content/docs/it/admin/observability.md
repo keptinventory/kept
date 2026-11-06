@@ -23,7 +23,7 @@ deployment separato non richiede override del healthcheck.
 
 ## La pagina di stato e gli avvisi
 
-**Admin → Stato** mostra ciò che richiede attenzione: il kit di recupero, la posta, i job in background falliti, la
+**Admin → Stato** mostra ciò che richiede attenzione: il kit di ripristino, la posta, i job in background falliti, la
 scansione dei promemoria e i backup: l'età del backup, l'ultimo drill di ripristino, il versioning del
 bucket, lo spazio su disco, il rilascio e le sue migrazioni, il controllo aggiornamenti, HTTPS e
 i connettori. Gli avvisi admin raggiungono gli admin dell'istanza nell'app, via mail e via push;
@@ -64,4 +64,4 @@ Entrambi sono opzionali e disattivati per impostazione predefinita.
   un collector non disponibile non rallenta mai una richiesta.
 - **Segnalazione degli errori:** con un DSN compatibile con Sentry in `KEPT_ERROR_DSN`, gli errori non gestiti vengono segnalati con
   l'id e la rotta della richiesta, e mai un corpo della richiesta, un header, una query string, un nome o qualsiasi cosa memorizzata in
-  una posizione.
+  un luogo.

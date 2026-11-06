@@ -1,11 +1,11 @@
 ---
 title: Promemoria e notifiche
-description: "Cosa Kept ti ricorda, come funziona il centro notifiche, la configurazione dei canali per ntfy, Telegram e Apprise, e le impostazioni per posizione."
+description: "Cosa Kept ti ricorda, come funziona il centro notifiche, la configurazione dei canali per ntfy, Telegram e Apprise, e le impostazioni per luogo."
 ---
 
 Kept ti ricorda delle scadenze, delle garanzie in scadenza e delle scadenze di registrazione, dei documenti e degli oggetti che scadono, dei prestiti in ritardo, dei contatori non letti da poco, delle scorte basse, dei membri che si uniscono e lasciano, e dei limiti di spesa IA. **Tocca a te** nella Home mostra cosa è in scadenza o in ritardo; il campanello apre il centro notifiche, dove **Completa**, **Rimanda**, **Rinnova** e **Segna come restituito** agiscono sul posto.
 
-Questa pagina copre cosa ti arriva, come impostare i canali e le impostazioni per posizione. Per le notifiche push su telefono, guarda [Kept sul tuo telefono](/it/users/phone-app/#notifiche).
+Questa pagina copre cosa ti arriva, come impostare i canali e le impostazioni per luogo. Per le notifiche push su telefono, guarda [Kept sul tuo telefono](/it/users/phone-app/#notifiche).
 
 ## Cosa ti arriva
 
@@ -42,7 +42,7 @@ Le colonne sono i tuoi canali:
 
 Le notifiche relative ai membri e all'IA vanno solo a Kept e via email. Disattivando **In Kept** per un tipo, viene disattivato ovunque: nessun altro viene inviato per esso. Su un telefono, ogni tipo mostra i suoi canali come interruttori sotto.
 
-## Impostazioni per posizione
+## Impostazioni per luogo
 
 - **Tutti i luoghi** imposta ciò che ricevi ovunque, inclusi i luoghi che aggiungi successivamente.
 - **Scegli un luogo** per modificarlo solo lì. Un punto indica ciò che è impostato solo per quel luogo.

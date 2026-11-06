@@ -7,8 +7,8 @@ sidebar:
 
 **Prima prendi i tuoi dati.** Una volta spariti i volumi, niente li riporta indietro eccetto un backup.
 
-1. Ogni proprietario esporta le proprie posizioni (**Impostazioni → Esporta**), oppure tieni l'ultimo backup e il
-   [kit di recupero](/it/admin/recovery-kit/) al sicuro: con solo restic puoi ancora
+1. Ogni proprietario esporta i propri luoghi (**Impostazioni → Esporta**), oppure tieni l'ultimo backup e il
+   [kit di ripristino](/it/admin/recovery-kit/) al sicuro: con solo restic puoi ancora
    [leggere il tuo inventario](/it/admin/read-with-restic/) più tardi.
 2. Ferma e rimuovi i container **e i loro volumi**, nella cartella con `.env`:
 

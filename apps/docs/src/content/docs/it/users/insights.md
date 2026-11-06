@@ -1,9 +1,9 @@
 ---
 title: Statistiche
-description: "Spese per oggetti, valore per luogo, costi dei veicoli e copertura garanzie tra le tue posizioni, per valuta e mai convertite."
+description: "Spese per oggetti, valore per posto, costi dei veicoli e copertura garanzie tra i tuoi luoghi, per valuta e mai convertite."
 ---
 
-**Statistiche** (nella barra laterale, e sotto Altro su telefono) mostra i dati tra le tue posizioni con
+**Statistiche** (nella barra laterale, e sotto Altro su telefono) mostra i dati tra i tuoi luoghi con
 Denaro attivo, oppure un luogo scelto con il chip **Luogo**.
 
 ## Spese per oggetti
@@ -14,7 +14,7 @@ Acquisti confermati, raggruppati per l'anno in cui li hai acquistati.
 - Un acquisto senza nessuno dei due è elencato come senza importo.
 - Quest'anno è mostrato a sé, "finora", mai come barra accanto agli anni completi.
 
-## Valore per luogo
+## Valore per posto
 
 Ogni oggetto in uso, alla sua ultima valutazione, per posto di primo livello. Un oggetto in una scatola in un armadio
 conta nella stanza.
@@ -34,7 +34,7 @@ cosa scade a breve, e le riparazioni risolte quest'anno e l'anno scorso.
 ## Valute e importi nascosti
 
 - Gli importi sono mostrati per valuta e non sono mai sommati fra valute diverse né convertiti.
-- Dove del denaro ti è nascosto, Statistiche mostra conteggi e dice di quali posizioni lascia
+- Dove del denaro ti è nascosto, Statistiche mostra conteggi e dice di quali luoghi lascia
   fuori gli importi.
 
 ## Correlati

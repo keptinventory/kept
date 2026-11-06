@@ -45,7 +45,7 @@ il link email o Google, l'accesso chiede il suo codice a 6 cifre.
 
 - **Attiva**: conferma che sei tu, scansiona il codice QR (o digita la chiave), inserisci un codice, poi salva i
   dieci codici di backup. Si attiva solo quando quel codice corrisponde.
-- **8 di 10 codici di backup rimasti**: ogni codice di backup ti fa accedere una sola volta, per quando il telefono non c'è.
+- **8 codici di backup rimasti su 10**: ogni codice di backup ti fa accedere una sola volta, per quando il telefono non c'è.
 - **Nuovi codici di backup**: dieci nuovi codici, mostrati una volta. I vecchi smettono di funzionare.
 - **Configura di nuovo**: per un telefono nuovo o un'altra app. Scansiona il nuovo codice QR e inserisci un codice dalla
   nuova app. Fino a che non lo fai, l'app attuale continua a funzionare; chiudi il foglio a metà e nulla
@@ -70,4 +70,4 @@ Questi vengono rifiutati dal server, qualunque cosa mostri lo schermo:
 
 **Impostazioni → Questo dispositivo → Sblocca con Face ID o impronta** sblocca Kept su quel singolo dispositivo,
 dopo che hai già effettuato l'accesso ([il blocco app](/it/users/phone-app/#blocco-dellapp)). Non può farti accedere.
-Se il browser lo offre al momento dell'accesso e Kept risponde *Quella passkey non è una con cui questo account accede*, accedi in un altro modo, poi aggiungi qui una passkey vera.
+Se il browser lo offre al momento dell'accesso e Kept risponde *Questa passkey non serve per accedere a questo account*, accedi in un altro modo, poi aggiungi qui una passkey vera.

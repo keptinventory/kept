@@ -5,7 +5,7 @@ description: "La pagina di un oggetto e ciò che puoi farci: modifica e unione d
 
 La pagina di un oggetto ha le sue foto, il suo nome e **ID**, il percorso completo, e le sezioni per quello che
 traccia: **Dettagli**, **Documenti e garanzie**, **Valore**, **Contatori**, **Prestiti**, **Richieste**,
-**Collegamenti**, **Pianificazioni** e **Cronologia**. Le sezioni il cui modulo è disattivato nella posizione non vengono mostrate.
+**Collegamenti**, **Pianificazioni** e **Cronologia**. Le sezioni il cui modulo è disattivato nel luogo non vengono mostrate.
 
 - **Modifica** apre i campi sul posto. Se qualcun altro ha modificato lo stesso campo da quando l'hai aperto,
   Kept mostra entrambi i valori e chiede: **Mantieni la mia**, **Mantieni la propria** o **Modifica**. I campi modificati solo da uno di voi vengono uniti senza chiedere.
@@ -27,21 +27,21 @@ traccia: **Dettagli**, **Documenti e garanzie**, **Valore**, **Contatori**, **Pr
   modulo denaro è attivo). I prezzi necessitano del modulo denaro e di qualcuno che possa vederli. Un acquisto
   può contenere diversi oggetti, così come fa una ricevuta: la data e il negozio sono gli stessi per tutti,
   e il foglio lo afferma. **Rimuovi** elimina un acquisto che appartiene esclusivamente a questo oggetto, ricevute incluse,
-  oppure toglie l'oggetto da una ricevuta condivisa. Un acquisto conservato in un'altra posizione (l'oggetto
-  spostata) viene modificato lì.
+  oppure toglie l'oggetto da una ricevuta condivisa. Un acquisto conservato in un altro luogo (l'oggetto
+  spostato) viene modificato lì.
 - **I ricevuti dell'acquisto** si trovano sotto di essa per nome: una ricevuta mantiene il nome del suo file ("B.TECH
   invoice 4471"), e **Modifica** li aggiunge, rinomina, sostituisce e rimuove. Essi appartengono all'
   acquisto, quindi ogni oggetto acquistato tramite esso li mostra. Una ricevuta aggiunta sotto **Documenti** appartiene
   esclusivamente a questo oggetto e viene mostrata solo lì; quando lo stesso file è presente in entrambi, la ricevuta dell'acquisto indica **Anche in Documenti**, quindi non è una seconda ricevuta.
 - **Azioni** ha Sposta, Presta, Etichetta, Dividi, Duplica, Salva come modello, Segna visto, Non qui,
-  Cambia ciclo di vita (venduto, regalato, scartato), Archivia, Cambia tipo, Converti in stanza o posizione,
+  Cambia ciclo di vita (venduto, regalato, scartato), Archivia, Cambia tipo, Converti in stanza o punto,
   e Sposta nel cestino.
 - **Archivia** serve per qualcosa che è ancora tuo ma messo da parte: le gomme invernali, il vecchio telefono in
   un cassetto. Come un oggetto venduto, esce dagli elenchi degli oggetti in uso e ferma i promemoria, e
   la sua pagina mostra **Archiviato** con **Togli dall'archivio** accanto, un tocco per tornare in uso. Filtra gli elenchi
   e cerca per **Archiviato** per trovarli. Entrambi possono essere annullati.
 - **Cronologia** elenca ogni modifica con chi l'ha fatta; la maggior parte delle modifiche può essere annullata da lì o dal
-  messaggio che le segue. **Attività** nel menu è la stessa nelle tue posizioni.
+  messaggio che le segue. **Attività** nel menu è la stessa nei tuoi luoghi.
   Ogni modifica è una frase: "Metti Galaxy S23 sulla mappa in Ufficio", "Catturato trapano Bosch, 18 V
   da una foto", "Fatto un rapporto assicurativo per Home". Un campo impostato per la prima volta mostra il suo valore; una
   disposizione della mappa con più di cinque modifiche indica quanti, e **Mostra** li elenca.

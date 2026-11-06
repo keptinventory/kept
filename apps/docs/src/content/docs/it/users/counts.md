@@ -1,15 +1,15 @@
 ---
 title: Conteggi e inventari
-description: Ogni conteggio e controllo della scatola viene mantenuto, con ciò che è stato trovato, ciò che mancava e dove si trova ora ogni cosa. Conta un luogo insieme, pianifica un conteggio ogni pochi mesi, confronta con l'ultimo ed esporta un CSV.
+description: Ogni conteggio e controllo della scatola viene mantenuto, con ciò che è stato trovato, ciò che mancava e dove si trova ora ogni cosa. Conta un posto insieme, pianifica un conteggio ogni pochi mesi, confronta con l'ultimo ed esporta un CSV.
 ---
 
-Un conteggio conserva ogni risultato. **Conteggi** elenca ogni conteggio e controllo della scatola di una posizione, dal più recente, e la pagina del conteggio mostra ciò che ha trovato, ciò che ha lasciato mancante e dove si trova ora ogni cosa.
+Un conteggio conserva ogni risultato. **Conteggi** elenca ogni conteggio e controllo della scatola di un luogo, dal più recente, e la pagina del conteggio mostra ciò che ha trovato, ciò che ha lasciato mancante e dove si trova ora ogni cosa.
 
-Aprilo da **Altro → Conteggi**, dalla pagina di una posizione (**Conteggi**), o dalla pagina di un luogo (**Conteggi passati**). Dopo aver salvato un conteggio, **Vedi questo conteggio** lo apre.
+Aprilo da **Altro → Conteggi**, dalla pagina di un luogo (**Conteggi**), o dalla pagina di un posto (**Conteggi passati**). Dopo aver salvato un conteggio, **Vedi questo conteggio** lo apre.
 
 ## L'elenco dei conteggi
 
-Cerca per ciò che è stato conteggiato, e filtra per tipo (conteggi, controlli della scatola), luogo, chi ha contato, **Aveva mancante** e data. Raggruppa per luogo, persona o mese. L'elenco è paginato, e ogni filtro è nell'indirizzo, quindi un elenco filtrato può essere aggiunto ai segnalibri o salvato come vista.
+Cerca per ciò che è stato conteggiato, e filtra per tipo (conteggi, controlli della scatola), posto, chi ha contato, **Aveva mancante** e data. Raggruppa per posto, persona o mese. L'elenco è paginato, e ogni filtro è nell'indirizzo, quindi un elenco filtrato può essere aggiunto ai segnalibri o salvato come vista.
 
 ## La pagina del conteggio
 
@@ -39,7 +39,7 @@ Un oggetto che è in prestito, in riparazione o nel cestino non è mai elencato 
 
 ## Non conteggiato, e "Ho controllato"
 
-Un conteggio di un luogo con luoghi al suo interno (o di una posizione intera) ha **aree**: il luogo e ogni luogo interno ad esso. Un'area dove nulla è stato letto è **Non conteggiato**: i suoi oggetti sono elencati sotto "Non conteggiato: Retro scaffale", non sotto Mancanti. Se hai guardato e l'area era davvero vuota di quegli oggetti, tocca **Ho controllato**: diventano Mancanti.
+Un conteggio di un posto con posti al suo interno (o di un intero luogo) ha **aree**: il posto e ogni posto al suo interno. Un'area dove nulla è stato letto è **Non conteggiato**: i suoi oggetti sono elencati sotto "Non conteggiato: Retro scaffale", non sotto Mancanti. Se hai guardato e l'area era davvero vuota di quegli oggetti, tocca **Ho controllato**: diventano Mancanti.
 
 ## Conteggio per quantità
 
@@ -55,7 +55,7 @@ La configurazione del conteggio indica quanti degli oggetti presenti hanno etich
 
 ## Conteggi pianificati
 
-Nella pagina di un luogo, **Conta regolarmente** pianifica un conteggio ogni 1-24 mesi. È un programma del luogo, con il promemoria abituale (una settimana prima), la scadenza e il ritardo, e il riquadro Servizio necessario. Contare quel luogo (con o senza i luoghi al suo interno) lo segna come fatto; annullare il conteggio annulla anche quello. Per conteggiare regolarmente una posizione intera, pianificalo sul suo luogo principale.
+Nella pagina di un posto, **Conta regolarmente** pianifica un conteggio ogni 1-24 mesi. È un programma del posto, con il promemoria abituale (una settimana prima), la scadenza e il ritardo, e il riquadro Tocca a te. Contare quel posto (con o senza i posti al suo interno) lo segna come fatto; annullare il conteggio annulla anche quello. Per contare regolarmente un intero luogo, pianificalo sul suo posto principale.
 
 ## Chi può fare cosa
 

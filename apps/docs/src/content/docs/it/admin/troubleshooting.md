@@ -28,7 +28,7 @@ Ogni voce è un sintomo, la sua causa e la soluzione. I comandi presuppongono Do
 | `kept: invalid environment: KEPT_PUBLIC_URL` | Imposta l'indirizzo: `docker compose run --rm init` ([installazione](/it/install/compose/#1-scrivi-env)) |
 | `KEPT_DATABASE_URL has no password, and KEPT_DB_APP_PASSWORD_FILE: … does not exist` | Il bootstrap non è stato eseguito: avvia con `docker compose up -d`, che lo esegue prima, non `docker compose up kept` da solo |
 | `KEPT_SECRET_KEY and KEPT_AUTH_SECRET are set together or not at all` | Imposta entrambe oppure non impostarne nessuna per usare la coppia generata nel volume di configurazione |
-| `<path>/secrets.json exists but …; fix or restore it` | Il file delle chiavi generate è danneggiato: rimetti le chiavi dal [kit di recupero](/it/admin/recovery-kit/) |
+| `<path>/secrets.json exists but …; fix or restore it` | Il file delle chiavi generate è danneggiato: rimetti le chiavi dal [kit di ripristino](/it/admin/recovery-kit/) |
 | `KEPT_BACKUP_DIR is inside KEPT_DATA_DIR …` | Punta il backup su un altro disco |
 | `a backup target is set, and the nightly backup dumps the database as kept_owner …` | Dai al worker `KEPT_OWNER_DATABASE_URL` ([i backup](/it/admin/backups/#come-attivarlo)) |
 | `set one backup target, not …` | Mantieni solo una tra `KEPT_BACKUP_DIR`, `KEPT_BACKUP_S3_BUCKET`, `KEPT_BACKUP_SFTP` |
@@ -96,7 +96,7 @@ docker compose exec db psql -U postgres -c "ALTER ROLE kept_app PASSWORD '<the n
 
 ## Su telefono non funzionano la fotocamera, l'installazione, i push o la posizione
 
-**Causa:** i telefoni li consentono solo su un'origine sicura; un indirizzo LAN su HTTP semplice non lo è. Su HTTP, Kept rifiuta anche di mostrare valori segreti, esportazioni, token di accesso, connessioni OAuth, lo scaricamento del kit di recupero e le impostazioni dei backup.
+**Causa:** i telefoni li consentono solo su un'origine sicura; un indirizzo LAN su HTTP semplice non lo è. Su HTTP, Kept rifiuta anche di mostrare valori segreti, esportazioni, token di accesso, connessioni OAuth, lo scaricamento del kit di ripristino e le impostazioni dei backup.
 
 **Soluzione:** [metti Kept su HTTPS](/it/install/https/) e imposta `KEPT_PUBLIC_URL` sull'indirizzo `https://`.
 
@@ -129,7 +129,7 @@ Esce con 1 su un avviso, per nome:
 | `backup_suspicious_size` | molto più piccolo dell'ultimo valido; se la riduzione è reale, `kept admin backup --accept-size` |
 | `files_unreadable` | restic non ha potuto leggere alcuni file; controlla i permessi del volume dati |
 | `blob_checksum_mismatch` | un file memorizzato non corrisponde più al suo SHA-256; controlla il disco |
-| `readable_incomplete` | la copia leggibile di una posizione è fallita; il log la nomina |
+| `readable_incomplete` | la copia leggibile di un luogo è fallita; il log la nomina |
 
 Dopo un crash, un lock restic obsoleto può bloccare ogni esecuzione: `kept admin backup unlock` lo rimuove (rifiuta mentre un backup è in esecuzione).
 
@@ -143,7 +143,7 @@ Dopo un crash, un lock restic obsoleto può bloccare ogni esecuzione: `kept admi
 
 **Causa:** sono sigillati con `KEPT_SECRET_KEY`, che non è nel backup.
 
-**Soluzione:** metti le chiavi del kit di recupero in `.env` (con `KEPT_SECRET_KEY_VERSION` e `KEPT_SECRET_KEYS_RETIRED` se le elenca) e riavvia. Se il kit elenca chiavi ritirate, esegui `kept admin rotate-key --resume` una volta che Kept è avviato. Senza la chiave quei valori sono persi per sempre.
+**Soluzione:** metti le chiavi del kit di ripristino in `.env` (con `KEPT_SECRET_KEY_VERSION` e `KEPT_SECRET_KEYS_RETIRED` se le elenca) e riavvia. Se il kit elenca chiavi ritirate, esegui `kept admin rotate-key --resume` una volta che Kept è avviato. Senza la chiave quei valori sono persi per sempre.
 
 ## `kept admin` dice che `KEPT_OWNER_DATABASE_URL … is required`
 

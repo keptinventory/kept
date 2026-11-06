@@ -16,7 +16,7 @@ Funziona su un telefono senza segnale, che è la maggior parte del giorno del tr
 
 ## Attivalo
 
-**Trasloco** fa parte del preset **Completa**. Per qualsiasi altra posizione, un proprietario o amministratore attiva
+**Trasloco** fa parte del preset **Completa**. Per qualsiasi altro luogo, un proprietario o amministratore attiva
 **Trasloco** in **Impostazioni del luogo → Cosa monitorare**. Necessita di **Etichette e codici QR**,
 che ogni preset ha. La sua voce, **Trasloco**, viene poi mostrata nella barra laterale (su un telefono, sotto
 **Altro**).
@@ -24,10 +24,10 @@ che ogni preset ha. La sua voce, **Trasloco**, viene poi mostrata nella barra la
 ## 1. Inizia un trasloco
 
 1. **Trasloco → Inizia un trasloco**.
-2. Un **nome** ("Alla nuovo appartamento"), e dove è **Destinazione**: un'altra delle tue posizioni, o
-   le stanze della stessa quando stai solo riorganizzando.
+2. Un **nome** ("Al nuovo appartamento"), e dove è **Destinazione**: un altro dei tuoi luoghi, o
+   le stanze dello stesso quando stai solo riorganizzando.
 
-Traslocare in una nuova casa? Aggiungila prima come posizione, con le sue stanze, così ogni scatolone può andare direttamente
+Traslocare in una nuova casa? Aggiungila prima come luogo, con le sue stanze, così ogni scatolone può andare direttamente
 nella sua stanza.
 
 ## 2. Imballa
@@ -84,6 +84,6 @@ può avviare un trasloco, aggiungere scatoloni, imballarli, marcarli in viaggio 
 | Avvia un trasloco, aggiungi scatoloni, imballa, marca e disimballa | | Sì | Sì |
 | Elimina un trasloco (i suoi scatoloni rimangono, come scatoloni) | | Sì | Sì |
 
-Disimballare in un'altra posizione richiede che tu possa aggiungere elementi anche lì. Ogni modifica è nella cronologia dello scatolone e nell'attività della posizione.
+Disimballare in un altro luogo richiede che tu possa aggiungere elementi anche lì. Ogni modifica è nella cronologia dello scatolone e nell'attività del luogo.
 
-Un'esportazione di Kept comprende anche i traslochi: il numero, lo stato e la stanza di destinazione di ogni scatolone, con gli scatoloni e tutto ciò che contiene come oggetti, dove si trovano. Importato, un trasloco verso un'altra posizione diventa un trasloco all'interno della nuova posizione, con le sue stanze da scegliere nuovamente (l'esportazione contiene una posizione). Uno scatolone già disimballato in un'altra posizione si trova nell'esportazione di quella posizione, invece, come un oggetto.
+Un'esportazione di Kept comprende anche i traslochi: il numero, lo stato e la stanza di destinazione di ogni scatolone, con gli scatoloni e tutto ciò che contiene come oggetti, dove si trovano. Importato, un trasloco verso un altro luogo diventa un trasloco all'interno del nuovo luogo, con le sue stanze da scegliere nuovamente (l'esportazione contiene un luogo). Uno scatolone già disimballato in un altro luogo si trova nell'esportazione di quel luogo, invece, come un oggetto.

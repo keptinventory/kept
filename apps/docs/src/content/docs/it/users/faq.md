@@ -19,7 +19,7 @@ segreti. Vedi [archiviazione dei file](/it/admin/storage/) e [l'app per telefono
 
 ## Come elimino il mio account?
 
-Impostazioni → Io → Elimina il mio account, con la tua password. Prima cedi a qualcun altro ogni
+Impostazioni → Profilo → Elimina il mio account, con la tua password. Prima cedi a qualcun altro ogni
 luogo di cui sei proprietario (eccetto quello Personale), oppure eliminalo; l'unico amministratore
 dell'istanza deve prima nominare un altro amministratore. L'account poi attende 30 giorni:
 accedendo vedi la data e un modo per tenerlo, e non si apre altro. Dopo viene eliminato insieme al
@@ -104,9 +104,9 @@ calcolo. Vedi [passare da un Homebox più vecchio](/it/users/import-export/#prov
 ## Come faccio il backup?
 
 Il server fa ogni notte uno snapshot restic cifrato del database, dei file e di una copia leggibile
-di ogni luogo, su un altro disco, un bucket S3 o un server SFTP. Tieni il kit di recupero da
+di ogni luogo, su un altro disco, un bucket S3 o un server SFTP. Tieni il kit di ripristino da
 un'altra parte. Per portare via un luogo, esportalo. Vedi [backup](/it/admin/backups/),
-[il kit di recupero](/it/admin/recovery-kit/) e [importazione ed esportazione](/it/users/import-export/#esportazione).
+[il kit di ripristino](/it/admin/recovery-kit/) e [importazione ed esportazione](/it/users/import-export/#esportazione).
 
 ## Che succede se il server si perde insieme alla casa?
 

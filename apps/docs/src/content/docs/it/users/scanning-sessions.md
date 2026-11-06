@@ -6,7 +6,7 @@ description: Conta una stanza, riempi le scatole o sposta gli oggetti camminando
 A **sessione di scansione** mantiene la fotocamera aperta mentre cammini. Ogni etichetta Kept nel campo visivo viene letta,
 diverse alla volta, e conteggiata una volta. Usala per:
 
-- **Conta** una stanza, uno scaffale, una scatola o un'intera posizione: ciò che scansioni è segnato come visto, e il
+- **Conta** una stanza, uno scaffale, una scatola o un intero luogo: ciò che scansioni è segnato come visto, e il
   riepilogo mostra cosa manca e cosa è stato trovato altrove.
 - **Riempi** le scatole: tutto ciò che scansioni va nella scatola corrente. Scansiona la prossima scatola per passare.
 - **Sposta in** un posto o una scatola: tutto ciò che scansioni si sposta lì.
@@ -20,14 +20,14 @@ da **Scansiona** una alla volta invece, tramite il suo ID corto stampato ([scans
 ## Avvia una sessione
 
 - **Scansiona → Avvia una sessione**, poi scegli cosa fare e dove.
-- Dalla pagina di un luogo: **Conta qui**.
+- Dalla pagina di un posto: **Conta qui**.
 - Dal menu di una scatola: **Conta questa scatola** o **Riempi questa scatola**.
 - Dall pagina di uno spostamento: **Riempi le scatole**.
 - Dalla scheda di una stanza sulla mappa: **Conta questa stanza**.
 
-Se non hai ancora selezionato un luogo, sceglilo dall'elenco oppure tocca **Scansiona la sua etichetta**.
+Se non hai ancora selezionato un posto, sceglilo dall'elenco oppure tocca **Scansiona la sua etichetta**.
 
-Per un conteggio di un luogo, **Includi i luoghi al suo interno** è attivato per impostazione predefinita. Attiva **Una scatola che scansioni
+Per un conteggio di un posto, **Includi i luoghi al suo interno** è attivato per impostazione predefinita. Attiva **Una scatola che scansioni
 conta ciò che c'è dentro** quando conti le scatole senza aprirle.
 
 ## Mentre scansioni
@@ -36,10 +36,10 @@ conta ciò che c'è dentro** quando conti le scatole senza aprirle.
 |---|---|---|
 | Un oggetto nell'elenco | Trovati, verde, il contatore aumenta | Aggiunto, verde |
 | La stessa etichetta nuovamente | Un ticchetto leggero, nessun conteggio | Lo stesso |
-| Un oggetto proveniente da un altro luogo qui | Ambra: **Trovati altrove**, con dove dovrebbe essere | Aggiunto |
-| Un oggetto proveniente da un'altra posizione | Ambra, con la posizione | Aggiunto se puoi modificare entrambi |
-| Un oggetto in una posizione che visualizzi solo | Grigio: **Solo visualizzazione qui** | Grigio, non aggiunto |
-| L'etichetta di un luogo | Kept suggerisce di contarla dalla sua pagina | Rifiutato: una stanza non può essere spostata |
+| Un oggetto proveniente da un altro posto qui | Ambra: **Trovati altrove**, con dove dovrebbe essere | Aggiunto |
+| Un oggetto proveniente da un altro luogo | Ambra, con il luogo | Aggiunto se puoi modificare entrambi |
+| Un oggetto in un luogo che visualizzi solo | Grigio: **Solo visualizzazione qui** | Grigio, non aggiunto |
+| L'etichetta di un posto | Kept suggerisce di contarlo dalla sua pagina | Rifiutato: una stanza non può essere spostata |
 | Un'etichetta vuota, o un codice su più oggetti | Kept per il riepilogo | Lo stesso |
 | Un codice a barre del prodotto | Corrispondente all'oggetto che lo porta | Lo stesso |
 | Un numero di serie o un tag di risorsa (Data Matrix, Code 39…) | Corrispondente all'oggetto che lo possiede, online | Lo stesso |
@@ -65,12 +65,12 @@ la riprende.
 - **Trovati**: segnato come visto, al momento in cui ogni etichetta è stata letta.
 - **Mancanti**: lasciato così com'è per impostazione predefinita. Scegli **Segna non è qui** per ciascuno, o **Segna tutti non è qui**.
 - **Nessuna etichetta**: elementi dell'elenco senza etichetta. Seleziona quelli che hai visto.
-- **Trovati altrove** e **In un'altra posizione**: lasciati così com'è, o **Sposta qui**.
+- **Trovati altrove** e **In un altro luogo**: lasciati così com'è, o **Sposta qui**.
 - **Non corrispondenti**: etichette vuote e codici che corrispondono a più elementi. Ogni etichetta vuota ha
-  **Assegna**: una nuova scatola, un oggetto esistente o un luogo esistente. Attacca le etichette vuote su scaffali e porte,
+  **Assegna**: una nuova scatola, un oggetto esistente o un posto esistente. Attacca le etichette vuote su scaffali e porte,
   scansionale tutte in una passeggiata, poi assegnale qui.
 
-Un conteggio elenca anche ciò che è prestato o in riparazione (mai mancante), e ciò che si trova in un luogo interno che
+Un conteggio elenca anche ciò che è prestato o in riparazione (mai mancante), e ciò che si trova in un posto interno che
 nessuno ha contato (**Non contato**, finché non tocchi **Ho controllato**). Un oggetto conteggiato per numero
 ha **−** e **+** sulla sua riga. Ogni risultato viene conservato: vedi [Conteggi e inventari](/it/users/counts/).
 
