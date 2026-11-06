@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { compareCatalogues, icuShape, missingLocales, shapeProblems } from './check-i18n.mjs';
+import {
+  compareCatalogues,
+  icuShape,
+  missingLocales,
+  oneLosesNumber,
+  shapeProblems,
+} from './check-i18n.mjs';
 
 const extracted = (...ids) => new Map(ids.map((id) => [id, { message: id }]));
 
@@ -83,6 +89,45 @@ describe('the languages the app ships', () => {
     ]);
     // Empty entries are the untranslated check's business, not this one's.
     expect(r.de).toEqual([]);
+  });
+});
+
+describe('a plural whose one branch is also 21, 31, 101', () => {
+  const lost =
+    '{n, plural, one {Відкрито один раз} few {Відкрито # рази} other {Відкрито # разів}}';
+  const kept =
+    '{n, plural, =1 {Відкрито один раз} one {Відкрито # раз} few {Відкрито # рази} other {Відкрито # разів}}';
+
+  it('fails when one has no # and another branch has', () => {
+    expect(oneLosesNumber(lost)).toBe(true);
+    expect(oneLosesNumber('{n, plural, one {з 1 локацією} other {з # локаціями}}')).toBe(true);
+  });
+
+  it('passes =1 with # in one, and a plural with no # at all', () => {
+    expect(oneLosesNumber(kept)).toBe(false);
+    expect(oneLosesNumber('{n, plural, one {подія} few {події} many {подій} other {події}}')).toBe(
+      false,
+    );
+    expect(oneLosesNumber('Без числа')).toBe(false);
+  });
+
+  it('reads branches past a placeholder inside one', () => {
+    expect(oneLosesNumber('{n, plural, one {Позичено {who}} other {Позичено {who}: #}}')).toBe(
+      true,
+    );
+  });
+
+  it('only counts against the languages it applies to', () => {
+    const source = '{n, plural, one {Opened once} other {Opened # times}}';
+    const r = shapeProblems(new Map([['k', { message: source }]]), {
+      en: {},
+      fr: { k: '{n, plural, one {Ouvert une fois} other {Ouvert # fois}}' },
+      uk: { k: lost },
+    });
+    expect(r.fr).toEqual([]);
+    expect(r.uk).toEqual([{ id: 'k', why: expect.stringContaining('=1') }]);
+    const fixed = shapeProblems(new Map([['k', { message: source }]]), { uk: { k: kept } });
+    expect(fixed.uk).toEqual([]);
   });
 });
 

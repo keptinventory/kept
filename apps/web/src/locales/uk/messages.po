@@ -123,7 +123,7 @@ msgstr "{0, plural, =0 {немає полів} one {# поле} few {# поля}
 #. placeholder {0}: l.views
 #: src/components/sharelinks/list.tsx
 msgid "{0, plural, =0 {Not opened yet} one {Opened once} other {Opened # times}}"
-msgstr "{0, plural, =0 {Ще не відкривали} one {Відкрито один раз} few {Відкрито # рази} many {Відкрито # разів} other {Відкрито # рази}}"
+msgstr "{0, plural, =0 {Ще не відкривали} =1 {Відкрито один раз} one {Відкрито # раз} few {Відкрито # рази} many {Відкрито # разів} other {Відкрито # рази}}"
 
 #. placeholder {0}: a.callsPerAction
 #: src/components/ai/what-uses-ai.tsx
@@ -463,7 +463,7 @@ msgstr "{0, plural, one {# рік} few {# роки} many {# років} other {#
 #. placeholder {0}: m.months
 #: src/components/fuel/fuel-summary.tsx
 msgid "{0, plural, one {a month, over the last month} other {a month, over the last # months}}"
-msgstr "{0, plural, one {місяць, за останній місяць} few {місяць, за останні # місяці} many {місяць, за останні # місяців} other {місяць, за останні # місяці}}"
+msgstr "{0, plural, =1 {місяць, за останній місяць} one {місяць, за останній # місяць} few {місяць, за останні # місяці} many {місяць, за останні # місяців} other {місяць, за останні # місяці}}"
 
 #. placeholder {0}: proposed.length
 #: src/components/inbox/room-review.tsx
@@ -535,7 +535,7 @@ msgstr "{0, plural, one {подія в історії} few {події в іст
 #. placeholder {0}: s.everyMonths
 #: src/components/schedules/labels.tsx
 msgid "{0, plural, one {Every month} other {Every # months}}"
-msgstr "{0, plural, one {Щомісяця} few {Кожні # місяці} many {Кожні # місяців} other {Кожні # місяці}}"
+msgstr "{0, plural, =1 {Щомісяця} one {Кожні # місяць} few {Кожні # місяці} many {Кожні # місяців} other {Кожні # місяці}}"
 
 #. placeholder {0}: n('files')
 #: src/components/import/kept-choices.tsx
@@ -691,7 +691,7 @@ msgstr "{0, plural, one {Повернути # річ, позначену як п
 #. placeholder {0}: alert.count
 #: src/routes/_app/admin.alerts.tsx
 msgid "{0, plural, one {raised once} other {raised # times}}"
-msgstr "{0, plural, one {виникло один раз} few {виникло # рази} many {виникло # разів} other {виникло # рази}}"
+msgstr "{0, plural, =1 {виникло один раз} one {виникло # раз} few {виникло # рази} many {виникло # разів} other {виникло # рази}}"
 
 #. placeholder {0}: estimate.ageDays
 #: src/components/vehicles/words.tsx
@@ -743,7 +743,7 @@ msgstr "{0, plural, one {сервісне обслуговування для д
 #: src/components/templates/place-template-list.tsx
 #: src/components/templates/template-list.tsx
 msgid "{0, plural, one {Shared with 1 location} other {Shared with # locations}}"
-msgstr "{0, plural, one {Відкрито для спільного доступу з 1 локацією} few {Відкрито для спільного доступу з # локаціями} many {Відкрито для спільного доступу з # локацій} other {Відкрито для спільного доступу з # локаціями}}"
+msgstr "{0, plural, =1 {Відкрито для спільного доступу з 1 локацією} one {Відкрито для спільного доступу з # локацією} few {Відкрито для спільного доступу з # локаціями} many {Відкрито для спільного доступу з # локацій} other {Відкрито для спільного доступу з # локаціями}}"
 
 #. placeholder {0}: counts.everyone
 #: src/components/inbox/inbox-list.tsx
@@ -758,17 +758,17 @@ msgstr "{0, plural, one {тег у ньому} few {теги в ньому} many
 #. placeholder {0}: u.consumption.fills
 #: src/components/fuel/fuel-summary.tsx
 msgid "{0, plural, one {the last full fill} other {the last # full fills}}"
-msgstr "{0, plural, one {останнє повне заповнення} few {останні # повні заповнення} many {останні # повних заповнень} other {останні # повні заповнення}}"
+msgstr "{0, plural, =1 {останнє повне заповнення} one {останнє # повне заповнення} few {останні # повні заповнення} many {останні # повних заповнень} other {останні # повні заповнення}}"
 
 #. placeholder {0}: inUse.length
 #: src/components/incidents/incident-screen.tsx
 msgid "{0, plural, one {The thing still in use ends on the day of the incident. It leaves your counts and totals, and stays in the history.} other {The # things still in use end on the day of the incident. They leave your counts and totals, and stay in the history.}}"
-msgstr "{0, plural, one {Річ, яку все ще використовують, завершується в день інциденту. Вона зникає з ваших підрахунків і підсумків і залишається в історії.} few {# речі, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.} many {# речей, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.} other {# речі, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.}}"
+msgstr "{0, plural, =1 {Річ, яку все ще використовують, завершується в день інциденту. Вона зникає з ваших підрахунків і підсумків і залишається в історії.} one {# річ, яку все ще використовують, завершується в день інциденту. Вона зникає з ваших підрахунків і підсумків і залишається в історії.} few {# речі, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.} many {# речей, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.} other {# речі, які все ще використовують, завершуються в день інциденту. Вони зникають з ваших підрахунків і підсумків і залишаються в історії.}}"
 
 #. placeholder {0}: thingIds.length
 #: src/components/incidents/incident-sheet.tsx
 msgid "{0, plural, one {The thing you chose leaves your counts and totals, and stays in the history.} other {The # things you chose leave your counts and totals, and stay in the history.}}"
-msgstr "{0, plural, one {Річ, яку ви обрали, зникає з ваших підрахунків і підсумків і залишається в історії.} few {# речі, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.} many {# речей, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.} other {# речі, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.}}"
+msgstr "{0, plural, =1 {Річ, яку ви обрали, зникає з ваших підрахунків і підсумків і залишається в історії.} one {# річ, яку ви обрали, зникає з ваших підрахунків і підсумків і залишається в історії.} few {# речі, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.} many {# речей, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.} other {# речі, які ви обрали, зникають з ваших підрахунків і підсумків і залишаються в історії.}}"
 
 #. placeholder {0}: ids.length
 #: src/components/hints/tour-keep.tsx
@@ -1380,7 +1380,7 @@ msgstr "{count, plural, one {Підтвердити #} few {Підтвердит
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Lent {name} to {person}} other {Lent {name} to {person}, # things}}"
-msgstr "{count, plural, one {Позичено {name} для {person}} few {Позичено {name} для {person}, # речей} many {Позичено {name} для {person}, # речей} other {Позичено {name} для {person}, # речей}}"
+msgstr "{count, plural, =1 {Позичено {name} для {person}} one {Позичено {name} для {person}, # річ} few {Позичено {name} для {person}, # речі} many {Позичено {name} для {person}, # речей} other {Позичено {name} для {person}, # речей}}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Made # blank label} other {Made # blank labels}}"
@@ -1432,7 +1432,7 @@ msgstr "{count, plural, one {Теги # речі} few {Теги # речей} ma
 
 #: src/components/money/value-section.tsx
 msgid "{count, plural, one {the only valuation} other {latest of # valuations}}"
-msgstr "{count, plural, one {єдина оцінка} few {остання з # оцінок} other {остання з # оцінок}}"
+msgstr "{count, plural, =1 {єдина оцінка} one {остання з # оцінки} few {остання з # оцінок} other {остання з # оцінок}}"
 
 #: src/components/places/sub-places.tsx
 msgid "{count, plural, one {Turn # place into a box} other {Turn # places into boxes}}"
@@ -1681,7 +1681,7 @@ msgstr "{lead, plural, one {Нагадує за # день} few {Нагадує 
 
 #: src/map/put-on.tsx
 msgid "{left, plural, one {Room for one more.} other {Room for # more.}}"
-msgstr "{left, plural, one {Місце ще для одного.} few {Місце ще для #.} many {Місце ще для #.} other {Місце ще для #.}}"
+msgstr "{left, plural, =1 {Місце ще для одного.} one {Місце ще для #.} few {Місце ще для #.} many {Місце ще для #.} other {Місце ще для #.}}"
 
 #: src/components/device/app-lock-settings.tsx
 #: src/components/device/lock-screen.tsx
@@ -1704,7 +1704,7 @@ msgstr "Залишилося {left}, тримайте щонайменше {min}
 #. placeholder {1}: isolate(r.loan.person.name)
 #: src/components/lending/lend-sheet.tsx
 msgid "{lines, plural, one {Lent to {0}} other {Lent to {1}: # things}}"
-msgstr "{lines, plural, one {Позичено {0}} few {Позичено {1}: # речі} many {Позичено {1}: # речей} other {Позичено {1}: # речі}}"
+msgstr "{lines, plural, =1 {Позичено {0}} one {Позичено {1}: # річ} few {Позичено {1}: # речі} many {Позичено {1}: # речей} other {Позичено {1}: # речі}}"
 
 #: src/components/inbox/receipt-review.tsx
 msgid "{links, plural, one {Accept the receipt and # link} other {Accept the receipt and # links}}"
@@ -1724,7 +1724,7 @@ msgstr "{max, plural, one {Щонайбільше # назва. Видаліть
 
 #: src/map/put-on.tsx
 msgid "{max, plural, one {Full: it holds one monitor.} other {Full: it holds # monitors.}}"
-msgstr "{max, plural, one {Повно: він тримає один монітор.} few {Повно: він тримає # монітори.} many {Повно: він тримає # моніторів.} other {Повно: він тримає # монітори.}}"
+msgstr "{max, plural, =1 {Повно: він тримає один монітор.} one {Повно: він тримає # монітор.} few {Повно: він тримає # монітори.} many {Повно: він тримає # моніторів.} other {Повно: він тримає # монітори.}}"
 
 #: src/components/admin/embeddings-source.tsx
 msgid "{mb} MB"
@@ -1756,7 +1756,7 @@ msgstr "{months, plural, one {# місяць} few {# місяці} many {# мі�
 
 #: src/components/counts/count-regularly.tsx
 msgid "{months, plural, one {Counted every month} other {Counted every # months}}"
-msgstr "{months, plural, one {Підрахунок щомісяця} few {Підрахунок кожні # місяці} many {Підрахунок кожні # місяців} other {Підрахунок кожні # місяці}}"
+msgstr "{months, plural, =1 {Підрахунок щомісяця} one {Підрахунок кожні # місяць} few {Підрахунок кожні # місяці} many {Підрахунок кожні # місяців} other {Підрахунок кожні # місяці}}"
 
 #: src/components/schedules/labels.tsx
 msgid "{months, plural, one {Every {every} or # month} other {Every {every} or # months}}"
@@ -1872,7 +1872,7 @@ msgstr "{n, plural, one {Покласти # на нього} few {Покласт
 
 #: src/components/scan/scan-screen.tsx
 msgid "{n, plural, one {Put the thing you're carrying here?} other {Put the # things you're carrying here?}}"
-msgstr "{n, plural, one {Покласти річ, яку ви несете, сюди?} few {Покласти # речі, які ви несете, сюди?} many {Покласти # речей, яких ви несете, сюди?} other {Покласти # речі, які ви несете, сюди?}}"
+msgstr "{n, plural, =1 {Покласти річ, яку ви несете, сюди?} one {Покласти # річ, яку ви несете, сюди?} few {Покласти # речі, які ви несете, сюди?} many {Покласти # речей, яких ви несете, сюди?} other {Покласти # речі, які ви несете, сюди?}}"
 
 #: src/components/capture/room-tray.tsx
 msgid "{n, plural, one {Send # photo} other {Send # photos}}"
