@@ -97,7 +97,37 @@ describe('fields from headers', () => {
     ['Mã', 'legacy_code'],
     ['Mã của tôi', 'own_code'],
     ['so luong', 'quantity'], // typed without its marks
+    ['Nº de serie', 'serial'],
+    ['N° de série', 'serial'],
+    ['Серійний №', 'serial'],
+    ['Дата придбання', 'purchased_on'],
+    ['Mô hình', 'model'],
+    ['Produit', 'name'],
+    ['Libellé', 'name'],
+    ['Intitulé', 'name'],
+    ['Artículo', 'name'],
+    ['Producto', 'name'],
   ])('reads %s as %s', (header, field) => {
+    expect(fieldFromHeader(header)).toBe(field);
+  });
+
+  it.each(['The', 'Ten', 'TEN', 'Hang', 'MA', 'Ma', 'Hàng', 'Tèn'])(
+    "doesn't take %s for a Vietnamese word it only looks like without its marks",
+    (header) => {
+      expect(fieldFromHeader(header)).toBeNull();
+    },
+  );
+
+  it.each([
+    ['Thẻ', 'tags'],
+    ['THẺ', 'tags'],
+    ['Thẻ'.normalize('NFD'), 'tags'],
+    ['Tên', 'name'],
+    ['Tên (máy)', 'name'],
+    ['Hãng', 'brand'],
+    ['Mã', 'legacy_code'],
+    ['Mã:', 'legacy_code'],
+  ])('still reads %s with its marks', (header, field) => {
     expect(fieldFromHeader(header)).toBe(field);
   });
 
@@ -112,6 +142,30 @@ describe('fields from headers', () => {
       Nombre: 'quantity',
       Prix: 'price',
     });
+    expect(suggestMapping(['Produit', 'Nombre', 'Prix'])).toEqual({
+      Produit: 'name',
+      Nombre: 'quantity',
+      Prix: 'price',
+    });
+    expect(suggestMapping(['Libellé', 'Nombre'])).toEqual({ Libellé: 'name', Nombre: 'quantity' });
+  });
+
+  it('takes Nombre as the name once another column says how many', () => {
+    expect(suggestMapping(['Nombre', 'Artículo', 'Cantidad'])).toEqual({
+      Nombre: 'name',
+      Artículo: 'ignore',
+      Cantidad: 'quantity',
+    });
+    expect(suggestMapping(['Nom', 'Nombre', 'Quantité'])).toEqual({
+      Nom: 'name',
+      Nombre: 'ignore',
+      Quantité: 'quantity',
+    });
+  });
+
+  it('takes Nombre alone as the name', () => {
+    expect(suggestMapping(['Nombre', 'Precio'])).toEqual({ Nombre: 'name', Precio: 'price' });
+    expect(suggestMapping(['Nombre'])).toEqual({ Nombre: 'name' });
   });
 
   it("looks past a Homebox export's HB. prefix", () => {

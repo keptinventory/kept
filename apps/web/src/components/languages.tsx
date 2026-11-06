@@ -111,7 +111,7 @@ export function LanguageSelect({
   label: string;
   value: Locale;
   /** A promise says the change is still happening; it mustn't reject (say what went wrong here). */
-  onChange: (locale: Locale) => void | Promise<unknown>;
+  onChange: (locale: Locale) => unknown;
   /** No visible label and a small box (the sign-in header); the label stays accessible. */
   compact?: boolean;
   className?: string;
