@@ -184,14 +184,19 @@ const PLACEHOLDER =
  * word in one of Kept's languages; "no warranty" in any of them, and text that talks about
  * the model or its instructions, are not terms.
  */
-const WARRANTY_WORD = /warrant|guarant|ضمان|garant[ií]|gewährleist|garanzi|гаранті|bảo hành/i;
+const WARRANTY_WORD = /warrant|guarant|ضمان|garanti|gewahrleist|garanzi|гаранті|bao hanh/;
 const WARRANTY_NONE =
-  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewährleistung)|senza garanzia|sin garantía|без гарантії|không (?:có )?bảo hành)[.!]?$/i;
+  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewahrleistung)|senza garanzia|sin garantia|no hay garantia|без гарантіі|немає гарантіі|khong (?:co )?bao hanh)[.!]?$/;
 const PROMPT_ECHO = /\b(?:the model|instructions?|this field|leave it out|json)\b/i;
+
+/** Lower case with the marks off, so terms read the same in capitals, typed without accents, or in
+ * decomposed text: the two word patterns above are written this way. */
+const foldTerms = (text: string) => text.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase();
 
 export function notWarrantyTerms(text: string): boolean {
   const t = text.trim();
-  return !WARRANTY_WORD.test(t) || WARRANTY_NONE.test(t) || PROMPT_ECHO.test(t);
+  const folded = foldTerms(t);
+  return !WARRANTY_WORD.test(folded) || WARRANTY_NONE.test(folded) || PROMPT_ECHO.test(t);
 }
 
 /** A VIN (ISO 3779): 17 characters, digits and capitals without I, O and Q. */

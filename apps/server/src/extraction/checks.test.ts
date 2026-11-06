@@ -215,6 +215,12 @@ describe('placeholders and VIN formats seen in real runs', () => {
       'No warranty printed',
       'بدون ضمان',
       'Sin garantía',
+      'Sin garantia',
+      'SIN GARANTÍA',
+      'No hay garantía',
+      'No hay garantia.',
+      'Немає гарантії',
+      'KHONG BAO HANH',
       'Без гарантії',
       'Không bảo hành',
     ]) {
@@ -224,6 +230,12 @@ describe('placeholders and VIN formats seen in real runs', () => {
     }
     for (const text of [
       'Tools carry a 1-year limited warranty.',
+      'BAO HANH 12 THANG',
+      'Bảo hành 12 tháng'.normalize('NFD'),
+      'Bảo hành 12 tháng',
+      'Garantía de 2 años'.normalize('NFD'),
+      'Gewährleistung 2 Jahre',
+      'Гарантія 12 місяців',
       'ضمان سنة ضد عيوب الصناعة',
       'Garantie 2 ans',
       'Garantía de 2 años',
