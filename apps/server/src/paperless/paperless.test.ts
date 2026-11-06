@@ -315,6 +315,19 @@ describe('the Paperless client', () => {
     expect(kindOf('Policy', ['home'])).toBe('document');
     expect(kindOf('Factura', [])).toBe('invoice');
     expect(kindOf('Garantía del taladro', [])).toBe('warranty_doc');
+    expect(kindOf('Гарантійний талон', [])).toBe('warranty_doc');
+    expect(kindOf('Instrucciones', [])).toBe('manual');
+    // Words that hold a kind's word and mean something else.
+    expect(kindOf('Tickets', [])).toBe('document');
+    expect(kindOf('Concert tickets', [])).toBe('document');
+    expect(kindOf('чек-лист', [])).toBe('document');
+    expect(kindOf('Comprobante de domicilio', [])).toBe('document');
+    expect(kindOf('Банківський рахунок', [])).toBe('document');
+    // The kinds beside them still read.
+    expect(kindOf('Ticket', [])).toBe('receipt');
+    expect(kindOf('Чек', [])).toBe('receipt');
+    expect(kindOf('Comprobante', [])).toBe('receipt');
+    expect(kindOf('Рахунок', [])).toBe('invoice');
     expect(kindOf(null, ['recibos'])).toBe('receipt');
     expect(kindOf('Manuales', [])).toBe('manual');
     expect(kindOf('Гарантія', [])).toBe('warranty_doc');
