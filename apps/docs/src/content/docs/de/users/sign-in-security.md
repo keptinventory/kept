@@ -39,7 +39,7 @@ Adresse: Bei einem Kept mit [mehr als einer](/de/install/home-network/#mehr-als-
 | **Entfernen** | Er meldet dich nicht mehr an. Lösche ihn auch auf dem Gerät, wenn du ihn dort nicht mehr willst. |
 
 Jeder Passkey, den Kept hinzufügt, prüft, dass du es bist (Face ID, Fingerabdruck oder PIN), deshalb zählt eine Anmeldung mit Passkey
-als Zwei-Faktor für sich, auch an Orten, die danach fragen.
+als Zwei-Faktor für sich allein, auch in Standorten, die danach fragen.
 
 ## Die Authenticator-App
 
@@ -63,7 +63,7 @@ Das lehnt der Server ab, egal was der Bildschirm zeigt:
   kann nicht getrennt werden, wenn sonst nichts dich anmelden würde: ein Passwort, ein anderer Passkey, Google oder
   die OIDC-Anmeldung (solange dieses Kept sie noch anbietet) oder ein E-Mail-Link (wenn dieses Kept E-Mail sendet
   und deine Adresse bestätigt ist).
-- **Zwei-Faktor dort ausschalten, wo ein Ort ihn braucht.** Während ein Ort, dem du angehörst, Zwei-Faktor verlangt und du keinen Passkey hast, bleibt die Authenticator-App eingeschaltet. Füge zuerst einen Passkey hinzu. Genauso bleibt dein letzter Passkey, solange sich ein solcher Ort darauf verlässt und die App ausgeschaltet ist.
+- **Zwei-Faktor dort ausschalten, wo ein Standort ihn braucht.** Während ein Standort, dem du angehörst, Zwei-Faktor verlangt und du keinen Passkey hast, bleibt die Authenticator-App eingeschaltet. Füge zuerst einen Passkey hinzu. Genauso bleibt dein letzter Passkey, solange sich ein solcher Standort darauf verlässt und die App ausgeschaltet ist.
 - **Einen Passkey oder die App hinzufügen, bevor deine Adresse bestätigt ist**, wenn dieses Kept E-Mails sendet.
   Melde dich einmal mit einem Link an, der an die Adresse gesendet wird, und versuche es dann noch einmal.
 
@@ -71,4 +71,4 @@ Das lehnt der Server ab, egal was der Bildschirm zeigt:
 
 **Einstellungen → Dieses Gerät → Mit Face ID oder Fingerabdruck entsperren** entsperrt Kept auf genau diesem Gerät,
 nachdem du bereits angemeldet bist ([die App-Sperre](/de/users/phone-app/#die-app-sperre)). Sie kann dich nicht anmelden.
-Wenn der Browser sie bei der Anmeldung anbietet und Kept mit *Dieser Passkey gehört nicht zu den Anmeldungen dieses Kontos* antwortet, melde dich auf anderem Weg an und füge dann hier einen echten Passkey hinzu.
+Wenn der Browser sie bei der Anmeldung anbietet und Kept mit *Mit diesem Passkey meldet sich dieses Konto nicht an* antwortet, melde dich auf anderem Weg an und füge dann hier einen echten Passkey hinzu.
