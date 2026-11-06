@@ -84,6 +84,17 @@ describe('the sidebar groups', () => {
     expect(used.length).toBeGreaterThanOrEqual(6);
   });
 
+  it('name the API reference, the group starlight-openapi writes, in every language', () => {
+    expect(config).toContain("sidebar: { label: 'API reference' }");
+    expect(readFileSync(new URL('./route-data.ts', import.meta.url), 'utf8')).toContain(
+      "API_GROUP = 'API reference'",
+    );
+    const names = (sidebarLabels as Record<string, Record<string, string>>)['API reference'];
+    for (const lang of LANGS.filter((l) => l !== 'en')) {
+      expect(names?.[lang], lang).toMatch(/\S/);
+    }
+  });
+
   it('have a name in every language', () => {
     for (const label of used) {
       const names = (sidebarLabels as Record<string, Record<string, string>>)[label];
