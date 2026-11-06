@@ -1,0 +1,374 @@
+---
+title: "La mappa del luogo"
+description: "Vedi un luogo come una mappa 3D dei suoi piani e stanze, trova dove sono gli oggetti e sistema tu stesso stanze, scaffali e scatole."
+---
+
+import Clip from '../../../../components/Clip.astro';
+import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
+import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
+import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
+
+La pagina di un luogo ha cinque layout: **Elenco**, **Griglia**, [**Grafo**](/it/users/graph/), **Tabella** e
+**Mappa**. La mappa disegna il luogo in 3D: ogni piano, le sue stanze, e gli scaffali, armadi e
+scatole al loro interno. Tocca qualsiasi cosa per vedere cos'è, dov'è e cosa c'è dentro. Elenco resta
+il predefinito; Kept ricorda la tua scelta per ogni luogo su ogni dispositivo. In Mappa, la mappa guida e
+riempie lo schermo; i pulsanti del luogo (Stampa inventario, Stampa etichette e gli altri), **Aggiungi qui** e **Senza posto** la seguono.
+
+La pagina di un piano o di una stanza ha **Mappa** anche lei: la stessa mappa, aperta su quel posto. Un piano si apre
+su quel piano, una stanza si apre dentro di essa con la sua scheda, e uno scaffale o armadio è selezionato nella sua stanza.
+Un posto che la mappa non disegna si apre sulla sua stanza con una nota. Kept ricorda la scelta per ogni posto.
+
+Per vederla prima di installare qualcosa, [prova la mappa](/it/try/map/) con una casa di esempio nel tuo browser.
+
+![Una casa sulla sua mappa: stanze con i loro piani e pareti, un mobile TV selezionato con la sua scheda che mostra All’interno · 5 e Dettagli, l'interruttore Elenco · Griglia · Mappa in alto](../../../../assets/screens/map-desktop-light.webp)
+
+![La stessa casa sulla mappa nel tema scuro](../../../../assets/screens/map-desktop-dark.webp)
+
+La mappa ha bisogno di una connessione: non fa parte della copia offline del telefono. Si carica solo quando la apri,
+così il resto di Kept resta veloce come prima.
+
+## Cosa c'è sulla mappa
+
+| Sulla mappa | Da dove viene |
+|---|---|
+| **Piani** | Posti del tipo **Piano** in cima al luogo. Senza nessuno, il luogo è un solo livello. |
+| **Stanze** | Ogni posto direttamente su un piano (o in cima, quando non ci sono piani), qualunque sia il suo tipo. |
+| **Scaffali, armadi, aree** | I posti direttamente in una stanza. |
+| **Scatole e altri contenitori** | I contenitori direttamente in una stanza. |
+| **Qualsiasi altra cosa** | Un oggetto che metti sulla mappa tu stesso, come la TV o l'auto. |
+
+I nomi non si sovrappongono né vengono tagliati: quando due si toccherebbero, il nome della stanza resta e cosa c'è in uno
+scaffale o scatola appare solo quando zoommi abbastanza. L'oggetto che hai selezionato mantiene sempre il suo nome.
+
+Tutto il resto è contato: uno scaffale dice quanti oggetti ci sono sopra, e la sua scheda li elenca.
+Nessuno deve sistemare nulla prima. Le stanze che nessuno ha sistemato sono disposte affiancate nell'ordine
+dell'elenco dei posti, e cosa sta in loro a righe; **Sistema** le sposta dove sono davvero. Una stanza chiamata
+"Giardino", "Balcone" o "Terrazza" è disegnata come una sola.
+
+I segnalini mostrano cosa serve guardare: **Scorte basse** (Consumabili), **Prestati** (Prestiti) e **In scadenza**
+(scadenze, garanzie e documenti). Un segnalino sta sullo scaffale o scatola che contiene l'oggetto.
+I chip in alto attivano o disattivano ogni tipo.
+
+## Muoversi
+
+| | Col mouse | Sul telefono |
+|---|---|---|
+| Sposta | Trascina | Trascina con un dito |
+| Zoom | Rotella, o **+** e **−** | Pinza, o **+** e **−** |
+| Ruota | I pulsanti di rotazione | Ruota con due dita, o il pulsante di rotazione |
+| Apri una stanza | Doppio clic, o **Apri** sulla sua scheda | Doppio tap, o **Apri** |
+| Indietro | Il nome del luogo o il piano in alto, o il pulsante casa | Lo stesso |
+
+I pulsanti dei piani funzionano come un ascensore: **T**, **1**, **P** e così via, ognuno col nome del suo piano, e
+**Tutti** impila ogni piano. Sul telefono stanno in una riga in basso con i pulsanti di zoom e rotazione,
+e si spostano mentre una scheda è aperta. **Pianta** guarda dritto dall'alto, con i nomi e cosa c'è in ogni scaffale. Le scale sulla mappa ti portano al piano sopra o sotto.
+
+Una stanza si apre fronteggiando il davanti dei suoi schermi (un monitor, una TV, un laptop), così li vedi, non le loro
+spalle. Ruotala in un altro modo e si aprirà così la prossima volta su questo dispositivo.
+Una parete che starebbe tra te e una stanza scende a un cordolo basso mentre la guardi da quel lato, e risale quando
+torni indietro; cosa ci pende va e torna con essa. Pianta tiene ogni parete.
+
+![Pianta: la stessa casa vista dall'alto, ogni stanza nominata](../../../../assets/screens/map-plan-light.webp)
+
+![La mappa sul telefono: l'interruttore Elenco · Griglia · Mappa, i pulsanti 3D e Pianta, e la scheda di un oggetto selezionato in basso](../../../../assets/screens/map-phone-light.webp)
+
+## La scheda
+
+Toccare qualcosa apre una scheda breve: il suo nome, dov'è, il suo ID breve (come nastro ambrato quando ha un'etichetta
+stampata) e cosa è in scadenza.
+**Dettagli** aggiunge la sua foto, la sua etichetta (lo stesso QR code che porta un'etichetta stampata), i suoi fatti e
+**Apri l’oggetto** o **Apri il posto**. **All’interno di** elenca cosa c'è dentro; toccane uno per vederlo. Col mouse,
+passarci sopra mostra il nome, e l'ID breve di un oggetto etichettato, senza cliccare.
+
+Dov'è si legge dalla stanza in: "Open space › Scrivania 3" per un laptop tenuto in Scrivania 3 e appoggiato su di essa.
+Su una finestra stretta o un telefono i dettagli scorrono dentro la scheda, e **Apri** resta sul bordo basso della scheda.
+
+I **mobili con scomparti** ([uno scaffale a cubi, una libreria, una cassettiera](/it/users/locations/#mobili-con-vani))
+mostrano i loro scomparti: delineati sul davanti mentre sono selezionati, e come una griglia di numeri sulla loro scheda.
+Tocca uno scomparto sulla mappa o sulla scheda per aprire la sua scheda: cosa c'è dentro, la sua etichetta e **Apri il posto**.
+
+## Cosa c'è nel luogo
+
+Sotto la mappa, **Cosa c'è in** elenca ogni stanza con cosa sta e giace in essa. Cerca per nome o ID breve, scegli un piano,
+o passa a **Da guardare** per tutto ciò che è basso, prestato o in scadenza. Un tap lo mostra sulla mappa. La ricerca,
+il piano e la vista sono nell'indirizzo, così puoi condividerli o segnarli.
+
+Per screen reader e tastiere, **Posti su questo piano** elenca le stanze del piano e cosa sta in loro, accanto alla mappa.
+
+## Sistemare
+
+Proprietari, admin e membri possono sistemare un luogo; chi solo vede lo vede come sistemato. **Sistema** inizia:
+
+- **Sposta**: trascina qualsiasi cosa. Oggetti piccoli (un laptop, una lampada, una scatola) possono stare su un bancone, scrivania,
+  scaffale o scatola, e si muovono con essa; una webcam si aggancia al bordo superiore di un monitor. Trascina un oggetto in
+  un'altra stanza per spostarlo lì in Kept pure. Gli oggetti piccoli si muovono di un centimetro alla volta, gli altri di 5 cm e i mobili
+  di 10 cm; su una scrivania o scaffale si allineano ai suoi bordi. Su un computer, tieni **Alt** (**Option** su Mac) per
+  trascinare liberamente.
+- **Sposta una stanza** con tutto dentro: mobili, scaffali, scatole e cosa sta sopra. Col mouse, seleziona la stanza, poi
+  trascinala. Sul telefono, tieni il suo piano un momento, poi trascina; uno swipe veloce muove ancora la vista. Con una stanza
+  selezionata, ogni freccia la sposta di un metro nella direzione verso cui è girata la vista, e **Shift** con una freccia 10 cm;
+  uno screen reader sente dove è andata ("Spostata Camera da letto a sinistra."). Trascina l'**angolo ambrato** di una stanza per
+  ridimensionarla. Le stanze si spostano, ridimensionano e sono disegnate 10 cm alla volta, almeno 50 cm per lato, e restano sul
+  loro piano; una che sovrapporrebbe un'altra scivola lungo di essa invece ("Le stanze non possono sovrapporsi.").
+- **Disegna una stanza** su terra vuota. Diventa subito un nuovo posto su quel piano.
+- **Da una pianta** legge le stanze di una pianta (sotto).
+- **Aggiungi un piano** aggiunge un posto del tipo Piano, con una stanza dentro.
+- Seleziona una stanza per impostarne il **tipo** (stanza, balcone, terrazza, giardino), il suo **pavimento** (legno, piastrelle,
+  cemento, deck, erba) e la sua **Larghezza** e **Lunghezza**, o per **mettere un oggetto di quella stanza sulla mappa**. Vedi
+  [La vera misura di una stanza](#la-vera-misura-di-una-stanza).
+- Seleziona un oggetto per **ruotarlo**, cambiare la sua **forma** (vedi sotto), **metterlo su** una scrivania, scaffale o
+  monitor, **aggiungere oggetti sopra**, impostare quanto alto pende su una parete (**Altezza**), o **toglierlo dalla mappa**
+  (solo ciò che ci hai messo tu).
+
+**Fatto** salva tutta la sistemazione insieme, e il toast che segue offre **Annulla**.
+**Annulla** rimette la mappa com'era; se qualcosa è cambiato, chiede prima (**Butta via queste modifiche?**). Stanze e piani
+che hai aggiunto restano in Kept in ogni caso. Se qualcun altro ha sistemato lo stesso luogo mentre tu lo facevi, Kept lo dice
+e mostra la sua, invece di sovrascriverla. Sul telefono, la scheda di una stanza o oggetto selezionati sta sotto gli strumenti
+di Sistema, così **Fatto** e **Annulla** restano a portata mentre è aperta.
+
+![Sistemare: Sposta, Disegna una stanza, Aggiungi un piano e Annulla sopra la mappa, l'angolo ambrato di ogni stanza per ridimensionare, e Fatto nella barra in alto](../../../../assets/screens/map-arrange-light.webp)
+
+La sistemazione viaggia in un export Kept, così spostarsi su un altro server tiene la mappa. Un import Homebox parte dal
+layout automatico.
+
+### La vera misura di una stanza
+
+Una stanza può avere la sua vera misura, al centimetro: un balcone stretto di 0,80 × 3,58 m, un corridoio di
+1,15 × 6,40 m.
+
+- **Quando la aggiungi:** **Aggiungi qui → Stanza o punto**, in cima a un luogo o su un piano, ha
+  **Misure sulla mappa**: **Larghezza** e **Lunghezza** in metri. Lascia entrambi vuoti e la mappa misura la stanza da sola.
+  Con una misura, la stanza va sulla mappa a quella misura, a destra delle stanze già sistemate sul suo piano, e l'**Annulla**
+  del toast riporta indietro la stanza e il suo posto sulla mappa insieme.
+- **Mentre sistemi:** seleziona la stanza e scrivi la sua **Larghezza** e **Lunghezza**, o passale un centimetro alla volta
+  con **−**, **+** o le frecce. L'angolo della stanza resta dov'è, e cosa sta dentro resta dentro.
+- **Larghezza** va da sinistra a destra nella vista pianta, **Lunghezza** da sopra a sotto. Va bene sia il punto che la virgola
+  in qualsiasi lingua: 0,80 o 0.80.
+- Una stanza è **almeno 50 cm** e al massimo 100 m per lato. Una misura che non può prendere, o che urterebbe un'altra stanza,
+  resta nel campo e dice perché; la stanza tiene la sua.
+- La scheda della stanza dice la sua misura (**0,8 × 3,58 m**), e la vista pianta la scrive sotto il nome della stanza.
+- **App AI e l'assistente** aggiungono una stanza con la sua misura nello stesso modo: `create_place` prende
+  `width_cm` e `length_cm` ([App AI](/it/users/mcp-clients/)).
+
+Trascinare l'angolo ambrato va ancora 10 cm alla volta; una misura che hai scritto resta com'è finché non trascini l'angolo
+più in là.
+
+## Metti oggetti sulla mappa
+
+Scaffali, armadi, aree e scatole che stanno direttamente in una stanza sono sulla mappa già. Qualsiasi altra cosa, come la TV,
+una scrivania o l'auto, è sulla mappa solo quando la metti lì. Proprietari, admin e membri possono farlo.
+
+### In una stanza che hai già
+
+1. Apri il luogo e scegli **Mappa**.
+2. Seleziona la stanza: tocca il suo piano, o toccala in **Cosa c'è in** sotto la mappa. Per lavorare più vicino,
+   **Apri** sulla sua scheda entra nella stanza.
+3. Tocca **Sistema**. La scheda della stanza ora ha **Metti sulla mappa**, che elenca gli oggetti sparsi nella stanza che non
+   sono sulla mappa ancora. Cosa c'è in una scatola, un armadio o su uno scaffale sulla mappa non è elencato: va dove va la sua
+   scatola.
+4. Scrivi parte del nome o dell'ID breve in **Trova un oggetto in** la stanza, poi tocca l'oggetto. Appare nel mezzo della
+   stanza, selezionato.
+5. La sua scheda dice quale forma ha preso e perché: **Forma: TV, dal suo tipo** o **dal suo nome**. Quando Kept non è sicuro,
+   la scheda dice **un'ipotesi** e mostra **Scegli una forma**.
+6. **Cambia** (o **Scegli una forma**) apre le forme. **Suggerito** viene prima, poi ogni forma nel suo gruppo (mobili,
+   contenitori, sul muro, elettronica, cucina e lavanderia, attrezzi, piante e esterno, veicoli, scale e aree), ognuna con una
+   foto. **Trova una forma** cerca i nomi e le loro altre parole in tutte le lingue di Kept: "fridge", "Kühlschrank" e "ثلاجة"
+   trovano tutti il frigo. Mentre scrivi, vedo solo quelle che corrispondono, e le forme il cui nome o parola inizia con ciò
+   che hai scritto vengono prima: "ca" trova Auto, Fotocamera e Webcam prima di Carrello attrezzi. Le parole nella tua lingua e
+   in inglese corrispondono dal loro inizio; una parola in un'altra lingua corrisponde solo quando la scrivi tutta. Cancella la
+   ricerca per rivedere Suggerito e i gruppi. Sul telefono le forme stanno sopra la tastiera e scorrono.
+   Tocca una forma per usarla. Ogni forma, con la sua misura e parole, è nella
+   [libreria delle forme](/it/users/map-shapes/); **Manca una forma? Chiedila** sotto le forme apre un modulo GitHub per chiederne una.
+   Due forme prendono la loro misura da te: uno scaffale **Scaffale a cubi** ha **Cubi in larghezza** e
+   **Cubi in altezza** sulla sua scheda (2 × 2 all'inizio; **Metti di lato** sdraia un 1 × 4 come un 4 × 1),
+   e una **Libreria alta** ha la sua **Larghezza**, **Profondità** e **Altezza** in centimetri e i suoi
+   **Ripiani** (80 × 28 × 202 cm con 6 all'inizio). La mappa disegna ogni cubo e ogni ripiano.
+7. Trascina l'oggetto dove sta. Gli oggetti piccoli possono stare su una scrivania, bancone, scaffale o scatola.
+   **Ruota** lo gira di un quarto.
+8. Tocca **Fatto**. Il toast offre **Annulla**. **Annulla** prima di Fatto butta via tutta la sessione, dopo aver chiesto.
+
+<Clip
+  webm={clipWebm}
+  mp4={clipMp4}
+  poster={clipPoster}
+  width={960}
+  height={698}
+  label="Mettere una TV sulla mappa nella famiglia di esempio: Sistema, il soggiorno, Metti sulla mappa, la TV Samsung, la sua scheda che dice Forma: TV, dal suo tipo, il selettore forme con Suggerito per primo e una ricerca per TV, poi un trascinamento verso il muro e Fatto."
+  caption="Mettere la TV sulla mappa nella famiglia di esempio di Prova Kept. La scheda dice che la forma viene dal suo tipo; il selettore mostra Suggerito per primo, e una ricerca per TV la trova."
+/>
+
+### Metti oggetti piccoli su una scrivania, uno scaffale o un monitor
+
+Una webcam è pochi pixel larga allo zoom stanza, così non devi trascinarla. In **Sistema**:
+
+1. Seleziona l'oggetto piccolo, come la webcam, e tocca **Metti su…**. Elenca oggetti nella stessa stanza che lo possono portare, ciascuno
+   con la foto della sua forma: "Scrivania", "Monitor", "Scaffale 2".
+2. Tocca uno. L'oggetto si aggancia su di esso, nel mezzo o accanto a ciò che c'è già.
+3. Per fare il contrario, seleziona la scrivania o il monitor e tocca **Aggiungi sopra**. Scegli uno o più degli oggetti piccoli
+   della stanza che non sono su niente ancora, poi **Metti 3 sopra**. Vanno affiancate, non una sopra l'altra.
+   Gli oggetti piccoli sparpagliati della stanza che non sono sulla mappa ancora ci sono anche, sotto **Non sulla mappa ancora**,
+   con la forma che ognuna prenderebbe: sceglierne una la mette sulla mappa e sulla scrivania in un colpo.
+4. **Togli**, in **Metti su…**, rimette l'oggetto sul pavimento della stanza accanto al suo supporto.
+
+![Metti su… per una webcam: la scrivania e il monitor della stanza, ognuno con la sua foto](../../../../assets/screens/map-put-on-phone-light.webp)
+
+Cosa può portare cosa:
+
+- **Sopra**: una scrivania, tavolo, bancone, scaffale, mobile TV o scatola porta oggetti piccoli.
+- **Sul bordo superiore**: un monitor, una TV o lo schermo di un laptop porta una webcam, un altoparlante smart o una
+  luce: oggetti piccoli fino a 12 cm profondi e 20 cm alti, non più larghi dello schermo.
+- **Su un braccio**: un **braccio monitor** sta su una scrivania e regge un monitor, un **braccio doppio monitor** due,
+  affiancati e sollevati dalla scrivania. **Aggiungi sopra** su un braccio elenca i monitor della stanza e dice quando il
+  braccio è pieno. Una webcam su un monitor su un braccio funziona ancora. Un braccio si stringe al bordo posteriore della
+  scrivania, il lato lontano dalla sedia: nel mezzo, o in un angolo posteriore quando il mezzo è preso. I suoi monitor
+  pendono sopra la scrivania davanti a lui, e trascinarlo lo fa scivolare lungo il retro.
+
+- **Da ganci**: una **parete attrezzi** (una forata) o **ganci** portano attrezzi, borse e altri oggetti piccoli, appesi in
+  fila davanti a loro (vedi sotto).
+
+Spostare un supporto sposta cosa c'è sopra: sposta la scrivania e il suo braccio, i monitor e la loro webcam vanno con essa.
+Ruota la scrivania e ruotano con essa. È solo la mappa: mettere una webcam su un monitor cambia dove sta sulla mappa, non il
+suo posto in Kept. **Fatto** la salva col resto della sessione, e **Annulla** la riporta indietro. Chi vede la vede, e non può
+cambiarla.
+
+### Appendi oggetti su una parete
+
+Una TV su una staffa, uno scaffale, un orologio: in **Sistema**, trascinala vicino a una parete e si appiattisce contro,
+faccia alla stanza.
+
+1. Dai all'oggetto una forma da parete: **TV a parete**, **Mensola**, **Pensile**, **Quadro o specchio**,
+   **Orologio da parete**, **Ganci** o **Parete attrezzi**, sotto **Sul muro** nelle forme. Un oggetto chiamato
+   "TV a parete", "Mensola sospesa", "Specchio" o "Forata" ne prende una da solo.
+2. Va sulla parete più vicina. Trascinala lungo la parete, o su un'altra; si muove a passi, come tutto il resto, e Alt
+   (Option) la trascina liberamente.
+3. La sua scheda ha **Altezza**: quanto alto è il suo mezzo sopra il pavimento. Ogni forma parte da qualche parte
+   sensata: una TV all'altezza degli occhi (1,2 m), uno scaffale o un quadro a 1,5 m, un orologio a 1,8 m. **−** e
+   **+** la muovono di 5 cm, e così fanno le frecce; o scrivi un'altezza. Resta tra il pavimento e 3 m.
+4. Gli oggetti su una parete non ruotano: guardano sempre dentro la stanza.
+
+![Sistemare: una TV sulla parete del soggiorno sopra il mobile TV, la sua scheda con Forma: TV a parete e Altezza 1,2 m](../../../../assets/screens/map-wall-light.webp)
+
+Una mensola porta oggetti piccoli sopra, come ogni scaffale: una piantina, un altoparlante, una cornice.
+Una parete attrezzi o ganci portano attrezzi e borse, appesi davanti a loro. Usa **Metti su…** sull'oggetto piccolo, o
+**Aggiungi sopra** sullo scaffale, la parete attrezzi o i ganci, come sopra; trascinare un oggetto piccolo su di loro
+funziona anche.
+
+Gli oggetti che stanno sotto una mensola o una TV restano dove sono: la TV pende sopra il mobile TV, e tutte e due sono disegnate.
+In **Pianta**, gli oggetti su una parete sono una striscia sottile lungo la loro parete, così non nascondono cosa sta sotto; cosa
+c'è su una mensola o ganci è nominata sulla sua etichetta quando zoommi abbastanza.
+
+Le pareti di una stanza stanno dove qualcosa ci pende, abbastanza alte per esso. Gira la vista così che una parete stia tra
+te e la stanza, e scende a un cordolo con cosa ci pende; gira indietro e son lì di nuovo. Una stanza si apre fronteggiando la
+sua TV, sul muro o no.
+
+È solo la mappa: appendere un oggetto cambia dove è sulla mappa, non il suo posto in Kept. **Fatto** la salva col resto della
+sessione, e **Annulla** la riporta indietro. L'altezza viaggia in un export Kept col resto della sistemazione. Chi vede vede
+dove pendono gli oggetti, e non può cambiarlo.
+
+### Come Kept sceglie la forma
+
+- **Prima dal tipo.** Un oggetto il cui tipo è TV, auto, bicicletta, moto o scatola prende quella forma subito. Un tipo che
+  la restringe soltanto (elettronica, un elettrodomestico, un attrezzo) mette le forme probabili per prime in **Suggerito** e
+  lascia la scelta a te. Un tipo che ti sei fatto conta col suo nome: un tipo chiamato "Televisione" funziona come il tipo TV.
+- **Poi il nome**, parola per parola, in inglese, arabo, francese, tedesco e italiano, con parole comuni alternative
+  ("divano", "telly", "Kühlschrank", "تلفزيون"). Un nome che punta a una forma ("TV Samsung") la prende da solo; uno che
+  potrebbero essere due ("Schermo": una TV o un monitor) è un'ipotesi.
+- **L'elettronica di tutti i giorni ha le sue forme**, alle loro vere misure: webcam, fotocamera, altoparlante da scrivania,
+  altoparlante portatile, altoparlante alto, boombox, altoparlante smart, soundbar, cuffie, headset, auricolari, tastiera,
+  mouse, PC desktop, laptop, monitor, braccio monitor, braccio doppio monitor, router, stampante, console gioco, controller
+  gioco, telefono, tablet, ciabatta e disco esterno. Un oggetto chiamato "Webcam HD" prende la webcam da solo, "AirPods Pro"
+  gli auricolari, "JBL Flip 6" l'altoparlante portatile e "Ergotron LX" il braccio monitor. Semplice "Altoparlante" potrebbe
+  essere qualsiasi misura, così Kept suggerisce ogni altoparlante e ti fa scegliere.
+- **L'hardware homelab anche**: rack server a parete (6U, 12U) e a terra (24U, 42U), che tengono l'hardware dentro come un
+  armadio, e un mini PC, NAS, Raspberry Pi o SBC, switch di rete, patch panel e UPS. "Intel NUC" prende il mini PC,
+  "Synology DS923+" il NAS, "switch 8 porte" lo switch di rete e "rack a parete 12U" il rack a parete 12U. Semplice "Rack
+  server" potrebbe essere qualsiasi misura, così Kept suggerisce ogni rack e ti fa scegliere; semplice "Rack" resta uno
+  scaffale.
+- **Gli accessori sono un'ipotesi.** "Custodia telefono", "Telecomando TV" o "Supporto laptop" dicono a cosa serve, non cos'è,
+  così Kept suggerisce forme e ti fa scegliere.
+- **Niente va bene?** Oggetti senza forma propria, come un termostato, un hub o un caricabatterie, sono suggeriti il
+  **Piccolo dispositivo**, la misura di un aggeggio. Tutto il resto parte come **Oggetto piccolo**.
+- **Mobili con scomparti** senza forma propria sono disegnati dalla loro griglia come stanno: uno scaffale a cubi coi suoi
+  cubi, una libreria coi suoi scaffali, una cassettiera.
+- **La tua scelta resta.** Kept non cambia mai una forma che qualcuno ha scelto, e gli oggetti già sulla mappa tengono la loro.
+
+### In un luogo senza stanze ancora
+
+Un ufficio o un deposito spesso inizia con tutto in **Senza posto** e niente stanze. La sua mappa dice **Ancora nessuna stanza
+sulla mappa**, con **Parti da una pianta** (sezione dopo) e **Sistema**. Per disegnare le stanze tu:
+
+1. Apri il luogo, scegli **Mappa** e tocca **Sistema**.
+2. Scegli **Disegna una stanza** e trascina sulla terra vuota. La stanza è subito un nuovo posto in Kept, chiamata Stanza 1;
+   rinominala da **Apri il posto** sulla sua scheda.
+3. Tocca **Fatto**.
+4. Dai agli oggetti un posto in quella stanza. Sul luogo, **Sistemali** passa in rassegna Senza posto un oggetto alla volta
+   con un selettore di posto; o apri un oggetto e usa **Azioni → Sposta**.
+5. Torna sulla mappa, mettili sopra come prima: **Sistema**, la stanza, **Metti sulla mappa**.
+
+### Parti da una pianta
+
+Una pianta mostra già le stanze di una casa, i loro nomi e le loro misure: un foglio d'agenzia, un PDF del costruttore, uno
+screenshot di un annuncio, una foto di uno schizzo. Kept può leggerla e buttare giù le stanze per te da controllare. Niente è
+aggiunto finché non lo dici.
+
+Proprietari, admin e membri possono iniziarne una, dove la cattura AI è attiva e un provider che legge foto è configurato
+([Provider AI](/it/users/ai-providers/)). Altrimenti la mappa dice perché, con le stesse parole della modalità Stanza di Cattura, e offre
+solo **Sistema**.
+
+1. Su una mappa vuota tocca **Parti da una pianta**; su qualsiasi mappa, **Sistema → Da una pianta**.
+2. **Scegli un file** (un'immagine JPEG, PNG, WebP, HEIC o GIF, o un PDF) o **Scatta una foto** a una pianta cartacea.
+   **Ruota** un quarto di giro alla volta se è di lato. Di un PDF, solo la prima pagina è letta.
+3. Il foglio dice circa quanti token la lettura può prendere e quale provider la legge. Tocca **Leggi la pianta**.
+4. La mappa dice **Lettura della pianta…**. Puoi andare via: la pianta aspetta sulla mappa, e qualsiasi membro vede **Una
+   pianta è pronta da controllare** quando è letta. Tocca **Controllala**.
+
+**Cosa è mandato, e cosa è tenuto.** Kept manda una copia della pianta al tuo provider, ricodificata senza suoi dati di
+posizione o fotocamera (per un PDF, la sua prima pagina disegnata come immagine, col testo di quella pagina), e niente da Kept
+stesso: nessun nome di luogo, stanza o piano. L'upload sta con la pianta mentre la controlli, visto dai membri e solo su, ed
+è cancellato quando aggiungi le stanze o scarti la pianta, a meno che non spunti **Tieni la pianta con** il luogo, che la
+tiene come uno dei documenti del luogo. Una pianta che nessuno finisce è scartata dopo 30 giorni.
+
+**Controllarla.** La mappa passa a **Pianta** e mostra le stanze della pianta come contorni **viola tratteggiati**: tratteggiato
+significa non aggiunto ancora, viola significa letta dall'AI. Con **Mostra la pianta** attivo, la pianta stessa sta sotto di
+loro, così vedi se ogni contorno sta sulla stanza che nomina. Le stanze già sulla mappa stanno ferme mentre controlli. Il pannello,
+**Stanze dalla pianta**, elenca ogni stanza con:
+
+- un interruttore per aggiungerla o lasciarla fuori;
+- il suo **nome** come stampato (una stanza senza etichetta è chiamata Stanza 1, Stanza 2 e così via), che puoi cambiare;
+- la sua **misura**, al 10 cm, e il suo **tipo** (stanza, balcone, terrazza, giardino);
+- al massimo una nota, per esempio **La pianta dice 4,00 x 8,40 m.** (toccala per usare la misura stampata), **Non un
+  rettangolo: disegnata come la sua parte più grande.**, **Sotto 50 cm: troppo piccola per la mappa.**, **Già sulla mappa.**
+  o **Usa la tua Cucina**, quando una stanza di quel nome era in Kept ma non sulla mappa ancora (**Crea una nuova stanza** ne
+  fa una invece).
+
+Ogni piano della pianta ha un selettore **Piano**: uno dei tuoi, o un piano nuovo fatto quando aggiungi le stanze. Trascina una
+stanza tratteggiata per spostarla, o il suo angolo ambrato per ridimensionarla; le frecce muovono una selezionata di un metro e
+**Shift** con una freccia 10 cm. **Ruota le stanze** le gira tutte un quarto, per una pianta disegnata di lato.
+
+**La scala.** La riga sotto l'intestazione del pannello dice dove venivano le misure: le misure stampate sulla pianta (e quante
+concordano), la sua barra di scala, le sue porte (prese come 80 cm larghe), o niente affatto, quando **sono un'ipotesi**. Se le
+misure sembrano sbagliate, tocca **Imposta la misura di una stanza**, scrivi la vera larghezza e profondità di una stanza, e
+**Riscala**: ogni stanza è ridisegnata da quella.
+
+**Aggiungerle.** **Aggiungi 5 stanze** (il conto di quelle con l'interruttore acceso) fa le stanze, e i piani nuovi, come posti
+normali, e le mette sulla mappa accanto a ciò che c'era. Il toast offre **Annulla**, che le toglie tutte dalla mappa e mette le
+stanze che ha fatto nel cestino, finché niente ci è stato messo e nessuna è stata rinominata o spostata da allora. La cronologia
+mostra una riga: **Aggiunte 5 stanze da una pianta**. **Scarta** butta via la pianta; niente è aggiunto.
+
+Quanto bene un modello legge una pianta dipende dalla pianta e dal modello: controlla ogni stanza contro la pianta prima di
+aggiungere. Pareti, porte e finestre non sono disegnate, e una stanza che non è un rettangolo diventa il suo rettangolo più
+grande.
+
+### Cosa significa Senza posto qui
+
+**Senza posto** tiene gli oggetti che non hanno un posto ancora. Non sono in nessuna stanza, così non sono sulla mappa e
+**Metti sulla mappa** non li elenca. Dai prima un posto a un oggetto in una stanza; poi appare nella lista di quella stanza.
+
+## Modelli dettagliati
+
+Mobili, piante e unità AC esterne sono disegnati con modelli gratuiti da
+[Poly Haven](https://polyhaven.com) (CC0), rimpiccioliti per i telefoni: circa 150 KB ciascuno al massimo, circa
+1,5 MB per tutti, e solo il piano in vista carica i suoi. Tutto il resto è disegnato da Kept stesso. Spegni **Modelli
+dettagliati** sotto la mappa e niente è scaricato per nulla; Kept lo ricorda su questo dispositivo.
+
+Se il browser non sa disegnare 3D (un telefono vecchio, o grafica spenta), la mappa lo dice e l'elenco sotto ha comunque tutto.

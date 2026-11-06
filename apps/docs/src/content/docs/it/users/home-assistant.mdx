@@ -1,0 +1,174 @@
+---
+title: Home Assistant
+description: "Kept in Home Assistant: sensori per ciò che è in ritardo, in scadenza e in scadenza, la lettura e il prossimo servizio di ogni veicolo, un calendario e le letture dell'odometro inviate indietro."
+---
+
+import { Image } from 'astro:assets';
+import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
+
+L'integrazione Kept per [Home Assistant](https://www.home-assistant.io/) mostra di cosa hai bisogno in
+ogni luogo e rimanda letture, come l'odometro che un'integrazione per l'auto già conosce. Legge
+Kept con un [token personale](/it/users/mcp-clients/#crea-un-token-personale).
+
+L'integrazione: [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant),
+installata con [HACS](https://hacs.xyz/) come repository personalizzato.
+
+Facoltativo: solo se esegui già [Home Assistant](https://www.home-assistant.io/installation/).
+Kept funziona allo stesso modo senza.
+
+## L'app e l'integrazione
+
+<Image src={diagramLight} alt="Kept, sul tuo server o come app Home Assistant, e l'integrazione Kept dentro Home Assistant: l'integrazione legge Kept ogni 5 minuti e rimanda letture, e i suoi sensori, calendario e azioni alimentano dashboard, automazioni e il calendario" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept, sul tuo server o come app Home Assistant, e l'integrazione Kept dentro Home Assistant: l'integrazione legge Kept ogni 5 minuti e rimanda letture, e i suoi sensori, calendario e azioni alimentano dashboard, automazioni e il calendario" class="kd-only-dark" />
+
+- **L'app** esegue Kept su Home Assistant OS ([installala](/it/install/home-assistant/)). Kept sul
+  tuo server funziona allo stesso modo.
+- **L'integrazione** porta Kept in Home Assistant: i sensori, il calendario e le azioni.
+  Solo un'integrazione può aggiungere entità, quindi l'app non può.
+- **Gli utenti dell'app attivano prima https:** l'opzione **https on Kept's port** dell'app. Kept crea token
+  solo tramite https.
+
+## Prima di iniziare
+
+| Di cosa hai bisogno | Perché |
+|---|---|
+| **Home Assistant 2026.10 o successivo** | L'integrazione è sviluppata e testata per quella versione |
+| **HACS** in Home Assistant | Installa l'integrazione. [Scarica HACS](https://hacs.xyz/docs/use/download/download/) ([di cosa ha bisogno](https://hacs.xyz/docs/use/download/prerequisites/)) |
+| **Kept 1.8.0 o successivo** | Aggiunge il riepilogo che leggono i sensori |
+| **Un token personale** | L'app li crea solo tramite HTTPS ([HTTPS](/it/install/https/)); su una rete domestica tramite `http`, [creane uno sul server](/it/admin/cli/#un-token-dal-server) |
+| **Home Assistant può raggiungere Kept** | Stessa rete, una VPN come Tailscale o un indirizzo pubblico. Prova: apri l'indirizzo di Kept dalla macchina su cui gira Home Assistant |
+
+## Cosa ottieni
+
+Ogni luogo è un dispositivo in Home Assistant:
+
+| Entità | Cosa mostra |
+|---|---|
+| **In ritardo**, **In scadenza**, **In scadenza** | I conteggi sulla Home di Kept. L'attributo `items` elenca i primi 10, i più urgenti prima |
+| **Prestati**, **In prestito da altri** | Prestiti aperti. Solo dove Lending è attivo |
+| **Incerto**, **Non visti da tempo** | Oggetti il cui posto è in dubbio, o non visti per il numero di mesi impostato per il luogo |
+| **Scorte basse** | Oggetti sotto il minimo. Solo dove Consumables è attivo |
+| **Senza posto**, **Oggetti** | Spenti all'inizio; attivali in Home Assistant |
+| **Scadenze** (calendario) | Ogni oggetto con un giorno di scadenza, come evento di tutto il giorno |
+
+Ogni veicolo (un oggetto con un contatore, sotto **Veicoli**) è un dispositivo nel suo luogo:
+
+| Entità | Cosa mostra |
+|---|---|
+| **Lettura** | L'ultima lettura, in km, miglia o ore |
+| **Prossimo servizio** | Il giorno in cui scade, oppure la stima di Kept dalle tue letture |
+| **Prossimo servizio a** | La lettura a cui scade |
+
+Un luogo o un veicolo aggiunto in Kept più tardi compare dopo che ricarichi l'integrazione.
+
+## Configurazione
+
+1. **Crea un token.** In Kept, **Impostazioni → Connessioni → Nuovo token**. Seleziona i luoghi che
+   Home Assistant deve vedere. **Sola lettura** basta per i sensori e il calendario; **Leggere e
+   modificare** permette anche alle azioni qui sotto di inviare letture e segnare i programmi come
+   svolti. L'app crea token solo quando Kept è servito tramite `https` ([HTTPS](/it/install/https/));
+   tramite `http`, la persona che gestisce il server ne crea uno con
+   [`kept admin token create`](/it/admin/cli/#un-token-dal-server).
+2. **Installa.** In HACS, **⋮ → Custom repositories** ([come fare](https://hacs.xyz/docs/faq/custom_repositories/)):
+   aggiungi `https://github.com/keptinventory/kept-homeassistant`, tipo **Integration**. Installa **Kept**,
+   e riavvia Home Assistant.
+3. **Aggiungila.** **Impostazioni → Dispositivi e servizi → Aggiungi integrazione → Kept**. Inserisci l'indirizzo di Kept
+   (`https://kept.example.org`) e il token. Disattiva **Verifica il certificato HTTPS** solo per un
+   certificato autofirmato sulla tua rete.
+4. **Verifica.** Il passaggio successivo indica la versione del tuo Kept e i luoghi raggiunti dal token.
+   **Invia** li aggiunge.
+
+Cosa ti dice la configurazione quando qualcosa non va:
+
+| Messaggio | Cosa fare |
+|---|---|
+| Kept non è raggiungibile | Verifica l'indirizzo e che Home Assistant possa raggiungere quell'host |
+| Non è Kept | L'indirizzo risponde, ma con qualcos'altro: la pagina di un proxy, un'altra app |
+| Quell'indirizzo reindirizza a HTTPS | Usa l'indirizzo `https://` che indica |
+| Il certificato HTTPS non è attendibile | Usa un certificato attendibile, oppure disattiva la verifica per uno autofirmato |
+| HTTPS non è riuscito | Kept è servito tramite `http` semplice su quella porta: usa `http://` |
+| Kept ha rifiutato il token | È stato revocato, è scaduto o è stato digitato male: creane uno nuovo |
+| Questo Kept non offre il riepilogo | Aggiorna Kept |
+
+**Configura** nell'integrazione sceglie quali luoghi del token mostrare e ogni quanto leggere
+Kept (ogni 5 minuti; da 1 a 60). Quando il token viene revocato o scade, Home Assistant chiede un
+nuovo.
+
+## Su una dashboard
+
+Gli id delle entità derivano dai nomi in Kept. Per un luogo chiamato **Home** e un'auto chiamata
+**Corolla**: `sensor.home_overdue`, `sensor.home_due`, `sensor.home_expiring`,
+`sensor.home_lent_out`, `sensor.home_low_stock`, `calendar.home_due_dates`,
+`sensor.corolla_reading`, `sensor.corolla_next_service`. Controllali sotto **Impostazioni → Dispositivi e
+servizi → Kept**.
+
+Una [Scheda tile](https://www.home-assistant.io/dashboards/tile/) per conteggio, o una
+[Scheda entità](https://www.home-assistant.io/dashboards/entities/):
+
+```yaml
+type: entities
+title: Kept · Home
+entities:
+  - sensor.home_overdue
+  - sensor.home_due
+  - sensor.home_expiring
+  - sensor.home_lent_out
+  - sensor.home_low_stock
+  - sensor.corolla_next_service
+```
+
+Il calendario **Scadenze** compare nel pannello **Calendario** di Home Assistant.
+
+## Azioni
+
+**Kept: Registra una lettura** (`kept.log_reading`) invia una lettura per un veicolo (o un contatore, dal suo id:
+il `meter_id` del sensore **Lettura**). Compare in Kept come lettura da Home Assistant. Kept
+rifiuta una lettura inferiore alla precedente e l'azione fallisce con il motivo di Kept; un salto
+che Kept ritiene improbabile attende la revisione nell'Inbox.
+
+**Kept: Segna un programma come svolto** (`kept.complete_schedule`) segna un programma come svolto in un giorno (oggi,
+nel fuso orario del luogo) e registra il servizio, con la lettura per un programma tramite contatore.
+Un'azione una tantum è poi svolta e lascia i conteggi; segnarla svolta di nuovo fallisce.
+
+Entrambe richiedono un token **Leggere e modificare**.
+
+### L'odometro dell'auto, inviato a Kept
+
+Quando l'odometro dell'auto si è stabilizzato per 10 minuti (l'auto è parcheggiata):
+
+```yaml
+alias: Odometer to Kept
+triggers:
+  - trigger: state
+    entity_id: sensor.my_car_odometer
+    for: "00:10:00"
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: kept.log_reading
+    data:
+      device_id: YOUR_KEPT_VEHICLE_DEVICE_ID
+      value: "{{ trigger.to_state.state | float }}"
+mode: queued
+```
+
+`sensor.my_car_odometer` è il sensore dell'integrazione della tua auto. Nell'editor delle automazioni, scegli il
+veicolo Kept nel campo **Veicolo** dell'azione per riempire `device_id`. Invia la lettura nell'unità
+del contatore del veicolo in Kept.
+
+## Aggiornamento o rimozione
+
+- **Aggiorna:** una nuova versione compare sotto **Impostazioni → Aggiornamenti** (HACS la aggiunge). Installala e
+  riavvia Home Assistant.
+- **Rimuovi:** **Impostazioni → Dispositivi e servizi → Kept → ⋮ → Elimina**, poi rimuovi **Kept** in
+  HACS e riavvia. Revoca il token in Kept: **Impostazioni → Connessioni**.
+
+## Cosa legge
+
+Ogni pochi minuti, con il token: `GET /api/v1/summary` (i conteggi per luogo),
+`GET /api/v1/vehicles` e la prima pagina di `GET /api/v1/agenda`. Il calendario legge
+`GET /api/v1/agenda` per i giorni che mostra. Le azioni usano `POST /api/v1/meters/{id}/readings`
+e `POST /api/v1/schedules/{id}/complete`. Un token vede solo i propri luoghi e mai più di
+quanto tu possa. Lo stesso riepilogo alimenta i [widget della dashboard](/it/users/dashboards/).

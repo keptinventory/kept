@@ -1,0 +1,17 @@
+---
+title: "Інтеграції: імпорти, сповіщення, вхід і ШІ"
+sidebar:
+  label: Інтеграції
+description: "Інтеграції Kept для самостійно розміщеної домашньої лабораторії: імпорт із Homebox і LubeLogger, CSV, email-in, ntfy, Telegram, Apprise, OIDC, OpenAI, Anthropic, Ollama, MCP."
+---
+
+import IntegrationList from '../../../components/landing/IntegrationList.astro';
+import { Image } from 'astro:assets';
+import integrations from '../../../assets/landing/kept-integrations.webp';
+
+Що Kept приймає, кому повідомляє, як люди входять і з чим спілкується.
+Кожен запис має сторінку налаштування. Усе описане тут уже є в Kept.
+
+<Image src={integrations} alt="Kept посередині, пов'язаний обома напрямками з Home Assistant і Paperless-ngx; імпортує з Homebox, LubeLogger і таблиць; сповіщення через ntfy, Telegram, Slack, Discord, Matrix, Signal, електронну пошту й вебхуки; сервер Kept MCP для Claude і ChatGPT; моделі ШІ від OpenAI, Anthropic, Gemini, Groq, OpenRouter і Ollama" widths={[800, 1600]} sizes="(min-width: 50rem) 48rem, 100vw" loading="eager" />
+
+<IntegrationList />

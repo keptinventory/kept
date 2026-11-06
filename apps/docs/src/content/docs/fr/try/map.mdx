@@ -1,0 +1,23 @@
+---
+title: "Essayer la carte"
+description: "La carte 3D de Kept dans votre navigateur, avec un domicile d'exemple : étages, pièces, étagères et boîtes, et des épingles pour ce qui est faible, prêté ou à échéance. Rien n'est enregistré."
+template: splash
+---
+
+import TryMap from '../../../../components/try-map/TryMap.astro';
+
+<TryMap lang="en" />
+
+## Quoi essayer
+
+- Appuyez sur une pièce, une étagère ou une boîte : la carte indique où elle se trouve et ce qu'elle contient. **Détails** présente le reste : son type et ses étiquettes, une photo sur certains éléments, et le code QR de son étiquette.
+- **Ce qui se trouve** sous la carte liste tous les objets de chaque pièce. Trouvez-en un par son nom ou par l'ID court sur son étiquette, choisissez un étage, ou passez à **À surveiller**. Un code apparaît sous forme de bande ambrée uniquement sur les objets portant une étiquette imprimée.
+- **Plan** regarde directement vers le bas. Les boutons d'étage (**G**, **F**, **R**) montent et descendent ; **Tout** les empile.
+- **Stock bas**, **Prêtés** et **Bientôt dû** activent ou désactivent leurs épingles.
+- **Organiser** : faites glisser les objets, maintenez le sol d'une pièce et faites-le glisser ailleurs (ce qu'il contient va aussi), redimensionnez une pièce par son coin ambré, tracez une pièce. **Poser sur…** place un petit objet sur un bureau ou une étagère. **Terminé** le conserve jusqu'à ce que vous quittiez la page, et propose **Annuler** ; **Annuler** demande confirmation au préalable.
+- Désactivez **Modèles détaillés** et la carte ne télécharge aucun modèle du tout.
+
+Cette carte est celle fournie avec Kept, avec les mêmes modèles. [La carte d'emplacement](/fr/users/location-map/) explique
+comment un emplacement réel obtient ses étages et ses pièces. L'application complète avec un ménage d'exemple :
+[Essayez Kept](/fr/try/kept/). Pour exécuter Kept sur votre propre serveur, commencez par
+[Installation avec Docker Compose](/fr/install/compose/).

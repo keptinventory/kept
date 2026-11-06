@@ -1,0 +1,107 @@
+---
+title: Cài đặt dưới dạng ứng dụng Home Assistant
+description: Cài đặt Kept từ cửa hàng ứng dụng của Home Assistant, với cơ sở dữ liệu riêng của nó, được sao lưu bằng bản sao lưu của Home Assistant và mở từ thanh bên.
+sidebar:
+  order: 2
+  label: Home Assistant
+---
+
+import HomeAssistantButton from '../../../../components/HomeAssistantButton.astro';
+
+Kept chạy dưới dạng ứng dụng Home Assistant: Kept và cơ sở dữ liệu riêng của nó trong một ứng dụng, trên Home Assistant OS. Không cần Docker Compose, không cần tạo mật khẩu, và bản sao lưu của Home Assistant bao gồm nó.
+
+## Ứng dụng Home Assistant hay cài đặt bình thường?
+
+Cùng Kept, cùng phiên bản, cùng tính năng: đồ vật, các vị trí, bản đồ và biểu đồ, quét, nhãn, AI, MCP, nhập, Paperless, một vài người.
+
+| | Ứng dụng Home Assistant | [Compose](/vi/install/compose/) hoặc [Kubernetes](/vi/install/kubernetes/) |
+|---|---|---|
+| Mở | thanh bên của Home Assistant, và địa chỉ riêng của Kept (cổng 8080) | địa chỉ riêng của Kept |
+| Cài đặt, cập nhật | cửa hàng ứng dụng của Home Assistant | `docker compose`, `helm` |
+| Tài khoản đầu tiên | một quản trị viên Home Assistant thiết lập mà không cần mã | mã thiết lập từ nhật ký của Kept |
+| Cài đặt | tab **Cấu hình** của ứng dụng | `.env` hoặc các giá trị của biểu đồ |
+| Ngoại tuyến, cài đặt ứng dụng điện thoại, đẩy | địa chỉ riêng của Kept qua https; không trong thanh bên | qua https |
+| Khóa truy cập, OIDC, Google | địa chỉ riêng của Kept (https cho khóa truy cập; https và một tên miền công khai cho Google) | địa chỉ của Kept |
+| Sao lưu | bản sao lưu của Home Assistant; ngoài thiết bị thông qua [vị trí sao lưu](https://www.home-assistant.io/common-tasks/general/backups/) | bản sao lưu hàng đêm riêng của Kept: restic đến một thư mục, S3 hoặc SFTP |
+| Ảnh và tệp | trong dữ liệu của ứng dụng | trên ổ đĩa, hoặc S3 |
+
+- **Ứng dụng:** bạn đã chạy Home Assistant OS.
+- **Compose hoặc Kubernetes:** bất cứ cái khác; hoặc ảnh và tệp trên S3; hoặc bản sao lưu ngoài thiết bị riêng của Kept.
+
+## Cài đặt
+
+<HomeAssistantButton />
+
+1. **Cài đặt → Ứng dụng → Cài đặt ứng dụng → ⋮ → Kho lưu trữ**, thêm
+   `https://github.com/keptinventory/kept` (hoặc sử dụng nút ở trên).
+2. Tìm **Kept**, sau đó **Cài đặt**, sau đó **Bắt đầu**.
+3. **Mở Web UI**. Kept mở bên trong Home Assistant, cũng trong thanh bên.
+
+| Bạn cần | |
+|---|---|
+| Home Assistant OS | Ứng dụng cần Supervisor: không phải Home Assistant Container hoặc Core. Supervisor 2026.10.4 hoặc mới hơn |
+| `aarch64` hoặc `amd64` | Một Raspberry Pi 4 hoặc 5 chạy 64-bit, một máy tính bàn nhỏ, một máy ảo |
+| 4 GB bộ nhớ | 2 GB chạy được với ít ứng dụng khác; Kept với cơ sở dữ liệu của nó dùng khoảng 250–320 MB khi không sử dụng |
+
+## Lần đầu khởi động
+
+- Một **quản trị viên** Home Assistant mở Kept từ Home Assistant thiết lập nó mà không cần mã
+  (Supervisor 2026.10.4 hoặc mới hơn; trước đó thì cần mã).
+- Bất kỳ ai khác nhập mã thiết lập từ tab **Nhật ký** của ứng dụng (`KEPT SETUP CODE: XXX-XXX`).
+- Kept có tài khoản riêng của nó. Người dùng đăng nhập vào Kept một lần, cũng bên trong Home Assistant; thành viên gia đình không cần là quản trị viên Home Assistant để dùng nó từ thanh bên.
+
+## Địa chỉ của Kept
+
+Bên trong Home Assistant, Kept mở từ thanh bên. Điện thoại, nhãn QR in, liên kết thư, ứng dụng tích hợp và AI cần một địa chỉ hoạt động bên ngoài một phiên Home Assistant, nên ứng dụng cũng phục vụ Kept trên **cổng 8080**. Tab **Nhật ký** hiển thị nó, ví dụ
+`Kept is at http://homeassistant.local:8080`.
+
+| Tùy chọn | Ý |
+|---|---|
+| Địa chỉ của Kept | Thiết lập nó khi `homeassistant.local` không được phân giải trên mạng của bạn, hoặc cổng đã thay đổi. `http(s)://host[:port]`, không có đường dẫn. |
+| https trên cổng của Kept | Phục vụ cổng qua HTTPS bằng chứng chỉ của Home Assistant từ `/ssl` (từ các ứng dụng DuckDNS hoặc Let's Encrypt). Khởi động lại ứng dụng sau khi chứng chỉ gia hạn. |
+| HSTS | `on` theo mặc định. `off` khi chính Home Assistant, hoặc một ứng dụng khác trên tên máy chủ đó, dùng http thuần: HSTS của Kept bao gồm tên máy chủ trên mọi cổng, bao gồm cả 8123 ([HSTS](/vi/install/reverse-proxy/#hsts)). |
+| Thời gian đăng nhập qua http | Trống: 12 giờ, không gia hạn. Số ngày một lần đăng nhập kéo dài qua http thuần, 1 đến 30, gia hạn khi được sử dụng. Không có tác dụng khi https bật; chi phí nằm ở [Giữ trên mạng của bạn](/vi/install/home-network/#giữ-trong-mạng-của-bạn). |
+| Địa chỉ bổ sung | Các địa chỉ khác mà Kept này trả lời, cách bằng dấu phẩy, ví dụ `http://192.0.2.20:8080`. Trống: một. Thêm vào bản của Home Assistant, không thay thế nó ([nhiều hơn một địa chỉ](/vi/install/home-network/#hơn-một-địa-chỉ)). |
+| Thư đi | Một URL `smtps://`: liên kết đăng nhập, lời mời và nhắc nhở qua thư. |
+| OIDC, Google | Đăng nhập với nhà cung cấp danh tính của riêng bạn hoặc với Google. Trống: tắt. |
+| Máy chủ Apprise | Máy chủ API Apprise cho các kênh thông báo Apprise. Trống: không có. |
+| Đăng ký | `true` hoặc `false` khóa mở hoặc khóa kết; chưa đặt, một quản trị viên quyết định. |
+| Giới hạn tải lên (MB) | 1 đến 2048; mặc định 25. |
+
+Nhà cung cấp gửi người quay lại địa chỉ riêng của Kept, không bao giờ Home Assistant. URL chuyển hướng để đăng ký: `<Kept's address>/api/v1/auth/callback/oidc` cho OIDC,
+`<Kept's address>/api/v1/auth/callback/google` cho Google. Tab **Nhật ký** in ra nó sau khi đăng nhập được cấu hình. Bên trong Home Assistant, **Đăng nhập với …** mở địa chỉ của Kept trong một tab mới.
+
+Google từ chối URL chuyển hướng trên http, trên một tên `.local` hoặc trên một địa chỉ IP
+([quy tắc của Google](https://developers.google.com/identity/protocols/oauth2/web-server#uri-validation)): thiết lập **địa chỉ của Kept** thành https với một tên miền công khai,
+ví dụ một tên DuckDNS với **https trên cổng của Kept**. Tab **Nhật ký** cảnh báo khi nó sẽ không làm được.
+
+Tắt cổng 8080 (Cấu hình → Mạng) chỉ để lại thanh bên: nhãn và ứng dụng điện thoại sau đó không mở được.
+
+## Cái gì cần https
+
+| | http thuần | https |
+|---|---|---|
+| Đồ vật, các vị trí, tìm kiếm, nhãn, ảnh từ một tệp | có | có |
+| Mã thông báo cá nhân (tích hợp), hiển thị bí mật, xuất khẩu | không | có |
+| Khóa truy cập, máy ảnh, cài đặt ứng dụng điện thoại, đẩy | không | có |
+
+Bên trong Home Assistant, Kept chỉ được tính là https khi chính Home Assistant được phục vụ qua https.
+Một proxy trước Home Assistant kết thúc TLS phải gửi `X-Forwarded-Proto: https`, nếu không Kept thấy
+http thuần. Khóa truy cập thuộc về địa chỉ riêng của Kept: đăng nhập với một khóa ở đó. Xem thêm về
+[mạng gia đình](/vi/install/home-network/).
+
+## Sao lưu và cập nhật
+
+- **Sao lưu:** Bản sao lưu của Home Assistant bao gồm Kept: cơ sở dữ liệu dưới dạng tệp sao lưu, ảnh, tệp và khóa của Kept. Giữ mã hóa bản sao lưu của Home Assistant bật. Khôi phục bản sao lưu mang Kept trở lại; lần đầu khởi động sau khi khôi phục mất thêm một chút thời gian.
+- **Sao lưu khi Kept đã dừng** giữ tệp sao lưu Kept viết lần cuối khi dừng sạch sẽ: Home Assistant chỉ yêu cầu một ứng dụng đang chạy để lấy một bản mới. Sau khi sự cố, hãy khởi động Kept trước khi sao lưu.
+- **Sao lưu riêng của Kept** không có trong ứng dụng: chúng cần đăng nhập của chủ sở hữu cơ sở dữ liệu, ứng dụng giữ đăng nhập đó từ máy chủ đang chạy. Quản trị → Sao lưu nói điều đó và liên kết đến bản sao lưu của Home Assistant.
+- **Ngoài thiết bị:** thêm một chia sẻ mạng hoặc vị trí đám mây trong cài đặt bản sao lưu của Home Assistant ([bản sao lưu của Home Assistant](https://www.home-assistant.io/common-tasks/general/backups/)).
+- **Cập nhật:** phiên bản của ứng dụng là của Kept. Một bản cập nhật giữ dữ liệu của Kept và nâng cấp cơ sở dữ liệu của nó khi khởi động. Bật **Giữ bản sao lưu của phiên bản cuối** trong hộp thoại cập nhật của Home Assistant: bản chụp trước khi nâng cấp riêng của Kept đang tắt trong ứng dụng.
+
+## Tích hợp
+
+Ứng dụng này chạy Kept; một tích hợp riêng đưa nó vào Home Assistant. Bật **https trên cổng của Kept** trước khi kết nối nó ([ứng dụng và tích hợp](/vi/users/home-assistant/#ứng-dụng-và-tích-hợp)).
+
+[Tích hợp Kept](/vi/users/home-assistant/) đưa những thứ đến hạn vào Home Assistant. Cho nó
+địa chỉ của Kept và một mã thông báo cá nhân tạo qua https. Thiết lập nó mà không cần mã thông báo, trực tiếp từ
+ứng dụng, sẽ có trong một bản phát hành sau.

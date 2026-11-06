@@ -16,6 +16,7 @@ const LANGUAGES: Record<string, string> = {
   it: 'Italian',
   vi: 'Vietnamese',
   uk: 'Ukrainian',
+  es: 'Spanish',
 };
 
 export type PromptLocation = { id: string; name: string; role: Role; canWrite: boolean };

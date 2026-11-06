@@ -1,0 +1,137 @@
+---
+title: Home Assistant
+description: "Kept in Home Assistant: Sensoren für Überfällig, Fällig und Läuft bald ab, den Zählerstand und den nächsten Service jedes Fahrzeugs, einen Kalender und zurückgesendete Kilometerstände."
+---
+
+import { Image } from 'astro:assets';
+import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
+
+Die Kept-Integration für [Home Assistant](https://www.home-assistant.io/) zeigt dir, was in jedem Ort ansteht, und sendet Zählerstände zurück, zum Beispiel den Kilometerstand, den eine Auto-Integration bereits kennt. Sie liest Kept mit einem [persönlichen Token](/de/users/mcp-clients/#persönliches-token-erstellen).
+
+Die Integration: [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant), installiert mit [HACS](https://hacs.xyz/) als benutzerdefiniertes Repository.
+
+Optional: nur, wenn du [Home Assistant](https://www.home-assistant.io/installation/) bereits nutzt. Kept funktioniert ohne es genauso.
+
+## Die App und die Integration
+
+<Image src={diagramLight} alt="Kept, auf deinem Server oder als Home Assistant-App, und die Kept-Integration in Home Assistant: Die Integration liest Kept alle 5 Minuten und sendet Zählerstände zurück, und ihre Sensoren, ihr Kalender und ihre Aktionen speisen Dashboards, Automatisierungen und den Kalender" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept, auf deinem Server oder als Home Assistant-App, und die Kept-Integration in Home Assistant: Die Integration liest Kept alle 5 Minuten und sendet Zählerstände zurück, und ihre Sensoren, ihr Kalender und ihre Aktionen speisen Dashboards, Automatisierungen und den Kalender" class="kd-only-dark" />
+
+- **Die App** betreibt Kept auf Home Assistant OS ([installieren](/de/install/home-assistant/)). Kept auf deinem eigenen Server funktioniert genauso.
+- **Die Integration** bringt Kept in Home Assistant: die Sensoren, den Kalender und die Aktionen. Nur eine Integration kann Entities hinzufügen, deshalb kann die App das nicht.
+- **App-Nutzer schalten zuerst HTTPS ein:** die Option **https on Kept's port** der App. Kept erstellt Token nur über HTTPS.
+
+## Bevor du startest
+
+| Du brauchst | Warum |
+|---|---|
+| **Home Assistant 2026.10 oder neuer** | Die Integration ist dafür gebaut und getestet |
+| **HACS** in Home Assistant | Damit installierst du die Integration. [HACS herunterladen](https://hacs.xyz/docs/use/download/download/) ([was es braucht](https://hacs.xyz/docs/use/download/prerequisites/)) |
+| **Kept 1.8.0 oder neuer** | Es fügt die Zusammenfassung hinzu, aus der die Sensoren lesen |
+| **Ein persönliches Token** | Die App erstellt sie nur über HTTPS ([HTTPS](/de/install/https/)); in einem Heimnetzwerk über `http` erstellst du [eines auf dem Server](/de/admin/cli/#ein-token-vom-server) |
+| **Home Assistant kann Kept erreichen** | Gleiches Netzwerk, ein VPN wie Tailscale oder eine öffentliche Adresse. Teste es: Öffne Kepts Adresse von dem Rechner, auf dem Home Assistant läuft |
+
+## Was du bekommst
+
+Jeder Ort ist ein Gerät in Home Assistant:
+
+| Entität | Was es anzeigt |
+|---|---|
+| **Überfällig**, **Fällig**, **Läuft bald ab** | Die Zähler auf Kepts Start. Das Attribut `items` listet die ersten 10, die dringendsten zuerst |
+| **Verliehen**, **Ausgeliehen bekommen** | Offene Ausleihen. Nur, wo die Leihfunktion eingeschaltet ist |
+| **Unklar**, **Lange nicht gesehen** | Gegenstände, deren Ort unsicher ist, oder die seit Monaten am Ort nicht gesehen wurden |
+| **Wenig Vorrat** | Gegenstände unter ihrem Minimum. Nur, wo Verbrauchsmaterialien eingeschaltet sind |
+| **Ohne Ort**, Gegenstände | Zuerst aus; schalte sie in Home Assistant ein |
+| **Fälligkeiten** (Kalender) | Jeder Gegenstand mit einem Fälligkeitstag, als ganztägiges Ereignis |
+
+Jedes Fahrzeug (ein Gegenstand mit Zähler, unter **Fahrzeuge**) ist ein Gerät an seinem Ort:
+
+| Entität | Was es anzeigt |
+|---|---|
+| **Zählerstand** | Der neueste Zählerstand in km, mi oder Stunden |
+| **Nächster Service** | Der Tag, an dem es fällig ist, oder Kepts Schätzung aus deinen Zählerständen |
+| **Nächster Service bei** | Der Zählerstand, bei dem es fällig ist |
+
+Ein später in Kept hinzugefügter Ort oder ein Fahrzeug erscheint, nachdem du die Integration neu lädst.
+
+## Einrichten
+
+1. **Token erstellen.** In Kept **Einstellungen → Verbindungen → Neues Token**. Kreuze die Orte an, die Home Assistant sehen soll. **Nur lesen** reicht für die Sensoren und den Kalender; **Lesen und ändern** erlaubt den unten stehenden Aktionen außerdem, Zählerstände zu senden und Zeitpläne als erledigt zu markieren. Die App erstellt Token nur, wenn Kept über `https` ausgeliefert wird ([HTTPS](/de/install/https/)); über `http` erstellt die Person, die den Server betreibt, ihn mit [`kept admin token create`](/de/admin/cli/#ein-token-vom-server).
+2. **Installieren.** In HACS **⋮ → Benutzerdefinierte Repositories** ([wie](https://hacs.xyz/docs/faq/custom_repositories/)): füge `https://github.com/keptinventory/kept-homeassistant` hinzu, Typ **Integration**. Installiere **Kept** und starte Home Assistant neu.
+3. **Hinzufügen.** **Einstellungen → Geräte & Dienste → Integration hinzufügen → Kept**. Gib Kepts Adresse (`https://kept.example.org`) und das Token ein. Schalte **HTTPS-Zertifikat prüfen** nur für ein selbstsigniertes Zertifikat in deinem eigenen Netzwerk aus.
+4. **Prüfen.** Der nächste Schritt nennt die Version deines Kept und die Orte, die das Token erreicht. **Absenden** fügt sie hinzu.
+
+Was die Einrichtung dir sagt, wenn etwas falsch ist:
+
+| Meldung | Was zu tun ist |
+|---|---|
+| Kept ist nicht erreichbar | Prüfe die Adresse und, ob Home Assistant diesen Host erreichen kann |
+| Es ist nicht Kept | Die Adresse antwortet, aber mit etwas anderem: einer Proxy-Seite, einer anderen App |
+| Diese Adresse leitet zu HTTPS weiter | Verwende die `https://`-Adresse, die sie nennt |
+| Das HTTPS-Zertifikat ist nicht vertraut | Verwende ein vertrautes Zertifikat oder schalte die Prüfung für ein selbstsigniertes aus |
+| HTTPS ist fehlgeschlagen | Kept wird auf diesem Port über einfaches `http` ausgeliefert: verwende `http://` |
+| Kept hat das Token abgelehnt | Es wurde widerrufen, ist abgelaufen oder falsch eingetippt: erstelle ein neues |
+| Dieses Kept bietet die Zusammenfassung nicht an | Aktualisiere Kept |
+
+**Konfigurieren** in der Integration wählt, welche Orte des Tokens angezeigt werden und wie oft Kept gelesen wird (alle 5 Minuten; 1 bis 60). Wenn das Token widerrufen wird oder abläuft, fragt Home Assistant nach einem neuen.
+
+## Auf einem Dashboard
+
+Entitäts-IDs stammen aus den Namen in Kept. Für einen Ort namens **Starten** und ein Auto namens **Corolla**: `sensor.home_overdue`, `sensor.home_due`, `sensor.home_expiring`, `sensor.home_lent_out`, `sensor.home_low_stock`, `calendar.home_due_dates`, `sensor.corolla_reading`, `sensor.corolla_next_service`. Prüfe deine unter **Einstellungen → Geräte & Dienste → Kept**.
+
+Eine [Kachelkarte](https://www.home-assistant.io/dashboards/tile/) pro Zähler, oder eine [Entitätenkarte](https://www.home-assistant.io/dashboards/entities/):
+
+```yaml
+type: entities
+title: Kept · Home
+entities:
+  - sensor.home_overdue
+  - sensor.home_due
+  - sensor.home_expiring
+  - sensor.home_lent_out
+  - sensor.home_low_stock
+  - sensor.corolla_next_service
+```
+
+Der Kalender **Fälligkeiten** wird im **Kalender**-Bereich von Home Assistant angezeigt.
+
+## Aktionen
+
+**Kept: Zählerstand protokollieren** (`kept.log_reading`) sendet einen Zählerstand für ein Fahrzeug (oder einen Zähler, über seine ID: die `meter_id` des **Zählerstand**-Sensors). In Kept erscheint er als Zählerstand von Home Assistant. Kept lehnt einen Zählerstand ab, der niedriger ist als der vorherige, und die Aktion schlägt mit Kepts Grund fehl; ein Sprung, den Kept für unwahrscheinlich hält, wartet im Posteingang auf Prüfung.
+
+**Kept: Zeitplan als erledigt markieren** (`kept.complete_schedule`) markiert einen Zeitplan an einem Tag als erledigt (heute, in der Zeitzone des Orts) und erfasst die Wartung; bei einem Zeitplan nach Zählerstand wird dessen Zählerstand verwendet. Ein einmaliger Zeitplan ist dann erledigt und verlässt die Zähler; ihn erneut als erledigt zu markieren, schlägt fehl.
+
+Beide benötigen ein Token mit **Lesen und ändern**.
+
+### Der Kilometerzähler des Autos, an Kept gesendet
+
+Wenn der Kilometerstand des Autos 10 Minuten lang unverändert ist (das Auto steht):
+
+```yaml
+alias: Odometer to Kept
+triggers:
+  - trigger: state
+    entity_id: sensor.my_car_odometer
+    for: "00:10:00"
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: kept.log_reading
+    data:
+      device_id: YOUR_KEPT_VEHICLE_DEVICE_ID
+      value: "{{ trigger.to_state.state | float }}"
+mode: queued
+```
+
+`sensor.my_car_odometer` ist der Sensor deiner Auto-Integration. Im Automatisierungs-Editor wähle das Kept-Fahrzeug im Feld **Fahrzeug** der Aktion, um `device_id` zu füllen. Sende den Zählerstand in der Einheit des Zählers des Fahrzeugs in Kept.
+
+## Aktualisieren oder entfernen
+
+- **Aktualisieren:** Ein neues Release erscheint unter **Einstellungen → Updates** (HACS fügt es dort hinzu). Installiere es und starte Home Assistant neu.
+- **Entfernen:** **Einstellungen → Geräte & Dienste → Kept → ⋮ → Löschen**, dann entferne **Kept** in HACS und starte neu. Widerrufe das Token in Kept: **Einstellungen → Verbindungen**.
+
+## Was es liest
+
+Alle paar Minuten, mit dem Token: `GET /api/v1/summary` (die Anzahlen pro Ort), `GET /api/v1/vehicles` und die erste Seite von `GET /api/v1/agenda`. Der Kalender liest `GET /api/v1/agenda` für die Tage, die er anzeigt. Die Aktionen verwenden `POST /api/v1/meters/{id}/readings` und `POST /api/v1/schedules/{id}/complete`. Ein Token sieht nur seine eigenen Orte und nie mehr als du. Die gleiche Zusammenfassung speist [Dashboard-Widgets](/de/users/dashboards/).

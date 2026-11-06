@@ -1,0 +1,147 @@
+---
+title: Selbst gehostetes Heim-Inventar
+description: "Open-Source, selbst gehostetes Heim-Inventar für dein Homelab: wo die Dinge sind, was sie sind, was ansteht. 3D-Karte, QR-Etiketten, Garantien, Offline-Handy-App."
+template: splash
+hero:
+  title: Ein selbst gehostetes Heim-Inventar
+  tagline: Wo die Dinge sind. Was sie sind. Was ansteht.
+  actions:
+    - text: Installieren
+      link: /de/install/compose/
+      variant: primary
+    - text: Kept ausprobieren
+      link: /de/try/kept/
+      variant: secondary
+    - text: Karte ausprobieren
+      link: /de/try/map/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/keptinventory/kept
+      variant: minimal
+      icon: github
+---
+
+import Section from '../../../components/landing/Section.astro';
+import Cards from '../../../components/landing/Cards.astro';
+import Opened from '../../../components/landing/Opened.astro';
+import Integrations from '../../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
+import Gallery from '../../../components/landing/Gallery.astro';
+import LoopClip from '../../../components/landing/LoopClip.astro';
+import clipDarkMp4 from '../../../assets/clips/map-add-tv-short-dark.mp4?url';
+import clipDarkPoster from '../../../assets/clips/map-add-tv-short-dark-poster.webp?url';
+import clipDarkWebm from '../../../assets/clips/map-add-tv-short-dark.webm?url';
+import clipMp4 from '../../../assets/clips/map-add-tv-short.mp4?url';
+import clipPoster from '../../../assets/clips/map-add-tv-short-poster.webp?url';
+import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
+
+<Section title="Fernseher auf die Karte setzen" id="map-clip" split>
+  <Fragment slot="lede">Wähle den Fernseher aus. Seine Form kommt von seinem Typ.</Fragment>
+  <LoopClip
+    light={{ webm: clipWebm, mp4: clipMp4, poster: clipPoster }}
+    dark={{ webm: clipDarkWebm, mp4: clipDarkMp4, poster: clipDarkPoster }}
+    width={960}
+    height={514}
+    label="Einen Fernseher in der Beispielfamilie von Kept ausprobieren auf die Karte setzen: Wohnzimmer, Anordnen, der Samsung-Fernseher aus der Liste, seine Karte sagt Form: Fernseher, aus seinem Typ, dann Fertig."
+    pause="Pause the clip"
+    play="Play the clip"
+  />
+</Section>
+
+<Section eyebrow="Kept, opened" title="Ein Inventar auf deinem Desktop und deinem Handy" id="opened" split>
+  <Fragment slot="points">
+    <li><span><strong>Home:</strong> was dich braucht, auf einen Blick.</span></li>
+    <li><span><strong>Orte:</strong> Räume, Regale, Boxen. Eine Karte von jedem.</span></li>
+    <li><span><strong>Handy:</strong> Erfassen, scannen, suchen. Auch offline.</span></li>
+  </Fragment>
+  <Opened
+    desktopAlt="Kept-Startseite auf einem Desktop: Erste Schritte, die Kacheln 'Was dich braucht' von überfällig bis lange nicht gesehen, die Orte mit ihren Kartenvorschauen, Kurzbefehle und Einblicke"
+    phoneAlt="Kept-Startseite auf einem Handy: Erste Schritte, die Kacheln 'Was dich braucht' und die Kurzbefehle, über der Tableiste mit ihrem Erfassen-Button"
+  />
+</Section>
+
+<Section eyebrow="Features" title="Funktionen des Heim-Inventars" id="features">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'map', title: '3D-Karte', body: 'Etagen, Räume, Möbel. Pins für das, was dich braucht.', href: '/de/users/location-map/' },
+      { icon: 'places', title: 'Räume und Boxen', body: "Orte in Orten. Bewegst du eine Box, bewegt sich ihr Inhalt mit.", href: '/de/users/everyday-use/#standorte-räume-und-kisten' },
+      { icon: 'qrcode', title: 'QR-Etiketten', body: 'Eine Kurz-ID an allem. Eine Box scannen, hineinsehen.', href: '/de/users/everyday-use/#kurz-ids-und-etiketten' },
+      { icon: 'schedule', title: 'Garantien und Services', body: 'Nach Datum oder Zählerstand. In der Reihenfolge, in der sie ablaufen.', href: '/de/users/everyday-use/#erinnerungen-und-benachrichtigungen' },
+      { icon: 'phone', title: 'Handy-App, offline', body: 'Erfassen, scannen, suchen ohne Signal. Synchronisiert später.', href: '/de/users/phone-app/' },
+      { icon: 'insurance', title: 'Versicherungsberichte', body: 'Fotos, Seriennummern, Belege. Ein PDF und ein Schadenspaket.', href: '/de/users/everyday-use/#berichte-das-inventar-die-versicherung-und-ansprüche' },
+      { icon: 'lending', title: 'Ausleihen', body: 'An wen geliehen, wann fällig. Wer etwas ausleiht, braucht kein Konto.', href: '/de/users/lending/' },
+      { icon: 'moving', title: 'Umzug', body: 'Nummerierte Boxen, im Lieferwagen verfolgt, per Scan ausgepackt.', href: '/de/users/moving/' },
+      { icon: 'tool', title: 'Kits und Übergaben', body: 'Eine Box mit allem darin leihen. Jedes Teil kommt einzeln zurück.', href: '/de/users/kits/' },
+    ]}
+  />
+  <details class="kd-more">
+    <summary>Fünf weitere</summary>
+    <Cards
+      compact
+      heading="h3"
+      items={[
+        { icon: 'vehicle', title: 'Fahrzeuge und Maschinen', body: 'Zählerstände, Wartungen, Kraftstoff, Kosten.', href: '/de/users/everyday-use/#fahrzeuge-und-maschinen' },
+        { icon: 'stock', title: 'Verbrauchsmaterial und Vorrat', body: 'Ein Minimum pro Ding. Bescheid bekommen, wenn es knapp wird.', href: '/de/users/everyday-use/#fahrzeuge-und-maschinen' },
+        { icon: 'condition', title: 'Zustandsberichte', body: 'Einzug, Auszug, Raum für Raum. Mit Fotos.', href: '/de/users/everyday-use/#zustandsprotokolle-vermietung' },
+        { icon: 'insights', title: 'Einblicke', body: 'Ausgaben nach Jahr, Wert nach Ort. Nie geschätzt.', href: '/de/users/everyday-use/#einblicke' },
+        { icon: 'language', title: 'In deiner Sprache', body: 'English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська, Español.', href: '/de/users/first-run/#6-sprache-und-design' },
+      ]}
+    />
+  </details>
+  <p><a href="/de/users/features/">Alle Funktionen →</a></p>
+</Section>
+
+<Section eyebrow="Integrations" title="Was in Kept einfließt" id="integrations">
+  <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
+</Section>
+
+<Section eyebrow="A look around" title="Die Bildschirme" id="screens">
+  <Gallery
+    label="Bildschirme von Kept, aus dem Demohaushalt"
+    items={[
+      { name: 'claude-mcp', title: 'Claude über MCP', caption: 'Claude bitten, etwas hinzuzufügen. Es landet im richtigen Raum, mit Marke, Modell und Seriennummer.', alt: 'Claude Code: "Add my TV to the Living room: Samsung QE55Q80C, serial number 0B7H3CJT500123", und seine Antwort, dass der Fernseher in Kept unter Home › Living room liegt' },
+      { name: 'place', title: 'Ein Raum', caption: "Die Küche: was drin ist, was beendet ist, ihre Unterlagen.", alt: 'Die Küche in Kept: AA-Batterien, ein Feuerlöscher und ein alter Wasserkocher, markiert als beendet' },
+      { name: 'search-phone', title: 'Suche', caption: 'Teil eines Namens. Wo jeder Treffer ist, bis in die Box.', alt: 'Suche nach Kabel auf einem Handy: die Kabelbox und das HDMI-Kabel, jeweils mit Typ, Pfad und Etikett' },
+      { name: 'capture-phone', title: 'Erfassen', caption: 'Ein Foto pro Ding, im gewählten Ort. Später benennen.', alt: 'Der Erfassungsbildschirm auf einem Handy, die Kamera auf einer etikettierten Box im Garagenregal' },
+      { name: 'inbox', title: 'Posteingang', caption: 'Was eine Entscheidung braucht: Entwürfe, ein Beleg ohne Währung, eine ungewöhnliche Zählerablesung.', alt: "Posteingang von Kept: eine Zählerablesung des Autos, die niedriger ist als die letzte, mit Wegen, sie zu lösen" },
+      { name: 'labels', title: 'Etiketten', caption: 'Dinge ohne gedrucktes Etikett. Dein Etikettenvorrat, vor dem Drucken in der Vorschau.', alt: 'Etiketten drucken: die sechs Dinge in Home ohne gedrucktes Etikett, auf einem A4-Blatt mit 24, jedes Etikett ein QR-Code mit Name, Ort und Kurz-ID' },
+      { name: 'expiring', title: 'Läuft ab', caption: 'Garantien, Versicherung, ein Mietvertrag, ein Feuerlöscher. In der Reihenfolge, in der sie ablaufen.', alt: "Die Liste 'Läuft ab': die Hausversicherung läuft bald aus, dann Garantien, ein Feuerlöscher und ein Mietvertrag" },
+      { name: 'vehicles', title: 'Fahrzeuge', caption: 'Letzte Ableseung, nächste Wartung, Zulassungsdatum, Kraftstoffverbrauch.', alt: 'Fahrzeuge: ein Auto, ein Generator und ein zweites Auto, mit Zählerständen und was ansteht' },
+      { name: 'lending', title: 'Ausleihen', caption: "Was du geliehen hast, an wen. Was du geborgt hast. Was überfällig ist.", alt: 'Ausleihen: ein Bohrer, ausgeliehen und zwei Tage überfällig, und eine geliehene Leiter' },
+      { name: 'assistant', title: 'Assistent', caption: 'Frag, wo etwas ist. Die Antwort nennt, was sie gefunden hat; Änderungen warten auf dich.', alt: 'Der Assistent beantwortet, wo das HDMI-Kabel ist, verweist auf das Kabel und seine Box, mit einer zu bestätigenden Verschiebung' },
+      { name: 'connections', title: 'Verbindungen', caption: 'Token für KI-Apps und Skripte, jeweils auf die Orte beschränkt, die du wählst. Webhooks.', alt: 'Einstellungen für Verbindungen: zwei persönliche Token, eine verbundene App und die Webhooks' },
+      { name: 'track', title: 'Was erfasst wird', caption: 'Pro Ort: das Nötigste, Haushalt oder vollständig. Dann jedes Modul für sich.', alt: "Die Einstellungen 'Was erfasst wird' eines Orts: die Voreinstellung 'Haushalt' gewählt, mit eingeschalteten Modulen" },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Yours to run" title="Open Source, in deinem Homelab, deine Daten" id="trust">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'license', title: 'Open Source', body: 'AGPL-3.0. Code und Veröffentlichungen auf GitHub.', href: 'https://github.com/keptinventory/kept' },
+      { icon: 'server', title: 'Selbst gehostet', body: 'Ein Container, Postgres. Getestet auf 1 GB und 1 Kern.', href: '/de/install/hardware/' },
+      { icon: 'private', title: 'Keine Telemetrie', body: 'KI optional. Dein Anbieter oder keiner.', href: '/de/admin/security-model/#was-den-server-verlässt' },
+      { icon: 'signature', title: 'Signierte Veröffentlichungen', body: 'cosign-Signaturen und ein SBOM.', href: '/de/admin/verify-release/' },
+      { icon: 'backup', title: 'Nächtliche Sicherungen', body: 'Verschlüsseltes restic. Festplatte, S3 oder SFTP.', href: '/de/admin/backups/' },
+      { icon: 'book', title: 'Lesbar ohne Kept', body: 'Webseiten und Tabellen in jedem Backup.', href: '/de/admin/read-with-restic/' },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Find your way" title="Wo du anfängst">
+  <Cards
+    compact
+    columns={4}
+    items={[
+      { icon: 'people', title: 'Kept nutzen', body: 'Installation, erste Anmeldung, der Alltag.', href: '/de/users/first-run/' },
+      { icon: 'server', title: 'Kept betreiben', body: 'Konfiguration, Upgrades, das Wiederherstellungskit.', href: '/de/reference/configuration/' },
+      { icon: 'code', title: 'Auf Kept aufbauen', body: 'Architektur, die API, MCP, Synchronisation.', href: '/de/developers/architecture/' },
+      { icon: 'tool', title: 'Kept warten', body: 'Veröffentlichungen, Signieren, Triage, Entscheidungen.', href: '/de/maintainers/releasing/' },
+    ]}
+  />
+</Section>

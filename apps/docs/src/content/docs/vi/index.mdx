@@ -1,0 +1,147 @@
+---
+title: Quản lý đồ vật tại nhà tự lưu trữ
+description: "Quản lý đồ vật tại nhà mã nguồn mở, tự lưu trữ cho homelab của bạn: đồ vật ở đâu, chúng là gì, cái gì sắp đến hạn. Bản đồ 3D, nhãn mã QR, bảo hành, ứng dụng điện thoại hoạt động ngoại tuyến."
+template: splash
+hero:
+  title: Quản lý đồ vật tại nhà tự lưu trữ
+  tagline: Đồ vật ở đâu. Chúng là gì. Cái gì sắp đến hạn.
+  actions:
+    - text: Cài đặt
+      link: /vi/install/compose/
+      variant: primary
+    - text: Thử Kept
+      link: /vi/try/kept/
+      variant: secondary
+    - text: Thử bản đồ
+      link: /vi/try/map/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/keptinventory/kept
+      variant: minimal
+      icon: github
+---
+
+import Section from '../../../components/landing/Section.astro';
+import Cards from '../../../components/landing/Cards.astro';
+import Opened from '../../../components/landing/Opened.astro';
+import Integrations from '../../../components/landing/Integrations.astro';
+import HomeAssistantButton from '../../../components/HomeAssistantButton.astro';
+import Gallery from '../../../components/landing/Gallery.astro';
+import LoopClip from '../../../components/landing/LoopClip.astro';
+import clipDarkMp4 from '../../../assets/clips/map-add-tv-short-dark.mp4?url';
+import clipDarkPoster from '../../../assets/clips/map-add-tv-short-dark-poster.webp?url';
+import clipDarkWebm from '../../../assets/clips/map-add-tv-short-dark.webm?url';
+import clipMp4 from '../../../assets/clips/map-add-tv-short.mp4?url';
+import clipPoster from '../../../assets/clips/map-add-tv-short-poster.webp?url';
+import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
+
+<Section title="Đặt một chiếc TV lên bản đồ" id="map-clip" split>
+  <Fragment slot="lede">Chọn chiếc TV. Hình dạng của nó đến từ loại của nó.</Fragment>
+  <LoopClip
+    light={{ webm: clipWebm, mp4: clipMp4, poster: clipPoster }}
+    dark={{ webm: clipDarkWebm, mp4: clipDarkMp4, poster: clipDarkPoster }}
+    width={960}
+    height={514}
+    label="Đặt một TV lên bản đồ trong hộ gia đình mẫu của Thử Kept: phòng khách, Sắp xếp, TV Samsung từ danh sách, thẻ của nó ghi Hình dạng: TV, từ loại của nó, sau đó Xong."
+    pause="Pause the clip"
+    play="Play the clip"
+  />
+</Section>
+
+<Section eyebrow="Kept, opened" title="Một kho đồ vật, trên máy tính để bàn và điện thoại của bạn" id="opened" split>
+  <Fragment slot="points">
+    <li><span><strong>Trang chủ:</strong> cái gì cần bạn, ngay lập tức.</span></li>
+    <li><span><strong>Địa điểm:</strong> phòng, kệ, hộp. Một bản đồ cho mỗi cái.</span></li>
+    <li><span><strong>Điện thoại:</strong> ghi lại, quét, tìm kiếm. Ngoại tuyến cũng được.</span></li>
+  </Fragment>
+  <Opened
+    desktopAlt="Trang chủ của Kept trên máy tính để bàn: Bắt đầu, các ô Cần bạn từ quá hạn đến lâu chưa thấy, các địa điểm với bản đồ xem trước, phím tắt và Thông tin chi tiết"
+    phoneAlt="Trang chủ của Kept trên điện thoại: Bắt đầu, các ô Cần bạn và phím tắt, phía trên thanh tab với nút Ghi lại"
+  />
+</Section>
+
+<Section eyebrow="Features" title="Tính năng quản lý đồ vật tại nhà" id="features">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'map', title: 'Bản đồ 3D', body: 'Tầng, phòng, đồ đạc. Ghim cho cái gì cần bạn.', href: '/vi/users/location-map/' },
+      { icon: 'places', title: 'Phòng và hộp', body: "Vị trí trong vị trí. Di chuyển một hộp; đồ vật bên trong cũng di chuyển theo.", href: '/vi/users/everyday-use/#các-vị-trí-phòng-và-hộp' },
+      { icon: 'qrcode', title: 'Nhãn mã QR', body: 'Một ID ngắn trên mọi thứ. Quét một hộp, xem bên trong.', href: '/vi/users/everyday-use/#id-ngắn-và-nhãn' },
+      { icon: 'schedule', title: 'Bảo hành và dịch vụ', body: 'Theo ngày hoặc chỉ số đồng hồ. Theo thứ tự chúng hết hạn.', href: '/vi/users/everyday-use/#nhắc-nhở-và-thông-báo' },
+      { icon: 'phone', title: 'Ứng dụng điện thoại, ngoại tuyến', body: 'Ghi lại, quét, tìm kiếm không cần sóng. Đồng bộ sau.', href: '/vi/users/phone-app/' },
+      { icon: 'insurance', title: 'Báo cáo bảo hiểm', body: 'Ảnh, số serial, hóa đơn. Một PDF và gói hồ sơ khiếu nại.', href: '/vi/users/everyday-use/#báo-cáo-danh-sách-bảo-hiểm-và-yêu-cầu' },
+      { icon: 'lending', title: 'Cho mượn', body: 'Cho ai mượn, đến khi nào. Người mượn không cần tài khoản.', href: '/vi/users/lending/' },
+      { icon: 'moving', title: 'Chuyển nhà', body: 'Hộp có số, theo dõi trong xe, giải nén bằng cách quét.', href: '/vi/users/moving/' },
+      { icon: 'tool', title: 'Bộ công cụ và bàn giao', body: 'Cho mượn một hộp với tất cả bên trong. Mỗi đồ vật tự về chỗ.', href: '/vi/users/kits/' },
+    ]}
+  />
+  <details class="kd-more">
+    <summary>Năm tính năng nữa</summary>
+    <Cards
+      compact
+      heading="h3"
+      items={[
+        { icon: 'vehicle', title: 'Xe cộ và máy móc', body: 'Chỉ số, dịch vụ, nhiên liệu, chi phí.', href: '/vi/users/everyday-use/#phương-tiện-và-máy-móc' },
+        { icon: 'stock', title: 'Vật tiêu hao và tồn kho', body: 'Một mức tối thiểu cho mỗi đồ vật. Báo khi sắp hết.', href: '/vi/users/everyday-use/#phương-tiện-và-máy-móc' },
+        { icon: 'condition', title: 'Báo cáo trạng thái', body: 'Nhận nhà, trả nhà, theo từng phòng. Có ảnh.', href: '/vi/users/everyday-use/#báo-cáo-tình-trạng-thuê-nhà' },
+        { icon: 'insights', title: 'Thông tin chi tiết', body: 'Chi tiêu theo năm, giá trị theo vị trí. Không bao giờ ước lượng.', href: '/vi/users/everyday-use/#thống-kê' },
+        { icon: 'language', title: 'Ngôn ngữ của bạn', body: 'English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська, Español.', href: '/vi/users/first-run/#6-ngôn-ngữ-và-chủ-đề' },
+      ]}
+    />
+  </details>
+  <p><a href="/vi/users/features/">Tất cả tính năng →</a></p>
+</Section>
+
+<Section eyebrow="Integrations" title="Cái gì cung cấp dữ liệu cho Kept" id="integrations">
+  <Integrations />
+  <p class="kd-ha-row"><HomeAssistantButton /></p>
+</Section>
+
+<Section eyebrow="A look around" title="Các màn hình" id="screens">
+  <Gallery
+    label="Màn hình của Kept, từ hộ gia đình demo của nó"
+    items={[
+      { name: 'claude-mcp', title: 'Claude, qua MCP', caption: 'Yêu cầu Claude thêm một đồ vật. Nó đến đúng phòng, có thương hiệu, mẫu và số serial.', alt: 'Claude Code: "Thêm TV của tôi vào Phòng khách: Samsung QE55Q80C, số serial 0B7H3CJT500123", và phản hồi của nó rằng TV đã có trong Kept dưới Trang chủ › Phòng khách' },
+      { name: 'place', title: 'Một phòng', caption: "Phòng bếp: có gì bên trong, cái gì đã hết hạn, văn bản hành chính của nó.", alt: 'Phòng bếp trong Kept: pin AA, bình chữa cháy và một cái ấm cũ được đánh dấu đã hết hạn' },
+      { name: 'search-phone', title: 'Tìm kiếm', caption: 'Một phần của tên. Vị trí của mỗi kết quả, xuống đến hộp.', alt: 'Tìm kiếm cable trên điện thoại: hộp cáp và cáp HDMI, mỗi cái có loại, đường dẫn và nhãn của nó' },
+      { name: 'capture-phone', title: 'Ghi lại', caption: 'Một ảnh cho mỗi đồ vật, vào vị trí bạn chọn. Đặt tên sau.', alt: 'Màn hình ghi lại trên điện thoại, camera của nó hướng vào một hộp có nhãn trên kệ trong gara' },
+      { name: 'inbox', title: 'Hộp thư đến', caption: 'Cái gì cần quyết định: nháp, hóa đơn không có tiền tệ, một chỉ số đồng hồ lạ.', alt: "Hộp thư đến của Kept: chỉ số đồng hồ của một chiếc xe thấp hơn lần trước, với các cách giải quyết" },
+      { name: 'labels', title: 'Nhãn', caption: 'Đồ vật không có nhãn in. Loạt nhãn của bạn, xem trước trước khi in.', alt: 'In nhãn: sáu đồ vật trong Trang chủ không có nhãn in, trên tờ A4 24 nhãn, mỗi nhãn là mã QR với tên, vị trí và ID ngắn của nó' },
+      { name: 'expiring', title: 'Sắp hết hạn', caption: 'Bảo hành, bảo hiểm, hợp đồng thuê, bình chữa cháy. Theo thứ tự chúng hết hạn.', alt: 'Danh sách Sắp hết hạn: bảo hiểm nhà sắp hết hạn, rồi bảo hành, bình chữa cháy và hợp đồng thuê' },
+      { name: 'vehicles', title: 'Xe cộ', caption: 'Chỉ số lần trước, dịch vụ tiếp theo, ngày hết hạn giấy phép, tiêu thụ nhiên liệu.', alt: 'Xe cộ: một chiếc ô tô, một máy phát điện và một chiếc ô tô thứ hai, với chỉ số đồng hồ và cái gì sắp đến hạn' },
+      { name: 'lending', title: 'Cho mượn', caption: "Bạn cho mượn gì, cho ai. Bạn mượn gì. Cái gì quá hạn.", alt: 'Cho mượn: một cái khoan cho mượn và đã quá hạn hai ngày, và một cái thang mượn' },
+      { name: 'assistant', title: 'Trợ lý', caption: 'Hỏi đâu là vị trí của một cái gì. Câu trả lời trích dẫn cái nó tìm thấy; thay đổi chờ bạn xác nhận.', alt: 'Trợ lý trả lời cáp HDMI ở đâu, trích dẫn cáp và hộp của nó, với một hành động di chuyển để xác nhận' },
+      { name: 'connections', title: 'Kết nối', caption: 'Token cho ứng dụng AI và script, mỗi cái giới hạn ở các vị trí bạn chọn. Webhook.', alt: 'Cài đặt Kết nối: hai token cá nhân, một ứng dụng đã kết nối và các webhook' },
+      { name: 'track', title: 'Cái gì cần theo dõi', caption: 'Theo từng vị trí: cần thiết, hộ gia đình hoặc hoàn chỉnh. Sau đó mỗi mô-đun riêng biệt.', alt: "Cài đặt Cái gì cần theo dõi của một vị trí: preset hộ gia đình được chọn, với các mô-đun được bật" },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Yours to run" title="Mã nguồn mở, trong homelab của bạn, dữ liệu của bạn" id="trust">
+  <Cards
+    compact
+    heading="h3"
+    items={[
+      { icon: 'license', title: 'Mã nguồn mở', body: 'AGPL-3.0. Mã nguồn và bản phát hành trên GitHub.', href: 'https://github.com/keptinventory/kept' },
+      { icon: 'server', title: 'Tự lưu trữ', body: 'Một container, Postgres. Đã kiểm tra trên 1 GB, 1 nhân.', href: '/vi/install/hardware/' },
+      { icon: 'private', title: 'Không telemetry', body: 'AI tùy chọn. Nhà cung cấp của bạn, hoặc không có.', href: '/vi/admin/security-model/#những-gì-rời-khỏi-máy-chủ' },
+      { icon: 'signature', title: 'Bản phát hành đã ký', body: 'Chữ ký cosign và một SBOM.', href: '/vi/admin/verify-release/' },
+      { icon: 'backup', title: 'Sao lưu hàng đêm', body: 'restic mã hóa. Đĩa, S3 hoặc SFTP.', href: '/vi/admin/backups/' },
+      { icon: 'book', title: 'Đọc được không cần Kept', body: 'Trang web và bảng tính trong mỗi bản sao lưu.', href: '/vi/admin/read-with-restic/' },
+    ]}
+  />
+</Section>
+
+<Section eyebrow="Find your way" title="Bắt đầu từ đâu">
+  <Cards
+    compact
+    columns={4}
+    items={[
+      { icon: 'people', title: 'Sử dụng Kept', body: 'Cài đặt, đăng nhập đầu tiên, hàng ngày.', href: '/vi/users/first-run/' },
+      { icon: 'server', title: 'Chạy Kept', body: 'Cấu hình, nâng cấp, bộ phục hồi.', href: '/vi/reference/configuration/' },
+      { icon: 'code', title: 'Xây dựng trên Kept', body: 'Kiến trúc, API, MCP, đồng bộ.', href: '/vi/developers/architecture/' },
+      { icon: 'tool', title: 'Duy trì Kept', body: 'Phát hành, ký, phân loại, quyết định.', href: '/vi/maintainers/releasing/' },
+    ]}
+  />
+</Section>

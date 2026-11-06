@@ -127,7 +127,8 @@ describe('CSV import', () => {
     try {
       await app.user.click(screen.getByRole('button', { name: 'Download a sample CSV' }));
     } finally {
-      Object.assign(URL, { createObjectURL: undefined, revokeObjectURL: undefined });
+      // The download's 10-second revoke can fire after this test has finished.
+      Object.assign(URL, { createObjectURL: undefined, revokeObjectURL: () => {} });
     }
     expect(saved?.name).toBe('kept-sample.csv');
     await waitFor(() => expect(fileInput()).not.toBeNull());

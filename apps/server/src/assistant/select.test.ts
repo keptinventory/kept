@@ -178,6 +178,61 @@ describe('choosing the tools a step offers', () => {
     ['Додай майстерню, 4 метри на 3', 'create_place'],
     ['Майстерня 3,5 на 2,5', 'create_place'],
     ['Майстерня 4х3', 'create_place'],
+    // Spanish, as it is asked.
+    ['Presté el taladro a Louis', 'lend_thing'],
+    ['Le presté la escalera a Bruce', 'lend_thing'],
+    ['¿A quién le di la cámara?', 'lend_thing'],
+    ['¿Quién tiene la escalera?', 'lend_thing'],
+    ['¿Quién se llevó la cámara?', 'lend_thing'],
+    ['Le entregué la cámara a Talia', 'lend_thing'],
+    ['Louis devolvió la escalera', 'return_thing'],
+    ['Me devolvieron el taladro', 'return_thing'],
+    ['¿Qué hay que hacer esta semana?', 'upcoming'],
+    ['¿Qué mantenimiento está atrasado?', 'upcoming'],
+    ['Recuérdame cambiar el filtro', 'upcoming'],
+    ['¿Cuál es el próximo vencimiento?', 'upcoming'],
+    ['La tarea está hecha', 'complete_schedule'],
+    ['Pospón el mantenimiento de la caldera a mayo', 'snooze_schedule'],
+    ['¿Dónde está el recibo del televisor?', 'find_documents'],
+    ['Busca la factura', 'find_documents'],
+    ['¿Dónde está el manual de la tetera?', 'find_documents'],
+    ['Muéstrame los documentos del televisor', 'find_documents'],
+    ['El televisor tiene garantía de dos años', 'add_warranty'],
+    ['¿La tetera sigue en garantía?', 'add_warranty'],
+    ['Abre una reclamación por la tetera', 'open_claim'],
+    ['La tetera se ha roto', 'open_claim'],
+    ['El televisor no funciona, hay que repararlo', 'open_claim'],
+    ['Reposté el coche: 40 litros', 'log_fuel'],
+    ['Eché gasolina al coche', 'log_fuel'],
+    ['El cuentakilómetros marca 52 300 km', 'log_reading'],
+    ['Lectura del contador de electricidad', 'log_reading'],
+    ['El coche pasó la ITV', 'log_service'],
+    ['Cambié los neumáticos', 'log_service'],
+    ['Cambié el aceite del coche', 'log_service'],
+    ['Se acabaron las pilas AA', 'adjust_stock'],
+    ['¿Cuánto jabón queda?', 'adjust_stock'],
+    ['Repón el jabón', 'adjust_stock'],
+    ['Se han agotado los filtros', 'adjust_stock'],
+    ['¿Qué le pasó a la tetera?', 'thing_history'],
+    ['¿Quién movió la webcam?', 'thing_history'],
+    ['Historial del televisor', 'thing_history'],
+    ['¿Cuándo compré la tetera?', 'thing_history'],
+    ['Añade un estante en el despacho', 'create_place'],
+    ['Crea una habitación', 'create_place'],
+    ['¿Qué hay en el dormitorio?', 'create_place'],
+    ['Armario en el pasillo', 'create_place'],
+    ['Renombra el despacho a oficina', 'update_place'],
+    ['Cambia el orden de los estantes', 'update_place'],
+    ['Pon el Kallax de lado', 'update_place'],
+    ['Convierte los cajones en cajas', 'turn_into_boxes'],
+    ['Añade una foto del recibo', 'attach_link'],
+    ['Etiqueta la tienda con camping', 'tag_things'],
+    ['¿Qué etiquetas tenemos?', 'list_tags'],
+    // A Spanish room with its size.
+    ['Añade un taller de 4 por 3', 'create_place'],
+    ['Añade un taller de 4 m por 3 m', 'create_place'],
+    ['Añade un taller, 4 metros por 3', 'create_place'],
+    ['Taller de 3,5 por 2,5', 'create_place'],
   ] as const)('“%s” offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
     // The core is always there.
@@ -234,6 +289,25 @@ describe('choosing the tools a step offers', () => {
     ['Де віддалений пульт?', 'lend_thing'],
     ['Де поверхня столу?', 'return_thing'],
     ['Де колиска?', 'thing_history'],
+    ['¿Dónde está el ordenador?', 'update_place'],
+    ['¿Dónde está la silla giratoria?', 'update_place'],
+    ['¿Todo en orden?', 'update_place'],
+    ['¿Dónde están las baldosas?', 'create_place'],
+    ['¿Dónde está el escáner?', 'create_place'],
+    ['¿Cuál es el tamaño del televisor?', 'create_place'],
+    ['¿Dónde está la cinta métrica de 5 metros?', 'create_place'],
+    ['¿Dónde está el papel de cocina?', 'find_documents'],
+    ['¿Dónde está el aceite de oliva?', 'log_service'],
+    ['¿Dónde está el cochecito?', 'log_fuel'],
+    ['¿Dónde está el libro de repostería?', 'log_fuel'],
+    ['¿Dónde está la rueda de repuesto?', 'adjust_stock'],
+    ['Dejé las llaves en la mesa', 'adjust_stock'],
+    ['Dejé las llaves en la mesa', 'lend_thing'],
+    ['¿Dónde están los pendientes de oro?', 'upcoming'],
+    ['¿Dónde está el programador de riego?', 'upcoming'],
+    ['Hace tiempo compré un taladro', 'lend_thing'],
+    ['¿Averiguaste dónde está?', 'open_claim'],
+    ['¿Dónde está el rompecabezas?', 'open_claim'],
   ] as const)('“%s” is an ordinary question: no %s', (question, tool) => {
     expect(offered(question)).not.toContain(tool);
   });
@@ -260,6 +334,18 @@ describe('choosing the tools a step offers', () => {
     expect(offered('Що у гарантіі?')).toContain('add_warranty');
     expect(offered('Перейменуи кабінет')).toContain('update_place');
     expect(offered('Перейменуй кабінет'.normalize('NFD'))).toContain('update_place');
+  });
+
+  it('matches a Spanish stem at a word’s start, and a short word whole: “ordenador” is not “ordena”', () => {
+    expect(offered('Ordena los estantes')).toContain('update_place');
+    expect(offered('¿Dónde está el ordenador?')).toEqual(offered('Are you working?'));
+  });
+
+  it('folds Spanish accents and ñ on both sides, whichever way a keyboard writes them', () => {
+    expect(offered('Abre una reclamacion')).toContain('open_claim');
+    expect(offered('Cuando compre la tetera?')).toContain('thing_history');
+    expect(offered('Que hay en el bano?')).toContain('create_place');
+    expect(offered('Abre una reclamación'.normalize('NFD'))).toContain('open_claim');
   });
 
   it('keeps a tool the thread already used, and one the model asked for and was not offered', () => {

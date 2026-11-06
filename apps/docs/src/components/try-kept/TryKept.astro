@@ -1,5 +1,7 @@
 ---
+import { langOf, pick } from '../../i18n';
 import { tryAppHref } from '../../try-kept';
+import { tryKept } from '../../words';
 /**
  * "Try Kept" (D246): the note and the button that open the whole app with a sample household
  * (the web app's demo build at /try/kept/app/, src/try-kept.ts), and the app on a desktop and a
@@ -10,27 +12,14 @@ import { tryAppHref } from '../../try-kept';
 import Opened from '../landing/Opened.astro';
 
 interface Props {
-  lang: 'en' | 'ar';
+  /** Not read: the page's own language decides. Older pages still pass one. */
+  lang?: string;
 }
 
-const { lang } = Astro.props;
+// The page's language decides, so a translated page needs no prop (older pages still pass one).
+const lang = langOf(Astro.locals.starlightRoute.lang);
 const href = tryAppHref(import.meta.env.BASE_URL, lang);
-const t = {
-  en: {
-    note: 'The whole app with a sample household, in your browser. Nothing is saved or sent.',
-    open: 'Open Kept',
-    desktop:
-      "Kept's Home on a desktop: Get started, the Needs you tiles, the locations with their map previews, shortcuts and Insights",
-    phone: "Kept's Home on a phone: the Needs you tiles and the shortcuts, above the tab bar",
-  },
-  ar: {
-    note: 'التطبيق كاملًا مع منزل تجريبي، في متصفحك. لا يُحفظ شيء ولا يُرسل.',
-    open: 'افتح Kept',
-    desktop:
-      'الصفحة الرئيسية في Kept على حاسوب: بطاقات «يحتاجك» والمواقع بمعاينات خرائطها والاختصارات',
-    phone: 'الصفحة الرئيسية في Kept على هاتف: بطاقات «يحتاجك» والاختصارات فوق شريط التبويب',
-  },
-}[lang];
+const t = pick(tryKept, lang);
 ---
 
 <div class="kd-try not-content">

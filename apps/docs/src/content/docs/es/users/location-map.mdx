@@ -1,0 +1,225 @@
+---
+title: "El mapa de ubicaciones"
+description: "Ve una ubicación como un mapa 3D de sus pisos y habitaciones, encuentra dónde están los objetos y organiza tú mismo las habitaciones, estantes y cajas."
+---
+
+import Clip from '../../../../components/Clip.astro';
+import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
+import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
+import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
+
+La página de una ubicación tiene cinco diseños: **Lista**, **Cuadrícula**, [**Grafo**](/es/users/graph/), **Tabla** y **Mapa**. El mapa dibuja la ubicación en 3D: cada piso, sus habitaciones, y los estantes, armarios y cajas que hay en ellos. Toca cualquier cosa para ver qué es, dónde está y qué tiene dentro. Lista sigue siendo el predeterminado; Kept recuerda tu elección para cada ubicación en cada dispositivo. En Mapa, el mapa lidera y llena la pantalla; los botones de la ubicación (Imprimir inventario, Imprimir etiquetas y el resto), **Añadir aquí** y **Sin ubicar** lo siguen.
+
+La página de un piso o una habitación también tiene **Mapa**: el mismo mapa, abierto en ese lugar. Un piso se abre en ese piso, una habitación se abre dentro de ella con su tarjeta, y un estante o armario se selecciona en su habitación. Un lugar que el mapa no dibuja se abre en su habitación con una nota. Kept recuerda la elección para cada lugar.
+
+Para verlo antes de instalar nada, [prueba el mapa](/es/try/map/) con un hogar de ejemplo en tu navegador.
+
+![Un hogar en su mapa: habitaciones con sus pisos y paredes, un mueble de TV seleccionado con su tarjeta mostrando Dentro · 5 y Detalles, el interruptor Lista · Cuadrícula · Mapa arriba](../../../../assets/screens/map-desktop-light.webp)
+
+![El mismo hogar en el mapa con el tema oscuro](../../../../assets/screens/map-desktop-dark.webp)
+
+El mapa necesita conexión: no forma parte de la copia sin conexión del teléfono. Solo carga cuando lo abres, así el resto de Kept sigue tan rápido como antes.
+
+## Qué hay en el mapa
+
+| En el mapa | De dónde viene |
+|---|---|
+| **Pisos** | Lugares del tipo **Piso** en la parte superior de la ubicación. Sin ninguno, la ubicación es un solo nivel. |
+| **Habitaciones** | Cada lugar directamente en un piso (o en la parte superior, cuando no hay pisos), sea cual sea su tipo. |
+| **Estantes, armarios, áreas** | Los lugares directamente en una habitación. |
+| **Cajas y otros contenedores** | Los contenedores directamente en una habitación. |
+| **Cualquier otra cosa** | Un objeto que pones en el mapa tú, como la tele o el coche. |
+
+Los nombres nunca se solapan ni se cortan: cuando dos tocarían, se queda el nombre de la habitación y lo que hay en un estante o caja se muestra al hacer suficiente zoom. El objeto que seleccionaste siempre mantiene su nombre.
+
+Todo lo demás se cuenta: un estante dice cuántos objetos hay en él, y su tarjeta los lista. Nadie tiene que organizar nada antes. Las habitaciones que nadie organizó se disponen lado a lado en el orden de la lista de lugares, y lo que hay en ellas en filas; **Organizar** los mueve a donde están de verdad. Una habitación llamada «Jardín», «Balcón» o «Terraza» se dibuja como una.
+
+Los marcadores muestran qué necesita atención: **Stock bajo** (Consumibles), **Prestado** (Préstamos) y **Vence pronto** (programaciones, garantías y documentos). Un marcador está en el estante o caja que tiene el objeto. Los chips de arriba activan o desactivan cada tipo.
+
+## Moverse
+
+| | Con ratón | En el móvil |
+|---|---|---|
+| Desplazar | Arrastrar | Arrastrar con un dedo |
+| Zoom | Rueda, o **+** y **−** | Pellizcar, o **+** y **−** |
+| Girar | Los botones de girar | Girar con dos dedos, o el botón de girar |
+| Abrir una habitación | Doble clic, o **Abrir** en su tarjeta | Doble toque, o **Abrir** |
+| Volver | El nombre de la ubicación o el piso arriba, o el botón de casa | Lo mismo |
+
+Los botones de piso funcionan como un ascensor: **P**, **1**, **PB** y así, cada uno con el nombre de su piso, y **Todo** apila todos los pisos. En el móvil están en una fila abajo con los botones de zoom y girar, y se apartan mientras hay una tarjeta abierta. **Plano** mira hacia abajo, con nombres y qué hay en cada estante. Las escaleras en el mapa te llevan al piso de arriba o de abajo.
+
+Una habitación se abre mirando al frente de sus pantallas (un monitor, una tele, un portátil), así las ves, no sus espaldas. Gírala de otra forma y se abrirá así la próxima vez en este dispositivo. Una pared que estuviera entre tú y la habitación baja a un bordillo bajo mientras miras desde ese lado, y vuelve a subir al girar; lo que cuelga de ella va y viene con ella. Plano mantiene todas las paredes.
+
+![Plano: el mismo hogar visto desde arriba, cada habitación con su nombre](../../../../assets/screens/map-plan-light.webp)
+
+![El mapa en un móvil: el interruptor Lista · Cuadrícula · Mapa, los botones 3D y Plano, y la tarjeta de un objeto seleccionado abajo](../../../../assets/screens/map-phone-light.webp)
+
+## La tarjeta
+
+Tocar algo abre una tarjeta corta: su nombre, dónde está, su ID corto (como cinta ámbar cuando tiene etiqueta impresa) y lo que vence. **Detalles** añade su foto, su etiqueta (el mismo código QR que lleva una etiqueta impresa), sus datos y **Abrir el objeto** o **Abrir el lugar**. **Dentro** lista lo que hay en él; toca uno para verlo. Con ratón, pasar por encima muestra el nombre, y el ID corto de un objeto etiquetado, sin clic.
+
+Dónde está se lee desde la habitación en: «Espacio abierto › Escritorio 3» para un portátil guardado en Escritorio 3 y apoyado en él. En una ventana corta o en el móvil los detalles se desplazan dentro de la tarjeta, y **Abrir** se queda en el borde inferior de la tarjeta.
+
+Los **muebles con compartimentos** ([una estantería de cubos, una estantería alta, una cómoda](/es/users/locations/#muebles-con-compartimentos)) muestran sus compartimentos: delineados en su frente mientras está seleccionado, y como una cuadrícula de números en su tarjeta. Toca un compartimento en el mapa o en la tarjeta para abrir su propia tarjeta: qué hay en él, su etiqueta y **Abrir el lugar**.
+
+## Qué hay en la ubicación
+
+Debajo del mapa, **Qué hay** lista cada habitación con lo que está y yace en ella. Busca por nombre o ID corto, elige un piso, o cambia a **Necesita atención** para todo lo bajo, prestado o que vence. Un toque lo muestra en el mapa. La búsqueda, el piso y la vista están en la dirección, así puedes compartirlos o guardarlos.
+
+Para lectores de pantalla y teclados, **Lugares en este nivel** lista las habitaciones del piso y lo que hay en ellas, junto al mapa.
+
+## Organizar
+
+Propietarios, admins y miembros pueden organizar una ubicación; los espectadores la ven como está organizada. **Organizar** empieza:
+
+- **Mover**: arrastra cualquier cosa. Los objetos pequeños (un portátil, una lámpara, una caja) pueden estar en una encimera, escritorio, estante o caja, y se mueven con ella; una webcam se engancha al borde superior de un monitor. Arrastra un objeto a otra habitación para moverlo allí en Kept también. Los objetos pequeños se mueven un centímetro a la vez, otros 5 cm y muebles 10 cm; en un escritorio o estante se alinean con sus bordes. En un ordenador, mantén **Alt** (**Opción** en Mac) para arrastrar libremente.
+- **Mover una habitación** con todo dentro: muebles, estantes, cajas y lo que hay sobre ellos. Con ratón, selecciona la habitación y arrástrala. En el móvil, mantén su piso un momento y luego arrastra; un desliz rápido sigue moviendo la vista. Con una habitación seleccionada, cada tecla de flecha la mueve un metro en la dirección hacia la que mira la vista, y **Mayús** con una flecha 10 cm; un lector de pantalla oye a dónde fue («Habitación principal movida a la izquierda.»). Arrastra la **esquina ámbar** de una habitación para cambiar su tamaño. Las habitaciones se mueven, cambian de tamaño y se dibujan de 10 en 10 cm, al menos 50 cm de lado, y se quedan en su piso; una que solaparía a otra se desliza junto a ella en su lugar («Las habitaciones no pueden solaparse.»).
+- **Dibujar una habitación** en suelo vacío. Se vuelve un lugar nuevo en ese piso al momento.
+- **De un plano** lee las habitaciones de un plano de planta (abajo).
+- **Agregar un piso** añade un lugar del tipo Piso, con una habitación dentro.
+- Selecciona una habitación para fijar su **tipo** (habitación, balcón, terraza, jardín), su **suelo** (madera, baldosas, hormigón, tarima, césped) y su **Ancho** y **Largo**, o para **poner un objeto de esa habitación en el mapa**. Ver [El tamaño real de una habitación](#el-tamaño-real-de-una-habitación).
+- Selecciona un objeto para **girarlo**, cambiar su **forma** (ver abajo), **ponerlo sobre** un escritorio, estante o monitor, **añadir objetos sobre él**, fijar a qué altura cuelga en una pared (**Altura**), o **quitarlo del mapa** (solo lo que pusiste tú).
+
+**Listo** guarda toda la organización de una vez, y el aviso que sigue ofrece **Deshacer**. **Cancelar** devuelve el mapa; si algo cambió, pregunta antes (**¿Descartar estos cambios?**). Las habitaciones y pisos que añadiste se quedan en Kept de cualquier forma. Si otra persona organizó la misma ubicación mientras tú lo hacías, Kept lo dice y muestra la suya, en vez de sobrescribirla. En el móvil, la tarjeta de una habitación u objeto seleccionado está debajo de las herramientas de Organizar, así **Listo** y **Cancelar** siguen a mano mientras está abierta.
+
+![Organizando: Mover, Dibujar una habitación, Agregar un piso y Cancelar sobre el mapa, la esquina ámbar de cada habitación para cambiar tamaño, y Listo en la barra superior](../../../../assets/screens/map-arrange-light.webp)
+
+La organización viaja en una exportación de Kept, así mover a otro servidor mantiene el mapa. Una importación de Homebox parte del diseño automático.
+
+### El tamaño real de una habitación
+
+Una habitación puede tener su tamaño real, al centímetro: un balcón estrecho de 0,80 × 3,58 m, un pasillo de 1,15 × 6,40 m.
+
+- **Al añadirla:** **Añadir aquí → Sala o lugar**, arriba de una ubicación o en un piso, tiene **Tamaño en el mapa**: **Ancho** y **Largo** en metros. Deja ambos vacíos y el mapa calcula el tamaño de la habitación. Con un tamaño, la habitación va al mapa en ese tamaño, a la derecha de las habitaciones ya organizadas en su piso, y **Deshacer** del aviso quita la habitación y su sitio en el mapa juntos.
+- **Mientras organizas:** selecciona la habitación y escribe su **Ancho** y **Largo**, o cámbialos un centímetro a la vez con **−**, **+** o las teclas de flecha. La esquina de la habitación se queda donde está, y lo que hay dentro se queda dentro.
+- **Ancho** va de izquierda a derecha en la vista Plano, **Largo** de arriba a abajo. Cualquier separador decimal sirve en cualquier idioma: 0,80 o 0.80.
+- Una habitación es **de al menos 50 cm** y a lo sumo 100 m de lado. Un tamaño que no puede tomar, o que chocaría con otra habitación, se queda en el campo y dice por qué; la habitación mantiene el suyo.
+- La tarjeta de la habitación dice su tamaño (**0,8 × 3,58 m**), y la vista Plano lo escribe bajo el nombre de la habitación.
+- **Apps de IA y el asistente** añaden una habitación con su tamaño igual: `create_place` toma `width_cm` y `length_cm` ([Apps de IA](/es/users/mcp-clients/)).
+
+Arrastrar la esquina ámbar sigue yendo de 10 en 10 cm; un tamaño que escribiste se queda como está hasta que arrastras la esquina más allá de eso.
+
+## Poner objetos en el mapa
+
+Los estantes, armarios, áreas y cajas que están directamente en una habitación ya están en el mapa. Cualquier otra cosa, como la tele, un escritorio o el coche, está en el mapa una vez que la pones. Propietarios, admins y miembros pueden hacerlo.
+
+### En una habitación que ya tienes
+
+1. Abre la ubicación y elige **Mapa**.
+2. Selecciona la habitación: toca su piso, o tócala en **Qué hay** debajo del mapa. Para trabajar más cerca, **Abrir** en su tarjeta entra en la habitación.
+3. Toca **Organizar**. La tarjeta de la habitación ahora tiene **Poner en el mapa**, listando los objetos sueltos en la habitación que aún no están en el mapa. Lo que está en una caja, un armario o sobre un estante en el mapa no sale: va donde va su caja.
+4. Escribe parte del nombre o el ID corto en **Busca un objeto en** la habitación, luego toca el objeto. Aparece en medio de la habitación, seleccionado.
+5. Su tarjeta dice qué forma tuvo y por qué: **Forma: TV, de su tipo** o **de su nombre**. Cuando Kept no está seguro, la tarjeta dice **una suposición** y muestra **Elige una forma**.
+6. **Cambiar** (o **Elige una forma**) abre las formas. **Sugerido** va primero, luego todas las formas de su grupo (muebles, almacenamiento, en la pared, electrónica, cocina y lavandería, herramientas, plantas y exterior, vehículos, escaleras y áreas), cada una con una imagen. **Busca una forma** busca los nombres y sus otras palabras en cualquiera de los idiomas de Kept: «nevera», «Kühlschrank» y «ثلاجة» encuentran la nevera. Mientras escribes, solo se ven las que coinciden, y las formas cuyo nombre o palabra empieza por lo que escribiste salen primero: «ne» encuentra Nevera, Webcam y Cámara antes que Carrito de herramientas. Las palabras en tu idioma e inglés coinciden desde su inicio; una palabra en otro idioma coincide al escribirla toda. Borra la búsqueda para ver **Sugerido** y los grupos de nuevo. En el móvil las formas se quedan sobre el teclado y se desplazan. Toca una forma para usarla. Cada forma, con su tamaño y palabras, está en la [biblioteca de formas](/es/users/map-shapes/); **¿Falta una forma? Pídela** debajo de las formas abre un formulario de GitHub para pedirla.
+   Dos formas toman su tamaño de ti: una estantería **Estantería de cubos** tiene **Cubos a lo ancho** y **Cubos hacia arriba** en su tarjeta (2 × 2 al principio; **Poner de lado** tumba una de 1 × 4 como 4 × 1), y una **Estantería alta** tiene su **Ancho**, **Profundidad** y **Altura** en centímetros y sus **Niveles** (80 × 28 × 202 cm con 6 al principio). El mapa dibuja cada cubo y cada nivel.
+7. Arrastra el objeto donde está. Los objetos pequeños pueden estar en un escritorio, encimera, estante o caja. **Girar** lo gira un cuarto.
+8. Toca **Listo**. El aviso ofrece **Deshacer**. **Cancelar** antes de Listo tira la sesión entera, tras preguntar.
+
+<Clip
+  webm={clipWebm}
+  mp4={clipMp4}
+  poster={clipPoster}
+  width={960}
+  height={698}
+  label="Poner una tele en el mapa en el hogar de ejemplo: Organizar, el salón, Poner en el mapa, la tele Samsung, su tarjeta diciendo Forma: TV, de su tipo, el selector de formas con Sugerido primero y una búsqueda de TV, luego un arrastre hacia la pared y Listo."
+  caption="Poniendo la tele en el mapa en el hogar de prueba de Prueba Kept. La tarjeta dice que la forma vino de su tipo; el selector muestra Sugerido primero, y una búsqueda de TV la encuentra."
+/>
+
+### Poner objetos pequeños en un escritorio, un estante o un monitor
+
+Una webcam son unos píxeles de ancho al zoom de habitación, así no tienes que arrastrarla. En **Organizar**:
+
+1. Selecciona el objeto pequeño, como la webcam, y toca **Colocar sobre…**. Lista lo que en la misma habitación puede llevarlo, cada uno con la imagen de su forma: «Escritorio», «Monitor», «Estante 2».
+2. Toca uno. El objeto se encaja en él, en medio o junto a lo que ya haya.
+3. Para ir al revés, selecciona el escritorio o el monitor y toca **Añadir en él**. Elige uno o varios de los objetos pequeños de la habitación que no están sobre nada aún, luego **Poner 3 en él**. Van uno al lado de otro, no encima. Los objetos pequeños sueltos de la habitación que aún no están en el mapa también están ahí, bajo **Aún no en el mapa**, con la forma que cada uno tendría: elegir uno lo pone en el mapa y en el escritorio de una vez.
+4. **Quitar**, en **Colocar sobre…**, devuelve el objeto al suelo de la habitación junto a su soporte.
+
+![Colocar sobre… para una webcam: el escritorio y el monitor de la habitación, cada uno con su imagen](../../../../assets/screens/map-put-on-phone-light.webp)
+
+Qué puede llevar qué:
+
+- **Encima**: un escritorio, mesa, encimera, estante, mueble de TV o caja lleva objetos pequeños.
+- **En el borde superior**: un monitor, una tele o la pantalla de un portátil lleva una webcam, un altavoz inteligente o una luz: objetos pequeños de hasta 12 cm de fondo y 20 cm de alto, no más anchos que la pantalla.
+- **En un brazo**: un **brazo de monitor** está en un escritorio y sujeta un monitor, un **brazo dual** dos, lado a lado y levantados del escritorio. **Añadir en él** en un brazo lista los monitores de la habitación y dice cuándo el brazo está lleno. Una webcam en un monitor en un brazo sigue funcionando. Un brazo se sujeta en el borde trasero del escritorio, el lado opuesto a la silla: en medio, o en una esquina trasera cuando el medio está ocupado. Sus monitores cuelgan sobre el escritorio delante de él, y arrastrarlo lo desliza por el trasero.
+
+- **De ganchos**: una **pared de herramientas** (un tablero perforado) o **ganchos** llevan herramientas, bolsas y otros objetos pequeños, colgados en fila delante de ellos (ver abajo).
+
+Mover un soporte mueve lo que está sobre él: mueve el escritorio y su brazo, los monitores y su webcam van con él. Gira el escritorio y giran con él. Esto es solo el mapa: poner una webcam en un monitor cambia dónde está en el mapa, no su lugar en Kept. **Listo** lo guarda con el resto de la sesión, y **Deshacer** lo quita. Los espectadores lo ven, y no pueden cambiarlo.
+
+### Colgar objetos en una pared
+
+Una tele en un soporte, un estante, un reloj: en **Organizar**, arrastra uno cerca de una pared y se pone plano contra ella, mirando al interior de la habitación.
+
+1. Dale al objeto una forma de pared: **TV de pared**, **Estante de pared**, **Armario de pared**, **Cuadro o espejo**, **Reloj de pared**, **Ganchos** o **Pared de herramientas**, bajo **En la pared** en las formas. Un objeto llamado «TV de pared», «Estante flotante», «Espejo» o «Tablero perforado» consigue una solo.
+2. Va a la pared más cercana. Arrastralo por la pared, o a otra pared; se mueve a pasos, como todo lo demás, y Alt (Opción) lo arrastra libre.
+3. Su tarjeta tiene **Altura**: qué tan alto está su centro sobre el suelo. Cada forma empieza en un sitio sensato: una tele a altura de ojos (1,2 m), un estante o un cuadro a 1,5 m, un reloj a 1,8 m. **−** y **+** lo mueven 5 cm, y también las flechas; o escribe una altura. Se queda entre el suelo y 3 m.
+4. Los objetos en una pared no giran: siempre miran al interior de la habitación.
+
+![Organizando: una tele en la pared del salón sobre el mueble de TV, su tarjeta con Forma: TV de pared y Altura 1,2 m](../../../../assets/screens/map-wall-light.webp)
+
+Un estante de pared lleva objetos pequeños encima, como cualquier estante: una plantita, un altavoz, un marco. Una pared de herramientas o ganchos llevan herramientas y bolsas, colgadas delante. Usa **Colocar sobre…** en el objeto pequeño, o **Añadir en él** en el estante, la pared de herramientas o los ganchos, como arriba; arrastrar un objeto pequeño sobre ellos también funciona.
+
+Los objetos de pie bajo un estante de pared o una tele se quedan donde están: la tele cuelga sobre el mueble de TV, y ambas se dibujan. En **Plano**, los objetos en una pared son una tira fina junto a su pared, así no ocultan lo que hay abajo; lo que está en un estante de pared o ganchos se nombra en su etiqueta al hacer zoom.
+
+Las paredes de una habitación están donde algo cuelga de ellas, lo bastante altas para ello. Gira la vista para que una pared quede entre tú y la habitación, y baja a un bordillo con lo que cuelga; gira atrás y están otra vez. Una habitación se abre mirando a su tele, en la pared o no.
+
+Esto es solo el mapa: colgar un objeto cambia dónde está en el mapa, no su lugar en Kept. **Listo** lo guarda con el resto de la sesión, y **Deshacer** lo quita. La altura viaja en una exportación de Kept con el resto de la organización. Los espectadores ven dónde cuelgan los objetos, y no pueden cambiarlo.
+
+### Cómo Kept elige la forma
+
+- **Primero por el tipo.** Un objeto cuyo tipo es TV, coche, bicicleta, moto o caja consigue esa forma directo. Un tipo que solo lo reduce (electrónica, un electrodoméstico, una herramienta) pone las formas probables primero en **Sugerido** y deja la elección a ti. Un tipo que hiciste tú cuenta por su nombre: un tipo llamado «Televisión» funciona como el tipo TV.
+- **Luego por el nombre**, palabra por palabra, en inglés, árabe, francés, alemán e italiano, con palabras comunes otras («sofá», «tele», «Kühlschrank», «تلفزيون»). Un nombre que apunta a una forma («Tele Samsung») la consigue solo; uno que podría ser dos («Pantalla»: una tele o un monitor) es una suposición.
+- **La electrónica cotidiana tiene sus propias formas**, en sus tamaños reales: webcam, cámara, altavoz de escritorio, altavoz portátil, altavoz alto, boombox, altavoz inteligente, barra de sonido, auriculares, casco, auriculares inalámbricos, teclado, ratón, PC de sobremesa, portátil, monitor, brazo de monitor, brazo dual, router, impresora, consola, mando, móvil, tablet, regleta y disco externo. Un objeto llamado «Webcam HD» consigue la webcam solo, «AirPods Pro» los auriculares inalámbricos, «JBL Flip 6» el altavoz portátil y «Ergotron LX» el brazo de monitor. Un simple «Altavoz» podría ser cualquier tamaño, así Kept sugiere todos y te deja elegir.
+- **Equipo de homelab también**: racks de servidor en la pared (6U, 12U) y en el suelo (24U, 42U), que guardan el equipo dentro como un armario, y un mini PC, NAS, Raspberry Pi o SBC, switch de red, panel de parcheo y SAI. «Intel NUC» consigue el mini PC, «Synology DS923+» el NAS, «Switch 8 puertos» el switch y «Rack mural 12U» el rack mural 12U. Un simple «Rack de servidor» podría ser cualquier tamaño, así Kept sugiere todos y te deja elegir; un simple «Rack» sigue siendo un estante.
+- **Los accesorios son una suposición.** «Funda de móvil», «Mando de TV» o «Soporte de portátil» nombran para qué sirven, no qué son, así Kept sugiere formas y te deja elegir.
+- **Nada encaja?** Objetos sin forma propia, como un termostato, un hub o un cargador, se sugiere **Dispositivo pequeño**, del tamaño de un aparato. Cualquier otra cosa empieza como **Objeto pequeño**.
+- **Muebles con compartimentos** sin forma propia se dibujan desde su cuadrícula como están: una estantería de cubos con sus cubos, una estantería alta con sus estantes, una cómoda con sus cajones.
+- **Tu elección se queda.** Kept nunca cambia una forma que alguien eligió, y los objetos ya en el mapa mantienen la suya.
+
+### En una ubicación sin habitaciones aún
+
+Una oficina o un trastero a menudo empieza con todo en **Sin ubicar** y sin habitaciones. Su mapa dice **Aún no hay habitaciones en el mapa**, con **Empezar desde un plano de planta** (siguiente sección) y **Organizar**. Para dibujar las habitaciones tú:
+
+1. Abre la ubicación, elige **Mapa** y toca **Organizar**.
+2. Elige **Dibujar una habitación** y arrastra en el suelo vacío. La habitación es un lugar nuevo en Kept al momento, llamada Habitación 1; cámbiale el nombre desde **Abrir el lugar** en su tarjeta.
+3. Toca **Listo**.
+4. Dale a los objetos un lugar en esa habitación. En la ubicación, **Ordénalos** recorre Sin ubicar un objeto a la vez con un selector de lugar; o abre un objeto y usa **Acciones → Mover**.
+5. De vuelta en el mapa, ponlos en él como arriba: **Organizar**, la habitación, **Poner en el mapa**.
+
+### Empezar desde un plano de planta
+
+Un plano de planta ya muestra las habitaciones de un hogar, sus nombres y sus tamaños: la hoja de una inmobiliaria, el PDF de un constructor, una captura de un anuncio, una foto de un boceto. Kept puede leerlo y borrar las habitaciones para que las revises. Nada se añade hasta que lo digas.
+
+Propietarios, admins y miembros pueden empezar uno, donde la captura con IA está activada y hay un proveedor que lee fotos configurado ([Proveedores de IA](/es/users/ai-providers/)). Si no, el mapa dice por qué, con las mismas palabras que el modo Habitación de Captura, y ofrece **Organizar** solo.
+
+1. En un mapa vacío toca **Empezar desde un plano de planta**; en cualquier mapa, **Organizar → De un plano**.
+2. **Elige un archivo** (una imagen JPEG, PNG, WebP, HEIC o GIF, o un PDF) o **Toma una foto** de un plano en papel. **Girar** un cuarto de vuelta cada vez si está de lado. De un PDF, solo se lee la primera página.
+3. La hoja dice cuántos tokens puede tomar la lectura y qué proveedor la lee. Toca **Leer el plano**.
+4. El mapa dice **Leyendo el plano…**. Puedes irte: el plano espera en el mapa, y cualquier miembro ve **Un plano de planta está listo para revisar** cuando se leyó. Toca **Revisarlo**.
+
+**Qué se envía y qué se guarda.** Kept envía una copia del plano a tu proveedor, recodificada sin sus datos de ubicación o cámara (para un PDF, su primera página dibujada como imagen, con el texto de esa página), y nada de Kept: ni nombres de ubicación, habitación o piso. La subida se queda con el plano mientras lo revisas, vista por miembros y solo arriba, y se borra al añadir las habitaciones o descartar el plano, salvo que marques **Guardar el plano con** la ubicación, que lo guarda como uno de los documentos de la ubicación. Un plano que nadie termina se descarta a los 30 días.
+
+**Revisarlo.** El mapa cambia a **Plano** y muestra las habitaciones del plano como **contornos violetas discontinuos**: discontinuo significa que no se añadieron aún, violeta significa que la IA lo leyó. Con **Mostrar el plano** activado, el plano en sí queda debajo, así puedes ver si cada contorno está sobre la habitación que nombra. Las habitaciones ya en el mapa se quedan quietas mientras revisas. El panel, **Habitaciones del plano**, lista cada habitación con:
+
+- un interruptor para añadirla o dejarla fuera;
+- su **nombre** como impreso (una habitación sin etiqueta se llama Habitación 1, Habitación 2, etc.), que puedes cambiar;
+- su **tamaño**, al 10 cm, y su **tipo** (habitación, balcón, terraza, jardín);
+- como mucho una nota, por ejemplo **El plano dice 4,00 x 8,40 m.** (tócala para usar el tamaño impreso), **No es un rectángulo: dibujado como su parte mayor.**, **Menos de 50 cm: demasiado pequeño para el mapa.**, **Ya en el mapa.** o **Usa tu Cocina**, cuando una habitación de ese nombre estaba en Kept pero no en el mapa aún (**Crear una nueva habitación** hace una en su lugar).
+
+Cada piso del plano tiene un selector **Piso**: uno de los tuyos, o un piso nuevo que se hace al añadir las habitaciones. Arrastra una habitación discontinua para moverla, o su esquina ámbar para cambiar su tamaño; las flechas mueven una seleccionada un metro y **Mayús** con una flecha 10 cm. **Girar las habitaciones** las gira todas un cuarto de vuelta, para un plano dibujado de lado.
+
+**La escala.** La línea bajo el título del panel dice de dónde vinieron los tamaños: los tamaños impresos en el plano (y cuántos coinciden), su barra de escala, sus puertas (tomadas como 80 cm de ancho), o nada, cuando **son una suposición**. Si los tamaños parecen mal, toca **Fijar tamaño de una habitación**, escribe el ancho y fondo real de una habitación, y **Reescalar**: todas las habitaciones se redibujan desde ahí.
+
+**Añadirlos.** **Añadir 5 habitaciones** (la cuenta de habitaciones activadas) crea las habitaciones, y los pisos nuevos, como lugares normales, y las pone en el mapa junto a lo que había. El aviso ofrece **Deshacer**, que las quita todas del mapa y pone las habitaciones que creó en la papelera, mientras nada se metió en ellas y ninguna se renombró o movió desde entonces. El historial muestra una línea: **Añadidas 5 habitaciones desde un plano de planta**. **Descartar** tira el plano; nada se añade.
+
+Qué tan bien un modelo lee un plano depende del plano y del modelo: revisa cada habitación contra el plano antes de añadir. Paredes, puertas y ventanas no se dibujan, y una habitación que no es un rectángulo se vuelve su rectángulo mayor.
+
+### Qué significa Sin ubicar aquí
+
+**Sin ubicar** tiene los objetos que no tienen lugar aún. No están en ninguna habitación, así no están en el mapa y **Poner en el mapa** no los lista. Dale a un objeto un lugar en una habitación primero; entonces sale en la lista de esa habitación.
+
+## Modelos detallados
+
+Los muebles, plantas y unidades de AC exterior se dibujan con modelos gratuitos de [Poly Haven](https://polyhaven.com) (CC0), achicados para móviles: unos 150 KB cada uno a lo sumo, unos 1,5 MB para todos, y solo el piso en vista carga los suyos. Todo lo demás lo dibuja el propio Kept. Apaga **Modelos detallados** debajo del mapa y no se descarga nada; Kept lo recuerda en este dispositivo.
+
+Si el navegador no puede dibujar 3D (un móvil viejo, o gráficos apagados), el mapa lo dice y la lista de debajo sigue teniendo todo.

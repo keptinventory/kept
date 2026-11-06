@@ -101,8 +101,12 @@ export const PRIVATE_IPV4_ALLOWED = new Map([
   ['apps/web/e2e-ha/Caddyfile', "the ingress mimic, at the Supervisor's address"],
 ]);
 
+// A translated docs page may use what its English page may use.
+const englishDocsPage = (file) =>
+  file.replace(/^(apps\/docs\/src\/content\/docs\/)[a-z]{2}\//, '$1');
+
 export function privateIpv4Allowed(file) {
-  return PRIVATE_IPV4_ALLOWED.has(file) || TEST_FILE.some((re) => re.test(file));
+  return PRIVATE_IPV4_ALLOWED.has(englishDocsPage(file)) || TEST_FILE.some((re) => re.test(file));
 }
 
 // RFC 1918 (10/8, 172.16/12, 192.168/16) and RFC 6598 (100.64/10).

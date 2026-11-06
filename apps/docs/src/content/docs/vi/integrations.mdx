@@ -1,0 +1,17 @@
+---
+title: "Tích hợp: nhập dữ liệu, thông báo, đăng nhập và AI"
+sidebar:
+  label: Tích hợp
+description: "Tích hợp Kept cho homelab tự lưu trữ: nhập từ Homebox và LubeLogger, CSV, email-in, ntfy, Telegram, Apprise, OIDC, OpenAI, Anthropic, Ollama, MCP."
+---
+
+import IntegrationList from '../../../components/landing/IntegrationList.astro';
+import { Image } from 'astro:assets';
+import integrations from '../../../assets/landing/kept-integrations.webp';
+
+Những gì Kept nhận vào, ai được thông báo, cách mọi người đăng nhập, và những gì nó giao tiếp.
+Mỗi mục một mục, kèm theo trang thiết lập nó. Tất cả đều có trong Kept ngày nay.
+
+<Image src={integrations} alt="Kept ở giữa, liên kết hai chiều với Home Assistant và Paperless-ngx; nhập từ Homebox, LubeLogger và bảng tính; thông báo qua ntfy, Telegram, Slack, Discord, Matrix, Signal, email và webhook; máy chủ Kept MCP cho Claude và ChatGPT; mô hình AI từ OpenAI, Anthropic, Gemini, Groq, OpenRouter và Ollama" widths={[800, 1600]} sizes="(min-width: 50rem) 48rem, 100vw" loading="eager" />
+
+<IntegrationList />

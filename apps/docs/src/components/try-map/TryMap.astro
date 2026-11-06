@@ -6,43 +6,24 @@
  * loads, so no other page carries it. Its .glb models are fetched later, only for the floor in
  * view, and none at all with Detailed models off.
  */
+import { langOf, localePath, pick } from '../../i18n';
+import { tryMap } from '../../words';
 import { withBase } from '../landing/base';
 
 interface Props {
-  lang: 'en' | 'ar';
+  /** Not read: the page's own language decides. Older pages still pass one. */
+  lang?: string;
 }
 
-const { lang } = Astro.props;
-const install = withBase(lang === 'ar' ? '/ar/install/compose/' : '/install/compose/');
-const t = {
-  en: {
-    note: 'A sample home, in your browser. Nothing you change is saved or sent anywhere.',
-    reset: 'Reset',
-    install: 'Install Kept',
-    loading: 'Loading the map…',
-    failed: 'The map couldn’t load. Reload the page to try again.',
-    noscript: 'The map needs JavaScript.',
-    credit: [
-      'Furniture, plants, tools and the AC units are free models from ',
-      ' (CC0), shrunk for phones. Turn off Detailed models to download none.',
-    ],
-  },
-  ar: {
-    note: 'منزل تجريبي في متصفحك. لا يُحفظ أي شيء تغيّره ولا يُرسل إلى أي مكان.',
-    reset: 'إعادة تعيين',
-    install: 'ثبّت Kept',
-    loading: 'جارٍ تحميل الخريطة…',
-    failed: 'تعذّر تحميل الخريطة. أعد تحميل الصفحة للمحاولة مجددًا.',
-    noscript: 'تحتاج الخريطة إلى JavaScript.',
-    credit: [
-      'الأثاث والنباتات والأدوات ووحدات التكييف نماذج مجانية من ',
-      ' ‏(CC0)، مُصغَّرة للهواتف. أوقف «نماذج مفصّلة» كي لا يُنزَّل أي منها.',
-    ],
-  },
-}[lang];
+const { lang: code, locale } = Astro.locals.starlightRoute;
+const lang = langOf(code);
+const install = withBase(localePath(locale, '/install/compose/'));
+// The demo itself speaks English and Arabic only; the other languages open it in English.
+const demoLang = lang === 'ar' ? 'ar' : 'en';
+const t = pick(tryMap, lang);
 ---
 
-<div class="kd-try not-content" data-lang={lang} data-install={install} data-failed={t.failed}>
+<div class="kd-try not-content" data-lang={demoLang} data-install={install} data-failed={t.failed}>
   <div class="kd-note">
     <p>{t.note}</p>
     <div class="kd-note-actions">

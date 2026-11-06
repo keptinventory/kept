@@ -1,0 +1,232 @@
+---
+title: "Bản đồ địa điểm"
+description: "Xem một địa điểm dưới dạng bản đồ 3D các tầng và phòng, tìm đâu có đồ vật, và tự sắp xếp các phòng, kệ và hộp."
+---
+
+import Clip from '../../../../components/Clip.astro';
+import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
+import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
+import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
+
+Trang của một địa điểm có năm bố cục: **Danh sách**, **Lưới**, [**Sơ đồ**](/vi/users/graph/), **Bảng** và
+**Bản đồ**. Bản đồ vẽ địa điểm trong 3D: từng tầng, các phòng của nó, và các kệ, tủ và hộp trong đó. Chạm vào bất cứ thứ gì để xem nó là gì, ở đâu và bên trong có gì. Danh sách vẫn là mặc định; Kept nhớ lựa chọn của bạn cho từng địa điểm trên từng thiết bị. Ở Bản đồ, bản đồ dẫn dắt và lấp đầy màn hình; các nút của địa điểm (In hàng tồn kho, In nhãn và các nút khác), **Thêm tại đây** và **Chưa có vị trí** đi theo nó.
+
+Trang của một tầng hoặc phòng cũng có **Bản đồ**: cùng bản đồ đó, mở tại vị trí đó. Một tầng mở tại tầng đó, một phòng mở bên trong nó với thẻ của nó, và một kệ hoặc tủ được chọn trong phòng của nó. Một vị trí mà bản đồ không vẽ mở tại phòng của nó với một ghi chú. Kept nhớ lựa chọn cho từng vị trí.
+
+Để xem trước khi cài đặt gì, [thử bản đồ](/vi/try/map/) với một ngôi nhà mẫu trong trình duyệt của bạn.
+
+![Một ngôi nhà trên bản đồ của nó: các phòng với tầng và tường của chúng, một tủ TV được chọn với thẻ hiển thị Bên trong · 5 và Chi tiết, công tắc Danh sách · Lưới · Bản đồ ở trên cùng](../../../../assets/screens/map-desktop-light.webp)
+
+![Cùng ngôi nhà đó trên bản đồ với giao diện tối](../../../../assets/screens/map-desktop-dark.webp)
+
+Bản đồ cần kết nối: nó không phải là một phần của bản sao ngoại tuyến của điện thoại. Nó chỉ tải khi bạn mở nó, nên phần còn lại của Kept vẫn nhanh như trước.
+
+## Có gì trên bản đồ
+
+| Trên bản đồ | Nơi nó đến từ |
+|---|---|
+| **Các tầng** | Các vị trí loại **Tầng** ở đầu địa điểm. Nếu không có, địa điểm chỉ có một cấp độ. |
+| **Các phòng** | Mỗi vị trí ngay trên một tầng (hoặc ở đầu, khi không có tầng), bất kể loại của nó. |
+| **Kệ, tủ, khu vực** | Các vị trí ngay trong một phòng. |
+| **Hộp và các chứa khác** | Các chứa ngay trong một phòng. |
+| **Bất cứ thứ gì khác** | Một đồ vật bạn tự đặt lên bản đồ, như TV hoặc xe hơi. |
+
+Tên không bao giờ chồng chéo hay bị cắt: khi hai cái sẽ chạm nhau, tên phòng ở lại và cái trong kệ hay hộp hiện lên khi bạn phóng to đủ xa. Đồ vật bạn chọn luôn giữ tên của nó.
+
+Mọi thứ khác đều được đếm: một kệ nói có bao nhiêu đồ vật trên nó, và thẻ của nó liệt kê chúng. Không ai phải sắp xếp trước. Các phòng chưa ai sắp xếp được bày cạnh nhau theo thứ tự danh sách vị trí, và cái đứng trong chúng theo hàng; **Sắp xếp** di chuyển chúng đến chỗ thực tế. Một phòng tên "Sân vườn", "Ban công" hoặc "Sân thượng" được vẽ là một.
+
+Ghim chỉ những gì cần chú ý: **Tồn kho thấp** (Vật tiêu hao), **Đã cho mượn** (Cho mượn) và **Sắp đến hạn** (lịch trình, bảo hành và tài liệu). Một ghim nằm trên kệ hoặc hộp chứa đồ vật đó. Các chip ở trên bật tắt từng loại.
+
+## Di chuyển
+
+| | Với chuột | Trên điện thoại |
+|---|---|---|
+| Pan | Kéo | Kéo bằng một ngón |
+| Zoom | Cuộn, hoặc **+** và **−** | Chụm, hoặc **+** và **−** |
+| Xoay | Các nút xoay | Xoay bằng hai ngón, hoặc nút xoay |
+| Mở phòng | Nhấp đúp vào nó, hoặc **Mở** trên thẻ của nó | Chạm đúp vào nó, hoặc **Mở** |
+| Quay lại | Tên địa điểm hoặc tầng ở trên cùng, hoặc nút nhà | Cái cùng |
+
+Các nút tầng hoạt động như thang máy: **R**, **1**, **G** và cứ thế, mỗi cái đặt tên theo tầng của nó, và **Tất cả** chồng mọi tầng lên nhau. Trên điện thoại chúng nằm trong một hàng ở dưới cùng với nút zoom và xoay, và nhường chỗ khi một thẻ mở. **Mặt bằng** nhìn thẳng xuống, có tên và cái trong mỗi kệ. Cầu thang trên bản đồ đưa bạn đến tầng trên hoặc dưới.
+
+Một phòng mở hướng về mặt trước màn hình của nó (màn hình máy tính, TV, laptop), để bạn thấy chúng, không phải lưng chúng. Xoay nó hướng khác và nó mở hướng đó lần sau trên thiết bị này.
+Một tường sẽ đứng giữa bạn và một phòng rơi thành một lề thấp khi bạn nhìn từ phía đó, và đứng lại khi bạn xoay lại; cái treo trên nó đi và quay lại cùng nó. Mặt bằng giữ mọi tường.
+
+![Mặt bằng: cùng ngôi nhà nhìn từ trên, mỗi phòng được đặt tên](../../../../assets/screens/map-plan-light.webp)
+
+![Bản đồ trên điện thoại: công tắc Danh sách · Lưới · Bản đồ, nút 3D và Mặt bằng, và thẻ của đồ vật được chọn ở dưới cùng](../../../../assets/screens/map-phone-light.webp)
+
+## Thẻ
+
+Chạm vào thứ gì mở một thẻ ngắn: tên của nó, nó ở đâu, ID ngắn của nó (dưới dạng dán keo màu hổ phách khi nó có nhãn in) và bất cứ thứ gì sắp đến hạn.
+**Chi tiết** thêm ảnh của nó, nhãn của nó (cùng mã QR với nhãn in), sự thật của nó và **Mở đồ vật** hoặc **Mở vị trí**. **Bên trong** liệt kê cái trong nó; chạm vào một cái để xem nó. Với chuột, di chuột qua hiển thị tên, và ID ngắn của đồ vật có nhãn, không cần nhấp.
+
+Nơi nó ở đọc từ phòng trong: "Không gian mở › Bàn 3" cho một laptop để ở Bàn 3 và đặt trên nó. Trên cửa sổ ngắn hoặc điện thoại chi tiết cuộn trong thẻ, và **Mở** ở ở cạnh dưới của thẻ.
+
+**Đồ gia dụng có ngăn** ([một kệ ô, một tủ sách, một bàn kéo](/vi/users/locations/#đồ-nội-thất-có-ngăn))
+hiển thị các ngăn của nó: được vẽ viền trên mặt trước khi nó được chọn, và dưới dạng lưới số trên thẻ của nó. Chạm vào một ngăn trên bản đồ hoặc trên thẻ để mở thẻ riêng của nó: cái trong nó, nhãn của nó và **Mở vị trí**.
+
+## Có gì trong địa điểm
+
+Dưới bản đồ, **Có gì trong** liệt kê mọi phòng với cái đứng và cái nằm trong nó. Tìm theo tên hoặc ID ngắn, chọn một tầng, hoặc chuyển sang **Cần chú ý** cho mọi thứ thấp, đã cho mượn hoặc sắp đến hạn. Một chạm hiển thị nó trên bản đồ. Tìm kiếm, tầng và xem đều trong địa chỉ, nên bạn có thể chia sẻ hoặc đánh dấu chúng.
+
+Để trình đọc màn hình và bàn phím, **Vị trí trên tầng này** liệt kê các phòng của tầng và cái đứng trong chúng, bên cạnh bản đồ.
+
+## Sắp xếp
+
+Chủ sở hữu, quản trị viên và thành viên có thể sắp xếp một địa điểm; người xem thấy nó như đã sắp xếp. **Sắp xếp** bắt đầu:
+
+- **Di chuyển**: kéo bất cứ thứ gì. Đồ vật nhỏ (laptop, đèn, hộp) có thể đứng trên bàn, bàn làm việc, kệ hoặc hộp, và di chuyển cùng nó; một webcam kẹp vào cạnh trên màn hình. Kéo một đồ vật vào phòng khác để di chuyển nó sang đó trong Kept nữa. Đồ vật nhỏ di chuyển từng centimet, đồ khác 5 cm và đồ gia dụng 10 cm; trên bàn hay kệ chúng căn theo cạnh. Trên máy tính, giữ **Alt** (**Option** trên Mac) để kéo tự do.
+- **Di chuyển một phòng** với mọi thứ trong nó: đồ gia dụng, kệ, hộp và cái đứng trên chúng. Với chuột, chọn phòng, rồi kéo. Trên điện thoại, giữ tầng của nó một chút, rồi kéo; vuốt nhanh vẫn di chuyển khung nhìn. Với phòng được chọn, mỗi phím mũi tên di chuyển nó một mét theo hướng khung nhìn đang xoay, và **Shift** với phím mũi tên 10 cm; trình đọc màn hình nghe nơi nó đến ("Đã di chuyển Phòng ngủ sang trái."). Kéo **góc màu hổ phách** của phòng để thay đổi kích thước. Phòng di chuyển, thay đổi kích thước và được vẽ từng 10 cm, tối thiểu 50 cm một cạnh, và ở trên tầng của nó; cái sẽ chồng lên phòng khác trượt dọc theo nó thay vào đó ("Phòng không thể chồng lên.").
+- **Vẽ một phòng** trên đất trống. Nó trở thành một vị trí mới trên tầng đó ngay lập tức.
+- **Từ một sơ đồ** đọc các phòng của sơ đồ mặt bằng (dưới đây).
+- **Thêm một tầng** thêm một vị trí loại Tầng, với một phòng trong nó.
+- Chọn một phòng để đặt **loại** của nó (phòng, ban công, sân thượng, sân vườn), **sàn** của nó (gỗ, gạch, bê tông, sàn-hi, cỏ) và **Chiều rộng** và **Chiều dài** của nó, hoặc **đặt một đồ vật của phòng đó lên bản đồ**. Xem [Kích thước thực của phòng](#kích-thước-thực-của-phòng).
+- Chọn một đồ vật để **xoay** nó, đổi **hình dạng** của nó (xem dưới), **đặt nó lên** bàn, kệ hoặc màn hình, **thêm đồ vật lên nó**, đặt nó treo cao bao nhiêu trên tường (**Chiều cao**), hoặc **lấy nó xuống khỏi bản đồ** (chỉ những gì bạn tự đặt đó).
+
+**Xong** lưu toàn bộ sắp xếp cùng một lúc, và thông báo theo sau đề xuất **Hoàn tác**.
+**Hủy** đặt bản đồ lại; khi có thứ thay đổi, nó hỏi trước (**Vứt bỏ các thay đổi này?**). Phòng và tầng bạn thêm vẫn ở trong Kept cả hai cách. Nếu ai khác sắp xếp cùng địa điểm khi bạn đang làm, Kept nói vậy và hiển thị của họ, chứ không ghi đè lên. Trên điện thoại, thẻ của phòng hoặc đồ vật được chọn nằm dưới công cụ của Sắp xếp, nên **Xong** và **Hủy** vẫn trong tầm tay khi nó mở.
+
+![Sắp xếp: Di chuyển, Vẽ một phòng, Thêm một tầng và Hủy ở trên bản đồ, góc màu hổ phách của mỗi phòng để thay đổi kích thước, và Xong ở thanh trên cùng](../../../../assets/screens/map-arrange-light.webp)
+
+Sắp xếp đi trong một xuất Kept, nên chuyển sang máy chủ khác giữ bản đồ. Nhập Homebox bắt đầu từ bố cục tự động.
+
+### Kích thước thực của phòng
+
+Một phòng có thể có kích thước thực, đến centimet: một ban công hẹp 0,80 × 3,58 m, một hành lang 1,15 × 6,40 m.
+
+- **Khi bạn thêm nó:** **Thêm tại đây → Phòng hoặc vị trí**, ở đầu địa điểm hoặc trên một tầng, có **Kích thước trên bản đồ**: **Chiều rộng** và **Chiều dài** tính bằng mét. Để cả hai trống và bản đồ tự tính kích thước phòng. Có kích thước thì phòng lên bản đồ ở kích thước đó, bên phải các phòng đã sắp xếp trên tầng của nó, và **Hoàn tác** của thông báo lấy lại phòng và vị trí của nó trên bản đồ cùng lúc.
+- **Khi sắp xếp:** chọn phòng và gõ **Chiều rộng** và **Chiều dài**, hoặc bước chúng từng centimet với **−**, **+** hoặc phím mũi tên. Góc phòng ở nguyên chỗ, và cái đứng trong nó ở nguyên trong.
+- **Chiều rộng** chạy trái sang phải trong xem mặt bằng, **Chiều dài** trên xuống dưới. Dấu thập phân nào cũng được trong mọi ngôn ngữ: 0,80 hoặc 0.80.
+- Một phòng **tối thiểu 50 cm** và tối đa 100 m một cạnh. Kích thước nó không nhận, hoặc cái sẽ đụng phòng khác, ở nguyên trong ô và nói tại sao; phòng giữ kích thước của nó.
+- Thẻ của phòng nói kích thước của nó (**0,8 × 3,58 m**), và xem mặt bằng viết nó dưới tên phòng.
+- **Ứng dụng AI và trợ lý** thêm phòng với kích thước như trên: `create_place` nhận `width_cm` và `length_cm` ([Ứng dụng AI](/vi/users/mcp-clients/)).
+
+Kéo góc màu hổ phách vẫn đi từng 10 cm; kích thước bạn gõ ở nguyên cho đến khi bạn kéo góc xa hơn đó.
+
+## Đặt đồ vật lên bản đồ
+
+Kệ, tủ, khu vực và hộp đứng ngay trong một phòng đã trên bản đồ. Bất cứ thứ gì khác, như TV, bàn hoặc xe hơi, lên bản đồ khi bạn đặt nó đó. Chủ sở hữu, quản trị viên và thành viên làm được.
+
+### Trong phòng bạn đã có
+
+1. Mở địa điểm và chọn **Bản đồ**.
+2. Chọn phòng: chạm vào tầng của nó, hoặc chạm vào nó trong **Có gì trong** dưới bản đồ. Để làm gần hơn, **Mở** trên thẻ của nó vào phòng.
+3. Chạm **Sắp xếp**. Thẻ của phòng bây giờ có **Đặt lên bản đồ**, liệt kê đồ vật nằm lỏng trong phòng chưa trên bản đồ. Cái trong hộp, tủ hay trên kệ trên bản đồ không liệt kê: nó đi theo hộp của nó.
+4. Gõ một phần tên hoặc ID ngắn trong **Tìm đồ vật trong** phòng, rồi chạm vào đồ vật. Nó xuất hiện giữa phòng, được chọn.
+5. Thẻ nói hình dạng nó có và tại sao: **Hình dạng: TV, từ loại của nó** hoặc **từ tên của nó**. Khi Kept không chắc, thẻ nói **một đoán** và hiển thị **Chọn hình dạng**.
+6. **Thay đổi** (hoặc **Chọn hình dạng**) mở các hình dạng. **Được gợi ý** lên trước, rồi mọi hình dạng trong nhóm của nó (đồ gia dụng, chứa đồ, trên tường, điện tử, nhà bếp và giặt ủi, công cụ, cây và ngoài trời, phương tiện, cầu thang và khu vực), mỗi cái một ảnh. **Tìm hình dạng** tìm tên và từ khác của chúng trong mọi ngôn ngữ của Kept: "tủ lạnh", "Kühlschrank" và "ثلاجة" đều tìm tủ lạnh. Khi bạn gõ, chỉ kết quả khớp hiện, và hình dạng có tên hoặc từ bắt đầu bằng cái bạn gõ lên đầu: "xe" tìm Xe, Máy ảnh và Webcam trước Xe đẩy công cụ. Từ trong ngôn ngữ của bạn và tiếng Anh khớp từ đầu; từ trong ngôn ngữ khác khớp khi bạn gõ hết nó. Xóa tìm kiếm để thấy lại Được gợi ý và các nhóm. Trên điện thoại hình dạng ở trên bàn phím và cuộn. Chạm một hình dạng để dùng nó. Mọi hình dạng, với kích thước và từ của nó, trong [thư viện hình dạng](/vi/users/map-shapes/); **Thiếu hình dạng? Yêu cầu nó** dưới các hình dạng mở biểu mẫu GitHub để xin một cái.
+   Hai hình dạng lấy kích thước từ bạn: một kệ **Hộc lưu trữ** có **Số ô theo chiều ngang** và **Số ô theo chiều dọc** trên thẻ (2 × 2 ban đầu; **Xoay nằm nghiêng** đặt 1 × 4 nằm thành 4 × 1), và một **Tủ sách cao** có **Chiều rộng**, **Chiều sâu** và **Chiều cao** tính bằng centimet và **Số tầng** (80 × 28 × 202 cm với 6 ban đầu). Bản đồ vẽ từng ô và từng tầng.
+7. Kéo đồ vật đến chỗ nó đứng. Đồ vật nhỏ có thể đứng trên bàn, quầy, kệ hoặc hộp. **Xoay** xoay nó một góc vuông.
+8. Chạm **Xong**. Thông báo đề xuất **Hoàn tác**. **Hủy** trước Xong vứt cả phiên, sau khi hỏi.
+
+<Clip
+  webm={clipWebm}
+  mp4={clipMp4}
+  poster={clipPoster}
+  width={960}
+  height={698}
+  label="Đặt TV lên bản đồ trong hộ gia đình mẫu: Sắp xếp, phòng khách, Đặt lên bản đồ, TV Samsung, thẻ nói Hình dạng: TV, từ loại của nó, bộ chọn hình dạng với Được gợi ý trước và tìm TV, sau đó kéo về phía tường và Xong."
+  caption="Đặt TV lên bản đồ trong hộ gia đình mẫu của Thử Kept. Thẻ nói hình dạng đến từ loại của nó; bộ chọn hiển thị Được gợi ý trước, và tìm TV thấy nó."
+/>
+
+### Đặt đồ vật nhỏ lên bàn, kệ hoặc màn hình
+
+Một webcam rộng vài pixel ở zoom phòng, nên bạn không phải kéo nó. Trong **Sắp xếp**:
+
+1. Chọn đồ vật nhỏ, như webcam, và chạm **Đặt lên…**. Nó liệt kê cái trong cùng phòng có thể gánh nó, mỗi cái có ảnh hình dạng: "Bàn", "Màn hình", "Kệ 2".
+2. Chạm một cái. Đồ vật bật vào nó, ở giữa hoặc bên cạnh cái đã có.
+3. Để ngược lại, chọn bàn hoặc màn hình và chạm **Thêm lên nó**. Chọn một hoặc vài đồ vật nhỏ của phòng chưa trên cái gì, rồi **Đặt 3 lên nó**. Chúng đi cạnh nhau, không chồng lên nhau.
+   Các đồ vật nhỏ lỏng của phòng chưa trên bản đồ cũng ở đó, dưới **Chưa trên bản đồ**, với hình dạng mỗi cái sẽ có: chọn một cái đặt nó lên bản đồ và lên bàn trong một lần.
+4. **Lấy xuống**, trong **Đặt lên…**, đặt đồ vật lại trên sàn phòng bên cạnh cái đỡ nó.
+
+![Đặt lên… cho webcam: bàn và màn hình của phòng, mỗi cái với ảnh của nó](../../../../assets/screens/map-put-on-phone-light.webp)
+
+Cái gì gánh được cái gì:
+
+- **Trên mặt**: bàn, bàn ăn, quầy, kệ, giá TV hoặc hộp gánh đồ vật nhỏ.
+- **Trên cạnh trên**: màn hình, TV hoặc màn hình laptop gánh webcam, loa thông minh hoặc đèn: đồ vật nhỏ đến 12 cm sâu và 20 cm cao, không rộng hơn màn hình.
+- **Trên cánh tay**: một **cánh tay màn hình** đứng trên bàn và giữ một màn hình, một **cánh tay màn hình kép** giữ hai, cạnh nhau và nâng khỏi bàn. **Thêm lên nó** trên cánh tay liệt kê màn hình của phòng và nói khi cánh tay đầy. Webcam trên màn hình trên cánh tay vẫn hoạt động. Cánh tay kẹp ở cạnh sau bàn, phía xa ghế: ở giữa, hoặc ở góc sau khi giữa bị lấy. Màn hình của nó treo ra phía trước bàn, và kéo nó trượt nó dọc cạnh sau.
+
+- **Từ móc**: một **tường công cụ** (bảng đục lỗ) hoặc **móc** gánh công cụ, túi và đồ vật nhỏ khác, treo hàng trước chúng (xem dưới).
+
+Di chuyển cái đỡ di chuyển cái trên nó: di chuyển bàn và cánh tay của nó, màn hình và webcam của chúng đi cùng. Xoay bàn và chúng xoay cùng. Chỉ bản đồ: đặt webcam lên màn hình đổi chỗ nó đứng trên bản đồ, không phải vị trí của nó trong Kept. **Xong** lưu nó với phần còn lại của phiên, và **Hoàn tác** lấy lại. Người xem thấy nó, và không đổi được.
+
+### Treo đồ vật lên tường
+
+Một TV trên kẹp, một kệ, một đồng hồ: trong **Sắp xếp**, kéo cái nào gần tường và nó quay phẳng vào tường, hướng vào phòng.
+
+1. Đi cho đồ vật một hình dạng tường: **TV treo tường**, **Kệ treo tường**, **Tủ treo tường**, **Tranh hoặc gương**, **Đồng hồ treo tường**, **Móc** hoặc **Tường công cụ**, dưới **Trên tường** trong hình dạng. Đồ vật tên "TV treo tường", "Kệ treo", "Gương" hoặc "Bảng đục lỗ" tự có một cái.
+2. Nó lên tường gần nhất. Kéo nó dọc tường, hoặc sang tường khác; nó bước từng bước, như mọi thứ khác, và Alt (Option) kéo tự do.
+3. Thẻ của nó có **Chiều cao**: giữa nó cao bao nhiêu so với sàn. Mỗi hình dạng bắt đầu ở chỗ hợp lý: TV ở độ mắt (1,2 m), kệ hay tranh ở 1,5 m, đồng hồ ở 1,8 m. **−** và **+** di chuyển 5 cm, và phím mũi tên cũng vậy; hoặc gõ chiều cao. Nó ở giữa sàn và 3 m.
+4. Đồ vật trên tường không xoay: chúng luôn hướng vào phòng.
+
+![Sắp xếp: TV trên tường phòng khách trên giá TV, thẻ với Hình dạng: TV treo tường và Chiều cao 1,2 m](../../../../assets/screens/map-wall-light.webp)
+
+Một kệ treo tường gánh đồ vật nhỏ trên mặt, như kệ nào: cây nhỏ, loa, khung ảnh. Một tường công cụ hoặc móc gánh công cụ và túi, treo hàng trước chúng. Dùng **Đặt lên…** trên đồ vật nhỏ, hoặc **Thêm lên nó** trên kệ, tường công cụ hoặc móc, như trên; kéo đồ vật nhỏ lên chúng cũng được.
+
+Đồ vật đứng dưới kệ treo tường hoặc TV ở nguyên chỗ: TV treo trên giá TV, và cả hai được vẽ. Trong **Mặt bằng**, đồ vật trên tường là dải mỏng dọc tường của chúng, để không che cái đứng dưới; cái trên kệ treo tường hoặc móc được đặt tên trên nhãn khi phóng to.
+
+Tường của phòng đứng nơi có cái treo trên nó, đủ cao cho nó. Xoay khung nhìn để một tường đứng giữa bạn và phòng, và nó rơi thành lề với cái treo trên nó; xoay lại và chúng quay lại. Một phòng mở hướng về TV của nó, trên tường hay không.
+
+Chỉ bản đồ: treo đồ vật đổi chỗ nó trên bản đồ, không phải vị trí trong Kept. **Xong** lưu nó với phần còn lại của phiên, và **Hoàn tác** lấy lại. Chiều cao đi trong một xuất Kept với phần còn lại của sắp xếp. Người xem thấy đồ vật treo đâu, và không đổi được.
+
+### Kept chọn hình dạng như thế nào
+
+- **Từ loại trước.** Đồ vật có loại là TV, xe hơi, xe đạp, xe máy hoặc hộp lấy hình dạng đó ngay. Loại chỉ thu hẹp (điện tử, thiết bị, công cụ) đặt các hình dạng có thể lên đầu **Được gợi ý** và để bạn chọn. Loại bạn tự tạo đếm theo tên: loại tên "Television" hoạt động như loại TV.
+- **Rồi tên**, từ từ, trong tiếng Anh, Ả Rập, Pháp, Đức và Ý, với từ thường dùng khác ("sofa", "telly", "Kühlschrank", "تلفزيون"). Tên chỉ một hình dạng ("TV Samsung") lấy nó đơn độc; tên có thể hai ("Màn hình": TV hoặc màn hình) là một đoán.
+- **Điện tử hàng ngày có hình dạng riêng**, ở kích thước thực: webcam, máy ảnh, loa bàn, loa di động, loa cao, boombox, loa thông minh, soundbar, tai nghe, headset, earbuds, bàn phím, chuột, máy để bàn, laptop, màn hình, cánh tay màn hình, cánh tay màn hình kép, router, máy in, máy chơi game, tay cầm game, điện thoại, máy tính bảng, ổ cắm đa và ổ cứng ngoài. Đồ vật tên "Webcam HD" lấy webcam đơn độc, "AirPods Pro" lấy earbuds, "JBL Flip 6" lấy loa di động và "Ergotron LX" lấy cánh tay màn hình. "Loa" đơn giản có thể mọi kích thước, nên Kept gợi ý mọi loa và để bạn chọn.
+- **Thiết bị homelab cũng thế**: giá server trên tường (6U, 12U) và trên sàn (24U, 42U), giữ thiết bị bên trong như tủ, và mini PC, NAS, Raspberry Pi hoặc SBC, công tắc mạng, bảng phân phối và UPS. "Intel NUC" lấy mini PC, "Synology DS923+" lấy NAS, "Công tắc 8 cổng" lấy công tắc mạng và "Giá 12U treo tường" lấy giá 12U treo tường. "Giá server" đơn giản có thể mọi kích thước, nên Kept gợi ý mọi giá và để bạn chọn; "Giá" đơn giản vẫn là kệ.
+- **Phụ kiện là một đoán.** "Ốp lưng điện thoại", "Điều khiển TV" hoặc "Chân đế laptop" nói nó dành cho gì, không phải nó là gì, nên Kept gợi ý hình dạng và để bạn chọn.
+- **Không cái nào khớp?** Đồ vật không có hình dạng riêng, như điều hòa, trung tâm hoặc sạc, được gợi ý **Thiết bị nhỏ**, kích thước một gadget. Cái gì còn lại bắt đầu là **Đồ vật nhỏ**.
+- **Đồ gia dụng có ngăn** không có hình dạng riêng được vẽ từ lưới của nó như nó đứng: kệ ô theo ô của nó, tủ sách theo kệ của nó, bàn kéo theo ngăn của nó.
+- **Lựa chọn của bạn ở lại.** Kept không bao giờ đổi hình dạng ai chọn, và đồ vật đã trên bản đồ giữ của nó.
+
+### Trong địa điểm chưa có phòng
+
+Một văn phòng hoặc kho thường bắt đầu với mọi thứ trong **Chưa có vị trí** và không có phòng. Bản đồ nói **Chưa có phòng nào trên bản đồ**, với **Bắt đầu từ một sơ đồ mặt bằng** (phần sau) và **Sắp xếp**. Để tự vẽ phòng:
+
+1. Mở địa điểm, chọn **Bản đồ** và chạm **Sắp xếp**.
+2. Chọn **Vẽ một phòng** và kéo trên đất trống. Phòng là một vị trí mới trong Kept ngay, tên Phòng 1; đổi tên từ **Mở vị trí** trên thẻ của nó.
+3. Chạm **Xong**.
+4. Đi cho đồ vật một vị trí trong phòng đó. Trên địa điểm, **Sắp xếp chúng** đi qua Chưa có vị trí từng đồ vật với bộ chọn vị trí; hoặc mở đồ vật và dùng **Hành động → Di chuyển**.
+5. Quay lại bản đồ, đặt chúng lên như trên: **Sắp xếp**, phòng, **Đặt lên bản đồ**.
+
+### Bắt đầu từ một sơ đồ mặt bằng
+
+Một sơ đồ mặt bằng đã cho các phòng của ngôi nhà, tên và kích thước của chúng: tờ của môi giới, PDF của xây dựng, ảnh chụp màn hình listing, ảnh phác thảo. Kept có thể đọc nó và vẽ sơ đồ các phòng để bạn kiểm tra. Không gì được thêm cho đến khi bạn nói.
+
+Chủ sở hữu, quản trị viên và thành viên có thể bắt đầu một, khi bắt AI bật và nhà cung cấp đọc ảnh được cài ([Nhà cung cấp AI](/vi/users/ai-providers/)). Nếu không bản đồ nói tại sao, cùng từ với Chụp chế độ Phòng, và chỉ đề xuất **Sắp xếp**.
+
+1. Trên bản đồ trống chạm **Bắt đầu từ một sơ đồ mặt bằng**; trên bản đồ nào, **Sắp xếp → Từ một sơ đồ**.
+2. **Chọn một tệp** (ảnh JPEG, PNG, WebP, HEIC hoặc GIF, hoặc PDF) hoặc **Chụp ảnh** một sơ đồ giấy. **Xoay** nó từng góc vuông nếu nó ngang. Của PDF, chỉ trang đầu được đọc.
+3. Trang nói khoảng bao nhiêu token việc đọc có thể lấy và nhà cung cấp nào đọc nó. Chạm **Đọc sơ đồ**.
+4. Bản đồ nói **Đang đọc sơ đồ…**. Bạn có thể đi: sơ đồ chờ trên bản đồ, và bất kỳ thành viên nào thấy **Một sơ đồ mặt bằng sẵn sàng để kiểm tra** khi đã đọc. Chạm **Kiểm tra nó**.
+
+**Gửi gì, và giữ gì.** Kept gửi một bản sao của sơ đồ đến nhà cung cấp của bạn, mã hóa lại không có dữ liệu vị trí hay camera (của PDF, trang đầu vẽ thành ảnh, với văn bản trang đó), và không gì từ Kept: không tên địa điểm, phòng hay tầng. Bản tải ở lại với sơ đồ khi bạn kiểm tra, thấy bởi thành viên và chỉ lên, và bị xóa khi bạn thêm phòng hoặc vứt sơ đồ, trừ khi bạn tích **Giữ sơ đồ với** địa điểm, giữ nó như một tài liệu của địa điểm. Sơ đồ không ai xong bị vứt sau 30 ngày.
+
+**Kiểm tra nó.** Bản đồ chuyển sang **Mặt bằng** và hiển thị các phòng của sơ đồ dưới dạng **viền tím nét đứt**: đứt nghĩa là chưa thêm, tím nghĩa là AI đọc. Với **Hiện sơ đồ** bật, sơ đồ bản thân nằm dưới chúng, để bạn xem mỗi viền có ngồi trên phòng nó đặt tên không. Phòng đã trên bản đồ đứng yên khi bạn kiểm tra. Bảng, **Các phòng từ sơ đồ**, liệt kê mỗi phòng với:
+
+- một công tắc để thêm nó hoặc bỏ qua;
+- **tên** như in (phòng không nhãn gọi Phòng 1, Phòng 2 v.v.), bạn có thể đổi;
+- **kích thước** của nó, đến 10 cm, và **loại** (phòng, ban công, sân thượng, sân vườn);
+- tối đa một ghi chú, ví dụ **Sơ đồ nói 4,00 x 8,40 m.** (chạm để dùng kích thước in), **Không phải hình chữ nhật: vẽ phần lớn nhất.**, **Dưới 50 cm: quá nhỏ cho bản đồ.**, **Đã trên bản đồ.** hoặc **Dùng Nhà bếp của bạn**, khi phòng tên đó có trong Kept nhưng chưa trên bản đồ (**Tạo phòng mới** tạo cái thay vào đó).
+
+Mỗi tầng của sơ đồ có bộ chọn **Tầng**: một của bạn, hoặc tầng mới tạo khi bạn thêm phòng. Kéo phòng nét đứt để di chuyển, hoặc góc màu hổ phách để thay kích thước; phím mũi tên di chuyển cái được chọn một mét và **Shift** với phím mũi tên 10 cm. **Xoay các phòng** xoay tất cả một góc vuông, cho sơ đồ vẽ ngang.
+
+**Tỷ lệ.** Dòng dưới tiêu đề bảng nói kích thước từ đâu: kích thước in trên sơ đồ (và bao nhiêu cái đồng ý), thanh tỷ lệ của nó, cửa của nó (lấy rộng 80 cm), hoặc không gì, khi **đây là đoán**. Nếu kích thước trông sai, chạm **Đặt kích thước phòng**, gõ chiều rộng và chiều sâu thực của một phòng, và **Đổi tỷ lệ**: mọi phòng vẽ lại từ nó.
+
+**Thêm chúng.** **Thêm 5 phòng** (số phòng bật) tạo các phòng, và các tầng mới, như vị trí thường, và đặt chúng trên bản đồ bên cạnh cái đã có. Thông báo đề xuất **Hoàn tác**, lấy hết chúng khỏi bản đồ và đặt phòng nó tạo vào rác, miễn là không gì được đặt trong chúng và không cái nào được đổi tên hay di chuyển từ khi thêm. Lịch sử một dòng: **Đã thêm 5 phòng từ sơ đồ mặt bằng**. **Vứt bỏ** vứt sơ đồ; không gì thêm.
+
+Mức độ tốt một mô hình đọc sơ đồ phụ thuộc vào sơ đồ và mô hình: kiểm tra mỗi phòng chống sơ đồ trước khi thêm. Tường, cửa và cửa sổ không vẽ, và phòng không phải hình chữ nhật thành hình chữ nhật lớn nhất của nó.
+
+### Chưa có vị trí nghĩa là gì ở đây
+
+**Chưa có vị trí** giữ đồ vật chưa có vị trí. Chúng không ở phòng nào, nên không trên bản đồ và **Đặt lên bản đồ** không liệt kê chúng. Đi cho đồ vật một vị trí trong phòng trước; nó khi đó hiện lên trong danh sách phòng đó.
+
+## Mô hình chi tiết
+
+Đồ gia dụng, cây và máy lạnh ngoài trời được vẽ với mô hình miễn phí từ
+[Poly Haven](https://polyhaven.com) (CC0), thu nhỏ cho điện thoại: tối đa khoảng 150 KB mỗi cái, khoảng 1,5 MB cho tất cả, và chỉ tầng trong khung nhìn tải cái của nó. Mọi thứ khác Kept tự vẽ. Tắt **Mô hình chi tiết** dưới bản đồ và không gì được tải; Kept nhớ cái đó trên thiết bị này.
+
+Nếu trình duyệt không vẽ 3D được (điện thoại cũ, hoặc tắt đồ họa), bản đồ nói vậy và danh sách dưới vẫn có mọi thứ.

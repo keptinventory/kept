@@ -1,0 +1,21 @@
+---
+title: Karte ausprobieren
+description: "Kepts 3D-Karte in deinem Browser, mit einem Beispielhaus: Stockwerke, Räume, Regale und Kisten sowie Pins für niedrigen Bestand, ausgeliehene Gegenstände oder fällige Dinge. Nichts wird gespeichert."
+template: splash
+---
+
+import TryMap from '../../../../components/try-map/TryMap.astro';
+
+<TryMap lang="en" />
+
+## Was auszuprobieren
+
+- Antippe ein Zimmer, ein Regal oder eine Kiste: die Karte zeigt, wo sie ist und was darin ist. **Details** zeigt den Rest: seinen Typ und seine Tags, ein Foto bei einigen Dingen, und den QR-Code seines Etiketts.
+- **Was ist drin** unter der Karte listet alle Gegenstände eines Raums auf. Finde eines nach Namen oder anhand der kurzen ID auf seinem Etikett, wähle ein Stockwerk aus, oder wechsel zu **Braucht Aufmerksamkeit**. Ein Code erscheint als bernsteinfarbenes Band nur bei Dingen mit einem gedruckten Etikett.
+- **Grundriss** zeigt gerade nach unten. Die Stockwerk-Schaltflächen (**G**, **F**, **R**) gehen hoch und runter; **Alle** stapelt sie.
+- **Wenig Vorrat**, **Verliehen** und **Bald fällig** schalten ihre Pins ein und aus.
+- **Anordnen**: Ziehe Objekte, halte das Stockwerk eines Zimmers und ziehe es irgendwo hin (was darin ist kommt mit), ändere die Größe eines Zimmers an seiner bernsteinfarbenen Ecke, zeichne ein Zimmer. **Stellen auf…** platziert ein kleines Objekt auf einem Schreibtisch oder Regal. **Erledigt** behält es bis du die Seite verlässt, und bietet **Rückgängig**; **Abbrechen** fragt zuerst.
+Dies ist die Karte, die Kept mitliefert, mit denselben Modellen.
+[Die Standortkarte](/de/users/location-map/) erklärt, wie ein echter Standort seine Stockwerke und Räume erhält.
+Die ganze App mit einem Beispielhaushalt: [Kept ausprobieren](/de/try/kept/).
+Um Kept auf deinem eigenen Server auszuführen, starte mit [Installation mit Docker Compose](/de/install/compose/).

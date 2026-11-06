@@ -1,0 +1,174 @@
+---
+title: Home Assistant
+description: "Kept dans Home Assistant : capteurs pour ce qui est en retard, à faire et aux échéances proches, le relevé et le prochain entretien de chaque véhicule, un calendrier et des relevés de kilométrage renvoyés."
+---
+
+import { Image } from 'astro:assets';
+import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
+import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
+
+L'intégration Kept pour [Home Assistant](https://www.home-assistant.io/) montre ce dont vous avez besoin dans
+chaque emplacement et renvoie des relevés, comme le kilométrage qu'une intégration de véhicule connaît déjà. Elle
+lit Kept avec un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel).
+
+L'intégration : [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant),
+installée avec [HACS](https://hacs.xyz/) comme dépôt personnalisé.
+
+Facultatif : seulement si vous utilisez déjà [Home Assistant](https://www.home-assistant.io/installation/).
+Kept fonctionne de la même manière sans.
+
+## L'application et l'intégration
+
+<Image src={diagramLight} alt="Kept, sur votre serveur ou comme application Home Assistant, et l'intégration Kept dans Home Assistant : l'intégration lit Kept toutes les 5 minutes et renvoie des relevés, et ses capteurs, calendrier et actions alimentent les tableaux de bord, automatisations et le calendrier" class="kd-only-light" />
+<Image src={diagramDark} alt="Kept, sur votre serveur ou comme application Home Assistant, et l'intégration Kept dans Home Assistant : l'intégration lit Kept toutes les 5 minutes et renvoie des relevés, et ses capteurs, calendrier et actions alimentent les tableaux de bord, automatisations et le calendrier" class="kd-only-dark" />
+
+- **L'application** fait tourner Kept sur Home Assistant OS ([installez-la](/fr/install/home-assistant/)). Kept sur
+  votre propre serveur fonctionne de la même manière.
+- **L'intégration** intègre Kept dans Home Assistant : les capteurs, le calendrier et les actions.
+  Seule une intégration peut ajouter des entités, l'application ne le peut pas.
+- **Utilisateurs de l'application, activez d'abord https :** l'option **https on Kept's port** de l'application.
+  Kept crée des jetons uniquement via https.
+
+## Avant de commencer
+
+| Ce dont vous avez besoin | Pourquoi |
+|---|---|
+| **Home Assistant 2026.10 ou version ultérieure** | L'intégration est construite et testée avec |
+| **HACS** dans Home Assistant | Il installe l'intégration. [Télécharger HACS](https://hacs.xyz/docs/use/download/download/) ([ce dont il a besoin](https://hacs.xyz/docs/use/download/prerequisites/)) |
+| **Kept 1.8.0 ou version ultérieure** | Ajoute le résumé que lisent les capteurs |
+| **Un jeton personnel** | L'application les crée uniquement via HTTPS ([HTTPS](/fr/install/https/)) ; sur un réseau domestique en `http`, [créez-en un sur le serveur](/fr/admin/cli/#un-jeton-depuis-le-serveur) |
+| **Home Assistant peut atteindre Kept** | Même réseau, un VPN comme Tailscale, ou une adresse publique. Testez : ouvrez l'adresse de Kept depuis la machine où tourne Home Assistant |
+
+## Ce que vous obtenez
+
+Chaque emplacement est un appareil dans Home Assistant :
+
+| Entité | Ce qu'elle affiche |
+|---|---|
+| **En retard**, **À faire**, **Échéances proches** | Les compteurs de l'Accueil de Kept. L'attribut `items` liste les 10 premiers, les plus urgents d'abord |
+| **Prêtés**, **Empruntés** | Prêts en cours. Uniquement là où le prêt est activé |
+| **Incertain**, **Pas vus depuis longtemps** | Objets dont l'emplacement est douteux, ou non vus depuis les mois de l'emplacement |
+| **Stock bas** | Objets sous leur minimum. Uniquement là où les consommables sont activés |
+| **Sans emplacement**, **Objets** | Désactivés au départ ; activez-les dans Home Assistant |
+| **Échéances** (calendrier) | Chaque objet avec un jour d'échéance, comme événement sur toute la journée |
+
+Chaque véhicule (un objet avec un compteur, sous **Véhicules**) est un appareil dans son emplacement :
+
+| Entité | Ce qu'elle affiche |
+|---|---|
+| **Relevé** | Le dernier relevé, en km, mi ou heures |
+| **Prochain entretien** | Le jour où c'est prévu, ou l'estimation de Kept à partir de vos relevés |
+| **Prochain entretien à** | Le relevé auquel c'est prévu |
+
+Un emplacement ou un véhicule ajouté plus tard dans Kept apparaît après le rechargement de l'intégration.
+
+## Configuration
+
+1. **Créez un jeton.** Dans Kept, **Paramètres → Connexions → Nouveau jeton**. Cochez les emplacements que
+   Home Assistant doit voir. **Lecture seule** suffit pour les capteurs et le calendrier ; **Lire et
+   modifier** permet aussi aux actions ci-dessous d'envoyer des relevés et de marquer les planifications comme faites. L'application crée
+   des jetons uniquement lorsque Kept est servi via `https` ([HTTPS](/fr/install/https/)) ; en `http`, la
+   personne qui fait tourner le serveur en crée un avec
+   [`kept admin token create`](/fr/admin/cli/#un-jeton-depuis-le-serveur).
+2. **Installez.** Dans HACS, **⋮ → Dépôts personnalisés** ([comment](https://hacs.xyz/docs/faq/custom_repositories/)) : ajoutez
+   `https://github.com/keptinventory/kept-homeassistant`, type **Integration**. Installez **Kept**,
+   puis redémarrez Home Assistant.
+3. **Ajoutez-la.** **Paramètres → Appareils et services → Ajouter une intégration → Kept**. Entrez l'adresse de Kept
+   (`https://kept.example.org`) et le jeton. Désactivez **Vérifier le certificat HTTPS** uniquement pour un
+   certificat auto-signé sur votre propre réseau.
+4. **Vérifier.** L'étape suivante affiche la version de votre Kept et les emplacements accessibles par le jeton.
+   Valider les ajoute.
+
+Ce que la configuration vous dit lorsqu'il y a un problème :
+
+| Message | Que faire |
+|---|---|
+| Kept est inaccessible | Vérifiez l'adresse et que Home Assistant peut atteindre cet hôte |
+| Ce n'est pas Kept | L'adresse répond, mais avec autre chose : une page de proxy, une autre application |
+| Cette adresse redirige vers HTTPS | Utilisez l'adresse en `https://` qu'elle indique |
+| Le certificat HTTPS n'est pas approuvé | Utilisez un certificat approuvé, ou désactivez la vérification pour un certificat auto-signé |
+| Échec HTTPS | Kept est servi en `http` simple sur ce port : utilisez `http://` |
+| Kept a refusé le jeton | Il a été révoqué, a expiré ou a été mal saisi : créez-en un nouveau |
+| Ce Kept ne propose pas le résumé | Mettez à jour Kept |
+
+**Configurer** sur l'intégration choisit quels emplacements du jeton afficher et à quelle fréquence
+lire Kept (toutes les 5 minutes ; de 1 à 60). Lorsque le jeton est révoqué ou expire, Home Assistant demande un
+nouveau.
+
+## Sur un tableau de bord
+
+Les identifiants d'entité proviennent des noms dans Kept. Pour un emplacement appelé **Accueil** et une voiture appelée
+**Corolla** : `sensor.home_overdue`, `sensor.home_due`, `sensor.home_expiring`,
+`sensor.home_lent_out`, `sensor.home_low_stock`, `calendar.home_due_dates`,
+`sensor.corolla_reading`, `sensor.corolla_next_service`. Vérifiez les vôtres sous **Paramètres → Appareils et
+services → Kept**.
+
+Une [carte tuile](https://www.home-assistant.io/dashboards/tile/) par compteur, ou une
+[carte d'entités](https://www.home-assistant.io/dashboards/entities/) :
+
+```yaml
+type: entities
+title: Kept · Home
+entities:
+  - sensor.home_overdue
+  - sensor.home_due
+  - sensor.home_expiring
+  - sensor.home_lent_out
+  - sensor.home_low_stock
+  - sensor.corolla_next_service
+```
+
+Le calendrier **Échéances** s'affiche dans le panneau **Calendrier** de Home Assistant.
+
+## Actions
+
+**Kept : Enregistrer un relevé** (`kept.log_reading`) envoie un relevé pour un véhicule (ou un compteur, par son identifiant :
+l'attribut `meter_id` du capteur **Relevé**). Il apparaît dans Kept comme un relevé de Home Assistant. Kept
+refuse un relevé inférieur au précédent, et l'action échoue avec la raison de Kept ; un saut
+que Kept juge improbable attend une vérification dans la Boîte de réception.
+
+**Kept : Marquer une planification comme faite** (`kept.complete_schedule`) marque une planification comme faite un jour (aujourd'hui,
+dans le fuseau horaire de l'emplacement) et enregistre l'entretien, avec le relevé pour une planification par compteur.
+Une occurrence unique est alors faite et quitte les compteurs ; la marquer à nouveau comme faite échoue.
+
+Les deux nécessitent un jeton **Lire et modifier**.
+
+### Le kilométrage de la voiture, envoyé à Kept
+
+Lorsque le kilométrage de la voiture s'est stabilisé pendant 10 minutes (la voiture est garée) :
+
+```yaml
+alias: Odometer to Kept
+triggers:
+  - trigger: state
+    entity_id: sensor.my_car_odometer
+    for: "00:10:00"
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: kept.log_reading
+    data:
+      device_id: YOUR_KEPT_VEHICLE_DEVICE_ID
+      value: "{{ trigger.to_state.state | float }}"
+mode: queued
+```
+
+`sensor.my_car_odometer` est le capteur de votre intégration de véhicule. Dans l'éditeur d'automatisations, choisissez le
+véhicule Kept dans le champ **Véhicule** de l'action pour remplir `device_id`. Envoyez le relevé dans l'unité
+du compteur du véhicule dans Kept.
+
+## Mettre à jour ou retirer
+
+- **Mise à jour :** une nouvelle version apparaît sous **Paramètres → Mises à jour** (HACS l'y ajoute). Installez-la et
+  redémarrez Home Assistant.
+- **Retirer :** **Paramètres → Appareils et services → Kept → ⋮ → Supprimer**, puis retirez **Kept** dans
+  HACS et redémarrez. Révoquez le jeton dans Kept : **Paramètres → Connexions**.
+
+## Ce qu'elle lit
+
+Toutes les quelques minutes, avec le jeton : `GET /api/v1/summary` (les compteurs par emplacement),
+`GET /api/v1/vehicles` et la première page de `GET /api/v1/agenda`. Le calendrier lit
+`GET /api/v1/agenda` pour les jours qu'il affiche. Les actions utilisent `POST /api/v1/meters/{id}/readings`
+et `POST /api/v1/schedules/{id}/complete`. Un jeton ne voit que ses propres emplacements, et jamais plus
+que vous ne pouvez. Le même résumé alimente les [widgets de tableau de bord](/fr/users/dashboards/).

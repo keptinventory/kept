@@ -1,0 +1,23 @@
+---
+title: Formes de la carte
+description: Chaque forme que la carte des emplacements peut dessiner, avec son image, sa taille et les mots qui la trouvent en anglais, arabe, français, allemand et italien.
+---
+
+import ShapeLibrary from '../../../../components/shapes/ShapeLibrary.astro';
+
+Chaque forme que la [carte des emplacements](/fr/users/location-map/) peut dessiner, dans les groupes que le sélecteur de formes
+affiche. Chacune a son image, sa taille (largeur × profondeur × hauteur, avant d'être tournée) et les mots
+qui la trouvent dans **Trouver une forme**, ou qui donnent sa forme à un objet à partir de son nom. Cette page est construite
+à partir du catalogue de formes de Kept, elle liste donc exactement ce que votre version de Kept possède.
+
+Les tailles sont indicatives : un objet garde la taille de sa forme sur la carte, quelle que soit sa taille réelle. Deux
+formes sont dimensionnées sur leur fiche plutôt : **Étagère à cases** par ses cubes en largeur et en hauteur (chaque cube de 33
+cm, profondeur 39 cm : 2 × 2 fait 77 × 39 × 77 cm, 4 × 4 fait 147 × 39 × 147 cm), et **Grande bibliothèque** par
+sa largeur, sa profondeur, sa hauteur et ses niveaux. Les tailles données ici sont celles de départ. Le mobilier
+à compartiments prend sa propre taille : ses compartiments y sont dessinés.
+
+**Il manque une forme ?** [La demander](https://github.com/keptinventory/kept/issues/new?template=shape-request.yml)
+avec un compte GitHub : dites de quoi il s'agit, donnez sa taille et ajoutez une photo ou un lien. Ou
+[l'ajouter vous-même](/fr/developers/add-a-shape/).
+
+<ShapeLibrary />

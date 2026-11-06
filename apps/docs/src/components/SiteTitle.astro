@@ -1,4 +1,7 @@
 ---
+import { langOf, pick } from '../i18n';
+import { siteSub } from '../words';
+
 /**
  * The site title is Kept's lockup (D135, "B · Label tape"): the square mark (amber tape with its
  * punched hole and a heavy mono K) and KEPT beside it, both as IBM Plex Mono SemiBold outlines, as
@@ -6,7 +9,7 @@
  * geometry). The hole is cut out, so it shows the header; the wordmark takes the text colour.
  */
 const { siteTitle, siteTitleHref, lang } = Astro.locals.starlightRoute;
-const sub = lang === 'ar' ? 'التوثيق' : 'Docs';
+const sub = pick(siteSub, langOf(lang));
 ---
 
 <a href={siteTitleHref} class="site-title kd-site-title" aria-label={siteTitle} translate="no">

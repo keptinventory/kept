@@ -38,10 +38,10 @@
 //
 // The sitemap is @astrojs/sitemap configured here rather than Starlight's own copy (Starlight adds
 // its own only when none is configured): the same per-locale alternates, but only the pages that
-// exist in their language. French, German and Italian pages and the untranslated Arabic ones are
-// the English text, so they stay out of it and their canonical link names the English page
+// exist in their language. A locale's page that has no file of its own is the English text, so it
+// stays out of it and its canonical link names the English page
 // (src/route-data.ts, which keeps the hreflang alternates to the same pages). The 404 page is out.
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -50,16 +50,31 @@ import { defineMdastPlugin } from 'satteri';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
 import { locales } from './src/locales.mjs';
+import { sidebarLabels } from './src/sidebar-labels.mjs';
 
 const site = process.env.KEPT_DOCS_SITE || undefined;
 const base = process.env.KEPT_DOCS_BASE || '/';
 const prefix = base.replace(/\/+$/, '');
 
-/** The pages Arabic has of its own, as paths under ar/ ('' is the landing page). */
-const arabic = new Set(
-  readdirSync(new URL('./src/content/docs/ar/', import.meta.url), { recursive: true })
-    .filter((file) => /\.mdx?$/.test(file))
-    .map((file) => file.replaceAll('\\', '/').replace(/(^|\/)index\.mdx?$|\.mdx?$/, '')),
+/**
+ * The pages each language has of its own, as paths under its folder ('' is the landing page),
+ * by locale code. English is the root folder, so every page of its own is in the sitemap.
+ */
+const ownPages = Object.fromEntries(
+  Object.keys(locales)
+    .filter((code) => code !== 'root')
+    .map((code) => {
+      const folder = new URL(`./src/content/docs/${code}/`, import.meta.url);
+      const files = existsSync(folder) ? readdirSync(folder, { recursive: true }) : [];
+      return [
+        code,
+        new Set(
+          files
+            .filter((file) => /\.mdx?$/.test(file))
+            .map((file) => file.replaceAll('\\', '/').replace(/(^|\/)index\.mdx?$|\.mdx?$/, '')),
+        ),
+      ];
+    }),
 );
 
 /** Whether a built page belongs in the sitemap: its own language's text, and not the 404 page. */
@@ -68,8 +83,8 @@ function inSitemap(page) {
   if (prefix && path.startsWith(`${prefix}/`)) path = path.slice(prefix.length);
   const [first = '', ...rest] = path.replace(/^\/+|\/+$/g, '').split('/');
   if (first === '404') return false;
-  if (first === 'ar') return arabic.has(rest.join('/'));
-  return !(first in locales);
+  if (Object.hasOwn(ownPages, first)) return ownPages[first].has(rest.join('/'));
+  return true;
 }
 
 // Pages link to each other as `/install/compose/`. Astro doesn't add the base path to Markdown
@@ -85,8 +100,12 @@ const baseLinks = defineMdastPlugin({
   },
 });
 
-/** A sidebar group with its Arabic label; the other locales show the English one. */
-const group = (label, ar, items, extra = {}) => ({ label, translations: { ar }, items, ...extra });
+/** A sidebar group with its label in every language (src/sidebar-labels.mjs). */
+const group = (label, items, extra = {}) => {
+  const translations = sidebarLabels[label];
+  if (!translations) throw new Error(`no sidebar labels for the group "${label}"`);
+  return { label, translations, items, ...extra };
+};
 /** A page in the sidebar, under its own title. */
 const page = (slug) => slug;
 /** A group filled from a directory, in each page's `sidebar.order`. */
@@ -96,8 +115,8 @@ const dir = (directory) => [{ autogenerate: { directory } }];
 // on it, and people who maintain it. Pages keep their URLs (install/, admin/, reference/); the
 // sidebar groups them by who reads them.
 const sidebar = [
-  group('Use Kept', 'استخدام Kept', [
-    group('Install', 'التثبيت', dir('install')),
+  group('Use Kept', [
+    group('Install', dir('install')),
     page('users/getting-started'),
     page('users/features'),
     page('users/first-run'),
@@ -137,7 +156,7 @@ const sidebar = [
     page('users/reports'),
     page('users/webhooks'),
     page('integrations'),
-    group('Backups and restore', 'النسخ الاحتياطي والاستعادة', [
+    group('Backups and restore', [
       page('admin/backups'),
       page('admin/restore'),
       page('admin/read-with-restic'),
@@ -147,7 +166,7 @@ const sidebar = [
     page('users/faq'),
     page('users/glossary'),
   ]),
-  group('Run Kept', 'تشغيل Kept', [
+  group('Run Kept', [
     page('reference/configuration'),
     page('admin/upgrades'),
     page('admin/verify-release'),
@@ -161,7 +180,7 @@ const sidebar = [
     page('admin/troubleshooting'),
     page('admin/uninstall'),
   ]),
-  group('Build on Kept', 'التطوير', [
+  group('Build on Kept', [
     page('developers/contributing'),
     page('developers/architecture'),
     page('developers/monorepo'),
@@ -181,7 +200,7 @@ const sidebar = [
     page('developers/testing'),
     page('developers/feature-walkthrough'),
   ]),
-  group('Maintain Kept', 'صيانة المشروع', [
+  group('Maintain Kept', [
     page('maintainers/releasing'),
     page('maintainers/signing'),
     page('maintainers/changelog'),

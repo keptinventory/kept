@@ -10,6 +10,7 @@ import { findLanguages, languageSearch } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import DE from 'country-flag-icons/react/3x2/DE';
 import EG from 'country-flag-icons/react/3x2/EG';
+import ES from 'country-flag-icons/react/3x2/ES';
 import FR from 'country-flag-icons/react/3x2/FR';
 import GB from 'country-flag-icons/react/3x2/GB';
 import IT from 'country-flag-icons/react/3x2/IT';
@@ -35,6 +36,7 @@ export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
   it: 'Italiano',
   vi: 'Tiếng Việt',
   uk: 'Українська',
+  es: 'Español',
 };
 
 const FLAGS: Readonly<Record<Locale, Flag>> = {
@@ -45,6 +47,7 @@ const FLAGS: Readonly<Record<Locale, Flag>> = {
   it: IT,
   vi: VN,
   uk: UA,
+  es: ES,
 };
 
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({

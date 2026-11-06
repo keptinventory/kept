@@ -94,6 +94,12 @@ describe('scanLine', () => {
     expect(rules('apps/server/src/net/ssrf.test.ts', "['192.168.1.1', true]")).toEqual([]);
   });
 
+  it('lets a translated docs page use the address its English page may use', () => {
+    expect(privateIpv4Allowed('apps/docs/src/content/docs/es/install/https.md')).toBe(true);
+    expect(privateIpv4Allowed('apps/docs/src/content/docs/ar/admin/upgrades.md')).toBe(true);
+    expect(privateIpv4Allowed('apps/docs/src/content/docs/es/install/hardware.md')).toBe(false);
+  });
+
   it('applies every other rule inside allowed files too', () => {
     expect(rules('apps/server/src/x.test.ts', '/Users/someone/x')).toEqual(['home-directory']);
   });
