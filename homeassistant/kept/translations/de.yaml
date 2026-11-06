@@ -1,0 +1,115 @@
+configuration:
+  public_url:
+    name: Kepts Adresse
+    description: >-
+      Die Adresse, die Handys, gedruckte Etiketten und Mail-Links nutzen, wie
+      http://homeassistant.local:8080 oder https://kept.example.org. Leer: Hostnamen von Home
+      Assistant und Port dieser App. Kein Pfad.
+  log_level:
+    name: Protokolldetail
+    description: Wie viel Kept in den Protokoll-Tab schreibt.
+  smtp_url:
+    name: Ausgehende E-Mail
+    description: >-
+      Eine smtp://- oder smtps://-URL mit dem Konto, wie smtps://user:password@mail.example.org.
+      Leer: Kept sendet keine E-Mail.
+  smtp_from:
+    name: E-Mail-Absender
+    description: Der From-Header von Kepts E-Mail, wie Kept <kept@example.org>.
+  ssl:
+    name: https auf Kepts Port
+    description: >-
+      Kepts Port über https mit Home Assistants Zertifikat aus /ssl bereitstellen. Tokens,
+      Passkeys, die Kamera und die installierbare App brauchen https. App nach
+      Zertifikaterneuerung neu starten.
+  certfile:
+    name: Zertifikatsdatei
+    description: Der Dateiname des Zertifikats in /ssl.
+  keyfile:
+    name: Privatschlüsseldatei
+    description: Der Dateiname des privaten Schlüssels in /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      Mit https weist Kept Browser an, für diesen Hostnamen auf jedem Port ein Jahr lang https zu
+      verwenden, einschließlich Home Assistant. off: Nutzt Home Assistant oder eine andere App auf
+      diesem Hostnamen nur http, vergessen Browser dies beim nächsten https-Besuch von Kept.
+  http_sign_in_days:
+    name: Anmeldedauer über http
+    description: >-
+      Wie viele Tage eine Anmeldung über reines http gilt, 1 bis 30, erneuert bei Nutzung; 7 passt
+      fürs Heimnetz. Leer: 12 Stunden, keine Erneuerung. Keine Wirkung bei aktiviertem https. Über
+      reines http kann ein Anmelde-Cookie von jedem kopiert werden, der den Verkehr sieht; bei
+      Aktivierung funktioniert ein kopiertes so lange, wie es genutzt wird, bis jenes Gerät sich
+      abmeldet oder deine anderen Geräte abgemeldet werden.
+  extra_addresses:
+    name: Zusatzadressen
+    description: >-
+      Weitere Adressen, auf die dieser Kept hört, kommagetrennt, genau so wie der Browser sie
+      anzeigt: http://192.0.2.20:8080. Keine Platzhalter, und dasselbe http oder https wie Kepts
+      Adresse. An jeder meldest du dich separat an. Links, E-Mail, Passkeys und KI-Apps bleiben
+      auf Kepts Adresse. Nur Adressen auflisten, die diesen Kept erreichen.
+  oidc_issuer:
+    name: OIDC-Aussteller
+    description: >-
+      Anmeldung mit eigenem Identitätsanbieter: die Aussteller-URL exakt wie im Discovery-Dokument
+      angegeben. Zusammen mit der Client-ID ist OIDC-Anmeldung aktiv. Weiterleitungs-URL zur
+      Registrierung: Kepts Adresse gefolgt von /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: OIDC-Client-ID
+    description: Die Client-ID vom Identitätsanbieter.
+  oidc_client_secret:
+    name: OIDC-Client-Secret
+    description: >-
+      Das Client-Secret, für einen vertraulichen Client. Leer für einen öffentlichen Client.
+  oidc_name:
+    name: OIDC-Button-Name
+    description: >-
+      Der Name des Anbieters auf "Anmelden mit …", höchstens 60 Zeichen. Leer: OIDC.
+  oidc_autoprovision_domains:
+    name: OIDC-Registrierung per E-Mail-Domain
+    description: >-
+      Kommagetrennte E-Mail-Domains (exakt, keine Subdomains), deren Nutzer beim ersten Anmelden
+      ein Konto erhalten. Leer: nur auf Einladung.
+  oidc_autoprovision_groups:
+    name: OIDC-Registrierung über Gruppe
+    description: >-
+      Durch Kommas getrennte Gruppen (exakt), deren Mitglieder bei ihrer ersten Anmeldung ein
+      Konto erhalten. Leer: nur Einladung.
+  oidc_groups_claim:
+    name: OIDC-Gruppen-Claim
+    description: >-
+      Der ID-Token-Claim, der die Gruppen enthält. Leer: groups.
+  oidc_scopes:
+    name: OIDC-Scopes
+    description: >-
+      Die angeforderten Scopes, durch Leerzeichen getrennt. Leer: openid email profile.
+  google_client_id:
+    name: Google-Client-ID
+    description: >-
+      Anmelden mit Google, mit einem OAuth-Client von Google Cloud. Mit dem Geheimnis gesetzt ist
+      die Anmeldung mit Google aktiv, nur für bestehende Konten und eingeladene Personen. Google
+      benötigt Kepts Adresse unter https mit einem öffentlichen Domainnamen (nicht http, .local
+      oder eine IP-Adresse): setze Kepts Adresse, zum Beispiel einen DuckDNS-Namen mit https auf
+      Kepts Port. Umleitungs-URL zur Registrierung: Kepts Adresse gefolgt von
+      /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Google-Clientgeheimnis
+    description: Das Geheimnis des OAuth-Clients.
+  apprise_url:
+    name: Apprise-Server
+    description: >-
+      Der Apprise-API-Server, über den Apprise-Benachrichtigungskanäle laufen, wie
+      http://apprise:8000. Leer: Personen können keine Apprise-Kanäle hinzufügen.
+  signup_open:
+    name: Registrierung
+    description: >-
+      true lässt die Registrierung offen, false schließt sie (nur Einladungen); die
+      Admin-Einstellung zeigt sich dann als gesperrt. Nicht gesetzt: ein Admin entscheidet in Kept
+      (Admin → Registrierung).
+  max_file_mb:
+    name: Upload-Limit (MB)
+    description: >-
+      Die größte Datei, die hochgeladen werden darf, 1 bis 2048. Leer: 25.
+network:
+  8080/tcp: Kepts eigene Adresse, für Telefone, Etiketten und E-Mail-Links.

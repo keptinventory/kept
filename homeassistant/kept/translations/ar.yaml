@@ -1,0 +1,110 @@
+configuration:
+  public_url:
+    name: عنوان Kept
+    description: >-
+      العنوان الذي تستخدمه الهواتف، الملصقات المطبوعة وروابط البريد، مثل
+      http://homeassistant.local:8080 أو https://kept.example.org. فارغ: اسم مضيف Home Assistant
+      ومنفذ هذا التطبيق. بدون مسار.
+  log_level:
+    name: تفصيل السجل
+    description: كمية ما يكتبه Kept في تبويب السجل.
+  smtp_url:
+    name: البريد الصادر
+    description: >-
+      رابط smtp:// أو smtps:// مع الحساب، مثل smtps://user:password@mail.example.org. فارغ: Kept
+      لا يرسل بريداً.
+  smtp_from:
+    name: مرسل البريد
+    description: مرسل بريد Kept، مثل Kept <kept@example.org>.
+  ssl:
+    name: https على منفذ Kept
+    description: >-
+      تقديم منفذ Kept عبر https مع شهادة Home Assistant من /ssl. الرموز، مفاتيح المرور، الكاميرا
+      والتطبيق القابل للتثبيت تحتاج https. أعد تشغيل التطبيق بعد تجديد الشهادة.
+  certfile:
+    name: ملف الشهادة
+    description: اسم ملف الشهادة في /ssl.
+  keyfile:
+    name: ملف المفتاح الخاص
+    description: اسم ملف المفتاح الخاص في /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      مع تفعيل https، يخبر Kept المتصفحات باستخدام https لاسم المضيف هذا على كل المنافذ لسنة، بما
+      في ذلك Home Assistant نفسه. off: عندما يكون Home Assistant أو تطبيق آخر على اسم المضيف هذا
+      على http العادي؛ المتصفحات تنساه في زيارتها التالية لـ Kept عبر https.
+  http_sign_in_days:
+    name: مدة تسجيل الدخول عبر http
+    description: >-
+      أيام يستمر فيها تسجيل الدخول عبر http العادي، ١ إلى ٣٠، تتجدد عند الاستخدام؛ ٧ تناسب شبكة
+      منزلية. فارغ: ١٢ ساعة، لا تتجدد. لا تأثير مع تفعيل https. عبر http العادي يمكن نسخ ملف تعريف
+      الارتباط لتسجيل الدخول من قبل أي شخص يرى حركة المرور؛ مع تفعيل هذا، تظل المنسوخة تعمل طالما
+      تستخدم، حتى خروج ذلك الجهاز أو خروج أجهزتك الأخرى.
+  extra_addresses:
+    name: عناوين إضافية
+    description: >-
+      عناوين أخرى يستجيب عليها هذا Kept، مفصولة بفواصل، كما يظهرها المتصفح بالضبط:
+      http://192.0.2.20:8080. لا رموز بديلة، ونفس http أو https مثل عنوان Kept. ولكل منها تسجيل
+      دخول منفصل. الروابط، البريد، مفاتيح المرور وتطبيقات AI تبقى على عنوان Kept. اذكر فقط
+      العناوين التي تصل إلى هذا Kept.
+  oidc_issuer:
+    name: مصدر OIDC
+    description: >-
+      تسجيل الدخول مع موفر الهوية الخاص بك: رابط المصدر بالضبط كما ورد في مستند الاكتشاف الخاص به.
+      مع تعيين معرّف العميل، يُفعّل تسجيل الدخول عبر OIDC. رابط إعادة التوجيه للتسجيل: عنوان Kept
+      متبوعاً بـ /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: معرّف عميل OIDC
+    description: معرّف العميل من موفر الهوية.
+  oidc_client_secret:
+    name: سر عميل OIDC
+    description: السر، لعميل سري. فارغ لعميل عام.
+  oidc_name:
+    name: اسم زر OIDC
+    description: >-
+      اسم الموفر على "سجّل الدخول مع …"، ٦٠ حرفاً كحد أقصى. فارغ: OIDC.
+  oidc_autoprovision_domains:
+    name: تسجيل OIDC حسب نطاق البريد
+    description: >-
+      نطاقات بريد مفصولة بفواصل (مطابقة تامة، بدون نطاقات فرعية) يحصل أصحابها على حساب في أول
+      تسجيل دخول. فارغ: بالدعوة فقط.
+  oidc_autoprovision_groups:
+    name: تسجيل عبر OIDC حسب المجموعة
+    description: >-
+      مجموعات مفصولة بفواصل (مطابقة دقيقة)، يحصل أعضاؤها على حساب عند أول تسجيل دخول. فارغ:
+      الدعوات فقط.
+  oidc_groups_claim:
+    name: مطالبات OIDC للمجموعات
+    description: >-
+      مطالبات رمز التعريف التي تحمل المجموعات. فارغ: groups.
+  oidc_scopes:
+    name: نطاقات OIDC
+    description: >-
+      النطاقات المطلوبة، مفصولة بمسافات. فارغ: openid email profile.
+  google_client_id:
+    name: معرف عميل Google
+    description: >-
+      تسجيل الدخول عبر Google، باستخدام عميل OAuth من Google Cloud. عند الضبط مع السر، يكون تسجيل
+      الدخول عبر Google مفعلاً للحسابات الحالية والمدعوين فقط. تحتاج Google إلى عنوان Kept عبر
+      https باسم نطاق عام (ليس http، ولا .local، ولا عنوان IP): اضبط عنوان Kept، مثلاً اسم DuckDNS
+      مع https على منفذ Kept. عنوان إعادة التوجيه للتسجيل: عنوان Kept متبوعاً بـ
+      /api/v1/auth/callback/google.
+  google_client_secret:
+    name: سر عميل Google
+    description: سر عميل OAuth.
+  apprise_url:
+    name: خادم Apprise
+    description: >-
+      خادم واجهة برمجة تطبيقات Apprise الذي تمر عبره قنوات إشعارات Apprise، مثل
+      http://apprise:8000. فارغ: لا يمكن للناس إضافة قنوات Apprise.
+  signup_open:
+    name: التسجيل
+    description: >-
+      true يجعل التسجيل مفتوحاً، false يجعله مغلقاً (للدعوات فقط)؛ ثم يظهر الإعداد مقفلاً في Kept.
+      غير مضبوط: يقرر مسؤول النظام في Kept (الإدارة → التسجيل).
+  max_file_mb:
+    name: حد التحميل (MB)
+    description: >-
+      أكبر ملف يمكن رفعه، من ١ إلى ٢٠٤٨. فارغ: ٢٥.
+network:
+  8080/tcp: عنوان Kept الخاص، للهواتف والملصقات وروابط البريد

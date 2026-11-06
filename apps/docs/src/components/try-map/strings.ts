@@ -1,8 +1,9 @@
 /**
- * The demo's words (D241), in English and Arabic: the shipped map's own strings and their
- * translations from apps/web/src/locales/{en,ar}/messages.po, so the demo reads like the app. A
- * few the app has no use for (the sample note, Reset) are the demo's own. The other docs
- * languages show the English demo, as they show the English pages.
+ * The demo's words (D241): the shipped map's own strings and their translations from
+ * apps/web/src/locales/<lang>/messages.po, so the demo reads like the app. A few the app has no
+ * use for (the sample note, Reset) are the demo's own. English and Arabic are here, beside each
+ * other; every other language is one file in langs/, which only that language's readers download
+ * (PACKS below). A language with no file, or a file with a word missing, is a type error.
  */
 import {
   formatRoomSide,
@@ -13,7 +14,9 @@ import {
   type ShapeGroup,
 } from '@kept/shared';
 
-export type Lang = 'en' | 'ar';
+export type Lang = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi' | 'uk' | 'es';
+/** The languages with a file in langs/. */
+export type OtherLang = Exclude<Lang, 'en' | 'ar'>;
 /** English, then Arabic. */
 export type Two = readonly [string, string];
 
@@ -144,7 +147,7 @@ export const SURFACE_NAMES: Record<MapSurface, Two> = {
   grass: ['Grass', 'عشب'],
 };
 
-type Words = {
+export type Words = {
   sample: string;
   reset: string;
   install: string;
@@ -321,7 +324,7 @@ function arPlural(n: number, f: string, forms: [string, string, string, string, 
   return (forms[i < 0 ? 5 : i] ?? '').replace('#', f);
 }
 
-export const WORDS: Record<Lang, Words> = {
+export const WORDS: Record<'en' | 'ar', Words> = {
   en: {
     sample: 'A sample home, in your browser. Nothing you change is saved or sent anywhere.',
     reset: 'Reset',
@@ -742,9 +745,54 @@ export const WORDS: Record<Lang, Words> = {
   },
 };
 
+/** Everything the demo says in one language. */
+export type Pack = {
+  words: Words;
+  models: Record<MapModelKey, string>;
+  groups: Record<ShapeGroup, string>;
+  kinds: Record<MapRoomKind, string>;
+  surfaces: Record<MapSurface, string>;
+  /** The sample home's names, by their English one (sample.ts). */
+  sample: Readonly<Record<string, string>>;
+};
+
+const PACKS: Record<OtherLang, () => Promise<{ default: Pack }>> = {
+  fr: () => import('./langs/fr'),
+  de: () => import('./langs/de'),
+  it: () => import('./langs/it'),
+  vi: () => import('./langs/vi'),
+  uk: () => import('./langs/uk'),
+  es: () => import('./langs/es'),
+};
+
+function column<K extends string>(names: Record<K, Two>, i: 0 | 1): Record<K, string> {
+  return Object.fromEntries(Object.entries<Two>(names).map(([k, two]) => [k, two[i]])) as Record<
+    K,
+    string
+  >;
+}
+
+/** English or Arabic, from this file. */
+export function basePack(lang: 'en' | 'ar'): Pack {
+  const i = lang === 'ar' ? 1 : 0;
+  return {
+    words: WORDS[lang],
+    models: column(MODEL_NAMES, i),
+    groups: column(GROUP_NAMES, i),
+    kinds: column(ROOM_KIND_NAMES, i),
+    surfaces: column(SURFACE_NAMES, i),
+    sample: {},
+  };
+}
+
+/** A language's words, fetched only for a reader of that language. */
+export async function loadPack(lang: Lang): Promise<Pack> {
+  return lang === 'en' || lang === 'ar' ? basePack(lang) : (await PACKS[lang]()).default;
+}
+
 /** Numbers and dates as the app writes them (apps/web/src/lib/format.ts): Eastern digits in Arabic. */
 export function formatter(lang: Lang) {
-  const tag = lang === 'ar' ? 'ar-u-nu-arab' : 'en';
+  const tag = lang === 'ar' ? 'ar-u-nu-arab' : lang;
   const nf = new Intl.NumberFormat(tag);
   const day = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' });
   return {

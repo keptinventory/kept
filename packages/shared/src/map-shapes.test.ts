@@ -4,6 +4,7 @@ import {
   foldText,
   SHAPE_GROUP,
   SHAPE_GROUPS,
+  SHAPE_LANGS,
   SHAPE_WORD_LANGS,
   SHAPE_WORDS,
   type ShapeInput,
@@ -31,6 +32,14 @@ describe('the shape catalogue', () => {
     expect(d.h).toBeLessThanOrEqual(0.15);
     expect(d.small).toBe(true);
     expect(MAP_MODELS.device.kind).toBe('thing');
+  });
+
+  it('folds Vietnamese marks and đ, and Cyrillic й and ї, keeping the letters', () => {
+    expect(foldText('Máy giặt')).toBe('may giat');
+    expect(foldText('Đèn bàn')).toBe('den ban');
+    expect(foldText('Холодильник')).toBe('холодильник');
+    expect(foldText('Чайник')).toBe('чаиник');
+    expect(foldText('Їжа')).toBe('іжа');
   });
 
   it('folds accents, ß and Arabic letter forms', () => {
@@ -800,7 +809,7 @@ describe('suggestShapes: homelab gear and server racks (#171)', () => {
     expect(shapeWordsByLang('tv').fr).not.toContain('television');
     expect(shapeWordsByLang('tv').fr).toContain('télévision');
     for (const k of HOMELAB)
-      for (const lang of ['en', 'ar', 'fr', 'de', 'it'] as const)
+      for (const lang of SHAPE_LANGS)
         expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
   });
 });
@@ -865,7 +874,73 @@ describe('a cube shelf sized by its grid and a bookcase with levels (#240, #241)
     expect(SHAPE_GROUP.cube_grid).toBe('storage');
     expect(SHAPE_GROUP.bookcase).toBe('storage');
     for (const k of ['cube_grid', 'bookcase'] as const)
-      for (const lang of ['en', 'ar', 'fr', 'de', 'it'] as const)
+      for (const lang of SHAPE_LANGS)
+        expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
+  });
+});
+
+describe('Spanish, Ukrainian and Vietnamese words', () => {
+  it('search them by any start in the reader\u2019s language', () => {
+    expect(searchShapes('lavad', {}, 'es')[0]).toBe('washer');
+    expect(searchShapes('холод', {}, 'uk')[0]).toBe('fridge');
+    expect(searchShapes('tủ lạ', {}, 'vi')[0]).toBe('fridge');
+    // Without its marks, as it is often typed.
+    expect(searchShapes('may giat', {}, 'vi')[0]).toBe('washer');
+    expect(searchShapes('đèn bàn', {}, 'vi')[0]).toBe('table_lamp');
+  });
+
+  it('count in another language only as whole words', () => {
+    // "cam" starts Spanish "cama": the Spanish reader's bed, not the English reader's.
+    expect(searchShapes('cam', {}, 'es')).toContain('bed');
+    expect(searchShapes('cam', {}, 'en')).not.toContain('bed');
+    expect(searchShapes('cama', {}, 'en')).toContain('bed');
+    // A word of a phrase isn't enough: "so" isn't Vietnamese "tủ hồ sơ", nor "de" "mesa de centro".
+    expect(searchShapes('so', {}, 'en')).not.toContain('cabinet');
+    expect(searchShapes('de', {}, 'en')).not.toContain('coffee_table');
+    expect(searchShapes('холодильник', {}, 'en')[0]).toBe('fridge');
+    expect(searchShapes('máy giặt', {}, 'en')[0]).toBe('washer');
+  });
+
+  it.each([
+    ['Lavadora', 'washer'],
+    ['Nevera', 'fridge'],
+    ['Taladro', 'drill'],
+    ['Холодильник', 'fridge'],
+    ['Пральна машина', 'washer'],
+    ['Ноутбук', 'laptop'],
+    ['Tủ lạnh', 'fridge'],
+    ['Máy giặt', 'washer'],
+    ['Máy ảnh', 'camera'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it.each(['Red', 'Mesa', 'Sol', 'Pan', 'May', 'Den', 'Ban', 'Tu', 'Ke', 'Red box of cables'])(
+    'read no shape from another language in %s',
+    (name) => {
+      const before = name === 'Red box of cables' ? ['box'] : [];
+      expect(
+        suggestShapes({ name })
+          .shapes.filter((s) => s.from === 'name')
+          .map((s) => s.model),
+      ).toEqual(before);
+    },
+  );
+
+  it('read an accessory as one in these languages too', () => {
+    for (const name of ['Funda de móvil', 'Чохол телефон', 'Ốp điện thoại'])
+      expect(sure({ name }), name).toBe(false);
+  });
+
+  it('list each word under its language, as written', () => {
+    expect(shapeWordsByLang('washer').es).toContain('lavadora');
+    expect(shapeWordsByLang('washer').en).not.toContain('lavadora');
+    expect(shapeWordsByLang('fridge').uk).toContain('холодильник');
+    expect(shapeWordsByLang('washer').vi).toContain('máy giặt');
+    for (const lang of ['es', 'uk', 'vi'] as const)
+      for (const k of MAP_MODEL_KEYS)
         expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
   });
 });

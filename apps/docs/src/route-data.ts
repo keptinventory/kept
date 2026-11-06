@@ -39,6 +39,10 @@
  *   site (WebSite) as JSON-LD, in one @graph with the SoftwareApplication.
  *
  * Starlight writes the sitemap link from `site`.
+ *
+ * The API reference's group in the sidebar: starlight-openapi takes one label for all languages
+ * and writes the group in its own route middleware, which runs after this one (order: 'post'), so
+ * this waits for it and then names the group in the page's language (src/sidebar-labels.mjs).
  */
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 import arabic400 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2?url';
@@ -46,8 +50,12 @@ import { shapeLibrary } from './components/shapes/library';
 import { groupName, integrationGroups } from './data/integrations';
 import { langOf } from './i18n';
 import { locales } from './locales.mjs';
+import { sidebarLabels } from './sidebar-labels.mjs';
 
 const CARD = { width: 1200, height: 630 };
+
+/** The API reference's group, as astro.config.mjs names it for starlight-openapi. */
+const API_GROUP = 'API reference';
 
 const CARDS: Record<string, { file: string; alt: string }> = {
   en: {
@@ -90,9 +98,16 @@ const OG_LOCALES: Record<string, string> = {
   es: 'es_ES',
 };
 
-export const onRequest = defineRouteMiddleware((context) => {
+export const onRequest = defineRouteMiddleware(async (context, next) => {
+  await next();
   const route = context.locals.starlightRoute;
   const { head } = route;
+  const apiLabel = (sidebarLabels[API_GROUP] as Record<string, string>)[route.lang];
+  if (apiLabel) {
+    route.sidebar = route.sidebar.map((entry) =>
+      entry.type === 'group' && entry.label === API_GROUP ? { ...entry, label: apiLabel } : entry,
+    );
+  }
   const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 
   /** Sets a <meta>'s content, replacing Starlight's own tag when there is one. */

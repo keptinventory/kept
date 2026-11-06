@@ -39,6 +39,9 @@ const LANGS: readonly { lang: ShapeLang; label: string }[] = [
   { lang: 'fr', label: 'French' },
   { lang: 'de', label: 'German' },
   { lang: 'it', label: 'Italian' },
+  { lang: 'vi', label: 'Vietnamese' },
+  { lang: 'uk', label: 'Ukrainian' },
+  { lang: 'es', label: 'Spanish' },
 ];
 
 /** Metres to centimetres, to the millimetre under 10 cm and to the centimetre above. */

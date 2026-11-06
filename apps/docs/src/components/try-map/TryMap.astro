@@ -3,7 +3,8 @@
  * "Try the map" (D241): Kept's shipped 3D map with a sample home, on the docs site's Try page
  * only. This renders the note, the box the map draws into and the credit; the map itself
  * (three.js, the app's engine, its CSS) is one chunk the small script below imports when the page
- * loads, so no other page carries it. Its .glb models are fetched later, only for the floor in
+ * loads, so no other page carries it, and a language other than English or Arabic adds one small
+ * chunk of its words (strings.ts). Its .glb models are fetched later, only for the floor in
  * view, and none at all with Detailed models off.
  */
 import { langOf, localePath, pick } from '../../i18n';
@@ -18,12 +19,10 @@ interface Props {
 const { lang: code, locale } = Astro.locals.starlightRoute;
 const lang = langOf(code);
 const install = withBase(localePath(locale, '/install/compose/'));
-// The demo itself speaks English and Arabic only; the other languages open it in English.
-const demoLang = lang === 'ar' ? 'ar' : 'en';
 const t = pick(tryMap, lang);
 ---
 
-<div class="kd-try not-content" data-lang={demoLang} data-install={install} data-failed={t.failed}>
+<div class="kd-try not-content" data-lang={lang} data-install={install} data-failed={t.failed}>
   <div class="kd-note">
     <p>{t.note}</p>
     <div class="kd-note-actions">
@@ -45,9 +44,16 @@ const t = pick(tryMap, lang);
 <script>
   const root = document.querySelector<HTMLElement>('.kd-try');
   if (root) {
-    const lang = root.dataset.lang === 'ar' ? 'ar' : 'en';
+    // TryMap.astro writes the page's language here, one of the demo's.
+    const lang = (root.dataset.lang ?? 'en') as import('./strings').Lang;
     import('./demo')
-      .then(({ mount }) => mount(root, { lang, installHref: root.dataset.install ?? '/' }))
+      .then(async ({ mount, loadPack }) =>
+        mount(root, {
+          lang,
+          pack: await loadPack(lang),
+          installHref: root.dataset.install ?? '/',
+        }),
+      )
       .catch((err: unknown) => {
         console.warn(err);
         const loading = root.querySelector<HTMLElement>('[data-loading]');

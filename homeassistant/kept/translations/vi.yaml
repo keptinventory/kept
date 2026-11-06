@@ -1,0 +1,112 @@
+configuration:
+  public_url:
+    name: Địa chỉ Kept
+    description: >-
+      Địa chỉ mà điện thoại, nhãn đã in và liên kết thư sử dụng, như
+      http://homeassistant.local:8080 hoặc https://kept.example.org. Trống: tên máy chủ Home
+      Assistant và cổng của ứng dụng này. Không có đường dẫn.
+  log_level:
+    name: Chi tiết nhật ký
+    description: Mức độ Kept ghi vào thẻ Nhật ký.
+  smtp_url:
+    name: Thư đi
+    description: >-
+      URL smtp:// hoặc smtps:// có tài khoản, như smtps://user:password@mail.example.org. Trống:
+      Kept không gửi thư.
+  smtp_from:
+    name: Người gửi thư
+    description: Trường From của thư Kept, như Kept <kept@example.org>.
+  ssl:
+    name: https trên cổng Kept
+    description: >-
+      Phục vụ cổng Kept qua https bằng chứng chỉ của Home Assistant từ /ssl. Mã thông báo, Khóa
+      truy cập, máy ảnh và ứng dụng có thể cài đặt cần https. Khởi động lại ứng dụng sau khi chứng
+      chỉ được gia hạn.
+  certfile:
+    name: Tệp chứng chỉ
+    description: Tên tệp chứng chỉ trong /ssl.
+  keyfile:
+    name: Tệp khóa riêng
+    description: Tên tệp khóa riêng trong /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      Khi https bật, Kept yêu cầu trình duyệt dùng https cho tên máy chủ này trên mọi cổng trong
+      một năm, kể cả Home Assistant. off: khi Home Assistant hoặc ứng dụng khác trên tên máy chủ
+      này dùng http thuần; trình duyệt quên nó vào lần truy cập https tiếp theo đến Kept.
+  http_sign_in_days:
+    name: Thời hạn đăng nhập qua http
+    description: >-
+      Số ngày đăng nhập kéo dài qua http thuần túy, 1 đến 30, gia hạn khi dùng; 7 phù hợp mạng gia
+      đình. Trống: 12 giờ, không gia hạn. Không tác dụng khi https bật. Qua http thuần túy, cookie
+      đăng nhập có thể bị sao chép bởi ai quan sát được lưu lượng; bật tùy chọn này, bản sao vẫn
+      hoạt động miễn là được dùng, cho đến khi thiết bị đó đăng xuất hoặc các thiết bị khác của
+      bạn bị đăng xuất.
+  extra_addresses:
+    name: Địa chỉ bổ sung
+    description: >-
+      Các địa chỉ khác mà Kept này phản hồi, phân cách bằng dấu phẩy, chính xác như trình duyệt
+      hiển thị: http://192.0.2.20:8080. Không dùng ký tự đại diện, và cùng http hoặc https như địa
+      chỉ Kept. Mỗi địa chỉ đăng nhập riêng. Liên kết, thư, Khóa truy cập và ứng dụng AI vẫn ở địa
+      chỉ Kept. Chỉ liệt kê địa chỉ truy cập được Kept này.
+  oidc_issuer:
+    name: Nhà phát hành OIDC
+    description: >-
+      Đăng nhập bằng nhà cung cấp danh tính riêng: URL nhà phát hành chính xác như tài liệu khám
+      phá nêu. Cài đặt cùng mã client, đăng nhập OIDC sẽ bật. URL chuyển hướng để đăng ký: địa chỉ
+      Kept theo sau /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: Mã client OIDC
+    description: Mã client từ nhà cung cấp danh tính.
+  oidc_client_secret:
+    name: Mã bí mật client OIDC
+    description: Mã bí mật client, cho client bảo mật. Trống cho client công khai.
+  oidc_name:
+    name: Tên nút OIDC
+    description: >-
+      Tên nhà cung cấp trên "Đăng nhập bằng …", tối đa 60 ký tự. Trống: OIDC.
+  oidc_autoprovision_domains:
+    name: Đăng ký OIDC theo miền thư
+    description: >-
+      Các miền thư phân cách bằng dấu phẩy (chính xác, không tính miền con) mà người dùng được cấp
+      tài khoản khi đăng nhập lần đầu. Trống: chỉ mời.
+  oidc_autoprovision_groups:
+    name: Đăng ký OIDC theo nhóm
+    description: >-
+      Nhóm (chính xác) được tách bằng dấu phẩy, thành viên của nhóm nhận tài khoản khi đăng nhập
+      lần đầu. Trống: chỉ mời.
+  oidc_groups_claim:
+    name: Claim nhóm OIDC
+    description: >-
+      Claim mã thông báo ID chứa các nhóm. Trống: groups.
+  oidc_scopes:
+    name: Phạm vi OIDC
+    description: >-
+      Các phạm vi yêu cầu, cách nhau bằng dấu cách. Trống: openid email profile.
+  google_client_id:
+    name: Mã client Google
+    description: >-
+      Đăng nhập bằng Google, với OAuth client từ Google Cloud. Đặt mã client cùng mã bí mật, đăng
+      nhập bằng Google được bật, chỉ cho tài khoản hiện có và người được mời. Google cần địa chỉ
+      Kept trên https với tên miền công khai (không http, .local hoặc địa chỉ IP): đặt địa chỉ
+      Kept, ví dụ tên miền DuckDNS với https trên cổng Kept. URL chuyển hướng đăng ký: địa chỉ
+      Kept theo sau là /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Mã bí mật client Google
+    description: Mã bí mật của OAuth client.
+  apprise_url:
+    name: Máy chủ Apprise
+    description: >-
+      Máy chủ API Apprise mà các kênh thông báo Apprise đi qua, ví dụ http://apprise:8000. Trống:
+      người dùng không thể thêm kênh Apprise.
+  signup_open:
+    name: Đăng ký
+    description: >-
+      true khóa đăng ký ở trạng thái mở, false khóa lại (chỉ mời); cài đặt quản trị sau đó hiển
+      thị trạng thái khóa. Chưa đặt: quản trị viên quyết định trong Kept (Admin → Đăng ký).
+  max_file_mb:
+    name: Giới hạn tải lên (MB)
+    description: >-
+      Tệp lớn nhất có thể tải lên mỗi lần, từ 1 đến 2048. Trống: 25.
+network:
+  8080/tcp: Địa chỉ riêng của Kept, cho điện thoại, nhãn và liên kết thư

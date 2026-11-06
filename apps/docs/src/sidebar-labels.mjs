@@ -56,4 +56,14 @@ export const sidebarLabels = {
     vi: 'Bảo trì Kept',
     es: 'Mantener Kept',
   },
+  // The group starlight-openapi writes: src/route-data.ts renames it, astro.config.mjs can't.
+  'API reference': {
+    ar: 'مرجع API',
+    fr: 'Référence API',
+    de: 'API-Referenz',
+    it: 'Riferimento API',
+    uk: 'Довідник API',
+    vi: 'Tham chiếu API',
+    es: 'Referencia de la API',
+  },
 };

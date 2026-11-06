@@ -93,15 +93,7 @@ import demoCss from './demo.css?inline';
 import { esc, idChip, labelTape } from './html';
 import { PHOTOS } from './photos';
 import { sampleHome } from './sample';
-import {
-  formatter,
-  GROUP_NAMES,
-  type Lang,
-  MODEL_NAMES,
-  ROOM_KIND_NAMES,
-  SURFACE_NAMES,
-  WORDS,
-} from './strings';
+import { basePack, formatter, type OtherLang, type Pack } from './strings';
 import { whatsInHtml } from './whats-in';
 
 const QUALITY_KEY = 'kept.map.quality';
@@ -140,18 +132,19 @@ const ICON = {
 };
 
 export type MountOptions = {
-  lang: Lang;
   /** Where "Install Kept" goes (the site's install page, with its base path). */
   installHref: string;
-};
+} & ({ lang: 'en' | 'ar'; pack?: Pack } | { lang: OtherLang; pack: Pack });
 
-export function mount(root: HTMLElement, { lang, installHref }: MountOptions): () => void {
-  const w = WORDS[lang];
+export { loadPack } from './strings';
+
+export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptions): () => void {
+  const words = pack ?? basePack(lang === 'ar' ? 'ar' : 'en');
+  const w = words.words;
   const f = formatter(lang);
-  const pick = (two: readonly [string, string]) => (lang === 'ar' ? two[1] : two[0]);
   const debug = new URLSearchParams(location.search).get('debug') === 'map';
 
-  const sample = sampleHome(lang);
+  const sample = sampleHome(lang, undefined, words);
   const view = sample.view;
   const name = sample.location;
   const contents = contentsOf(view);
@@ -355,7 +348,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       const full = detail || es.arranging;
       const level = plan.levels.find((l) => l.key === es.levelKey);
       const meta = [
-        `<span>${esc(pick(ROOM_KIND_NAMES[r.kind]))}</span>`,
+        `<span>${esc(words.kinds[r.kind])}</span>`,
         level ? `<span>${esc(level.name)}</span>` : '',
         `<span>${esc(w.size(f.side(r.w), f.side(r.d)))}</span>`,
         `<span>${esc(w.things(total, f.num(total)))}</span>`,
@@ -368,12 +361,12 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         body += `<div class="kmap-sub">${esc(w.kind)}</div>
           <fieldset class="kmap-seg" aria-label="${esc(w.kind)}">${MAP_ROOM_KINDS.map(
             (k) =>
-              `<button type="button" aria-pressed="${r.kind === k}" data-act="kind" data-arg="${k}" data-k="kind:${k}">${esc(pick(ROOM_KIND_NAMES[k]))}</button>`,
+              `<button type="button" aria-pressed="${r.kind === k}" data-act="kind" data-arg="${k}" data-k="kind:${k}">${esc(words.kinds[k])}</button>`,
           ).join('')}</fieldset>
           <div class="kmap-sub">${esc(w.surface)}</div>
           <fieldset class="kmap-seg" aria-label="${esc(w.surface)}">${MAP_SURFACES.map(
             (k) =>
-              `<button type="button" aria-pressed="${r.surface === k}" data-act="surface" data-arg="${k}" data-k="surface:${k}">${esc(pick(SURFACE_NAMES[k]))}</button>`,
+              `<button type="button" aria-pressed="${r.surface === k}" data-act="surface" data-arg="${k}" data-k="surface:${k}">${esc(words.surfaces[k])}</button>`,
           ).join('')}</fieldset>
           <div class="kmap-sub">${esc(w.putOnMap)}</div>
           <input type="search" class="kmap-input" data-input="adding" data-k="adding" value="${esc(adding)}" placeholder="${esc(w.findThingIn(r.name))}" aria-label="${esc(w.findThingLabel)}">
@@ -452,7 +445,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
           .join('')}</div></div>`
       : '';
     const shape = es.arranging
-      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(pick(MODEL_NAMES[baseModel(it.model)]), it.shapeFrom))}</span>${btn(
+      ? `<div class="kmap-shape"><span>${esc(w.shapeLine(words.models[baseModel(it.model)], it.shapeFrom))}</span>${btn(
           'shapes',
           it.shapeFrom === 'guess' ? w.pickShape : w.change,
           it.shapeFrom === 'guess' ? 'primary' : '',
@@ -483,7 +476,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
       <div class="kmap-card-head">
         ${photo(it.subject === 'thing' ? it.id : null)}
         <div class="kd-col kd-small">
-          <span>${esc(pick(MODEL_NAMES[baseModel(it.model)]))}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
+          <span>${esc(words.models[baseModel(it.model)])}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
           <span class="kd-wrap">${esc(meta)}</span>
           ${it.hang === undefined ? '' : `<span>${esc(w.height.onWall(f.num(it.hang)))}</span>`}
           ${placesLine}
@@ -1072,10 +1065,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
 
   // ---- The shape picker (apps/web/src/map/shapes.tsx), as a native modal dialog ---------------
 
-  const names = Object.fromEntries(MAP_MODEL_KEYS.map((k) => [k, pick(MODEL_NAMES[k])])) as Record<
-    MapModelKey,
-    string
-  >;
+  const names = words.models;
   const thumb = (m: MapModelKey, size = 52) => {
     const i = THUMB_CELLS[m];
     const x = -(i % THUMB_COLS) * size;
@@ -1127,7 +1117,7 @@ export function mount(root: HTMLElement, { lang, installHref }: MountOptions): (
         [w.suggested, suggestShapes(input).shapes.map((x) => x.model)],
         ...SHAPE_GROUPS.map(
           (g) =>
-            [pick(GROUP_NAMES[g]), MAP_MODEL_KEYS.filter((m) => SHAPE_GROUP[m] === g)] as [
+            [words.groups[g], MAP_MODEL_KEYS.filter((m) => SHAPE_GROUP[m] === g)] as [
               string,
               MapModelKey[],
             ],
