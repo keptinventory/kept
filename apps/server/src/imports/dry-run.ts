@@ -284,7 +284,7 @@ export async function loadTypes(
         AND NOT t.is_field_group AND t.archived_at IS NULL`,
     [accountId],
   );
-  const locales: BuiltinNameLocale[] = ['en', 'ar', 'fr', 'de', 'it', 'uk', 'es'];
+  const locales: BuiltinNameLocale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
   const namesOf = (key: string) =>
     locales.map((l) => builtinTypeName(key, l)).filter((n): n is string => !!n);
   // Built-ins first, so the account's own (and its customised copies) win.
