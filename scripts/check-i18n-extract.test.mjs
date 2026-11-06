@@ -72,6 +72,22 @@ describe('newIds and emptyTranslations', () => {
   });
 });
 
+// Spanish sentences that once kept an English word.
+describe('the Spanish catalogue', () => {
+  const es = parsePo(
+    readFileSync(new URL('../apps/web/src/locales/es/messages.po', import.meta.url), 'utf8'),
+  );
+  it.each([
+    '{0, plural, one {# thing in {where}} other {# things in {where}}}',
+    '{count, plural, one {Made labels for # thing} other {Made labels for # things}}',
+    '{count, plural, one {Made labels for # place} other {Made labels for # places}}',
+    '{count, plural, one {Made # blank label} other {Made # blank labels}}',
+  ])('%s has no English left', (id) => {
+    expect(es.get(id)).toBeTruthy();
+    expect(es.get(id)).not.toMatch(/\b(in|for|Made|blank)\b/);
+  });
+});
+
 // The committed catalogues themselves: no live entry has an empty translation in any
 // non-English locale. An empty msgstr would show English in that language's UI.
 describe('the committed catalogues', () => {

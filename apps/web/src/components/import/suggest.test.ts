@@ -1,5 +1,5 @@
 /**
- * The stepper's guesses: fields from headers in the five languages, Arabic included; a field
+ * The stepper's guesses: fields from headers in every language, Arabic included; a field
  * that takes one column goes to the first; the date format and the place separator from values.
  */
 import { describe, expect, it } from 'vitest';
@@ -34,6 +34,84 @@ describe('fields from headers', () => {
     expect(fieldFromHeader('Händler')).toBe('vendor');
     expect(fieldFromHeader('Quantità')).toBe('quantity');
     expect(fieldFromHeader('Colore')).toBe('colour');
+  });
+
+  it.each([
+    ['Producto', 'name'],
+    ['Cantidad', 'quantity'],
+    ['Marca', 'brand'],
+    ['Modelo', 'model'],
+    ['Número de serie', 'serial'],
+    ['Código de barras', 'barcode'],
+    ['Color', 'colour'],
+    ['Estado', 'condition'],
+    ['Notas', 'notes'],
+    ['Descripción', 'notes'],
+    ['Etiquetas', 'tags'],
+    ['Ubicación', 'place_path'],
+    ['Categoría', 'type'],
+    ['Otros nombres', 'aliases'],
+    ['Fecha de compra', 'purchased_on'],
+    ['Tienda', 'vendor'],
+    ['Precio', 'price'],
+    ['Moneda', 'currency'],
+    ['Código', 'legacy_code'],
+    ['Mi código', 'own_code'],
+    ['Назва', 'name'],
+    ['Кількість', 'quantity'],
+    ['Бренд', 'brand'],
+    ['Модель', 'model'],
+    ['Серійний номер', 'serial'],
+    ['Штрихкод', 'barcode'],
+    ['Колір', 'colour'],
+    ['Стан', 'condition'],
+    ['Нотатки', 'notes'],
+    ['Теги', 'tags'],
+    ['Локація', 'place_path'],
+    ['Тип', 'type'],
+    ['Інші назви', 'aliases'],
+    ['Дата покупки', 'purchased_on'],
+    ['Магазин', 'vendor'],
+    ['Ціна', 'price'],
+    ['Валюта', 'currency'],
+    ['Інструкція', 'manual_url'],
+    ['Код', 'legacy_code'],
+    ['Мій код', 'own_code'],
+    ['Tên', 'name'],
+    ['Số lượng', 'quantity'],
+    ['Thương hiệu', 'brand'],
+    ['Số sê-ri', 'serial'],
+    ['Mã vạch', 'barcode'],
+    ['Màu sắc', 'colour'],
+    ['Tình trạng', 'condition'],
+    ['Ghi chú', 'notes'],
+    ['Thẻ', 'tags'],
+    ['Vị trí', 'place_path'],
+    ['Loại', 'type'],
+    ['Tên khác', 'aliases'],
+    ['Ngày mua', 'purchased_on'],
+    ['Cửa hàng', 'vendor'],
+    ['Giá', 'price'],
+    ['Tiền tệ', 'currency'],
+    ['Sách hướng dẫn', 'manual_url'],
+    ['Mã', 'legacy_code'],
+    ['Mã của tôi', 'own_code'],
+    ['so luong', 'quantity'], // typed without its marks
+  ])('reads %s as %s', (header, field) => {
+    expect(fieldFromHeader(header)).toBe(field);
+  });
+
+  it('reads Nombre as the name in a Spanish sheet, and as how many in a French one', () => {
+    expect(suggestMapping(['Nombre', 'Cantidad', 'Precio'])).toEqual({
+      Nombre: 'name',
+      Cantidad: 'quantity',
+      Precio: 'price',
+    });
+    expect(suggestMapping(['Désignation', 'Nombre', 'Prix'])).toEqual({
+      Désignation: 'name',
+      Nombre: 'quantity',
+      Prix: 'price',
+    });
   });
 
   it("looks past a Homebox export's HB. prefix", () => {

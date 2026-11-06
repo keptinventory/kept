@@ -1,6 +1,6 @@
 /**
  * The import stepper's guesses: which field each column is, from its header in any of
- * the five languages ("Name", "الاسم", "Désignation"); which date format the dates are in; and
+ * Kept's languages ("Name", "الاسم", "Désignation"); which date format the dates are in; and
  * which separator the place paths use. Guesses only fill the form: the person changes any of them,
  * and the server's dry run checks every cell again.
  */
@@ -29,6 +29,7 @@ export function normaliseHeader(header: string): string {
     .replace(/\p{M}/gu, '')
     .replace(/ـ/g, '')
     .toLowerCase()
+    .replace(/đ/g, 'd')
     .replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim()
@@ -37,8 +38,9 @@ export function normaliseHeader(header: string): string {
 }
 
 /**
- * Header words per field, in English, Arabic, French, German and Italian, compared after
- * normaliseHeader() (so Arabic is listed without its article: "اسم" matches "الاسم").
+ * Header words per field, in every language Kept speaks, compared after normaliseHeader() (so
+ * Arabic is listed without its article: "اسم" matches "الاسم"; Vietnamese and Spanish without
+ * their marks is the same word).
  */
 const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, string[]> = {
   name: [
@@ -62,6 +64,22 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'nome',
     'oggetto',
     'articolo',
+    'producto',
+    'nombre del producto',
+    'articulo',
+    'objeto',
+    'denominacion',
+    'titulo',
+    'назва',
+    'найменування',
+    'річ',
+    'товар',
+    'tên',
+    'tên đồ vật',
+    'đồ vật',
+    'sản phẩm',
+    'tên sản phẩm',
+    'mặt hàng',
   ],
   quantity: [
     'quantity',
@@ -78,6 +96,13 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'stuck',
     'quantita',
     'qta',
+    'cantidad',
+    'cant',
+    'unidades',
+    'кількість',
+    'к-сть',
+    'số lượng',
+    'sl',
   ],
   brand: [
     'brand',
@@ -95,8 +120,30 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'hersteller',
     'marca',
     'produttore',
+    'fabricante',
+    'бренд',
+    'виробник',
+    'марка',
+    'thương hiệu',
+    'hãng',
+    'nhãn hiệu',
+    'nhà sản xuất',
   ],
-  model: ['model', 'model number', 'موديل', 'طراز', 'modele', 'modell', 'modello'],
+  model: [
+    'model',
+    'model number',
+    'موديل',
+    'طراز',
+    'modele',
+    'modell',
+    'modello',
+    'modelo',
+    'numero de modelo',
+    'модель',
+    'номер моделі',
+    'kiểu máy',
+    'mã model',
+  ],
   serial: [
     'serial',
     'serial number',
@@ -111,6 +158,13 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'seriennummer',
     'numero di serie',
     'matricola',
+    'serie',
+    'nro de serie',
+    'серійний номер',
+    'серійний',
+    'số sê-ri',
+    'số seri',
+    'số serial',
   ],
   barcode: [
     'barcode',
@@ -124,9 +178,26 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'strichcode',
     'barcode nummer',
     'codice a barre',
+    'codigo de barras',
+    'штрихкод',
+    'штрих код',
+    'mã vạch',
   ],
-  colour: ['colour', 'color', 'لون', 'couleur', 'farbe', 'colore'],
-  condition: ['condition', 'state', 'حالة', 'etat', 'zustand', 'condizione', 'stato'],
+  colour: ['colour', 'color', 'لون', 'couleur', 'farbe', 'colore', 'колір', 'màu sắc', 'màu'],
+  condition: [
+    'condition',
+    'state',
+    'حالة',
+    'etat',
+    'zustand',
+    'condizione',
+    'stato',
+    'estado',
+    'condicion',
+    'стан',
+    'tình trạng',
+    'trạng thái',
+  ],
   notes: [
     'notes',
     'note',
@@ -145,6 +216,22 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'bemerkungen',
     'descrizione',
     'commenti',
+    'notas',
+    'nota',
+    'observaciones',
+    'comentarios',
+    'comentario',
+    'descripcion',
+    'нотатки',
+    'нотатка',
+    'опис',
+    'коментарі',
+    'коментар',
+    'примітки',
+    'примітка',
+    'ghi chú',
+    'mô tả',
+    'nhận xét',
   ],
   tags: [
     'tags',
@@ -157,6 +244,16 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'mots cles',
     'schlagworter',
     'etichette',
+    'etiquetas',
+    'etiqueta',
+    'palabras clave',
+    'теги',
+    'тег',
+    'мітки',
+    'ключові слова',
+    'thẻ',
+    'nhãn',
+    'từ khóa',
   ],
   place_path: [
     'place',
@@ -178,6 +275,21 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'posizione',
     'luogo',
     'stanza',
+    'lugar',
+    'ubicacion',
+    'habitacion',
+    'donde',
+    'місце',
+    'локація',
+    'кімната',
+    'де',
+    'шлях',
+    'місце зберігання',
+    'місцезнаходження',
+    'vị trí',
+    'địa điểm',
+    'phòng',
+    'nơi để',
   ],
   type: [
     'type',
@@ -190,6 +302,11 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'kategorie',
     'tipo',
     'categoria',
+    'вид',
+    'тип',
+    'категорія',
+    'loại',
+    'danh mục',
   ],
   aliases: [
     'aliases',
@@ -201,6 +318,13 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'autres noms',
     'andere namen',
     'altri nomi',
+    'otros nombres',
+    'otro nombre',
+    'інші назви',
+    'інша назва',
+    'псевдоніми',
+    'tên khác',
+    'bí danh',
   ],
   purchased_on: [
     'purchase date',
@@ -219,6 +343,14 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'gekauft am',
     'data di acquisto',
     'data acquisto',
+    'fecha de compra',
+    'fecha compra',
+    'comprado el',
+    'дата покупки',
+    'дата купівлі',
+    'куплено',
+    'придбано',
+    'ngày mua',
   ],
   vendor: [
     'vendor',
@@ -241,6 +373,17 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'verkaufer',
     'negozio',
     'venditore',
+    'vendedor',
+    'tienda',
+    'proveedor',
+    'comercio',
+    'продавець',
+    'магазин',
+    'постачальник',
+    'де куплено',
+    'người bán',
+    'cửa hàng',
+    'nơi mua',
   ],
   price: [
     'price',
@@ -258,8 +401,29 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'kosten',
     'prezzo',
     'costo',
+    'precio',
+    'precio de compra',
+    'coste',
+    'ціна',
+    'вартість',
+    'ціна покупки',
+    'оплачено',
+    'giá',
+    'giá mua',
+    'chi phí',
   ],
-  currency: ['currency', 'عملة', 'devise', 'monnaie', 'wahrung', 'valuta'],
+  currency: [
+    'currency',
+    'عملة',
+    'devise',
+    'monnaie',
+    'wahrung',
+    'valuta',
+    'moneda',
+    'divisa',
+    'валюта',
+    'tiền tệ',
+  ],
   manual_url: [
     'manual',
     'manual url',
@@ -274,6 +438,13 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'anleitung',
     'bedienungsanleitung',
     'manuale',
+    'manual de usuario',
+    'enlace del manual',
+    'інструкція',
+    'посібник',
+    'посібник користувача',
+    'sách hướng dẫn',
+    'hướng dẫn',
   ],
   legacy_code: [
     'code',
@@ -294,6 +465,16 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'anlagennummer',
     'numero di inventario',
     'codice',
+    'codigo',
+    'numero de inventario',
+    'codigo de inventario',
+    'код',
+    'інвентарний номер',
+    'етикетка',
+    'мітка',
+    'mã',
+    'mã tài sản',
+    'số kiểm kê',
   ],
   own_code: [
     'own code',
@@ -308,6 +489,13 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'mein code',
     'codice personale',
     'mio codice',
+    'mi codigo',
+    'codigo propio',
+    'codigo personal',
+    'власний код',
+    'мій код',
+    'mã của tôi',
+    'mã riêng',
   ],
   source_id: [
     'id',
@@ -320,6 +508,11 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'item id',
     'معرف',
     'مرجع',
+    'referencia',
+    'identificador',
+    'ідентифікатор',
+    'mã định danh',
+    'tham chiếu',
   ],
 };
 
@@ -338,6 +531,16 @@ export function fieldFromHeader(header: string): MappableField | null {
 }
 
 /**
+ * "Nombre" is French for how many and Spanish for the name. WORDS holds the French; a sheet with
+ * no other name column means the Spanish, since every sheet has a name.
+ */
+function fieldIn(column: string, columns: readonly string[]): MappableField | null {
+  const field = fieldFromHeader(column);
+  if (normaliseHeader(column) !== 'nombre') return field;
+  return columns.some((c) => fieldFromHeader(c) === 'name') ? field : 'name';
+}
+
+/**
  * A mapping for these headers: each column its guessed field, or `ignore`. A field that takes one
  * column goes to the first column that names it; a later one is left for the person to choose.
  */
@@ -345,7 +548,7 @@ export function suggestMapping(columns: readonly string[]): Record<string, Mappa
   const out: Record<string, MappableField> = {};
   const used = new Set<string>();
   for (const column of columns) {
-    const field = fieldFromHeader(column);
+    const field = fieldIn(column, columns);
     if (field && (MULTI_FIELDS.has(field) || !used.has(field))) {
       out[column] = field;
       used.add(field);

@@ -7,7 +7,7 @@ import { plainText, useSummary, useSummaryLine } from './labels';
 
 // #140: every key the server can send reads as a sentence in the reader's language, never the
 // server's English fallback. The sentence map is typed by SUMMARY_KEYS, so a missing key fails the
-// typecheck; this checks each one renders, in English and in Arabic.
+// typecheck; this checks each one renders, in every language.
 
 const FALLBACK = 'English fallback';
 const params = { name: 'Desk lamp', count: '3', service: 'Car', host: 'Desk', room: 'Study' };
@@ -31,20 +31,23 @@ function All() {
   );
 }
 
-describe.each(['en', 'ar'] as const)('every summary in %s', (locale) => {
-  it('is a sentence of its own', async () => {
-    await activateLocale(locale);
-    render(
-      <AppProviders locale={locale}>
-        <All />
-      </AppProviders>,
-    );
-    const items = await screen.findAllByRole('listitem');
-    expect(items).toHaveLength(SUMMARY_KEYS.length - 1 + SUMMARY_LINE_KEYS.length);
-    for (const li of items) {
-      const text = li.textContent ?? '';
-      expect(text, li.dataset.key).not.toBe(FALLBACK);
-      expect(text, li.dataset.key).not.toMatch(/^$|\{|undefined|[a-z]+\.[a-z_]+/);
-    }
-  });
-});
+describe.each(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'] as const)(
+  'every summary in %s',
+  (locale) => {
+    it('is a sentence of its own', async () => {
+      await activateLocale(locale);
+      render(
+        <AppProviders locale={locale}>
+          <All />
+        </AppProviders>,
+      );
+      const items = await screen.findAllByRole('listitem');
+      expect(items).toHaveLength(SUMMARY_KEYS.length - 1 + SUMMARY_LINE_KEYS.length);
+      for (const li of items) {
+        const text = li.textContent ?? '';
+        expect(text, li.dataset.key).not.toBe(FALLBACK);
+        expect(text, li.dataset.key).not.toMatch(/^$|\{|undefined|[a-z]+\.[a-z_]+/);
+      }
+    });
+  },
+);

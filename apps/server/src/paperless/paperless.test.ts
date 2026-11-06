@@ -305,7 +305,7 @@ describe('the Paperless client', () => {
     expect(() => paperlessToken('two words')).toThrow();
   });
 
-  it('names a kind from the document type first, then the tags, in any of five languages', () => {
+  it('names a kind from the document type first, then the tags, in any language', () => {
     expect(kindOf('Receipt', [])).toBe('receipt');
     expect(kindOf('Rechnung', [])).toBe('invoice');
     expect(kindOf(null, ['tools', 'Garantie'])).toBe('warranty_doc');
@@ -313,6 +313,27 @@ describe('the Paperless client', () => {
     expect(kindOf('Reçu', [])).toBe('receipt');
     expect(kindOf('فاتورة الثلاجة', [])).toBe('invoice');
     expect(kindOf('Policy', ['home'])).toBe('document');
+    expect(kindOf('Factura', [])).toBe('invoice');
+    expect(kindOf('Garantía del taladro', [])).toBe('warranty_doc');
+    expect(kindOf(null, ['recibos'])).toBe('receipt');
+    expect(kindOf('Manuales', [])).toBe('manual');
+    expect(kindOf('Гарантія', [])).toBe('warranty_doc');
+    expect(kindOf('Рахунок за холодильник', [])).toBe('invoice');
+    expect(kindOf('Квитанції', [])).toBe('receipt');
+    expect(kindOf('Посібник', [])).toBe('manual');
+    expect(kindOf('Hóa đơn tủ lạnh', [])).toBe('invoice');
+    expect(kindOf('hoa don', [])).toBe('invoice'); // typed without its marks
+    expect(kindOf('Bảo hành máy khoan', [])).toBe('warranty_doc');
+    expect(kindOf('Sách hướng dẫn', [])).toBe('manual');
+    expect(kindOf('Biên lai', [])).toBe('receipt');
+  });
+
+  it("doesn't take one syllable of a Vietnamese word for the word", () => {
+    // "hóa" and "đơn", "bảo" and "hành" apart, or in another order, name nothing.
+    expect(kindOf('Hoa hồng', [])).toBe('document');
+    expect(kindOf('Đơn xin', [])).toBe('document');
+    expect(kindOf('Đơn hóa', [])).toBe('document');
+    expect(kindOf('Bảo hiểm', [])).toBe('document');
   });
 });
 

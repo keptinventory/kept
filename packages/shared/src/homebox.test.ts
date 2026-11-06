@@ -120,16 +120,52 @@ describe('looksLikeBox', () => {
     'Contenitore blu',
     'صندوق ٢',
     'علبة الأدوات',
+    'Caja 3',
+    'Cajas de cocina',
+    'Contenedor azul',
+    'Canasta',
+    'Коробка 2',
+    'Контейнер для іграшок',
+    'Кошик',
+    'Ящик 4',
+    'Hộp 01',
+    'Thùng đồ',
+    'Giỏ đồ chơi',
+    'Vật chứa xanh',
   ])('reads %s as a box', (name) => {
     expect(looksLikeBox(name)).toBe(true);
   });
 
-  it.each(['Boxing gloves', 'Kitchen', 'Bedroom', 'Shelf A', 'Toolbench', 'Inbox', ''])(
-    'reads %s as a place',
-    (name) => {
-      expect(looksLikeBox(name)).toBe(false);
-    },
-  );
+  it.each([
+    'Boxing gloves',
+    'Kitchen',
+    'Bedroom',
+    'Shelf A',
+    'Toolbench',
+    'Inbox',
+    '',
+    'Cajón 3', // a drawer
+    'Cajonera',
+    'Cocina',
+    'Garaje',
+    'Estante',
+    'Baño',
+    'Шухляда 2', // a drawer
+    'Кухня',
+    'Гараж',
+    'Полиця',
+    'Шафа',
+    'Коридор',
+    'Ngăn kéo', // a drawer
+    'Nhà bếp',
+    'Nhà xe',
+    'Kệ',
+    'Tủ',
+    'Vật dụng',
+    'Phòng chứa',
+  ])('reads %s as a place', (name) => {
+    expect(looksLikeBox(name)).toBe(false);
+  });
 });
 
 describe('homeboxAssetCode', () => {

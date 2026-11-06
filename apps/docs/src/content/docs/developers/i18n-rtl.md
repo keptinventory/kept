@@ -123,9 +123,8 @@ Check every screen in Arabic at 375 px and 1280 px, in light and dark. See [UI k
 The server doesn't use Lingui:
 
 - **Mail** (`apps/server/src/mail/`): a typed table per language, keyed by the recipient's
-  profile locale. English and Arabic are in `messages.ts`; French, German and Italian in
-  `messages-<locale>.ts`. There is no Vietnamese, Ukrainian or Spanish mail: those profiles get
-  English. A mail kind missing from a language is a type error, and `mail.test.ts` renders every
+  profile locale. English and Arabic are in `messages.ts`; every other language in
+  `messages-<locale>.ts`. A mail kind missing from a language is a type error, and `mail.test.ts` renders every
   kind in each.
   Each language's chrome sets `dir`.
 - **Reminders** (`apps/server/src/notify/words.ts`): one wording shared by the email, the push

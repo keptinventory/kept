@@ -2,11 +2,28 @@ import type { PaperlessKind } from '../db/schema/paperless.js';
 
 // What a Paperless document is, in Kept's paperwork roles (D248): its document type's name says
 // so first, then its tags; a name that says nothing makes it a plain document. Paperless's types
-// and tags are the person's own words, so the match is on whole words in the five languages Kept
-// speaks, case- and accent-blind. "Copy into Kept" attaches the copy in this role.
+// and tags are the person's own words, so the match is on whole words in every language Kept
+// speaks, case- and accent-blind. A Vietnamese word is several syllables, so an entry can be a
+// phrase ("hóa đơn"): its words in a row, never one of them alone. "Copy into Kept" attaches the
+// copy in this role.
 
 const WORDS: readonly [PaperlessKind, readonly string[]][] = [
-  ['warranty_doc', ['warranty', 'warranties', 'guarantee', 'garantie', 'garanzia', 'ضمان']],
+  [
+    'warranty_doc',
+    [
+      'warranty',
+      'warranties',
+      'guarantee',
+      'garantie',
+      'garanzia',
+      'ضمان',
+      'garantía',
+      'garantías',
+      'гарантія',
+      'гарантії',
+      'bảo hành',
+    ],
+  ],
   [
     'manual',
     [
@@ -18,9 +35,32 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'manuel',
       'manuale',
       'دليل',
+      'manuales',
+      'instructivo',
+      'instructivos',
+      'інструкція',
+      'інструкції',
+      'посібник',
+      'посібники',
+      'hướng dẫn',
     ],
   ],
-  ['invoice', ['invoice', 'invoices', 'rechnung', 'facture', 'fattura', 'فاتورة']],
+  [
+    'invoice',
+    [
+      'invoice',
+      'invoices',
+      'rechnung',
+      'facture',
+      'fattura',
+      'فاتورة',
+      'factura',
+      'facturas',
+      'рахунок',
+      'рахунки',
+      'hóa đơn',
+    ],
+  ],
   [
     'receipt',
     [
@@ -34,20 +74,37 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'ricevuta',
       'scontrino',
       'إيصال',
+      'recibo',
+      'recibos',
+      'comprobante',
+      'comprobantes',
+      'tickets',
+      'чек',
+      'чеки',
+      'квитанція',
+      'квитанції',
+      'biên lai',
+      'phiếu thu',
     ],
   ],
 ];
 
-const fold = (s: string) => s.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase();
+// Vietnamese's đ is a letter of its own to Unicode, so it needs saying.
+const fold = (s: string) =>
+  s.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().replace(/đ/g, 'd');
 
-const FOLDED = WORDS.map(([kind, words]) => [kind, new Set(words.map(fold))] as const);
+const wordsOf = (s: string) =>
+  fold(s)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean)
+    .join(' ');
+
+const FOLDED = WORDS.map(([kind, words]) => [kind, words.map((w) => ` ${wordsOf(w)} `)] as const);
 
 function kindOfName(name: string | null | undefined): PaperlessKind | null {
   if (!name) return null;
-  const words = fold(name)
-    .split(/[^\p{L}\p{N}]+/u)
-    .filter(Boolean);
-  for (const [kind, set] of FOLDED) if (words.some((w) => set.has(w))) return kind;
+  const padded = ` ${wordsOf(name)} `;
+  for (const [kind, entries] of FOLDED) if (entries.some((e) => padded.includes(e))) return kind;
   return null;
 }
 
