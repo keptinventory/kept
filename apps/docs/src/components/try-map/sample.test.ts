@@ -24,7 +24,7 @@ import {
 import { offMapIn } from '../../../../web/src/map/list';
 import { PHOTOS } from './photos';
 import { sampleHome } from './sample';
-import { MODEL_NAMES } from './strings';
+import { formatter, type Lang, loadPack, MODEL_NAMES, type OtherLang } from './strings';
 
 const TODAY = new Date(2026, 9, 15);
 
@@ -214,5 +214,52 @@ describe('the Try the map sample home', () => {
     const arTags = [...ar.facts.values()].flatMap((f) => f.tags ?? []);
     expect(arTags.map((t) => t.colour)).toEqual(tags.map((t) => t.colour));
     expect(arTags.map((t) => t.name)).not.toEqual(tags.map((t) => t.name));
+  });
+});
+
+describe('the sample home in the other languages', () => {
+  const OTHERS: OtherLang[] = ['fr', 'de', 'it', 'vi', 'uk', 'es'];
+  const en = sampleHome('en', TODAY);
+  const shape = (s: typeof en) => ({
+    rooms: s.view.rooms.map((r) => [r.id, r.levelId, r.layout]),
+    nodes: s.view.nodes.map((n) => [n.id, n.subject, n.parentId, n.layout, n.shortCode]),
+    things: s.view.things.map((t) => [t.id, t.parentId, t.quantity, t.shortCode]),
+    attention: s.view.attention.map((a) => [a.subjectId, a.kind, a.dueOn]),
+  });
+
+  it.each(OTHERS)('%s is the same home, and has every name the home asks for', async (lang) => {
+    const pack = await loadPack(lang);
+    const asked = new Set<string>();
+    const sample = new Proxy(pack.sample, {
+      get: (names, name: string) => {
+        asked.add(name);
+        return names[name];
+      },
+    });
+    const home = sampleHome(lang, TODAY, { ...pack, sample });
+    expect(shape(home)).toEqual(shape(en));
+    expect(asked.size).toBeGreaterThan(200);
+    expect([...asked].filter((name) => !(name in pack.sample))).toEqual([]);
+    // Nothing else in the file: a name the sample dropped goes too.
+    expect(Object.keys(pack.sample).filter((name) => !asked.has(name))).toEqual([]);
+  });
+
+  it.each(OTHERS)('%s keeps its floor buttons apart', async (lang) => {
+    const plan = planOf(sampleHome(lang, TODAY, await loadPack(lang)).view, {
+      noFloor: '',
+      location: '',
+    });
+    expect(new Set(plan.levels.map((l) => l.short)).size).toBe(3);
+  });
+
+  it('writes numbers the way each language does', () => {
+    const side = (lang: Lang) => formatter(lang).side(3.58);
+    expect(side('en')).toBe('3.58');
+    expect(side('ar')).toBe('٣٫٥٨');
+    for (const lang of ['fr', 'de', 'it', 'vi', 'uk', 'es'] as const)
+      expect(side(lang)).toBe('3,58');
+    expect(formatter('de').num(1234)).toBe('1.234');
+    expect(formatter('uk').day('2026-11-06')).toMatch(/^6\s*лист/);
+    expect(formatter('vi').day('2026-11-06')).toMatch(/^6\sthg\s11/);
   });
 });

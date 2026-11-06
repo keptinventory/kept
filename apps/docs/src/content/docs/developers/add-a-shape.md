@@ -13,10 +13,11 @@ catalogue, so a new shape shows up in both once these steps are done. To ask for
 | File | What goes in it |
 |---|---|
 | `packages/shared/src/map.ts` | The shape's entry in `MAP_MODELS`: its key, size and kind (see below) |
-| `packages/shared/src/map-shapes.ts` | Its group in `SHAPE_GROUP`, its words in `SHAPE_WORDS`, its French, German and Italian words again in `SHAPE_WORD_LANGS`; optionally a built-in type that suggests it in `TYPE_SHAPES` |
+| `packages/shared/src/map-shapes.ts` | Its group in `SHAPE_GROUP`, its words in `SHAPE_WORDS`, its French, German, Italian, Spanish and Vietnamese words again in `SHAPE_WORD_LANGS`; optionally a built-in type that suggests it in `TYPE_SHAPES` |
 | `apps/web/src/map/labels.ts` | Its name in the picker, a `` t`…` `` string |
 | `apps/web/src/locales/*/messages.po` | That name in every catalogue ([adding a string](/developers/i18n-rtl/#adding-a-string)) |
 | `apps/docs/src/components/try-map/strings.ts` | Its English and Arabic name for Try the map and the shape library |
+| `apps/docs/src/components/try-map/langs/*.ts` | That name in each other language, the same as its catalogue, for Try the map |
 | `apps/web/src/map/engine/draw.ts` | Its drawing, for a shape drawn in code |
 | `apps/web/src/map/models/` | Its `.glb` file and a line in `NOTICE.txt`, for a detailed model |
 | `apps/web/src/map/thumbs/` | The regenerated picture sprite (below) |
@@ -68,9 +69,8 @@ first size is only ever the bare key), `sizedKey` writes them, `mapModel` gives 
 
 ## The words that find it
 
-`SHAPE_WORDS` lists what people call the thing, lower case, in English, Arabic, French, German and
-Italian, written as people type them (accents and Arabic letter forms are folded when matching).
-They do two jobs: **Find a shape** searches them, and a thing's name is read against them to give
+`SHAPE_WORDS` lists what people call the thing, lower case, in each of Kept's languages, written as
+people type them (accents and Arabic letter forms are folded when matching). They do two jobs: **Find a shape** searches them, and a thing's name is read against them to give
 it its shape.
 
 - Prefer phrases to single words that mean several things: the network switch answers to
@@ -78,8 +78,11 @@ it its shape.
   Nintendo Switch or a light switch.
 - A word several shapes share (a family's word, such as "server rack" or "speaker") suggests all
   of them and gives none by itself; a word only one has ("42U", "Echo") picks that one.
-- Every French, German and Italian word goes into `SHAPE_WORD_LANGS` too; a word not listed there
-  counts as English.
+- Every French, German, Italian, Spanish and Vietnamese word goes into `SHAPE_WORD_LANGS` too; a
+  word not listed there counts as English, and Arabic and Ukrainian are told by their script.
+- Read a word as it folds, because every language's words are read against every name. Spanish
+  "red" and "mesa" are English words; Vietnamese "đèn" and "bàn" fold to "den" and "ban", so
+  Vietnamese words are two syllables or more ("đèn bàn"). Leave out a word that collides.
 - Add cases to `packages/shared/src/map-shapes.test.ts`: names that should get the shape by
   themselves, in several languages, and names that must not.
 

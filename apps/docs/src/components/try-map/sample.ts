@@ -4,8 +4,9 @@
  * (`MapView`, apps/web/src/api/map/types.ts), with every room and thing arranged. The shipped
  * map's own code turns it into a plan (layout.ts `planOf`) and draws it.
  *
- * Names are in English and Arabic; brands and model names stay as they are written. Dates are
- * days from today, so what is due stays due. Nothing here is anyone's real home.
+ * Names are in English and Arabic here, and in every other language in langs/, by the English
+ * name; brands and model names stay as they are written. Dates are days from today, so what is
+ * due stays due. Nothing here is anyone's real home.
  */
 import {
   ALPHABET,
@@ -24,7 +25,7 @@ import type {
   MapThingView,
   MapView,
 } from '../../../../web/src/api/map/types';
-import { type Lang, MODEL_NAMES, type Two } from './strings';
+import { type Lang, MODEL_NAMES, type Pack, type Two } from './strings';
 
 /** A built-in type's key (@kept/shared builtin-types.ts); sample.test.ts checks each is one. */
 type BuiltinTypeKey = string;
@@ -170,8 +171,13 @@ const C = (name: Two, qty = 1, extra: Omit<Content, 'name' | 'qty'> = {}): Conte
   ...extra,
 });
 
-export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
-  const pick = (two: Two) => (lang === 'ar' ? two[1] : two[0]);
+/** `pack` is the language's file in langs/; English and Arabic need none. */
+export function sampleHome(lang: Lang, today: Date = new Date(), pack?: Pack): Sample {
+  const pick = (two: Two) => {
+    if (lang === 'ar') return two[1];
+    return lang === 'en' ? two[0] : (pack?.sample[two[0]] ?? two[0]);
+  };
+  const modelName = (model: MapModelKey) => (pack ? pack.models[model] : pick(MODEL_NAMES[model]));
   const tagsOf = (keys: TagKey[] | undefined) =>
     keys?.length
       ? {
@@ -270,7 +276,7 @@ export function sampleHome(lang: Lang, today: Date = new Date()): Sample {
     hostId: string | null = null,
   ): Node => {
     const id = `n${++n}`;
-    const name = extra.name ? pick(extra.name) : pick(MODEL_NAMES[model]);
+    const name = extra.name ? pick(extra.name) : modelName(model);
     const place = PLACES.has(model);
     const container = CONTAINERS.has(model);
     const shortCode = codeFor(`${roomId}:${extra.name?.[0] ?? model}:${model}:${x}:${z}`);

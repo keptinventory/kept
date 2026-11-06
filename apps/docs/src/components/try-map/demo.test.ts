@@ -399,3 +399,43 @@ describe('Arrange', () => {
     ]);
   });
 });
+
+describe('in the other languages', () => {
+  const button = (k: string) => root.querySelector<HTMLElement>(`[data-act="${k}"]`);
+  const remount = async (lang: 'es' | 'uk') => {
+    unmount();
+    const { mount, loadPack } = await import('./demo');
+    const pack = await loadPack(lang);
+    unmount = mount(root, { lang, pack, installHref: INSTALL });
+    return pack;
+  };
+
+  it('mounts in Spanish: its words, its names, its plural', async () => {
+    const pack = await remount('es');
+    expect(list().querySelector('h2')?.textContent).toBe('Qué hay en Casa de ejemplo');
+    const sum = list().querySelector('.kmap-sum')?.textContent ?? '';
+    expect(sum).toContain(pack.words.list.rooms(13, '13'));
+    expect(sum).toContain(pack.words.list.sum.low);
+    expect(cards()).toContain('Cocina');
+    expect(cards()).not.toContain('Kitchen');
+    expect(list().textContent).not.toMatch(/\bShow \d+ more\b/);
+    expect(button('arrange')?.textContent).toBe('Organizar');
+    click(button('arrange'));
+    click(byText(list(), '[data-act="list-thing"]', /^Sofá/));
+    click(root.querySelector('[data-act="shapes"]'));
+    const dlg = root.querySelector('dialog.kd-shapes[open]') as HTMLElement;
+    expect(dlg.textContent).toContain('Muebles');
+    // The picker's search reads Spanish as the reader's language: the start of a word finds it.
+    const find = dlg.querySelector<HTMLInputElement>('input') as HTMLInputElement;
+    type(find, 'lavad');
+    expect(dlg.querySelector('[role="option"]')?.textContent).toContain(pack.models.washer);
+  });
+
+  it('counts in Ukrainian with its three plural forms', async () => {
+    const pack = await remount('uk');
+    expect(pack.words.list.rooms(1, '1')).toBe('1 кімната');
+    expect(pack.words.list.rooms(3, '3')).toBe('3 кімнати');
+    expect(pack.words.list.rooms(13, '13')).toBe('13 кімнат');
+    expect(cards()).toContain(pack.sample.Kitchen);
+  });
+});
