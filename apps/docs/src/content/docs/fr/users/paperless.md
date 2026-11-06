@@ -38,7 +38,7 @@ Les documents liés figurent dans la même liste Documents que les fichiers. Cha
 - **Copier dans Kept** : voir ci-dessous.
 - **Dissocier** : il est retiré de l'objet. Paperless le conserve.
 
-Le type provient du type Paperless du document, puis de ses étiquettes : *Reçu*, *Facture*, *Manuel* et *Garantie* (et les mêmes mots en français, allemand, italien et arabe) sont reconnus, tout le reste est un document. Ensuite, vous pouvez modifier le type, et **Copier dans Kept** copie le document avec ce type. Le filtre **Type** dans Documents filtre à la fois les fichiers et les documents liés.
+Le type provient du type Paperless du document, puis de ses étiquettes : *Reçu*, *Facture*, *Manuel* et *Garantie* (et les mêmes mots dans les autres langues de Kept) sont reconnus, tout le reste est un document. Ensuite, vous pouvez modifier le type, et **Copier dans Kept** copie le document avec ce type. Le filtre **Type** dans Documents filtre à la fois les fichiers et les documents liés.
 
 **Depuis un [import Homebox](/fr/users/import-export/#un-export-homebox) :** un lien Homebox vers l'un de vos documents Paperless (`…/documents/123`, ou de l'API `…/api/documents/123/download/`) à l'adresse à laquelle ce lieu est connecté arrive en tant que document lié sur l'objet ou le lieu. Son titre provient de Paperless, et son type, du type de pièce jointe Homebox. Connectez Paperless avant d'importer ; tout autre lien reste un lien simple.
 

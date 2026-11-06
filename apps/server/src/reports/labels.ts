@@ -1,6 +1,6 @@
 import type { Condition, Lifecycle } from '@kept/shared';
 
-// The report's words, in the two languages it is written in (D201: English or Arabic). The
+// The report's words, in the languages it is written in (D201: English or Arabic). The
 // Arabic follows the web catalogue's wording (apps/web/src/locales/ar/messages.po) for every term
 // the app already uses: conditions, lifecycles, "Unplaced", "Serial number", "Contents". The
 // report is rendered by the server, so these live here rather than in Lingui.

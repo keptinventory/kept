@@ -3,10 +3,9 @@ import { LANGS, langOf, localePath, numberTag, pick } from './i18n';
 import { locales } from './locales.mjs';
 
 describe('the site languages', () => {
-  it('are the ones in locales.mjs, English first', () => {
+  it('are the ones in locales.mjs, in alphabetical order', () => {
     expect(LANGS).toEqual(Object.values(locales).map((l) => l.lang));
-    expect(LANGS[0]).toBe('en');
-    expect(LANGS).toHaveLength(8);
+    expect(LANGS).toEqual([...LANGS].sort());
   });
 
   it('read a page language, and treat an unknown one as English', () => {

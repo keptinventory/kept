@@ -54,9 +54,9 @@ describe('compareCatalogues', () => {
 
 describe('the languages the app ships', () => {
   it('requires all eight in the config', () => {
-    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'])).toEqual([]);
-    expect(missingLocales(['en', 'ar'])).toEqual(['fr', 'de', 'it', 'vi', 'uk', 'es']);
-    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it'])).toEqual(['vi', 'uk', 'es']);
+    expect(missingLocales(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'])).toEqual([]);
+    expect(missingLocales(['en', 'ar'])).toEqual(['de', 'es', 'fr', 'it', 'uk', 'vi']);
+    expect(missingLocales(['ar', 'de', 'en', 'fr', 'it'])).toEqual(['es', 'uk', 'vi']);
   });
 
   it('flags a translation that drops a placeholder, a tag or a plural', () => {
@@ -67,6 +67,7 @@ describe('the languages the app ships', () => {
       ['ok', { message: 'Saved {n}' }],
     ]);
     const r = shapeProblems(src, {
+      de: { p: '', t: '<0>{0}</0> ist leer' },
       en: {},
       fr: {
         p: '{name} déplacé',
@@ -74,7 +75,6 @@ describe('the languages the app ships', () => {
         n: '{n} objets',
         ok: 'Enregistré : {n}',
       },
-      de: { p: '', t: '<0>{0}</0> ist leer' },
     });
     expect(r.fr).toEqual([
       { id: 'p', why: 'placeholders' },
@@ -91,10 +91,10 @@ describe("a message's shape (an ICU walk, not a regex)", () => {
     expect(icuShape('{n, plural, one {thing} other {things}}')).toEqual({ names: 'n', plurals: 1 });
     const src = new Map([['k', { message: '{n, plural, one {thing} other {things}}' }]]);
     const r = shapeProblems(src, {
-      en: {},
       ar: {
         k: '{n, plural, zero {أشياء} one {شيء} two {شيئان} few {أشياء} many {شيئًا} other {شيء}}',
       },
+      en: {},
       fr: { k: '{n, plural, one {objet} other {objets}}' },
     });
     expect(r).toEqual({ ar: [], fr: [] });

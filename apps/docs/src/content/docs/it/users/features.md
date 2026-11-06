@@ -72,8 +72,8 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   domestica via http semplice, [accessi come li imposta l'admin](/it/install/home-network/#restare-sulla-tua-rete);
   un solo Kept su [più di un indirizzo](/it/install/home-network/#più-di-un-indirizzo), per esempio un nome
   LAN e un nome Tailscale.
-- **Lingue**: Inglese, arabo (da destra a sinistra), francese, tedesco, italiano, vietnamita,
-  ucraino e spagnolo; scrivi per trovare la tua nel selettore, e le date nello stile della tua
+- **Lingue**: Arabo (da destra a sinistra), francese, inglese, italiano, spagnolo, tedesco,
+  ucraino e vietnamita; scrivi per trovare la tua nel selettore, e le date nello stile della tua
   regione, o come preferisci.
 
 ## Sul telefono

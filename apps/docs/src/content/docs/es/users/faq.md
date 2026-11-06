@@ -114,8 +114,8 @@ sin necesidad de Kept. Para traer de vuelta a Kept en una máquina nueva tambié
 
 ## ¿En qué idiomas habla?
 
-Inglés, árabe (diseñado de derecha a izquierda), francés, alemán, italiano, vietnamita, ucraniano y
-español, elegidos por dispositivo. Ver [idioma y tema](/es/users/first-run/#6-idioma-y-tema).
+Alemán, árabe (diseñado de derecha a izquierda), español, francés, inglés, italiano, ucraniano y
+vietnamita, elegidos por dispositivo. Ver [idioma y tema](/es/users/first-run/#6-idioma-y-tema).
 
 ## ¿Bajo qué licencia está?
 

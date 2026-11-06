@@ -117,7 +117,7 @@ nimmt höchstens 20 davon auf.
 
 **Einstellungen → Profil → Anzeige** enthält die Anzeigeoptionen des Geräts, die angewendet werden, bevor die Seite gezeichnet wird:
 
-- **Sprache**: English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська oder Español.
+- **Sprache**: العربية, Deutsch, English, Español, Français, Italiano, Українська oder Tiếng Việt.
   Öffne die Liste oder tippe, um eine zu finden: ihren eigenen Namen, ihren Namen auf Englisch oder in der Sprache, die du
   verwendest, und kleine Tippfehler sind in Ordnung (`german`, `deutsch` und `francais` funktionieren alle). Arabisch legt die ganze App von rechts
   nach links aus. Die Anmeldeseiten haben denselben Auswähler.

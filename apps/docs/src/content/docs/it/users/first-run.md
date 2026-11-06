@@ -83,7 +83,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 
 **Impostazioni → Profilo → Aspetto** contiene le scelte di visualizzazione del dispositivo, applicate prima che la pagina venga disegnata:
 
-- **Lingua**: inglese, العربية, francese, tedesco, italiano, vietnamita, ucraino o spagnolo.
+- **Lingua**: arabo, francese, inglese, italiano, spagnolo, tedesco, ucraino o vietnamita.
   Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore.
 - **Cifre in arabo**: occidentali (0123) o orientali (٠١٢³), mostrati solo quando la lingua è arabo.
   Gli ID brevi e i numeri di serie rimangono sempre in cifre occidentali.

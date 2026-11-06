@@ -571,14 +571,14 @@ const ES = words(
 );
 
 export const REMINDER_WORDS: Record<MailLocale, ReminderWords> = {
-  en: EN,
   ar: AR,
-  fr: FR,
   de: DE,
-  it: IT,
-  vi: VI,
-  uk: UK,
+  en: EN,
   es: ES,
+  fr: FR,
+  it: IT,
+  uk: UK,
+  vi: VI,
 };
 
 /** The calendar event's title and a push notification's: "Boiler service · Kitchen". */
@@ -588,7 +588,6 @@ export function shortTitle(w: ReminderWords, f: ReminderFacts): string {
 
 /** "3 reminders", in each language (Arabic and Ukrainian with their plural forms, Western digits). */
 export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
-  en: (n) => (n === 1 ? '1 reminder' : `${n} reminders`),
   ar: (n) => {
     switch (new Intl.PluralRules('ar').select(n)) {
       case 'zero':
@@ -605,10 +604,11 @@ export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
         return `${n} تذكير`;
     }
   },
-  fr: (n) => (n === 1 ? '1 rappel' : `${n} rappels`),
   de: (n) => (n === 1 ? '1 Erinnerung' : `${n} Erinnerungen`),
+  en: (n) => (n === 1 ? '1 reminder' : `${n} reminders`),
+  es: (n) => (n === 1 ? '1 recordatorio' : `${n} recordatorios`),
+  fr: (n) => (n === 1 ? '1 rappel' : `${n} rappels`),
   it: (n) => `${n} promemoria`,
-  vi: (n) => `${n} lời nhắc`,
   uk: (n) => {
     switch (new Intl.PluralRules('uk').select(n)) {
       case 'one':
@@ -618,5 +618,5 @@ export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
         return `${n} нагадувань`;
     }
   },
-  es: (n) => (n === 1 ? '1 recordatorio' : `${n} recordatorios`),
+  vi: (n) => `${n} lời nhắc`,
 };

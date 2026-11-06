@@ -303,7 +303,7 @@ Write it with Lingui (`` t`…` `` or `<Trans>`), then:
 pnpm --filter @kept/web i18n:extract
 ```
 
-and fill in its `msgstr` in `apps/web/src/locales/{ar,fr,de,it,vi}/messages.po`, with every plural
+and fill in its `msgstr` in `apps/web/src/locales/<language>/messages.po`, with every plural
 form. `pnpm lint` and `node scripts/check-i18n-extract.mjs` say what is missing.
 
 ### A setting

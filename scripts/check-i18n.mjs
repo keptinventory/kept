@@ -10,7 +10,7 @@
 //
 // It also fails when a message has an empty translation in a non-source locale (every msgstr is written; an empty one would show English in that language's UI).
 //
-// Every language the app ships (English, Arabic, French, German, Italian, Vietnamese, Ukrainian,
+// Every language the app ships (Arabic, English, French, German, Italian, Ukrainian, Vietnamese,
 // Spanish) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
 // same placeholders ({name}, {0}), the same numbered tags (<0>…</0>) and the same number of ICU
 // plurals, or the message would drop a value or break at runtime.
@@ -50,7 +50,7 @@ export function compareCatalogues(extracted, catalogues, sourceLocale = 'en') {
 }
 
 /** The languages the app ships. Removing one from lingui.config.ts fails the check. */
-export const REQUIRED_LOCALES = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
+export const REQUIRED_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
 
 /** Required locales the config doesn't list. */
 export function missingLocales(configLocales) {

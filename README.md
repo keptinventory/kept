@@ -126,7 +126,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   CSV, full exports.
 - **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set
   and more than one address; an export with secret values needs HTTPS.
-- **Languages:** English, Arabic (right to left), French, German, Italian, Vietnamese, Ukrainian and
+- **Languages:** Arabic (right to left), English, French, German, Italian, Ukrainian, Vietnamese and
   Spanish; type to find yours.
 
 <p align="center">

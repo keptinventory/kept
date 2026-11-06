@@ -7,14 +7,14 @@ import { localiseSeparators } from '@/lib/format';
 import { type Digits, formatLocale, type Locale } from '@/lib/prefs';
 
 const loaders: Record<Locale, () => Promise<{ messages: Messages }>> = {
-  en: () => import('../locales/en/messages.po'),
   ar: () => import('../locales/ar/messages.po'),
-  fr: () => import('../locales/fr/messages.po'),
   de: () => import('../locales/de/messages.po'),
-  it: () => import('../locales/it/messages.po'),
-  vi: () => import('../locales/vi/messages.po'),
-  uk: () => import('../locales/uk/messages.po'),
+  en: () => import('../locales/en/messages.po'),
   es: () => import('../locales/es/messages.po'),
+  fr: () => import('../locales/fr/messages.po'),
+  it: () => import('../locales/it/messages.po'),
+  uk: () => import('../locales/uk/messages.po'),
+  vi: () => import('../locales/vi/messages.po'),
 };
 
 /**

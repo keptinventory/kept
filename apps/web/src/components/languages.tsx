@@ -29,25 +29,25 @@ export type Language = { id: Locale; name: string; label: string };
 
 /** Each language's name in itself, so a reader finds theirs whatever the interface says. */
 export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
-  en: 'English',
   ar: 'العربية',
-  fr: 'Français',
   de: 'Deutsch',
-  it: 'Italiano',
-  vi: 'Tiếng Việt',
-  uk: 'Українська',
+  en: 'English',
   es: 'Español',
+  fr: 'Français',
+  it: 'Italiano',
+  uk: 'Українська',
+  vi: 'Tiếng Việt',
 };
 
 const FLAGS: Readonly<Record<Locale, Flag>> = {
-  en: GB,
   ar: EG,
-  fr: FR,
   de: DE,
-  it: IT,
-  vi: VN,
-  uk: UA,
+  en: GB,
   es: ES,
+  fr: FR,
+  it: IT,
+  uk: UA,
+  vi: VN,
 };
 
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({

@@ -8,14 +8,14 @@
 import type { Words } from './i18n';
 
 export const siteSub: Words<string> = {
-  en: 'Docs',
   ar: 'التوثيق',
-  fr: 'Docs',
   de: 'Doku',
+  en: 'Docs',
+  es: 'Docs',
+  fr: 'Docs',
   it: 'Guida',
   uk: 'Довідник',
   vi: 'Tài liệu',
-  es: 'Docs',
 };
 
 export interface HeroWords {
@@ -25,29 +25,35 @@ export interface HeroWords {
 }
 
 export const hero: Words<HeroWords> = {
-  en: {
-    eyebrow: 'New · The 3D map',
-    facts: ['AGPL-3.0', 'Docker or Kubernetes', 'Offline phone app'],
-    mapAlt:
-      "Kept's 3D map of a home: its rooms in an isometric view, each labelled, with furniture and boxes, beside the location's tree of places",
-  },
   ar: {
     eyebrow: 'جديد · الخريطة ثلاثية الأبعاد',
     facts: ['AGPL-3.0', 'Docker أو Kubernetes', 'تطبيق هاتف بلا اتصال'],
     mapAlt:
       'خريطة Kept ثلاثية الأبعاد لمنزل: غرفه في منظر مائل، لكلٍّ منها اسمها، بأثاثها وصناديقها، بجانب شجرة أماكن الموقع',
   },
-  fr: {
-    eyebrow: 'Nouveau : la carte 3D',
-    facts: ['AGPL-3.0', 'Docker ou Kubernetes', 'Appli mobile hors ligne'],
-    mapAlt:
-      'La carte 3D de Kept pour une maison : ses pièces en vue isométrique, chacune nommée, avec meubles et boîtes, à côté de l’arbre des emplacements du lieu',
-  },
   de: {
     eyebrow: 'Neu: die 3D-Karte',
     facts: ['AGPL-3.0', 'Docker oder Kubernetes', 'Handy-App, auch offline'],
     mapAlt:
       'Die 3D-Karte von Kept für ein Zuhause: die Räume in isometrischer Ansicht, jeweils benannt, mit Möbeln und Kisten, neben dem Ortsbaum des Standorts',
+  },
+  en: {
+    eyebrow: 'New · The 3D map',
+    facts: ['AGPL-3.0', 'Docker or Kubernetes', 'Offline phone app'],
+    mapAlt:
+      "Kept's 3D map of a home: its rooms in an isometric view, each labelled, with furniture and boxes, beside the location's tree of places",
+  },
+  es: {
+    eyebrow: 'Novedad: el mapa 3D',
+    facts: ['AGPL-3.0', 'Docker o Kubernetes', 'App móvil sin conexión'],
+    mapAlt:
+      'El mapa 3D de Kept de una casa: sus habitaciones en vista isométrica, cada una con su nombre, con muebles y cajas, junto al árbol de lugares de la ubicación',
+  },
+  fr: {
+    eyebrow: 'Nouveau : la carte 3D',
+    facts: ['AGPL-3.0', 'Docker ou Kubernetes', 'Appli mobile hors ligne'],
+    mapAlt:
+      'La carte 3D de Kept pour une maison : ses pièces en vue isométrique, chacune nommée, avec meubles et boîtes, à côté de l’arbre des emplacements du lieu',
   },
   it: {
     eyebrow: 'Novità: la mappa 3D',
@@ -67,12 +73,6 @@ export const hero: Words<HeroWords> = {
     mapAlt:
       'Bản đồ 3D của Kept cho một ngôi nhà: các phòng nhìn theo góc isometric, mỗi phòng có tên, cùng đồ nội thất và hộp, bên cạnh cây vị trí của địa điểm',
   },
-  es: {
-    eyebrow: 'Novedad: el mapa 3D',
-    facts: ['AGPL-3.0', 'Docker o Kubernetes', 'App móvil sin conexión'],
-    mapAlt:
-      'El mapa 3D de Kept de una casa: sus habitaciones en vista isométrica, cada una con su nombre, con muebles y cajas, junto al árbol de lugares de la ubicación',
-  },
 };
 
 export interface GalleryWords {
@@ -84,13 +84,6 @@ export interface GalleryWords {
 }
 
 export const gallery: Words<GalleryWords> = {
-  en: {
-    previous: 'Previous screen',
-    next: 'Next screen',
-    of: 'of',
-    pause: 'Pause the slideshow',
-    play: 'Play the slideshow',
-  },
   ar: {
     previous: 'الشاشة السابقة',
     next: 'الشاشة التالية',
@@ -98,19 +91,33 @@ export const gallery: Words<GalleryWords> = {
     pause: 'إيقاف العرض',
     play: 'تشغيل العرض',
   },
-  fr: {
-    previous: 'Écran précédent',
-    next: 'Écran suivant',
-    of: 'sur',
-    pause: 'Mettre le diaporama en pause',
-    play: 'Lancer le diaporama',
-  },
   de: {
     previous: 'Vorheriger Bildschirm',
     next: 'Nächster Bildschirm',
     of: 'von',
     pause: 'Diashow anhalten',
     play: 'Diashow starten',
+  },
+  en: {
+    previous: 'Previous screen',
+    next: 'Next screen',
+    of: 'of',
+    pause: 'Pause the slideshow',
+    play: 'Play the slideshow',
+  },
+  es: {
+    previous: 'Pantalla anterior',
+    next: 'Pantalla siguiente',
+    of: 'de',
+    pause: 'Pausar la presentación',
+    play: 'Reproducir la presentación',
+  },
+  fr: {
+    previous: 'Écran précédent',
+    next: 'Écran suivant',
+    of: 'sur',
+    pause: 'Mettre le diaporama en pause',
+    play: 'Lancer le diaporama',
   },
   it: {
     previous: 'Schermata precedente',
@@ -133,13 +140,6 @@ export const gallery: Words<GalleryWords> = {
     pause: 'Tạm dừng trình chiếu',
     play: 'Chạy trình chiếu',
   },
-  es: {
-    previous: 'Pantalla anterior',
-    next: 'Pantalla siguiente',
-    of: 'de',
-    pause: 'Pausar la presentación',
-    play: 'Reproducir la presentación',
-  },
 };
 
 export interface IntegrationsWords {
@@ -150,21 +150,25 @@ export interface IntegrationsWords {
 }
 
 export const integrations: Words<IntegrationsWords> = {
-  en: {
-    setUp: 'Set it up',
-    all: (count) => `All ${count} integrations, and how to set each up`,
-  },
   ar: {
     setUp: 'طريقة الإعداد',
     all: (count) => `التكاملات كلها (${count})، وطريقة إعداد كلٍّ منها`,
   },
-  fr: {
-    setUp: 'Comment le configurer',
-    all: (count) => `Les ${count} intégrations, et comment configurer chacune`,
-  },
   de: {
     setUp: 'So richtest du es ein',
     all: (count) => `Alle ${count} Integrationen, und wie du jede einrichtest`,
+  },
+  en: {
+    setUp: 'Set it up',
+    all: (count) => `All ${count} integrations, and how to set each up`,
+  },
+  es: {
+    setUp: 'Cómo configurarlo',
+    all: (count) => `Las ${count} integraciones, y cómo configurar cada una`,
+  },
+  fr: {
+    setUp: 'Comment le configurer',
+    all: (count) => `Les ${count} intégrations, et comment configurer chacune`,
   },
   it: {
     setUp: 'Come configurarlo',
@@ -178,10 +182,6 @@ export const integrations: Words<IntegrationsWords> = {
     setUp: 'Cách thiết lập',
     all: (count) => `Tất cả ${count} tích hợp và cách thiết lập từng cái`,
   },
-  es: {
-    setUp: 'Cómo configurarlo',
-    all: (count) => `Las ${count} integraciones, y cómo configurar cada una`,
-  },
 };
 
 export interface TryKeptWords {
@@ -192,27 +192,12 @@ export interface TryKeptWords {
 }
 
 export const tryKept: Words<TryKeptWords> = {
-  en: {
-    note: 'The whole app with a sample household, in your browser. Nothing is saved or sent.',
-    open: 'Open Kept',
-    desktop:
-      "Kept's Home on a desktop: Get started, the Needs you tiles, the locations with their map previews, shortcuts and Insights",
-    phone: "Kept's Home on a phone: the Needs you tiles and the shortcuts, above the tab bar",
-  },
   ar: {
     note: 'التطبيق كاملًا مع منزل تجريبي، في متصفحك. لا يُحفظ شيء ولا يُرسل.',
     open: 'افتح Kept',
     desktop:
       'الصفحة الرئيسية في Kept على حاسوب: بطاقات «يحتاجك» والمواقع بمعاينات خرائطها والاختصارات',
     phone: 'الصفحة الرئيسية في Kept على هاتف: بطاقات «يحتاجك» والاختصارات فوق شريط التبويب',
-  },
-  fr: {
-    note: 'Toute l’application avec un foyer d’exemple, dans votre navigateur. Rien n’est enregistré ni envoyé.',
-    open: 'Ouvrir Kept',
-    desktop:
-      'L’accueil de Kept sur ordinateur : Premiers pas, les tuiles À traiter, les lieux avec l’aperçu de leur carte, les raccourcis et les statistiques',
-    phone:
-      'L’accueil de Kept sur téléphone : les tuiles À traiter et les raccourcis, au-dessus de la barre d’onglets',
   },
   de: {
     note: 'Die ganze App mit einem Beispielhaushalt, in deinem Browser. Nichts wird gespeichert oder gesendet.',
@@ -221,6 +206,29 @@ export const tryKept: Words<TryKeptWords> = {
       'Der Start von Kept am Computer: Erste Schritte, die Kacheln „Braucht dich“, die Standorte mit Kartenvorschau, Schnellzugriff und Einblicke',
     phone:
       'Der Start von Kept am Handy: die Kacheln „Braucht dich“ und der Schnellzugriff, über der Tab-Leiste',
+  },
+  en: {
+    note: 'The whole app with a sample household, in your browser. Nothing is saved or sent.',
+    open: 'Open Kept',
+    desktop:
+      "Kept's Home on a desktop: Get started, the Needs you tiles, the locations with their map previews, shortcuts and Insights",
+    phone: "Kept's Home on a phone: the Needs you tiles and the shortcuts, above the tab bar",
+  },
+  es: {
+    note: 'Toda la app con un hogar de ejemplo, en tu navegador. No se guarda ni se envía nada.',
+    open: 'Abre Kept',
+    desktop:
+      'Inicio de Kept en un ordenador: Comenzar, las tarjetas Te necesita, las ubicaciones con la vista previa de su mapa, atajos y perspectivas',
+    phone:
+      'Inicio de Kept en un móvil: las tarjetas Te necesita y los atajos, sobre la barra de pestañas',
+  },
+  fr: {
+    note: 'Toute l’application avec un foyer d’exemple, dans votre navigateur. Rien n’est enregistré ni envoyé.',
+    open: 'Ouvrir Kept',
+    desktop:
+      'L’accueil de Kept sur ordinateur : Premiers pas, les tuiles À traiter, les lieux avec l’aperçu de leur carte, les raccourcis et les statistiques',
+    phone:
+      'L’accueil de Kept sur téléphone : les tuiles À traiter et les raccourcis, au-dessus de la barre d’onglets',
   },
   it: {
     note: 'Tutta l’app con una famiglia di esempio, nel tuo browser. Non viene salvato né inviato nulla.',
@@ -244,14 +252,6 @@ export const tryKept: Words<TryKeptWords> = {
       'Trang chủ của Kept trên máy tính: Bắt đầu, các ô Cần bạn, các địa điểm cùng bản xem trước bản đồ, lối tắt và thống kê',
     phone: 'Trang chủ của Kept trên điện thoại: các ô Cần bạn và lối tắt, phía trên thanh tab',
   },
-  es: {
-    note: 'Toda la app con un hogar de ejemplo, en tu navegador. No se guarda ni se envía nada.',
-    open: 'Abre Kept',
-    desktop:
-      'Inicio de Kept en un ordenador: Comenzar, las tarjetas Te necesita, las ubicaciones con la vista previa de su mapa, atajos y perspectivas',
-    phone:
-      'Inicio de Kept en un móvil: las tarjetas Te necesita y los atajos, sobre la barra de pestañas',
-  },
 };
 
 export interface TryMapWords {
@@ -266,18 +266,6 @@ export interface TryMapWords {
 }
 
 export const tryMap: Words<TryMapWords> = {
-  en: {
-    note: 'A sample home, in your browser. Nothing you change is saved or sent anywhere.',
-    reset: 'Reset',
-    install: 'Install Kept',
-    loading: 'Loading the map…',
-    failed: 'The map couldn’t load. Reload the page to try again.',
-    noscript: 'The map needs JavaScript.',
-    credit: [
-      'Furniture, plants, tools and the AC units are free models from ',
-      ' (CC0), shrunk for phones. Turn off Detailed models to download none.',
-    ],
-  },
   ar: {
     note: 'منزل تجريبي في متصفحك. لا يُحفظ أي شيء تغيّره ولا يُرسل إلى أي مكان.',
     reset: 'إعادة تعيين',
@@ -290,18 +278,6 @@ export const tryMap: Words<TryMapWords> = {
       ' ‏(CC0)، مُصغَّرة للهواتف. أوقف «نماذج مفصّلة» كي لا يُنزَّل أي منها.',
     ],
   },
-  fr: {
-    note: 'Une maison d’exemple, dans votre navigateur. Rien de ce que vous changez n’est enregistré ni envoyé.',
-    reset: 'Réinitialiser',
-    install: 'Installer Kept',
-    loading: 'Chargement de la carte…',
-    failed: 'La carte n’a pas pu se charger. Rechargez la page pour réessayer.',
-    noscript: 'La carte nécessite JavaScript.',
-    credit: [
-      'Les meubles, les plantes, les outils et les unités de climatisation sont des modèles gratuits de ',
-      ' (CC0), réduits pour les téléphones. Désactivez « Modèles détaillés » pour n’en télécharger aucun.',
-    ],
-  },
   de: {
     note: 'Ein Beispielzuhause, in deinem Browser. Nichts, was du änderst, wird gespeichert oder irgendwohin gesendet.',
     reset: 'Zurücksetzen',
@@ -312,6 +288,42 @@ export const tryMap: Words<TryMapWords> = {
     credit: [
       'Möbel, Pflanzen, Werkzeuge und die Klimageräte sind kostenlose Modelle von ',
       ' (CC0), für Handys verkleinert. Schalte „Detaillierte Modelle“ aus, um keine herunterzuladen.',
+    ],
+  },
+  en: {
+    note: 'A sample home, in your browser. Nothing you change is saved or sent anywhere.',
+    reset: 'Reset',
+    install: 'Install Kept',
+    loading: 'Loading the map…',
+    failed: 'The map couldn’t load. Reload the page to try again.',
+    noscript: 'The map needs JavaScript.',
+    credit: [
+      'Furniture, plants, tools and the AC units are free models from ',
+      ' (CC0), shrunk for phones. Turn off Detailed models to download none.',
+    ],
+  },
+  es: {
+    note: 'Una casa de ejemplo, en tu navegador. Nada de lo que cambies se guarda ni se envía a ninguna parte.',
+    reset: 'Restablecer',
+    install: 'Instalar Kept',
+    loading: 'Cargando el mapa…',
+    failed: 'No se pudo cargar el mapa. Recarga la página para intentarlo de nuevo.',
+    noscript: 'El mapa necesita JavaScript.',
+    credit: [
+      'Los muebles, las plantas, las herramientas y las unidades de aire acondicionado son modelos gratuitos de ',
+      ' (CC0), reducidos para móviles. Desactiva «Modelos detallados» para no descargar ninguno.',
+    ],
+  },
+  fr: {
+    note: 'Une maison d’exemple, dans votre navigateur. Rien de ce que vous changez n’est enregistré ni envoyé.',
+    reset: 'Réinitialiser',
+    install: 'Installer Kept',
+    loading: 'Chargement de la carte…',
+    failed: 'La carte n’a pas pu se charger. Rechargez la page pour réessayer.',
+    noscript: 'La carte nécessite JavaScript.',
+    credit: [
+      'Les meubles, les plantes, les outils et les unités de climatisation sont des modèles gratuits de ',
+      ' (CC0), réduits pour les téléphones. Désactivez « Modèles détaillés » pour n’en télécharger aucun.',
     ],
   },
   it: {
@@ -348,18 +360,6 @@ export const tryMap: Words<TryMapWords> = {
     credit: [
       'Đồ nội thất, cây cảnh, dụng cụ và dàn nóng điều hòa là các mô hình miễn phí từ ',
       ' (CC0), đã thu nhỏ cho điện thoại. Tắt “Mô hình chi tiết” để không tải mô hình nào.',
-    ],
-  },
-  es: {
-    note: 'Una casa de ejemplo, en tu navegador. Nada de lo que cambies se guarda ni se envía a ninguna parte.',
-    reset: 'Restablecer',
-    install: 'Instalar Kept',
-    loading: 'Cargando el mapa…',
-    failed: 'No se pudo cargar el mapa. Recarga la página para intentarlo de nuevo.',
-    noscript: 'El mapa necesita JavaScript.',
-    credit: [
-      'Los muebles, las plantas, las herramientas y las unidades de aire acondicionado son modelos gratuitos de ',
-      ' (CC0), reducidos para móviles. Desactiva «Modelos detallados» para no descargar ninguno.',
     ],
   },
 };

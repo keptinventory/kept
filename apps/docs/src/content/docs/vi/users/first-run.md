@@ -105,7 +105,7 @@ chứa tối đa 20 tài khoản như vậy.
 
 **Cài đặt → Tôi → Hiển thị** chứa các lựa chọn hiển thị của thiết bị, được áp dụng trước khi trang vẽ:
 
-- **Ngôn ngữ**: English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська hoặc Español.
+- **Ngôn ngữ**: العربية, Deutsch, English, Español, Français, Italiano, Українська hoặc Tiếng Việt.
   Mở danh sách, hoặc gõ để tìm: tên của chính nó, tên tiếng Anh hoặc tên trong ngôn ngữ bạn đang dùng, và lỗi đánh máy nhỏ không sao (`german`, `deutsch` và `francais` đều được). Ả Rập bố cục toàn bộ ứng dụng từ phải sang trái. Trang đăng nhập có bộ chọn giống hệt.
 - **Chữ số trong tiếng Ả Rập**: Phương Tây (0123) hoặc Phương Đông (٠١٢٣), chỉ hiện khi ngôn ngữ là Ả Rập.
   ID ngắn và số seri luôn ở chữ số Phương Tây.

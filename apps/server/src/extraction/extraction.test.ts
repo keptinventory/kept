@@ -226,7 +226,7 @@ const thingAnswer = (over: Record<string, unknown> = {}) => ({
       type_hint: c('power tool', 0.85),
       serial: c('SN-12345'),
       quantity: c(1),
-      aliases: { en: ['drill', 'driver'], ar: ['مثقاب'], fr: ['perceuse'] },
+      aliases: { ar: ['مثقاب'], en: ['drill', 'driver'], fr: ['perceuse'] },
       ...over,
     },
   ],

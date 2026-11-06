@@ -218,7 +218,7 @@ describe('the Try the map sample home', () => {
 });
 
 describe('the sample home in the other languages', () => {
-  const OTHERS: OtherLang[] = ['fr', 'de', 'it', 'vi', 'uk', 'es'];
+  const OTHERS: OtherLang[] = ['de', 'es', 'fr', 'it', 'uk', 'vi'];
   const en = sampleHome('en', TODAY);
   const shape = (s: typeof en) => ({
     rooms: s.view.rooms.map((r) => [r.id, r.levelId, r.layout]),
@@ -256,7 +256,7 @@ describe('the sample home in the other languages', () => {
     const side = (lang: Lang) => formatter(lang).side(3.58);
     expect(side('en')).toBe('3.58');
     expect(side('ar')).toBe('٣٫٥٨');
-    for (const lang of ['fr', 'de', 'it', 'vi', 'uk', 'es'] as const)
+    for (const lang of ['de', 'es', 'fr', 'it', 'uk', 'vi'] as const)
       expect(side(lang)).toBe('3,58');
     expect(formatter('de').num(1234)).toBe('1.234');
     expect(formatter('uk').day('2026-11-06')).toMatch(/^6\s*лист/);

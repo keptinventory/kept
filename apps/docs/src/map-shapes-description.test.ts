@@ -13,12 +13,12 @@ const description = (lang: string) => {
 // The word for Italian in each language: the last of the five the description used to name.
 const ITALIAN: Record<string, RegExp> = {
   ar: /الإيطالية/,
-  fr: /italien/i,
   de: /italienisch/i,
-  it: /italiano/i,
-  vi: /tiếng Anh|\bÝ\b/,
-  uk: /італійськ/i,
   es: /italiano/i,
+  fr: /italien/i,
+  it: /italiano/i,
+  uk: /італійськ/i,
+  vi: /tiếng Anh|\bÝ\b/,
 };
 
 describe('the map shapes description', () => {

@@ -196,7 +196,7 @@ function pieceTokens(s: string): number {
  * token (with the space before it), digits go three to a token, punctuation three, other
  * letters 2.6 characters a token. Measured against o200k on fixed samples
  * (apps/server/test/fixtures/tokens/o200k.json: an assistant request with every tool, tool
- * results full of ids, interface text in the five languages), it lands 0–16% high on each. The
+ * results full of ids, interface text in several languages), it lands 0–16% high on each. The
  * old one-token-per-2.4-characters ratio read the assistant's first request 58% high on Groq,
  * and ids 6% low.
  *

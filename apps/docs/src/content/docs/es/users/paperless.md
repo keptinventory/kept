@@ -51,7 +51,7 @@ muestra su miniatura, su título, el tipo y el remitente de Paperless, y su fech
 - **Desvincular**: se quita del objeto. Paperless lo conserva.
 
 El tipo proviene del tipo de documento en Paperless y luego de sus etiquetas: se reconocen *Recibo*,
-*Factura*, *Manual* y *Garantía* (y las mismas palabras en francés, alemán, italiano y árabe);
+*Factura*, *Manual* y *Garantía* (y las mismas palabras en los demás idiomas de Kept);
 todo lo demás es un documento. Después el tipo es tuyo para cambiarlo, y **Copiar en Kept** copia
 el documento con ese tipo. El filtro **Tipo** en Documentación estrecha los archivos y los
 documentos vinculados juntos.

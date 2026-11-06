@@ -74,8 +74,8 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   lo establezca](/es/install/home-network/#permanecer-en-tu-red); una instancia de Kept en [más de una
   dirección](/es/install/home-network/#más-de-una-dirección), como un nombre de LAN y un nombre de
   Tailscale.
-- **Idiomas**: inglés, árabe (de derecha a izquierda), francés, alemán, italiano, vietnamita, ucraniano
-  y español; escribe para encontrar el tuyo en el selector, y las fechas en el estilo de tu región, o
+- **Idiomas**: alemán, árabe (de derecha a izquierda), español, francés, inglés, italiano, ucraniano
+  y vietnamita; escribe para encontrar el tuyo en el selector, y las fechas en el estilo de tu región, o
   como elijas.
 
 ## En tu teléfono

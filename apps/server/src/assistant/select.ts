@@ -37,7 +37,7 @@ export const CORE_TOOLS: readonly ToolName[] = Object.freeze([
   'mark_seen',
 ]);
 
-type Lang = 'en' | 'fr' | 'de' | 'it' | 'ar' | 'vi' | 'uk' | 'es';
+type Lang = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
 type Topic = { tools: readonly ToolName[]; words: Readonly<Record<Lang, string>> };
 
 /** Keywords per topic and language, `|` between them, written plainly: `normalise` (or, for
@@ -50,27 +50,27 @@ const TOPICS: Readonly<Record<string, Topic>> = {
   history: {
     tools: ['thing_history'],
     words: {
-      en: 'history|happened|who moved|who changed|who added|when did|last time',
-      fr: 'historique|arrivé|qui a',
-      de: 'verlauf|geschichte|passiert|wer hat|wann',
-      it: 'cronologia|storia|successo|chi ha',
       ar: 'سجل|تاريخ|حصل|حدث|من نقل|من غير|متى',
-      vi: 'lịch sử|đã xảy ra|chuyện gì|ai đã|ai chuyển|ai sửa|ai thêm|khi nào|lần cuối',
-      uk: 'історі|сталос|трапил|хто перемі|хто перест|хто перен|хто пересун|хто змін|хто дода|коли$|востаннє|останній раз|минулого разу',
+      de: 'verlauf|geschichte|passiert|wer hat|wann',
+      en: 'history|happened|who moved|who changed|who added|when did|last time',
       es: 'histori|qué pasó|qué ha pasado|ha pasado|le pasó|ocurrió|sucedió|quién movió|quién cambió|quién añadió|quién ha|quién puso|cuándo$|última vez',
+      fr: 'historique|arrivé|qui a',
+      it: 'cronologia|storia|successo|chi ha',
+      uk: 'історі|сталос|трапил|хто перемі|хто перест|хто перен|хто пересун|хто змін|хто дода|коли$|востаннє|останній раз|минулого разу',
+      vi: 'lịch sử|đã xảy ra|chuyện gì|ai đã|ai chuyển|ai sửa|ai thêm|khi nào|lần cuối',
     },
   },
   documents: {
     tools: ['find_documents'],
     words: {
-      en: 'receipt|manual|invoice|document|paperwork|pdf|instructions for',
-      fr: 'reçu|facture|manuel|notice|mode d’emploi',
-      de: 'beleg|quittung|rechnung|anleitung|handbuch|dokument',
-      it: 'ricevuta|scontrino|fattura|manuale|documento|istruzioni',
       ar: 'إيصال|وصل|فاتورة|دليل|كتيب|مستند|وثيقة|ورق',
-      vi: 'hóa đơn|hoá đơn|biên lai|tài liệu|giấy tờ|chứng từ|hướng dẫn sử dụng|sách hướng dẫn',
-      uk: 'квитанці|чек$|чека$|чеку$|чеки$|чеків$|чеком$|рахунок|рахунк|фактур|інструкці|посібник|керівництв|документ|папери|паперів|пдф',
+      de: 'beleg|quittung|rechnung|anleitung|handbuch|dokument',
+      en: 'receipt|manual|invoice|document|paperwork|pdf|instructions for',
       es: 'recibo$|recibos$|factura|manual$|manuales$|ticket$|tickets$|tique$|tiques$|comprobante|documento|documentación|papeles$|papeleo|instrucciones',
+      fr: 'reçu|facture|manuel|notice|mode d’emploi',
+      it: 'ricevuta|scontrino|fattura|manuale|documento|istruzioni',
+      uk: 'квитанці|чек$|чека$|чеку$|чеки$|чеків$|чеком$|рахунок|рахунк|фактур|інструкці|посібник|керівництв|документ|папери|паперів|пдф',
+      vi: 'hóa đơn|hoá đơn|biên lai|tài liệu|giấy tờ|chứng từ|hướng dẫn sử dụng|sách hướng dẫn',
     },
   },
   // #313: changing a place (its name, kind, parent, order) and turning places into boxes.
@@ -78,93 +78,93 @@ const TOPICS: Readonly<Record<string, Topic>> = {
   places: {
     tools: ['create_place', 'update_place', 'turn_into_boxes', 'attach_link'],
     words: {
-      en: 'place|room|bedroom|bathroom|kitchen|hallway|balcony|attic|basement|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down|rotate|on its side|stand it up|furniture|bookcase|bookshelf|wardrobe|dimensions',
-      fr: 'pièce|chambre|cuisine|salle de bain|couloir|grenier|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre|tourner|tournez|tourne le|tourne la|tourne l’|pivot|sur le côté|meuble|bibliothèque',
-      de: 'raum|zimmer|schlafzimmer|badezimmer|wohnzimmer|arbeitszimmer|kinderzimmer|küche|flur|dachboden|keller|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge|drehen|umdreh|auf die seite|auf der seite|möbel|bücherregal',
-      it: 'stanza|camera da letto|bagno|cucina|corridoio|soffitta|cantina|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruotare|ruotalo|ruotala|di lato|sul fianco|mobil|libreria',
       ar: 'غرفة|مطبخ|حمام|ممر|شرفة|بلكونة|رف|درج|خزانة|دولاب|مكان|أنشئ|صورة|رابط|تسمية|صندوق|صناديق|ترتيب|دوّر ال|اقلب|على جنبه|على جنبها|على الجنب|أثاث|مكتبة',
-      vi: 'vị trí|phòng|kệ|giá sách|tủ quần áo|tủ sách|tủ đồ|ngăn kéo|nội thất|tạo|chụp|chụp ảnh|hình ảnh|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng',
-      uk: 'кімната|кімнати|кімнату|кімнаті|кімнатою|кімнат$|спальня|спальню|спальні|спальнею|спалень|ванна|ванну|ванні|ванною|кухня|кухні|кухню|кухнею|вітальня|вітальні|вітальню|вітальнею|коридор|передпок|балкон|лоджі|горищ|підвал|льох|комор|полиц|поличк|поличц|шухляд|шафа|шафи|шафу|шафі|шафою|шаф$|шафк|шафц|комод|стелаж|гардероб|мебл|зона|зони|зону|зоні|зоною|місце$|місця$|місці$|місцем$|місць$|місцях$|приміщен|створ|фото$|фотограф|фотк|фоток|сфотограф|знімок|знімк|зображен|картинк|картинц|скану|відскан|посилан|лінк$|лінка$|лінку$|лінки$|прикріп|переймену|на коробк|на ящик|у коробк|в коробк|у ящик|в ящик|порядок$|власному порядку|упорядк|впорядк|перемісти вгору|перемісти вниз|перемісти вище|перемісти нижче|посунь вище|посунь нижче|розверн|розверт|оберн|оберт|на бік|набік|на боку|вертикально$|сторч|габарит',
+      de: 'raum|zimmer|schlafzimmer|badezimmer|wohnzimmer|arbeitszimmer|kinderzimmer|küche|flur|dachboden|keller|regal|schublade|schrank|anlegen|erstell|foto|bild|umbenenn|in kisten|in eine kiste|reihenfolge|drehen|umdreh|auf die seite|auf der seite|möbel|bücherregal',
+      en: 'place|room|bedroom|bathroom|kitchen|hallway|balcony|attic|basement|shelf|shelves|drawer|cupboard|cabinet|zone|create|photo|picture|scan|link|attach|rename|into a box|into boxes|custom order|move up|move down|rotate|on its side|stand it up|furniture|bookcase|bookshelf|wardrobe|dimensions',
       es: 'habitaci|dormitorio|cuarto de|salón$|salones$|sala de estar|comedor|cocina$|cocinas$|baño$|baños$|aseo$|aseos$|pasillo|recibidor|despacho|oficina|balcón|terraza|desván|buhardilla|ático|sótano|trastero|garaje|despensa|estante|balda$|baldas$|repisa|cajón|armario|alacena|ropero|mueble|librería|zona$|zonas$|lugar$|lugares$|crea$|crear$|créame$|foto$|fotos$|fotografía|imagen$|imágenes$|escanea|enlace|vincul|adjunt|renombr|cambia el nombre|cambiar el nombre|cambia de nombre|en caja|en una caja|el orden$|orden de$|orden personalizado|ordena$|ordenar$|ordénalo$|ordénala$|reordena|mueve arriba|mueve abajo|mover arriba|mover abajo|más arriba|más abajo|gira$|girar$|gíralo$|gírala$|rotar$|rótalo$|rótala$|voltea|de lado$|de costado$|de pie$|en vertical$|dimensiones',
+      fr: 'pièce|chambre|cuisine|salle de bain|couloir|grenier|étagère|tiroir|placard|armoire|créer|lien|renommer|en boîte|en boîtes|ordre|tourner|tournez|tourne le|tourne la|tourne l’|pivot|sur le côté|meuble|bibliothèque',
+      it: 'stanza|camera da letto|bagno|cucina|corridoio|soffitta|cantina|scaffal|cassetto|armadio|crea|collegamento|rinomin|in scatol|ordine|girare|giralo|girala|gira il|gira la|gira lo|ruotare|ruotalo|ruotala|di lato|sul fianco|mobil|libreria',
+      uk: 'кімната|кімнати|кімнату|кімнаті|кімнатою|кімнат$|спальня|спальню|спальні|спальнею|спалень|ванна|ванну|ванні|ванною|кухня|кухні|кухню|кухнею|вітальня|вітальні|вітальню|вітальнею|коридор|передпок|балкон|лоджі|горищ|підвал|льох|комор|полиц|поличк|поличц|шухляд|шафа|шафи|шафу|шафі|шафою|шаф$|шафк|шафц|комод|стелаж|гардероб|мебл|зона|зони|зону|зоні|зоною|місце$|місця$|місці$|місцем$|місць$|місцях$|приміщен|створ|фото$|фотограф|фотк|фоток|сфотограф|знімок|знімк|зображен|картинк|картинц|скану|відскан|посилан|лінк$|лінка$|лінку$|лінки$|прикріп|переймену|на коробк|на ящик|у коробк|в коробк|у ящик|в ящик|порядок$|власному порядку|упорядк|впорядк|перемісти вгору|перемісти вниз|перемісти вище|перемісти нижче|посунь вище|посунь нижче|розверн|розверт|оберн|оберт|на бік|набік|на боку|вертикально$|сторч|габарит',
+      vi: 'vị trí|phòng|kệ|giá sách|tủ quần áo|tủ sách|tủ đồ|ngăn kéo|nội thất|tạo|chụp|chụp ảnh|hình ảnh|quét|liên kết|đính kèm|đổi tên|thành hộp|thứ tự|xoay|nằm nghiêng|dựng đứng',
     },
   },
   schedules: {
     tools: ['upcoming', 'complete_schedule', 'snooze_schedule'],
     words: {
-      en: 'due|overdue|schedul|remind|maintenance|upcoming|soon|expir|next|done|snooze|postpone|put off|later|task|this week|this month',
-      fr: 'échéance|prévu|rappel|entretien|bientôt|prochain|fait|report|tâche',
-      de: 'fällig|termin|erinner|wartung|bald|abgelaufen|läuft ab|nächst|erledigt|verschieb|aufgabe',
-      it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
       ar: 'موعد|مستحق|صيانة|تذكير|قريبا|تنتهي|ينتهي|القادم|خلصت|أجل|تأجيل|مهمة',
-      vi: 'lịch trình|lịch bảo dưỡng|lịch hẹn|bảo dưỡng|bảo trì|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
-      uk: 'термін$|терміну$|терміни$|терміном$|простроч|розклад$|розкладу$|розкладі$|розкладом$|графік$|графіку$|графіки$|графіком$|нагад|обслуговуван|найближч|наступн|скоро$|незабаром|невдовзі|сплив|закінчується|закінчиться|зроблено|викона|готово$|відклад|відклас|відстроч|пізніше|завдан|задач|цього тижня|цей тиждень|цьому тижні|цього місяця|цей місяць|цьому місяці',
+      de: 'fällig|termin|erinner|wartung|bald|abgelaufen|läuft ab|nächst|erledigt|verschieb|aufgabe',
+      en: 'due|overdue|schedul|remind|maintenance|upcoming|soon|expir|next|done|snooze|postpone|put off|later|task|this week|this month',
       es: 'venc|caduc|plazo|fecha límite|programado$|programada$|programados$|programadas$|programación|calendario|agenda$|recuerda|recordatorio|recordar$|avísame|mantenimiento|próxim|pronto$|atrasad|retras|está hecho|está hecha|ya hecho|ya hecha|terminad|completad|pospon|pospuest|aplaz|posterg|más tarde|tarea|esta semana|este mes',
+      fr: 'échéance|prévu|rappel|entretien|bientôt|prochain|fait|report|tâche',
+      it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
+      uk: 'термін$|терміну$|терміни$|терміном$|простроч|розклад$|розкладу$|розкладі$|розкладом$|графік$|графіку$|графіки$|графіком$|нагад|обслуговуван|найближч|наступн|скоро$|незабаром|невдовзі|сплив|закінчується|закінчиться|зроблено|викона|готово$|відклад|відклас|відстроч|пізніше|завдан|задач|цього тижня|цей тиждень|цьому тижні|цього місяця|цей місяць|цьому місяці',
+      vi: 'lịch trình|lịch bảo dưỡng|lịch hẹn|bảo dưỡng|bảo trì|đến hạn|quá hạn|nhắc|sắp tới|hết hạn|tiếp theo|xong|hoãn|dời|để sau|tác vụ|việc cần làm|tuần này|tháng này',
     },
   },
   lending: {
     tools: ['lend_thing', 'return_thing', 'borrow_thing', 'upcoming'],
     words: {
-      en: 'lend|lent|loan|borrow|return|gave|give back|got back|came back|is back|brought back|back from|who has|hand over|handed|hand-over|handover',
-      fr: 'prêt|emprunt|rendu|rendre|revenu|confié|remis',
-      de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
-      it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
       ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
-      vi: 'cho mượn|mượn|trả lại|đã trả|trả cho|trả về|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
-      uk: 'позич|запозич|одолж|борг|дав$|дала$|дали$|віддав|віддала$|віддали$|віддай|передав$|передала|передали|передати$|передай|передано|поверн|верну|назад$|забра|у кого|в кого|хто взяв|хто взяла|хто має|взяв у$|взяла у$|взяли у$|взяв в$|взяла в$|взяли в$',
+      de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
+      en: 'lend|lent|loan|borrow|return|gave|give back|got back|came back|is back|brought back|back from|who has|hand over|handed|hand-over|handover',
       es: 'prest|devuel|devolv|devoluci|quién tiene|quién se llevó|quién cogió|quién tomó|a quién|le di$|le dejé$|le he dado|le he dejado|me dejó$|me ha dejado|entreg|ha vuelto|volvió$|de vuelta|recuper|se lo llevó|se la llevó',
+      fr: 'prêt|emprunt|rendu|rendre|revenu|confié|remis',
+      it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
+      uk: 'позич|запозич|одолж|борг|дав$|дала$|дали$|віддав|віддала$|віддали$|віддай|передав$|передала|передали|передати$|передай|передано|поверн|верну|назад$|забра|у кого|в кого|хто взяв|хто взяла|хто має|взяв у$|взяла у$|взяли у$|взяв в$|взяла в$|взяли в$',
+      vi: 'cho mượn|mượn|trả lại|đã trả|trả cho|trả về|lấy lại|nhận lại|ai đang giữ|ai giữ|đang giữ|bàn giao|giao cho',
     },
   },
   warranties: {
     tools: ['add_warranty', 'open_claim', 'update_claim', 'find_documents', 'upcoming'],
     words: {
-      en: 'warrant|guarantee|claim|repair|broken|rma',
-      fr: 'garantie|réclamation|réparation|panne|cassé',
-      de: 'gewährleistung|reklamation|reparatur|kaputt|defekt',
-      it: 'garanzia|reclamo|riparazion|rotto|guasto',
       ar: 'ضمان|كفالة|مطالبة|إصلاح|تصليح|عطل|مكسور|بايظ',
-      vi: 'bảo hành|yêu cầu bảo hành|sửa chữa|đi sửa|hỏng|hư|đổi trả',
-      uk: 'гаранті|рекламаці|претензі|страхов|ремонт|відремонт|полагод|лагод|злама|полама|розбит|розбив|розбил|несправн|дефект|не працює',
+      de: 'gewährleistung|reklamation|reparatur|kaputt|defekt',
+      en: 'warrant|guarantee|claim|repair|broken|rma',
       es: 'garant|reclam|reparaci|reparar$|repara$|reparad|repáralo$|repararlo$|arregl|estrope|roto$|rota$|rotos$|rotas$|rompi|avería$|averías$|averiad|averió$|defectuos|no funciona|aseguradora|póliza',
+      fr: 'garantie|réclamation|réparation|panne|cassé',
+      it: 'garanzia|reclamo|riparazion|rotto|guasto',
+      uk: 'гаранті|рекламаці|претензі|страхов|ремонт|відремонт|полагод|лагод|злама|полама|розбит|розбив|розбил|несправн|дефект|не працює',
+      vi: 'bảo hành|yêu cầu bảo hành|sửa chữa|đi sửa|hỏng|hư|đổi trả',
     },
   },
   vehicles: {
     tools: ['log_service', 'log_reading', 'log_fuel', 'upcoming'],
     words: {
-      en: 'car|cars|vehicle|bike|motorbike|servic|oil|tyre|tire|mileage|odometer|km|miles|fuel|petrol|gas|diesel|refuel|filled up|fill up|fill-up|tank|reading|meter|hours|electricity',
-      fr: 'voiture|véhicule|vidange|pneu|kilométrage|compteur|essence|carburant|gazole|plein|relevé',
-      de: 'auto|fahrzeug|wagen|inspektion|ölwechsel|reifen|kilometer|tacho|benzin|zähler|getankt',
-      it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
       ar: 'سيارة|عربية|موتوسيكل|صيانة|زيت|كاوتش|إطار|عداد|كيلو|بنزين|وقود|سولار|فول|تفويل|قراءة|كهرباء',
-      vi: 'xe|ô tô|phương tiện|bảo dưỡng|thay dầu|dầu|nhớt|lốp|số km|cây số|công tơ|công-tơ-mét|nhiên liệu|xăng|đổ xăng|đổ đầy|chỉ số|đồng hồ đo|đồng hồ điện|điện năng|kwh',
-      uk: 'автомобіл|авто$|автівк|автівц|транспортн|моя машин|мою машин|моєї машин|моїй машин|наша машин|нашу машин|нашої машин|на машині$|у машині$|в машині$|мотоцикл|скутер|мопед|велосипед|байк$|сервіс|техогляд|техобслугов|заміна масла|заміну масла|заміни масла|замінив масло|замінила масло|замінили масло|моторн|мастил|шина|шини|шину|шині|шин$|покришк|покришок|шиномонтаж|пробіг|одометр|спідометр|кілометр|км$|миль$|пальне|пального|пальним|пальному|бензин|бензобак|дизел|солярк|заправ|повний бак|лічильник|показання|показань|показник|мотогодин|електроенерг|кіловат|квт',
+      de: 'auto|fahrzeug|wagen|inspektion|ölwechsel|reifen|kilometer|tacho|benzin|zähler|getankt',
+      en: 'car|cars|vehicle|bike|motorbike|servic|oil|tyre|tire|mileage|odometer|km|miles|fuel|petrol|gas|diesel|refuel|filled up|fill up|fill-up|tank|reading|meter|hours|electricity',
       es: 'coche$|coches$|carro$|carros$|auto$|autos$|automóvil|vehículo|moto$|motos$|motocicleta|bici$|bicis$|bicicleta|furgoneta|revisi|itv$|cambio de aceite|cambié el aceite|cambiado el aceite|cambiar el aceite|aceite del coche|aceite de motor|aceite del motor|neumátic|rueda$|ruedas$|kilometraje|kilómetro|cuentakilómetros|odómetro|km$|millas$|combustible|gasolina|diésel|gasóleo|repostar$|reposta$|reposté$|repostó$|repostado$|repostaje$|depósito lleno|lectura$|lecturas$|contador$|contadores$|electricidad|kilovatio|kwh',
+      fr: 'voiture|véhicule|vidange|pneu|kilométrage|compteur|essence|carburant|gazole|plein|relevé',
+      it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
+      uk: 'автомобіл|авто$|автівк|автівц|транспортн|моя машин|мою машин|моєї машин|моїй машин|наша машин|нашу машин|нашої машин|на машині$|у машині$|в машині$|мотоцикл|скутер|мопед|велосипед|байк$|сервіс|техогляд|техобслугов|заміна масла|заміну масла|заміни масла|замінив масло|замінила масло|замінили масло|моторн|мастил|шина|шини|шину|шині|шин$|покришк|покришок|шиномонтаж|пробіг|одометр|спідометр|кілометр|км$|миль$|пальне|пального|пальним|пальному|бензин|бензобак|дизел|солярк|заправ|повний бак|лічильник|показання|показань|показник|мотогодин|електроенерг|кіловат|квт',
+      vi: 'xe|ô tô|phương tiện|bảo dưỡng|thay dầu|dầu|nhớt|lốp|số km|cây số|công tơ|công-tơ-mét|nhiên liệu|xăng|đổ xăng|đổ đầy|chỉ số|đồng hồ đo|đồng hồ điện|điện năng|kwh',
     },
   },
   // #209: the tags themselves; tagging one thing is update_thing's, in the core.
   tags: {
     tools: ['list_tags', 'tag_things'],
     words: {
-      en: 'tag|tags|tagged|untag',
-      fr: 'tag|étiquette',
-      de: 'schlagwort|tag|tags|getaggt',
-      it: 'tag|etichetta',
       ar: 'وسم|وسوم|موسوم|تاغ',
-      vi: 'gắn thẻ|bỏ thẻ|các thẻ|thẻ nào|thẻ này',
-      uk: 'тег|протег|мітк|мітц|міток|ярлик|ярлич',
+      de: 'schlagwort|tag|tags|getaggt',
+      en: 'tag|tags|tagged|untag',
       es: 'etiquet',
+      fr: 'tag|étiquette',
+      it: 'tag|etichetta',
+      uk: 'тег|протег|мітк|мітц|міток|ярлик|ярлич',
+      vi: 'gắn thẻ|bỏ thẻ|các thẻ|thẻ nào|thẻ này',
     },
   },
   stock: {
     tools: ['adjust_stock', 'upcoming'],
     words: {
-      en: 'stock|used up|use up|ran out|run out|running out|left|remaining|refill|restock|consumable|supply|supplies|top up',
-      fr: 'reste|épuisé|consommable|réappro|utilisé',
-      de: 'vorrat|bestand|aufgebraucht|übrig|verbrauch|nachfüll|leer',
-      it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
       ar: 'مخزون|متبقي|باقي|نفد|نفذ|خلص|استهلك|كمية',
-      vi: 'tồn kho|còn lại|còn bao nhiêu|còn mấy|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
-      uk: 'запас$|запасу$|запаси$|запасів$|запасом$|запасах$|припас|залишилос|залишилас|залишилис|залишився|залишок|залишк|лишилос|лишилас|лишилис|лишився|закінч|скінч|вичерп|більше немає|немає більше|використав|використала|використали|використано|поповн|докуп|витратн|кількіст|кількост',
+      de: 'vorrat|bestand|aufgebraucht|übrig|verbrauch|nachfüll|leer',
+      en: 'stock|used up|use up|ran out|run out|running out|left|remaining|refill|restock|consumable|supply|supplies|top up',
       es: 'existencias|stock|reserva$|reservas$|queda$|quedan$|quedado$|sobra$|sobran$|restante|agotad|agotó$|se acab|acabado$|acabada$|acabados$|acabadas$|gastad|consumible|repon|rellenar$|rellena$|suministro|cantidad',
+      fr: 'reste|épuisé|consommable|réappro|utilisé',
+      it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
+      uk: 'запас$|запасу$|запаси$|запасів$|запасом$|запасах$|припас|залишилос|залишилас|залишилис|залишився|залишок|залишк|лишилос|лишилас|лишилис|лишився|закінч|скінч|вичерп|більше немає|немає більше|використав|використала|використали|використано|поповн|докуп|витратн|кількіст|кількост',
+      vi: 'tồn kho|còn lại|còn bao nhiêu|còn mấy|sắp hết|dùng hết|hết rồi|vật tư|tiêu hao|bổ sung|nạp thêm|mua thêm|số lượng',
     },
   },
 };
@@ -202,7 +202,7 @@ const atStart = (w: string) =>
 const PATTERNS: readonly [Topic, RegExp, RegExp][] = Object.values(TOPICS).map((topic) => {
   const list = (langs: Lang[], fold: (s: string) => string, source = escapeRe) =>
     langs.flatMap((l) => topic.words[l].split('|')).map((w) => source(fold(w)));
-  const re = `(?<![\\p{L}\\p{N}])(?:${list(['en', 'fr', 'de', 'it', 'uk', 'es'], normalise, atStart).join('|')})|${list(['ar'], normalise).join('|')}`;
+  const re = `(?<![\\p{L}\\p{N}])(?:${list(['de', 'en', 'es', 'fr', 'it', 'uk'], normalise, atStart).join('|')})|${list(['ar'], normalise).join('|')}`;
   const vi = `(?<![\\p{L}\\p{N}])(?:${list(['vi'], normaliseVi).join('|')})(?![\\p{L}\\p{N}])`;
   return [topic, new RegExp(re, 'u'), new RegExp(vi, 'u')];
 });

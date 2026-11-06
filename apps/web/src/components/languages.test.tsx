@@ -71,14 +71,14 @@ describe('LanguageSelect', () => {
     const { user } = await renderUI(<Picker />);
     await user.click(screen.getByRole('combobox', { name: 'Language' }));
     expect(optionNames()).toEqual([
-      'English',
       'العربية',
-      'Français',
       'Deutsch',
-      'Italiano',
-      'Tiếng Việt',
-      'Українська',
+      'English',
       'Español',
+      'Français',
+      'Italiano',
+      'Українська',
+      'Tiếng Việt',
     ]);
     const arabic = screen.getByRole('option', { name: 'العربية' });
     expect(arabic.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');

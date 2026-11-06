@@ -14,41 +14,41 @@ import { tokenHash } from './claim-pack.js';
 // language: a link that never existed says the same, so a guess learns nothing. The token is
 // redacted from the request log (http/logger.ts), and only its sha256 is ever stored.
 
-const LANGS = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'] as const;
+const LANGS = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
 type Lang = (typeof LANGS)[number];
 
 const EXPIRED: Record<Lang, { title: string; body: string }> = {
-  en: {
-    title: 'This link has expired',
-    body: 'Ask whoever shared it for a new link.',
-  },
   ar: {
     title: 'انتهت صلاحية هذا الرابط',
     body: 'اطلب رابطًا جديدًا ممن شاركه معك.',
-  },
-  fr: {
-    title: 'Ce lien a expiré',
-    body: 'Demandez un nouveau lien à la personne qui vous l’a envoyé.',
   },
   de: {
     title: 'Dieser Link ist abgelaufen',
     body: 'Bitte die Person, die ihn geteilt hat, um einen neuen Link.',
   },
+  en: {
+    title: 'This link has expired',
+    body: 'Ask whoever shared it for a new link.',
+  },
+  es: {
+    title: 'Este enlace ha expirado',
+    body: 'Pídele a quien lo compartió un enlace nuevo.',
+  },
+  fr: {
+    title: 'Ce lien a expiré',
+    body: 'Demandez un nouveau lien à la personne qui vous l’a envoyé.',
+  },
   it: {
     title: 'Questo link è scaduto',
     body: 'Chiedi un nuovo link a chi te l’ha condiviso.',
-  },
-  vi: {
-    title: 'Liên kết này đã hết hạn',
-    body: 'Hãy xin liên kết mới từ người đã chia sẻ nó.',
   },
   uk: {
     title: 'Термін дії цього посилання закінчився',
     body: 'Попросіть нове посилання в того, хто ним поділився.',
   },
-  es: {
-    title: 'Este enlace ha expirado',
-    body: 'Pídele a quien lo compartió un enlace nuevo.',
+  vi: {
+    title: 'Liên kết này đã hết hạn',
+    body: 'Hãy xin liên kết mới từ người đã chia sẻ nó.',
   },
 };
 

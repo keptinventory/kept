@@ -166,7 +166,7 @@ test('axe: sign in and a missing page, nothing above minor', async ({ page }) =>
 });
 
 /**
- * The phone's filter strip keeps Filters · Views · Display on one row in all five languages, with
+ * The phone's filter strip keeps Filters · Views · Display on one row in every language, with
  * the longest Display words a list can show (UI audit L11: in Arabic it sat at its limit, and a
  * longer sort word would wrap it). A location's contents carry every sort, grouping and layout.
  */
@@ -180,7 +180,7 @@ test('the filter strip keeps one row at 375 px in every language', async ({ brow
   const location = await p.locator('a[href^="/loc/"]').first().getAttribute('href');
   expect(location).toBeTruthy();
   const rows: string[] = [];
-  for (const lang of ['en', 'ar', 'fr', 'de', 'it']) {
+  for (const lang of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
     // The page-level script runs after the session's, so this language wins for this page.
     const page = await ctx.newPage();
     await page.addInitScript((l) => localStorage.setItem('kept.locale', l), lang);

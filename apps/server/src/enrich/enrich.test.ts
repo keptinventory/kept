@@ -35,7 +35,7 @@ describe('prompt.ts (pure)', () => {
   it('sizes batches to fit 900 output tokens (E1: 20 at two languages)', () => {
     expect(batchSize(['en'])).toBe(20);
     expect(batchSize(['en', 'ar'])).toBe(20);
-    expect(batchSize(['en', 'ar', 'fr'])).toBe(15);
+    expect(batchSize(['ar', 'en', 'fr'])).toBe(15);
   });
 
   it.each([

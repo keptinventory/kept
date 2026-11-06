@@ -91,7 +91,7 @@ describe('suggestShapes: the type first', () => {
   });
 });
 
-describe('suggestShapes: then the name, in five languages', () => {
+describe('suggestShapes: then the name, in each language', () => {
   it.each([
     ['Samsung TV, 55″', 'tv'],
     ['Sony Fernseher', 'tv'],
@@ -550,8 +550,8 @@ describe('searchShapes', () => {
       for (const w of ws) expect(all.has(w), `${lang}: ${w}`).toBe(true);
   });
 
-  it('ranks word starts and synonyms in all five languages', () => {
-    // English, French, German, Italian, Arabic, each by its own word's start.
+  it('ranks word starts and synonyms in each language', () => {
+    // Arabic, English, French, German, Italian, each by its own word's start.
     expect(searchShapes('keyb', names)[0]).toBe('keyboard');
     expect(searchShapes('clav', {}, 'fr')[0]).toBe('keyboard');
     expect(searchShapes('tast', {}, 'de')[0]).toBe('keyboard');
@@ -786,7 +786,7 @@ describe('suggestShapes: homelab gear and server racks (#171)', () => {
     expect(SHAPE_WORDS.device).not.toContain('raspberry pi');
   });
 
-  it('finds them by search in five languages', () => {
+  it('finds them by search in each language', () => {
     const racks = searchShapes('rack');
     for (const k of RACKS) expect(racks, k).toContain(k);
     expect(searchShapes('nas')[0]).toBe('nas');
@@ -862,7 +862,7 @@ describe('a cube shelf sized by its grid and a bookcase with levels (#240, #241)
     expect(shapeOnAdd({ name: 'Display shelf' })).toEqual({ model: 'cube_shelf', from: 'name' });
   });
 
-  it('finds them by search in five languages, with storage', () => {
+  it('finds them by search in each language, with storage', () => {
     expect(searchShapes('kallax')[0]).toBe('cube_grid');
     expect(searchShapes('cube stor')[0]).toBe('cube_grid');
     expect(searchShapes('würfel', {}, 'de')[0]).toBe('cube_grid');

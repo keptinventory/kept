@@ -117,8 +117,8 @@ recupero. Vedi [leggere il tuo inventario solo con restic](/it/admin/read-with-r
 
 ## Quali lingue parla?
 
-Inglese, arabo (disposto da destra a sinistra), francese, tedesco, italiano, vietnamita,
-ucraino e spagnolo, scelti per dispositivo. Vedi [lingua e tema](/it/users/first-run/#6-lingua-e-tema).
+Arabo (disposto da destra a sinistra), francese, inglese, italiano, spagnolo, tedesco,
+ucraino e vietnamita, scelti per dispositivo. Vedi [lingua e tema](/it/users/first-run/#6-lingua-e-tema).
 
 ## Sotto quale licenza è?
 

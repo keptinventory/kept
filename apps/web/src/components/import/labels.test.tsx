@@ -83,7 +83,7 @@ describe('the Homebox reasons, before and after the import (#320)', () => {
   });
 
   it('calls a location inside an item a box in every language, never a container', async () => {
-    for (const locale of ['ar', 'fr', 'de', 'it'] as const) {
+    for (const locale of ['ar', 'de', 'fr', 'it'] as const) {
       const view = await renderUI(<Tense when="after" />, { locale });
       const text = screen.getAllByRole('listitem')[4]?.textContent ?? '';
       expect(text, locale).not.toBe(FALLBACK);

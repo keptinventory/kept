@@ -88,15 +88,15 @@ describe('the tools as the model sees them', () => {
 
 describe('the instructions', () => {
   it("answer in each of Kept's languages", () => {
-    expect(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'].map(languageOf)).toEqual([
-      'English',
+    expect(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'].map(languageOf)).toEqual([
       'Arabic',
-      'French',
       'German',
-      'Italian',
-      'Vietnamese',
-      'Ukrainian',
+      'English',
       'Spanish',
+      'French',
+      'Italian',
+      'Ukrainian',
+      'Vietnamese',
     ]);
   });
 

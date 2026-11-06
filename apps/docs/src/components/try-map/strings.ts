@@ -14,7 +14,7 @@ import {
   type ShapeGroup,
 } from '@kept/shared';
 
-export type Lang = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi' | 'uk' | 'es';
+export type Lang = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
 /** The languages with a file in langs/. */
 export type OtherLang = Exclude<Lang, 'en' | 'ar'>;
 /** English, then Arabic. */
@@ -757,12 +757,12 @@ export type Pack = {
 };
 
 const PACKS: Record<OtherLang, () => Promise<{ default: Pack }>> = {
-  fr: () => import('./langs/fr'),
   de: () => import('./langs/de'),
-  it: () => import('./langs/it'),
-  vi: () => import('./langs/vi'),
-  uk: () => import('./langs/uk'),
   es: () => import('./langs/es'),
+  fr: () => import('./langs/fr'),
+  it: () => import('./langs/it'),
+  uk: () => import('./langs/uk'),
+  vi: () => import('./langs/vi'),
 };
 
 function column<K extends string>(names: Record<K, Two>, i: 0 | 1): Record<K, string> {

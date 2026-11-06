@@ -31,7 +31,7 @@ function All() {
   );
 }
 
-describe.each(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'] as const)(
+describe.each(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const)(
   'every summary in %s',
   (locale) => {
     it('is a sentence of its own', async () => {

@@ -2,12 +2,12 @@
 // the language menu (components/language/LanguageSelect.astro) lists them. `root` is English, at
 // the site's root.
 export const locales = {
-  root: { label: 'English', lang: 'en' },
   ar: { label: 'العربية', lang: 'ar', dir: 'rtl' },
-  fr: { label: 'Français', lang: 'fr' },
   de: { label: 'Deutsch', lang: 'de' },
-  it: { label: 'Italiano', lang: 'it' },
-  vi: { label: 'Tiếng Việt', lang: 'vi' },
-  uk: { label: 'Українська', lang: 'uk' },
+  root: { label: 'English', lang: 'en' },
   es: { label: 'Español', lang: 'es' },
+  fr: { label: 'Français', lang: 'fr' },
+  it: { label: 'Italiano', lang: 'it' },
+  uk: { label: 'Українська', lang: 'uk' },
+  vi: { label: 'Tiếng Việt', lang: 'vi' },
 };

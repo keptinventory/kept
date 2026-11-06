@@ -39,7 +39,7 @@ I documenti collegati appaiono nello stesso elenco Documenti dei file. Ogni docu
 - **Copia in Kept**: vedi sotto.
 - **Scollega**: viene rimosso dall'oggetto. Paperless lo conserva.
 
-Il tipo deriva dal tipo del documento in Paperless, poi dai suoi tag: *Ricevuta*, *Fattura*, *Manuale* e *Garanzia* (e le stesse parole in francese, tedesco, italiano e arabo) vengono riconosciuti; qualsiasi altra cosa è un documento. Dopo di ciò il tipo è a tua scelta, e **Copia in Kept** copia il documento in quel tipo. Il filtro **Tipo** in Documenti restringe insieme i file e i documenti collegati.
+Il tipo deriva dal tipo del documento in Paperless, poi dai suoi tag: *Ricevuta*, *Fattura*, *Manuale* e *Garanzia* (e le stesse parole nelle altre lingue di Kept) vengono riconosciuti; qualsiasi altra cosa è un documento. Dopo di ciò il tipo è a tua scelta, e **Copia in Kept** copia il documento in quel tipo. Il filtro **Tipo** in Documenti restringe insieme i file e i documenti collegati.
 
 **Da un [importazione da Homebox](/it/users/import-export/#unesportazione-di-homebox):** un collegamento di Homebox a uno dei tuoi documenti Paperless (`…/documents/123`, oppure l'API `…/api/documents/123/download/`) all'indirizzo a cui questa posizione è connessa viene importato come documento collegato sull'oggetto o sul luogo. Il suo titolo proviene da Paperless, il suo tipo dal tipo di allegato di Homebox. Connetti Paperless prima dell'importazione; qualsiasi altro collegamento rimane un collegamento semplice.
 

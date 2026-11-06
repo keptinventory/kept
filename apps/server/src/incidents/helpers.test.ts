@@ -29,7 +29,7 @@ describe('langOf() (the expired page)', () => {
     expect(expiredPage('en')).toContain('<h1>This link has expired</h1>');
   });
 
-  it('speaks Vietnamese, Ukrainian and Spanish', () => {
+  it('speaks Spanish, Ukrainian and Vietnamese', () => {
     expect(expiredPage('es')).toContain('<h1>Este enlace ha expirado</h1>');
     expect(expiredPage('es')).toContain('<html lang="es" dir="ltr">');
     expect(expiredPage('uk')).toContain('<h1>Термін дії цього посилання закінчився</h1>');

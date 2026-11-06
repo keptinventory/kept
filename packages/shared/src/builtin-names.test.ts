@@ -7,10 +7,10 @@ import {
 } from './builtin-names.js';
 import { BUILTIN_TYPES } from './builtin-types.js';
 
-const MORE = ['fr', 'de', 'it', 'vi', 'uk', 'es'] as const;
+const MORE = ['de', 'es', 'fr', 'it', 'uk', 'vi'] as const;
 
 describe('built-in names in every language that has them', () => {
-  it('names every built-in type and field in French, German, Italian, Vietnamese, Ukrainian and Spanish', () => {
+  it('names every built-in type and field in French, German, Italian, Spanish, Ukrainian and Vietnamese', () => {
     const typeKeys = BUILTIN_TYPES.map((t) => t.key).sort();
     const fieldKeys = [...new Set(BUILTIN_TYPES.flatMap((t) => t.fields.map((f) => f.key)))].sort();
     expect(Object.keys(BUILTIN_TYPE_NAMES_MORE).sort()).toEqual(typeKeys);

@@ -113,7 +113,7 @@ contient au plus 20 comptes gérés.
 
 **Paramètres → Moi → Affichage** contient les choix d’affichage de l’appareil, appliqués avant le tracé de la page :
 
-- **Langue** : English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська ou Español.
+- **Langue** : العربية, Deutsch, English, Español, Français, Italiano, Українська ou Tiếng Việt.
   Ouvrez la liste, ou saisissez pour en trouver une : son nom, son nom en anglais ou dans la langue que vous
   utilisez, et les petites fautes de frappe passent (`german`, `deutsch` et `francais` fonctionnent tous). L’arabe présente toute l’application de droite
   à gauche. Les pages de connexion ont le même sélecteur.

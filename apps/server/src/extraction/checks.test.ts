@@ -32,7 +32,7 @@ describe('checkThing', () => {
             brand: c('Bosch'),
             colour: c('Blue', 0.4),
             quantity: c(2.5),
-            aliases: { en: ['drill', 'Drill', 'driver'], ar: ['مثقاب'], fr: ['perceuse'] },
+            aliases: { ar: ['مثقاب'], en: ['drill', 'Drill', 'driver'], fr: ['perceuse'] },
           },
         ],
       },
@@ -63,22 +63,22 @@ describe('checkThing', () => {
           {
             name: c('Router', 0.8),
             aliases: {
-              en: ['modem', 'مودم', 'Wi-Fi box'],
-              fr: ['boîtier Wi-Fi'],
               // E1's mixed-script non-word, then a real one, then one past the first.
               ar: ['مودem', 'راوتر', 'موجه'],
+              en: ['modem', 'مودم', 'Wi-Fi box'],
+              fr: ['boîtier Wi-Fi'],
             },
           },
         ],
       },
-      { ...ctx, languages: ['en', 'ar', 'fr'] },
+      { ...ctx, languages: ['ar', 'en', 'fr'] },
     );
     expect(out.fields.aliases).toEqual({ en: ['modem', 'Wi-Fi box'], fr: ['boîtier Wi-Fi'] });
     expect(out.fields.aliasSuggestions).toEqual([{ lang: 'ar', value: 'راوتر', confidence: 0.8 }]);
     expect(out.dropped).toEqual([
-      { path: 'objects.0.aliases.en', reason: 'script' },
       { path: 'objects.0.aliases.ar', reason: 'script' },
       { path: 'objects.0.aliases.ar', reason: 'alias_limit' },
+      { path: 'objects.0.aliases.en', reason: 'script' },
     ]);
   });
 

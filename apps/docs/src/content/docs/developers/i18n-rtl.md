@@ -3,7 +3,7 @@ title: Languages and right-to-left
 description: How strings are translated with Lingui, what the catalogue checks enforce, and the rules that keep Arabic correct.
 ---
 
-Kept ships in English, Arabic, French, German, Italian (D204), Vietnamese, Ukrainian and
+Kept ships in Arabic, English, French, German, Italian (D204), Ukrainian, Vietnamese and
 Spanish.
 Arabic is right-to-left, so every screen has to mirror without per-screen overrides. The web app
 uses [Lingui](https://lingui.dev/) with PO catalogues (D96); the server has its own small typed
@@ -11,8 +11,8 @@ tables for mail and reports.
 
 ## Lingui in the web app
 
-`apps/web/lingui.config.ts` sets the source locale `en`, the locales `en`, `ar`, `fr`, `de`, `it`,
-`vi`, `uk`, `es`, and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
+`apps/web/lingui.config.ts` sets the source locale `en`, the locales `ar`, `de`, `en`, `es`, `fr`, `it`,
+`uk`, `vi`, and one catalogue per locale at `apps/web/src/locales/<locale>/messages.po`, extracted from
 `src` (tests and `routeTree.gen.ts` excluded). Catalogues have no line numbers, so they don't
 churn on every edit.
 

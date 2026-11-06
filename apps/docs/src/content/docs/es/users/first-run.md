@@ -118,7 +118,7 @@ tiene como máximo 20 de ellas.
 
 **Configuración → Yo → Visualización** guarda las opciones de visualización del dispositivo, aplicadas antes de que se dibuje la página:
 
-- **Idioma**: Inglés, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українська o Español.
+- **Idioma**: العربية, Deutsch, English, Español, Français, Italiano, Українська o Tiếng Việt.
   Abre la lista, o escribe para encontrar uno: su propio nombre, su nombre en inglés o en el idioma que estés
   usando, y los pequeños errores tipográficos están bien (`german`, `deutsch` y `francais` funcionan todos). El árabe diseña toda la aplicación
   de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector.
