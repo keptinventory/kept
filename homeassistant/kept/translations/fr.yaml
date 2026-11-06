@@ -1,0 +1,118 @@
+configuration:
+  public_url:
+    name: Adresse de Kept
+    description: >-
+      Adresse utilisée par les téléphones, étiquettes imprimées et liens de courriel, comme
+      http://homeassistant.local:8080 ou https://kept.example.org. Vide : nom d'hôte de Home
+      Assistant et port de cette application. Sans chemin.
+  log_level:
+    name: Niveau de journalisation
+    description: Quantité d'informations que Kept écrit dans l'onglet Journal.
+  smtp_url:
+    name: Courriel sortant
+    description: >-
+      URL smtp:// ou smtps:// avec le compte, comme smtps://user:password@mail.example.org. Vide :
+      Kept n'envoie pas de courriel.
+  smtp_from:
+    name: Expéditeur du courriel
+    description: Le champ De des courriels de Kept, comme Kept <kept@example.org>.
+  ssl:
+    name: https sur le port de Kept
+    description: >-
+      Servir le port de Kept en https avec le certificat de Home Assistant depuis /ssl. Les
+      jetons, clés d'accès, la caméra et l'application installable nécessitent https. Redémarrer
+      l'application après le renouvellement du certificat.
+  certfile:
+    name: Fichier de certificat
+    description: Nom du fichier du certificat dans /ssl.
+  keyfile:
+    name: Fichier de clé privée
+    description: Nom du fichier de la clé privée dans /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      Avec https activé, Kept indique aux navigateurs d'utiliser https pour ce nom d'hôte sur tous
+      les ports pendant un an, y compris Home Assistant. off : quand Home Assistant ou une autre
+      application sur ce nom d'hôte est en http simple ; les navigateurs l'oublient à leur
+      prochaine visite https sur Kept.
+  http_sign_in_days:
+    name: Durée de la connexion en http
+    description: >-
+      Jours pendant lesquels une connexion dure en http simple, 1 à 30, renouvelée à l'usage ; 7
+      convient à un réseau domestique. Vide : 12 heures, non renouvelée. Aucun effet avec https
+      activé. En http simple, un cookie de connexion peut être copié par quiconque voit le trafic
+      ; avec ceci activé, un cookie copié continue de fonctionner tant qu'il est utilisé, jusqu'à
+      ce que cet appareil se déconnecte ou que vos autres appareils soient déconnectés.
+  extra_addresses:
+    name: Adresses supplémentaires
+    description: >-
+      Autres adresses sur lesquelles ce Kept répond, séparées par des virgules, exactement comme
+      le navigateur les affiche : http://192.0.2.20:8080. Pas de caractères génériques, et le même
+      http ou https que l'adresse de Kept. Chaque adresse a sa propre connexion. Liens, courriel,
+      clés d'accès et applications IA restent sur l'adresse de Kept. Lister uniquement les
+      adresses qui atteignent ce Kept.
+  oidc_issuer:
+    name: Émetteur OIDC
+    description: >-
+      Connexion avec votre propre fournisseur d'identité : l'URL de l'émetteur exactement comme
+      indiqué dans son document de découverte. Définie avec l'identifiant client, la connexion
+      OIDC est activée. URL de redirection à enregistrer : l'adresse de Kept suivie de
+      /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: Identifiant client OIDC
+    description: L'identifiant client du fournisseur d'identité.
+  oidc_client_secret:
+    name: Secret client OIDC
+    description: Le secret client, pour un client confidentiel. Vide pour un client public.
+  oidc_name:
+    name: Nom du bouton OIDC
+    description: >-
+      Le nom du fournisseur sur "Se connecter avec …", 60 caractères au maximum. Vide : OIDC.
+  oidc_autoprovision_domains:
+    name: Inscription OIDC par domaine de courriel
+    description: >-
+      Domaines de courriel séparés par des virgules (exacts, pas de sous-domaines) dont les
+      utilisateurs obtiennent un compte à leur première connexion. Vide : sur invitation
+      seulement.
+  oidc_autoprovision_groups:
+    name: Inscription OIDC par groupe
+    description: >-
+      Groupes séparés par des virgules (exact) dont les membres obtiennent un compte à leur
+      première connexion. Vide : sur invitation seulement.
+  oidc_groups_claim:
+    name: Revendication de groupes OIDC
+    description: >-
+      La revendication de jeton d'ID qui contient les groupes. Vide : groups.
+  oidc_scopes:
+    name: Scopes OIDC
+    description: >-
+      Les scopes demandés, séparés par des espaces. Vide : openid email profile.
+  google_client_id:
+    name: ID client Google
+    description: >-
+      Se connecter avec Google, avec un client OAuth de Google Cloud. Définissez avec le secret :
+      Se connecter avec Google est activé, pour les comptes existants et les invités seulement.
+      Google a besoin de l'adresse de Kept sur https avec un nom de domaine public (pas http,
+      .local ni une adresse IP) : définissez l'adresse de Kept, par exemple un nom DuckDNS avec
+      https sur le port de Kept. URL de redirection à enregistrer : l'adresse de Kept suivie de
+      /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Secret client Google
+    description: Le secret du client OAuth.
+  apprise_url:
+    name: Serveur Apprise
+    description: >-
+      Le serveur API Apprise par lequel passent les canaux de notification Apprise, par exemple
+      http://apprise:8000. Vide : les gens ne peuvent pas ajouter de canaux Apprise.
+  signup_open:
+    name: Inscription
+    description: >-
+      true verrouille l'inscription ouverte, false la verrouille fermée (sur invitation seulement)
+      ; le réglage de l'administrateur s'affiche alors comme verrouillé. Non défini : un
+      administrateur décide dans Kept (Admin → Inscription).
+  max_file_mb:
+    name: Limite d'envoi (MB)
+    description: >-
+      La taille maximale d'un fichier à envoyer, de 1 à 2048. Vide : 25.
+network:
+  8080/tcp: Adresse de Kept, pour les téléphones, les étiquettes et les liens de courriel

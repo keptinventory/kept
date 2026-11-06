@@ -1,0 +1,114 @@
+configuration:
+  public_url:
+    name: Indirizzo di Kept
+    description: >-
+      L'indirizzo che telefoni, etichette stampate e link e-mail usano, come
+      http://homeassistant.local:8080 o https://kept.example.org. Vuoto: nome host di Home
+      Assistant e porta di questa app. Nessun percorso.
+  log_level:
+    name: Dettaglio log
+    description: Quanto Kept scrive nella scheda Log.
+  smtp_url:
+    name: Posta in uscita
+    description: >-
+      Un URL smtp:// o smtps:// con l'account, come smtps://user:password@mail.example.org. Vuoto:
+      Kept non invia posta.
+  smtp_from:
+    name: Mittente e-mail
+    description: Il From delle e-mail di Kept, come Kept <kept@example.org>.
+  ssl:
+    name: https sulla porta di Kept
+    description: >-
+      Espone la porta di Kept su https con il certificato di Home Assistant da /ssl. Token,
+      Passkey, fotocamera e app installabile richiedono https. Riavvia l'app dopo il rinnovo del
+      certificato.
+  certfile:
+    name: File certificato
+    description: Il nome del file del certificato in /ssl.
+  keyfile:
+    name: File chiave privata
+    description: Il nome del file della chiave privata in /ssl.
+  hsts:
+    name: HSTS
+    description: >-
+      Con https attivo, Kept dice ai browser di usare https per questo nome host su ogni porta per
+      un anno, incluso Home Assistant. off: quando Home Assistant o un'altra app su questo nome
+      host usa http; i browser lo dimenticano alla prossima visita https a Kept.
+  http_sign_in_days:
+    name: Durata accesso su http
+    description: >-
+      Giorni che un accesso dura su http semplice, da 1 a 30, rinnovato mentre è in uso; 7 va bene
+      per una rete domestica. Vuoto: 12 ore, non rinnovato. Nessun effetto con https attivo. Su
+      http semplice un cookie di accesso può essere copiato da chi vede il traffico; con questo
+      attivo, il cookie copiato continua a funzionare finché è in uso, finché quel dispositivo non
+      esce o gli altri dispositivi non escono.
+  extra_addresses:
+    name: Indirizzi extra
+    description: >-
+      Altri indirizzi su cui questo Kept risponde, separati da virgola, esattamente come li mostra
+      il browser: http://192.0.2.20:8080. Niente jolly, e lo stesso http o https dell'indirizzo di
+      Kept. Ognuno ha il suo accesso. Link, posta, Passkey e app AI restano sull'indirizzo di
+      Kept. Elenca solo indirizzi che raggiungono questo Kept.
+  oidc_issuer:
+    name: Emittente OIDC
+    description: >-
+      Accesso con il tuo provider di identità: l'URL dell'emittente esattamente come indicato nel
+      suo documento di discovery. Impostato con l'id client, l'accesso OIDC è attivo. URL di
+      reindirizzamento da registrare: indirizzo di Kept seguito da /api/v1/auth/callback/oidc.
+  oidc_client_id:
+    name: Id client OIDC
+    description: L'id client dal provider di identità.
+  oidc_client_secret:
+    name: Segreto client OIDC
+    description: Il segreto client, per un client confidenziale. Vuoto per un client pubblico.
+  oidc_name:
+    name: Nome pulsante OIDC
+    description: >-
+      Il nome del provider su "Accedi con …", al massimo 60 caratteri. Vuoto: OIDC.
+  oidc_autoprovision_domains:
+    name: Registrazione OIDC per dominio e-mail
+    description: >-
+      Domini e-mail separati da virgola (esatti, niente sottodomini) i cui utenti ottengono un
+      account al primo accesso. Vuoto: solo su invito.
+  oidc_autoprovision_groups:
+    name: Registrazione OIDC per gruppo
+    description: >-
+      Gruppi separati da virgola (esatti), i cui membri ottengono un account al primo accesso.
+      Vuoto: solo inviti.
+  oidc_groups_claim:
+    name: Claim gruppi OIDC
+    description: >-
+      Il claim del token ID che contiene i gruppi. Vuoto: groups.
+  oidc_scopes:
+    name: Scope OIDC
+    description: >-
+      Gli scope richiesti, separati da spazi. Vuoto: openid email profile.
+  google_client_id:
+    name: ID client Google
+    description: >-
+      Accesso con Google con un client OAuth di Google Cloud. Impostato con il segreto, l'accesso
+      con Google è attivo solo per account esistenti e persone invitate. Google richiede
+      l'indirizzo di Kept su https con un nome di dominio pubblico (non http, .local o un
+      indirizzo IP): imposta l'indirizzo di Kept, per esempio un nome DuckDNS con https sulla
+      porta di Kept. URL di reindirizzamento da registrare: l'indirizzo di Kept seguito da
+      /api/v1/auth/callback/google.
+  google_client_secret:
+    name: Segreto client Google
+    description: Il segreto del client OAuth.
+  apprise_url:
+    name: Server Apprise
+    description: >-
+      Il server API Apprise attraverso cui passano i canali di notifica Apprise, come
+      http://apprise:8000. Vuoto: non puoi aggiungere canali Apprise.
+  signup_open:
+    name: Registrazione
+    description: >-
+      true tiene la registrazione aperta, false la tiene chiusa (solo inviti); l'impostazione
+      dell'amministratore risulta poi bloccata. Non impostato: un amministratore decide in Kept
+      (Amministratore → Registrazione).
+  max_file_mb:
+    name: Limite caricamento (MB)
+    description: >-
+      Il file più grande che si può caricare, da 1 a 2048. Vuoto: 25.
+network:
+  8080/tcp: Indirizzo di Kept, per telefoni, etichette e link email
