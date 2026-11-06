@@ -45,7 +45,9 @@ type Topic = { tools: readonly ToolName[]; words: Readonly<Record<Lang, string>>
  * with the tone mark in two places (hóa, hoá); both are listed. Ukrainian folds й as и and ї as і,
  * so a stem is written once; it inflects heavily, so its keywords are stems, whole words only
  * where a stem would run on into another word (`$`, or the forms listed one by one: кухня, кухні
- * but never кухонний). Spanish takes the same `$` where a stem runs on: ordena$ is not ordenador. */
+ * but never кухонний). Spanish takes the same `$` where a stem runs on: ordena$ is not ordenador,
+ * and forms are spelled out where a stem would take another language's word: repone is not French
+ * réponse, próximo$ not English proximity. */
 const TOPICS: Readonly<Record<string, Topic>> = {
   history: {
     tools: ['thing_history'],
@@ -94,7 +96,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       ar: 'موعد|مستحق|صيانة|تذكير|قريبا|تنتهي|ينتهي|القادم|خلصت|أجل|تأجيل|مهمة',
       de: 'fällig|termin|erinner|wartung|bald|abgelaufen|läuft ab|nächst|erledigt|verschieb|aufgabe',
       en: 'due|overdue|schedul|remind|maintenance|upcoming|soon|expir|next|done|snooze|postpone|put off|later|task|this week|this month',
-      es: 'venc|caduc|plazo|fecha límite|programado$|programada$|programados$|programadas$|programación|calendario|agenda$|recuerda|recordatorio|recordar$|avísame|mantenimiento|próxim|pronto$|atrasad|retras|está hecho|está hecha|ya hecho|ya hecha|terminad|completad|pospon|pospuest|aplaz|posterg|más tarde|tarea|esta semana|este mes',
+      es: 'venc|caduc|plazo|fecha límite|programado$|programada$|programados$|programadas$|programación|calendario|agenda$|recuerda|recordatorio|recordar$|avísame|mantenimiento|próximo$|próxima$|próximos$|próximas$|próximamente$|pronto$|atrasad|retras|está hecho|está hecha|ya hecho|ya hecha|terminad|completad|pospon|pospuest|aplaz|posterg|más tarde|tarea|esta semana|este mes',
       fr: 'échéance|prévu|rappel|entretien|bientôt|prochain|fait|report|tâche',
       it: 'scadenz|scade|promemoria|manutenzion|presto|prossim|fatto|rimand|posticip|compito',
       uk: 'термін$|терміну$|терміни$|терміном$|простроч|розклад$|розкладу$|розкладі$|розкладом$|графік$|графіку$|графіки$|графіком$|нагад|обслуговуван|найближч|наступн|скоро$|незабаром|невдовзі|сплив|закінчується|закінчиться|зроблено|викона|готово$|відклад|відклас|відстроч|пізніше|завдан|задач|цього тижня|цей тиждень|цьому тижні|цього місяця|цей місяць|цьому місяці',
@@ -107,7 +109,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       ar: 'أعار|أعرت|استعار|استلف|سلف|إعارة|رجع|أرجع|مع مين|عند مين|عند من|اقترض|سلمت|تسليم',
       de: 'verleih|verlieh|geliehen|ausgeliehen|ausleih|leih|zurück|übergeb|übergab',
       en: 'lend|lent|loan|borrow|return|gave|give back|got back|came back|is back|brought back|back from|who has|hand over|handed|hand-over|handover',
-      es: 'prest|devuel|devolv|devoluci|quién tiene|quién se llevó|quién cogió|quién tomó|a quién|le di$|le dejé$|le he dado|le he dejado|me dejó$|me ha dejado|entreg|ha vuelto|volvió$|de vuelta|recuper|se lo llevó|se la llevó',
+      es: 'prest|devuel|devolver|devolvi|devolvemos|devolvéis|devoluci|quién tiene|quién se llevó|quién cogió|quién tomó|a quién|le di$|le dejé$|le he dado|le he dejado|me dejó$|me ha dejado|entreg|ha vuelto|volvió$|de vuelta|recupera$|recuperas$|recuperan$|recuperar|recuperamos|recuperad|recuperando|recupere|recupero|se lo llevó|se la llevó',
       fr: 'prêt|emprunt|rendu|rendre|revenu|confié|remis',
       it: 'prest|restitu|ridat|riavut|tornat|consegn|affidat',
       uk: 'позич|запозич|одолж|борг|дав$|дала$|дали$|віддав|віддала$|віддали$|віддай|передав$|передала|передали|передати$|передай|передано|поверн|верну|назад$|забра|у кого|в кого|хто взяв|хто взяла|хто має|взяв у$|взяла у$|взяли у$|взяв в$|взяла в$|взяли в$',
@@ -160,7 +162,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       ar: 'مخزون|متبقي|باقي|نفد|نفذ|خلص|استهلك|كمية',
       de: 'vorrat|bestand|aufgebraucht|übrig|verbrauch|nachfüll|leer',
       en: 'stock|used up|use up|ran out|run out|running out|left|remaining|refill|restock|consumable|supply|supplies|top up',
-      es: 'existencias|stock|reserva$|reservas$|queda$|quedan$|quedado$|sobra$|sobran$|restante|agotad|agotó$|se acab|acabado$|acabada$|acabados$|acabadas$|gastad|consumible|repon|rellenar$|rellena$|suministro|cantidad',
+      es: 'existencias|stock|reserva$|reservas$|queda$|quedan$|quedado$|sobra$|sobran$|restante|agotad|agotó$|se acab|acabado$|acabada$|acabados$|acabadas$|gastad|consumible|repone|repong|repón$|rellenar$|rellena$|suministro|cantidad',
       fr: 'reste|épuisé|consommable|réappro|utilisé',
       it: 'scorta|scorte|rimast|esaurit|consumabil|usat|finit',
       uk: 'запас$|запасу$|запаси$|запасів$|запасом$|запасах$|припас|залишилос|залишилас|залишилис|залишився|залишок|залишк|лишилос|лишилас|лишилис|лишився|закінч|скінч|вичерп|більше немає|немає більше|використав|використала|використали|використано|поповн|докуп|витратн|кількіст|кількост',
