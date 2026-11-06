@@ -181,12 +181,12 @@ const PLACEHOLDER =
  * Warranty terms (D55) must be about a warranty: the evaluation run (Groq, 2026-09-29) kept
  * "None printed." and "Thank you for shopping with us" at 0.9, and a sentence the model made up
  * from its own rules at 1.0 ("…is a sign, not a rule for the model…"). Terms need a warranty
- * word in one of Kept's five languages; "no warranty" in any of them, and text that talks about
+ * word in one of Kept's languages; "no warranty" in any of them, and text that talks about
  * the model or its instructions, are not terms.
  */
-const WARRANTY_WORD = /warrant|guarant|ضمان|garanti|gewährleist|garanzi/i;
+const WARRANTY_WORD = /warrant|guarant|ضمان|garant[ií]|gewährleist|garanzi|гаранті|bảo hành/i;
 const WARRANTY_NONE =
-  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewährleistung)|senza garanzia)[.!]?$/i;
+  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewährleistung)|senza garanzia|sin garantía|без гарантії|không (?:có )?bảo hành)[.!]?$/i;
 const PROMPT_ECHO = /\b(?:the model|instructions?|this field|leave it out|json)\b/i;
 
 export function notWarrantyTerms(text: string): boolean {
@@ -273,7 +273,7 @@ export function cleanAliases(
  * treated as not Latin: its first alias is a suggestion. */
 const SCRIPT_OF: Readonly<Record<string, Script>> = Object.freeze({
   ...Object.fromEntries(
-    'en fr de it es pt nl sv da nb nn no fi is pl cs sk sl hr hu ro tr id ms ca et lv lt'
+    'en fr de it es vi pt nl sv da nb nn no fi is pl cs sk sl hr hu ro tr id ms ca et lv lt'
       .split(' ')
       .map((l) => [l, 'Latin' as const]),
   ),

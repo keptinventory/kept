@@ -24,6 +24,9 @@ const NAMES: Record<MailLocale, { thing: string; path: string; location: string 
   fr: { thing: 'Perceuse', path: 'Garage › Étagère', location: 'Maison' },
   de: { thing: 'Bohrmaschine', path: 'Garage › Regal', location: 'Zuhause' },
   it: { thing: 'Trapano', path: 'Garage › Scaffale', location: 'Casa' },
+  vi: { thing: 'Máy khoan', path: 'Nhà xe › Kệ', location: 'Nhà' },
+  uk: { thing: 'Дриль', path: 'Гараж › Полиця', location: 'Дім' },
+  es: { thing: 'Taladro', path: 'Garaje › Estante', location: 'Casa' },
 };
 
 function facts(locale: MailLocale, f: Partial<ReminderFacts>): ReminderFacts {
@@ -134,7 +137,7 @@ describe('reminder wording', () => {
     }
   });
 
-  it('counts in each language, Arabic with its plural forms', () => {
+  it('counts in each language, Arabic and Ukrainian with their plural forms', () => {
     expect(REMINDER_COUNT.en(1)).toBe('1 reminder');
     expect(REMINDER_COUNT.en(3)).toBe('3 reminders');
     expect(REMINDER_COUNT.ar(1)).toBe('تذكير واحد');
@@ -142,5 +145,15 @@ describe('reminder wording', () => {
     expect(REMINDER_COUNT.ar(3)).toBe('3 تذكيرات');
     expect(REMINDER_COUNT.ar(11)).toBe('11 تذكيرًا');
     expect(REMINDER_COUNT.de(2)).toBe('2 Erinnerungen');
+    expect(REMINDER_COUNT.vi(1)).toBe('1 lời nhắc');
+    expect(REMINDER_COUNT.vi(5)).toBe('5 lời nhắc');
+    expect(REMINDER_COUNT.es(1)).toBe('1 recordatorio');
+    expect(REMINDER_COUNT.es(2)).toBe('2 recordatorios');
+    // Ukrainian: 1 and 21 take one form, 2 to 4 another that reads the same, 5 and 11 the third.
+    expect(REMINDER_COUNT.uk(1)).toBe('1 нагадування');
+    expect(REMINDER_COUNT.uk(3)).toBe('3 нагадування');
+    expect(REMINDER_COUNT.uk(5)).toBe('5 нагадувань');
+    expect(REMINDER_COUNT.uk(11)).toBe('11 нагадувань');
+    expect(REMINDER_COUNT.uk(21)).toBe('21 нагадування');
   });
 });

@@ -302,12 +302,16 @@ describe('the message table', () => {
     expect(mailLocale('ar')).toBe('ar');
     expect(mailLocale('AR_sa')).toBe('ar');
     expect(mailLocale('en-GB')).toBe('en');
-    // French, German and Italian too, by their language subtag.
+    // Every other language by its language subtag.
     expect(mailLocale('fr')).toBe('fr');
     expect(mailLocale('fr-CA')).toBe('fr');
     expect(mailLocale('de-AT')).toBe('de');
     expect(mailLocale('it_IT')).toBe('it');
-    expect(mailLocale('es')).toBe('en');
+    expect(mailLocale('es')).toBe('es');
+    expect(mailLocale('es-MX')).toBe('es');
+    expect(mailLocale('uk-UA')).toBe('uk');
+    expect(mailLocale('vi_VN')).toBe('vi');
+    expect(mailLocale('pt')).toBe('en');
     expect(mailLocale('')).toBe('en');
     expect(mailLocale(null)).toBe('en');
   });
@@ -358,8 +362,8 @@ describe('the message table', () => {
     }
   });
 
-  it('writes French, German and Italian as their own text, never English left in', () => {
-    for (const locale of ['fr', 'de', 'it'] as const) {
+  it('writes every language beyond English and Arabic as its own text, never English left in', () => {
+    for (const locale of ['fr', 'de', 'it', 'vi', 'uk', 'es'] as const) {
       for (const mail of EVERY_MAIL) {
         const en = messageFor(mail, 'en', ctx);
         const m = messageFor(mail, locale, ctx);
@@ -433,6 +437,74 @@ describe('the operations alerts', () => {
     expect(en.paragraphs[0]).toBe('It is 91% full, with 1.5 GB left.');
     expect(messageFor(backup as MailBody, 'en', ctx).subject).toContain('backup disk');
     expect(messageFor(data as MailBody, 'fr', ctx).paragraphs[0]).toContain('1,5 Go');
+    for (const locale of ['vi', 'uk', 'es'] as const)
+      expect(messageFor(data as MailBody, locale, ctx).paragraphs[0]).toContain('1,5');
+  });
+});
+
+describe('counts in a sentence', () => {
+  const failed = (n: number, locale: MailLocale) =>
+    messageFor(
+      {
+        kind: 'admin-alert',
+        to: 'a@x.test',
+        alert: 'failed_jobs_rising',
+        details: { failedLastHour: n },
+      },
+      locale,
+      ctx,
+    ).paragraphs[0];
+
+  it('takes the Ukrainian form the number asks for', () => {
+    expect(failed(1, 'uk')).toContain('1 фонове завдання завершилося');
+    expect(failed(3, 'uk')).toContain('3 фонові завдання завершилися');
+    expect(failed(5, 'uk')).toContain('5 фонових завдань завершилися');
+    expect(failed(11, 'uk')).toContain('11 фонових завдань');
+    expect(failed(21, 'uk')).toContain('21 фонове завдання завершилося');
+  });
+
+  it('takes the Spanish singular only for one', () => {
+    expect(failed(1, 'es')).toContain('1 trabajo fallido');
+    expect(failed(2, 'es')).toContain('2 trabajos fallidos');
+  });
+
+  it('writes dates and big numbers the way each new language does', () => {
+    const cap = (locale: MailLocale) =>
+      messageFor(
+        {
+          kind: 'ai-cap',
+          to: 'a@x.test',
+          level: 80,
+          cap: {
+            scope: 'user',
+            target: '',
+            unit: 'tokens',
+            used: '1234567',
+            limit: '2000000',
+            currency: null,
+            pausedUntil: null,
+          },
+        },
+        locale,
+        ctx,
+      ).paragraphs[0];
+    expect(cap('es')).toContain('1.234.567');
+    expect(cap('vi')).toContain('1.234.567');
+    expect(cap('uk')).toContain('1\u00a0234\u00a0567');
+    const when = (locale: MailLocale) =>
+      messageFor(
+        {
+          kind: 'account-deletion',
+          to: 'a@x.test',
+          purgeAfter: '2026-11-06T12:00:00.000Z',
+          timezone: 'UTC',
+        },
+        locale,
+        ctx,
+      ).subject;
+    expect(when('es')).toContain('6 de noviembre de 2026');
+    expect(when('uk')).toContain('6 листопада 2026');
+    expect(when('vi')).toContain('6 tháng 11, 2026');
   });
 });
 
@@ -504,6 +576,9 @@ describe('renderMail', () => {
       ['fr', 'dir="ltr"'],
       ['de', 'dir="ltr"'],
       ['it', 'dir="ltr"'],
+      ['vi', 'dir="ltr"'],
+      ['uk', 'dir="ltr"'],
+      ['es', 'dir="ltr"'],
     ];
     for (const [locale, dir] of cases) {
       const mail = EVERY_MAIL[0] as MailBody & { url: string };

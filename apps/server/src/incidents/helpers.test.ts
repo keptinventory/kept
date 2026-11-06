@@ -14,6 +14,9 @@ describe('langOf() (the expired page)', () => {
     ['ja,fr;q=0.8', 'fr'],
     ['en;q=0.2,it;q=0.9', 'it'],
     ['ar;q=0,fr', 'fr'],
+    ['es-MX,en;q=0.5', 'es'],
+    ['uk-UA', 'uk'],
+    ['vi', 'vi'],
     ['xx,yy', 'en'],
   ])('%s → %s', (header, lang) => {
     expect(langOf(header)).toBe(lang);
@@ -24,6 +27,13 @@ describe('langOf() (the expired page)', () => {
     expect(page).toContain('<html lang="ar" dir="rtl">');
     expect(page).toContain('<meta name="robots" content="noindex">');
     expect(expiredPage('en')).toContain('<h1>This link has expired</h1>');
+  });
+
+  it('speaks Vietnamese, Ukrainian and Spanish', () => {
+    expect(expiredPage('es')).toContain('<h1>Este enlace ha expirado</h1>');
+    expect(expiredPage('es')).toContain('<html lang="es" dir="ltr">');
+    expect(expiredPage('uk')).toContain('<h1>Термін дії цього посилання закінчився</h1>');
+    expect(expiredPage('vi')).toContain('<h1>Liên kết này đã hết hạn</h1>');
   });
 });
 
