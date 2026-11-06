@@ -4,32 +4,34 @@
  * entries as chips, an icon and a name each, wrapping. Every chip links to its entry on the
  * integrations page (`/integrations/#<id>`), which says what it does and links to its setup. On a
  * phone a group's label sits above its chips; from 50rem it sits beside them, one row per group.
- * On an Arabic page the words are the Arabic ones and the links go under /ar/. Under the wall, a
+ * On a page in another language the words are that language's and the links go under its locale
+ * (`/ar/`, `/fr/`). Under the wall, a
  * link to the whole page.
  */
-import { integrationGroups, integrations } from '../../data/integrations';
+import { groupName, integrationGroups, integrations, wordsOf } from '../../data/integrations';
+import { langOf, localePath, numberTag, pick } from '../../i18n';
+import { integrations as words } from '../../words';
 import { withBase } from './base';
 import Icon from './Icon.astro';
 
-const ar = Astro.locals.starlightRoute.lang === 'ar';
-const page = ar ? '/ar/integrations/' : '/integrations/';
-const count = new Intl.NumberFormat(ar ? 'ar-EG-u-nu-arab' : 'en').format(integrations.length);
-const all = ar
-  ? `التكاملات كلها (${count})، وطريقة إعداد كلٍّ منها`
-  : `All ${count} integrations, and how to set each up`;
+const { lang: code, locale } = Astro.locals.starlightRoute;
+const lang = langOf(code);
+const page = localePath(locale, '/integrations/');
+const count = new Intl.NumberFormat(numberTag(lang)).format(integrations.length);
+const all = pick(words, lang).all(count);
 ---
 
 <div class="kd-wall">
   {
     integrationGroups.map((group) => (
       <div class="kd-wall-group">
-        <h3 class="kd-wall-label">{ar ? group.ar : group.en}</h3>
+        <h3 class="kd-wall-label">{groupName(group, lang)}</h3>
         <ul class="kd-wall-chips">
           {group.items.map((item) => (
             <li>
               <a class="kd-chip" href={withBase(`${page}#${item.id}`)}>
                 <Icon name={item.icon} size={16} />
-                {(ar ? item.ar : item.en).name}
+                {wordsOf(item, lang).name}
               </a>
             </li>
           ))}

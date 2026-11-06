@@ -13,6 +13,8 @@ describe('Try Kept paths', () => {
   it('opens the app in the page language', () => {
     expect(tryAppHref('/', 'en')).toBe('/try/kept/app/?lang=en');
     expect(tryAppHref('/kept/', 'ar')).toBe('/kept/try/kept/app/?lang=ar');
+    expect(tryAppHref('/', 'es')).toBe('/try/kept/app/?lang=es');
+    expect(tryAppHref('/', 'uk')).toBe('/try/kept/app/?lang=uk');
   });
 
   it('matches the path the web app walks back from', () => {

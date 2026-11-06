@@ -16,6 +16,8 @@
  * scripts/capture-screens.mjs. A desktop capture is shown at most 32rem wide; a phone capture
  * (`*-phone`) stands about as tall as a desktop one beside it.
  */
+import { langOf, numberTag, pick } from '../../i18n';
+import { gallery } from '../../words';
 import Shot from './Shot.astro';
 
 interface Item {
@@ -32,23 +34,9 @@ interface Props {
   label: string;
 }
 const { items, label } = Astro.props;
-const ar = Astro.locals.starlightRoute.lang === 'ar';
-const numbers = ar ? 'ar-EG-u-nu-arab' : 'en';
-const t = ar
-  ? {
-      previous: 'الشاشة السابقة',
-      next: 'الشاشة التالية',
-      of: 'من',
-      pause: 'إيقاف العرض',
-      play: 'تشغيل العرض',
-    }
-  : {
-      previous: 'Previous screen',
-      next: 'Next screen',
-      of: 'of',
-      pause: 'Pause the slideshow',
-      play: 'Play the slideshow',
-    };
+const lang = langOf(Astro.locals.starlightRoute.lang);
+const numbers = numberTag(lang);
+const t = pick(gallery, lang);
 const format = new Intl.NumberFormat(numbers);
 const count = (i: number) => `${format.format(i)} ${t.of} ${format.format(items.length)}`;
 const isPhone = (name: string) => name.endsWith('-phone');

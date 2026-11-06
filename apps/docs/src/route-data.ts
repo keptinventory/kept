@@ -25,10 +25,10 @@
  * Search engines (2026-10-16 audit, measured over dist/ before and after):
  *
  * - hreflang names only pages that exist in that language. Starlight writes an alternate for every
- *   locale on every page, but French, German and Italian have no pages of their own (Q19: they
- *   are the English text under the "not translated yet" notice) and Arabic has a few; the API
- *   reference has no other locale at all, so its alternates were 404s. Now: `en` and x-default
- *   always, `ar` when src/content/docs/ar/ has the page.
+ *   locale on every page, but a locale may lack a page (it then shows the English text under the
+ *   "not translated yet" notice), and the API reference has no other locale at all, so its
+ *   alternates were 404s. Now: `en` and x-default always, and each other locale when
+ *   src/content/docs/<locale>/ has the page.
  * - A fallback page (English text under a locale such as /fr/… or an untranslated /ar/… page) is a
  *   duplicate of the English one, so its canonical and og:url point there. astro.config.mjs keeps
  *   the same pages out of the sitemap.
@@ -43,7 +43,9 @@
 import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
 import arabic400 from '@fontsource/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2?url';
 import { shapeLibrary } from './components/shapes/library';
-import { integrationGroups } from './data/integrations';
+import { groupName, integrationGroups } from './data/integrations';
+import { langOf } from './i18n';
+import { locales } from './locales.mjs';
 
 const CARD = { width: 1200, height: 630 };
 
@@ -62,12 +64,20 @@ const LICENSE = 'https://www.gnu.org/licenses/agpl-3.0.html';
 const REPOSITORY = 'https://github.com/keptinventory/kept';
 const ORGANIZATION = 'https://github.com/keptinventory';
 
-/** The pages Arabic has of its own, as paths under /ar/ ('' is the landing page). */
-const ARABIC = new Set(
-  Object.keys(import.meta.glob('./content/docs/ar/**/*.{md,mdx}')).map((file) =>
-    file.replace(/^\.\/content\/docs\/ar\//, '').replace(/(^|\/)index\.mdx?$|\.mdx?$/, ''),
-  ),
-);
+/**
+ * The pages each language has of its own, by locale code, as paths under /<locale>/ ('' is the
+ * landing page).
+ */
+const OWN_PAGES: Record<string, Set<string>> = {};
+for (const file of Object.keys(import.meta.glob('./content/docs/*/**/*.{md,mdx}'))) {
+  const match = /^\.\/content\/docs\/([^/]+)\/(.+)$/.exec(file);
+  const locale = match?.[1];
+  if (!match || !locale || !(locale in locales)) continue;
+  const page = (match[2] as string).replace(/(^|\/)index\.mdx?$|\.mdx?$/, '');
+  const pages = OWN_PAGES[locale] ?? new Set<string>();
+  pages.add(page);
+  OWN_PAGES[locale] = pages;
+}
 
 const OG_LOCALES: Record<string, string> = {
   en: 'en_US',
@@ -75,6 +85,9 @@ const OG_LOCALES: Record<string, string> = {
   fr: 'fr_FR',
   de: 'de_DE',
   it: 'it_IT',
+  vi: 'vi_VN',
+  uk: 'uk_UA',
+  es: 'es_ES',
 };
 
 export const onRequest = defineRouteMiddleware((context) => {
@@ -102,7 +115,11 @@ export const onRequest = defineRouteMiddleware((context) => {
 
   if (english) {
     const alternates = [{ lang: 'en', href: english }];
-    if (ARABIC.has(path)) alternates.push({ lang: 'ar', href: url('ar/') as string });
+    for (const [locale, { lang }] of Object.entries(locales)) {
+      if (locale !== 'root' && OWN_PAGES[locale]?.has(path)) {
+        alternates.push({ lang, href: url(`${locale}/`) as string });
+      }
+    }
     alternates.push({ lang: 'x-default', href: english });
     for (let i = head.length - 1; i >= 0; i--) {
       if (head[i].tag === 'link' && head[i].attrs?.rel === 'alternate' && head[i].attrs?.hreflang) {
@@ -155,13 +172,13 @@ export const onRequest = defineRouteMiddleware((context) => {
   const card = CARDS[route.lang] ?? CARDS.en;
   const cardUrl = context.site && card ? new URL(`${base}/${card.file}`, context.site).href : null;
 
-  if (route.toc && (route.id === 'integrations' || route.id === 'ar/integrations')) {
-    const ar = route.lang === 'ar';
+  if (route.toc && path === 'integrations') {
+    const lang = langOf(route.lang);
     route.toc.items.push(
       ...integrationGroups.map((group) => ({
         depth: 2,
         slug: group.id,
-        text: ar ? group.ar : group.en,
+        text: groupName(group, lang),
         children: [],
       })),
     );

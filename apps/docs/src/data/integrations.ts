@@ -1,6 +1,7 @@
 /**
- * What feeds into Kept, and what Kept feeds, in English and Arabic. The one source for both places
- * that show it:
+ * What feeds into Kept, and what Kept feeds. English and Arabic are written out beside each entry;
+ * the other languages are in integrations-words.ts, and a language without words shows English
+ * (`groupName`, `wordsOf`). The one source for both places that show it:
  *
  * - the landing page's wall (components/landing/Integrations.astro): each entry's `name` as a chip,
  *   grouped, linking to its entry on the integrations page;
@@ -11,14 +12,17 @@
  *
  * Only what exists. Each entry names the code that implements it (`code`, paths from the
  * repository root), checked when it was added and again on 2026-10-15; an entry whose code is gone
- * must go too. `href` is the docs page a person reads to set it up, without the locale: an Arabic
- * page gets `/ar` in front (a page not yet translated falls back to English there).
+ * must go too. `href` is the docs page a person reads to set it up, without the locale: a page in
+ * another language gets its locale in front (`/ar`, `/fr`; a page not yet translated falls back to
+ * English there).
  *
  * No third-party logos: a neutral icon from the site's set (icons.ts) and the name in text.
  */
 import type { IconName } from '../components/landing/icons';
+import type { Lang } from '../i18n';
+import { groupNames, itemRows } from './integrations-words';
 
-interface Words {
+export interface Words {
   /** Short, for the landing page's chip. */
   name: string;
   /** The heading on the integrations page; `name` when it says enough. */
@@ -595,3 +599,18 @@ export const integrationGroups: IntegrationGroup[] = [
 
 /** Every entry, in the groups' order. */
 export const integrations: Integration[] = integrationGroups.flatMap((group) => group.items);
+
+/** A group's name in a language. */
+export function groupName(group: IntegrationGroup, lang: Lang): string {
+  if (lang === 'en' || lang === 'ar') return group[lang];
+  return groupNames[group.id]?.[lang] ?? group.en;
+}
+
+/** An entry's words in a language. */
+export function wordsOf(item: Integration, lang: Lang): Words {
+  if (lang === 'en' || lang === 'ar') return item[lang];
+  const row = itemRows[item.id]?.[lang];
+  if (!row) return item.en;
+  const [name, title, body] = row;
+  return title ? { name, title, body } : { name, body };
+}

@@ -1,39 +1,42 @@
 ---
 /**
- * The integrations page's body (`/integrations/`, `/ar/integrations/`), from
+ * The integrations page's body (`/integrations/`, `/ar/integrations/`, `/fr/integrations/` and the other languages), from
  * src/data/integrations.ts: per group an h2 (its id is the anchor the table of contents links to;
  * src/route-data.ts builds that table from the same data), and per entry an h3 with the entry's id
  * as its anchor (the landing page's wall links there), what it does, and a link to the page that
  * sets it up. Plain HTML: everything a search engine reads is in the page.
  */
-import { integrationGroups } from '../../data/integrations';
+import { groupName, integrationGroups, wordsOf } from '../../data/integrations';
+import { langOf, localePath, pick } from '../../i18n';
+import { integrations as words } from '../../words';
 import { withBase } from './base';
 import Icon from './Icon.astro';
 
-const ar = Astro.locals.starlightRoute.lang === 'ar';
-const localized = (href: string) => withBase(ar ? `/ar${href}` : href);
-const setUp = ar ? 'طريقة الإعداد' : 'Set it up';
+const { lang: code, locale } = Astro.locals.starlightRoute;
+const lang = langOf(code);
+const localized = (href: string) => withBase(localePath(locale, href));
+const { setUp } = pick(words, lang);
 ---
 
 <div class="kd-integration-list not-content">
   {
     integrationGroups.map((group) => (
       <section>
-        <h2 id={group.id}>{ar ? group.ar : group.en}</h2>
+        <h2 id={group.id}>{groupName(group, lang)}</h2>
         <ul>
           {group.items.map((item) => {
-            const words = ar ? item.ar : item.en;
+            const text = wordsOf(item, lang);
             return (
               <li>
                 <span class="kd-integration-icon">
                   <Icon name={item.icon} size={20} />
                 </span>
                 <div>
-                  <h3 id={item.id}>{words.title ?? words.name}</h3>
-                  <p>{words.body}</p>
+                  <h3 id={item.id}>{text.title ?? text.name}</h3>
+                  <p>{text.body}</p>
                   <a href={localized(item.href)}>
                     {setUp}
-                    <span class="sr-only">: {words.title ?? words.name}</span>
+                    <span class="sr-only">: {text.title ?? text.name}</span>
                   </a>
                 </div>
               </li>
