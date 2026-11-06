@@ -7988,7 +7988,7 @@ msgstr "Tomado"
 
 #: src/components/home/install-sheet.tsx
 msgid "Tap <0>Add</0>, then open Kept from its new icon."
-msgstr "Tocar <0>Add</0>, luego abrir Kept desde su nuevo icono."
+msgstr "Toca <0>Add</0> y abre Kept desde su nuevo icono."
 
 #: src/components/home/install-sheet.tsx
 msgid "Tap <0>Install app</0>, or <1>Add to Home screen</1>."
@@ -17774,7 +17774,7 @@ msgstr "Las dos contraseñas son diferentes."
 
 #: src/components/import/entity-report.tsx
 msgid "{0, plural, one {warranty to add} other {warranties to add}}"
-msgstr "{0, plural, one {garantía to add} other {garantías to add}}"
+msgstr "{0, plural, one {garantía por añadir} other {garantías por añadir}}"
 
 #: src/components/import/entity-report.tsx
 msgid "{0, plural, one {service to add} other {services to add}}"
@@ -17798,11 +17798,11 @@ msgstr "{0, plural, one {etiqueta dentro} other {etiquetas dentro}}"
 
 #: src/components/import/kept-choices.tsx
 msgid "{0, plural, one {thing in it} other {things in it}}"
-msgstr "{0, plural, one {objeto in it} other {objetos in it}}"
+msgstr "{0, plural, one {objeto dentro} other {objetos dentro}}"
 
 #: src/components/import/kept-choices.tsx
 msgid "{0, plural, one {place in it} other {places in it}}"
-msgstr "{0, plural, one {lugar in it} other {lugares in it}}"
+msgstr "{0, plural, one {lugar dentro} other {lugares dentro}}"
 
 #: src/components/import/kept-choices.tsx
 msgid "{0, plural, one {file in it} other {files in it}}"
@@ -18543,7 +18543,7 @@ msgstr "Rendido"
 
 #: src/components/connections/shortcut-recipe.tsx
 msgid "In Settings → Connections, make a token that can read and change, for the car's location only. Copy it."
-msgstr "In Settings → Connections, crea un token que pueda leer y cambiar, solo para la ubicación del coche. Cópialo."
+msgstr "En Configuración → Conexiones, crea un token que pueda leer y cambiar, solo para la ubicación del coche. Cópialo."
 
 #: src/components/connections/client-configs.tsx
 msgid "In the app, add an MCP server (it may be called a connector or an integration) with this address, and send the token in this header."
@@ -19694,7 +19694,7 @@ msgstr "{0} de {dots} dígitos"
 
 #: src/components/device/app-lock-settings.tsx
 msgid "{keptCount, plural, one {The # location kept offline is removed from this device too.} other {The # locations kept offline are removed from this device too.}}"
-msgstr "{keptCount, plural, one {The # ubicación kept offline is removed from this device too.} other {The # ubicaciones kept offline are removed from this device too.}}"
+msgstr "{keptCount, plural, one {La # ubicación guardada sin conexión también se quita de este dispositivo.} other {Las # ubicaciones guardadas sin conexión también se quitan de este dispositivo.}}"
 
 #: src/components/device/lock-screen.tsx
 msgid "{left, plural, one {Wrong PIN. # try left before this device’s copy is removed.} other {Wrong PIN. # tries left before this device’s copy is removed.}}"
