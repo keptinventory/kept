@@ -22,7 +22,7 @@ Quand le courriel est configuré, un compte dont l'adresse n'est pas vérifiée 
 
 ### Ce que Kept envoie
 
-Chaque courriel part en texte et en HTML dans la langue du destinataire (anglais, arabe, français, allemand ou italien ; anglais lorsque Kept ne la connaît pas). Les liens portent leur jeton après `#`, de sorte qu'un scanner de courriel ou un journal serveur ne détient jamais un lien utilisable.
+Chaque courriel part en texte et en HTML dans la langue du destinataire (anglais lorsque Kept ne la connaît pas). Les liens portent leur jeton après `#`, de sorte qu'un scanner de courriel ou un journal serveur ne détient jamais un lien utilisable.
 
 - **Connexion et compte** : liens de connexion, réinitialisations de mot de passe, confirmation et vérification d'une nouvelle adresse courriel et une note à l'ancienne, une note lorsqu'une personne tente de s'inscrire avec une adresse qui possède déjà un compte, et un avis lorsqu'un identifiant change : le mot de passe, une clé d'accès ajoutée ou supprimée, une connexion externe dissociée, la double authentification activée, reconfigurée ou désactivée, et de nouveaux codes de secours.
 - **Personnes et lieux** : invitations par courriel ; au propriétaire d'un lieu, chaque nouveau membre ou compte géré et chaque appartenance arrivant à sa date de fin.

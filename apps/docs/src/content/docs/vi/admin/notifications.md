@@ -22,7 +22,7 @@ Khi thư đã được cấu hình, một tài khoản có địa chỉ chưa đ
 
 ### Những gì Kept gửi
 
-Mỗi thư được gửi dưới dạng văn bản và HTML bằng ngôn ngữ của người nhận (Tiếng Anh, Tiếng Ả Rập, Tiếng Pháp, Tiếng Đức hoặc Tiếng Ý; Tiếng Anh khi Kept không biết nó). Các liên kết mang mã thông báo của chúng sau `#`, nên một bộ quét thư hoặc nhật ký máy chủ không bao giờ giữ một cái có thể dùng được.
+Mỗi thư được gửi dưới dạng văn bản và HTML bằng ngôn ngữ của người nhận (Tiếng Anh khi Kept không biết nó). Các liên kết mang mã thông báo của chúng sau `#`, nên một bộ quét thư hoặc nhật ký máy chủ không bao giờ giữ một cái có thể dùng được.
 
 - **Đăng nhập và tài khoản**: liên kết đăng nhập, đặt lại mật khẩu, xác nhận và xác minh địa chỉ email mới và một ghi chú đến địa chỉ cũ, một ghi chú khi người nào đó cố đăng ký bằng địa chỉ đã có tài khoản, và một thông báo khi thông tin xác thực thay đổi: mật khẩu, khóa truy cập được thêm hoặc xoá, đăng nhập bên ngoài bị hủy liên kết, hai yếu tố được bật, thiết lập lại hoặc tắt, và mã sao lưu mới.
 - **Con người và địa điểm**: lời mời email; đến chủ sở hữu của một địa điểm, mỗi thành viên mới hoặc tài khoản được quản lý và mỗi đăng ký thành viên đến ngày kết thúc.

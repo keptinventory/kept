@@ -37,8 +37,7 @@ Authenticator-App hinzufügen, bis die Adresse verifiziert ist.
 
 ### Was Kept sendet
 
-Jede E-Mail wird als Text und HTML in der Sprache des Empfängers gesendet (Englisch, Arabisch, Französisch, Deutsch
-oder Italienisch; Englisch, wenn Kept es nicht kennt). Links tragen ihr Token nach `#`, sodass ein E-Mail-Scanner
+Jede E-Mail wird als Text und HTML in der Sprache des Empfängers gesendet (Englisch, wenn Kept es nicht kennt). Links tragen ihr Token nach `#`, sodass ein E-Mail-Scanner
 oder ein Server-Log niemals einen verwendbaren enthält.
 
 - **Anmelden und das Konto**: Anmelde-Links, Passwort-Rücksetzungen, Bestätigen und Verifizieren einer neuen

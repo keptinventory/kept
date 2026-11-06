@@ -37,8 +37,7 @@ authenticator app until it is.
 
 ### What Kept sends
 
-Each mail goes out as text and HTML in the recipient's language (English, Arabic, French, German
-or Italian; English when Kept doesn't know it). Links carry their token after `#`, so a mail
+Each mail goes out as text and HTML in the recipient's language (English when Kept doesn't know it). Links carry their token after `#`, so a mail
 scanner or a server log never holds a usable one.
 
 - **Signing in and the account**: sign-in links, password resets, confirming and verifying a new

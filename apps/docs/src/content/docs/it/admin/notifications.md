@@ -36,8 +36,7 @@ Quando la posta è configurata, un account il cui indirizzo non è verificato no
 
 ### Cosa invia Kept
 
-Ogni email viene inviata come testo e HTML nella lingua del destinatario (inglese, arabo, francese, tedesco
-o italiano; inglese quando Kept non la conosce). I link portano il token dopo `#`, così uno scanner di posta
+Ogni email viene inviata come testo e HTML nella lingua del destinatario (inglese quando Kept non la conosce). I link portano il token dopo `#`, così uno scanner di posta
 o un log del server non contiene mai uno utilizzabile.
 
 - **Accesso e account**: link di accesso, recupero password, conferma e verifica di un nuovo

@@ -22,7 +22,7 @@ Cuando el correo está configurado, una cuenta cuya dirección no esté verifica
 
 ### Lo que Kept envía
 
-Cada correo se envía como texto y HTML en el idioma del destinatario (inglés, árabe, francés, alemán o italiano; inglés cuando Kept no lo sabe). Los enlaces llevan su token después de `#`, así que un escáner de correo o un registro del servidor nunca tiene uno usable.
+Cada correo se envía como texto y HTML en el idioma del destinatario (inglés cuando Kept no lo sabe). Los enlaces llevan su token después de `#`, así que un escáner de correo o un registro del servidor nunca tiene uno usable.
 
 - **Inicio de sesión y la cuenta**: enlaces de inicio de sesión, restablecimientos de contraseña, confirmar y verificar una nueva dirección de correo y un aviso a la anterior, un aviso cuando alguien intenta registrarse con una dirección que ya tiene cuenta, y un aviso cuando cambia una credencial: la contraseña, una passkey añadida o eliminada, un inicio de sesión externo desvinculado, la autenticación de dos factores activada, reconfigurada o desactivada, y nuevos códigos de respaldo.
 - **Personas y ubicaciones**: invitaciones por correo; al propietario de una ubicación, cada nuevo miembro o cuenta gestionada y cada membresía que llega a su fecha de fin.
