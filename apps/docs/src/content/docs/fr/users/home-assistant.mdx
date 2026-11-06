@@ -8,7 +8,7 @@ import diagramLight from '../../../../assets/diagrams/home-assistant-light.svg';
 import diagramDark from '../../../../assets/diagrams/home-assistant-dark.svg';
 
 L'intégration Kept pour [Home Assistant](https://www.home-assistant.io/) montre ce dont vous avez besoin dans
-chaque emplacement et renvoie des relevés, comme le kilométrage qu'une intégration de véhicule connaît déjà. Elle
+chaque lieu et renvoie des relevés, comme le kilométrage qu'une intégration de véhicule connaît déjà. Elle
 lit Kept avec un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel).
 
 L'intégration : [keptinventory/kept-homeassistant](https://github.com/keptinventory/kept-homeassistant),
@@ -41,18 +41,18 @@ Kept fonctionne de la même manière sans.
 
 ## Ce que vous obtenez
 
-Chaque emplacement est un appareil dans Home Assistant :
+Chaque lieu est un appareil dans Home Assistant :
 
 | Entité | Ce qu'elle affiche |
 |---|---|
 | **En retard**, **À faire**, **Échéances proches** | Les compteurs de l'Accueil de Kept. L'attribut `items` liste les 10 premiers, les plus urgents d'abord |
 | **Prêtés**, **Empruntés** | Prêts en cours. Uniquement là où le prêt est activé |
-| **Incertain**, **Pas vus depuis longtemps** | Objets dont l'emplacement est douteux, ou non vus depuis les mois de l'emplacement |
+| **Incertain**, **Pas vus depuis longtemps** | Objets dont l'emplacement est douteux, ou non vus depuis les mois du lieu |
 | **Stock bas** | Objets sous leur minimum. Uniquement là où les consommables sont activés |
 | **Sans emplacement**, **Objets** | Désactivés au départ ; activez-les dans Home Assistant |
 | **Échéances** (calendrier) | Chaque objet avec un jour d'échéance, comme événement sur toute la journée |
 
-Chaque véhicule (un objet avec un compteur, sous **Véhicules**) est un appareil dans son emplacement :
+Chaque véhicule (un objet avec un compteur, sous **Véhicules**) est un appareil dans son lieu :
 
 | Entité | Ce qu'elle affiche |
 |---|---|
@@ -60,11 +60,11 @@ Chaque véhicule (un objet avec un compteur, sous **Véhicules**) est un apparei
 | **Prochain entretien** | Le jour où c'est prévu, ou l'estimation de Kept à partir de vos relevés |
 | **Prochain entretien à** | Le relevé auquel c'est prévu |
 
-Un emplacement ou un véhicule ajouté plus tard dans Kept apparaît après le rechargement de l'intégration.
+Un lieu ou un véhicule ajouté plus tard dans Kept apparaît après le rechargement de l'intégration.
 
 ## Configuration
 
-1. **Créez un jeton.** Dans Kept, **Paramètres → Connexions → Nouveau jeton**. Cochez les emplacements que
+1. **Créez un jeton.** Dans Kept, **Paramètres → Connexions → Nouveau jeton**. Cochez les lieux que
    Home Assistant doit voir. **Lecture seule** suffit pour les capteurs et le calendrier ; **Lire et
    modifier** permet aussi aux actions ci-dessous d'envoyer des relevés et de marquer les planifications comme faites. L'application crée
    des jetons uniquement lorsque Kept est servi via `https` ([HTTPS](/fr/install/https/)) ; en `http`, la
@@ -76,7 +76,7 @@ Un emplacement ou un véhicule ajouté plus tard dans Kept apparaît après le r
 3. **Ajoutez-la.** **Paramètres → Appareils et services → Ajouter une intégration → Kept**. Entrez l'adresse de Kept
    (`https://kept.example.org`) et le jeton. Désactivez **Vérifier le certificat HTTPS** uniquement pour un
    certificat auto-signé sur votre propre réseau.
-4. **Vérifier.** L'étape suivante affiche la version de votre Kept et les emplacements accessibles par le jeton.
+4. **Vérifier.** L'étape suivante affiche la version de votre Kept et les lieux accessibles par le jeton.
    Valider les ajoute.
 
 Ce que la configuration vous dit lorsqu'il y a un problème :
@@ -91,13 +91,13 @@ Ce que la configuration vous dit lorsqu'il y a un problème :
 | Kept a refusé le jeton | Il a été révoqué, a expiré ou a été mal saisi : créez-en un nouveau |
 | Ce Kept ne propose pas le résumé | Mettez à jour Kept |
 
-**Configurer** sur l'intégration choisit quels emplacements du jeton afficher et à quelle fréquence
+**Configurer** sur l'intégration choisit quels lieux du jeton afficher et à quelle fréquence
 lire Kept (toutes les 5 minutes ; de 1 à 60). Lorsque le jeton est révoqué ou expire, Home Assistant demande un
 nouveau.
 
 ## Sur un tableau de bord
 
-Les identifiants d'entité proviennent des noms dans Kept. Pour un emplacement appelé **Accueil** et une voiture appelée
+Les identifiants d'entité proviennent des noms dans Kept. Pour un lieu appelé **Accueil** et une voiture appelée
 **Corolla** : `sensor.home_overdue`, `sensor.home_due`, `sensor.home_expiring`,
 `sensor.home_lent_out`, `sensor.home_low_stock`, `calendar.home_due_dates`,
 `sensor.corolla_reading`, `sensor.corolla_next_service`. Vérifiez les vôtres sous **Paramètres → Appareils et
@@ -128,7 +128,7 @@ refuse un relevé inférieur au précédent, et l'action échoue avec la raison 
 que Kept juge improbable attend une vérification dans la Boîte de réception.
 
 **Kept : Marquer une planification comme faite** (`kept.complete_schedule`) marque une planification comme faite un jour (aujourd'hui,
-dans le fuseau horaire de l'emplacement) et enregistre l'entretien, avec le relevé pour une planification par compteur.
+dans le fuseau horaire du lieu) et enregistre l'entretien, avec le relevé pour une planification par compteur.
 Une occurrence unique est alors faite et quitte les compteurs ; la marquer à nouveau comme faite échoue.
 
 Les deux nécessitent un jeton **Lire et modifier**.
@@ -167,8 +167,8 @@ du compteur du véhicule dans Kept.
 
 ## Ce qu'elle lit
 
-Toutes les quelques minutes, avec le jeton : `GET /api/v1/summary` (les compteurs par emplacement),
+Toutes les quelques minutes, avec le jeton : `GET /api/v1/summary` (les compteurs par lieu),
 `GET /api/v1/vehicles` et la première page de `GET /api/v1/agenda`. Le calendrier lit
 `GET /api/v1/agenda` pour les jours qu'il affiche. Les actions utilisent `POST /api/v1/meters/{id}/readings`
-et `POST /api/v1/schedules/{id}/complete`. Un jeton ne voit que ses propres emplacements, et jamais plus
+et `POST /api/v1/schedules/{id}/complete`. Un jeton ne voit que ses propres lieux, et jamais plus
 que vous ne pouvez. Le même résumé alimente les [widgets de tableau de bord](/fr/users/dashboards/).

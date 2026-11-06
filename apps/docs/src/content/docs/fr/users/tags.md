@@ -6,7 +6,7 @@ description: Tags disent ce qu'est autrement un objet, outre où il se trouve. A
 **Emplacements** disent où se trouve un objet. **Tags** disent ce qu'il est autrement : *camping*, *hiver*, *enfants*,
 *fragile*. Un objet peut avoir jusqu'à 50 tags ; un compte jusqu'à 1 000.
 
-Les tags appartiennent au compte, donc chaque emplacement les partage. Seuls les objets ont des tags (les boîtes sont des objets) ; les emplacements, les documents et les personnes n'en ont pas.
+Les tags appartiennent au compte, donc chaque lieu les partage. Seuls les objets ont des tags (les boîtes sont des objets) ; les emplacements, les documents et les personnes n'en ont pas.
 
 ## Ajout de tags
 - **Page d'un objet :** **Tags → Ajouter un tag**. Choisissez-en un, ou tapez un nouveau nom et **Créer**. Un nom proche d'un tag existant est listé en premier sous **Vouliez-vous dire**, donc *Campng* ne devient pas un deuxième *Camping*.
@@ -29,7 +29,7 @@ Tout changement possède **Annuler**.
 Chaque tag possède une couleur provenant d'un ensemble fixe de douze, choisi pour être lisible en clair et sombre. Un nouveau tag prend la couleur utilisée le moins. Modifiez-le dans **Paramètres → Compte → Tags → Modifier**. Les couleurs provenant d'une importation Homebox deviennent les plus proches parmi les douze.
 
 ## Page d'un tag
-Cliquez sur un tag dans la page d'un objet, ou sur une ligne dans **Paramètres → Compte → Tags**. Il liste tout ce qui possède le tag dans vos emplacements, avec le nombre dans chacun, ainsi que la recherche, les filtres et le regroupement habituels de la liste. Les propriétaires et admins peuvent renommer, changer la couleur, fusionner et supprimer le tag ici.
+Cliquez sur un tag dans la page d'un objet, ou sur une ligne dans **Paramètres → Compte → Tags**. Il liste tout ce qui possède le tag dans vos lieux, avec le nombre dans chacun, ainsi que la recherche, les filtres et le regroupement habituels de la liste. Les propriétaires et admins peuvent renommer, changer la couleur, fusionner et supprimer le tag ici.
 - **Fusionner** fusionne un tag dans un autre : ses objets obtiennent l'autre tag.
 - **Supprimer** fonctionne uniquement pour un tag que aucun objet n'a, y compris les objets dans la Corbeille. Utilisez la fusion à la place.
 - Renommer, changer la couleur, fusionner et supprimer peuvent être annulés pendant 7 jours.
@@ -47,5 +47,5 @@ Le téléphone conserve vos tags : les puces s'affichent, et le filtre de tag fo
 - **MCP et l'assistant:** `get_thing` retourne les tags; `list_tags` les liste; `tag_things` les ajoute ou les enlève; `search_things` prend plusieurs tags, quelconques ou tous; `add_thing` et `update_thing` prennent les noms des tags.
 
 ## Importations
-- **Homebox:** les tags arrivent avec leurs couleurs ; les tags imbriqués sont aplatis. Les tags sur les emplacements Homebox ne sont pas conservés, et le rapport d'importation le indique.
+- **Homebox:** les tags arrivent avec leurs couleurs ; les tags imbriqués sont aplatis. Les tags sur les lieux Homebox ne sont pas conservés, et le rapport d'importation l'indique.
 - **CSV:** une colonne `tags` crée les tags qu'elle nomme.

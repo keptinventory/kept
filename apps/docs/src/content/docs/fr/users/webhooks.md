@@ -92,7 +92,7 @@ oubliées.
 Indépendamment des webhooks d’un lieu, **Paramètres → Moi → Notifications** peut ajouter un webhook parmi vos canaux personnels, à côté
 de l’e-mail, du push, de ntfy, de Telegram et d’Apprise ([rappels](/fr/users/reminders/)).
 Il reçoit un POST par rappel (`reminder.due`) avec les identifiants, le type du rappel, son type de source et sa date d’échéance, l’objet,
-le lieu ou l’emplacement concerné, ainsi qu’un lien vers Kept : aucun nom ni aucune valeur.
+l’emplacement ou le lieu concerné, ainsi qu’un lien vers Kept : aucun nom ni aucune valeur.
 Il est signé de la même manière, avec un secret affiché une seule fois.
 
 Un envoi échoué est réessayé jusqu’à 10 fois sur environ 24 heures ; si aucun ne passe, le canal est marqué

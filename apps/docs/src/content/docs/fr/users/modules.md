@@ -21,7 +21,7 @@ Les noms ci-dessous sont les interrupteurs de **Ce que vous suivez**.
 
 | Module | Depuis | Ce que cela apporte |
 |---|---|---|
-| **Étiquettes et codes QR** | Essentiel | Des étiquettes imprimables pour les objets et les lieux ; scanner une étiquette ouvre ce sur quoi elle est apposée. |
+| **Étiquettes et codes QR** | Essentiel | Des étiquettes imprimables pour les objets et les emplacements ; scanner une étiquette ouvre ce sur quoi elle est apposée. |
 | **Argent et dépenses** | Foyer | Les prix, les totaux et **Statistiques**. Chaque devise sur sa propre ligne, jamais convertie. |
 | **Reçus et garanties** | Foyer | Les dates de garantie ; une garantie qui expire apparaît comme un rappel. |
 | **Rappels** | Foyer | Les plannings : ce qui est dû, par date ou par relevé. |

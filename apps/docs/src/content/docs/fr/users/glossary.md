@@ -75,7 +75,7 @@ Boîte : voir Conteneur.
 
 **Compte géré** : un compte avec un nom d'utilisateur et sans e-mail, pour un enfant ou un parent, créé par le propriétaire ou un administrateur d'un lieu. Un lieu contient au maximum 20 comptes. [Personnes sans e-mail](/fr/users/first-run/#personnes-sans-e-mail)
 
-**Carte** : l'une des dispositions d'un lieu : le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes, que les membres et plus haut organisent. [Carte du lieu](/fr/users/location-map/)
+**Carte** : l'une des dispositions d'un lieu : le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes, que les membres et plus haut organisent. [La carte des lieux](/fr/users/location-map/)
 
 **MCP** (Model Context Protocol) : la façon dont une application d'IA telle que Claude se connecte à Kept pour trouver et modifier des objets, dans le cadre de votre rôle. [Connecter un client IA](/fr/users/mcp-clients/)
 
@@ -133,7 +133,7 @@ Boîte : voir Conteneur.
 
 ## U
 
-**Sans emplacement** : l'emplacement que chaque lieu possède pour les objets qui n'ont pas encore de place.
+**Sans emplacement** : l'emplacement que chaque lieu possède pour les objets qui n'ont pas encore d'emplacement.
 
 ## V
 

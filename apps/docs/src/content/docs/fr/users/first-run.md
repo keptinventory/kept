@@ -56,8 +56,8 @@ un lieu qui leur est propre. Choisissez **Créez votre premier foyer** (ou **Nou
 
 1. **Comment s’appelle ce lieu ?** Un nom, comme Maison ou Garage, et son type : maison, appartement,
    garage, box de stockage, bureau, résidence secondaire ou autre.
-2. **Pièces.** Le modèle du type préremplit des pièces et des emplacements ; renommez-les, supprimez-les ou ajoutez-en avec **Ajouter une pièce ou un endroit**.
-   Tout lieu comporte aussi **Sans emplacement**, pour les objets qui n’ont pas encore de place. **Passer** ne conserve que
+2. **Pièces.** Le modèle du type préremplit des pièces et des endroits ; renommez-les, supprimez-les ou ajoutez-en avec **Ajouter une pièce ou un endroit**.
+   Tout lieu comporte aussi **Sans emplacement**, pour les objets qui n’ont pas encore d’emplacement. **Passer** ne conserve que
    Sans emplacement.
 3. **Ce que vous suivez.** Trois préréglages :
    - **Essentiel** : trouver des objets : pièces, boîtes, étiquettes et recherche.
@@ -71,7 +71,7 @@ dans les **Paramètres du lieu** du lieu (**Général** et **Ce que vous suivez*
 ## 4. Ajoutez votre premier objet
 
 Le moyen le plus rapide est **Capture**, l’onglet du milieu sur un téléphone : pointez l’appareil photo, appuyez sur le déclencheur et
-l’objet est enregistré là où la puce de lieu en haut l’indique. Un nom est facultatif pendant la capture :
+l’objet est enregistré là où la puce d’emplacement en haut l’indique. Un nom est facultatif pendant la capture :
 avec un fournisseur d’IA connecté, Kept le nomme à partir de la photo ; sans, les objets sans nom attendent dans
 la **Réception** pour recevoir un nom. Sur un ordinateur, **Ajouter ici** sur une pièce ou une boîte ajoute un objet avec un formulaire.
 [Usage au quotidien](/fr/users/everyday-use/) présente la capture, les étiquettes et le reste.
@@ -79,7 +79,7 @@ la **Réception** pour recevoir un nom. Sur un ordinateur, **Ajouter ici** sur u
 ## 5. Inviter des personnes
 
 Le partage se fait par lieu : quelqu’un que vous invitez à Home voit Home, et rien d’autre chez vous.
-Après avoir créé un lieu, l’accueil affiche une carte **Inviter des personnes à …** ; la même page se trouve sous
+Après avoir créé un lieu, l’accueil affiche une carte **Inviter des personnes dans …** ; la même page se trouve sous
 **Paramètres du lieu → Membres → Inviter**.
 
 1. Choisissez le **Rôle** et, sous **Accès**, **Pas de date de fin** ou **Jusqu’à une date**. Leur accès, et
@@ -143,7 +143,7 @@ pas chacun :
 | Graphe & carte 3D | le commutateur Liste · Grille · Graphe · Tableau · Carte (Tableau sur un ordinateur), le graphe en 2D ou 3D, en 3D ou en plan, les épingles, les étages et Ranger, où une pièce se déplace avec ce qu’elle contient. |
 | Capture & Inbox | choisir ce que vous capturez, le déclencheur, et relire ce que Kept a lu. |
 | Scanning | une session de scan : compter, emballer ou déplacer, où, et ce que Terminer change. |
-| Search & labels | le champ de recherche, les vues enregistrées, Sélectionner (déplacer, imprimer des étiquettes, Mettre à la corbeille), l’impression d’étiquettes et Scanner, qui peut poser une étiquette vierge sur un lieu que vous avez. |
+| Search & labels | le champ de recherche, les vues enregistrées, Sélectionner (déplacer, imprimer des étiquettes, Mettre à la corbeille), l’impression d’étiquettes et Scanner, qui peut poser une étiquette vierge sur un emplacement que vous avez. |
 | Moving | démarrer un déménagement, ses boîtes, et où elles sont. |
 | Lending | ce qui est prêté, Marquer comme rendu, et Prêter sur un objet. |
 | Schedules & reminders | un nouveau planning, ce qui est dû, Terminer, et comment les rappels vous parviennent. |

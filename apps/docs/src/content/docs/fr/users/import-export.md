@@ -24,8 +24,8 @@ Lancer à nouveau la même importation saute ce qu'elle a déjà fait entrer, de
 1. **Choisir le fichier**, et le lieu dans lequel il entre : un lieu dont vous êtes propriétaire ou que vous administrez. Un fichier accepte au plus 10 000 lignes (8 Mo) ; découpez un fichier plus gros. Sous le fichier, **Les colonnes que Kept lit** liste toutes les colonnes comprises, et **Télécharger un exemple de CSV** fournit un petit fichier pour démarrer.
 2. **Associer les colonnes.** Pour chaque colonne, choisissez le champ vers lequel elle va, y compris **Un champ de type…** pour vos propres champs de type. Une colonne doit être le nom : tout objet en a besoin.
 3. **Quelques choix :**
-   - Une colonne d'emplacement comme `Garage > Shelf A` crée les pièces et les emplacements : choisissez le séparateur, et si vous voulez **Créer les emplacements nommés par le fichier qui n'existent pas encore**.
-   - Là où vont les lignes sans emplacement (Non placé par défaut).
+   - Une colonne d'emplacement comme `Garage > Shelf A` crée les pièces et les endroits : choisissez le séparateur, et si vous voulez **Créer les emplacements nommés par le fichier qui n'existent pas encore**.
+   - Là où vont les lignes sans emplacement (Sans emplacement par défaut).
    - Comment les dates sont écrites (déduites du fichier quand c'est possible), et la devise pour les lignes qui n'en ont pas.
    - **Associer la colonne type à vos types par leur nom**, dans n'importe laquelle des langues de Kept ; désactivé, le type est conservé dans les notes.
 4. **Vérifier l'import**, lire le rapport, et importer.
@@ -75,7 +75,7 @@ Ce qui passe :
 | Homebox | Kept |
 |---|---|
 | Collection | Un lieu |
-| Emplacements (imbriqués) | Pièces et emplacements, en conservant l'arborescence |
+| Lieux (imbriqués) | Pièces et endroits, en conservant l'arborescence |
 | Objets | Objets ; un objet contenant d'autres objets devient une boîte, jamais tout son type |
 | Fabricant, modèle, numéro de série | Marque, modèle, numéro de série |
 | Date d'achat, boutique et prix | Un achat avec sa boutique |

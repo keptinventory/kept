@@ -29,7 +29,7 @@ Définissez une seule cible. Privilégiez une autre machine ou un autre site : u
 
 ## L'activer
 
-Les administrateurs d'instance définissent la cible et le mot de passe dans **Administration → Sauvegardes**, en HTTPS, après avoir pris connaissance du kit de récupération. "Tester" vérifie que Kept peut ouvrir (ou créer) le dépôt ; "Sauvegarder maintenant" en lance un immédiatement. Une variable d'environnement prime sur l'écran et apparaît verrouillée, pour qu'un opérateur puisse corriger la cible dans le déploiement.
+Les administrateurs d'instance définissent la cible et le mot de passe dans **Administration → Sauvegardes**, en HTTPS, après avoir pris connaissance du kit de récupération. "Tester" vérifie que Kept peut ouvrir (ou créer) le dépôt ; "Lancer maintenant" en lance un immédiatement. Une variable d'environnement prime sur l'écran et apparaît verrouillée, pour qu'un opérateur puisse corriger la cible dans le déploiement.
 
 **Le mot de passe** fait au moins 12 caractères (`KEPT_BACKUP_PASSWORD`, ou défini sur l'écran).
 **Pas de mot de passe, pas de sauvegarde :** Kept n'écrit jamais de sauvegarde non chiffrée. Perdez le mot de passe et la sauvegarde devient illisible, c'est pourquoi il figure dans le kit de récupération.
@@ -67,7 +67,7 @@ sudo chmod 700 /mnt/backup/kept
 
 - **Quand :** chaque nuit à l'heure définie dans Administration → Sauvegardes, `HH:MM` en UTC (par défaut `02:30`).
   Une nouvelle heure s'applique dès la nuit suivante, sans redémarrage ; `KEPT_BACKUP_TIME` la fixe à la place.
-- **Sauvegarder maintenant** en lance un immédiatement ; appuyer à nouveau pendant qu'il attend ou s'exécute est refusé
+- **Lancer maintenant** en lance un immédiatement ; appuyer à nouveau pendant qu'il attend ou s'exécute est refusé
   ("Une sauvegarde est déjà en cours") plutôt que d'être mis en file deux fois. Une sauvegarde interrompue par un redémarrage ou par un manque de mémoire ne la bloque pas ; le lancement suivant la marque comme interrompue.
 - **Sur une petite machine** (moins de 4 Go, ou une limite de conteneur sous 4 Go) restic tourne sur au
   plus deux cœurs avec une limite souple de mémoire ; `GOMAXPROCS` et `GOMEMLIMIT` dans l'environnement de Kept (avec Compose,
@@ -75,8 +75,8 @@ sudo chmod 700 /mnt/backup/kept
 - **Combien de temps ils sont conservés :** le dernier instantané de chacun des **7 derniers jours, 4 semaines et 6
   derniers mois** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). Le `KEPT_BACKUP_KEEP` de l'alpha est
   lu comme le nombre quotidien pour une version. Les instantanés pris avant une mise à jour gardent leurs 3 derniers.
-- **Une sauvegarde anormalement petite** (un export de moins de la moitié de la taille de la dernière bonne, ou bien moins de
-  objets, de lieux ou de fichiers) est quand même effectuée, mais rien d'ancien n'est supprimé cette nuit-là et les administrateurs sont
+- **Une sauvegarde anormalement petite** (un export de moins de la moitié de la taille de la dernière bonne, ou bien moins
+  d'objets, d'emplacements ou de fichiers) est quand même effectuée, mais rien d'ancien n'est supprimé cette nuit-là et les administrateurs sont
   alertés, pour qu'une mauvaise nuit ne puisse jamais écarter les bons instantanés.
 
 ## Le surveiller

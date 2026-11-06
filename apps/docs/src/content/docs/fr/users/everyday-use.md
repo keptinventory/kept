@@ -1,6 +1,6 @@
 ---
 title: Usage au quotidien
-description: Accueil, lieux et boîtes, la vue tableau, les objets et étiquettes, les documents, la recherche, le déplacement des objets, les véhicules, les rappels, le partage et le rapport d'assurance.
+description: Accueil, emplacements et boîtes, la vue tableau, les objets et étiquettes, les documents, la recherche, le déplacement des objets, les véhicules, les rappels, le partage et le rapport d'assurance.
 ---
 
 Kept répond à trois questions sur tout ce que vous possédez : où c'est, quels documents ça a et
@@ -22,7 +22,7 @@ les raccourcis et les statistiques à droite.
 Détails complets : [lieux, pièces et boîtes](/fr/users/locations/).
 
 Tout est dans une arborescence : un **lieu** (Maison, Garage, un box de stockage) contient des
-**pièces et emplacements** (« pièce ou emplacement » est le mot de Kept pour tout endroit), qui
+**pièces et endroits** (« pièce ou endroit » est le mot de Kept pour tout emplacement), qui
 contiennent des **objets**. Un objet peut être une **boîte ou contenant** qui contient d'autres
 objets, aussi profondément que vous voulez. Chaque lieu a aussi **Sans emplacement**, pour les
 objets qui n'ont pas encore de place.
@@ -66,8 +66,8 @@ même conservé et marqué **Aperçu indisponible**.
 
 Détails complets : [recherche](/fr/users/search/).
 
-**Rechercher** trouve les objets par nom, marque, numéro de série, ID, lieu, ou les mots que
-l'IA a ajoutés comme alias, et regroupe les résultats en objets, lieux, personnes, magasins et
+**Rechercher** trouve les objets par nom, marque, numéro de série, ID, emplacement, ou les mots que
+l'IA a ajoutés comme alias, et regroupe les résultats en objets, emplacements, personnes, magasins et
 documents (avec un extrait du texte du reçu). Les filtres affinent par lieu, emplacement, type,
 étiquette et état ; **Recherches enregistrées** garde un jeu de filtres pour vous ou pour un lieu
 entier. Sur ordinateur, ⌘K ou Ctrl+K ouvre la même recherche depuis n'importe où.
@@ -116,7 +116,7 @@ Un lieu se partage en invitant des personnes, chacune avec un rôle et une date 
 facultative ([invitations et rôles](/fr/users/first-run/#5-inviter-des-personnes)). Les propriétaires et
 administrateurs gèrent la page **Membres** dans les paramètres du lieu ; tout le monde sauf le
 propriétaire peut **Quitter ce lieu**. Votre lieu personnel n'est jamais partagé. **Liens de
-partage** montrent à quelqu'un sans compte ce qu'il y a dans une boîte, un lieu ou une
+partage** montrent à quelqu'un sans compte ce qu'il y a dans une boîte, un emplacement ou une
 recherche, en lecture seule.
 
 Détails complets : [partager un lieu](/fr/users/sharing/).

@@ -7,7 +7,7 @@ sidebar:
 
 **Récupérez d'abord vos données.** Une fois les volumes supprimés, rien ne les fait revenir, sauf une sauvegarde.
 
-1. Chaque propriétaire exporte ses emplacements (**Paramètres → Exporter**), ou conserve la dernière sauvegarde et le
+1. Chaque propriétaire exporte ses lieux (**Paramètres → Exporter**), ou conserve la dernière sauvegarde et le
    [kit de récupération](/fr/admin/recovery-kit/) en lieu sûr : avec restic seul, vous pouvez encore
    [lire votre inventaire](/fr/admin/read-with-restic/) plus tard.
 2. Arrêtez et supprimez les conteneurs **et leurs volumes**, dans le dossier contenant `.env` :
