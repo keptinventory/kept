@@ -160,6 +160,30 @@ const IT_DOCS: Record<string, string> = {
   lease: 'Il contratto d’affitto',
   contract: 'Il contratto',
 };
+const VI_DOCS: Record<string, string> = {
+  registration: 'Đăng ký',
+  insurance: 'Bảo hiểm',
+  licence: 'Giấy phép',
+  inspection: 'Kiểm tra',
+  lease: 'Hợp đồng thuê',
+  contract: 'Hợp đồng',
+};
+const UK_DOCS: Record<string, string> = {
+  registration: 'Реєстрація',
+  insurance: 'Страхування',
+  licence: 'Ліцензія',
+  inspection: 'Перевірка',
+  lease: 'Оренда',
+  contract: 'Договір',
+};
+const ES_DOCS: Record<string, string> = {
+  registration: 'El registro',
+  insurance: 'El seguro',
+  licence: 'La licencia',
+  inspection: 'La inspección',
+  lease: 'El arrendamiento',
+  contract: 'El contrato',
+};
 
 const EN = words(
   'en',
@@ -405,12 +429,156 @@ const IT = words(
   },
 );
 
+const VI = words(
+  'vi',
+  (f, day) => (f.sourceType === 'registration' ? `trước ngày ${day}` : `vào ngày ${day}`),
+  (v) => `khi đạt ${v}`,
+  {
+    schedule: {
+      any: (n, w, f) => `${f.title ?? 'Bảo dưỡng'} cho ${n} đến hạn ${w}`,
+      overdue: (n, w, f) => `${f.title ?? 'Bảo dưỡng'} cho ${n} đã đến hạn ${w}`,
+    },
+    warranty: {
+      any: (n, w, f) => `Bảo hành của ${n}${provider(f, (p) => ` từ ${p}`)} kết thúc ${w}`,
+    },
+    registration: {
+      any: (n, w, f) => `Đăng ký bảo hành cho ${n}${provider(f, (p) => ` từ ${p}`)} ${w}`,
+    },
+    document: {
+      any: (n, w, f) => `${docTitle(f, VI_DOCS, 'Một tài liệu')} cho ${n} hết hạn ${w}`,
+      overdue: (n, w, f) => `${docTitle(f, VI_DOCS, 'Một tài liệu')} cho ${n} đã hết hạn ${w}`,
+    },
+    loan: { any: (n, w) => `${n} đã đến hạn trả ${w}` },
+    thing_expiry: {
+      any: (n, w) => `${n} hết hạn ${w}`,
+      overdue: (n, w) => `${n} đã hết hạn ${w}`,
+    },
+    stock: { any: (n, w) => `${n} sắp hết ${w}` },
+    reading_stale: {
+      any: stale(
+        'vi',
+        { distance: 'Đồng hồ công-tơ-mét', hours: 'Đồng hồ đo giờ', custom: 'Đồng hồ đo' },
+        (l) => `“${l}”`,
+        (m, n, day) => `${m} trên ${n} được đọc lần cuối vào ngày ${day}`,
+        (m, n, w) => `${m} trên ${n} cần đọc chỉ số ${w}`,
+      ),
+    },
+  },
+  {
+    schedule: (f) => f.title ?? 'Đến hạn bảo dưỡng',
+    warranty: () => 'Bảo hành kết thúc',
+    registration: () => 'Đăng ký bảo hành',
+    document: (f) => docTitle(f, VI_DOCS, 'Tài liệu hết hạn'),
+    loan: () => 'Đến hạn trả',
+    thing_expiry: () => 'Hết hạn',
+    reading_stale: () => 'Cần đọc chỉ số',
+    stock: () => 'Tồn kho thấp',
+  },
+);
+
+const UK = words(
+  'uk',
+  (f, day) => (f.sourceType === 'registration' ? `до ${day}` : `${day}`),
+  (v) => `при показнику ${v}`,
+  {
+    schedule: {
+      any: (n, w, f) => `${f.title ?? 'Обслуговування'} для «${n}» має бути виконано ${w}`,
+      overdue: (n, w, f) => `${f.title ?? 'Обслуговування'} для «${n}» мало бути виконано ${w}`,
+    },
+    warranty: {
+      any: (n, w, f) => `Гарантія на «${n}»${provider(f, (p) => ` від ${p}`)} закінчується ${w}`,
+    },
+    registration: {
+      any: (n, w, f) => `Зареєструйте гарантію на «${n}»${provider(f, (p) => ` від ${p}`)} ${w}`,
+    },
+    document: {
+      any: (n, w, f) => `${docTitle(f, UK_DOCS, 'Документ')} для «${n}»: термін дії спливає ${w}`,
+      overdue: (n, w, f) => `${docTitle(f, UK_DOCS, 'Документ')} для «${n}»: термін дії сплив ${w}`,
+    },
+    loan: { any: (n, w) => `«${n}» треба було повернути ${w}` },
+    thing_expiry: {
+      any: (n, w) => `«${n}»: термін дії спливає ${w}`,
+      overdue: (n, w) => `«${n}»: термін дії сплив ${w}`,
+    },
+    stock: { any: (n, w) => `Запас «${n}» закінчується: ${w}` },
+    reading_stale: {
+      any: stale(
+        'uk',
+        { distance: 'Одометр', hours: 'Годинний лічильник', custom: 'Лічильник' },
+        (l) => `«${l}»`,
+        (m, n, day) => `${m} на «${n}» востаннє зчитували ${day}`,
+        (m, n, w) => `${m} на «${n}» потребує нового показника ${w}`,
+      ),
+    },
+  },
+  {
+    schedule: (f) => f.title ?? 'Обслуговування заплановано',
+    warranty: () => 'Закінчення гарантії',
+    registration: () => 'Зареєструвати гарантію',
+    document: (f) => docTitle(f, UK_DOCS, 'Документ закінчується'),
+    loan: () => 'Повернути',
+    thing_expiry: () => 'Термін дії',
+    reading_stale: () => 'Потрібен показник',
+    stock: () => 'Закінчується',
+  },
+);
+
+const ES = words(
+  'es',
+  (f, day) => (f.sourceType === 'registration' ? `antes del ${day}` : `el ${day}`),
+  (v) => `a los ${v}`,
+  {
+    schedule: {
+      any: (n, w, f) => `${f.title ?? 'Un servicio'} para ${n} vence ${w}`,
+      overdue: (n, w, f) => `${f.title ?? 'Un servicio'} para ${n} venció ${w}`,
+    },
+    warranty: {
+      any: (n, w, f) => `La garantía de ${n}${provider(f, (p) => ` de ${p}`)} termina ${w}`,
+    },
+    registration: {
+      any: (n, w, f) => `Registra la garantía de ${n}${provider(f, (p) => ` de ${p}`)} ${w}`,
+    },
+    document: {
+      any: (n, w, f) => `${docTitle(f, ES_DOCS, 'Un documento')} para ${n} vence ${w}`,
+      overdue: (n, w, f) => `${docTitle(f, ES_DOCS, 'Un documento')} para ${n} venció ${w}`,
+    },
+    loan: { any: (n, w) => `${n} debía devolverse ${w}` },
+    thing_expiry: {
+      any: (n, w) => `${n} vence ${w}`,
+      overdue: (n, w) => `${n} venció ${w}`,
+    },
+    stock: { any: (n, w) => `El stock de ${n} quedó bajo ${w}` },
+    reading_stale: {
+      any: stale(
+        'es',
+        { distance: 'El odómetro', hours: 'El medidor de horas', custom: 'El medidor' },
+        (l) => `“${l}”`,
+        (m, n, day) => `${m} de ${n} se leyó por última vez el ${day}`,
+        (m, n, w) => `${m} de ${n} necesita una lectura ${w}`,
+      ),
+    },
+  },
+  {
+    schedule: (f) => f.title ?? 'Servicio pendiente',
+    warranty: () => 'Fin de garantía',
+    registration: () => 'Registrar la garantía',
+    document: (f) => docTitle(f, ES_DOCS, 'Documento vence'),
+    loan: () => 'Fecha de devolución',
+    thing_expiry: () => 'Vence',
+    reading_stale: () => 'Lectura necesaria',
+    stock: () => 'Stock bajo',
+  },
+);
+
 export const REMINDER_WORDS: Record<MailLocale, ReminderWords> = {
   en: EN,
   ar: AR,
   fr: FR,
   de: DE,
   it: IT,
+  vi: VI,
+  uk: UK,
+  es: ES,
 };
 
 /** The calendar event's title and a push notification's: "Boiler service · Kitchen". */
@@ -418,7 +586,7 @@ export function shortTitle(w: ReminderWords, f: ReminderFacts): string {
   return `${w.label(f)} · ${f.subject.name}`;
 }
 
-/** "3 reminders", in each language (Arabic with its plural forms, Western digits). */
+/** "3 reminders", in each language (Arabic and Ukrainian with their plural forms, Western digits). */
 export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
   en: (n) => (n === 1 ? '1 reminder' : `${n} reminders`),
   ar: (n) => {
@@ -440,4 +608,15 @@ export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
   fr: (n) => (n === 1 ? '1 rappel' : `${n} rappels`),
   de: (n) => (n === 1 ? '1 Erinnerung' : `${n} Erinnerungen`),
   it: (n) => `${n} promemoria`,
+  vi: (n) => `${n} lời nhắc`,
+  uk: (n) => {
+    switch (new Intl.PluralRules('uk').select(n)) {
+      case 'one':
+      case 'few':
+        return `${n} нагадування`;
+      default:
+        return `${n} нагадувань`;
+    }
+  },
+  es: (n) => (n === 1 ? '1 recordatorio' : `${n} recordatorios`),
 };

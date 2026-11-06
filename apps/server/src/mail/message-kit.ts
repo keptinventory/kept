@@ -31,7 +31,7 @@ export type MessageContext = {
 export type Of<K extends MailKind> = Extract<MailBody, { kind: K }>;
 export type Table = { [K in MailKind]: (mail: Of<K>, ctx: MessageContext) => Message };
 
-/** Step 4's kinds, whose five languages live together in messages-notify.ts. */
+/** Step 4's kinds, whose languages live together in messages-notify.ts. */
 export type NotifyMailKind =
   | 'reminder'
   | 'reminder-digest'
@@ -40,7 +40,7 @@ export type NotifyMailKind =
   | 'channel-failing'
   | 'ai-summary';
 export type NotifyTable = Pick<Table, NotifyMailKind>;
-/** Step 6's D180 configuration notices, whose five languages live in messages-transparency.ts. */
+/** Step 6's D180 configuration notices, whose languages live together in messages-transparency.ts. */
 export type TransparencyMailKind = 'oidc-changed' | 'smtp-changed' | 'ai-provider-changed';
 export type TransparencyTable = Pick<Table, TransparencyMailKind>;
 /** What each language's own table holds: every kind but step 4's and step 6's notices. */

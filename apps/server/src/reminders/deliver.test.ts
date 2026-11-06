@@ -27,7 +27,7 @@ import { runScan } from './scan.js';
 // sends each person's digest once per local day and channel at their own digest time (across
 // Cairo's DST transitions, computed here, not typed in). What the senders get names the
 // thing, its path, the location and the local date; the words themselves are
-// notify/words.ts's (tested in five languages there).
+// notify/words.ts's (tested in every language there).
 
 const db = await testDb();
 vi.setConfig({ testTimeout: 60_000 });
