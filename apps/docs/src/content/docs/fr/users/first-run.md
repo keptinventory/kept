@@ -87,6 +87,9 @@ Après avoir créé un lieu, l’accueil affiche une carte **Inviter des personn
 2. **Créer un lien d’invitation.** Vous obtenez le lien avec **Copier le lien** et un code QR à **scanner avec leur téléphone**. Le lien fonctionne une fois, pendant 7 jours, et apparaît sous Membres comme invitation en attente jusqu’à son utilisation, où vous pouvez le révoquer.
 3. **Envoyer par e-mail** ne fonctionne que quand le serveur a l’e-mail configuré (`KEPT_SMTP_URL`).
 
+La personne ouvre le lien, puis rejoint avec son compte ou en crée un ; tant que l’inscription est fermée,
+l’invitation est le seul moyen de créer un compte.
+
 ### Les rôles
 
 | Rôle | Ce qu’ils peuvent faire dans ce lieu |
@@ -116,7 +119,7 @@ contient au plus 20 comptes gérés.
 - **Langue** : العربية, Deutsch, English, Español, Français, Italiano, Українська ou Tiếng Việt.
   Ouvrez la liste, ou saisissez pour en trouver une : son nom, son nom en anglais ou dans la langue que vous
   utilisez, et les petites fautes de frappe passent (`german`, `deutsch` et `francais` fonctionnent tous). L’arabe présente toute l’application de droite
-  à gauche. Les pages de connexion ont le même sélecteur.
+  à gauche. Les pages de connexion ont le même sélecteur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
 - **Chiffres arabes orientaux** : Occidentaux (0123) ou Orientaux (٠١٢٣), affichés uniquement quand la langue est l’arabe.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement

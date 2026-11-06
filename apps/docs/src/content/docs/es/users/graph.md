@@ -3,7 +3,7 @@ title: El grafo
 description: Ver una ubicación como un grafo de sus pisos, habitaciones, cajas y objetos, en 2D o 3D, con lo que necesita atención y tus etiquetas.
 ---
 
-La página de una ubicación tiene cinco diseños: **Lista**, **Cuadrícula**, **Grafo**, **Mesa** y **Mapa**. Mesa solo está en pantallas anchas, así que un teléfono muestra Lista · Cuadrícula · Grafo · Mapa. **Grafo** dibuja la ubicación como nodos y enlaces: la ubicación, sus pisos, las habitaciones en ellos, los estantes, armarios y cajas en las habitaciones, y los objetos dentro de esos. Kept recuerda tu elección para cada ubicación en cada dispositivo. La página de un piso o una habitación también tiene **Grafo**, abierta en ese lugar.
+La página de una ubicación tiene cinco diseños: **Lista**, **Cuadrícula**, **Grafo**, **Tabla** y **Mapa**. Tabla solo está en pantallas anchas, así que un teléfono muestra Lista · Cuadrícula · Grafo · Mapa. **Grafo** dibuja la ubicación como nodos y enlaces: la ubicación, sus pisos, las habitaciones en ellos, los estantes, armarios y cajas en las habitaciones, y los objetos dentro de esos. Kept recuerda tu elección para cada ubicación en cada dispositivo. La página de un piso o una habitación también tiene **Grafo**, abierta en ese lugar.
 
 El grafo necesita una conexión, como el mapa: no forma parte de la copia sin conexión del teléfono. Se carga solo cuando lo abres.
 

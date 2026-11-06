@@ -55,7 +55,7 @@ Ces éléments sont refusés par le serveur, indépendamment de ce que l’écra
 
 - **Suppression de votre dernière méthode de connexion.** Une clé d’accès ne peut pas être supprimée, et la connexion Google ou votre connexion OIDC ne peuvent pas être dissociées, lorsque rien d’autre ne permettrait de se connecter : un mot de passe, une autre clé d’accès, Google ou la connexion OIDC (tant que ce Kept la propose encore), ou un lien e-mail (lorsque ce Kept envoie des courriels et que votre adresse est confirmée).
 - **Désactivation de l’authentification à deux facteurs là où elle est requise.** Lorsqu’un emplacement auquel vous appartenez exige l’authentification à deux facteurs et que vous n’avez pas de clé d’accès, l’application d’authentification reste active. Ajoutez d’abord une clé d’accès. De la même manière, votre dernière clé d’accès reste active tant que cet emplacement dépend d’elle et que l’application est désactivée.
-- **Ajout d’une clé d’accès ou de l’application avant la confirmation de votre adresse**, Connectez-vous une fois avec un lien envoyé à l’adresse, puis réessayez.
+- **Ajout d’une clé d’accès ou de l’application avant la confirmation de votre adresse**, lorsque ce Kept envoie des courriels. Connectez-vous une fois avec un lien envoyé à l’adresse, puis réessayez.
 
 ## Le verrouillage de l’application n’est pas une clé d’accès
 

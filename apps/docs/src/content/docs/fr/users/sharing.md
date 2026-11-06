@@ -47,6 +47,8 @@ Les propriétaires et les administrateurs en créent un ainsi :
 - La section **Gérer** d'un emplacement.
 - **Partager cette liste** sur Recherche : une recherche filtrée à un emplacement, sans filtres d'état ou de prix.
 
+Choisissez sa durée de validité : un jour, une semaine, 30 jours (par défaut), 90 jours ou un an. Le lien n'est affiché qu'une seule fois : copiez-le à ce moment-là.
+
 ### Ce qu'ils voient
 
 Le nom, la photo, le type, l'emplacement, la quantité, l'état et les notes de chaque objet, de A à Z. Jamais les prix,

@@ -67,10 +67,12 @@ La persona apre il link, poi si unisce con il proprio account o ne crea uno; men
 
 ### I ruoli
 
-| Proprietario | Tutto, comprese le regole di autenticazione a due fattori, trasferimento e cancellazione. C'è un solo proprietario. |
-| Amministratore | Invita e rimuove membri e visualizzatori, impostazioni e moduli, importa ed esporta, link di condivisione e pacchi di richiesta, elimina definitivamente. Solo il proprietario concede o revoca gli amministratori. |
-| Membro | Aggiungi, modifica, sposta, presta e sposta nel cestino gli oggetti; registra letture e servizi; stampa etichette; usa l'acquisizione con IA. Il denaro è visibile. |
-| Visualizzatore | Guarda e cerca solo. Il denaro è nascosto a meno che la posizione consenta ai visualizzatori di vederlo; l'assistente risponde ma non può modificare nulla. |
+| Ruolo | Cosa può fare in quel luogo |
+|---|---|
+| **Proprietario** | Tutto, comprese le regole di autenticazione a due fattori, trasferimento e cancellazione. C'è un solo proprietario. |
+| **Amministratore** | Invita e rimuove membri e visualizzatori, impostazioni e moduli, importa ed esporta, link di condivisione e pacchi di richiesta, elimina definitivamente. Solo il proprietario concede o revoca gli amministratori. |
+| **Membro** | Aggiunge, modifica, sposta, presta e cestina gli oggetti; registra letture e interventi; stampa etichette; usa l'acquisizione con IA. Il denaro è visibile. |
+| **Visualizzatore** | Solo guarda e cerca. Il denaro è nascosto a meno che la posizione consenta ai visualizzatori di vederlo; l'assistente risponde ma non può modificare nulla. |
 
 La matrice completa è `MATRIX` in
 [`packages/shared/src/roles.ts`](https://github.com/keptinventory/kept/blob/main/packages/shared/src/roles.ts).
@@ -84,8 +86,8 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 **Impostazioni → Profilo → Aspetto** contiene le scelte di visualizzazione del dispositivo, applicate prima che la pagina venga disegnata:
 
 - **Lingua**: arabo, francese, inglese, italiano, spagnolo, tedesco, ucraino o vietnamita.
-  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore.
-- **Cifre in arabo**: occidentali (0123) o orientali (٠١٢³), mostrati solo quando la lingua è arabo.
+  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore. Le email e i promemoria seguono l'ultima lingua che hai scelto.
+- **Cifre in arabo**: occidentali (0123) o orientali (٠١٢٣), mostrati solo quando la lingua è arabo.
   Gli ID brevi e i numeri di serie rimangono sempre in cifre occidentali.
 - **Regione**: **Stati Uniti** (29 ott) o **Regno Unito** (29 ott, 29/10/2026), mostrato solo quando la lingua è inglese.
 - **Formato data**: **Predefinito** (29 ott, con l'anno soltanto per altri anni), 29 ott 2026,

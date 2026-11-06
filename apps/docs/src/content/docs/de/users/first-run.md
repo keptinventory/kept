@@ -91,6 +91,9 @@ Nachdem du einen Standort erstellt hast, zeigt Home eine **Leute zu … einladen
    verwendet wurde; dort kannst du ihn widerrufen.
 3. **Per E-Mail senden** funktioniert nur, wenn der Server E-Mail eingerichtet hat (`KEPT_SMTP_URL`).
 
+Die Person öffnet den Link und tritt dann mit ihrem Konto bei oder erstellt eines; solange die Registrierung geschlossen ist,
+ist die Einladung der einzige Weg, ein Konto zu erstellen.
+
 ### Die Rollen
 
 | Rolle | Was sie in diesem Standort können |
@@ -120,7 +123,7 @@ nimmt höchstens 20 davon auf.
 - **Sprache**: العربية, Deutsch, English, Español, Français, Italiano, Українська oder Tiếng Việt.
   Öffne die Liste oder tippe, um eine zu finden: ihren eigenen Namen, ihren Namen auf Englisch oder in der Sprache, die du
   verwendest, und kleine Tippfehler sind in Ordnung (`german`, `deutsch` und `francais` funktionieren alle). Arabisch legt die ganze App von rechts
-  nach links aus. Die Anmeldeseiten haben denselben Auswähler.
+  nach links aus. Die Anmeldeseiten haben denselben Auswähler. E-Mails und Erinnerungen folgen der Sprache, die du zuletzt gewählt hast.
 - **Ziffern auf Arabisch**: Westlich (0123) oder Östlich (٠١٢٣), nur angezeigt, während die Sprache Arabisch ist.
   Kurze IDs und Seriennummern bleiben immer bei westlichen Ziffern.
 - **Region**: **Vereinigte Staaten** (Oct 29) oder **Vereinigtes Königreich** (29 Oct, 29/10/2026), nur angezeigt, während die Sprache
