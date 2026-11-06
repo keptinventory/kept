@@ -52,10 +52,11 @@ describe('compareCatalogues', () => {
   });
 });
 
-describe('the launch languages', () => {
-  it('requires all five in the config', () => {
-    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it'])).toEqual([]);
-    expect(missingLocales(['en', 'ar'])).toEqual(['fr', 'de', 'it']);
+describe('the languages the app ships', () => {
+  it('requires all eight in the config', () => {
+    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'])).toEqual([]);
+    expect(missingLocales(['en', 'ar'])).toEqual(['fr', 'de', 'it', 'vi', 'uk', 'es']);
+    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it'])).toEqual(['vi', 'uk', 'es']);
   });
 
   it('flags a translation that drops a placeholder, a tag or a plural', () => {

@@ -73,9 +73,9 @@ describe('newIds and emptyTranslations', () => {
 });
 
 // The committed catalogues themselves: no live entry has an empty translation in any
-// non-English locale. An empty Arabic msgstr would show English in the Arabic UI.
+// non-English locale. An empty msgstr would show English in that language's UI.
 describe('the committed catalogues', () => {
-  for (const locale of ['ar', 'fr', 'de', 'it']) {
+  for (const locale of ['ar', 'fr', 'de', 'it', 'vi', 'uk', 'es']) {
     it(`${locale}: every msgstr is written`, () => {
       const url = new URL(`../apps/web/src/locales/${locale}/messages.po`, import.meta.url);
       const entries = parsePo(readFileSync(url, 'utf8'));

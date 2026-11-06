@@ -5,7 +5,7 @@
 //   - the extract adds a message id the committed catalogues don't hold (a string was added to
 //     the source and never extracted: a production build would show its hashed id), or
 //   - a committed non-English catalogue has an empty translation for a message the source uses
-//     (the Arabic UI would show English).
+//     (that language's UI would show English).
 // The committed catalogues are never written. scripts/check-i18n.mjs checks the same through
 // Lingui's API in memory (it runs in `pnpm lint`); this one goes through the CLI and the files,
 // the way a developer's `pnpm --filter @kept/web i18n:extract` does, so a difference between the

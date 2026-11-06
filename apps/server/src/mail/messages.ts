@@ -17,10 +17,13 @@ import {
   tokens,
 } from './message-kit.js';
 import { DE, DE_CHROME } from './messages-de.js';
+import { ES, ES_CHROME } from './messages-es.js';
 import { FR, FR_CHROME } from './messages-fr.js';
 import { IT, IT_CHROME } from './messages-it.js';
 import { NOTIFY_MESSAGES } from './messages-notify.js';
 import { TRANSPARENCY_MESSAGES } from './messages-transparency.js';
+import { UK, UK_CHROME } from './messages-uk.js';
+import { VI, VI_CHROME } from './messages-vi.js';
 
 export type { Chrome, Message, MessageContext } from './message-kit.js';
 
@@ -28,9 +31,10 @@ export type { Chrome, Message, MessageContext } from './message-kit.js';
 // Lingui's, on the web side; server mail has this small typed table instead, keyed by the
 // recipient's profile locale (mail/transport.ts). A kind missing from a language is a type
 // error, so a new mail kind can't ship untranslated. The test checks every kind renders in each.
-// English and Arabic live here; French, German and Italian (D204) in messages-<locale>.ts.
+// English and Arabic live here; French, German and Italian (D204), Vietnamese, Ukrainian and
+// Spanish in messages-<locale>.ts.
 
-export const MAIL_LOCALES = ['en', 'ar', 'fr', 'de', 'it'] as const;
+export const MAIL_LOCALES = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'] as const;
 export type MailLocale = (typeof MAIL_LOCALES)[number];
 
 /** The mail language for a BCP 47 tag (`ar-EG` → `ar`, `fr-CA` → `fr`); English for anything else. */
@@ -973,6 +977,9 @@ export const MESSAGES: Record<MailLocale, Table> = {
   fr: { ...FR, ...NOTIFY_MESSAGES.fr, ...TRANSPARENCY_MESSAGES.fr },
   de: { ...DE, ...NOTIFY_MESSAGES.de, ...TRANSPARENCY_MESSAGES.de },
   it: { ...IT, ...NOTIFY_MESSAGES.it, ...TRANSPARENCY_MESSAGES.it },
+  vi: { ...VI, ...NOTIFY_MESSAGES.vi, ...TRANSPARENCY_MESSAGES.vi },
+  uk: { ...UK, ...NOTIFY_MESSAGES.uk, ...TRANSPARENCY_MESSAGES.uk },
+  es: { ...ES, ...NOTIFY_MESSAGES.es, ...TRANSPARENCY_MESSAGES.es },
 };
 
 export const CHROME: Record<MailLocale, Chrome> = {
@@ -991,6 +998,9 @@ export const CHROME: Record<MailLocale, Chrome> = {
   fr: FR_CHROME,
   de: DE_CHROME,
   it: IT_CHROME,
+  vi: VI_CHROME,
+  uk: UK_CHROME,
+  es: ES_CHROME,
 };
 
 /** What `mail` says in `locale`. */

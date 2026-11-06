@@ -493,6 +493,21 @@ describe('POST /api/v1/imports/:id/dry-run', () => {
     expect(drill?.builtin_key).toBe('power_tool');
   });
 
+  it('finds a built-in type by its Vietnamese name', async () => {
+    const workshop = await createLocation(t, db, ann, 'household', 'Workshop');
+    const { run } = await importRows(ann, workshop, [
+      row({ Name: 'Máy khoan', Type: 'Dụng cụ điện' }),
+    ]);
+    expect(run.status).toBe('done');
+    const [drill] = await own<{ builtin_key: string | null }>(
+      db,
+      `SELECT ty.builtin_key FROM public.things t JOIN public.types ty ON ty.id = t.type_id
+        WHERE t.location_id = $1`,
+      [workshop.id],
+    );
+    expect(drill?.builtin_key).toBe('power_tool');
+  });
+
   it('finds a built-in type by its Spanish name', async () => {
     const workshop = await createLocation(t, db, ann, 'household', 'Workshop');
     const { run } = await importRows(ann, workshop, [

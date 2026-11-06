@@ -182,6 +182,93 @@ const WORDS: Record<MailLocale, Words> = {
     },
     providers: { ...NAMES, openai_compatible: 'un server compatibile con OpenAI' },
   },
+  vi: {
+    oidcOn: {
+      subject: (name) => `Đăng nhập với ${name} đã thay đổi trên Kept`,
+      body: (name) =>
+        `Người quản lý Kept này đã thay đổi đăng nhập với ${name}. Mật khẩu, khóa truy cập và liên kết email của bạn vẫn hoạt động như trước.`,
+    },
+    oidcOff: {
+      subject: 'Đăng nhập với tài khoản bên ngoài bị tắt trên Kept',
+      body: 'Người quản lý Kept này đã tắt đăng nhập với tài khoản bên ngoài. Đăng nhập bằng mật khẩu của bạn, một khóa truy cập hoặc một liên kết email.',
+    },
+    oidcFootnote:
+      'Mọi người có tài khoản ở đây đều được thông báo khi đăng nhập thay đổi. Nếu bạn không mong đợi điều đó, hãy hỏi người quản lý Kept này.',
+    smtp: {
+      subject: (sender) => `Kept hiện gửi thư từ ${sender}`,
+      body: (sender) =>
+        `Người quản lý Kept này đã thay đổi cách gửi thư. Thư hiện đến từ ${sender}, như thư này.`,
+      footnote:
+        'Mọi người có tài khoản ở đây được thông báo khi thay đổi này diễn ra. Nếu một thư tự nhận là từ Kept đến từ một địa chỉ khác, đừng mở các liên kết trong thư.',
+    },
+    ai: {
+      subject: (provider) => `Nhà cung cấp AI mặc định của Kept hiện là ${provider}`,
+      body: (provider) =>
+        `Người quản lý Kept này đã thay đổi nhà cung cấp AI mặc định thành ${provider}. Ở những địa điểm của bạn dùng AI của Kept này, những gì bạn gửi cho AI (ảnh, hóa đơn và câu hỏi) giờ sẽ đến ${provider}.`,
+      action: 'Mở cài đặt AI',
+      footnote:
+        'Cài đặt AI chỉ ra nhà cung cấp nào mỗi địa điểm của bạn dùng, và cho phép chủ sở hữu chọn một nhà cung cấp khác.',
+    },
+    providers: { ...NAMES, openai_compatible: 'máy chủ tương thích với OpenAI' },
+  },
+  uk: {
+    oidcOn: {
+      subject: (name) => `Вхід через ${name} змінено в Kept`,
+      body: (name) =>
+        `Людина, яка керує цим Kept, змінила вхід через ${name}. Ваш пароль, ключі доступу та посилання з електронної пошти працюють як раніше.`,
+    },
+    oidcOff: {
+      subject: 'Вхід через зовнішній обліковий запис вимкнено в Kept',
+      body: 'Людина, яка керує цим Kept, вимкнула вхід через зовнішній обліковий запис. Увійдіть за допомогою пароля, ключа доступу або посилання з електронної пошти.',
+    },
+    oidcFootnote:
+      'Кожного, хто має обліковий запис тут, повідомляють про зміни входу. Якщо ви не очікували цього, запитайте людину, яка керує цим Kept.',
+    smtp: {
+      subject: (sender) => `Kept тепер надсилає листи від ${sender}`,
+      body: (sender) =>
+        `Людина, яка керує цим Kept, змінила спосіб надсилання листів. Тепер вони надходять від ${sender}, як і цей лист.`,
+      footnote:
+        'Кожного, хто має обліковий запис тут, повідомляють про ці зміни. Якщо лист, який каже, що він від Kept, приходить з іншої адреси, не переходьте за його посиланнями.',
+    },
+    ai: {
+      subject: (provider) => `Тепер типовий ШІ-провайдер Kept: ${provider}`,
+      body: (provider) =>
+        `Людина, яка керує цим Kept, змінила його типовий ШІ-провайдер на ${provider}. Там, де ваші локації використовують ШІ цього Kept, те, що ви надсилаєте ШІ (фото, чеки та запитання), тепер надходить до ${provider}.`,
+      action: 'Відкрити налаштування ШІ',
+      footnote:
+        'Налаштування ШІ показують, який провайдер використовує кожна з ваших локацій, і дозволяють власнику обрати інший.',
+    },
+    providers: { ...NAMES, openai_compatible: 'сервер, сумісний з OpenAI' },
+  },
+  es: {
+    oidcOn: {
+      subject: (name) => `Cambió el inicio de sesión con ${name} en Kept`,
+      body: (name) =>
+        `La persona que administra este Kept cambió el inicio de sesión con ${name}. Tu contraseña, claves de acceso y enlaces de correo funcionan como antes.`,
+    },
+    oidcOff: {
+      subject: 'El inicio de sesión con una cuenta externa está desactivado en Kept',
+      body: 'La persona que administra este Kept desactivó el inicio de sesión con una cuenta externa. Inicia sesión con tu contraseña, una clave de acceso o un enlace de correo.',
+    },
+    oidcFootnote:
+      'Todas las personas con una cuenta aquí reciben un aviso cuando cambia el inicio de sesión. Si no lo esperabas, pregunta a la persona que administra este Kept.',
+    smtp: {
+      subject: (sender) => `Kept ahora envía correo desde ${sender}`,
+      body: (sender) =>
+        `La persona que administra este Kept cambió cómo envía correo. Su correo ahora viene desde ${sender}, como este mensaje.`,
+      footnote:
+        'Todas las personas con una cuenta aquí reciben un aviso cuando esto cambia. Si un mensaje dice que es de Kept y viene de otra dirección, no sigas sus enlaces.',
+    },
+    ai: {
+      subject: (provider) => `El proveedor de IA predeterminado de Kept ahora es ${provider}`,
+      body: (provider) =>
+        `La persona que administra este Kept cambió su proveedor de IA predeterminado a ${provider}. Donde tus ubicaciones usan la IA de este Kept, lo que envías a la IA (fotos, recibos y preguntas) ahora va a ${provider}.`,
+      action: 'Abrir configuración de IA',
+      footnote:
+        'La configuración de IA muestra qué proveedor usa cada una de tus ubicaciones y permite al propietario elegir otro.',
+    },
+    providers: { ...NAMES, openai_compatible: 'un servidor compatible con OpenAI' },
+  },
 };
 
 function table(locale: MailLocale): TransparencyTable {
@@ -218,4 +305,7 @@ export const TRANSPARENCY_MESSAGES: Record<MailLocale, TransparencyTable> = {
   fr: table('fr'),
   de: table('de'),
   it: table('it'),
+  vi: table('vi'),
+  uk: table('uk'),
+  es: table('es'),
 };

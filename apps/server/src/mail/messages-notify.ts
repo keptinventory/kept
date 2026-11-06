@@ -200,6 +200,102 @@ const WORDS: Record<MailLocale, Words> = {
       footnote: 'Gli altri canali non sono interessati.',
     },
   },
+  vi: {
+    where: 'Ở đâu',
+    open: 'Mở trong Kept',
+    openKept: 'Mở Kept',
+    digestSubject: (count, day) => `Kept: ${count} cho ${day}`,
+    digestIntro: (day) => `Đến hạn và sắp hết hạn, tính đến ${day}:`,
+    reminderFootnote: (url) =>
+      `Bạn nhận được thông báo này vì loại lời nhắc này đang bật cho bạn. Thay đổi những gì bạn nhận trong Cài đặt → Tôi → Thông báo: ${url}`,
+    digestFootnote: (url) =>
+      `Bản tóm tắt này gửi một lần mỗi ngày, vào giờ bạn đã chọn. Thay đổi nó trong Cài đặt → Tôi → Thông báo: ${url}`,
+    role: { admin: 'quản trị viên', member: 'thành viên', viewer: 'người xem' },
+    ended: {
+      subject: (member, location) => `${member} không còn quyền truy cập ${location}`,
+      body: (member, location, role, day) =>
+        `Quyền truy cập ${location} của ${member} với tư cách ${role} đã kết thúc vào ${day}, đúng ngày kết thúc đã đặt.`,
+      footnote:
+        'Bạn nhận được thông báo này với tư cách chủ sở hữu. Để cấp lại quyền truy cập, hãy mời họ từ cài đặt của địa điểm.',
+    },
+    test: {
+      subject: 'Kept: một thông báo thử',
+      body: 'Đây là thông báo thử bạn gửi từ Cài đặt → Tôi → Thông báo. Những lời nhắc bạn chọn nhận qua email sẽ đến địa chỉ này.',
+      footnote: 'Không có gì khác thay đổi.',
+    },
+    failing: {
+      subject: 'Kept: webhook của bạn không phản hồi',
+      body: (name) =>
+        `Kept đã thử khoảng một ngày để gửi một lời nhắc đến webhook ${name} của bạn, nhưng webhook không hề phản hồi, nên lời nhắc không đến được.`,
+      next: 'Kiểm tra xem địa chỉ có đúng và bên nhận đang chạy không, sau đó gửi thử từ Cài đặt → Tôi → Thông báo.',
+      action: 'Mở cài đặt thông báo',
+      footnote: 'Các kênh khác của bạn không bị ảnh hưởng.',
+    },
+  },
+  uk: {
+    where: 'Де',
+    open: 'Відкрити в Kept',
+    openKept: 'Відкрити Kept',
+    digestSubject: (count, day) => `Kept: ${count} на ${day}`,
+    digestIntro: (day) => `Що настає і що закінчується, станом на ${day}:`,
+    reminderFootnote: (url) =>
+      `Ви отримуєте це, бо цей вид нагадувань увімкнено для вас. Змінити, що ви отримуєте, можна у розділі «Налаштування → Я → Сповіщення»: ${url}`,
+    digestFootnote: (url) =>
+      `Це зведення приходить раз на день, у час, який ви обрали. Змінити його можна у розділі «Налаштування → Я → Сповіщення»: ${url}`,
+    role: { admin: 'адміністратор', member: 'учасник', viewer: 'спостерігач' },
+    ended: {
+      subject: (member, location) => `${member} більше не має доступу до локації «${location}»`,
+      body: (member, location, role, day) =>
+        `Доступ користувача ${member} до локації «${location}» як ${role} завершився ${day}, у встановлену для нього дату завершення.`,
+      footnote:
+        'Ви отримуєте це як власник. Щоб знову надати доступ, запросіть цю людину з налаштувань локації.',
+    },
+    test: {
+      subject: 'Kept: тестове сповіщення',
+      body: 'Це тест, який ви надіслали з розділу «Налаштування → Я → Сповіщення». Нагадування, які ви вирішите отримувати електронною поштою, надходитимуть на цю адресу.',
+      footnote: 'Нічого іншого не змінилося.',
+    },
+    failing: {
+      subject: 'Kept: ваш вебхук не відповідає',
+      body: (name) =>
+        `Kept близько доби намагався доставити нагадування на ваш вебхук ${name}, але той так і не відповів, тому нагадування до нього не доходять.`,
+      next: 'Перевірте, чи правильна адреса і чи працює приймач, а потім надішліть тест з розділу «Налаштування → Я → Сповіщення».',
+      action: 'Відкрити налаштування сповіщень',
+      footnote: 'Це не стосується ваших інших каналів.',
+    },
+  },
+  es: {
+    where: 'Dónde',
+    open: 'Abrir en Kept',
+    openKept: 'Abrir Kept',
+    digestSubject: (count, day) => `Kept: ${count} para el ${day}`,
+    digestIntro: (day) => `Lo que vence y expira, al ${day}:`,
+    reminderFootnote: (url) =>
+      `Recibes esto porque este tipo de recordatorio está activado para ti. Cambia lo que recibes en Configuración → Yo → Notificaciones: ${url}`,
+    digestFootnote: (url) =>
+      `Este resumen llega una vez al día, a la hora que elegiste. Cámbialo en Configuración → Yo → Notificaciones: ${url}`,
+    role: { admin: 'administrador', member: 'miembro', viewer: 'espectador' },
+    ended: {
+      subject: (member, location) => `${member} ya no tiene acceso a ${location}`,
+      body: (member, location, role, day) =>
+        `El acceso de ${member} a ${location} como ${role} terminó el ${day}, la fecha de fin establecida.`,
+      footnote:
+        'Recibes esto como propietario. Para darles acceso de nuevo, invítalos desde la configuración de la ubicación.',
+    },
+    test: {
+      subject: 'Kept: una notificación de prueba',
+      body: 'Esta es la prueba que enviaste desde Configuración → Yo → Notificaciones. Los recordatorios que elijas recibir por correo llegan a esta dirección.',
+      footnote: 'Nada más cambió.',
+    },
+    failing: {
+      subject: 'Kept: tu webhook no responde',
+      body: (name) =>
+        `Kept intentó durante aproximadamente un día entregar un recordatorio a tu webhook ${name} y nunca respondió, así que los recordatorios no llegan.`,
+      next: 'Verifica que la dirección sea correcta y que el receptor esté funcionando, luego envía una prueba desde Configuración → Yo → Notificaciones.',
+      action: 'Abrir configuración de notificaciones',
+      footnote: 'Tus otros canales no se ven afectados.',
+    },
+  },
 };
 
 /** The headline and the "where" line of one reminder, in `locale`. */
@@ -261,6 +357,33 @@ const SUMMARY: Record<MailLocale, SummaryWords> = {
     action: 'Apri l’utilizzo dell’IA',
     footnote:
       'Ricevi questo messaggio una volta al mese per l’IA pagata dal tuo account o dalla tua chiave. Disattivalo in Impostazioni → Profilo → Notifiche.',
+  },
+  vi: {
+    subject: (month) => `Kept: AI trong ${month}`,
+    line: (month, calls, tokens, cost) =>
+      `AI trong ${month}: ${calls} cuộc gọi, ${tokens} token${cost ? `, ≈ ${cost}` : ''}.`,
+    unknown: (n) => `${n} cuộc gọi không có giá tiền, do đó chi phí không tính chúng.`,
+    action: 'Mở mức sử dụng AI',
+    footnote:
+      'Bạn nhận được thông báo này mỗi tháng một lần về AI do tài khoản hoặc khóa riêng của bạn trả tiền. Tắt nó trong Cài đặt → Tôi → Thông báo.',
+  },
+  uk: {
+    subject: (month) => `Kept: ШІ, ${month}`,
+    line: (month, calls, tokens, cost) =>
+      `ШІ, ${month}: викликів: ${calls}, токенів: ${tokens}${cost ? `, ≈ ${cost}` : ''}.`,
+    unknown: (n) => `Викликів без ціни: ${n}. Вартість їх не враховує.`,
+    action: 'Відкрити використання ШІ',
+    footnote:
+      'Ви отримуєте це раз на місяць щодо ШІ, оплаченого вашим обліковим записом чи вашим власним ключем. Вимкнути це можна у розділі «Налаштування → Я → Сповіщення».',
+  },
+  es: {
+    subject: (month) => `Kept: IA en ${month}`,
+    line: (month, calls, tokens, cost) =>
+      `IA en ${month}: llamadas: ${calls}, tokens: ${tokens}${cost ? `, ≈ ${cost}` : ''}.`,
+    unknown: (n) => `Llamadas sin precio: ${n}. El costo no las incluye.`,
+    action: 'Abrir uso de IA',
+    footnote:
+      'Recibes esto una vez al mes por la IA que pagó tu cuenta o tu propia clave. Desactívalo en Configuración → Yo → Notificaciones.',
   },
 };
 
@@ -355,4 +478,7 @@ export const NOTIFY_MESSAGES: Record<MailLocale, NotifyTable> = {
   fr: table('fr'),
   de: table('de'),
   it: table('it'),
+  vi: table('vi'),
+  uk: table('uk'),
+  es: table('es'),
 };
