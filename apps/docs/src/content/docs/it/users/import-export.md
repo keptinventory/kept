@@ -50,7 +50,7 @@ Un prezzo di 0 viene letto come nessun prezzo (Homebox scrive 0 quando nessuno e
 
 Kept legge lo ZIP di esportazione di Homebox, che contiene tutto, inclusi i file. In Homebox, apri **Raccolta → Strumenti → Backup e ripristino**, scegli **Crea backup** e **Scarica** il backup una volta elencato. Esiste dalla Homebox v0.26: usa v0.26.1 o più recente (l'immagine Docker di v0.26.0 perde gli allegati), e v0.27.0 se puoi. Una Homebox più vecchia della v0.26 non ha esportazione: vedi [provenire da una Homebox più vecchia](#provenire-da-una-homebox-più-vecchia). Uno ZIP senza il `manifest.json` di Homebox viene rifiutato con quel consiglio.
 
-:::tip[If Homebox says "Topic has been Shutdown"]
+:::tip[Se Homebox dice "Topic has been Shutdown"]
 Homebox v0.26 crea un'esportazione ogni volta che si avvia. Riavvia Homebox ed esporta di nuovo, o aggiorna a v0.27.0, che non ha questo limite.
 :::
 

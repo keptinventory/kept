@@ -17,8 +17,8 @@ Con đường ngắn, một bước trên mỗi dòng. Mỗi bước liên kết
    [Thêm vật phẩm đầu tiên](/vi/users/first-run/#4-thêm-đồ-vật-đầu-tiên-của-bạn)
 6. **Mời ai đó.** Một liên kết hoặc mã QR với một vai trò (quản trị viên, thành viên hoặc người xem); không ai cần địa chỉ email. [Mời mọi người](/vi/users/first-run/#5-mời-mọi-người)
 7. **Đặt nó trên HTTPS**, để điện thoại cho phép camera, cài đặt Kept, sử dụng ngoại tuyến và đẩy.
-   [HTTPS](/vi/install/https/), hoặc [Kept trên mạng gia đình](/vi/install/home-network/) for what works
-   without it
+   [HTTPS](/vi/install/https/), hoặc [Kept trên mạng gia đình](/vi/install/home-network/) để biết những gì hoạt động
+   khi không có nó
 8. **Kết nối AI**, nếu bạn muốn: Kept hoạt động không cần nó. [Nhà cung cấp AI](/vi/users/ai-providers/)
 
 Sau đó: [Sử dụng hàng ngày](/vi/users/everyday-use/) cho chuyến tham quan, [Câu hỏi thường gặp](/vi/users/faq/) cho các câu hỏi phổ biến, và [Vấn đề phổ biến](/vi/users/troubleshooting/) khi có điều gì không hoạt động.

@@ -124,7 +124,7 @@ msgstr "(este)"
 #. placeholder {0}: k.fields.length
 #: src/components/registries/place-kinds.tsx
 msgid "{0, plural, =0 {no fields} one {# field} other {# fields}}"
-msgstr "{0, plural, =0 {no campos} one {# campo} other {# campos}}"
+msgstr "{0, plural, =0 {sin campos} one {# campo} other {# campos}}"
 
 #. placeholder {0}: o.captures
 #: src/offline/provider.tsx
@@ -149,7 +149,7 @@ msgstr "{0, plural, one {# trasladado} other {# trasladados}}"
 #. placeholder {0}: c.notHere
 #: src/components/boxcheck/box-check-screen.tsx
 msgid "{0, plural, one {# not here} other {# not here}}"
-msgstr "{0, plural, one {# no aquí} other {# no aquí}}"
+msgstr "{0, plural, one {# ausente} other {# ausentes}}"
 
 #. placeholder {0}: line.quantity
 #: src/components/boxcheck/checklist.tsx
@@ -164,7 +164,7 @@ msgstr "{0, plural, one {# otro cambio también va.} other {# otros cambios tamb
 #. placeholder {0}: c.split
 #: src/components/boxcheck/box-check-screen.tsx
 msgid "{0, plural, one {# partly here: the rest is marked not here} other {# partly here: the rest is marked not here}}"
-msgstr "{0, plural, one {# parcialmente aquí: el resto está marcado como no aquí} other {# parcialmente aquí: el resto está marcado como no aquí}}"
+msgstr "{0, plural, one {# parcialmente aquí: el resto está marcado como ausente} other {# parcialmente aquí: el resto está marcado como ausente}}"
 
 #. placeholder {0}: o.photos
 #: src/offline/provider.tsx
@@ -454,7 +454,7 @@ msgstr "Los otros cambios de {mergedFrom} también se mantuvieron."
 
 #: src/components/boxcheck/checklist.tsx
 msgid "{missing, plural, one {# will be marked not here} other {# will be marked not here}}"
-msgstr "{missing, plural, one {# se marcará como no aquí} other {# se marcarán como no aquí}}"
+msgstr "{missing, plural, one {# se marcará como ausente} other {# se marcarán como ausentes}}"
 
 #: src/components/registries/icon-picker.tsx
 msgid "{more, plural, one {# more icon matches. Type more to narrow.} other {# more icons match. Type more to narrow.}}"
@@ -4859,11 +4859,11 @@ msgstr "Se marcó {name} como {status}"
 
 #: src/components/history/labels.ts
 msgid "Marked {name} as not here"
-msgstr "Se marcó {name} como no está aquí"
+msgstr "Se marcó {name} como ausente"
 
 #: src/components/things/action-menu.tsx
 msgid "Marked as not here"
-msgstr "Marcado como no está aquí"
+msgstr "Marcado como ausente"
 
 #: src/components/things/action-menu.tsx
 msgid "Marked as seen"
@@ -5559,7 +5559,7 @@ msgstr "No se encontró en las bases de datos de productos."
 
 #: src/components/things/action-menu.tsx
 msgid "Not here"
-msgstr "No está aquí"
+msgstr "Ausente"
 
 #: src/components/scan/outcome-sheet.tsx
 msgid "Not in your Kept"
@@ -8912,7 +8912,7 @@ msgstr "Sin ubicar por ahora"
 
 #: src/components/boxcheck/box-check-screen.tsx
 msgid "Unticked become <0>not here</0> when you finish."
-msgstr "Los no marcados se convierten en <0>no aquí</0> cuando termines."
+msgstr "Los no marcados pasan a <0>ausente</0> cuando termines."
 
 #: src/components/filters/strip.tsx
 msgid "Until {to}"
@@ -25559,11 +25559,11 @@ msgstr "Faltantes ({0})"
 
 #: src/components/scan/session/summary.tsx
 msgid "Mark not here"
-msgstr "Marcar no aquí"
+msgstr "Marcar como ausente"
 
 #: src/components/scan/session/summary.tsx
 msgid "Mark all not here"
-msgstr "Marcar todos no aquí"
+msgstr "Marcar todos como ausentes"
 
 #: src/components/scan/session/summary.tsx
 msgid "No label ({0})"
@@ -25619,7 +25619,7 @@ msgstr "Guardado."
 
 #: src/components/scan/session/summary.tsx
 msgid "Seen: {seen}. Not here: {notHere}. Moved here: {moved}."
-msgstr "Visto: {seen}. No aquí: {notHere}. Movido aquí: {moved}."
+msgstr "Visto: {seen}. Ausentes: {notHere}. Movido aquí: {moved}."
 
 #: src/components/scan/session/summary.tsx
 msgid "Moved: {moved}."
@@ -25908,7 +25908,7 @@ msgstr "{found} de {of}"
 
 #: src/components/scan/session/summary.tsx
 msgid "Mark the rest not here"
-msgstr "Marcar el resto como no aquí"
+msgstr "Marcar el resto como ausente"
 
 #: src/components/scan/session/summary.tsx
 msgid "Found by others ({0})"
@@ -25984,7 +25984,7 @@ msgstr "Movido aquí"
 
 #: src/components/counts/count-page.tsx
 msgid "Marked not here"
-msgstr "Marcado como no aquí"
+msgstr "Marcado como ausente"
 
 #: src/components/counts/count-page.tsx
 msgid "In the Trash"

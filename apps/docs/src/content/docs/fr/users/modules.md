@@ -7,13 +7,13 @@ Chaque lieu fonctionne avec un **préréglage** : un ensemble de **modules** act
 
 Vous choisissez le préréglage lors de la création du lieu ([Vos premières minutes](/fr/users/first-run/)). Le lieu **Personnel** d'un nouveau compte commence sur Essentiel. L'importation d'une sauvegarde Homebox dans un nouveau lieu commence aussi sur Essentiel, avec chaque module pour lequel la sauvegarde contient des données coché en plus ([importer depuis Homebox](/fr/users/import-export/#un-export-homebox)).
 
-## The three presets
+## Les trois préréglages
 
 - **Essentiel** : trouver des objets : pièces, boîtes, étiquettes et recherche.
 - **Foyer** : ajoute les reçus et garanties, les rappels, les prêts, les documents et les véhicules.
 - **Complet** : ajoute le carburant, les consommables, les mots de passe et codes, le déménagement, et « Connecter ChatGPT ou Claude ».
 
-## What each module adds
+## Ce que chaque module ajoute
 
 Les noms ci-dessous sont les interrupteurs de **Ce que vous suivez**.
 
@@ -32,11 +32,11 @@ Les noms ci-dessous sont les interrupteurs de **Ce que vous suivez**.
 | **Mots de passe et codes** | Complet | Les champs secrets : cachés jusqu'à ce qu'une personne autorisée en révèle un, ce qui est journalisé. |
 | **Connecter ChatGPT ou Claude** | Complet | La connexion MCP, pour qu'une application d'IA puisse travailler avec le lieu. |
 
-## AI in this location
+## L'IA dans ce lieu
 
 La capture par IA et l'assistant s'activent dans n'importe quel préréglage une fois qu'un fournisseur d'IA est connecté pour le lieu. Ils partagent un seul interrupteur, **Capture par IA et assistant**, sous **IA dans ce lieu** sur la même page, pour qu'un lieu puisse rester hors de l'IA pendant qu'un fournisseur est connecté. Choisir un préréglage ne le change pas. Voir [Fournisseurs d'IA](/fr/users/ai-providers/).
 
-## Turning a module off
+## Désactiver un module
 
 Un module désactivé est masqué partout où il apparaîtrait (ses écrans, ses entrées de menu, ses filtres) et ses rappels se mettent en pause. Le réactiver fait tout revenir, car rien n'a été supprimé.
 
@@ -44,11 +44,11 @@ Un module désactivé est masqué partout où il apparaîtrait (ses écrans, ses
 - **Les dépendances disparaissent aussi.** Le carburant nécessite Véhicules, et le déménagement nécessite Étiquettes et codes QR : désactiver celui dont un module a besoin désactive aussi ce module. Son interrupteur indique alors *Nécessite Véhicules · désactivé dans ce lieu*.
 - **Le menu suit tous vos lieux.** Sous **Suivi**, une entrée (Plannings, Prêts, Documents, Consommables, Véhicules, Déménagement, Statistiques) s'affiche dès que son module est activé dans l'un de vos lieux. Sous **Outils**, **Étiquettes** s'affiche tant que les étiquettes sont activées quelque part, et **Comptages** est toujours présent. Activité, Corbeille et Notifications sont toujours présents aussi.
 
-## Changing it later
+## Changer plus tard
 
 Un propriétaire ou un administrateur ouvre **Paramètres du lieu → Ce que vous suivez**. Le sélecteur de préréglage active tous les modules à la fois ; **Ajuster** en dessous comporte un interrupteur par module. Avant d'enregistrer, **Lors de l'enregistrement** liste ce qui s'active et ce qui se désactive.
 
-## Related
+## Voir aussi
 
 - [Lieux, pièces et boîtes](/fr/users/locations/) pour les emplacements à l'intérieur d'un lieu.
 - [Partager un lieu](/fr/users/sharing/) pour les rôles.

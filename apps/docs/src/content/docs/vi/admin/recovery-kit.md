@@ -1,6 +1,6 @@
 ---
 title: Bộ khôi phục
-description: The keys and backup credentials that turn a backup back into a working Kept. Keep them anywhere but the server.
+description: Các khóa và thông tin đăng nhập sao lưu giúp biến một bản sao lưu trở lại thành một Kept hoạt động. Hãy cất chúng ở bất cứ đâu, trừ máy chủ.
 sidebar:
   order: 4
 ---

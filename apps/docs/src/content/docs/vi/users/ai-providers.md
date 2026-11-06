@@ -98,6 +98,6 @@ Tìm kiếm bằng từ khóa luôn hoạt động, bao gồm các từ tìm ki�
 
 Trang AI không có nút để xóa một khóa đã lưu; hãy thay nó, tạm dừng, hoặc tắt AI cho mỗi địa điểm.
 
-:::note[ChatGPT or Claude as a client]
+:::note[ChatGPT hoặc Claude làm ứng dụng khách]
 "Kết nối ChatGPT hoặc Claude" (cài đặt Đầy đủ) hoạt động theo hướng ngược lại: ứng dụng AI của bạn đọc và cập nhật Kept qua MCP, sử dụng mô hình và đăng ký của riêng nó, với một mã bạn tạo trong **Cài đặt → Kết nối**. Xem [kết nối ứng dụng AI](/vi/users/mcp-clients/) và, để biết chi tiết, [MCP](/vi/developers/mcp/).
 :::

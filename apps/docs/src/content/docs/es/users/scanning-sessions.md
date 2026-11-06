@@ -55,7 +55,7 @@ Cerrar la app, recargar o perder batería: la sesión queda en el teléfono. **E
 **Terminar** muestra el resumen. Nada ha cambiado todavía.
 
 - **Encontrado**: marcado como visto, en el momento en que se lee cada etiqueta.
-- **Faltante**: se deja solo por defecto. Elige **Marcar no aquí** para cada uno, o **Marcar todos no aquí**.
+- **Faltante**: se deja solo por defecto. Elige **Marcar como ausente** para cada uno, o **Marcar todos como ausentes**.
 - **Sin etiqueta**: objetos de la lista sin etiqueta. Marca los que viste.
 - **Encontrado en otro lugar** y **En otra ubicación**: se dejan solas, o **Mover aquí**.
 - **Sin coincidencia**: etiquetas en blanco y códigos que coinciden con varios objetos. Cada etiqueta en blanco tiene **Reclamar**: una caja nueva, un objeto existente o un lugar existente. Pega las etiquetas en blanco en estantes y puertas, escanéalas todas en un recorrido y luego reclámalas aquí.
@@ -64,7 +64,7 @@ Un conteo también lista lo que está prestado o en reparación (nunca faltante)
 
 **Guardar** envía la sesión. Sin conexión, espera en el teléfono y se guarda cuando vuelves a estar en línea.
 La sesión es una entrada en **Actividad**, "Garaje contado: 312 de 340", con **Deshacer** por 7 días.
-Deshacer devuelve todas las fechas de visto, todos los "no aquí" y todos los movimientos, a menos que algo haya cambiado desde entonces.
+Deshacer devuelve todas las fechas de visto, todas las marcas de ausente y todos los movimientos, a menos que algo haya cambiado desde entonces.
 
 Un objeto eliminado a la papelera mientras caminabas se deja fuera del guardado, y el resumen después de guardar dice cuántos fueron.
 

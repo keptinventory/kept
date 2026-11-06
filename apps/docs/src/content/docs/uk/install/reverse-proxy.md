@@ -47,7 +47,7 @@ Kept проходить `X-Forwarded-For` справа і зупиняється
 - **Виправлення:** встановіть `KEPT_PUBLIC_URL` точно на адресу, яку відкривають люди (`https://kept.example.org`, а не внутрішню адресу проксі `http://kept:8080`), і перезапустіть Kept.
 - **Більше ніж одна адреса:** `KEPT_EXTRA_ADDRESSES` перелічує інші, і кожна також має досягати Kept через ваш проксі ([Більше ніж одна адреса](/uk/install/home-network/#більше-ніж-одна-адреса)).
 
-Докладніше у [Усуненні несправностей](/uk/admin/troubleshooting/#this-kept-is-set-up-for--or-the-request-did-not-come-from-this-site).
+Докладніше у [Усуненні несправностей](/uk/admin/troubleshooting/#цей-kept-налаштовано-для--або-the-request-did-not-come-from-this-site).
 
 ## HSTS
 

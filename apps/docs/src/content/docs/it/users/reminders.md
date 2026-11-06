@@ -1,15 +1,15 @@
 ---
 title: Promemoria e notifiche
-description: \\\"Cosa Kept ti ricorda, come funziona il centro notifiche, la configurazione dei canali per ntfy, Telegram e Apprise, e le impostazioni per posizione.\\\"
+description: "Cosa Kept ti ricorda, come funziona il centro notifiche, la configurazione dei canali per ntfy, Telegram e Apprise, e le impostazioni per posizione."
 ---
 
-Kept ti ricorda delle scadenze, delle garanzie in scadenza e delle scadenze di registrazione, dei documenti e degli oggetti che scadono, dei prestiti in ritardo, dei contatori non letti da poco, delle scorte basse, dei membri che si uniscono e lasciano, e dei limiti di spesa IA. Home's **Tocca a te** mostra cosa è in scadenza o in ritardo; il campanello apre il centro notifiche, dove **Completa**, **Rimanda**, **Rinnova** e **Segna come restituito** agiscono sul posto.
+Kept ti ricorda delle scadenze, delle garanzie in scadenza e delle scadenze di registrazione, dei documenti e degli oggetti che scadono, dei prestiti in ritardo, dei contatori non letti da poco, delle scorte basse, dei membri che si uniscono e lasciano, e dei limiti di spesa IA. **Tocca a te** nella Home mostra cosa è in scadenza o in ritardo; il campanello apre il centro notifiche, dove **Completa**, **Rimanda**, **Rinnova** e **Segna come restituito** agiscono sul posto.
 
 Questa pagina copre cosa ti arriva, come impostare i canali e le impostazioni per posizione. Per le notifiche push su telefono, guarda [Kept sul tuo telefono](/it/users/phone-app/#notifiche).
 
 ## Cosa ti arriva
 
-Home's **Tocca a te** mostra sei conteggi, sempre nello stesso posto: **In ritardo**, **In scadenza**, **In scadenza**, **Prestati**, **Incerto** e **Scorte basse**. Uno zero è grigio, non nascosto. **In prestito da altri** e **Non visti da tempo** appaiono quando hanno qualcosa. Su un computer ciascuno indica l'elemento più urgente. Tocca uno per aprire quell'elenco, già filtrato.
+**Tocca a te** nella Home mostra sei conteggi, sempre nello stesso posto: **In ritardo**, **Da fare**, **In scadenza**, **Prestati**, **Incerto** e **Scorte basse**. Uno zero è grigio, non nascosto. **In prestito da altri** e **Non visti da tempo** appaiono quando hanno qualcosa. Su un computer ciascuno indica l'elemento più urgente. Tocca uno per aprire quell'elenco, già filtrato.
 
 Il centro notifiche (il campanello) elenca tutto ciò che è in scadenza o in ritardo, raggruppato per tipo. Da lì puoi **Completa**, **Rimanda**, **Rinnova** o **Segna come restituito** senza lasciare la pagina.
 

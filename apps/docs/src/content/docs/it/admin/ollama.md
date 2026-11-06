@@ -8,7 +8,7 @@ sidebar:
 Le funzionalità IA di Kept (compilazione automatica da foto e ricevute, l'assistente, ricerca semantica)
 funzionano con qualsiasi provider che il proprietario della posizione collega in **Impostazioni → IA**. Ollama esegue il modello sul tuo hardware, quindi nulla lascia il dispositivo; Kept lo comunica come provider Compatibile con OpenAI.
 
-:::caution[Not tested]
+:::caution[Non testato]
 Ollama non è stato testato con Kept. Un modello condivide la memoria del dispositivo con Kept, quindi prevedi di aver bisogno di più di [1 GB su cui Kept è stato testato](/it/install/hardware/), e aspetta che un modello piccolo sia più lento e meno preciso nella lettura delle ricevute rispetto a uno ospitato.
 :::
 

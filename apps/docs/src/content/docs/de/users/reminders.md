@@ -3,13 +3,13 @@ title: Erinnerungen und Benachrichtigungen
 description: Was Kept Ihnen erinnert, wie das Benachrichtigungszentrum funktioniert, Kanal-Einrichtung für ntfy, Telegram und Apprise sowie standortbezogene Einstellungen
 ---
 Kept erinnert dich an fällige Zeitpläne, auslaufende Garantien, Anmeldefristen, Dokumente
-und Dinge, die ablaufen, überfällige Kredite, Zähler, die seit längerem nicht abgeglesen wurden, Wenig Vorrat, Mitglieder, die beitreten und verlassen, und KI-Ausgabenbegrenzungen. Home's **Braucht dich** zeigt, was fällig oder überfällig ist; die Glocke öffnet das Benachrichtigungszentrum, wo **Erledigen**, **Verschieben**, **Verlängern** oder **Als zurückgegeben markieren** Anwendung finden.
+und Dinge, die ablaufen, überfällige Ausleihen, Zähler, die seit längerem nicht abgelesen wurden, Wenig Vorrat, Mitglieder, die beitreten und verlassen, und KI-Ausgabenbegrenzungen. **Braucht dich** auf der Startseite zeigt, was fällig oder überfällig ist; die Glocke öffnet das Benachrichtigungszentrum, wo **Erledigen**, **Verschieben**, **Verlängern** oder **Als zurückgegeben markieren** Anwendung finden.
 
 Diese Seite behandelt, was dich erreicht, wie du Kanäle einrichtest und standortbezogene Einstellungen. Für Push-Benachrichtigungen auf einem Telefon siehe [Kept auf deinem Telefon](/de/users/phone-app/#benachrichtigungen).
 
 ## Was dich erreicht
 
-Home's **Braucht dich** zeigt sechs Anzahlen, stets am selben Ort: **Überfällig**, **Fällig**, **Läuft bald ab**, **Verliehen**, **Unklar** und **Wenig Vorrat**. Eine Null wird ausgegraut, nicht versteckt.
+**Braucht dich** auf der Startseite zeigt sechs Anzahlen, stets am selben Ort: **Überfällig**, **Fällig**, **Läuft bald ab**, **Verliehen**, **Unklar** und **Wenig Vorrat**. Eine Null wird ausgegraut, nicht versteckt.
 **Ausgeliehen bekommen** und **Lange nicht gesehen** erscheinen, wenn sie etwas enthalten. Auf einem Computer benennt jedes sein dringendstes Element. Tippe darauf, um diese Liste zu öffnen, bereits gefiltert.
 
 Das Benachrichtigungszentrum (die Glocke) listet alles, was fällig oder überfällig ist, nach Art gruppiert. Dort kannst du **Erledigen**, **Verschieben**, **Verlängern** oder **Als zurückgegeben markieren** ausführen, ohne die Seite zu verlassen.
@@ -29,14 +29,14 @@ Push auf einem Telefon wird in [Kept auf deinem Telefon](/de/users/phone-app/#be
 **Was dich erreicht** ist eine Tabelle. Zeilen sind die Arten, gruppiert:
 
 - **Fälligkeiten**: Zeitpläne, Garantien, Anmeldefristen, Dokumente, Dinge, die ablaufen, Zähler, die seit längerem nicht abgeglesen wurden.
-- **Verleihen**: überfällige Kredite.
+- **Verleihen**: überfällige Ausleihen.
 - **Vorrat**: geringer Vorrat.
 - **Personen**: Mitglieder, die beitreten und verlassen.
 - **KI**: Ausgabenbegrenzungen und die monatliche Zusammenfassung.
 
 Spalten sind deine Kanäle:
 
-- **In Kept**: das Benachrichtigungszentrum und Home's Braucht dich.
+- **In Kept**: das Benachrichtigungszentrum und **Braucht dich** auf der Startseite.
 - **E-Mail**: an deine Konten-E-Mail-Adresse.
 - **Push**: an dein Telefon (wo Push eingerichtet ist).
 - **Webhook / ntfy / Telegram / Apprise**: nachdem du einen hinzugefügt hast, erscheint für jede Art eine Spalte.
@@ -50,7 +50,7 @@ Mitglieds- und KI-Benachrichtigungen gehen nur an Kept und E-Mail. Das Ausschalt
 - **Diesen Ort auf alle Orte zurücksetzen** löscht diese Überschreibungen.
 - Eine Art, deren Modul dort deaktiviert ist, zeigt als angehalten an (ihre Erinnerungen warten, bis der Modul wieder aktiv ist).
 - Wo du ein Zuschauer bist, erhältst du nur Mitglieder, die beitreten und verlassen.
-- Wo du ein Mitglied bist, beginnt Kept mit nur den Krediten, die du aufzeichnest: schalte dort ein, was du having möchtest.
+- Wo du ein Mitglied bist, beginnt Kept nur mit den Ausleihen, die du erfasst: schalte dort ein, was du möchtest.
 
 ## Einrichtung von Kanälen
 

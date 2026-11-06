@@ -50,7 +50,7 @@ Un prix de 0 est lu comme pas de prix (Homebox écrit 0 quand aucun n'a été d�
 
 Kept lit le fichier ZIP d'export propre à Homebox, qui contient tout, y compris les fichiers. Dans Homebox, ouvrez **Collection → Outils → Sauvegarde et restauration**, choisissez **Créer une sauvegarde**, et **Téléchargez** la sauvegarde une fois qu'elle est listée. Cela existe depuis Homebox v0.26 : utilisez la v0.26.1 ou plus récente (l'image Docker de la v0.26.0 perd les pièces jointes), et la v0.27.0 si vous le pouvez. Un Homebox antérieur à la v0.26 n'a pas d'export : voir [venir d'un Homebox plus ancien](#venir-dun-homebox-plus-ancien). Un ZIP sans le `manifest.json` de Homebox est refusé avec ce conseil.
 
-:::tip[If Homebox says "Topic has been Shutdown"]
+:::tip[Si Homebox affiche "Topic has been Shutdown"]
 Homebox v0.26 fait une exportation à chaque démarrage. Redémarrez Homebox et exportez à nouveau, ou mettez à jour vers la v0.27.0, qui n'a pas cette limite.
 :::
 

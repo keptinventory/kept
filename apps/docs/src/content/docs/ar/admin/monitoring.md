@@ -1,5 +1,5 @@
 ---
-title: Prometheus and Grafana
+title: Prometheus وGrafana
 description: "اجمع مقاييس Kept من /metrics باستخدام بروميثيوس، واعرضها بيانياً في غرافانا، واضبط تنبيهات بشأن النسخ الاحتياطية، القرص وإعادة التشغيل."
 ---
 

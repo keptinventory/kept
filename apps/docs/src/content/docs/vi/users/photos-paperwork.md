@@ -16,7 +16,7 @@ Một hóa đơn cũng có thể đặt trên **Mua hàng** của đồ vật: �
 - **Bảo hành** (Gia đình và Hoàn chỉnh) hiển thị thanh độ bao phủ từ mua hàng đến ngày kết thúc. Một **khiếu nại** ghi nhận sửa chữa hoặc thay thế, và khiếu nại không tốn chi phí hiển thị "Bảo hành đã tiết kiệm cho bạn".
 - **Giấy tờ** trong menu là tài liệu riêng của địa điểm (hợp đồng thuê, bảo hiểm nhà), và **Sắp hết hạn** liệt kê đồ vật, tài liệu và bảo hành theo ngày. Văn bản trong PDF có thể tìm kiếm.
 
-## Related
+## Liên quan
 
 - [Ảnh phòng](/vi/users/room-photos/) để chụp cả phòng để đồ vật có thể tìm bằng mắt.
 - [Báo cáo, bảo hiểm và khiếu nại](/vi/users/everyday-use/#báo-cáo-danh-sách-bảo-hiểm-và-yêu-cầu) cho phía người bảo hiểm của khiếu nại.

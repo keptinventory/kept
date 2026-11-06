@@ -106,8 +106,7 @@ de sauvegarde est configurée, il prend d'abord un instantané restic de la seul
 l'instantané échoue, rien n'est migré** et la commande s'arrête avec la raison. Les 3 derniers
 instantanés pre-mise à niveau sont conservés.
 
-- Pas de cible de sauvegarde : Kept migre quand même, le consigne bruyamment, et Admin → Status indique qu'il a été "upgraded
-  without a backup" jusqu'à la prochaine bonne sauvegarde.
+- Pas de cible de sauvegarde : Kept migre quand même, le consigne bruyamment, et Admin → Status indique qu'il a été "mis à niveau sans sauvegarde" jusqu'à la prochaine bonne sauvegarde.
 - `KEPT_UPGRADE_SNAPSHOT=off` (ou `kept migrate --skip-snapshot`) le saute volontairement.
 - L'[application Home Assistant](/fr/install/home-assistant/) n'en prend jamais : la sauvegarde de Home Assistant
   avant la mise à jour est le moyen de revenir en arrière.

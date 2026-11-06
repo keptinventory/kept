@@ -47,7 +47,7 @@ L'assistente e i clienti MCP possono registrare un servizio allo stesso modo (ad
 Una pianificazione è un promemoria per ripetere qualcosa, per data o per lettura.
 
 - **Aggiungi le scadenze di base** aggiunge le solite: cambio olio, rotazione pneumatici, liquido freni, filtro aria.
-- **Una tantum** (una data, senza ripetizione) viene eseguita una volta completata. Lascia **In scadenza** e **In ritardo**, e **Pianificazioni** la elenca come **Fatta** con il giorno. Annulla il completamento, o elimina quel servizio, e diventa nuovamente in scadenza.
+- **Una tantum** (una data, senza ripetizione) viene eseguita una volta completata. Lascia **Da fare** e **In ritardo**, e **Pianificazioni** la elenca come **Fatta** con il giorno. Annulla il completamento, o elimina quel servizio, e diventa nuovamente in scadenza.
 - Le pianificazioni in scadenza e in ritardo compaiono nella sezione **Tocca a te** di Home, e nel feed del calendario e nel centro delle notifiche. Vedere promemoria e notifiche.
 
 ## Carburante (preset Completo)

@@ -194,7 +194,7 @@ Administrador → Configuración primero. Configuración, memoria y el perfil de
 La página de IA no tiene botón para borrar una clave guardada; reemplázala, pausa o apaga la IA por
 ubicación.
 
-:::note[ChatGPT or Claude as a client]
+:::note[ChatGPT o Claude como cliente]
 "Conectar ChatGPT o Claude" (el ajuste preestablecido Complete) funciona al revés: tu aplicación de
 IA lee y actualiza Kept mediante MCP, usando su propio modelo y suscripción, con un token que creas
 en **Configuración → Conexiones**. Consulta [conectar aplicaciones de IA](/es/users/mcp-clients/) y, para

@@ -23,7 +23,7 @@ description: Реальні режими збою сервера Kept, що сп
 
 **Причина:** середовище перевіряється до початку чогось, і перша проблема зупиняє процес одним рядком, що її називає. Найчастіші:
 
-| The line says | Fix |
+| Рядок каже | Виправлення |
 |---|---|
 | `kept: invalid environment: KEPT_PUBLIC_URL` | Встановіть адресу: `docker compose run --rm init` ([встановлення](/uk/install/compose/#1-запишіть-env)) |
 | `KEPT_DATABASE_URL has no password, and KEPT_DB_APP_PASSWORD_FILE: … does not exist` | Bootstrap не запускався: запустіть за допомогою `docker compose up -d`, який спочатку його виконує, а не лише `docker compose up kept` |
@@ -55,10 +55,10 @@ docker compose exec db psql -U postgres -c "ALTER ROLE kept_app PASSWORD '<the n
 
 **Виправлення:** перевірте, що `docker compose ps db` працює нормально, і що вхід із назвою `false` має правильний пароль (вище). На керованому Postgres перевірте, що існують чотири входи ([керований Postgres](/uk/install/managed-postgres/#чотири-логіни)).
 
-## "This Kept is set up for …" or "The request did not come from this site."
+## "Цей Kept налаштовано для …" або "The request did not come from this site."
 
-- **The app:** "This Kept is set up for *address*. Open it there.", on the sign-in page or as a strip above the app when a save is refused.
-- **The API:** 403, "The request did not come from this site."
+- **Застосунок:** "Цей Kept налаштовано для *адреса*. Відкрийте його там.", на сторінці входу або смугою над застосунком, коли збереження відхилено.
+- **API:** 403, "The request did not come from this site."
 
 **Причина:** запис, що несе cookie Kept, має надходити з точного походження `KEPT_PUBLIC_URL` або одного з `KEPT_EXTRA_ADDRESSES`: схема, хост і порт. Kept порівнює його із заголовком `Origin` браузера, який є адресою в адресному рядку; зворотний проксі між ними нічого не змінює. Відкриття Kept за іншою адресою (IP замість назви, `http` замість `https`, інший порт, внутрішня адреса проксі) робить кожен запис 403. Посилання, QR-коди та запрошення на пошту будуються з того ж значення, і ключі доступу реєструються на його ім'я хоста.
 
@@ -124,7 +124,7 @@ docker compose run --rm --no-deps --entrypoint kept kept admin backup
 
 Він завершується з 1 при попередженні, за назвою:
 
-| Warning | Meaning, and what to do |
+| Попередження | Що це означає і що робити |
 |---|---|
 | `backup_suspicious_size` | значно менший за останній вдалий; якщо зменшення реальне, `kept admin backup --accept-size` |
 | `files_unreadable` | restic не зміг прочитати деякі файли; перевірте дозволи тому даних |

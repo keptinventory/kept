@@ -49,7 +49,7 @@ Le impostazioni dell'IA si aprono con **Cosa usa l'IA in Kept**: una riga per az
 
 Le pagine **Utilizzo dell’IA** elencano ogni chiamata: **Il mio uso dell’IA** per tutti, l'uso di un luogo per i suoi amministratori e proprietario, quello dell'account per il suo proprietario e quello dell'istanza sotto Admin → IA. Ognuna mostra totali, token al giorno impilati per attività, dettagli per attività, persona e luogo dove si applicano e l'elenco delle chiamate con **Esporta CSV**. Una chiamata registra modello, token, esito e costo, mai il prompt, la foto, la risposta o la chiave.
 
-I prezzi vengono dalla **tabella dei prezzi**, che gli amministratori dell'istanza modificano in Admin → IA (con **Fill from … listing** per i fornitori che pubblicano i prezzi). Il prezzo del modello Groq consigliato viene compilato per te. Una chiamata senza prezzo è contata in token e mostrata come costo sconosciuto.
+I prezzi vengono dalla **tabella dei prezzi**, che gli amministratori dell'istanza modificano in Admin → IA (con **Compila dal listino di …** per i fornitori che pubblicano i prezzi). Il prezzo del modello Groq consigliato viene compilato per te. Una chiamata senza prezzo è contata in token e mostrata come costo sconosciuto.
 
 ## Limiti e pausa
 
@@ -97,6 +97,6 @@ Per tenere tutto sul tuo hardware, esegui un modello con Ollama e aggiungilo com
 
 La pagina IA non ha un pulsante per eliminare una chiave salvata; sostituiscila, mettila in pausa o disattiva l'IA per luogo.
 
-:::note[ChatGPT or Claude as a client]
+:::note[ChatGPT o Claude come client]
 "Collega ChatGPT o Claude" (il preset Complete) funziona al contrario: la tua app IA legge e aggiorna Kept via MCP, usando il proprio modello e abbonamento, con un token che crei in **Impostazioni → Connessioni**. Vedi [collegare app IA](/it/users/mcp-clients/) e, per i dettagli, [MCP](/it/developers/mcp/).
 :::

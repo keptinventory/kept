@@ -49,7 +49,7 @@ Die KI-Einstellungen öffnen mit **Was in Kept KI nutzt**: eine Zeile pro Aktion
 
 **KI-Nutzung**-Seiten listen jeden Aufruf: **Meine KI-Nutzung** für alle, die Nutzung eines Standorts für dessen Admins und Besitzer, die des Kontos für dessen Besitzer und die der Instanz unter Admin → KI. Jede zeigt Summen, Tokens pro Tag gestapelt nach Aufgabe, Aufschlüsselungen nach Aufgabe, Person und Standort, wo sie zutreffen, sowie die Aufrufliste mit **Als CSV exportieren**. Ein Aufruf speichert Modell, Tokens, Ergebnis und Kosten, nie den Prompt, das Foto, die Antwort oder den Schlüssel.
 
-Die Preise stammen aus der **Preistabelle**, die Instanz-Admins in Admin → KI bearbeiten (mit **Fill from … listing** für Anbieter, die Preise veröffentlichen). Der Preis des empfohlenen Groq-Modells wird für dich eingetragen. Ein Aufruf ohne Preis wird in Tokens gezählt und als Kosten unbekannt angezeigt.
+Die Preise stammen aus der **Preistabelle**, die Instanz-Admins in Admin → KI bearbeiten (mit **Aus der Liste von … füllen** für Anbieter, die Preise veröffentlichen). Der Preis des empfohlenen Groq-Modells wird für dich eingetragen. Ein Aufruf ohne Preis wird in Tokens gezählt und als Kosten unbekannt angezeigt.
 
 ## Limits und Pausieren
 
@@ -97,6 +97,6 @@ Um alles auf deiner eigenen Hardware zu halten, betreibe ein Modell mit Ollama u
 
 Die KI-Seite hat keine Schaltfläche, um einen gespeicherten Schlüssel zu löschen; ersetze ihn, pausiere oder schalte KI pro Standort aus.
 
-:::note[ChatGPT or Claude as a client]
-"Connect ChatGPT or Claude" (the Complete preset) funktioniert andersherum: deine KI-App liest und aktualisiert Kept über MCP, mit eigenem Modell und Abonnement, mit einem Token, das du in **Einstellungen → Verbindungen** erstellst. Siehe [KI-Apps verbinden](/de/users/mcp-clients/) und für die Details [MCP](/de/developers/mcp/).
+:::note[ChatGPT oder Claude als Client]
+"ChatGPT oder Claude verbinden" (die Voreinstellung Vollausstattung) funktioniert andersherum: deine KI-App liest und aktualisiert Kept über MCP, mit eigenem Modell und Abonnement, mit einem Token, das du in **Einstellungen → Verbindungen** erstellst. Siehe [KI-Apps verbinden](/de/users/mcp-clients/) und für die Details [MCP](/de/developers/mcp/).
 :::

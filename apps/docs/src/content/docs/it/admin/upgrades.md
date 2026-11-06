@@ -106,8 +106,7 @@ Quando `kept migrate` trova migrazioni in sospeso su un database che ha già dat
 snapshot fallisce, non viene migrato nulla** e il comando si ferma con il motivo. Gli ultimi 3
 snapshot pre-aggiornamento vengono conservati.
 
-- Nessun target di backup: Kept migra comunque, lo registra ad alta voce, e Admin → Status dice che è stato "upgraded
-  without a backup" fino al prossimo backup buono.
+- Nessun target di backup: Kept migra comunque, lo registra ad alta voce, e Admin → Status dice che è stato "aggiornato senza backup" fino al prossimo backup buono.
 - `KEPT_UPGRADE_SNAPSHOT=off` (o `kept migrate --skip-snapshot`) lo salta apposta.
 - L'[app Home Assistant](/it/install/home-assistant/) non ne fa mai uno: il backup di Home Assistant
   prima dell'aggiornamento è il modo per tornare indietro.

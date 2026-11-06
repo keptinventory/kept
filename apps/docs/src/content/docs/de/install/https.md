@@ -18,9 +18,7 @@ markiert Kept auch seine Cookies als `Secure` und sendet HSTS; `KEPT_HSTS=off` h
 Dienste den Hostnamen teilen ([HSTS](/de/install/reverse-proxy/#hsts)).
 
 Einige Dinge lehnt Kept ab, solange `KEPT_PUBLIC_URL` auf `http:` steht, sogar auf `localhost`,
-because they hand out or change a secret: showing a secret value, an export with secret values, opening
-an export's secrets when importing it, making an access token in the browser, connecting an app
-with OAuth, downloading the recovery kit, and changing or testing the backup settings. An export
+weil sie ein Geheimnis herausgeben oder ändern: einen geheimen Wert anzeigen, ein Export mit geheimen Werten, die Geheimnisse eines Exports beim Import öffnen, ein Zugriffstoken im Browser erstellen, eine App mit OAuth verbinden, das Wiederherstellungskit herunterladen und die Backup-Einstellungen ändern oder testen. Ein Export
 ohne Geheimwerte funktioniert, ebenso ein Import ohne sie.
 Sitzungen sind auch über HTTP kürzer. Während Kept über HTTP bereitgestellt wird, setzt die
 „Erste-Schritte“-Checkliste auf dem Startbildschirm „Put Kept on HTTPS“ zuerst, bis ein Administrator
@@ -111,7 +109,7 @@ cloudflared tunnel route dns kept kept.example.org
 cloudflared tunnel run kept
 ```
 
-with `~/.cloudflared/config.yml`:
+mit `~/.cloudflared/config.yml`:
 
 ```yaml
 tunnel: kept

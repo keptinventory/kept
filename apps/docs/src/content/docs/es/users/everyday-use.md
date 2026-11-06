@@ -80,8 +80,8 @@ computadora, ⌘K o Ctrl+K abre el mismo buscar desde cualquier lugar.
 - **La bandeja**: **Recoger** varios objetos (desde su menú o al escanear), luego abre el destino
   y **Mover aquí**, o **Escanear destino**. La bandeja permanece contigo sin conexión.
 - **Revisión de caja** en una caja: marca qué hay allí (con un conteo de "encontrados 4 de 6"),
-  añadir **Encontrado algo más**, y lo que queda sin marcar se convierte en *no está aquí*.
-- **Marcar como visto** y No está aquí mantienen honesto el "último visto", así que un objeto que
+  añadir **Encontrado algo más**, y lo que queda sin marcar se convierte en *ausente*.
+- **Marcar como visto** y Ausente mantienen honesto el "último visto", así que un objeto que
   nadie ha visto durante un tiempo aparece en Hogar.
 - **Mudanza**: empaqueta en cajas numeradas, síguelas en la furgoneta y escanea cada una al otro
   extremo para desempaquetarla en su habitación ([mudanza](/es/users/moving/)).

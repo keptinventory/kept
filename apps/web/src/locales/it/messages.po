@@ -12866,7 +12866,7 @@ msgstr "Fatto: {0}"
 #: src/routes/_app/lending.tsx
 #: src/routes/_app/schedules.tsx
 msgid "Due"
-msgstr "In scadenza"
+msgstr "Da fare"
 
 #: src/components/schedules/labels.tsx
 msgid "Due {day}"
@@ -17954,7 +17954,7 @@ msgstr "Distanza, {period}"
 
 #: src/components/vehicles/list.tsx
 msgid "Due soon"
-msgstr "In scadenza"
+msgstr "A breve"
 
 #: src/components/vehicles/readings-tab.tsx
 msgid "estimate at ~{perDay} {unit} a day"

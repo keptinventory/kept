@@ -21,7 +21,7 @@ Chiunque tranne il proprietario può **Lascia questo luogo**. Un amministratore 
 
 ## Ruoli
 
-| Role | What they can do in that location |
+| Ruolo | Cosa può fare in quella posizione |
 |---|---|
 | **Proprietario** | Tutto, incluse le regole del secondo fattore, il trasferimento e la cancellazione. C'è un solo proprietario. |
 | **Amministratore** | Invita e rimuove membri e visualizzatori, modifica impostazioni e moduli, importa ed esporta, crea link condivisi e pacchetti di rivendicazione, cancella definitivamente. Solo il proprietario concede o rimuove gli amministratori. |
