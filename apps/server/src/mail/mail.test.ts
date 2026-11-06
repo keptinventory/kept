@@ -508,6 +508,34 @@ describe('counts in a sentence', () => {
   });
 });
 
+describe('the AI cap subject in French', () => {
+  it.each(['user', 'account', 'instance', 'instance_account'] as const)(
+    'reads as French for a %s cap: never "de le" or "de la"',
+    (scope) => {
+      const { subject } = messageFor(
+        {
+          kind: 'ai-cap',
+          to: 'a@x.test',
+          level: 80,
+          cap: {
+            scope,
+            target: '',
+            unit: 'tokens',
+            used: '8',
+            limit: '10',
+            currency: null,
+            pausedUntil: null,
+          },
+        },
+        'fr',
+        ctx,
+      );
+      expect(subject).toContain('80 %');
+      expect(subject).not.toMatch(/\bde (le|la|l’)/);
+    },
+  );
+});
+
 describe('AI cap notices and alerts', () => {
   const alert = (kind: string) =>
     EVERY_MAIL.find((m) => m.kind === 'admin-alert' && m.alert === kind) as MailBody;

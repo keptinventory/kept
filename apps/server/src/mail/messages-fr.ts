@@ -202,7 +202,7 @@ function frCap(level: 80 | 100, c: AiCapFacts, ctx: MessageContext, footnote: st
   const cap = frCapOf(c);
   if (level === 80) {
     return {
-      subject: `Kept : 80 % de ${cap} utilisés ce mois-ci`,
+      subject: `Kept : ${cap} à 80 % ce mois-ci`,
       paragraphs: [
         `${capitalise(cap)} en est à ${frUsed(c)} depuis le début du mois.`,
         'Une fois le plafond atteint, l’IA est suspendue jusqu’au 1er du mois suivant. Les captures sont toujours enregistrées, et leurs photos seront lues à la reprise.',
