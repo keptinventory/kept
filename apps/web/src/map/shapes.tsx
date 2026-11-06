@@ -17,6 +17,7 @@ import {
   type MapShapeKey,
   SHAPE_GROUP,
   SHAPE_GROUPS,
+  SHAPE_LANGS,
   type ShapeFrom,
   type ShapeInput,
   type ShapeLang,
@@ -46,8 +47,8 @@ export { SHAPE_LIBRARY_URL, SHAPE_REQUEST_URL } from './shape-links';
 
 /** The search's language: the reader's, by its first subtag ("fr-CA" is French). */
 const shapeLang = (locale: string): ShapeLang => {
-  const l = locale.slice(0, 2);
-  return l === 'ar' || l === 'fr' || l === 'de' || l === 'it' ? l : 'en';
+  const l = locale.slice(0, 2) as ShapeLang;
+  return SHAPE_LANGS.includes(l) ? l : 'en';
 };
 
 /** What the suggestions read for a thing or place on the map. */
