@@ -944,3 +944,62 @@ describe('Spanish, Ukrainian and Vietnamese words', () => {
         expect(shapeWordsByLang(k)[lang].length, `${k} ${lang}`).toBeGreaterThan(0);
   });
 });
+
+describe('suggestShapes: what a thing is for, in Spanish and Vietnamese', () => {
+  it.each([
+    'Ventilador de torre',
+    'Cuadro eléctrico',
+    'Mochila para portátil',
+    'Túi laptop',
+    'Lente de cámara',
+    'Túi máy ảnh',
+    'Mando del televisor',
+    'Mando a distancia',
+    'Điều khiển tivi',
+    'Mực máy in',
+    'Sạc điện thoại',
+    'Cáp laptop',
+    'Estuche de móvil',
+    'Carcasa de teléfono',
+    'Correa de cámara',
+    'Pila de cámara',
+  ])('is not sure about %s', (name) => {
+    expect(sure({ name })).toBe(false);
+  });
+
+  it.each([
+    ['Tower fan'],
+    ['Backpack for laptop'],
+    ['Laptop bag'],
+    ['Camera bag'],
+    ['Camera lens'],
+    ['TV remote'],
+    ['Printer ink'],
+  ])('as in English: %s', (name) => {
+    expect(sure({ name })).toBe(false);
+  });
+
+  it.each([
+    ['Torre', 'pc_tower'],
+    ['Cuadro', 'picture'],
+    ['Mando', 'controller'],
+    ['Máy in', 'printer'],
+    ['Máy ảnh', 'camera'],
+    ['Portátil', 'laptop'],
+  ])('still gives %s its shape', (name, model) => {
+    const { shapes, confident } = suggestShapes({ name });
+    expect(shapes[0]?.model).toBe(model);
+    expect(confident).toBe(true);
+  });
+
+  it('reads Cajón as a drawer, not a crate', () => {
+    const models = suggestShapes({ name: 'Cajón' }).shapes.filter((s) => s.from === 'name');
+    expect(models.map((s) => s.model)).not.toContain('crate');
+    expect(models[0]?.model).toBe('drawers');
+  });
+
+  it("doesn't read the English May in as a printer", () => {
+    const named = suggestShapes({ name: 'May in the box' }).shapes.filter((s) => s.from === 'name');
+    expect(named.map((s) => s.model)).not.toContain('printer');
+  });
+});

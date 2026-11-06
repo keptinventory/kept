@@ -404,6 +404,7 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'шафа з шухлядами',
     'cómoda',
     'cajonera',
+    'cajón',
   ],
   bedside: [
     'bedside table',
@@ -517,7 +518,6 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'ящик',
     "дерев'яний ящик",
     'caja',
-    'cajón',
     'caja de madera',
   ],
   basket: [
@@ -3266,6 +3266,31 @@ const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: Readonl
       ].flatMap(words),
     ),
   },
+  // A tower fan is a fan; a "cuadro" of switches or of a bicycle is no picture on a wall; and a
+  // "mando" for the TV or the garage is a remote, not a game controller.
+  { model: 'pc_tower', term: 'torre', words: new Set(['ventilador'].flatMap(words)) },
+  {
+    model: 'picture',
+    term: 'cuadro',
+    words: new Set(
+      [
+        'eléctrico',
+        'eléctrica',
+        'electricidad',
+        'luces',
+        'distribución',
+        'bici',
+        'bicicleta',
+      ].flatMap(words),
+    ),
+  },
+  {
+    model: 'controller',
+    term: 'mando',
+    words: new Set(
+      ['televisor', 'televisión', 'tele', 'tv', 'distancia', 'garaje', 'aire'].flatMap(words),
+    ),
+  },
 ];
 
 /** The shapes a name's words point at: phrases inside a longer matched phrase are dropped. */
@@ -3315,6 +3340,7 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'cover',
     'sleeve',
     'bag',
+    'backpack',
     'pouch',
     'strap',
     'stand',
@@ -3385,14 +3411,21 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'حامل',
     'ستاند',
     'funda',
+    'estuche',
+    'carcasa',
     'cargador',
     'adaptador',
     'mando',
     'bolsa',
+    'mochila',
+    'correa',
     'objetivo',
+    'lente',
     'tinta',
     'cartucho',
     'batería',
+    'pila',
+    'pilas',
     'soporte',
     'чохол',
     'сумка',
@@ -3407,7 +3440,20 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'підставка',
     'тримач',
     'ốp',
+    'bao',
+    'túi',
+    'cáp',
+    'sạc',
+    'khiển',
+    'ống',
+    'mực',
+    'pin',
   ].flatMap(words),
+);
+
+/** Vietnamese phrases that without their marks are other words ("May in the box"). */
+const MARKS_REQUIRED: ReadonlyMap<string, string> = new Map(
+  ['máy in'].map((phrase) => [words(phrase).join(' '), phrase]),
 );
 
 /** Accessory words that are the shape itself: earbuds come in their charging case, so "AirPods
@@ -3423,16 +3469,18 @@ function nameScores(text: string | null | undefined): Map<MapModelKey, number> {
   const out = new Map<MapModelKey, number>();
   if (!text) return out;
   const ws = words(text);
-  const hits = narrowFamilies(hitsIn(ws)).filter(
-    (h) =>
-      !NOT_THE_SHAPE.some(
-        (r) =>
-          r.model === h.model &&
-          h.terms.length === 1 &&
-          h.terms[0] === r.term &&
-          ws.some((w) => r.words.has(w)),
-      ),
-  );
+  const marked = text.normalize('NFC').toLowerCase();
+  const hits = narrowFamilies(hitsIn(ws)).filter((h) => {
+    const phrase = MARKS_REQUIRED.get(h.terms.join(' '));
+    if (phrase && !marked.includes(phrase)) return false;
+    return !NOT_THE_SHAPE.some(
+      (r) =>
+        r.model === h.model &&
+        h.terms.length === 1 &&
+        h.terms[0] === r.term &&
+        ws.some((w) => r.words.has(w)),
+    );
+  });
   const inPhrase = (i: number) =>
     hits.some((h) => h.end - h.start > 1 && h.start <= i && i < h.end);
   const acc = ws.map((w, i) => ACCESSORIES.has(w) && !inPhrase(i));
