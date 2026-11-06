@@ -19,7 +19,7 @@ Les tags appartiennent au compte, donc chaque emplacement les partage. Seuls les
 Tout changement possède **Annuler**.
 
 ## Qui peut faire quoi
-| | Owner | Admin | Member | Viewer |
+| | Propriétaire | Administration | Membre | Lecteur |
 |---|---|---|---|---|
 | Voir les tags, filtrer par ceux-ci | ✓ | ✓ | ✓ | ✓ |
 | Étiqueter les objets, créer un nouveau tag | ✓ | ✓ | ✓ | |

@@ -13,6 +13,8 @@ Vous choisissez le préréglage lors de la création du lieu ([Vos premières mi
 - **Foyer** : ajoute les reçus et garanties, les rappels, les prêts, les documents et les véhicules.
 - **Complet** : ajoute le carburant, les consommables, les mots de passe et codes, le déménagement, et « Connecter ChatGPT ou Claude ».
 
+Le fuseau horaire et la devise ne font pas partie du préréglage : ils se trouvent dans **Paramètres du lieu → Général**.
+
 ## Ce que chaque module ajoute
 
 Les noms ci-dessous sont les interrupteurs de **Ce que vous suivez**.

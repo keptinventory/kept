@@ -46,17 +46,7 @@ Um einen Ort zu etikettieren, auf den du schon ein leeres Etikett geklebt hast, 
 
 Ein Etikett bleibt bei dem, worauf es klebt. Wenn [Fächer zusammengeführt werden](/de/users/locations/#fächer-zusammenführen-und-aufteilen), öffnen die Etiketten der entfernten Fächer das zusammengeführte Fach; eine Teilung gibt jedem sein Etikett zurück. Wenn Möbel [gedreht werden](/de/users/locations/#möbel-drehen), behält jedes Fach sein Etikett, egal ob es neu nummeriert wird oder nicht.
 
-Ein abgenutztes Etikett oder keine Kamera: **Code eingeben**. Die Capture-Kamera erkennt Kept-Etiketten ebenfalls und bietet an, diese Kiste zu öffnen oder darin zu erfassen.
-
-Ein Kept-Etikett hat in all diesen Fällen Vorrang. Eine Seriennummer wird nur bei exakter Übereinstimmung mit der gespeicherten erkannt, und nur online: die Offline-Kopie des Telefons enthält keine Seriennummern. GS1-Codes mit Klammern, wie `(01)04006381333931(21)K7Q2X9`, werden auf die gleiche Weise gelesen.
-
-### Scannen eines Codes ohne QR-Code
-
-Ein Etikett ohne QR-Code (schmales Band) scannt über seine gedruckte kurze ID. Richte **Scannen** auf den Code, sodass er etwa ein Drittel der Kamerabreite ausfüllt, und halte einen Moment still: Kept liest die sechs Zeichen aus dem Text und öffnet das Ding, wie es von einem QR-Code täte, und eine Meldung sagt, welchen Code es gelesen hat.
-
-- **Auf dem Telefon, auch offline.** Das Lesen geschieht auf dem Telefon; das Bild wird nirgendwohin gesendet. Es funktioniert ohne Verbindung für alles in der Kopie des Telefons.
-- **Nie das falsche Ding.** Kept öffnet einen Code nur, wenn es jedes Zeichen zweimal hintereinander klar gelesen hat und der Code einer von deinen ist. Wenn es sich nicht sicher ist, zeigt es den gelesenen Code und was es öffnet, und fragt **Ist das der Code?**, bevor es öffnet. Ein Code, der zu keinem deiner Etiketten passt, öffnet nichts: **Erneut scannen** oder **Code eingeben**.
-- **Nur Kepts eigener Druck.** Es liest die kurze ID so, wie Kept sie druckt, in seiner eigenen Schriftart. Ein Code, der per Hand in einen Etikettierer getippt wurde, in der Schrift des Etikettierers, liest vielleicht nicht: tippe ihn stattdessen ein.
+Die Codes, die Kept liest, und wo ein neues Ding sie aufbewahrt:
 
 | Code | Meist auf | Kept behält es als |
 |---|---|---|
@@ -67,6 +57,21 @@ Ein Etikett ohne QR-Code (schmales Band) scannt über seine gedruckte kurze ID. 
 | Code 39, Code 93 | Asset-Tags, IT-Aufkleber | Seriennummer, oder Barcode, wenn du ihn wählst |
 | Data Matrix | Elektronik, Ladegeräte, Teile | Ein GS1-Code: seine GTIN als Barcode und seine Seriennummer als Seriennummer. Reiner Text: du wählst |
 | PDF417, Aztec | Versandetiketten, Garantiekarten, Tickets | Du wählst; Text, der für beide Felder zu lang ist (64 Zeichen für einen Barcode, 100 für eine Seriennummer), wird nicht behalten |
+
+Ein Kept-Etikett hat in all diesen Fällen Vorrang. Eine Seriennummer wird nur bei exakter Übereinstimmung mit der gespeicherten erkannt, und nur online: die Offline-Kopie des Telefons enthält keine Seriennummern. GS1-Codes mit Klammern, wie `(01)04006381333931(21)K7Q2X9`, werden auf die gleiche Weise gelesen.
+
+Ein abgenutztes Etikett oder keine Kamera: **Code eingeben**. Die Capture-Kamera erkennt Kept-Etiketten ebenfalls und bietet an, diese Kiste zu öffnen oder darin zu erfassen.
+
+### Scannen eines Codes ohne QR-Code
+
+Ein Etikett ohne QR-Code (schmales Band) scannt über seine gedruckte kurze ID. Richte **Scannen** auf den Code, sodass er etwa ein Drittel der Kamerabreite ausfüllt, und halte einen Moment still: Kept liest die sechs Zeichen aus dem Text und öffnet das Ding, wie es von einem QR-Code täte, und eine Meldung sagt, welchen Code es gelesen hat.
+
+- **Auf dem Telefon, auch offline.** Das Lesen geschieht auf dem Telefon; das Bild wird nirgendwohin gesendet. Es funktioniert ohne Verbindung für alles in der Kopie des Telefons.
+- **Nie das falsche Ding.** Kept öffnet einen Code nur, wenn es jedes Zeichen zweimal hintereinander klar gelesen hat und der Code einer von deinen ist. Wenn es sich nicht sicher ist, zeigt es den gelesenen Code und was es öffnet, und fragt **Ist das der Code?**, bevor es öffnet. Ein Code, der zu keinem deiner Etiketten passt, öffnet nichts: **Erneut scannen** oder **Code eingeben**.
+- **Nur Kepts eigener Druck.** Es liest die kurze ID so, wie Kept sie druckt, in seiner eigenen Schriftart. Ein Code, der per Hand in einen Etikettierer getippt wurde, in der Schrift des Etikettierers, liest vielleicht nicht: tippe ihn stattdessen ein.
+
+Nur **Scannen** liest gedruckte Codes. Scan-Sitzungen, die Kistenprüfung und die Erfassungskamera lesen
+nur QR-Codes und Barcodes.
 
 ## Verwandte Themen
 

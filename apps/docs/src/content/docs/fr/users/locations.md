@@ -42,7 +42,7 @@ Une étagère cube, une bibliothèque ou une armoire à tiroirs constitue un seu
 
 ### Retourner le mobilier
 
--**Le tourner…** sur la page du meuble, pour une étagère cube qui n'est pas carrée.
+- **Le tourner…** sur la page du meuble, pour une étagère cube qui n'est pas carrée.
 - **Son haut est maintenant :** **À droite** ou **À gauche**, lorsque vous lui faites face. Chaque compartiment se déplace avec l'unité, avec ses objets et son étiquette imprimée.
 - **Ses compartiments** sont demandés à chaque fois, car les étiquettes sont déjà appliquées :
   - **Renuméroter :** chaque compartiment reçoit le numéro, le nom et le code de l'endroit où il se trouve maintenant, comptés à nouveau depuis le coin supérieur gauche. Un ancien code fonctionne toujours : il ouvre le compartiment actuellement situé à l'emplacement qu'il avait nommé. Réimprimez les étiquettes pour les nouveaux noms.

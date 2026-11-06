@@ -82,7 +82,7 @@ Un oggetto distrutto mentre camminavi viene escluso dal salvataggio, e il riepil
 
 ## Chi può fare cosa
 
-| | Owner, admin, member | Viewer |
+| | Proprietario, admin, membro | Visualizzatore |
 |---|---|---|
 | Conta | Salvato | Un controllo: lo stesso schermo e totali, nulla salvato |
 | Riempi, Sposta in | Dove puoi modificare sia l'oggetto che dove va | Non offerto |

@@ -170,6 +170,13 @@ eine Rolle ab Mitglied. Der Teil von Kept, den ein Werkzeug braucht, ist der Nam
 | `adjust_stock` | ändern | Was zur Neige geht | Erhöhe oder verringere den Bestand eines Verbrauchsguts. |
 | `list_tags` | lesen | | Welche Tags es gibt, mit wie vielen Gegenständen jeweils eines haben. |
 | `tag_things` | ändern | | Füge Tags zu Gegenständen hinzu oder entferne sie; ein neuer Name erstellt den Tag. |
+| `list_moves` | lesen | Umzug | Welche Umzüge es gibt, mit wie vielen Kisten gepackt, unterwegs und ausgepackt sind. |
+| `get_move` | lesen | Umzug | Wo jede Kiste eines Umzugs ist und welche Nummern noch fehlen. |
+| `start_move` | ändern | Umzug | Starte einen Umzug, in einen anderen Standort oder zwischen Räumen dieses. |
+| `add_box` | ändern | Umzug | Füge die nächste nummerierte Kiste hinzu: eine neue oder einen Container, den du hast. |
+| `pack_into_box` | ändern | Umzug | Packe Gegenstände in eine Kiste. |
+| `set_box_status` | ändern | Umzug | Markiere eine Kiste als gepackt oder unterwegs, oder wähle ihren Raum. |
+| `unpack_box` | ändern | Umzug | Packe eine Kiste in einem Raum aus; alles darin kommt mit. |
 
 **Die Felder eines Gegenstands.** `add_thing` und `update_thing` nehmen jedes Feld, das du an einem
 Gegenstand in der App setzen kannst, jedes in seinem eigenen Feld statt in den Notizen: Name, wie
@@ -185,14 +192,6 @@ Kauf geändert oder ein neuer erfasst wird, wie es die Gegenstand-Seite tut. Ein
 aktiviert und eine Rolle, die Geld sehen kann, wie in der App; ein Minimum braucht **Was zur Neige
 geht**. Ein Typ, den Kept nicht kennt, wird ausgelassen, und die Antwort sagt das mit `not_set`;
 die Karte des Assistenten zeigt ihn als "not set" mit einem Auswahlfeld.
-
-| `list_moves` | lesen | Umzug | Welche Umzüge es gibt, mit wie vielen Kisten gepackt, unterwegs und ausgepackt sind. |
-| `get_move` | lesen | Umzug | Wo jede Kiste eines Umzugs ist und welche Nummern noch fehlen. |
-| `start_move` | ändern | Umzug | Starte einen Umzug, in einen anderen Standort oder zwischen Räumen dieses. |
-| `add_box` | ändern | Umzug | Füge die nächste nummerierte Kiste hinzu: eine neue oder einen Container, den du hast. |
-| `pack_into_box` | ändern | Umzug | Packe Gegenstände in eine Kiste. |
-| `set_box_status` | ändern | Umzug | Markiere eine Kiste als gepackt oder unterwegs, oder wähle ihren Raum. |
-| `unpack_box` | ändern | Umzug | Packe eine Kiste in einem Raum aus; alles darin kommt mit. |
 
 Jedes Werkzeug, das eine ID nimmt, nimmt auch eine 6-stellige Kurz-ID wie `K7D2QX`. Die
 vollständigen Verträge sind in

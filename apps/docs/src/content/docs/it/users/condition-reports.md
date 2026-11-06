@@ -11,6 +11,8 @@ Un nuovo rapporto richiede:
 - **Ingresso** o **Uscita**.
 - Il giorno dell'**ispezione**.
 
+Si parte dalle stanze del luogo (i posti di tipo Stanza). Aggiungi quelle mancanti o rimuovine una.
+
 ## Ogni stanza
 Per ogni stanza, registra:
 - **Condizioni**: Buono, Accettabile, Scarso o Danneggiato.

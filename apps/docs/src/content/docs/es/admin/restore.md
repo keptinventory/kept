@@ -104,6 +104,6 @@ El trabajador verifica el repositorio semanalmente (`restic check`). Para verifi
 docker compose run --rm --no-deps --entrypoint kept kept admin backup verify --read-data 5%
 ```
 
-Con el almacenamiento de archivos S3, la verificación también comprueba cada archivo en el manifieto frente al depósito. 
+Con el almacenamiento de archivos S3, la verificación también comprueba cada archivo en el manifiesto frente al depósito. 
 Si un bloqueo dejado por un fallo permanece en el repositorio, `kept admin backup unlock` lo elimina; 
 se niega a hacerlo mientras se ejecuta una copia de seguridad.

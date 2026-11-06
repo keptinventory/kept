@@ -16,7 +16,7 @@ Quando la modalità Stanza non può essere eseguita, essa indica il motivo invec
 
 ## Scatta le foto
 
-1. Apri **Acquisisi**, poi **Stanza** sulla barra delle modalità. Dalla pagina di un luogo, **Riempi dalle foto**
+1. Apri **Acquisisci**, poi **Stanza** sulla barra delle modalità. Dalla pagina di un luogo, **Riempi dalle foto**
    lo apre in quel luogo; sulla [mappa della posizione](/it/users/location-map/), la scheda della stanza ha
    **Fotografa questa stanza**.
 2. Controlla dove vanno le foto: il chip del luogo in alto. Un'acquisizione di stanza va in una stanza, un punto

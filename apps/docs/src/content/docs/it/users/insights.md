@@ -4,7 +4,7 @@ description: "Spese per oggetti, valore per luogo, costi dei veicoli e copertura
 ---
 
 **Statistiche** (nella barra laterale, e sotto Altro su telefono) mostra i dati tra le tue posizioni con
-Money on, oppure un luogo scelto con il chip **Luogo**.
+Denaro attivo, oppure un luogo scelto con il chip **Luogo**.
 
 ## Spese per oggetti
 
@@ -18,6 +18,8 @@ Acquisti confermati, raggruppati per l'anno in cui li hai acquistati.
 
 Ogni oggetto in uso, alla sua ultima valutazione, per posto di primo livello. Un oggetto in una scatola in un armadio
 conta nella stanza.
+
+Gli oggetti senza valutazione vengono contati ma non aggiungono nulla: Kept non indovina mai un valore.
 
 ## Costi dei veicoli
 
@@ -38,5 +40,5 @@ cosa scade a breve, e le riparazioni risolte quest'anno e l'anno scorso.
 ## Correlati
 
 - [Uso quotidiano](/it/users/everyday-use/) per il quadro d'insieme.
-- Vehicles and machines per i costi dietro Vehicle costs.
-- Reports, insurance and claims per il resoconto assicurativo.
+- Veicoli e macchine per i costi dietro **Costi dei veicoli**.
+- Report, assicurazione e sinistri per il report per l’assicurazione.

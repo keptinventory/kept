@@ -30,7 +30,7 @@ avec une clé de données par ligne, chaque texte chiffré lié à sa table, sa 
 - **Généré au premier démarrage** lorsque les deux sont non définis, dans le volume de configuration (jamais le volume de données), avec une ligne de journal indiquant où. Définissez-vous-mêmes avec `kept admin gen-key` ; le démarrage refuse une clé inférieure à 32 octets, et refuse une clé définie sans l'autre.
 - **Ni l'un ni l'autre n'est présent dans la base de données ou la sauvegarde.** Conservez [le kit de récupération](/fr/admin/recovery-kit/). Sans la clé secrète, une restauration ramène tout sauf les valeurs secrètes et les clés IA.
 - **Rotation :** `kept admin rotate-key` crée une nouvelle clé actuelle et ré-enveloppe chaque valeur scellée ;
-  l'ancienne clé est conservée comme version retraitée afin que les anciennes sauvegardes restent ouvrables. `--resume` termine une exécution interrompue, `--drop <version>` supprime une clé retirée non utilisée
+  l'ancienne clé est conservée comme version retirée afin que les anciennes sauvegardes restent ouvrables. `--resume` termine une exécution interrompue, `--drop <version>` supprime une clé retirée non utilisée
   ([l'interface CLI](/fr/admin/cli/#commandes)).
 - **Les mots de passe des boîtes aux lettres électroniques entrantes sont en écriture seule :** le serveur, le nom d'utilisateur et le mot de passe d'une boîte aux lettres électroniques entrantes sont scellés ensemble ; la page affiche le serveur et le nom d'utilisateur, jamais le mot de passe.
 - **Les clés IA sont en écriture seule :** une fois enregistrées, Kept n'affiche que leurs quatre derniers caractères.

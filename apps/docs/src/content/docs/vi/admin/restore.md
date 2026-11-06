@@ -32,7 +32,7 @@ Kept chỉ khôi phục **vào cơ sở dữ liệu mới, rỗng**, kiểm tra 
    ```sh
    docker compose run --rm --no-deps --entrypoint kept \
      -e KEPT_OWNER_DATABASE_URL="postgres://kept_owner:${KEPT_DB_OWNER_PASSWORD}@db:5432/kept_restored" \
-     kept admin restore <ảnh_chụp_nhanh>
+     kept admin restore <snapshot>
    ```
 
    Kept lấy cơ sở dữ liệu và tệp ra khỏi ảnh chụp nhanh, kiểm tra bản dump đối với bản kê khai của nó, kiểm tra `pg_restore` khớp với phiên bản chính của máy chủ và các tiện ích mở rộng tồn tại, khôi phục trong một giao dịch, sau đó so sánh **số lượng hàng và bản tóm tắt dữ liệu của mọi bảng** với bản kê khai: bất kỳ bảng nào có dữ liệu khác nhau, ngay cả khi cùng số hàng, cũng khiến khôi phục thất bại. Tệp quay lại kho chứa `KEPT_STORAGE` đặt tên, SHA-256 của từng cái được kiểm tra. Nó kết thúc bằng cách in ra lệnh đổi chỗ.
