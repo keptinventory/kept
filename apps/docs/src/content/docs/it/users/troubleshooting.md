@@ -141,7 +141,7 @@ Imposta un limite mensile in **Impostazioni → IA → Avanzate → Limiti**, sc
 ### Qualcosa non funziona offline
 
 Lavorare offline richiede Kept installato da un indirizzo HTTPS. Navigazione, ricerca e acquisizione funzionano senza
-connessione; la modifica dei dettagli, l'assistente, i report, la mappa, il grafico e qualsiasi cosa coinvolga denaro ne
+connessione; la modifica dei dettagli, l'assistente, i report, la mappa, il grafo e qualsiasi cosa coinvolga denaro ne
 richiedono una.
 
 L'elenco completo: [cosa funziona offline](/it/users/phone-app/#cosa-funziona-offline).

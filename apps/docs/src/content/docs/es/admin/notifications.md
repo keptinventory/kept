@@ -18,13 +18,13 @@ Con Compose, pon ambas en `.env`; `compose.yaml` las pasa a `kept` y `migrate`. 
 
 El correo solo se registra como pendiente: una advertencia por correo, `mail not sent: no mail transport is configured`, que nombra el tipo de correo y nunca la dirección, el enlace ni el token. **Administrador → Estado** muestra **Mail: Not configured** y el aviso **El correo no está configurado**. Sin correo no hay enlaces de inicio de sesión, restablecimientos de contraseña, invitaciones por correo, alertas por correo ni informes por correo. Las invitaciones por enlace y las contraseñas funcionan sin él, y los recordatorios siguen llegando a la gente por push y en la app. **Envíamelo por correo** y **Volver a enviar** en Print inventory están bloqueados, y los propietarios y administradores reciben un enlace **Configurar email** a esta página; la API rechaza `email: true` y las programaciones de informes con 409 `mail_not_configured`.
 
-Cuando el correo está configurado, una cuenta cuya dirección no esté verificada no puede añadir una passkey ni una app de autenticación hasta que lo esté.
+Cuando el correo está configurado, una cuenta cuya dirección no esté verificada no puede añadir una llave de acceso ni una app de autenticación hasta que lo esté.
 
 ### Lo que Kept envía
 
 Cada correo se envía como texto y HTML en el idioma del destinatario (inglés cuando Kept no lo sabe). Los enlaces llevan su token después de `#`, así que un escáner de correo o un registro del servidor nunca tiene uno usable.
 
-- **Inicio de sesión y la cuenta**: enlaces de inicio de sesión, restablecimientos de contraseña, confirmar y verificar una nueva dirección de correo y un aviso a la anterior, un aviso cuando alguien intenta registrarse con una dirección que ya tiene cuenta, y un aviso cuando cambia una credencial: la contraseña, una passkey añadida o eliminada, un inicio de sesión externo desvinculado, la autenticación de dos factores activada, reconfigurada o desactivada, y nuevos códigos de respaldo.
+- **Inicio de sesión y la cuenta**: enlaces de inicio de sesión, restablecimientos de contraseña, confirmar y verificar una nueva dirección de correo y un aviso a la anterior, un aviso cuando alguien intenta registrarse con una dirección que ya tiene cuenta, y un aviso cuando cambia una credencial: la contraseña, una llave de acceso añadida o eliminada, un inicio de sesión externo desvinculado, la autenticación de dos factores activada, reconfigurada o desactivada, y nuevos códigos de respaldo.
 - **Personas y ubicaciones**: invitaciones por correo; al propietario de una ubicación, cada nuevo miembro o cuenta gestionada y cada membresía que llega a su fecha de fin.
 - **Transparencia**: cuando un admin de la instancia (o `kept admin`) actúa sobre la cuenta de alguien; y a cada usuario activo cuando cambia el inicio de sesión OIDC de la instancia, su correo saliente o su proveedor de IA predeterminado.
 - **Recordatorios**: un elemento vencido al momento, el resumen diario, una prueba de canal y un aviso cuando el webhook propio de una persona sigue fallando.

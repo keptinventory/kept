@@ -104,7 +104,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 |---|---|
 | Nozioni di base | Home, i tuoi luoghi, Scansione, Ricerca, e dove si trova tutto il resto |
 | Oggetti e posti | aggiunta a una posizione, cosa vi si trova, e la pagina di un oggetto e le sue schede |
-| Grafico e mappa 3D | l'interruttore Lista · Griglia · Grafico · Tabella · Mappa (Tabella su un computer), il grafico in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
+| Grafo e mappa 3D | l'interruttore Lista · Griglia · Grafo · Tabella · Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
 | Acquisizione e In arrivo | scegli cosa acquisire, l'otturatore, e verificare cosa Kept ha letto |
 | Scansione | una sessione di scansione: conta, imballa o spostati, dove, e cosa cambia Finish |
 | Ricerca ed etichette | il campo di ricerca, le visualizzazioni salvate, Seleziona (sposta, stampa etichette, sposta nel cestino), stampa etichette e Scansione, che può mettere un'etichetta vuota in una posizione che possiedi |

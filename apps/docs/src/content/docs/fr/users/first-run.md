@@ -140,7 +140,7 @@ pas chacun :
 |---|---|
 | Basics | Accueil, vos lieux, Scanner, Rechercher, et où se trouve tout le reste. |
 | Things & places | ajouter à un lieu, ce qu’il contient, et la page d’un objet et ses onglets. |
-| Graph & 3D map | le commutateur Liste · Grille · Graphe · Tableau · Carte (Tableau sur un ordinateur), le graphe en 2D ou 3D, en 3D ou en plan, les épingles, les étages et Ranger, où une pièce se déplace avec ce qu’elle contient. |
+| Graphe & carte 3D | le commutateur Liste · Grille · Graphe · Tableau · Carte (Tableau sur un ordinateur), le graphe en 2D ou 3D, en 3D ou en plan, les épingles, les étages et Ranger, où une pièce se déplace avec ce qu’elle contient. |
 | Capture & Inbox | choisir ce que vous capturez, le déclencheur, et relire ce que Kept a lu. |
 | Scanning | une session de scan : compter, emballer ou déplacer, où, et ce que Terminer change. |
 | Search & labels | le champ de recherche, les vues enregistrées, Sélectionner (déplacer, imprimer des étiquettes, Mettre à la corbeille), l’impression d’étiquettes et Scanner, qui peut poser une étiquette vierge sur un lieu que vous avez. |

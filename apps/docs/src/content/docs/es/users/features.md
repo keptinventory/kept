@@ -69,14 +69,14 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 - **[Compartir una ubicación](/es/users/sharing/):** invita a personas con un rol (administrador, miembro,
   visitante) y una fecha final opcional; cuentas gestionadas para personas sin correo electrónico;
   enlaces de uso compartido solo lectura para alguien sin cuenta.
-- **[Inicio de sesión y seguridad](/es/users/sign-in-security/):** claves de acceso y inicio de sesión
+- **[Inicio de sesión y seguridad](/es/users/sign-in-security/):** llaves de acceso y inicio de sesión
   de dos factores; en una red doméstica sobre HTTP sin cifrar, [inicios de sesión mientras el admin
   lo establezca](/es/install/home-network/#permanecer-en-tu-red); una instancia de Kept en [más de una
   dirección](/es/install/home-network/#más-de-una-dirección), como un nombre de LAN y un nombre de
   Tailscale.
 - **Idiomas**: alemán, árabe (de derecha a izquierda), español, francés, inglés, italiano, ucraniano
   y vietnamita; escribe para encontrar el tuyo en el selector, y las fechas en el estilo de tu región, o
-  como elijas.
+  como elijas. La documentación también está en todos estos idiomas.
 
 ## En tu teléfono
 

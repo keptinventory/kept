@@ -93,7 +93,7 @@ una hora y la app lo renueva sin preguntarte de nuevo; Kept comprueba tu permiso
 
 La app tiene que iniciar sesión de nuevo tras cualquier cosa que cierre sesión en tus otros dispositivos: **Cerrar sesión en todos
 los otros dispositivos**, una contraseña nueva o un restablecimiento de contraseña, un cambio en los dos factores, códigos de respaldo o
-passkeys, desvincular un inicio de sesión externo, una dirección de correo nueva, o un administrador cerrando tu sesión en todas partes
+llaves de acceso, desvincular un inicio de sesión externo, una dirección de correo nueva, o un administrador cerrando tu sesión en todas partes
 o desactivando tu cuenta. Cerrar sesión en un dispositivo elegido deja la app conectada.
 
 Una excepción: pedir borrar tu cuenta cierra sesión en tus otros dispositivos pero mantiene el inicio de sesión

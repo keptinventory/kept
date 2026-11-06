@@ -21,7 +21,7 @@ Misma Kept, misma versión, mismas funciones: cosas, lugares, el mapa y el grafo
 | Primera cuenta | Un admin de Home Assistant la configura sin código | El código de configuración del registro de Kept |
 | Configuración | Pestaña **Configuración** de la app | `.env` o los valores del chart |
 | Sin conexión, instalar la app del teléfono, push | Propia dirección de Kept sobre https; no en la barra lateral | Sobre https |
-| Passkeys, OIDC, Google | Propia dirección de Kept (https para passkeys; https y un nombre de dominio público para Google) | Dirección de Kept |
+| Llaves de acceso, OIDC, Google | Propia dirección de Kept (https para llaves de acceso; https y un nombre de dominio público para Google) | Dirección de Kept |
 | Copias de seguridad | Copias de seguridad de Home Assistant; fuera del equipo a través de sus [ubicaciones de copia de seguridad](https://www.home-assistant.io/common-tasks/general/backups/) | Copias de seguridad nocturnas propias de Kept: restic a una carpeta, S3 o SFTP |
 | Fotos y archivos | En los datos de la app | En disco, o S3 |
 
@@ -81,9 +81,9 @@ Desactivar el puerto 8080 (Configuración → Red) deja solo la barra lateral: l
 |---|---|---|
 | Cosas, lugares, búsqueda, etiquetas, fotos desde un archivo | sí | sí |
 | Tokens personales (la integración), mostrar secretos, exportaciones | no | sí |
-| Passkeys, la cámara, instalar la app del teléfono, push | no | sí |
+| Llaves de acceso, la cámara, instalar la app del teléfono, push | no | sí |
 
-Dentro de Home Assistant, Kept cuenta como https solo cuando Home Assistant mismo se sirve sobre https. Un proxy frente a Home Assistant que termina TLS debe enviar `X-Forwarded-Proto: https`, o Kept ve http plano. Los passkeys pertenecen a la propia dirección de Kept: inicia sesión con uno allí. Más en [la red del hogar](/es/install/home-network/).
+Dentro de Home Assistant, Kept cuenta como https solo cuando Home Assistant mismo se sirve sobre https. Un proxy frente a Home Assistant que termina TLS debe enviar `X-Forwarded-Proto: https`, o Kept ve http plano. Las llaves de acceso pertenecen a la propia dirección de Kept: inicia sesión con uno allí. Más en [la red del hogar](/es/install/home-network/).
 
 ## Copias de seguridad y actualizaciones
 
