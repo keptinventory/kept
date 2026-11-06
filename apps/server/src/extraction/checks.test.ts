@@ -104,6 +104,10 @@ describe("an alias in its language's script", () => {
     ['TV', 'ar', false], // an acronym alone isn't Arabic
     ['perceuse sans fil', 'fr', true],
     ['Bohrschrauber', 'de', true],
+    ['máy khoan', 'vi', true], // Vietnamese is Latin letters, marks and all
+    ['дриль', 'vi', false],
+    ['taladro', 'es', true],
+    ['дриль', 'uk', true],
     ['Wi-Fi box', 'en', true],
     ['مثقاب', 'en', false],
     ['1234', 'en', false], // digits alone are no script
@@ -210,6 +214,9 @@ describe('placeholders and VIN formats seen in real runs', () => {
       'Any mention of a warranty, guarantee or return term is a sign, not a rule for the model.',
       'No warranty printed',
       'بدون ضمان',
+      'Sin garantía',
+      'Без гарантії',
+      'Không bảo hành',
     ]) {
       expect(terms(text).dropped, text).toEqual([
         { path: 'warranty_terms_printed', reason: 'not_terms' },
@@ -219,6 +226,9 @@ describe('placeholders and VIN formats seen in real runs', () => {
       'Tools carry a 1-year limited warranty.',
       'ضمان سنة ضد عيوب الصناعة',
       'Garantie 2 ans',
+      'Garantía de 2 años',
+      'Гарантія 2 роки',
+      'Bảo hành 2 năm',
     ]) {
       expect(terms(text).fields.warrantyTermsPrinted?.value, text).toBe(text);
     }
