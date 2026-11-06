@@ -128,11 +128,11 @@ const WORDS: Record<MailLocale, Words> = {
     oidcOn: {
       subject: (name) => `Cambió el inicio de sesión con ${name} en Kept`,
       body: (name) =>
-        `La persona que administra este Kept cambió el inicio de sesión con ${name}. Tu contraseña, claves de acceso y enlaces de correo funcionan como antes.`,
+        `La persona que administra este Kept cambió el inicio de sesión con ${name}. Tu contraseña, llaves de acceso y enlaces de correo funcionan como antes.`,
     },
     oidcOff: {
       subject: 'El inicio de sesión con una cuenta externa está desactivado en Kept',
-      body: 'La persona que administra este Kept desactivó el inicio de sesión con una cuenta externa. Inicia sesión con tu contraseña, una clave de acceso o un enlace de correo.',
+      body: 'La persona que administra este Kept desactivó el inicio de sesión con una cuenta externa. Inicia sesión con tu contraseña, una llave de acceso o un enlace de correo.',
     },
     oidcFootnote:
       'Todas las personas con una cuenta aquí reciben un aviso cuando cambia el inicio de sesión. Si no lo esperabas, pregunta a la persona que administra este Kept.',

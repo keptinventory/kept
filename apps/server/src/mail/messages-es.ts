@@ -27,12 +27,12 @@ const ES_NOT_YOU =
 
 const ES_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
   'passkey-added': () => ({
-    subject: 'Se agregó una clave de acceso a tu cuenta de Kept',
+    subject: 'Se agregó una llave de acceso a tu cuenta de Kept',
     paragraphs: [
-      'Se agregó una nueva clave de acceso a tu cuenta de Kept, y se cerró sesión en todos los demás dispositivos.',
+      'Se agregó una nueva llave de acceso a tu cuenta de Kept, y se cerró sesión en todos los demás dispositivos.',
     ],
     footnote:
-      'Si no fuiste tú, restablece tu contraseña ahora y quita la clave de acceso en Configuración → Iniciar sesión y seguridad.',
+      'Si no fuiste tú, restablece tu contraseña ahora y quita la llave de acceso en Configuración → Iniciar sesión y seguridad.',
   }),
   'two-factor-disabled': () => ({
     subject: 'Se desactivó el inicio de sesión con autenticación de dos factores',
@@ -43,9 +43,9 @@ const ES_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
       'Si no fuiste tú, restablece tu contraseña ahora y activa de nuevo la autenticación de dos factores.',
   }),
   'passkey-removed': () => ({
-    subject: 'Se quitó una clave de acceso de tu cuenta de Kept',
+    subject: 'Se quitó una llave de acceso de tu cuenta de Kept',
     paragraphs: [
-      'Se quitó una clave de acceso de tu cuenta de Kept, y se cerró sesión en todos los demás dispositivos. Ya no te permite iniciar sesión.',
+      'Se quitó una llave de acceso de tu cuenta de Kept, y se cerró sesión en todos los demás dispositivos. Ya no te permite iniciar sesión.',
     ],
     footnote: ES_NOT_YOU,
   }),
@@ -90,7 +90,7 @@ const ES_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
     subject: 'Tu dirección de correo electrónico está confirmada',
     paragraphs: [
       'Tu contraseña de Kept se restableció desde este buzón, lo que confirma que la dirección de correo de la cuenta es tuya.',
-      'La dirección no se había confirmado antes, así que, por si otra persona configuró la cuenta, se eliminaron todas las claves de acceso, la configuración de autenticación de dos factores y los dispositivos con sesión iniciada agregados hasta ahora.',
+      'La dirección no se había confirmado antes, así que, por si otra persona configuró la cuenta, se eliminaron todas las llaves de acceso, la configuración de autenticación de dos factores y los dispositivos con sesión iniciada agregados hasta ahora.',
     ],
     footnote:
       'Inicia sesión con tu nueva contraseña y vuelve a configurar la autenticación de dos factores si la usas. Si no restableciste tu contraseña, restablécela de nuevo ahora.',
@@ -99,7 +99,7 @@ const ES_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
     subject: 'Tu dirección de correo electrónico está confirmada',
     paragraphs: [
       'Iniciaste sesión en Kept con un enlace enviado a este buzón, lo que confirma que la dirección de correo de la cuenta es tuya.',
-      'La dirección no se había confirmado antes, así que, por si otra persona configuró la cuenta, se eliminaron su contraseña, sus claves de acceso, su configuración de autenticación de dos factores y todos los demás dispositivos con sesión iniciada.',
+      'La dirección no se había confirmado antes, así que, por si otra persona configuró la cuenta, se eliminaron su contraseña, sus llaves de acceso, su configuración de autenticación de dos factores y todos los demás dispositivos con sesión iniciada.',
     ],
     footnote:
       'Elige una contraseña nueva y vuelve a configurar la autenticación de dos factores si la usas, en la configuración de tu cuenta.',

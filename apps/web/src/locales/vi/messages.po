@@ -7936,7 +7936,7 @@ msgid "Make the places the file names that don't exist yet"
 msgstr "Tạo các vị trí mà tệp nhắc đến nhưng chưa có"
 
 msgid "Manual link"
-msgstr "Liên kết thủ công"
+msgstr "Liên kết sách hướng dẫn"
 
 msgid "Mapped"
 msgstr "Đã khớp"
@@ -16589,10 +16589,10 @@ msgid "No shape matches “{query}”. Try Small thing or Small device, and give
 msgstr "Không có hình dạng nào khớp với “{query}”. Hãy thử Đồ vật nhỏ hoặc Thiết bị nhỏ, và đặt cho nó một cái tên nói rõ nó là gì."
 
 msgid "Table"
-msgstr "Bàn"
+msgstr "Bảng"
 
 msgid "table"
-msgstr "bàn"
+msgstr "bảng"
 
 msgid "{count, plural, one {Move # thing} other {Move # things}}"
 msgstr "{count, plural, one {Di chuyển # đồ vật} other {Di chuyển # đồ vật}}"

@@ -219,7 +219,7 @@ msgstr "{0, plural, one {Llevando #} other {Llevando #}}"
 #. placeholder {0}: queued.length
 #: src/components/capture/capture-screen.tsx
 msgid "{0, plural, one {Kept # file} other {Kept # files}}"
-msgstr "{0, plural, one {Kept # archivo} other {Kept # archivos}}"
+msgstr "{0, plural, one {# archivo guardado} other {# archivos guardados}}"
 
 #. placeholder {0}: thingIds.length
 #: src/components/places/move-picker.tsx
@@ -518,7 +518,7 @@ msgstr "{name} · Configuración de ubicación"
 
 #: src/routes/invite.tsx
 msgid "{name} asks for two-factor. You can join now; it stays hidden until you add a passkey or an authenticator app."
-msgstr "{name} pide verificación en dos pasos. Puedes unirte ahora; permanece oculto hasta que agregues una passkey o una app de autenticación."
+msgstr "{name} pide verificación en dos pasos. Puedes unirte ahora; permanece oculto hasta que agregues una llave de acceso o una app de autenticación."
 
 #: src/components/places/convert-dialog.tsx
 msgid "{name} is a box now"
@@ -574,7 +574,7 @@ msgstr "{person} inicia sesión con el nombre de usuario de abajo y este código
 
 #: src/routes/_app/settings.location.$id.invite.tsx
 msgid "{place} asks everyone for two-factor. They can join now; {place} stays hidden for them until they add a passkey or an authenticator."
-msgstr "{place} exige autenticación de dos factores a todos. Pueden unirse ahora; {place} permanece oculto para ellos hasta que agreguen una passkey o un autenticador."
+msgstr "{place} exige autenticación de dos factores a todos. Pueden unirse ahora; {place} permanece oculto para ellos hasta que agreguen una llave de acceso o un autenticador."
 
 #: src/components/places/rows.tsx
 msgid "{places, plural, one {# place} other {# places}}"
@@ -1279,7 +1279,7 @@ msgstr "IA"
 
 #: src/routes/setup.tsx
 msgid "AI and barcode lookup can be connected later, from Settings. Kept works without them."
-msgstr "La IA y la búsqueda por código de barras se pueden conectar más tarde, desde Ajustes. Kept funciona sin ellas."
+msgstr "La IA y la búsqueda por código de barras se pueden conectar más tarde, desde Configuración. Kept funciona sin ellas."
 
 #: src/lib/labels.ts
 msgid "AI assistant"
@@ -3587,7 +3587,7 @@ msgstr "Ir a Kept"
 
 #: src/routes/auth/email-change.tsx
 msgid "Go to Settings"
-msgstr "Ir a Ajustes"
+msgstr "Ir a Configuración"
 
 #: src/routes/auth/confirm.tsx
 #: src/routes/auth/reset.tsx
@@ -4088,7 +4088,7 @@ msgstr "Ese es el código"
 
 #: src/routes/_app/settings.index.tsx
 msgid "It will need your password or passkey to get back in."
-msgstr "Necesitará tu contraseña o clave de acceso para volver a entrar."
+msgstr "Necesitará tu contraseña o llave de acceso para volver a entrar."
 
 #: src/routes/_app/admin.jobs.tsx
 msgid "It won't run again. Whatever it was doing stays undone."
@@ -4249,7 +4249,7 @@ msgstr "Kept no puede usar la cámara"
 
 #: src/routes/_app/settings.two-factor.tsx
 msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Two-factor needs a password, so afterwards set a new one with “Forgot your password?” on the sign-in page, then come back here."
-msgstr "Kept te envía por correo un enlace para iniciar sesión; abrirlo confirma la dirección. Abrirlo también elimina la contraseña, las passkeys y las demás sesiones de esta cuenta, para que nadie que las configurara antes que tú conserve una forma de entrar. La autenticación de dos factores necesita una contraseña, así que después establece una nueva con “¿Olvidaste tu contraseña?” en la página para iniciar sesión y luego vuelve aquí."
+msgstr "Kept te envía por correo un enlace para iniciar sesión; abrirlo confirma la dirección. Abrirlo también elimina la contraseña, las llaves de acceso y las demás sesiones de esta cuenta, para que nadie que las configurara antes que tú conserve una forma de entrar. La autenticación de dos factores necesita una contraseña, así que después establece una nueva con “¿Olvidaste tu contraseña?” en la página para iniciar sesión y luego vuelve aquí."
 
 #: src/components/things/overview.tsx
 msgid "Kept from an earlier type. They're not lost; re-type back to use them again."
@@ -6132,7 +6132,7 @@ msgstr "Documentación"
 #: src/routes/signin/index.tsx
 #: src/routes/signin/two-factor.tsx
 msgid "Passkey sign-in was cancelled."
-msgstr "Se canceló el inicio de sesión con passkey."
+msgstr "Se canceló el inicio de sesión con llave de acceso."
 
 #: src/routes/gallery.tsx
 #: src/routes/invite.tsx
@@ -7591,7 +7591,7 @@ msgstr "Iniciar sesión con un código de un solo uso"
 
 #: src/routes/signin/index.tsx
 msgid "Sign in with a passkey"
-msgstr "Iniciar sesión con una clave de acceso"
+msgstr "Iniciar sesión con una llave de acceso"
 
 #: src/routes/auth/email-change.tsx
 msgid "Sign in with the new address from now on. Every other device was signed out, and your old address was told about the change."
@@ -8069,11 +8069,11 @@ msgstr "Ese nombre ya está en esta lista. En su lugar, combina los dos."
 
 #: src/routes/signin/two-factor.tsx
 msgid "That passkey couldn't confirm it's you. Use a code instead."
-msgstr "Esa clave de acceso no pudo confirmar que eres tú. Usa un código en su lugar."
+msgstr "Esa llave de acceso no pudo confirmar que eres tú. Usa un código en su lugar."
 
 #: src/routes/signin/index.tsx
 msgid "That passkey isn't registered here. Sign in another way, then add it."
-msgstr "Esa clave de acceso no está registrada aquí. Inicia sesión de otra manera y luego agréala."
+msgstr "Esa llave de acceso no está registrada aquí. Inicia sesión de otra manera y luego agrégala."
 
 #: src/components/change-email.tsx
 #: src/routes/_app/settings.two-factor.tsx
@@ -8425,7 +8425,7 @@ msgstr "Este dispositivo no tiene ninguna cámara que Kept pueda usar."
 
 #: src/routes/_app/settings.index.tsx
 msgid "This device stays signed in. The others need your password or passkey again."
-msgstr "Este dispositivo permanece con la sesión iniciada. Los demás necesitan tu contraseña o clave de acceso de nuevo."
+msgstr "Este dispositivo permanece con la sesión iniciada. Los demás necesitan tu contraseña o llave de acceso de nuevo."
 
 #: src/components/inbox/duplicate-review.tsx
 msgid "This draft"
@@ -8987,7 +8987,7 @@ msgstr "Usa otra forma"
 
 #: src/routes/signin/two-factor.tsx
 msgid "Use a passkey"
-msgstr "Usa una clave de acceso"
+msgstr "Usa una llave de acceso"
 
 #: src/routes/_app/p.$id.tsx
 msgid "Use Add here to put the first thing in <0>{name}</0>."
@@ -9880,7 +9880,7 @@ msgstr "Agregar un precio para ver el costo. Hasta entonces Kept cuenta solo tok
 
 #: src/components/ai/advanced.tsx
 msgid "Admin settings"
-msgstr "Ajustes de administración"
+msgstr "Configuración de administración"
 
 #: src/components/ai/advanced.tsx
 msgid "Advanced"
@@ -11422,7 +11422,7 @@ msgstr "Crear los lugares con los nombres de los archivos que aún no existen"
 
 #: src/components/import/labels.ts
 msgid "Manual link"
-msgstr "Enlace manual"
+msgstr "Enlace del manual"
 
 #: src/components/import/labels.ts
 msgid "Mapped"
@@ -12078,7 +12078,7 @@ msgstr "{a} × {b} mm"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{cell} roll"
-msgstr "{cell} roll"
+msgstr "Rollo {cell}"
 
 #: src/components/labels/stock-picker.tsx
 msgid "Label printer · one label per thing"
@@ -12343,7 +12343,7 @@ msgstr "Solo para un servidor que tú mismo alojas. Mientras esto esté activado
 
 #: src/components/ai/paste-key.tsx
 msgid "That address is on a private network. On a self-hosted server, an instance admin can allow private addresses in Admin → Settings."
-msgstr "Esa dirección está en una red privada. En un servidor autoalojado, un administrador de instancia puede permitir direcciones privadas en Admin → Settings."
+msgstr "Esa dirección está en una red privada. En un servidor autoalojado, un administrador de instancia puede permitir direcciones privadas en Admin → Configuración."
 
 #: src/components/sync-status.tsx
 msgid "A change couldn't apply: <0>{name}</0> was trashed by <1>{by}</1>."
@@ -13344,7 +13344,7 @@ msgstr "Todo en Documentos"
 
 #: src/components/home/attention.tsx
 msgid "Borrowed in"
-msgstr "Prestado en"
+msgstr "Prestado por otros"
 
 #: src/routes/_app/expiring.tsx
 msgid "by state"
@@ -13696,7 +13696,7 @@ msgstr "Un valor necesita una fecha."
 
 #: src/components/warranties/warranties-section.tsx
 msgid "A warranty covers one thing: split this one first to add one."
-msgstr "Una garantía cubre un objeto: divide este primero para agregar uno."
+msgstr "Una garantía cubre un objeto: divide este primero para agregar una."
 
 #: src/components/warranties/warranty-sheet.tsx
 msgid "A warranty needs a start date."
@@ -18730,7 +18730,7 @@ msgstr "Selecciona al menos una ubicación."
 
 #: src/routes/oauth/consent.tsx
 msgid "Pick only what it needs. You can disconnect it in Settings → Connections."
-msgstr "Selecciona solo lo que necesita. Puedes desconectarlo en Ajustes → Conexiones."
+msgstr "Selecciona solo lo que necesita. Puedes desconectarlo en Configuración → Conexiones."
 
 #: src/routes/oauth/consent.tsx
 msgid "It stays signed in after you sign out of this browser; anything that signs out all your other devices makes it sign in again."
@@ -19406,7 +19406,7 @@ msgstr "Quitar contexto de la página"
 
 #: src/assistant/conversation.tsx
 msgid "Connect AI in Settings"
-msgstr "Conectar IA en Ajustes"
+msgstr "Conectar IA en Configuración"
 
 #: src/assistant/conversation.tsx
 msgid "AI isn't set up here"
@@ -20927,7 +20927,7 @@ msgstr "¿Desvincular {name}?"
 
 #: src/components/sign-in-methods.tsx
 msgid "You won't be able to sign in with {name} until you link it again. Your password and passkeys still work."
-msgstr "No podrás iniciar sesión con {name} hasta que lo vincules nuevamente. Tu contraseña y tus claves de acceso siguen funcionando."
+msgstr "No podrás iniciar sesión con {name} hasta que lo vincules nuevamente. Tu contraseña y tus llaves de acceso siguen funcionando."
 
 #: src/components/sign-in-methods.tsx
 msgid "Unlink"
@@ -21243,7 +21243,7 @@ msgstr "Correo entrante"
 
 #: src/components/mailin/mailbox-settings.tsx
 msgid "That address is on a private network. An instance admin can allow it in Admin → Settings."
-msgstr "Esa dirección está en una red privada. Un administrador de instancia puede permitirla en Administración → Ajustes."
+msgstr "Esa dirección está en una red privada. Un administrador de instancia puede permitirla en Admin → Configuración."
 
 #: src/components/mailin/mailbox-settings.tsx
 msgid "Kept couldn't reach that server. Check the host and port."
@@ -23243,11 +23243,11 @@ msgstr "Ninguna forma coincide con “{query}”. Prueba Objeto pequeño o Dispo
 
 #: src/components/places/contents-list.tsx
 msgid "Table"
-msgstr "Mesa"
+msgstr "Tabla"
 
 #: src/components/places/contents-list.tsx
 msgid "table"
-msgstr "mesa"
+msgstr "tabla"
 
 #: src/components/sheet/bulk.tsx
 msgid "{count, plural, one {Move # thing} other {Move # things}}"
@@ -24754,7 +24754,7 @@ msgstr "Cada mudanza, abierta o terminada. Toca una para ver sus cajas."
 
 #: src/components/hints/hint-copy.ts
 msgid "Every other section: your modules, Activity, Trash, Settings and Help."
-msgstr "Las demás secciones: tus módulos, Actividad, Papelera, Ajustes y Ayuda."
+msgstr "Las demás secciones: tus módulos, Actividad, Papelera, Configuración y Ayuda."
 
 #: src/components/hints/hint-copy.ts
 msgid "Every schedule, soonest first. Overdue ones lead."
@@ -24870,7 +24870,7 @@ msgstr "Establece algo para repetirse: cada pocos meses, o por el odómetro"
 
 #: src/components/hints/hint-copy.ts
 msgid "Settings & sharing"
-msgstr "Ajustes & compartir"
+msgstr "Configuración y compartir"
 
 #: src/components/hints/show-me.tsx
 msgid "Show me"
@@ -26614,7 +26614,7 @@ msgstr "Agrega uno en Iniciar sesión y seguridad"
 
 #: src/routes/signin/index.tsx
 msgid "That passkey isn't one this account signs in with. A device's app lock can't sign you in. Sign in another way, then add a passkey in Settings → Sign-in and security."
-msgstr "Ese passkey no es uno con el que esta cuenta inicia sesión. El bloqueo de la app del dispositivo no puede iniciarte sesión. Inicia sesión de otra forma, luego agrega un passkey en Ajustes → Iniciar sesión y seguridad."
+msgstr "Esa llave de acceso no es una con la que esta cuenta inicia sesión. El bloqueo de la app del dispositivo no puede iniciarte sesión. Inicia sesión de otra forma, luego agrega una llave de acceso en Configuración → Iniciar sesión y seguridad."
 
 #: src/routes/_app/settings.location.$id.invite.tsx
 msgid "They add one in Sign-in and security"
@@ -26622,7 +26622,7 @@ msgstr "Ellos agregan uno en Iniciar sesión y seguridad"
 
 #: src/routes/_app/settings.two-factor.tsx
 msgid "Kept emails you a sign-in link; opening it confirms the address. Opening it also removes this account's password, passkeys and other sessions, so nobody who set them up before you keeps a way in. Then come back here within ten minutes."
-msgstr "Kept te envía un enlace de inicio de sesión; al abrirlo confirma la dirección. Al abrirlo también elimina la contraseña, los passkeys y otras sesiones de esta cuenta, así que nadie que los haya configurado antes de ti mantiene una forma de entrar. Luego vuelve aquí dentro de diez minutos."
+msgstr "Kept te envía un enlace de inicio de sesión; al abrirlo confirma la dirección. Al abrirlo también elimina la contraseña, las llaves de acceso y otras sesiones de esta cuenta, así que nadie que las haya configurado antes de ti mantiene una forma de entrar. Luego vuelve aquí dentro de diez minutos."
 
 #: src/routes/_app/settings.two-factor.tsx
 msgid "After this, signing in with a sign-in link or Google also asks for a 6-digit code from an authenticator app (1Password, Google Authenticator, Aegis…)."
@@ -26630,11 +26630,11 @@ msgstr "Después de esto, iniciar sesión con un enlace de inicio de sesión o G
 
 #: src/components/page.tsx
 msgid "That's your only way to sign in. Add another passkey or link another sign-in first."
-msgstr "Esa es tu única forma de iniciar sesión. Agrega otro passkey o vincula otro inicio de sesión primero."
+msgstr "Esa es tu única forma de iniciar sesión. Agrega otra llave de acceso o vincula otro inicio de sesión primero."
 
 #: src/components/page.tsx
 msgid "A location you belong to asks for two-factor. Add a passkey first, then turn the authenticator app off."
-msgstr "Una ubicación a la que perteneces pide autenticación de dos factores. Agrega un passkey primero, luego desactiva la app de autenticación."
+msgstr "Una ubicación a la que perteneces pide autenticación de dos factores. Agrega una llave de acceso primero, luego desactiva la app de autenticación."
 
 #: src/components/sign-in-security.household.tsx
 #: src/components/sign-in-security.tsx
@@ -26647,19 +26647,19 @@ msgstr "Llaves de acceso"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Add a passkey"
-msgstr "Agrega un passkey"
+msgstr "Agrega una llave de acceso"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Sign in with Face ID, a fingerprint or your phone's screen lock instead of typing a password. A passkey counts as two-factor on its own."
-msgstr "Inicia sesión con Face ID, una huella dactilar o el bloqueo de pantalla de tu teléfono en lugar de escribir una contraseña. Un passkey cuenta como autenticación de dos factores por sí mismo."
+msgstr "Inicia sesión con Face ID, una huella dactilar o el bloqueo de pantalla de tu teléfono en lugar de escribir una contraseña. Una llave de acceso cuenta como autenticación de dos factores por sí misma."
 
 #: src/components/sign-in-security.household.tsx
 msgid "This browser can't add a passkey. Try another browser or device."
-msgstr "Este navegador no puede agregar un passkey. Prueba otro navegador o dispositivo."
+msgstr "Este navegador no puede agregar una llave de acceso. Prueba otro navegador o dispositivo."
 
 #: src/components/sign-in-security.household.tsx
 msgid "No passkeys yet"
-msgstr "No hay passkeys aún"
+msgstr "No hay llaves de acceso aún"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkey"
@@ -26671,7 +26671,7 @@ msgstr "Solo este dispositivo"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkey added"
-msgstr "Passkey agregado"
+msgstr "Llave de acceso agregada"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Use {NAME_MAX} characters or fewer."
@@ -26679,31 +26679,31 @@ msgstr "Usa {NAME_MAX} caracteres o menos."
 
 #: src/components/sign-in-security.household.tsx
 msgid "Your browser asks for Face ID, a fingerprint or your screen lock. The passkey is kept by this device or your password manager; Kept never sees it."
-msgstr "Tu navegador pide Face ID, una huella dactilar o el bloqueo de pantalla de tu teléfono. El passkey lo guarda este dispositivo o tu administrador de contraseñas; Kept nunca lo ve."
+msgstr "Tu navegador pide Face ID, una huella dactilar o el bloqueo de pantalla de tu teléfono. La llave de acceso la guarda este dispositivo o tu administrador de contraseñas; Kept nunca la ve."
 
 #: src/components/sign-in-security.household.tsx
 msgid "So you can tell your passkeys apart."
-msgstr "Así puedes distinguir tus passkeys."
+msgstr "Así puedes distinguir tus llaves de acceso."
 
 #: src/components/sign-in-security.household.tsx
 msgid "Adding a passkey needs a sign-in in the last ten minutes."
-msgstr "Agregar un passkey requiere un inicio de sesión en los últimos diez minutos."
+msgstr "Agregar una llave de acceso requiere un inicio de sesión en los últimos diez minutos."
 
 #: src/components/sign-in-security.household.tsx
 msgid "Sign in once with a link sent to your email address, then add the passkey."
-msgstr "Inicia sesión una vez con un enlace enviado a tu dirección de correo electrónico, luego agrega el passkey."
+msgstr "Inicia sesión una vez con un enlace enviado a tu dirección de correo electrónico, luego agrega la llave de acceso."
 
 #: src/components/sign-in-security.household.tsx
 msgid "This device already has a passkey for your account."
-msgstr "Este dispositivo ya tiene un passkey para tu cuenta."
+msgstr "Este dispositivo ya tiene una llave de acceso para tu cuenta."
 
 #: src/components/sign-in-security.household.tsx
 msgid "Rename passkey"
-msgstr "Renombra el passkey"
+msgstr "Renombra la llave de acceso"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkey renamed"
-msgstr "Passkey renombrado"
+msgstr "Llave de acceso renombrada"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Remove <0>{name}</0>?"
@@ -26711,11 +26711,11 @@ msgstr "Eliminar <0>{name}</0>?"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkey removed"
-msgstr "Passkey eliminado"
+msgstr "Llave de acceso eliminada"
 
 #: src/components/sign-in-security.household.tsx
 msgid "It stops signing you in, and every other device is signed out. The passkey itself stays on the device until you delete it there."
-msgstr "Detiene que inicies sesión, y todos los demás dispositivos cierran sesión. El passkey permanece en el dispositivo hasta que lo elimines allí."
+msgstr "Detiene que inicies sesión, y todos los demás dispositivos cierran sesión. La llave de acceso permanece en el dispositivo hasta que la elimines allí."
 
 #: src/components/sign-in-security.household.tsx
 msgid "Authenticator app"
@@ -26727,7 +26727,7 @@ msgstr "Autenticación de dos factores con una app de autenticación"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Off. Some locations ask for it; until you turn it on, or sign in with a passkey, they stay hidden for you."
-msgstr "Desactivado. Algunas ubicaciones lo solicitan; hasta que lo activas o inicias sesión con un passkey, permanecen ocultos para ti."
+msgstr "Desactivado. Algunas ubicaciones lo solicitan; hasta que lo activas o inicias sesión con una llave de acceso, permanecen ocultas para ti."
 
 #: src/components/sign-in-security.household.tsx
 msgid "{0} of {1} backup codes left"
@@ -26775,7 +26775,7 @@ msgstr "La autenticación de dos factores está desactivada"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Signing in stops asking for a code, your backup codes stop working, and every other device is signed out. Locations that ask for two-factor stay hidden until you sign in with a passkey or turn it on again."
-msgstr "Al iniciar sesión deja de pedir un código, tus códigos de respaldo dejan de funcionar y se cierra sesión en todos los demás dispositivos. Las ubicaciones que piden autenticación de dos factores permanecen ocultas hasta que inicies sesión con una clave de acceso o la vuelvas a activar."
+msgstr "Al iniciar sesión deja de pedir un código, tus códigos de respaldo dejan de funcionar y se cierra sesión en todos los demás dispositivos. Las ubicaciones que piden autenticación de dos factores permanecen ocultas hasta que inicies sesión con una llave de acceso o la vuelvas a activar."
 
 #: src/components/sign-in-security.tsx
 msgid "Sign-in and security"
@@ -26787,11 +26787,11 @@ msgstr "Códigos de respaldo"
 
 #: src/components/history/labels.ts
 msgid "Renamed a passkey"
-msgstr "Se renombró una clave de acceso"
+msgstr "Se renombró una llave de acceso"
 
 #: src/components/history/labels.ts
 msgid "Removed a passkey"
-msgstr "Se eliminó una clave de acceso"
+msgstr "Se eliminó una llave de acceso"
 
 #: src/components/history/labels.ts
 msgid "Started setting up two-factor"
@@ -26815,11 +26815,11 @@ msgstr "Desbloquear con Face ID o huella digital"
 
 #: src/components/device/app-lock-settings.tsx
 msgid "Unlocks Kept on this device only. To sign in with a passkey, add one in <0>Sign-in and security</0>."
-msgstr "Desbloquea Kept solo en este dispositivo. Para iniciar sesión con una clave de acceso, agrégala en <0>Iniciar sesión y seguridad</0>."
+msgstr "Desbloquea Kept solo en este dispositivo. Para iniciar sesión con una llave de acceso, agrégala en <0>Iniciar sesión y seguridad</0>."
 
 #: src/components/history/labels.ts
 msgid "Added a passkey"
-msgstr "Se añadió una clave de acceso"
+msgstr "Se añadió una llave de acceso"
 
 #: src/components/history/labels.ts
 msgid "Turned on two-factor"
@@ -26831,7 +26831,7 @@ msgstr "Se desvinculó un inicio de sesión externo"
 
 #: src/components/sign-in-security.household.tsx
 msgid "A location you belong to asks for two-factor. Turn on the authenticator app before removing your last passkey."
-msgstr "Una ubicación a la que perteneces pide autenticación de dos factores. Activa la app de autenticación antes de quitar tu última clave de acceso."
+msgstr "Una ubicación a la que perteneces pide autenticación de dos factores. Activa la app de autenticación antes de quitar tu última llave de acceso."
 
 #: src/routes/_print/labels.$batchId.tsx
 msgid "The page is already {stockTitle} with no margins: keep the print dialog's defaults and scale 100%, so each label lands in its cell."
@@ -26947,7 +26947,7 @@ msgstr "¿Requerir autenticación de dos factores para {name}?"
 
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "Members who haven't set up two-factor or a passkey can't open {name} until they do."
-msgstr "Los miembros que no hayan configurado la autenticación de dos factores o una clave de acceso no pueden abrir {name} hasta que lo hagan."
+msgstr "Los miembros que no hayan configurado la autenticación de dos factores o una llave de acceso no pueden abrir {name} hasta que lo hagan."
 
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "Not set up yet: {names}"
@@ -26983,7 +26983,7 @@ msgstr "Desactivado. Solo el propietario cambia esto."
 
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "To ask everyone for two-factor, sign in with a passkey or your authenticator app first."
-msgstr "Para pedirle a todos la autenticación de dos factores, primero inicia sesión con una clave de acceso o tu app de autenticación."
+msgstr "Para pedirle a todos la autenticación de dos factores, primero inicia sesión con una llave de acceso o tu app de autenticación."
 
 #: src/components/app-shell.tsx
 msgid "{0}, asks for two-factor"
@@ -26999,7 +26999,7 @@ msgstr "<0>{name}</0> pide autenticación de dos factores"
 
 #: src/components/two-factor-hidden.tsx
 msgid "Turn on an authenticator app to open it, or add a passkey and sign in with it."
-msgstr "Activa una app de autenticación para abrirlo, o agrega una clave de acceso e inicia sesión con ella."
+msgstr "Activa una app de autenticación para abrirlo, o agrega una llave de acceso e inicia sesión con ella."
 
 #: src/components/two-factor-hidden.tsx
 msgid "Set up two-factor"
@@ -27262,11 +27262,11 @@ msgstr "{count, plural, one {+# caja} other {+# cajas}}"
 
 #: src/components/private-address-link.tsx
 msgid "Allow private addresses in Admin → Settings"
-msgstr "Permitir direcciones privadas en Admin → Settings"
+msgstr "Permitir direcciones privadas en Admin → Configuración"
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
-msgstr "Las claves de acceso necesitan HTTPS. En una dirección HTTP simple, los navegadores no las ofrecen; pon Kept en HTTPS para agregar uno."
+msgstr "Las llaves de acceso necesitan HTTPS. En una dirección HTTP simple, los navegadores no las ofrecen; pon Kept en HTTPS para agregar una."
 
 #: src/components/import/entity-report.tsx
 msgid "{0, plural, one {secret value left out of the export} other {secret values left out of the export}}"
@@ -27450,7 +27450,7 @@ msgid "Moved {room} right."
 msgstr "{room} se movió hacia la derecha."
 #: src/components/places/contents-list.tsx
 msgid "Graph"
-msgstr "Graph"
+msgstr "Grafo"
 
 #: src/graph/card.tsx
 msgid "Selected"
@@ -27570,7 +27570,7 @@ msgstr "{count, plural, one {# más en {where}} other {# más en {where}}}"
 
 #: src/components/places/contents-list.tsx
 msgid "graph"
-msgstr "gráfico"
+msgstr "grafo"
 
 #: src/routes/_app/p.$id.tsx
 msgid "Add a label code"
@@ -28538,7 +28538,7 @@ msgid "This purchase is kept in another location; change it there."
 msgstr "Esta compra se guarda en otra ubicación; cámbiala allí."
 
 msgid "Also in Paperwork"
-msgstr "También en Paperwork"
+msgstr "También en Documentación"
 
 msgid "At most 300 characters."
 msgstr "Como máximo 300 caracteres."
@@ -28829,7 +28829,7 @@ msgstr "{count, plural, one {# enlace conserva su título de Homebox: Kept no pu
 
 #: src/routes/signin/index.tsx
 msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
-msgstr "Las claves de acceso solo funcionan en <0/>, porque los navegadores vinculan una clave de acceso a una dirección. Aquí, usa tu contraseña o un enlace por correo."
+msgstr "Las llaves de acceso solo funcionan en <0/>, porque los navegadores vinculan una llave de acceso a una dirección. Aquí, usa tu contraseña o un enlace por correo."
 
 #: src/routes/signin/index.tsx
 msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
@@ -28841,7 +28841,7 @@ msgstr "El enlace se abre en <0/>. Establece la nueva contraseña allí y luego 
 
 #: src/components/sign-in-security.household.tsx
 msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
-msgstr "Las claves de acceso solo funcionan en <0/>, porque los navegadores vinculan una clave de acceso a una dirección. Añade una allí."
+msgstr "Las llaves de acceso solo funcionan en <0/>, porque los navegadores vinculan una llave de acceso a una dirección. Añade una allí."
 
 #: src/components/sign-in-methods.tsx
 msgid "To link one, go to <0/>: outside sign-ins come back to that address."
@@ -28857,4 +28857,4 @@ msgstr "La dirección principal. <0/> añade más."
 
 #: src/routes/_app/admin.status.tsx
 msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
-msgstr "La dirección principal, donde se quedan los enlaces, el correo y las claves de acceso. Además, configurada por <0/>:"
+msgstr "La dirección principal, donde se quedan los enlaces, el correo y las llaves de acceso. Además, configurada por <0/>:"

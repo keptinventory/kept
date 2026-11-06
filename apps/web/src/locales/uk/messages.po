@@ -5969,7 +5969,7 @@ msgstr "Вигляд камери"
 
 #: src/pwa/insecure-banner.tsx
 msgid "Camera, offline capture and install need HTTPS."
-msgstr "Камера, офлайн-сканування й встановлення потребують HTTPS."
+msgstr "Камера, офлайн-додавання й встановлення потребують HTTPS."
 
 #: src/components/scan/claim-sheet.tsx
 msgid "Camping box"
@@ -6163,7 +6163,7 @@ msgstr "Можливості"
 #: src/components/inbox/inbox-list.tsx
 #: src/components/page.tsx
 msgid "Capture"
-msgstr "Сканування"
+msgstr "Додавання"
 
 #: src/components/hints/hint-copy.ts
 msgid "Capture & Inbox"
@@ -6175,19 +6175,19 @@ msgstr "Додати чек"
 
 #: src/components/capture/summary.tsx
 msgid "Capture done"
-msgstr "Сканування завершено"
+msgstr "Додавання завершено"
 
 #: src/components/capture/place-chip.tsx
 msgid "Capture into"
-msgstr "Сканувати в"
+msgstr "Додати в"
 
 #: src/components/capture/recognised.tsx
 msgid "Capture into {name}"
-msgstr "Сканувати в {name}"
+msgstr "Додати в {name}"
 
 #: src/components/capture/mode-strip.tsx
 msgid "Capture mode"
-msgstr "Режим сканування"
+msgstr "Режим додавання"
 
 #: src/components/history/labels.ts
 msgid "Captured {name} from a photo"
@@ -6199,15 +6199,15 @@ msgstr "Додано чек"
 
 #: src/components/places/unplaced-sort.tsx
 msgid "Captured into <0>{locationName}</0>, no place yet"
-msgstr "Відскановано в <0>{locationName}</0>, місце ще не вибрано"
+msgstr "Додано в <0>{locationName}</0>, місце ще не вибрано"
 
 #: src/components/capture/counter.tsx
 msgid "Captured."
-msgstr "Відскановано."
+msgstr "Додано."
 
 #: src/offline/provider.tsx
 msgid "Captures from another account are on this phone"
-msgstr "На цьому телефоні є сканування з іншого облікового запису"
+msgstr "На цьому телефоні є знімки з іншого облікового запису"
 
 #: src/components/ai/caps.tsx
 msgid "Captures still save; naming waits."
@@ -6215,11 +6215,11 @@ msgstr "Додавання продовжує зберігатися; назви
 
 #: src/components/capture/capture-screen.tsx
 msgid "Captures that haven't synced are deleted from this phone. Synced drafts from this batch go to the trash."
-msgstr "Сканування, які не синхронізувалися, буде видалено з цього телефону. Синхронізовані чернетки з цього пакета потраплять до кошика."
+msgstr "Знімки, які не синхронізувалися, буде видалено з цього телефону. Синхронізовані чернетки з цього пакета потраплять до кошика."
 
 #: src/components/capture/place-chip.tsx
 msgid "Capturing into {path}. Change place"
-msgstr "Сканування в {path}. Змінити місце"
+msgstr "Додавання в {path}. Змінити місце"
 
 #: src/components/connections/shortcut-recipe.tsx
 #: src/components/vehicles/list.tsx
@@ -8072,7 +8072,7 @@ msgstr "Не вдалося це зберегти"
 
 #: src/components/capture/capture-screen.tsx
 msgid "Couldn't save that capture"
-msgstr "Не вдалося зберегти це сканування"
+msgstr "Не вдалося зберегти це додавання"
 
 #: src/components/things/label-preview.tsx
 msgid "Couldn't save the label image. Try again."
@@ -15708,7 +15708,7 @@ msgstr "Інструкція (вебадреса)"
 
 #: src/components/import/labels.ts
 msgid "Manual link"
-msgstr "Ручне посилання"
+msgstr "Посилання на інструкцію"
 
 #: src/components/inbox/labels.ts
 msgid "manufacture date"
@@ -25395,13 +25395,13 @@ msgstr "Система"
 #: src/components/places/contents-list.tsx
 #: src/components/sheet/sheet-view.tsx
 msgid "table"
-msgstr "стіл"
+msgstr "таблиця"
 
 #: src/components/places/contents-list.tsx
 #: src/components/sheet/sheet-view.tsx
 #: src/map/remembered.tsx
 msgid "Table"
-msgstr "Стіл"
+msgstr "Таблиця"
 
 #: src/map/labels.ts
 msgid "Table lamp"
