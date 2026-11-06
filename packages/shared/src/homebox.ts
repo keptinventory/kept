@@ -65,8 +65,9 @@ export function homeboxTypeName(name: string): string {
 }
 
 /**
- * The words that make a location's name read as a box, in Kept's five languages (en, de, fr, it,
- * ar), lower case. A name reads as a box when one of its words is one of these.
+ * The words that make a location's name read as a box, in Kept's languages, lower case. A name
+ * reads as a box when one of its words is one of these. Only words that mean a box first: "cajón"
+ * and "шухляда" are drawers, which stay places.
  */
 export const BOX_WORDS: readonly string[] = Object.freeze([
   // English
@@ -105,17 +106,46 @@ export const BOX_WORDS: readonly string[] = Object.freeze([
   'كرتون',
   'سلة',
   'حاوية',
+  // Vietnamese ("vật chứa" is two words: looksLikeBox reads a name's words in pairs too)
+  'hộp',
+  'thùng',
+  'giỏ',
+  'vật chứa',
+  // Ukrainian
+  'коробка',
+  'коробки',
+  'контейнер',
+  'контейнери',
+  'ящик',
+  'ящики',
+  'скринька',
+  'скриньки',
+  'кошик',
+  'кошики',
+  // Spanish
+  'caja',
+  'cajas',
+  'contenedor',
+  'contenedores',
+  'recipiente',
+  'recipientes',
+  'cesta',
+  'cestas',
+  'canasta',
+  'canastas',
 ]);
 const BOX_WORD_SET = new Set(BOX_WORDS);
 
 /** Whether a location's name reads as a box ("Box 01", "Kiste 3", "صندوق ٢"), by its words. */
 export function looksLikeBox(name: string): boolean {
+  let previous = '';
   for (const raw of name
     .normalize('NFC')
     .toLocaleLowerCase()
     .split(/[^\p{L}\p{M}]+/u)) {
     if (!raw) continue;
-    if (BOX_WORD_SET.has(raw)) return true;
+    if (BOX_WORD_SET.has(raw) || BOX_WORD_SET.has(`${previous} ${raw}`)) return true;
+    previous = raw;
     // Arabic's article: "الصندوق" is "صندوق".
     if (raw.startsWith('ال') && BOX_WORD_SET.has(raw.slice(2))) return true;
   }
