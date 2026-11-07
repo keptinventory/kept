@@ -10,8 +10,8 @@ import {
 import type pg from 'pg';
 import { z } from 'zod';
 
-// What a furniture place's page shows of its compartments (#238; PlaceView.furniture), and the
-// stored layout read back. Apart from furniture.ts, which writes them, so places/view.ts can use
+// What a furniture place's page shows of its compartments (#238; PlaceView.furniture), the
+// stored layout read back, and which places are its compartments (a trash takes them, #445). Apart from furniture.ts, which writes them, so places/view.ts can use
 // it without importing the places service back.
 
 /** Furniture's layout as stored (place-templates.ts `stands`). */
@@ -45,6 +45,25 @@ export function layoutOf(raw: unknown): Stored | null {
   }
   if (!v.count) return null;
   return { kind: v.kind, count: v.count, orientation, ...names };
+}
+
+/**
+ * The ids of a place's live compartments, as its page shows them (furnitureViewOf): its child
+ * places with a cell, when it has a layout. A place added to the furniture by hand has no cell,
+ * so it isn't one. Empty for a place that isn't furniture.
+ */
+export async function compartmentIdsOf(client: pg.ClientBase, placeId: string): Promise<string[]> {
+  const { rows: me } = await client.query<{ layout: unknown }>(
+    'SELECT layout FROM public.places WHERE id = $1',
+    [placeId],
+  );
+  if (!layoutOf(me[0]?.layout ?? null)) return [];
+  const { rows } = await client.query<{ id: string; cell: unknown }>(
+    `SELECT id, cell FROM public.places
+      WHERE parent_id = $1 AND deleted_at IS NULL AND cell IS NOT NULL`,
+    [placeId],
+  );
+  return rows.filter((r) => parseCell(r.cell)).map((r) => r.id);
 }
 
 /** The own codes on these places, sorted, by place. */

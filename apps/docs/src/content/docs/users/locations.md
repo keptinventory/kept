@@ -103,6 +103,11 @@ place inside it, with its own name, label and, if you like, its own code.
 - **Its page** shows the compartments as it stands, numbered as their labels are. Tap one to open
   it. **Print their labels** prints all of them again, in counting order, with the names they
   have now.
+- **Move to trash:** its compartments go to the trash with it and come back with it on
+  **Restore**. If something is in it or in any compartment, Kept asks only about that: **Move them
+  to** the room it stands in (or **Choose another place**), or **Trash them too**. A box moves as
+  it is, with what is inside it. A place you added to the furniture yourself counts as something in
+  it. The toast's **Undo** puts each one back in its own compartment.
 
 ### Turning furniture
 

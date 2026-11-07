@@ -648,7 +648,10 @@ export type TrashBody = {
 };
 export type TrashResult = { trashed: string[]; moved: string[]; trashBatchId: string };
 /** The body of a 409 `contents_choice_required` (D45, D160). */
-export type ContentsChoiceDetails = { counts: { places: number; things: number } };
+/** `compartments`: furniture's (#445), which go with it and aren't part of the question. */
+export type ContentsChoiceDetails = {
+  counts: { places: number; things: number; compartments?: number };
+};
 
 /** POST /api/v1/places/:id/restore and /things/:id/restore. `hint` when a child went to Unplaced. */
 export type RestoreResult = { restored: string[]; hint?: string };
