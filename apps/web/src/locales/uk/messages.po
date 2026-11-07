@@ -14405,7 +14405,7 @@ msgstr "Востаннє збережено: {lastName} · ID в очікува�
 #: src/components/sheet/labels.ts
 #: src/components/things/overview.tsx
 msgid "Last seen"
-msgstr "Востаннє бачено"
+msgstr "Бачено"
 
 #: src/components/places/contents-list.tsx
 #: src/components/sheet/sheet-view.tsx

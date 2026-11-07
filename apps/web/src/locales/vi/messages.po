@@ -2261,7 +2261,7 @@ msgid "Filter by"
 msgstr "Lọc theo"
 
 msgid "Filters"
-msgstr "Các bộ lọc"
+msgstr "Bộ lọc"
 
 msgid "Filters in use"
 msgstr "Các bộ lọc đang dùng"
@@ -3094,7 +3094,7 @@ msgid "Last saved: {lastName} · ID pending"
 msgstr "Lưu gần nhất: {lastName} · ID đang chờ"
 
 msgid "Last seen"
-msgstr "Lần thấy gần nhất"
+msgstr "Đã thấy"
 
 msgctxt "Display button"
 msgid "Last seen"
@@ -6346,7 +6346,7 @@ msgid "Viewers look around and copy links. They can't change anything."
 msgstr "Người xem chỉ xem quanh và sao chép liên kết. Họ không thể thay đổi gì."
 
 msgid "Views"
-msgstr "Chế độ xem"
+msgstr "Dạng xem"
 
 msgid "Waiting · ID pending"
 msgstr "Đang chờ · Chưa có ID"

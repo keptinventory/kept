@@ -14,7 +14,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 - **[Ảnh, hóa đơn, sách hướng dẫn và bảo hành](/vi/users/photos-paperwork/)**: trên mỗi đồ vật, với thư viện giấy tờ; tệp giữ tên bạn chọn. Mô-đun: Hóa đơn và bảo hành, Giấy tờ.
 - **[Mua sắm](/vi/users/things/)**: khi và nơi đồ vật được mua, giá, tổng và thuế trên hóa đơn, và các hóa đơn, chỉnh sửa từ trang của đồ vật.
 - **[Ảnh phòng](/vi/users/room-photos/)**: chụp một phòng, tủ hoặc kệ; Kept liệt kê đồ vật trong đó như bản nháp để bạn xác nhận. Cần nhà cung cấp AI.
-- **[Chế độ xem bảng tính](/vi/users/spreadsheet/)**: nhiều đồ vật cùng lúc, chỉnh sửa trong bảng.
+- **[Dạng xem bảng tính](/vi/users/spreadsheet/)**: nhiều đồ vật cùng lúc, chỉnh sửa trong bảng.
 - **[Tìm kiếm](/vi/users/search/)**: một phần tên, số serial, văn bản hóa đơn; vị trí của mỗi kết quả.
 - **[Thẻ](/vi/users/tags/)**: xuyên các vị trí và loại.
 
