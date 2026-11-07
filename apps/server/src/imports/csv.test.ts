@@ -27,6 +27,10 @@ describe('parseQuantity', () => {
     expect(parseQuantity(cell)).toBe(expected);
   });
 
+  it('refuses a comma that is neither grouping nor a clear decimal', () => {
+    expect(parseQuantity('1234,567')).toBeNull();
+  });
+
   it.each([
     ['٣٤٥', 345],
     ['٢٫٥', 2.5],

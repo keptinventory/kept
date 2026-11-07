@@ -2630,8 +2630,8 @@ msgstr "Danh tính"
 msgid "If <0>{to}</0> has an account here, a link to set a new password is on its way. It works once, for an hour."
 msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đặt mật khẩu mới đang được gửi tới. Liên kết chỉ dùng được một lần, trong một giờ."
 
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đăng nhập đang được gửi tới. Liên kết chỉ dùng được một lần, trong 5 phút."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đăng nhập đang được gửi tới. Liên kết chỉ dùng được một lần, trong 15 phút."
 
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
 msgstr "Nếu ổ đĩa đó hỏng, các bản sao lưu cũng mất theo. Hãy trỏ sao lưu sang một ổ đĩa khác."
@@ -5290,11 +5290,11 @@ msgstr "Đăng xuất khỏi mọi thiết bị khác?"
 msgid "Sign out others"
 msgstr "Đăng xuất các thiết bị khác"
 
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Đã gửi liên kết đăng nhập. Liên kết chỉ dùng được một lần, trong 5 phút."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Đã gửi liên kết đăng nhập. Liên kết chỉ dùng được một lần, trong 15 phút."
 
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Liên kết đăng nhập chỉ dùng được một lần, trong 5 phút. <0>Yêu cầu liên kết mới</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Liên kết đăng nhập chỉ dùng được một lần, trong 15 phút. <0>Yêu cầu liên kết mới</0>."
 
 msgid "Sign-up"
 msgstr "Đăng ký"

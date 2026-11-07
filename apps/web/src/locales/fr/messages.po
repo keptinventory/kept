@@ -45,7 +45,7 @@ msgstr "Tout fournisseur qui propose SMTP convient, par exemple un mot de passe 
 
 #: src/routes/_app/settings.location.$id.general.tsx
 msgid "Location name"
-msgstr "Nom de l'emplacement"
+msgstr "Nom du lieu"
 
 #: src/routes/_app/settings.location.$id.general.tsx
 msgid "Renamed to {trimmed}"
@@ -3798,8 +3798,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "Si <0>{to}</0> a un compte ici, un lien pour définir un nouveau mot de passe est en route. Il ne fonctionne qu’une fois, pendant une heure."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Si <0>{to}</0> a un compte ici, un lien de connexion est en route. Il ne fonctionne qu’une fois, pendant 5 minutes."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Si <0>{to}</0> a un compte ici, un lien de connexion est en route. Il ne fonctionne qu’une fois, pendant 15 minutes."
 
 #: src/routes/_app/admin.status.tsx
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
@@ -7207,7 +7207,7 @@ msgstr "Rechercher des icônes en anglais : sofa, drill, box…"
 
 #: src/components/inbox/inbox-list.tsx
 msgid "Search names, shops, places"
-msgstr "Rechercher noms, magasins, lieux"
+msgstr "Rechercher noms, magasins, emplacements"
 
 #: src/components/filters/views.tsx
 msgid "Search or filter the list first; a view keeps what you chose."
@@ -7631,12 +7631,12 @@ msgid "Sign out others"
 msgstr "Déconnecter les autres"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Lien de connexion envoyé. Il fonctionne une seule fois, pendant 5 minutes."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Lien de connexion envoyé. Il fonctionne une seule fois, pendant 15 minutes."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Les liens de connexion fonctionnent une seule fois, pendant 5 minutes. <0>En demander un nouveau</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Les liens de connexion fonctionnent une seule fois, pendant 15 minutes. <0>En demander un nouveau</0>."
 
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/admin.tsx
@@ -9282,7 +9282,7 @@ msgstr "Le contenu reste à l’intérieur. Son lien et son étiquette continuen
 
 #: src/routes/_app/locations.new.tsx
 msgid "What's this place called?"
-msgstr "Comment s’appelle ce lieu ?"
+msgstr "Comment s’appelle cet emplacement ?"
 
 #: src/components/things/lifecycle-sheet.tsx
 msgid "When"
@@ -18304,7 +18304,7 @@ msgstr "Un raccourci qui demande le relevé et l’envoie à Kept avec un jeton.
 
 #: src/components/webhooks/list.tsx
 msgid "A signed message to your own server when things change here. It carries ids and the names of changed fields, never names, places or values."
-msgstr "Un message signé à votre propre serveur quand quelque chose change ici. Il contient des identifiants et les noms des champs modifiés, jamais de noms, de lieux ni de valeurs."
+msgstr "Un message signé à votre propre serveur quand quelque chose change ici. Il contient des identifiants et les noms des champs modifiés, jamais de noms, d’emplacements ni de valeurs."
 
 #: src/components/webhooks/words.tsx
 msgid "A thing comes back from Trash"
@@ -18495,7 +18495,7 @@ msgstr "Le fournisseur d’IA de chaque lieu indexe ses objets et chaque recherc
 
 #: src/components/webhooks/edit.tsx
 msgid "Each message carries ids and the names of the fields that changed, never names, places or values. Your server fetches what it needs with its own token."
-msgstr "Chaque message contient des identifiants et les noms des champs modifiés, jamais de noms, de lieux ni de valeurs. Votre serveur récupère ce qu’il lui faut avec son propre jeton."
+msgstr "Chaque message contient des identifiants et les noms des champs modifiés, jamais de noms, d’emplacements ni de valeurs. Votre serveur récupère ce qu’il lui faut avec son propre jeton."
 
 #: src/components/connections/words.tsx
 msgid "Ended: you left the location"
@@ -21659,7 +21659,7 @@ msgstr "N’est plus ici"
 
 #: src/components/sharelinks/list.tsx
 msgid "Read-only links to a box, a place or a list, for someone without an account. Make one from a box's or a place's page, or from Search."
-msgstr "Des liens en lecture seule vers une boîte, un lieu ou une liste, pour quelqu’un sans compte. Créez-en un depuis la page d’une boîte ou d’un lieu, ou depuis la Recherche."
+msgstr "Des liens en lecture seule vers une boîte, un emplacement ou une liste, pour quelqu’un sans compte. Créez-en un depuis la page d’une boîte ou d’un emplacement, ou depuis la Recherche."
 
 #: src/components/sharelinks/list.tsx
 msgid "Search share links"
@@ -21671,7 +21671,7 @@ msgstr "Aucun lien de partage ici"
 
 #: src/components/sharelinks/list.tsx
 msgid "Open a box or a place and choose Share a read-only link, or share a search's list from Search."
-msgstr "Ouvrez une boîte ou un lieu et choisissez « Partager un lien en lecture seule », ou partagez la liste d’une recherche depuis la Recherche."
+msgstr "Ouvrez une boîte ou un emplacement et choisissez « Partager un lien en lecture seule », ou partagez la liste d’une recherche depuis la Recherche."
 
 #: src/components/sharelinks/list.tsx
 msgid "Revoked {revokedOn}"
@@ -21691,7 +21691,7 @@ msgstr "Dernière ouverture {opened}"
 
 #: src/components/sharelinks/list.tsx
 msgid "It stopped because <0>{0}</0> no longer runs this location."
-msgstr "Il s’est arrêté, car <0>{0}</0> ne gère plus cet emplacement."
+msgstr "Il s’est arrêté, car <0>{0}</0> ne gère plus ce lieu."
 
 #: src/components/sharelinks/list.tsx
 msgid "Shared by <0>{0}</0>"
@@ -21715,7 +21715,7 @@ msgstr "Retirez les filtres d’état et de prix pour partager cette liste."
 
 #: src/components/sharelinks/share-search.tsx
 msgid "Filter it to one location you run to share this list."
-msgstr "Filtrez-la sur un seul emplacement que vous gérez pour partager cette liste."
+msgstr "Filtrez-la sur un seul lieu que vous gérez pour partager cette liste."
 
 #: src/components/sharelinks/share-search.tsx
 msgid "Share this list"
@@ -21755,7 +21755,7 @@ msgstr "Copiez-le maintenant. Kept n’affiche ce lien qu’une fois ; créez-en
 
 #: src/components/sharelinks/share-sheet.tsx
 msgid "See this location's share links"
-msgstr "Voir les liens de partage de cet emplacement"
+msgstr "Voir les liens de partage de ce lieu"
 
 #: src/components/sharelinks/shared-view.tsx
 msgid "This link works until {until}."
@@ -22052,7 +22052,7 @@ msgstr "Étiquette QR de {printed}"
 
 #: src/map/card.tsx
 msgid "Label of this place"
-msgstr "Étiquette de ce lieu"
+msgstr "Étiquette de cet emplacement"
 
 #: src/map/card.tsx
 msgid "Label of this thing"
@@ -22068,11 +22068,11 @@ msgstr "Pas encore de photo"
 
 #: src/map/card.tsx
 msgid "{n, plural, one {# place in it} other {# places in it}}"
-msgstr "{n, plural, one {# lieu dedans} other {# lieux dedans}}"
+msgstr "{n, plural, one {# emplacement dedans} other {# emplacements dedans}}"
 
 #: src/map/card.tsx
 msgid "Open the place"
-msgstr "Ouvrir le lieu"
+msgstr "Ouvrir l’emplacement"
 
 #: src/map/card.tsx
 msgid "Nothing matches."
@@ -22552,7 +22552,7 @@ msgstr "Modèles détaillés"
 
 #: src/map/map-view.tsx
 msgid "Places on this level"
-msgstr "Lieux à cet étage"
+msgstr "Emplacements à cet étage"
 
 #: src/map/map-view.tsx
 msgid "Furniture, plants and the AC units are free models from Poly Haven (CC0), shrunk for phones. Turn off Detailed models to download none."
@@ -24477,7 +24477,7 @@ msgstr "{count, plural, one {Étiquettes créées pour # objet} other {Étiquett
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Made labels for # place} other {Made labels for # places}}"
-msgstr "{count, plural, one {Étiquettes créées pour # lieu} other {Étiquettes créées pour # lieux}}"
+msgstr "{count, plural, one {Étiquettes créées pour # emplacement} other {Étiquettes créées pour # emplacements}}"
 
 #: src/components/history/labels.ts
 msgid "{count, plural, one {Arranged the map: # change} other {Arranged the map: # changes}}"
@@ -25047,7 +25047,7 @@ msgstr "Nouvelle lecture des photos"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Added # place} other {Added # places}}"
-msgstr "{0, plural, one {# lieu ajouté} other {# lieux ajoutés}}"
+msgstr "{0, plural, one {# emplacement ajouté} other {# emplacements ajoutés}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Marked # thing seen} other {Marked # things seen}}"
@@ -25115,15 +25115,15 @@ msgstr "Meubles de rangement"
 
 #: src/components/inbox/room-review.tsx
 msgid "Add them as places in <0>{name}</0>, so things can go in them."
-msgstr "Ajoutez-les comme lieux dans <0>{name}</0>, pour y ranger des objets."
+msgstr "Ajoutez-les comme emplacements dans <0>{name}</0>, pour y ranger des objets."
 
 #: src/components/inbox/room-review.tsx
 msgid "Add as a place"
-msgstr "Ajouter comme lieu"
+msgstr "Ajouter comme emplacement"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Add # place} other {Add all # places}}"
-msgstr "{0, plural, one {Ajouter # lieu} other {Ajouter les # lieux}}"
+msgstr "{0, plural, one {Ajouter # emplacement} other {Ajouter les # emplacements}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "Seen"
@@ -25155,7 +25155,7 @@ msgstr "{0, plural, one {# déjà dans Kept} other {# déjà dans Kept}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {# piece of furniture to add as a place} other {# pieces of furniture to add as places}}"
-msgstr "{0, plural, one {# meuble à ajouter comme lieu} other {# meubles à ajouter comme lieux}}"
+msgstr "{0, plural, one {# meuble à ajouter comme emplacement} other {# meubles à ajouter comme emplacements}}"
 
 #: src/components/history/labels.ts
 msgid "Photographed {name} for Kept to list what is in it"
@@ -25332,7 +25332,7 @@ msgstr "Scannez l'étiquette d'une boîte"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Scan a place or a box"
-msgstr "Scannez un lieu ou une boîte"
+msgstr "Scannez un emplacement ou une boîte"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "This session is full: finish it, then start another."
@@ -25340,7 +25340,7 @@ msgstr "Cette session est pleine : terminez-la, puis démarrez-en une autre."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "That's a place's label. Count it from its own page."
-msgstr "C'est l'étiquette d'un lieu. Comptez-le depuis sa page."
+msgstr "C'est l'étiquette d'un emplacement. Comptez-le depuis sa page."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "A room can't be moved; scan things or boxes"
@@ -25455,11 +25455,11 @@ msgstr "Compter"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Walk a place or a box: what you scan is seen; the summary shows what's missing."
-msgstr "Parcourez un lieu ou une boîte : ce que vous scannez est vu ; le résumé montre ce qui manque."
+msgstr "Parcourez un emplacement ou une boîte : ce que vous scannez est vu ; le résumé montre ce qui manque."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved."
-msgstr "Vérifiez un lieu ou une boîte : voyez ce qui s'y trouve et ce qui manque. Les comptages des lecteurs ne sont pas enregistrés."
+msgstr "Vérifiez un emplacement ou une boîte : voyez ce qui s'y trouve et ce qui manque. Les comptages des lecteurs ne sont pas enregistrés."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Pack into"
@@ -25475,7 +25475,7 @@ msgstr "Déplacer vers"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Everything you scan moves to a place or a box."
-msgstr "Tout ce que vous scannez va dans un lieu ou une boîte."
+msgstr "Tout ce que vous scannez va dans un emplacement ou une boîte."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "What to do"
@@ -25507,7 +25507,7 @@ msgstr "Scannez l'étiquette de la boîte"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Include the places inside it"
-msgstr "Inclure les lieux qu'il contient"
+msgstr "Inclure les emplacements qu'il contient"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "A box you scan counts what's inside it"
@@ -25579,7 +25579,7 @@ msgstr "Tout déplacer ici"
 
 #: src/components/scan/session/summary.tsx
 msgid "In another location ({0})"
-msgstr "Dans un autre emplacement ({0})"
+msgstr "Dans un autre lieu ({0})"
 
 #: src/components/scan/session/summary.tsx
 msgid "View only ({0})"
@@ -25667,11 +25667,11 @@ msgstr "Compter, remplir ou déplacer"
 
 #: src/components/hints/hint-copy.ts
 msgid "Count checks what's there. Pack into and Move to put everything you scan in one box or place."
-msgstr "Compter vérifie ce qui s'y trouve. Remplir et Déplacer vers mettent tout ce que vous scannez dans une boîte ou un lieu."
+msgstr "Compter vérifie ce qui s'y trouve. Remplir et Déplacer vers mettent tout ce que vous scannez dans une boîte ou un emplacement."
 
 #: src/components/hints/hint-copy.ts
 msgid "Pick a place, or scan its label. A box counts its contents; a room the places inside it."
-msgstr "Choisissez un lieu, ou scannez son étiquette. Une boîte compte son contenu ; une pièce les lieux qu'elle contient."
+msgstr "Choisissez un emplacement, ou scannez son étiquette. Une boîte compte son contenu ; une pièce les emplacements qu'elle contient."
 
 #: src/components/hints/hint-copy.ts
 msgid "Nothing changes until you finish"
@@ -25784,7 +25784,7 @@ msgstr "Il n'a pas de manifest.json : ce n'est donc pas un export de Homebox v0.
 
 #: src/components/import/archive-step.tsx
 msgid "A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a spreadsheet: names, places, tags, purchases, warranties, sales and old labels come across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and export the ZIP."
-msgstr "Un Homebox plus ancien que v0.26 produit un tableur au lieu d'un ZIP d'export. Importez-le comme tableur : noms, lieux, étiquettes, achats, garanties, ventes et anciennes étiquettes imprimées passent. Pour les photos, les fichiers et l'entretien aussi, mettez une copie de Homebox à jour vers v0.26.1 ou plus récent (v0.27.0 recommandée) et exportez le ZIP."
+msgstr "Un Homebox plus ancien que v0.26 produit un tableur au lieu d'un ZIP d'export. Importez-le comme tableur : noms, emplacements, étiquettes, achats, garanties, ventes et anciennes étiquettes imprimées passent. Pour les photos, les fichiers et l'entretien aussi, mettez une copie de Homebox à jour vers v0.26.1 ou plus récent (v0.27.0 recommandée) et exportez le ZIP."
 
 #: src/components/import/choices-step.tsx
 msgid "Archived items aren't imported, sold ones included."
@@ -27582,7 +27582,7 @@ msgstr "Scannez une étiquette vierge que vous y avez collée"
 
 #: src/components/scan/claim-sheet.tsx
 msgid "Attach to an existing place"
-msgstr "L’attacher à un lieu existant"
+msgstr "L’attacher à un emplacement existant"
 
 #: src/components/scan/claim-sheet.tsx
 msgid "Attach to <0>{0}</0>"
@@ -27710,7 +27710,7 @@ msgstr "Imprimez une planche pour tout ce qui n’a pas encore d’étiquette, o
 
 #: src/components/hints/hint-copy.ts
 msgid "Point the camera at a label to open what it's on. A blank one can go on a thing or place you have."
-msgstr "Visez une étiquette pour ouvrir ce qui la porte. Une vierge peut aller sur un objet ou un lieu que vous avez déjà."
+msgstr "Visez une étiquette pour ouvrir ce qui la porte. Une vierge peut aller sur un objet ou un emplacement que vous avez déjà."
 
 #: src/components/hints/hint-copy.ts
 msgid "Every service with what it cost. Tap one to open all of it, with its invoice."

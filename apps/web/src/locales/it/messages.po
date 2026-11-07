@@ -45,7 +45,7 @@ msgstr "Va bene qualsiasi provider con SMTP, ad esempio una password per app del
 
 #: src/routes/_app/settings.location.$id.general.tsx
 msgid "Location name"
-msgstr "Nome della posizione"
+msgstr "Nome del luogo"
 
 #: src/routes/_app/settings.location.$id.general.tsx
 msgid "Renamed to {trimmed}"
@@ -3798,8 +3798,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "Se <0>{to}</0> ha un account qui, è in arrivo un link per impostare una nuova password. Funziona una sola volta, per un’ora."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Se <0>{to}</0> ha un account qui, è in arrivo un link di accesso. Funziona una sola volta, per 5 minuti."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Se <0>{to}</0> ha un account qui, è in arrivo un link di accesso. Funziona una sola volta, per 15 minuti."
 
 #: src/routes/_app/admin.status.tsx
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
@@ -7631,12 +7631,12 @@ msgid "Sign out others"
 msgstr "Disconnetti gli altri"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Link di accesso inviato. Funziona una sola volta, per 5 minuti."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Link di accesso inviato. Funziona una sola volta, per 15 minuti."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "I link di accesso funzionano una sola volta, per 5 minuti. <0>Richiedine uno nuovo</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "I link di accesso funzionano una sola volta, per 15 minuti. <0>Richiedine uno nuovo</0>."
 
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/admin.tsx
@@ -9282,7 +9282,7 @@ msgstr "Il contenuto resta dentro. Il suo link e la sua etichetta continuano a f
 
 #: src/routes/_app/locations.new.tsx
 msgid "What's this place called?"
-msgstr "Come si chiama questo luogo?"
+msgstr "Come si chiama questo posto?"
 
 #: src/components/things/lifecycle-sheet.tsx
 msgid "When"
@@ -18304,7 +18304,7 @@ msgstr "Un Comando rapido che chiede la lettura e la invia a Kept con un token."
 
 #: src/components/webhooks/list.tsx
 msgid "A signed message to your own server when things change here. It carries ids and the names of changed fields, never names, places or values."
-msgstr "Un messaggio firmato al tuo server quando qui cambia qualcosa. Contiene id e nomi dei campi cambiati, mai nomi, luoghi o valori."
+msgstr "Un messaggio firmato al tuo server quando qui cambia qualcosa. Contiene id e nomi dei campi cambiati, mai nomi, posti o valori."
 
 #: src/components/webhooks/words.tsx
 msgid "A thing comes back from Trash"
@@ -18495,7 +18495,7 @@ msgstr "Il provider IA di ogni luogo indicizza i suoi oggetti e ogni ricerca, e 
 
 #: src/components/webhooks/edit.tsx
 msgid "Each message carries ids and the names of the fields that changed, never names, places or values. Your server fetches what it needs with its own token."
-msgstr "Ogni messaggio contiene id e nomi dei campi cambiati, mai nomi, luoghi o valori. Il tuo server recupera ciò che gli serve con un proprio token."
+msgstr "Ogni messaggio contiene id e nomi dei campi cambiati, mai nomi, posti o valori. Il tuo server recupera ciò che gli serve con un proprio token."
 
 #: src/components/connections/words.tsx
 msgid "Ended: you left the location"
@@ -25047,7 +25047,7 @@ msgstr "Rilettura delle foto"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Added # place} other {Added # places}}"
-msgstr "{0, plural, one {# luogo aggiunto} other {# luoghi aggiunti}}"
+msgstr "{0, plural, one {# posto aggiunto} other {# posti aggiunti}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Marked # thing seen} other {Marked # things seen}}"
@@ -25115,15 +25115,15 @@ msgstr "Mobili contenitori"
 
 #: src/components/inbox/room-review.tsx
 msgid "Add them as places in <0>{name}</0>, so things can go in them."
-msgstr "Aggiungili come luoghi in <0>{name}</0>, così puoi metterci oggetti."
+msgstr "Aggiungili come posti in <0>{name}</0>, così puoi metterci oggetti."
 
 #: src/components/inbox/room-review.tsx
 msgid "Add as a place"
-msgstr "Aggiungi come luogo"
+msgstr "Aggiungi come posto"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {Add # place} other {Add all # places}}"
-msgstr "{0, plural, one {Aggiungi # luogo} other {Aggiungi tutti i # luoghi}}"
+msgstr "{0, plural, one {Aggiungi # posto} other {Aggiungi tutti i # posti}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "Seen"
@@ -25155,7 +25155,7 @@ msgstr "{0, plural, one {# già in Kept} other {# già in Kept}}"
 
 #: src/components/inbox/room-review.tsx
 msgid "{0, plural, one {# piece of furniture to add as a place} other {# pieces of furniture to add as places}}"
-msgstr "{0, plural, one {# mobile da aggiungere come luogo} other {# mobili da aggiungere come luoghi}}"
+msgstr "{0, plural, one {# mobile da aggiungere come posto} other {# mobili da aggiungere come posti}}"
 
 #: src/components/history/labels.ts
 msgid "Photographed {name} for Kept to list what is in it"
@@ -25332,7 +25332,7 @@ msgstr "Scansiona l'etichetta di una scatola"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Scan a place or a box"
-msgstr "Scansiona un luogo o una scatola"
+msgstr "Scansiona un posto o una scatola"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "This session is full: finish it, then start another."
@@ -25340,7 +25340,7 @@ msgstr "Questa sessione è piena: concludila, poi avviane un'altra."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "That's a place's label. Count it from its own page."
-msgstr "È l'etichetta di un luogo. Contalo dalla sua pagina."
+msgstr "È l'etichetta di un posto. Contalo dalla sua pagina."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "A room can't be moved; scan things or boxes"
@@ -25455,11 +25455,11 @@ msgstr "Conta"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Walk a place or a box: what you scan is seen; the summary shows what's missing."
-msgstr "Percorri un luogo o una scatola: ciò che scansioni risulta visto; il riepilogo mostra cosa manca."
+msgstr "Percorri un posto o una scatola: ciò che scansioni risulta visto; il riepilogo mostra cosa manca."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved."
-msgstr "Controlla un luogo o una scatola: vedi cosa c'è e cosa manca. I conteggi dei visualizzatori non vengono salvati."
+msgstr "Controlla un posto o una scatola: vedi cosa c'è e cosa manca. I conteggi dei visualizzatori non vengono salvati."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Pack into"
@@ -25475,7 +25475,7 @@ msgstr "Sposta in"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Everything you scan moves to a place or a box."
-msgstr "Tutto ciò che scansioni va in un luogo o in una scatola."
+msgstr "Tutto ciò che scansioni va in un posto o in una scatola."
 
 #: src/components/scan/session/session-screen.tsx
 msgid "What to do"
@@ -25507,7 +25507,7 @@ msgstr "Scansiona l'etichetta della scatola"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "Include the places inside it"
-msgstr "Includi i luoghi al suo interno"
+msgstr "Includi i posti al suo interno"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "A box you scan counts what's inside it"
@@ -25667,11 +25667,11 @@ msgstr "Conta, riempi o sposta"
 
 #: src/components/hints/hint-copy.ts
 msgid "Count checks what's there. Pack into and Move to put everything you scan in one box or place."
-msgstr "Conta verifica cosa c'è. Riempi e Sposta in mettono tutto ciò che scansioni in una scatola o in un luogo."
+msgstr "Conta verifica cosa c'è. Riempi e Sposta in mettono tutto ciò che scansioni in una scatola o in un posto."
 
 #: src/components/hints/hint-copy.ts
 msgid "Pick a place, or scan its label. A box counts its contents; a room the places inside it."
-msgstr "Scegli un luogo o scansiona la sua etichetta. Una scatola conta il suo contenuto; una stanza i luoghi al suo interno."
+msgstr "Scegli un posto o scansiona la sua etichetta. Una scatola conta il suo contenuto; una stanza i posti al suo interno."
 
 #: src/components/hints/hint-copy.ts
 msgid "Nothing changes until you finish"
@@ -25784,7 +25784,7 @@ msgstr "Non ha un manifest.json, quindi non è un'esportazione di Homebox v0.26.
 
 #: src/components/import/archive-step.tsx
 msgid "A Homebox older than v0.26 makes a spreadsheet instead of an export ZIP. Import it as a spreadsheet: names, places, tags, purchases, warranties, sales and old labels come across. For photos, files and maintenance too, update a copy of Homebox to v0.26.1 or newer (v0.27.0 recommended) and export the ZIP."
-msgstr "Un Homebox precedente alla v0.26 crea un foglio di calcolo invece di uno ZIP di esportazione. Importalo come foglio di calcolo: nomi, luoghi, tag, acquisti, garanzie, vendite e vecchie etichette arrivano. Per foto, file e manutenzione, aggiorna una copia di Homebox alla v0.26.1 o successiva (consigliata la v0.27.0) ed esporta lo ZIP."
+msgstr "Un Homebox precedente alla v0.26 crea un foglio di calcolo invece di uno ZIP di esportazione. Importalo come foglio di calcolo: nomi, posti, tag, acquisti, garanzie, vendite e vecchie etichette arrivano. Per foto, file e manutenzione, aggiorna una copia di Homebox alla v0.26.1 o successiva (consigliata la v0.27.0) ed esporta lo ZIP."
 
 #: src/components/import/choices-step.tsx
 msgid "Archived items aren't imported, sold ones included."
@@ -27582,7 +27582,7 @@ msgstr "Scansiona un’etichetta vuota che ci hai attaccato"
 
 #: src/components/scan/claim-sheet.tsx
 msgid "Attach to an existing place"
-msgstr "Collegala a un luogo esistente"
+msgstr "Collegala a un posto esistente"
 
 #: src/components/scan/claim-sheet.tsx
 msgid "Attach to <0>{0}</0>"
@@ -27710,7 +27710,7 @@ msgstr "Stampa un foglio per tutto ciò che non ha ancora un’etichetta, o un f
 
 #: src/components/hints/hint-copy.ts
 msgid "Point the camera at a label to open what it's on. A blank one can go on a thing or place you have."
-msgstr "Inquadra un’etichetta per aprire ciò su cui è attaccata. Una vuota può andare su una cosa o un luogo che hai già."
+msgstr "Inquadra un’etichetta per aprire ciò su cui è attaccata. Una vuota può andare su una cosa o un posto che hai già."
 
 #: src/components/hints/hint-copy.ts
 msgid "Every service with what it cost. Tap one to open all of it, with its invoice."

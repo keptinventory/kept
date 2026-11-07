@@ -3798,8 +3798,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "Si <0>{to}</0> tiene una cuenta aquí, va en camino un enlace para establecer una nueva contraseña. Funciona una sola vez, durante una hora."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Si <0>{to}</0> tiene una cuenta aquí, va en camino un enlace para iniciar sesión. Funciona una sola vez, durante 5 minutos."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Si <0>{to}</0> tiene una cuenta aquí, va en camino un enlace para iniciar sesión. Funciona una sola vez, durante 15 minutos."
 
 #: src/routes/_app/admin.status.tsx
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
@@ -7631,12 +7631,12 @@ msgid "Sign out others"
 msgstr "Cerrar sesión de otros"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Enlace de inicio de sesión enviado. Funciona una vez, durante 5 minutos."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Enlace de inicio de sesión enviado. Funciona una vez, durante 15 minutos."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Los enlaces de inicio de sesión funcionan una vez, durante 5 minutos. <0>Pide uno nuevo</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Los enlaces de inicio de sesión funcionan una vez, durante 15 minutos. <0>Pide uno nuevo</0>."
 
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/admin.tsx

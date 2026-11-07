@@ -3798,8 +3798,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "Wenn <0>{to}</0> hier ein Konto hat, ist ein Link zum Festlegen eines neuen Passworts unterwegs. Er funktioniert einmal und eine Stunde lang."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Wenn <0>{to}</0> hier ein Konto hat, ist ein Anmeldelink unterwegs. Er funktioniert einmal und 5 Minuten lang."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Wenn <0>{to}</0> hier ein Konto hat, ist ein Anmeldelink unterwegs. Er funktioniert einmal und 15 Minuten lang."
 
 #: src/routes/_app/admin.status.tsx
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
@@ -7631,12 +7631,12 @@ msgid "Sign out others"
 msgstr "Andere abmelden"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Anmeldelink gesendet. Er funktioniert einmal, 5 Minuten lang."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Anmeldelink gesendet. Er funktioniert einmal, 15 Minuten lang."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Anmeldelinks funktionieren einmal, 5 Minuten lang. <0>Neuen anfordern</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Anmeldelinks funktionieren einmal, 15 Minuten lang. <0>Neuen anfordern</0>."
 
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/admin.tsx

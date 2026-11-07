@@ -86,6 +86,10 @@ opaque; don't build them. A filter parameter may repeat (`?typeId=a&typeId=b`, "
 ([`http/list-filters.ts`](https://github.com/keptinventory/kept/blob/main/apps/server/src/http/list-filters.ts)).
 Each list's own parameters are in the reference.
 
+`PATCH /api/v1/me {locale}` keeps the language a person chose in the app on their account, so mail
+and reminders follow it. It takes one of the app's languages, and `GET /api/v1/me` answers it as
+`profile.locale`.
+
 A person can [hide their Personal location](/users/locations/#hide-personal):
 `PATCH /api/v1/me {hidePersonal}`, 409 while it's the only location the session can see. `GET
 /api/v1/me` answers `profile.hidePersonal` (what they set) and `personalHidden` (whether it applies

@@ -154,7 +154,10 @@ export function cell(value: string | undefined): string {
  * point, grouping marks and spaces go. */
 function plainNumber(value: string): string {
   const spaced = foldDigits(value).replace(/٫/g, '.').replace(/\s/g, '');
-  return decimalCommaAsPoint(spaced).replace(/[,٬]/g, '');
+  const point = decimalCommaAsPoint(spaced);
+  // `1234,567` is neither grouping nor a clear decimal: left as is, so the cell is refused.
+  if (point.includes(',') && !/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(point)) return point;
+  return point.replace(/[,٬]/g, '');
 }
 
 /** A quantity (`3`, `٣٤٥`, `2.5`, `2٫5`, `2,5`), or null when it isn't one a thing can hold. */

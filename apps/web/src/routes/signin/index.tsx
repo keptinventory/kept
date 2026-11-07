@@ -179,7 +179,7 @@ function SignInPage() {
           ) : (
             <Trans>
               If <strong className="ltr text-ink">{to}</strong> has an account here, a sign-in link
-              is on its way. It works once, for 5 minutes.
+              is on its way. It works once, for 15 minutes.
             </Trans>
           )
         }

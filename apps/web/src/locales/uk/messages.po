@@ -12296,8 +12296,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "Якщо <0>{to}</0> має тут обліковий запис, посилання для встановлення нового пароля вже надсилається. Воно діє один раз, протягом години."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Якщо <0>{to}</0> має тут обліковий запис, посилання для входу вже надсилається. Воно діє один раз, протягом 5 хвилин."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Якщо <0>{to}</0> має тут обліковий запис, посилання для входу вже надсилається. Воно діє один раз, протягом 15 хвилин."
 
 #: src/components/import/archive-step.tsx
 msgid "If Homebox says \"Topic has been Shutdown\""
@@ -24526,12 +24526,12 @@ msgid "Sign-in and security"
 msgstr "Вхід і безпека"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Посилання для входу надіслано. Воно діє один раз протягом 5 хвилин."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Посилання для входу надіслано. Воно діє один раз протягом 15 хвилин."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Посилання для входу діють один раз протягом 5 хвилин. <0>Попросіть нове</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Посилання для входу діють один раз протягом 15 хвилин. <0>Попросіть нове</0>."
 
 #: src/components/sign-in-methods.tsx
 msgid "Sign-in methods"

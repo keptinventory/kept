@@ -3798,8 +3798,8 @@ msgid "If <0>{to}</0> has an account here, a link to set a new password is on it
 msgstr "إن كان لـ<0>{to}</0> حساب هنا، فرابط تعيين كلمة مرور جديدة في طريقه إليه. يعمل مرة واحدة، لمدة ساعة."
 
 #: src/routes/signin/index.tsx
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "إن كان لـ<0>{to}</0> حساب هنا، فرابط الدخول في طريقه إليه. يعمل مرة واحدة، لمدة ٥ دقائق."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "إن كان لـ<0>{to}</0> حساب هنا، فرابط الدخول في طريقه إليه. يعمل مرة واحدة، لمدة ١٥ دقيقة."
 
 #: src/routes/_app/admin.status.tsx
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
@@ -7631,12 +7631,12 @@ msgid "Sign out others"
 msgstr "تسجيل خروج الأخرى"
 
 #: src/routes/_app/settings.two-factor.tsx
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "أُرسل رابط الدخول. يعمل مرة واحدة، لمدة ٥ دقائق."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "أُرسل رابط الدخول. يعمل مرة واحدة، لمدة ١٥ دقيقة."
 
 #: src/routes/auth/confirm.tsx
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "روابط الدخول تعمل مرة واحدة، لمدة ٥ دقائق. <0>اطلب رابطًا جديدًا</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "روابط الدخول تعمل مرة واحدة، لمدة ١٥ دقيقة. <0>اطلب رابطًا جديدًا</0>."
 
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/admin.tsx
