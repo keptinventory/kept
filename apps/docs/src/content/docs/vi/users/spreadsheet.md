@@ -1,5 +1,5 @@
 ---
-title: Dạng xem bảng tính
+title: Chế độ xem bảng tính
 description: "Một địa điểm dưới dạng hàng trên máy tính: ô có thể chỉnh sửa, thao tác hàng loạt, phím tắt, xung đột và xuất CSV."
 ---
 

@@ -15,7 +15,7 @@ Trang chủ là những gì cần bạn, sau đó là đồ vật ở đâu. Tr�
 Chi tiết đầy đủ: [các vị trí, phòng và hộp](/vi/users/locations/).
 
 Mọi thứ nằm trong một cây: một địa điểm (Trang chủ, Nhà xe, một đơn vị lưu trữ) chứa **các phòng và chỗ** ("phòng hoặc chỗ" là từ của Kept chỉ bất kỳ nơi nào), những thứ này chứa đồ vật. Một đồ vật có thể là một **hộp hoặc chứa đựng** chứa đồ vật khác, sâu bao nhiêu tùy thích. Mỗi địa điểm cũng có **Chưa có vị trí**, cho những đồ vật chưa có chỗ.
-## Dạng xem bảng tính
+## Chế độ xem bảng tính
 
 Chi tiết đầy đủ: [chế độ xem bảng tính](/vi/users/spreadsheet/).
 
