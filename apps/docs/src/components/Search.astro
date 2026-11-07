@@ -1,0 +1,45 @@
+---
+/**
+ * Starlight's search, and on a phone the language menu beside it on a page with no side menu.
+ * Starlight hides the header's language menu on a phone and shows it inside the side menu, so the
+ * home page and the Try pages, which have no side menu, had no way to change language (#475).
+ */
+import Default from '@astrojs/starlight/components/Search.astro';
+import LanguageSelect from './language/LanguageSelect.astro';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+---
+
+<Default />
+{
+  !hasSidebar && (
+    <div class="kd-phone-lang">
+      <LanguageSelect />
+    </div>
+  )
+}
+
+<style>
+  .kd-phone-lang {
+    display: flex;
+    align-items: center;
+    margin-inline-start: 0.5rem;
+  }
+  /* The narrowest phones: the flag alone, so the longest language name doesn't cut the logo. The
+     name stays for screen readers. */
+  @media (max-width: 21rem) {
+    .kd-phone-lang :global(.kd-lang-name) {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+  @media (min-width: 50rem) {
+    .kd-phone-lang {
+      display: none;
+    }
+  }
+</style>

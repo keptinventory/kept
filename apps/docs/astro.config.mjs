@@ -243,6 +243,7 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         Hero: './src/components/Hero.astro',
         LanguageSelect: './src/components/language/LanguageSelect.astro',
+        Search: './src/components/Search.astro',
       },
       // The share card: og:image and twitter:image (absolute, from `site` and `base`), og:locale
       // per language, og:type website on the landing pages.
