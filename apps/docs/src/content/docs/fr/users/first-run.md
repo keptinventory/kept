@@ -66,7 +66,7 @@ un lieu qui leur est propre. Choisissez **Créez votre premier foyer** (ou **Nou
      "Connecter ChatGPT ou Claude".
 
 Le fuseau horaire et la devise viennent de votre navigateur. Modifiez-les, et activez ou désactivez des modules individuels,
-dans les **Paramètres du lieu** du lieu (**Général** et **Ce que vous suivez**). Désactiver un module le masque ; rien n’est supprimé.
+dans les **Paramètres du lieu** (**Général** et **Ce que vous suivez**). Désactiver un module le masque ; rien n’est supprimé.
 
 ## 4. Ajoutez votre premier objet
 

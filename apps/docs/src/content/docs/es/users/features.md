@@ -76,7 +76,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   Tailscale.
 - **Idiomas**: alemán, árabe (de derecha a izquierda), español, francés, inglés, italiano, ucraniano
   y vietnamita; escribe para encontrar el tuyo en el selector, y las fechas en el estilo de tu región, o
-  como elijas. La documentación también está en todos estos idiomas.
+  como elijas. La documentación para usuarios, administración e instalación también está en todos estos idiomas.
 
 ## En tu teléfono
 
