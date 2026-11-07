@@ -174,7 +174,7 @@ Elle se termine avec le code 1 en cas d'avertissement, par son nom :
 | `backup_suspicious_size` | bien plus petite que la dernière bonne ; si la réduction est réelle, `kept admin backup --accept-size` |
 | `files_unreadable` | restic n'a pas pu lire certains fichiers ; vérifiez les permissions du volume de données |
 | `blob_checksum_mismatch` | un fichier stocké ne correspond plus à son SHA-256 ; vérifiez le disque |
-| `readable_incomplete` | la copie lisible d'un emplacement a échoué ; le journal le nomme |
+| `readable_incomplete` | la copie lisible d'un lieu a échoué ; le journal le nomme |
 
 Après un plantage, un verrou restic périmé peut bloquer chaque exécution : `kept admin backup unlock` le supprime
 (il refuse si une sauvegarde est en cours).

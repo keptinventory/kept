@@ -14,9 +14,9 @@ sidebar:
   (Kept, Postgres 18 con pgvector). 1.14.2 aveva bisogno di 2 GB per il suo Backup.
 - **Macchina:** emulata in Docker su un Mac arm64. Docker, Kept e Postgres condividono un unico budget di memoria e
   CPU, come su una piccola VM, con 128 MB riservati al sistema operativo. Niente swap.
-- **Dati:** una casa, più una posizione con 3.000 oggetti in 206 posti e 200 contenitori, e
+- **Dati:** una casa, più un luogo con 3.000 oggetti in 206 posti e 200 contenitori, e
   300 foto reali.
-- **Lavori:** 20 foto da 12 megapixel, due PDF, 120 caricamenti della mappa e del grafo di quella posizione, 120
+- **Lavori:** 20 foto da 12 megapixel, due PDF, 120 caricamenti della mappa e del grafo di quel luogo, 120
   letture di liste e ricerche, `kept admin backup` mentre si caricano le foto, il backup pianificato, poi
   10 minuti idle.
 
@@ -33,14 +33,14 @@ incluso. Memoria esaurita, il sistema ha terminato il processo di Kept e Docker 
   Kept resta a circa 300 MB.
 - **Dati reali:** su un server domestico amd64, Kept 206 MB e Postgres 119 MB (una lettura).
 - **Velocità** (mediane): una pagina di lista 30–40 ms, una ricerca 50–70 ms, un caricamento foto 0,3–0,4 s, la mappa
-  della posizione da 3.000 oggetti 0,4–0,5 s.
+  del luogo da 3.000 oggetti 0,4–0,5 s.
 - **Non ancora testato:** una VM reale, amd64 a queste dimensioni, 512 MB, AI locale. I test di prestazione continuano: [#379](https://github.com/keptinventory/kept/issues/379).
 
 ## Cosa significa
 
 - **1 GB, 1 o 2 core:** testato, ogni esecuzione è passata, con circa 150 MB di margine al picco.
 - **2 GB:** margine per altri servizi oltre a Kept.
-- **768 MB:** Kept ha funzionato, e così anche Esegui backup ora (il percorso del backup pianificato); `kept admin backup`
+- **768 MB:** Kept ha funzionato, e così anche Esegui ora (il percorso del backup pianificato); `kept admin backup`
   durante il caricamento delle foto ha esaurito la memoria. Non consigliato.
 
 ## Raspberry Pi
@@ -56,7 +56,7 @@ come le righe da 1 GB; aspettati che sia più lento. Nessun rilascio è testato 
 - **Ridimensionamento delle foto.** Ogni caricamento viene ridimensionato all'arrivo. Sotto i 3 GB di RAM, o un limite del container
   sotto i 3 GB, Kept ridimensiona una alla volta, altrimenti due (`KEPT_IMAGE_CONCURRENCY` lo sovrascrive). La memoria
   sale di circa 150 MB sulle prime foto e resta così.
-- **La mappa e il grafo di una posizione molto grande.** Il server legge l'intera posizione per ogni
+- **La mappa e il grafo di un luogo molto grande.** Il server legge l'intero luogo per ogni
   caricamento: circa 670 KB per 3.000 oggetti.
 - **Non sul server:** la mappa, il grafo e Grid sono disegnati dal tuo browser e non aggiungono memoria al server
   a riposo; la mappa e il grafo vengono scaricati solo quando aperti.

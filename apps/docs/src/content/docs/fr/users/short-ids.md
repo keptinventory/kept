@@ -12,7 +12,7 @@ Les listes, les résultats de recherche et la palette ⌘K affichent un objet pa
 d’étiquette ambré seulement lorsqu’il a une étiquette imprimée : une étiquette confirmée avec **Bien imprimé ?**, ou une
 étiquette vierge qui lui est attribuée. La feuille de contenu d’une boîte de déménagement compte aussi, une fois confirmée
 de la même façon ([Déménagement](/fr/users/moving/)). L’ambré signifie « celui-ci est étiqueté ». Sur sa propre page, un objet
-ou un lieu sans étiquette imprimée affiche son code petit et gris, après le reste ; s’il a une étiquette, il affiche le
+ou un emplacement sans étiquette imprimée affiche son code petit et gris, après le reste ; s’il a une étiquette, il affiche le
 ruban. Un objet avec plusieurs étiquettes (une étiquette vierge qui lui a été attribuée, par exemple) affiche le code de la
 dernière imprimée. La recherche et le scanner trouvent un objet avec n’importe lequel de ses codes.
 
@@ -22,7 +22,7 @@ dernière imprimée. La recherche et le scanner trouvent un objet avec n’impor
 sélection, **Étiqueter tout ce qui n'a pas d'étiquette imprimée** dans un lieu ou un emplacement, ou une feuille vierge),
 choisissez le **support d’étiquettes**, choisissez où commencer sur une feuille partiellement utilisée, et imprimez depuis
 le navigateur. **L’aperçu de la feuille** est l’impression elle-même, en plus petit : les mêmes
-QR codes, noms et lieux, répartis sur les mêmes lignes. Un nom n’est jamais raccourci : un long nom passe à la ligne et sa
+QR codes, noms et emplacements, répartis sur les mêmes lignes. Un nom n’est jamais raccourci : un long nom passe à la ligne et sa
 taille d’écriture diminue, et s’il ne tient toujours pas, il est listé avant l’impression, avec un lien pour le renommer.
 La page est réglée sur le papier de la feuille sans marges, donc les réglages par défaut de la boîte de dialogue d’impression
 (échelle 100 %) placent chaque étiquette dans sa cellule.
@@ -31,10 +31,10 @@ Les supports d’étiquettes :
 
 | Support | Taille | Chaque étiquette |
 |---|---|---|
-| Feuille A4, 24 étiquettes | 70 × 37 mm, 3 × 8 | QR code, identifiant court, nom et lieu |
+| Feuille A4, 24 étiquettes | 70 × 37 mm, 3 × 8 | QR code, identifiant court, nom et emplacement |
 | Feuille A4, 65 étiquettes | 38 × 21 mm, 5 × 13 | QR code et identifiant court |
-| Feuille Letter, 30 étiquettes (modèle Avery 5160) | 67 × 25 mm, 3 × 10 | QR code, identifiant court, nom et lieu |
-| Rouleaux pour imprimante d’étiquettes | 50 × 30, 40 × 30 et 62 × 29 mm | QR code, identifiant court, nom et lieu |
+| Feuille Letter, 30 étiquettes (modèle Avery 5160) | 67 × 25 mm, 3 × 10 | QR code, identifiant court, nom et emplacement |
+| Rouleaux pour imprimante d’étiquettes | 50 × 30, 40 × 30 et 62 × 29 mm | QR code, identifiant court, nom et emplacement |
 | Ruban d’étiqueteuse, 9 et 12 mm (Brother TZe et équivalents) | 40 et 50 mm de long | Identifiant court en gros, et le nom. Pas de QR code |
 | Ruban d’étiqueteuse, 18 et 24 mm | 50 et 60 mm de long | QR code, identifiant court en gros, et le nom |
 
@@ -45,7 +45,7 @@ porte l’identifiant court en gros à la place : le scanner le lit dans le text
 code](#scanner-un-code-sans-qr-code)).
 
 Ensuite, **Bien imprimé ?** demande des nouvelles du lot que vous venez d’imprimer et l’enregistre ; à partir de là, ces
-objets et lieux affichent le ruban ambré. **Lots récents** montre ce que contient chacun, quand et où il a été fait et s’il
+objets et emplacements affichent le ruban ambré. **Lots récents** montre ce que contient chacun, quand et où il a été fait et s’il
 a été imprimé ; un lot non confirmé peut y être marqué **Bien imprimée** ou **Pas imprimée**, et se réimprime avec les mêmes
 codes. Réimprimer les mêmes objets pendant que leur feuille n’est pas confirmée propose cette feuille au lieu d’une nouvelle.
 Les objets dont l’identifiant est encore en attente ne peuvent pas encore être imprimés.
@@ -58,7 +58,7 @@ Les objets dont l’identifiant est encore en attente ne peuvent pas encore êtr
 |---|---|
 | Une étiquette Kept pour un objet que vous voyez | L’ouvre et le marque vu à l’instant |
 | Un code Kept imprimé sans QR code (ruban étroit) | L’ouvre, lu dans le texte, ou demande **Est-ce bien le code ?** d’abord quand la lecture n’est pas nette ([ci-dessous](#scanner-un-code-sans-qr-code)) |
-| Une étiquette vierge | Propose **Nouvelle boîte ici**, **L’attacher à un objet existant** ou **L’attacher à un lieu existant** (une pièce, une étagère ou un emplacement) |
+| Une étiquette vierge | Propose **Nouvelle boîte ici**, **L’attacher à un objet existant** ou **L’attacher à un lieu existant** (une pièce, une étagère ou un endroit) |
 | Un code-barres de produit | Propose de l’ajouter comme nouvel objet ; avec la recherche de codes-barres activée par l’administrateur, il est nommé à partir d’Open Food Facts, Open Products Facts ou Open Beauty Facts |
 | Un numéro de série ou un marqueur d’actif qu’un objet a | Ouvre cet objet |
 | Un code-barres qu’un objet a | Ouvre cet objet ; s’il y en a plusieurs, demande lequel |
@@ -66,13 +66,13 @@ Les objets dont l’identifiant est encore en attente ne peuvent pas encore êtr
 | Une étiquette Homebox, après un [import Homebox](/fr/users/import-export/) | Ouvre l’objet importé |
 | Tout le reste | Dit que ce n’est pas une étiquette Kept |
 
-Une étiquette attribuée à un lieu s’y affiche comme du ruban ambré, comme une imprimée pour lui. L’attribution fonctionne
+Une étiquette attribuée à un emplacement s’y affiche comme du ruban ambré, comme une imprimée pour lui. L’attribution fonctionne
 hors connexion : elle attend sur le téléphone jusqu’à la synchronisation, et si un autre téléphone a attribué la même
 étiquette en premier, on vous dit ce qui l’a. Les membres, administrateurs et propriétaires peuvent attribuer ; les lecteurs
 ne le peuvent pas.
 
-Pour étiqueter un lieu sur lequel vous avez déjà collé une étiquette vierge, ouvrez le lieu et choisissez **Ajouter un code
-d’étiquette** (sous Gérer) : le scanner s’ouvre, et l’étiquette vierge que vous scannez propose d’abord ce lieu.
+Pour étiqueter un emplacement sur lequel vous avez déjà collé une étiquette vierge, ouvrez l’emplacement et choisissez **Ajouter un code
+d’étiquette** (sous Gérer) : le scanner s’ouvre, et l’étiquette vierge que vous scannez propose d’abord cet emplacement.
 
 Une étiquette reste avec ce sur quoi elle est collée. Quand les [compartiments sont fusionnés](/fr/users/locations/#fusionner-et-diviser-les-compartiments), les étiquettes de ceux qui disparaissent dans la fusion ouvrent le compartiment fusionné ; une division redonne son étiquette à chacun. Quand un meuble est [tourné](/fr/users/locations/#retourner-le-mobilier), chaque compartiment garde son étiquette, qu’il soit renuméroté ou non.
 

@@ -4,7 +4,7 @@ description: "Gasto en cosas, valor por lugar, costes de vehículos y cobertura 
 ---
 
 **Perspectivas** (en la barra lateral, y bajo Más en el móvil) muestra cifras en tus ubicaciones con
-Money on, o una ubicación elegida con el chip **Ubicación**.
+Dinero activado, o una ubicación elegida con el chip **Ubicación**.
 
 ## Gasto en objetos
 

@@ -1,17 +1,17 @@
 ---
 title: Recherche
-description: "Trouvez des objets par nom, marque, numéro de série, identifiant, lieu ou les mots que l'IA a ajoutés comme alias. Filtres, recherches enregistrées, recherche hors ligne et recherche sémantique."
+description: "Trouvez des objets par nom, marque, numéro de série, identifiant, emplacement ou les mots que l'IA a ajoutés comme alias. Filtres, recherches enregistrées, recherche hors ligne et recherche sémantique."
 ---
 
-La recherche trouve des objets par nom, marque, numéro de série, identifiant, lieu ou les mots que l'IA a ajoutés comme alias, et regroupe les résultats en objets, lieux, personnes, magasins et documents (avec un extrait du texte du reçu).
+La recherche trouve des objets par nom, marque, numéro de série, identifiant, emplacement ou les mots que l'IA a ajoutés comme alias, et regroupe les résultats en objets, emplacements, personnes, magasins et documents (avec un extrait du texte du reçu).
 
 Cette page présente ce que vous pouvez rechercher, les filtres, les recherches enregistrées, la recherche hors ligne et la recherche sémantique.
 
 ## Filtres
 
-Les filtres réduisent les résultats par emplacement, lieu, type, étiquette et état.
+Les filtres réduisent les résultats par lieu, emplacement, type, étiquette et état.
 
-**Recherches enregistrées** conservent un ensemble de filtres pour vous ou tout un emplacement.
+**Recherches enregistrées** conservent un ensemble de filtres pour vous ou tout un lieu.
 
 Sur un ordinateur, ⌘K ou Ctrl+K ouvre la recherche depuis n'importe où.
 
@@ -31,7 +31,7 @@ Sans, la recherche ne fait correspondre que les noms et les mots : "laptop" ne t
 
 ## Partager une recherche
 
-**Partager cette liste** sur Recherche crée un lien de partage en lecture seule pour une recherche filtrée à un emplacement, sans filtres d'état ni de prix. Voir le partage d'un emplacement.
+**Partager cette liste** sur Recherche crée un lien de partage en lecture seule pour une recherche filtrée à un lieu, sans filtres d'état ni de prix. Voir le partage d'un lieu.
 
 ## Voir aussi
 

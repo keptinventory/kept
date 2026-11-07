@@ -93,13 +93,13 @@ segnala come rimossa viene eliminata.
 :::caution[Perdere la chiave]
 Se la chiave privata memorizzata non si può aprire, perché la chiave segreta con cui era sigillata è sparita,
 Kept ne crea una nuova e annulla ogni iscrizione push. Non si perde altro: le persone riattivano il push
-su ogni dispositivo. Conserva [il kit di recupero](/it/admin/recovery-kit/) e questo non succede mai su un
+su ogni dispositivo. Conserva [il kit di ripristino](/it/admin/recovery-kit/) e questo non succede mai su un
 ripristino o uno [spostamento](/it/admin/move-server/).
 :::
 
 ## ntfy e Telegram
 
-Le persone aggiungono questi da sole in Impostazioni → Io → Notifiche; non c'è nulla da configurare sul
+Le persone aggiungono questi da sole in Impostazioni → Profilo → Notifiche; non c'è nulla da configurare sul
 server. Kept pubblica sull'endpoint JSON di un server ntfy e sulla Bot API di Telegram
 (`api.telegram.org`), entrambi insieme e attraverso la stessa protezione dei webhook: un server ntfy su un
 indirizzo privato funziona solo quando **Consenti gli indirizzi privati** è attivo (Amministrazione → Impostazioni), e

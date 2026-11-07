@@ -3,9 +3,9 @@ title: Tableaux de bord
 description: Les compteurs de Kept sur un tableau de bord. Widgets à copier-coller pour Homepage, Glance et Homarr qui lisent ce qui est en retard, à échéance et bientôt périme depuis le résumé de Kept.
 ---
 
-Un tableau de bord peut afficher ce dont vous avez besoin dans Kept : en retard, à échéance, bientôt périme, prêtés, incertains et stock faible, au total et par emplacement. Chaque widget ci-dessous lit un appel,
+Un tableau de bord peut afficher ce dont vous avez besoin dans Kept : en retard, à échéance, bientôt périme, prêtés, incertains et stock faible, au total et par lieu. Chaque widget ci-dessous lit un appel,
 `GET /api/v1/summary`, avec un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel)
-(**Lecture seule**, les emplacements que vous voulez compter). [Home Assistant](/fr/users/home-assistant/) lit
+(**Lecture seule**, les lieux que vous voulez compter). [Home Assistant](/fr/users/home-assistant/) lit
 le même appel.
 
 ## Le résumé
@@ -24,9 +24,9 @@ le même appel.
 }
 ```
 
-- Chaque compteur est celui de l'accueil de Kept, pour les emplacements que le jeton atteint.
-- `null` dans un emplacement : ce module est désactivé dans cet emplacement (Lending pour `lentOut` et `borrowedIn`,
-  Consumables pour `lowStock`). Les `totals` additionnent les emplacements où cela s'applique, donc ce sont
+- Chaque compteur est celui de l'accueil de Kept, pour les lieux que le jeton atteint.
+- `null` dans un lieu : ce module est désactivé dans ce lieu (Lending pour `lentOut` et `borrowedIn`,
+  Consumables pour `lowStock`). Les `totals` additionnent les lieux où cela s'applique, donc ce sont
   toujours des nombres.
 - Pas de noms d'objets, pas d'argent.
 
@@ -66,7 +66,7 @@ Vérifié avec la documentation de Homepage 2.5.0.
               format: number
 ```
 
-Par emplacement plutôt, une ligne par emplacement :
+Par lieu plutôt, une ligne par lieu :
 
 ```yaml
         widget:

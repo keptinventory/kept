@@ -29,18 +29,18 @@ logement et les manuels d'une pièce se nomment de la même façon.
   étiquette remplit la marque, le modèle et le numéro de série, et les valeurs suggérées attendent dans la
   **Réception** pour que vous les acceptiez. Les prix, les dates et les numéros de série ne sont jamais
   acceptés pour vous.
-- **Courriel entrant** (Réglages de l'emplacement → Courriel entrant, propriétaires et administrateurs) : Kept
+- **Courriel entrant** (Paramètres du lieu → Courriel entrant, propriétaires et administrateurs) : Kept
   vérifie un dossier d'une boîte mail que vous possédez déjà, via IMAP, toutes les 10 minutes. Les photos et les
   PDF de chaque message, ou son texte lorsqu'il n'en contient pas, deviennent un brouillon de reçu dans la
   **Réception**. Seul le courrier arrivé après votre connexion est lu, et rien n'est modifié dans la boîte mail :
   aucun message n'est marqué lu, déplacé ou supprimé. Filtrez les reçus dans un dossier tel que `Kept` ;
   **Seulement de ces expéditeurs** écarte le bruit, mais une adresse De peut être falsifiée, ce qui n'en fait pas
   un contrôle de sécurité. Un mot de passe erroné, ou la personne qui l'a connecté n'administrant plus
-  l'emplacement, le désactive jusqu'à ce qu'il soit enregistré à nouveau.
+  le lieu, le désactive jusqu'à ce qu'il soit enregistré à nouveau.
 - **Garanties** (Foyer et Complète) affichent une barre de couverture de l'achat à la date de fin. Une
   **réclamation** enregistre une réparation ou un remplacement, et une réclamation qui n'a rien coûté affiche
   "La garantie vous a fait économiser".
-- **Documents** dans le menu sont les documents propres à l'emplacement (le bail, l'assurance habitation), et
+- **Documents** dans le menu sont les documents propres au lieu (le bail, l'assurance habitation), et
   **Échéances proches** liste les articles, les documents et les garanties par date. Le texte des PDF est
   recherchable.
 

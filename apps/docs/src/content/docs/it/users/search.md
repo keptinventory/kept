@@ -1,18 +1,18 @@
 ---
 title: Ricerca
-description: Trova oggetti per nome, marca, seriale, ID, luogo o le parole che l'IA ha aggiunto come alias. Filtri, ricerche salvate, ricerca offline e ricerca semantica.
+description: Trova oggetti per nome, marca, seriale, ID, posto o le parole che l'IA ha aggiunto come alias. Filtri, ricerche salvate, ricerca offline e ricerca semantica.
 ---
 
-La ricerca trova oggetti per nome, marca, seriale, ID, luogo o le parole che l'IA ha aggiunto come alias, e raggruppa
-i risultati in oggetti, luoghi, persone, negozi e documenti (con un estratto del testo dello scontrino).
+La ricerca trova oggetti per nome, marca, seriale, ID, posto o le parole che l'IA ha aggiunto come alias, e raggruppa
+i risultati in oggetti, posti, persone, negozi e documenti (con un estratto del testo dello scontrino).
 
 Questa pagina copre cosa puoi cercare, filtri, ricerche salvate, ricerca offline e ricerca semantica.
 
 ## Filtri
 
-I filtri restringono i risultati per luogo, posizione, tipo, tag e stato.
+I filtri restringono i risultati per luogo, posto, tipo, tag e stato.
 
-**Ricerche salvate** mantengono un set di filtri per te o per tutta la posizione.
+**Ricerche salvate** mantengono un set di filtri per te o per tutto il luogo.
 
 Su un computer, ⌘K o Ctrl+K apre la ricerca da ovunque.
 
@@ -33,7 +33,7 @@ Senza uno, la ricerca cerca solo nomi e parole: "laptop" non trova un MacBook Pr
 
 ## Condivisione di una ricerca
 
-**Condividi questo elenco** sulla ricerca crea un link di condivisione di sola lettura per una ricerca filtrata su una posizione, senza filtri di stato o prezzo. Vedi condivisione di una posizione.
+**Condividi questo elenco** sulla ricerca crea un link di condivisione di sola lettura per una ricerca filtrata su un luogo, senza filtri di stato o prezzo. Vedi condivisione di un luogo.
 
 ## Correlati
 

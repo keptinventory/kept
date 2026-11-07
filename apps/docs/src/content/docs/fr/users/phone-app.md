@@ -26,7 +26,7 @@ Le téléphone conserve une copie de chaque lieu auquel vous appartenez, rafraî
 | Parcourir les lieux, les pièces, les boîtes et les objets | Modifier les détails d’un objet, les paramètres, l’administration |
 | Recherche, intitulée **Sur ce téléphone** | L’assistant et le nommage par IA |
 | Capturer, déplacer, marquer comme vu, absent | Imports, exports et rapports |
-| Enregistrer un relevé, ajouter une pièce ou un emplacement | Enregistrer un service (il implique de l’argent) |
+| Enregistrer un relevé, ajouter une pièce ou un endroit | Enregistrer un service (il implique de l’argent) |
 | Vérification de boîte, pour une boîte ouverte au moins une fois en ligne | Tout ce qui touche à l’argent ou à des valeurs secrètes |
 | Scanner une étiquette, réclamer une étiquette vierge | |
 
@@ -55,7 +55,7 @@ Ce que vous faites hors ligne entre dans une file d’attente et est envoyé qua
 - **Partager vers Kept** : sur Android et Chrome sur ordinateur, l’application installée apparaît dans la feuille de partage, donc un reçu ou un PDF d’une autre application arrive dans Capture. L’iPhone ne permet pas aux applications web d’apparaître dans la feuille de partage : enregistrez le fichier, puis utilisez **Galerie** dans Capture.
 - **Scanner** lit les étiquettes Kept et les codes-barres produits, même hors ligne, depuis la copie du téléphone, ainsi que les codes Data Matrix, Code 39, Code 93, ITF, Codabar, PDF417 et Aztec ; un numéro de série ou une étiquette d’inventaire ouvre son objet quand vous êtes en ligne. La liste complète :
   [Identifiants courts et étiquettes](/fr/users/everyday-use/#id-courts-et-étiquettes).
-- **Suggérer où je suis**, un interrupteur dans le sélecteur de lieu de Capture, compare votre position avec les positions de vos lieux sur le téléphone lui-même et propose celui qui est à proximité. Votre position n’est jamais envoyée ni conservée. Un lieu a une position uniquement s’il en avait une dans un [export Kept](/fr/users/import-export/#un-export-kept) : pouvoir la définir dans l’application arrivera, et jusque-là un lieu sans position n’est jamais proposé.
+- **Suggérer où je suis**, un interrupteur dans le sélecteur d’emplacement de Capture, compare votre position avec les positions de vos lieux sur le téléphone lui-même et propose celui qui est à proximité. Votre position n’est jamais envoyée ni conservée. Un lieu a une position uniquement s’il en avait une dans un [export Kept](/fr/users/import-export/#un-export-kept) : pouvoir la définir dans l’application arrivera, et jusque-là un lieu sans position n’est jamais proposé.
 - **Dicter** remplit le nom à la voix là où le navigateur le permet.
 
 **Paramètres → Diagnostic** vérifie l’appareil photo, la prise en charge hors ligne et le stockage, et copie un rapport de ce qu’il a trouvé.

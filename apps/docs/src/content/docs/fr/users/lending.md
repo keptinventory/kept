@@ -7,18 +7,18 @@ Kept se souvient de qui possède vos affaires. Prêtez la perceuse à un voisin 
 ## L'activer
 
 Le prêt est un module : **Paramètres du lieu → Ce que vous suivez → Prêts**. Il fait partie des
-réglages préconfigurés **Foyer** et **Terminer**. Le nouvel emplacement Personnel d'un compte commence sur
+réglages préconfigurés **Foyer** et **Terminer**. Le nouveau lieu Personnel d'un compte commence sur
 **Essentiel**, donc activez-le là si vous prêtez depuis Personnel
 ([modules et présets](/fr/users/modules/)).
 
-Où il est désactivé, **Prêter** sur un objet et la page **Prêts** le disent ainsi. Un propriétaire ou administrateur de l'emplacement obtient **Activer les prêts ici** : un appui, et le formulaire de prêt s'ouvre. Tout le monde voit qui peut
+Où il est désactivé, **Prêter** sur un objet et la page **Prêts** le disent ainsi. Un propriétaire ou administrateur du lieu obtient **Activer les prêts ici** : un appui, et le formulaire de prêt s'ouvre. Tout le monde voit qui peut
 l'activer.
 
 ## Prêter quelque chose
 
 Ouvrez l'objet et choisissez **Prêter** :
 
-- **À qui** : un membre de l'emplacement, un de vos contacts, ou **+ Nouvelle personne** pour toute autre personne. Un emprunteur est juste un nom : aucun compte, aucun courriel, aucune connexion.
+- **À qui** : un membre du lieu, un de vos contacts, ou **+ Nouvelle personne** pour toute autre personne. Un emprunteur est juste un nom : aucun compte, aucun courriel, aucune connexion.
 - **Combien**, pour un objet ayant une quantité : la partie que vous prêtez obtient sa propre ligne et rejoint à nouveau le reste lorsqu'elle revient.
 - **Date d'échéance** (facultative), une note, l'état dans lequel elle sort, et des photos de celle-ci.
 
@@ -32,7 +32,7 @@ mêmes listes, sous **Entrant : emprunté** ; ce que vous avez prêté se trouve
 
 ## Qu'est-ce qui est sorti, et avec qui
 
-- **Prêts**, dans le menu : tout ce qui est prêté et emprunté, dans tous vos emplacements, en retard d'abord. Filtrer par personne, emplacement ou état (sorti maintenant, en retard, retourné), et regrouper par personne ou emplacement.
+- **Prêts**, dans le menu : tout ce qui est prêté et emprunté, dans tous vos lieux, en retard d'abord. Filtrer par personne, lieu ou état (sorti maintenant, en retard, retourné), et regrouper par personne ou lieu.
 - **Accueil** : la tuile **Prêtés** compte ce qui est sorti ; appuyez dessus pour voir la liste.
 - **La page d'une personne** : ce qu'ils ont de à vous, ce qu'ils vous ont prêté, et l'historique.
 
@@ -52,5 +52,5 @@ perdu est marqué perdu, jamais supprimé. Chaque étape peut être annulée.
 Un emprunteur n'a pas besoin de compte. Lorsqu'une personne devrait voir l'inventaire elle-même :
 
 - **Invitez-la en tant que spectateur**, avec une date de fin si c'est pour un moment
-  ([partage d'emplacement](/fr/users/sharing/)).
+  ([partage d'un lieu](/fr/users/sharing/)).
 - **Envoyez un lien de partage** : lecture seule, aucun compte, pour une boîte, un emplacement ou une recherche.

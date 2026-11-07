@@ -23,8 +23,8 @@ werden durch die URL weitergeleitet.
 
 ### Wenn `KEPT_SMTP_URL` nicht gesetzt ist
 
-E-Mail wird nur als fällig protokolliert: eine Warnung pro E-Mail, `E-Mail nicht gesendet: kein E-Mail-Transport ist
-konfiguriert`, wobei die Art der E-Mail genannt wird, niemals die Adresse, der Link oder das Token. **Admin → Status**
+E-Mail wird nur als fällig protokolliert: eine Warnung pro E-Mail, `mail not sent: no mail transport is
+configured`, wobei die Art der E-Mail genannt wird, niemals die Adresse, der Link oder das Token. **Admin → Status**
 zeigt **E-Mail: Nicht konfiguriert** und die Nachricht **E-Mail ist nicht eingerichtet**. Ohne E-Mail gibt es
 keine Anmelde-Links, Passwort-Rücksetzungen, E-Mail-Einladungen, per E-Mail gesendete Warnungen oder Berichte. Einladungen
 per Link und Passwörter funktionieren ohne sie, und Erinnerungen erreichen Personen weiterhin per Push und in der App.

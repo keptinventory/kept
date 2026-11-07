@@ -3,7 +3,7 @@ title: Correo, push y el feed del calendario
 description: Configura el correo saliente y el push web en un servidor de Kept, y lo que los operadores deben saber sobre los enlaces privados del calendario que hace la gente.
 ---
 
-Kept llega a la gente fuera de la app por **correo**, **push web** a un navegador o la app instalada, **ntfy**, **Telegram** y **Apprise**, y un **feed del calendario** al que se suscribe su app de calendario. Todo también llega al centro de notificaciones de la app, que no necesita configuración. La gente elige qué le llega en **Configuración → Notificaciones** (Reminders and alerts → **Abrir**). Esta página es el lado del operador. Todas las variables están listadas en la [referencia de configuración](/es/reference/configuration/).
+Kept llega a la gente fuera de la app por **correo**, **push web** a un navegador o la app instalada, **ntfy**, **Telegram** y **Apprise**, y un **feed del calendario** al que se suscribe su app de calendario. Todo también llega al centro de notificaciones de la app, que no necesita configuración. La gente elige qué le llega en **Configuración → Notificaciones** (Recordatorios y alertas → **Abrir**). Esta página es el lado del operador. Todas las variables están listadas en la [referencia de configuración](/es/reference/configuration/).
 
 ## Correo
 
@@ -18,13 +18,13 @@ Con Compose, pon ambas en `.env`; `compose.yaml` las pasa a `kept` y `migrate`. 
 
 El correo solo se registra como pendiente: una advertencia por correo, `mail not sent: no mail transport is configured`, que nombra el tipo de correo y nunca la dirección, el enlace ni el token. **Administrador → Estado** muestra **Mail: Not configured** y el aviso **El correo no está configurado**. Sin correo no hay enlaces de inicio de sesión, restablecimientos de contraseña, invitaciones por correo, alertas por correo ni informes por correo. Las invitaciones por enlace y las contraseñas funcionan sin él, y los recordatorios siguen llegando a la gente por push y en la app. **Envíamelo por correo** y **Volver a enviar** en Print inventory están bloqueados, y los propietarios y administradores reciben un enlace **Configurar email** a esta página; la API rechaza `email: true` y las programaciones de informes con 409 `mail_not_configured`.
 
-Cuando el correo está configurado, una cuenta cuya dirección no esté verificada no puede añadir una passkey ni una app de autenticación hasta que lo esté.
+Cuando el correo está configurado, una cuenta cuya dirección no esté verificada no puede añadir una llave de acceso ni una app de autenticación hasta que lo esté.
 
 ### Lo que Kept envía
 
 Cada correo se envía como texto y HTML en el idioma del destinatario (inglés cuando Kept no lo sabe). Los enlaces llevan su token después de `#`, así que un escáner de correo o un registro del servidor nunca tiene uno usable.
 
-- **Inicio de sesión y la cuenta**: enlaces de inicio de sesión, restablecimientos de contraseña, confirmar y verificar una nueva dirección de correo y un aviso a la anterior, un aviso cuando alguien intenta registrarse con una dirección que ya tiene cuenta, y un aviso cuando cambia una credencial: la contraseña, una passkey añadida o eliminada, un inicio de sesión externo desvinculado, la autenticación de dos factores activada, reconfigurada o desactivada, y nuevos códigos de respaldo.
+- **Inicio de sesión y la cuenta**: enlaces de inicio de sesión, restablecimientos de contraseña, confirmar y verificar una nueva dirección de correo y un aviso a la anterior, un aviso cuando alguien intenta registrarse con una dirección que ya tiene cuenta, y un aviso cuando cambia una credencial: la contraseña, una llave de acceso añadida o eliminada, un inicio de sesión externo desvinculado, la autenticación de dos factores activada, reconfigurada o desactivada, y nuevos códigos de respaldo.
 - **Personas y ubicaciones**: invitaciones por correo; al propietario de una ubicación, cada nuevo miembro o cuenta gestionada y cada membresía que llega a su fecha de fin.
 - **Transparencia**: cuando un admin de la instancia (o `kept admin`) actúa sobre la cuenta de alguien; y a cada usuario activo cuando cambia el inicio de sesión OIDC de la instancia, su correo saliente o su proveedor de IA predeterminado.
 - **Recordatorios**: un elemento vencido al momento, el resumen diario, una prueba de canal y un aviso cuando el webhook propio de una persona sigue fallando.
@@ -48,7 +48,7 @@ El push **no necesita claves tuyas**. En el primer arranque Kept genera un par d
 El push **no está disponible** cuando:
 
 - `KEPT_PUBLIC_URL` es `http` simple en cualquier cosa que no sea localhost: los navegadores se suscriben solo en una página segura. La gente ve "Push needs HTTPS." ([HTTPS](/es/install/https/))
-- no hay subject: ni `KEPT_VAPID_SUBJECT`, ni URL pública `https` ni `KEPT_SMTP_FROM`. La gente ve "Push isn't set up on this server."
+- no hay subject: ni `KEPT_VAPID_SUBJECT`, ni URL pública `https` ni `KEPT_SMTP_FROM`. La gente ve "Push no está configurado en este servidor."
 
 El correo y el centro de notificaciones siguen funcionando en cualquier caso.
 
@@ -62,7 +62,7 @@ Si no se puede abrir la clave privada almacenada, porque la clave secreta con la
 
 ## ntfy y Telegram
 
-La gente los añade ella misma en Settings → Me → Notifications; no hay nada que configurar en el servidor. Kept publica en el endpoint JSON de un servidor ntfy y en la Bot API de Telegram (`api.telegram.org`), ambos a la vez y con la misma protección que los webhooks: un servidor ntfy en una dirección privada funciona solo cuando **Permitir direcciones privadas** está activado (Admin → Settings), y se rechazan las redirecciones. Sus ajustes (un topic y un token de ntfy, un token de bot de Telegram) se cifran como el secreto de un webhook y están cubiertos por la [rotación de claves](/es/admin/recovery-kit/). Un envío fallido se reintenta con el recordatorio y marca el canal "Failing since"; el siguiente envío que llega lo limpia. Las alertas de admin no van a ellos.
+La gente los añade ella misma en Configuración → Yo → Notificaciones; no hay nada que configurar en el servidor. Kept publica en el endpoint JSON de un servidor ntfy y en la Bot API de Telegram (`api.telegram.org`), ambos a la vez y con la misma protección que los webhooks: un servidor ntfy en una dirección privada funciona solo cuando **Permitir direcciones privadas** está activado (Administrador → Configuración), y se rechazan las redirecciones. Sus ajustes (un topic y un token de ntfy, un token de bot de Telegram) se cifran como el secreto de un webhook y están cubiertos por la [rotación de claves](/es/admin/recovery-kit/). Un envío fallido se reintenta con el recordatorio y marca el canal "Failing since"; el siguiente envío que llega lo limpia. Las alertas de admin no van a ellos.
 
 ## Apprise
 
@@ -80,7 +80,7 @@ KEPT_APPRISE_URL: http://apprise:8000
 
 - Cada persona añade sus propias **URLs de Apprise** (una o más, como `discord://…` o `mailto://…`). Se cifran como el secreto de un webhook, no se vuelven a mostrar y están cubiertas por la [rotación de claves](/es/admin/recovery-kit/).
 - Kept usa el `POST /notify/` sin estado de Apprise API y envía las URLs con cada mensaje, así que el servidor de Apprise no guarda nada. Se accede a él en tu red privada a propósito, con las redirecciones rechazadas.
-- Las URLs genéricas `json://`, `xml://` y `form://` de Apprise (y sus formas `s`) pueden apuntar a cualquier host, incluidas máquinas de tu red, así que Kept las rechaza salvo que **Permitir direcciones privadas** esté activado (Admin → Settings).
+- Las URLs genéricas `json://`, `xml://` y `form://` de Apprise (y sus formas `s`) pueden apuntar a cualquier host, incluidas máquinas de tu red, así que Kept las rechaza salvo que **Permitir direcciones privadas** esté activado (Administrador → Configuración).
 - Un envío fallido (Apprise responde 424 cuando un servicio lo rechazó) se reintenta con el recordatorio y marca el canal "Failing since". Las alertas de admin no van a Apprise.
 
 ## El feed del calendario

@@ -39,7 +39,7 @@ Boîte : voir Conteneur.
 
 ## G
 
-**Graphique** : l'une des dispositions d'un lieu : ses étages, pièces, boîtes et objets sous forme de nœuds et de liens, en 2D ou en 3D, avec des épingles pour ce qui requiert de l'attention. [Le graphique](/fr/users/graph/)
+**Graphe** : l'une des dispositions d'un lieu : ses étages, pièces, boîtes et objets sous forme de nœuds et de liens, en 2D ou en 3D, avec des épingles pour ce qui requiert de l'attention. [Le graphique](/fr/users/graph/)
 
 ## H
 
@@ -65,7 +65,7 @@ Boîte : voir Conteneur.
 
 **Support d'étiquettes** : ce sur quoi les étiquettes sont imprimées : une feuille A4 ou Letter, un rouleau d'imprimante à étiquettes, ou un ruban d'étiqueteuse. Le ruban étroit (9 et 12 mm) n'a pas la place pour un code QR ; **Scanner** lit son ID court imprimé à la place. [Impression](/fr/users/short-ids/#impression)
 
-**Disposition** : la façon dont la page d'un lieu affiche ce qu'il contient : **Liste**, **Grille**, **Graphique**, **Tableau** (sur un ordinateur) ou **Carte**. Kept se souvient du choix par lieu et par appareil. [Lieux, pièces et boîtes](/fr/users/locations/)
+**Disposition** : la façon dont la page d'un lieu affiche ce qu'il contient : **Liste**, **Grille**, **Graphe**, **Tableau** (sur un ordinateur) ou **Carte**. Kept se souvient du choix par lieu et par appareil. [Lieux, pièces et boîtes](/fr/users/locations/)
 
 **Prêts** : enregistrement du fait qu'un objet, ou une partie d'une quantité, est chez quelqu'un, avec une date de retour, son état et des photos.
 
@@ -75,7 +75,7 @@ Boîte : voir Conteneur.
 
 **Compte géré** : un compte avec un nom d'utilisateur et sans e-mail, pour un enfant ou un parent, créé par le propriétaire ou un administrateur d'un lieu. Un lieu contient au maximum 20 comptes. [Personnes sans e-mail](/fr/users/first-run/#personnes-sans-e-mail)
 
-**Carte** : l'une des dispositions d'un lieu : le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes, que les membres et plus haut organisent. [Carte du lieu](/fr/users/location-map/)
+**Carte** : l'une des dispositions d'un lieu : le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes, que les membres et plus haut organisent. [La carte des lieux](/fr/users/location-map/)
 
 **MCP** (Model Context Protocol) : la façon dont une application d'IA telle que Claude se connecte à Kept pour trouver et modifier des objets, dans le cadre de votre rôle. [Connecter un client IA](/fr/users/mcp-clients/)
 
@@ -133,7 +133,7 @@ Boîte : voir Conteneur.
 
 ## U
 
-**Sans emplacement** : l'emplacement que chaque lieu possède pour les objets qui n'ont pas encore de place.
+**Sans emplacement** : l'emplacement que chaque lieu possède pour les objets qui n'ont pas encore d'emplacement.
 
 ## V
 

@@ -15,7 +15,7 @@ Kept restaure **uniquement dans une nouvelle base de données vide**, la vérifi
    docker compose run --rm --no-deps --entrypoint kept kept admin backup --list
    ```
 
-   Cela exécute la CLI dans un conteneur `kept` jetable, qui contient le volume de données, les clés, l'identifiant propriétaire issu de votre `compose.override.yaml`, ainsi que les réglages de sauvegarde (ceux de `.env`, ou ceux enregistrés dans Admin → Backups ; voir [sauvegardes](/fr/admin/backups/#lactiver)).
+   Cela exécute la CLI dans un conteneur `kept` jetable, qui contient le volume de données, les clés, l'identifiant propriétaire issu de votre `compose.override.yaml`, ainsi que les réglages de sauvegarde (ceux de `.env`, ou ceux enregistrés dans Administration → Sauvegardes ; voir [sauvegardes](/fr/admin/backups/#lactiver)).
 
 2. **Créer une base de données vide** à côté de celle en service, en tant que super-utilisateur de la base de données :
 
@@ -35,7 +35,7 @@ Kept restaure **uniquement dans une nouvelle base de données vide**, la vérifi
      kept admin restore <snapshot>
    ```
 
-   Kept extrait la base de données et les fichiers de l'instantané, vérifie le dump par rapport à son manifeste, vérifie que `pg_restore` correspond à la version majeure du serveur et que les extensions existent, restaure dans une transaction, puis compare **le nombre de lignes et l'empreinte des données de chaque table** avec le manifeste : toute table dont les données diffèrent, même avec le même nombre de lignes, fait échouer la restauration. Les fichiers retournent dans le magasin nommé par `KEPT_STORAGE`, et la somme SHA-256 de chacun est vérifiée. L'opération se termine en affichant le basculement.
+   Kept extrait la base de données et les fichiers de l'instantané, vérifie le dump par rapport à son manifeste, vérifie que `pg_restore` correspond à la version majeure du serveur et que les extensions existent, restaure dans une seule transaction, puis compare **le nombre de lignes et l'empreinte des données de chaque table** avec le manifeste : toute table dont les données diffèrent, même avec le même nombre de lignes, fait échouer la restauration. Les fichiers retournent dans le magasin nommé par `KEPT_STORAGE`, et la somme SHA-256 de chacun est vérifiée. L'opération se termine en affichant le basculement.
 
 4. **Intervertir**, avec Kept arrêté, en tant que super-utilisateur :
 
@@ -77,7 +77,7 @@ docker compose run --rm --no-deps --entrypoint kept kept admin backup drill \
 docker compose exec db psql -U postgres -c "DROP DATABASE kept_drill"
 ```
 
-L'exercice restaure le dernier instantané valide, compare les comptes et les empreintes, vérifie la somme SHA-256 de 50 fichiers (`--all-files` les vérifie tous), et enregistre l'exercice dans la base de données **en service**, ce qui efface l'alerte "restore drill due" dans Admin → Status. Il ne touche jamais aux données en service.
+L'exercice restaure le dernier instantané valide, compare les nombres de lignes et les empreintes, vérifie la somme SHA-256 de 50 fichiers (`--all-files` les vérifie tous), et enregistre l'exercice dans la base de données **en service**, ce qui efface l'alerte "Exercice de restauration dû" dans Administration → Statut. Il ne touche jamais aux données en service.
 
 ## Vérifier le dépôt
 

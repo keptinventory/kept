@@ -164,6 +164,13 @@ superiore. La parte di Kept di cui uno strumento ha bisogno è il nome sotto **C
 | `adjust_stock` | modifica | Oggetti che si esauriscono | Aggiungi o togli dalle scorte di un consumabile. |
 | `list_tags` | lettura | | Quali etichette ci sono, con quanti oggetti hanno ciascuno. |
 | `tag_things` | modifica | | Aggiungi etichette a oggetti, o toglieli; un nome nuovo crea l'etichetta. |
+| `list_moves` | lettura | Trasloco | Quali traslochi ci sono, con quante scatole sono imballate, in transito e disimballate. |
+| `get_move` | lettura | Trasloco | Dove si trova ogni scatola di un trasloco e quali numeri mancano ancora. |
+| `start_move` | modifica | Trasloco | Avvia un trasloco, verso un altro luogo o tra stanze di questo. |
+| `add_box` | modifica | Trasloco | Aggiungi la prossima scatola numerata: nuova, o un contenitore che hai. |
+| `pack_into_box` | modifica | Trasloco | Metti oggetti in una scatola. |
+| `set_box_status` | modifica | Trasloco | Segna una scatola come imballata o in transito, o scegli la sua stanza. |
+| `unpack_box` | modifica | Trasloco | Disimballa una scatola in una stanza; tutto ciò che contiene va con essa. |
 
 **I campi di un oggetto.** `add_thing` e `update_thing` accettano ogni campo impostabile su un oggetto nell'app,
 ciascuno nel proprio campo anziché nelle note: nome, quantità, tipo (per nome, in inglese o
@@ -177,14 +184,6 @@ che ha o registrandone uno, come fa la pagina dell'oggetto. Un prezzo richiede c
 veda il denaro, come nell'app; un minimo richiede **Oggetti che si esauriscono**. Un tipo che Kept non conosce viene
 lasciato fuori e l'`not_set` della risposta lo dice; la scheda dell'assistente
 lo mostra come "not set" con un selettore.
-
-| `list_moves` | lettura | Trasloco | Quali traslochi ci sono, con quante scatole sono imballate, in transito e disimballate. |
-| `get_move` | lettura | Trasloco | Dove si trova ogni scatola di un trasloco e quali numeri mancano ancora. |
-| `start_move` | modifica | Trasloco | Avvia un trasloco, verso un altro luogo o tra stanze di questo. |
-| `add_box` | modifica | Trasloco | Aggiungi la prossima scatola numerata: nuova, o un contenitore che hai. |
-| `pack_into_box` | modifica | Trasloco | Metti oggetti in una scatola. |
-| `set_box_status` | modifica | Trasloco | Segna una scatola come imballata o in transito, o scegli la sua stanza. |
-| `unpack_box` | modifica | Trasloco | Disimballa una scatola in una stanza; tutto ciò che contiene va con essa. |
 
 Gli strumenti per il trasloco sono solo per le app collegate; l'assistente in Kept non li usa.
 

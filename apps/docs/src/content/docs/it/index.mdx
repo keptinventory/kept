@@ -51,11 +51,11 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
 <Section eyebrow="Kept, opened" title="Un inventario, sul tuo desktop e sul tuo telefono" id="opened" split>
   <Fragment slot="points">
     <li><span><strong>Casa:</strong> ciò che ti serve, a colpo d'occhio.</span></li>
-    <li><span><strong>Posizioni:</strong> stanze, scaffali, scatole. Una mappa di ciascuna.</span></li>
+    <li><span><strong>Luoghi:</strong> stanze, scaffali, scatole. Una mappa di ciascuno.</span></li>
     <li><span><strong>Telefono:</strong> cattura, scansione, ricerca. Anche offline.</span></li>
   </Fragment>
   <Opened
-    desktopAlt="La Casa di Kept su un desktop: Inizia, le tessere delle tue necessità da in ritardo a da molto tempo, le posizioni con le loro anteprime sulla mappa, scorciatoie e Statistiche"
+    desktopAlt="La Casa di Kept su un desktop: Inizia, le tessere delle tue necessità da in ritardo a da molto tempo, i luoghi con le loro anteprime sulla mappa, scorciatoie e Statistiche"
     phoneAlt="La Casa di Kept su un telefono: Inizia, le tessere delle tue necessità e le scorciatoie, sopra la barra delle schede con il pulsante Cattura"
   />
 </Section>
@@ -66,7 +66,7 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
     heading="h3"
     items={[
       { icon: 'map', title: 'Mappa 3D', body: 'Piani, stanze, mobili. Spilli per ciò che ti serve.', href: '/it/users/location-map/' },
-      { icon: 'places', title: 'Stanze e scatole', body: "Luoghi dentro luoghi. Sposta una scatola; ciò che è dentro si muove troppo.", href: '/it/users/everyday-use/#luoghi-stanze-e-scatole' },
+      { icon: 'places', title: 'Stanze e scatole', body: "Posti dentro posti. Sposta una scatola; ciò che è dentro si muove troppo.", href: '/it/users/everyday-use/#luoghi-stanze-e-scatole' },
       { icon: 'qrcode', title: 'Etichette QR', body: 'Un ID breve su tutto. Scansiona una scatola, guarda dentro.', href: '/it/users/everyday-use/#id-brevi-ed-etichette' },
       { icon: 'schedule', title: 'Garanzie e servizi', body: "In base alla data o alla lettura del contatore. Nell'ordine in cui esauriscono.", href: '/it/users/everyday-use/#promemoria-e-notifiche' },
       { icon: 'phone', title: 'App telefono, offline', body: 'Cattura, scandaglio, ricerca senza segnale. Si sincronizza più tardi.', href: '/it/users/phone-app/' },
@@ -85,7 +85,7 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
         { icon: 'vehicle', title: 'Veicoli e macchinari', body: 'Letture, servizi, carburante, costi.', href: '/it/users/everyday-use/#veicoli-e-macchine' },
         { icon: 'stock', title: 'Consumabili e scorte', body: 'Un minimo per oggetto. Avvisato quando scarseggia.', href: '/it/users/everyday-use/#veicoli-e-macchine' },
         { icon: 'condition', title: 'Rapporti sulle condizioni', body: 'Entrata, uscita, stanza per stanza. Con foto.', href: '/it/users/everyday-use/#verbali-di-stato-in-affitto' },
-        { icon: 'insights', title: 'Statistiche', body: 'Spese per anno, valore per luogo. Mai stimato.', href: '/it/users/everyday-use/#statistiche' },
+        { icon: 'insights', title: 'Statistiche', body: 'Spese per anno, valore per posto. Mai stimato.', href: '/it/users/everyday-use/#statistiche' },
         { icon: 'language', title: 'Nella tua lingua', body: 'Arabo, francese, inglese, italiano, spagnolo, tedesco, ucraino, vietnamita.', href: '/it/users/first-run/#6-lingua-e-tema' },
       ]}
     />
@@ -105,15 +105,15 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
       { name: 'claude-mcp', title: 'Claude, tramite MCP', caption: 'Chiedi a Claude di aggiungere un oggetto. Atterra nella stanza giusta, con marca, modello e numero di serie.', alt: 'Claude Code: "Aggiungi la mia TV al Soggiorno: Samsung QE55Q80C, numero di serie 0B7H3CJT500123", e la sua risposta che la TV è in Kept sotto Casa › Soggiorno' },
       { name: 'place', title: 'Una stanza', caption: "La cucina: cosa contiene, cosa è terminato, i suoi documenti.", alt: 'La cucina in Kept: batterie AA, un estintore e un vecchio bollitore segnato come terminato' },
       { name: 'search-phone', title: 'Ricerca', caption: 'Parte di un nome. Dove si trova ogni corrispondenza, fino alla scatola.', alt: 'Ricerca del cavo su un telefono: la scatola del cavo e il cavo HDMI, ciascuno con il suo tipo, percorso ed etichetta' },
-      { name: 'capture-phone', title: 'Cattura', caption: 'Una foto per oggetto, nel luogo che hai scelto. Assegna un nome in seguito.', alt: 'Lo schermo di cattura su un telefono, la sua fotocamera su una scatola etichettata sugli scaffali del garage' },
+      { name: 'capture-phone', title: 'Cattura', caption: 'Una foto per oggetto, nel posto che hai scelto. Assegna un nome in seguito.', alt: 'Lo schermo di cattura su un telefono, la sua fotocamera su una scatola etichettata sugli scaffali del garage' },
       { name: 'inbox', title: 'Posta in arrivo', caption: 'Cosa richiede una decisione: bozze, una ricevuta senza valuta, una lettura del contatore strana.', alt: "La Posta in arrivo di Kept: la lettura del contatore di un'auto inferiore all'ultima, con modi per risolverla" },
-      { name: 'labels', title: 'Etichette', caption: 'Oggetti senza etichetta stampata. Il tuo stock di etichette, anteprima prima della stampa.', alt: 'Stampa etichette: gli sei oggetti in Casa senza etichetta stampata, su un foglio A4 da 24, ciascuna etichetta un codice QR con il suo nome, posizione e ID corto' },
+      { name: 'labels', title: 'Etichette', caption: 'Oggetti senza etichetta stampata. Il tuo stock di etichette, anteprima prima della stampa.', alt: 'Stampa etichette: i sei oggetti in Casa senza etichetta stampata, su un foglio A4 da 24, ciascuna etichetta un codice QR con il suo nome, posto e ID corto' },
       { name: 'expiring', title: 'In scadenza', caption: "Garanzie, assicurazioni, un affitto, un estintore. Nell'ordine in cui esauriscono.", alt: "La lista In scadenza: l'assicurazione sulla casa scade presto, poi le garanzie, un estintore e un affitto" },
       { name: 'vehicles', title: 'Veicoli', caption: 'Ultima lettura, prossimo servizio, data della licenza, consumo di carburante.', alt: "Veicoli: un'auto, un generatore e una seconda auto, con letture del contatore e cosa è dovuto" },
       { name: 'lending', title: 'Prestito', caption: "Cosa hai prestato, a chi. Cosa hai preso in prestito. Cosa è in ritardo.", alt: 'Prestito: un trapano prestato e due giorni in ritardo, e una scala presa in prestito' },
       { name: 'assistant', title: 'Assistente', caption: 'Chiedi dove si trova qualcosa. La risposta cita ciò che ha trovato; le modifiche aspettano te.', alt: "L'assistente che risponde dove si trova il cavo HDMI, citando il cavo e la sua scatola, con uno spostamento per confermare" },
-      { name: 'connections', title: 'Connessioni', caption: 'Token per app AI e script, ciascuno limitato alle posizioni che scegli. Webhook.', alt: "Impostazioni Connessioni: due token personali, un'app collegata e i webhooks" },
-      { name: 'track', title: 'Cosa tenere traccia', caption: 'Per posizione: essenziali, domestico o completo. Poi ogni modulo per conto suo.', alt: "Le impostazioni Cosa tenere traccia di una posizione: il preset domestico scelto, con i suoi moduli attivati" },
+      { name: 'connections', title: 'Connessioni', caption: 'Token per app AI e script, ciascuno limitato ai luoghi che scegli. Webhook.', alt: "Impostazioni Connessioni: due token personali, un'app collegata e i webhooks" },
+      { name: 'track', title: 'Cosa monitorare', caption: 'Per luogo: essenziali, domestico o completo. Poi ogni modulo per conto suo.', alt: "Le impostazioni Cosa monitorare di un luogo: il preset domestico scelto, con i suoi moduli attivati" },
     ]}
   />
 </Section>

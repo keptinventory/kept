@@ -167,6 +167,13 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `adjust_stock` | change | Things you run out of | Add to or take from a consumable's stock. |
 | `list_tags` | read | | Which tags there are, with how many things have each. |
 | `tag_things` | change | | Add tags to things, or take them off; a new name makes the tag. |
+| `list_moves` | read | Moving house | Which moves there are, with how many boxes are packed, in transit and unpacked. |
+| `get_move` | read | Moving house | Where each box of a move is, and which numbers are still missing. |
+| `start_move` | change | Moving house | Start a move, to another location or between rooms of this one. |
+| `add_box` | change | Moving house | Add the next numbered box: a new one, or a container you have. |
+| `pack_into_box` | change | Moving house | Pack things into a box. |
+| `set_box_status` | change | Moving house | Mark a box packed or in transit, or choose its room. |
+| `unpack_box` | change | Moving house | Unpack a box into a room; everything in it goes with it. |
 
 **A thing's fields.** `add_thing` and `update_thing` take every field you can set on a thing in the
 app, each in its own field rather than in the notes: name, how many, type (by name, in English or
@@ -180,13 +187,6 @@ it has or recording one, as the thing page does. A price needs Money on and a ro
 sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know is
 left out and the answer's `not_set` says so; the assistant's card
 shows it as "not set" with a picker.
-| `list_moves` | read | Moving house | Which moves there are, with how many boxes are packed, in transit and unpacked. |
-| `get_move` | read | Moving house | Where each box of a move is, and which numbers are still missing. |
-| `start_move` | change | Moving house | Start a move, to another location or between rooms of this one. |
-| `add_box` | change | Moving house | Add the next numbered box: a new one, or a container you have. |
-| `pack_into_box` | change | Moving house | Pack things into a box. |
-| `set_box_status` | change | Moving house | Mark a box packed or in transit, or choose its room. |
-| `unpack_box` | change | Moving house | Unpack a box into a room; everything in it goes with it. |
 
 The moving tools are for connected apps only; the assistant in Kept doesn't use them.
 

@@ -38,7 +38,7 @@ Due tipi di comando necessitano invece dei volumi del container che serve:
 | `kept admin setup-code` | Emette di nuovo il codice di configurazione iniziale, mentre la configurazione è in corso, e toglie il blocco a livello di istanza. |
 | `kept admin reset-password <login>` | Un codice di reimpostazione della password valido una sola volta, valido un'ora; disconnette l'account ovunque. |
 | `kept admin disable-user <login>` / `enable-user <login>` | Impedisce a un account di accedere (e chiude le sue sessioni), oppure lo permette di nuovo. |
-| `kept admin transfer-ownership <locationId> <toUserId>` | Assegna una posizione a un altro proprietario; il precedente proprietario diventa amministratore della posizione. |
+| `kept admin transfer-ownership <locationId> <toUserId>` | Assegna un luogo a un altro proprietario; il precedente proprietario diventa amministratore del luogo. |
 | `kept admin recovery-kit [--format text\|html] [--out <file>]` | Il kit di ripristino da tenere fuori dal server: le chiavi, il repository di backup e le sue credenziali, le istruzioni di ripristino. Vedi [il kit di ripristino](/it/admin/recovery-kit/). |
 | `kept admin token create --user <login> --scope read\|write --name <name>` | Un token personale per client MCP e Home Assistant, stampato una sola volta; `--expires <days>`, `--location <id or name>` (ripetibile), `--confirm-cross-location`. Dalla 1.13.0. Vedi [un token dal server](#un-token-dal-server). |
 | `kept admin gen-key` | Stampa una nuova chiave, per impostare da sé `KEPT_SECRET_KEY` o `KEPT_AUTH_SECRET`. |
@@ -48,7 +48,7 @@ Due tipi di comando necessitano invece dei volumi del container che serve:
 | `kept admin backup drill --into <database>` | Ripristina il backup più recente in un database di prova **vuoto** e lo controlla: l'[esercitazione mensile](/it/admin/restore/#la-prova-mensile). |
 | `kept admin backup unlock` | Rimuove un lock restic rimasto dopo un crash; rifiutato mentre un backup è in esecuzione. |
 | `kept admin restore <snapshot>` | Ripristina uno snapshot (o `latest`) in un database **vuoto** e lo verifica; `--legacy <id>` ripristina un backup precedente a restic, per una versione. Vedi [ripristino](/it/admin/restore/). |
-| `kept admin readable --out <dir>` | Scrive la [copia leggibile](/it/admin/read-with-restic/) di ogni posizione (HTML, CSV, file) in una directory; `--location <id>` per una sola, `--no-pdf` senza i PDF dell'inventario. |
+| `kept admin readable --out <dir>` | Scrive la [copia leggibile](/it/admin/read-with-restic/) di ogni luogo (HTML, CSV, file) in una directory; `--location <id>` per uno solo, `--no-pdf` senza i PDF dell'inventario. |
 | `kept admin storage copy --to s3\|local` | Copia ogni file nell'altro archivio, controllando l'hash di ciascuno; `--dry-run` conta solo. Vedi [cambiare archivio file](/it/admin/storage/). |
 | `kept admin storage verify --store s3\|local` | Controlla che ogni file a cui fa riferimento il database sia in quell'archivio con i byte giusti. |
 | `kept admin export --out <dir>` | Ogni riga, grezza, con i segreti ancora sigillati, e ogni file, in una nuova directory: la via di fuga, sensibile come un backup. |
@@ -72,11 +72,11 @@ docker compose exec kept kept admin token create \
 - `--user` è la persona per cui il token agisce: il suo indirizzo email, oppure il nome utente di un account gestito.
   Può fare quello che possono fare loro, e nulla più.
 - `--scope read` legge soltanto; `--scope write` può anche modificare gli oggetti.
-- Senza `--location`, raggiunge ogni posizione a cui la persona appartiene, tranne quelle che non può:
-  una posizione che richiede il secondo fattore (un token creato qui non ha secondo fattore; crealo in
-  Impostazioni → Connessioni, via HTTPS) e, per un token con permesso di scrittura, quelle in cui è un visualizzatore. Ciascuna
-  esclusa viene segnalata. `--location` (un id o un nome, ripetibile) le seleziona invece.
-- Un token con permesso di scrittura che coinvolge posizioni con membri diversi si ferma con un avviso, come nell'app;
+- Senza `--location`, raggiunge ogni luogo a cui la persona appartiene, tranne quelli che non può:
+  un luogo che richiede il secondo fattore (un token creato qui non ha secondo fattore; crealo in
+  Impostazioni → Connessioni, via HTTPS) e, per un token con permesso di scrittura, quelli in cui è un visualizzatore. Ciascuno
+  escluso viene segnalato. `--location` (un id o un nome, ripetibile) li seleziona invece.
+- Un token con permesso di scrittura che coinvolge luoghi con membri diversi si ferma con un avviso, come nell'app;
   `--confirm-cross-location` lo crea comunque.
 - `--expires <days>` lo fa scadere dopo tanti giorni; senza, funziona fino alla revoca.
 

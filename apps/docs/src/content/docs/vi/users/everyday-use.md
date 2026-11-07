@@ -19,7 +19,7 @@ Mọi thứ nằm trong một cây: một địa điểm (Trang chủ, Nhà xe, 
 
 Chi tiết đầy đủ: [chế độ xem bảng tính](/vi/users/spreadsheet/).
 
-Trên máy tính (cửa sổ rộng 1024 pixel trở lên), **Bàn** của một địa điểm hiển thị mọi đồ vật trong đó dưới dạng một hàng, để dọn dẹp nhiều đồ vật cùng lúc. Điện thoại giữ danh sách.
+Trên máy tính (cửa sổ rộng 1024 pixel trở lên), **Bảng** của một địa điểm hiển thị mọi đồ vật trong đó dưới dạng một hàng, để dọn dẹp nhiều đồ vật cùng lúc. Điện thoại giữ danh sách.
 ## Đồ vật
 
 Chi tiết đầy đủ: [đồ vật](/vi/users/things/).
@@ -62,7 +62,7 @@ Chi tiết đầy đủ: [nhắc nhở và thông báo](/vi/users/reminders/).
 
 ## Chia sẻ một địa điểm
 
-Một địa điểm được chia sẻ bằng cách mời mọi người đến nó, mỗi người với một vai trò và ngày kết thúc tùy chọn ([lời mời và vai trò](/vi/users/first-run/#5-mời-mọi-người)). Chủ sở hữu và quản trị viên quản lý trang **Thành viên** trong cài đặt Địa điểm; bất kỳ ai trừ chủ sở hữu có thể **Rời khỏi địa điểm này**. **Liên kết chia sẻ** cho người không có tài khoản xem gì trong một hộp, một chỗ hoặc một tìm kiếm, chỉ đọc.
+Một địa điểm được chia sẻ bằng cách mời mọi người đến nó, mỗi người với một vai trò và ngày kết thúc tùy chọn ([lời mời và vai trò](/vi/users/first-run/#5-mời-mọi-người)). Chủ sở hữu và quản trị viên quản lý trang **Thành viên** trong cài đặt Địa điểm; bất kỳ ai trừ chủ sở hữu có thể **Rời khỏi địa điểm này**. Địa điểm Cá nhân của bạn không bao giờ được chia sẻ. **Liên kết chia sẻ** cho người không có tài khoản xem gì trong một hộp, một chỗ hoặc một tìm kiếm, chỉ đọc.
 
 Chi tiết đầy đủ: [chia sẻ một địa điểm](/vi/users/sharing/).
 

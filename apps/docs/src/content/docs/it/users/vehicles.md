@@ -26,12 +26,12 @@ Nella scheda **Servizi** di un veicolo, toccando un servizio si apre tutto ciò 
 
 - **Modifica** apre lo stesso modulo, già compilato. Il salvataggio cambia solo ciò che hai modificato.
 - **Elimina** chiede conferma, poi offre **Annulla**. Le sue righe e la fattura lo accompagnano; le pianificazioni che ha completato ricominciano dal servizio precedente.
-- Chi può: chi l'ha registrato, e il proprietario e gli amministratori della posizione. Un visualizzatore può aprirlo, ma non modificarlo.
+- Chi può: chi l'ha registrato, e il proprietario e gli amministratori del luogo. Un visualizzatore può aprirlo, ma non modificarlo.
 - Una fattura ancora in fase di lettura è una **bozza**: **Completa la registrazione** o **Scarta la bozza**.
 
 ## Da scorta
 
-Quando Consumabili è attivato per la posizione, una riga di servizio può scegliere un consumabile dalla stessa posizione: il filtro dell'olio sullo scaffale.
+Quando Consumabili è attivato per il luogo, una riga di servizio può scegliere un consumabile dallo stesso luogo: il filtro dell'olio sullo scaffale.
 
 - Il salvataggio sottrae dalla quantità del consumabile la quantità della riga (1 quando la quantità è vuota).
 - Kept rifiuta di prendere più di ciò che rimane.

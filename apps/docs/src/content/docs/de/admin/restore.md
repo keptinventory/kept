@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-Kept stellt **nur in eine neue, leere Datenbank** wieder her, prüft sie und überlässt dir das Austauschen. Es verweigert eine Datenbank, die schon etwas enthält, damit es nicht aus Versehen auf die aktive Datenbank zielen kann.
+Kept stellt **nur in eine neue, leere Datenbank** wieder her, prüft sie und überlässt dir das Austauschen. Eine Datenbank, die schon etwas enthält, lehnt es ab, damit es nicht aus Versehen auf die aktive Datenbank gerichtet werden kann.
 
 ## Wiederherstellen
 
@@ -15,7 +15,7 @@ Kept stellt **nur in eine neue, leere Datenbank** wieder her, prüft sie und üb
    docker compose run --rm --no-deps --entrypoint kept kept admin backup --list
    ```
 
-   Das führt die CLI in einem einmaligen `kept`-Container aus, der den Daten-Datenträger, die Schlüssel, das Besitzer-Login aus deiner `compose.override.yaml` und die Backup-Einstellungen (`.env`'s, oder die in Admin → Backups gespeicherten; siehe [Backups](/de/admin/backups/#aktivieren)) hat.
+   Das führt die CLI in einem einmaligen `kept`-Container aus, der das Daten-Volume, die Schlüssel, das Besitzer-Login aus deiner `compose.override.yaml` und die Backup-Einstellungen (die aus `.env` oder die in Admin → Sicherungen gespeicherten; siehe [Sicherungen](/de/admin/backups/#aktivieren)) hat.
 
 2. **Eine leere Datenbank** neben der aktiven Datenbank erstellen, als Datenbank-Superuser:
 
@@ -35,7 +35,7 @@ Kept stellt **nur in eine neue, leere Datenbank** wieder her, prüft sie und üb
      kept admin restore <snapshot>
    ```
 
-   Kept holt Datenbank und Dateien aus dem Snapshot, prüft den Dump gegen sein Manifest, prüft, ob `pg_restore` zur Hauptversion des Servers passt und die Erweiterungen vorhanden sind, stellt in einer Transaktion wieder her und vergleicht dann **Zeilenanzahl und Daten-Digest jeder Tabelle** mit dem Manifest: Jede Tabelle, deren Daten abweichen, selbst bei gleicher Zeilenanzahl, lässt die Wiederherstellung fehlschlagen. Dateien gelangen zurück in den Speicher, den `KEPT_STORAGE` benennt, und bei jeder wird SHA-256 geprüft. Am Ende druckt es den Austausch.
+   Kept holt Datenbank und Dateien aus dem Snapshot, prüft den Dump gegen sein Manifest, prüft, ob `pg_restore` zur Hauptversion des Servers passt und die Erweiterungen vorhanden sind, stellt in einer Transaktion wieder her und vergleicht dann **Zeilenanzahl und Daten-Digest jeder Tabelle** mit dem Manifest: Jede Tabelle, deren Daten abweichen, selbst bei gleicher Zeilenanzahl, lässt die Wiederherstellung fehlschlagen. Dateien gelangen zurück in den Speicher, den `KEPT_STORAGE` benennt, und bei jeder wird SHA-256 geprüft. Am Ende gibt es die Befehle für den Austausch aus.
 
 4. **Austauschen**, mit gestopptem Kept, als Superuser:
 
@@ -48,11 +48,11 @@ Kept stellt **nur in eine neue, leere Datenbank** wieder her, prüft sie und üb
 
    Behalte `kept_before_restore`, bis du dir sicher bist, und lösche es dann.
 
-Das Umbenennen einer Datenbank benötigt den Superuser, und keiner von Kepts Logins ist einer: Deshalb druckt Kept diese Befehle aus, statt sie selbst auszuführen.
+Das Umbenennen einer Datenbank benötigt den Superuser, und keiner von Kepts Logins ist einer: Deshalb gibt Kept diese Befehle aus, statt sie selbst auszuführen.
 
 ## Nach dem Verlust des Servers
 
-Auf der neuen Maschine: Installiere Kept wie unter [Installation mit Docker Compose](/de/install/compose/), und lege vor dem ersten Start die **Schlüssel des Wiederherstellungskits** in `.env` (`KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET` und `KEPT_SECRET_KEY_VERSION` sowie `KEPT_SECRET_KEYS_RETIRED`, falls das Kit sie aufführt), mit dem Backup-Ziel und dessen Passwort in `compose.override.yaml`. Dann:
+Auf der neuen Maschine: Installiere Kept wie unter [Installation mit Docker Compose](/de/install/compose/), und lege vor dem ersten Start die **Schlüssel des Wiederherstellungskits** in `.env` (`KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET` und `KEPT_SECRET_KEY_VERSION` sowie `KEPT_SECRET_KEYS_RETIRED`, falls das Kit sie aufführt) und das Backup-Ziel samt Passwort in `compose.override.yaml`. Dann:
 
 ```sh
 docker compose up -d db
@@ -77,7 +77,7 @@ docker compose run --rm --no-deps --entrypoint kept kept admin backup drill \
 docker compose exec db psql -U postgres -c "DROP DATABASE kept_drill"
 ```
 
-Die Übung stellt den neuesten guten Snapshot wieder her, vergleicht Zähler und Digests, prüft die SHA-256 von 50 Dateien (`--all-files` prüft sie alle) und speichert die Übung in der **aktiven** Datenbank, was die Warnung "restore drill due" auf Admin → Status löscht. Sie berührt die aktiven Daten nie.
+Die Übung stellt den neuesten guten Snapshot wieder her, vergleicht Zähler und Digests, prüft die SHA-256 von 50 Dateien (`--all-files` prüft sie alle) und speichert die Übung in der **aktiven** Datenbank, was die Warnung "Wiederherstellungsübung fällig" auf Admin → Status aufhebt. Sie berührt die aktiven Daten nie.
 
 ## Das Repository prüfen
 
@@ -87,4 +87,4 @@ Der Worker prüft das Repository wöchentlich (`restic check`). Um jetzt zu prü
 docker compose run --rm --no-deps --entrypoint kept kept admin backup verify --read-data 5%
 ```
 
-Bei S3-Dateispeicher prüft Verify auch jede Datei im Manifest gegen den Bucket. Wenn ein Absturz eine veraltete Sperre auf dem Repository hinterlassen hat, entfernt `kept admin backup unlock` sie; während ein Backup läuft, verweigert er es.
+Bei S3-Dateispeicher prüft Verify auch jede Datei im Manifest gegen den Bucket. Wenn ein Absturz eine veraltete Sperre auf dem Repository hinterlassen hat, entfernt `kept admin backup unlock` sie; während ein Backup läuft, verweigert der Befehl das.

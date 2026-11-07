@@ -128,7 +128,7 @@ const pack: Pack = {
     photograph: 'Сфотографувати цю кімнату',
     countRoom: 'Порахувати цю кімнату',
     list: {
-      title: (name) => `Що в ${name}`,
+      title: (name) => `Вміст: ${name}`,
       rooms: (n, f) =>
         plural(n, f, { one: '# кімната', few: '# кімнати', many: '# кімнат', other: '# кімнати' }),
       floors: (n, f) =>

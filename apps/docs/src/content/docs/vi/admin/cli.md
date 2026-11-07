@@ -39,7 +39,7 @@ Hai loại lệnh cần các volume của container phục vụ thay vào đó:
 | `kept admin rotate-key` | Khóa mới làm khóa bí mật hiện tại và đóng gói lại mọi bí mật đã lưu. `--resume` hoàn thành một cái bị gián đoạn; `--drop <version>` xóa một khóa đã nghỉ mà không ai dùng. |
 | `kept admin backup` | Sao lưu ngay (một chụp ảnh restic); `--list` liệt kê các chụp ảnh, và mọi bản sao lưu cũ hơn trước restic; `--accept-size` chấp nhận một bản sao lưu nhỏ hơn nhiều làm mức bình thường mới. Xem [sao lưu](/vi/admin/backups/). |
 | `kept admin backup verify` | Kiểm kho lưu trữ sao lưu; `--read-data <percent>` cũng đọc tỉ lệ đó của dữ liệu; với lưu trữ tệp S3, kiểm tra các tệp so với thùng (`--all-files` cho mọi tệp, không phải một trong 20). |
-| `kept admin backup drill --into <database>` | Khôi phục bản sao lưu mới nhất vào cơ sở dữ liệu thử **trống** và kiểm tra nó: [kiểm tra hàng tháng](/vi/admin/restore/#bài-tập-hàng-tháng). |
+| `kept admin backup drill --into <database>` | Khôi phục bản sao lưu mới nhất vào cơ sở dữ liệu thử **trống** và kiểm tra nó: [diễn tập hàng tháng](/vi/admin/restore/#diễn-tập-hàng-tháng). |
 | `kept admin backup unlock` | Gỡ bỏ khóa restic cũ sau sự cố; bị từ chối khi một bản sao lưu đang chạy. |
 | `kept admin restore <snapshot>` | Khôi phục một chụp ảnh (hoặc `latest`) vào cơ sở dữ liệu **trống** và xác minh nó; `--legacy <id>` khôi phục một bản sao lưu trước restic, cho một phiên bản. Xem [khôi phục](/vi/admin/restore/). |
 | `kept admin readable --out <dir>` | Ghi [bản sao dễ đọc](/vi/admin/read-with-restic/) của mọi địa điểm (HTML, CSV, tệp) vào một thư mục; `--location <id>` cho một cái, `--no-pdf` không có tệp PDF kiểm kho. |

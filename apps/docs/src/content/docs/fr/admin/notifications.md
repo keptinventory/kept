@@ -48,7 +48,7 @@ Le push n'a besoin d'**aucune clé de votre part**. Au premier démarrage, Kept 
 Le push est **indisponible** quand :
 
 - `KEPT_PUBLIC_URL` est du `http` simple sur autre chose que localhost : les navigateurs ne s'abonnent que sur une page sécurisée. Les personnes voient "Push needs HTTPS." ([HTTPS](/fr/install/https/))
-- il n'y a pas de sujet : ni `KEPT_VAPID_SUBJECT`, ni URL publique en `https`, ni `KEPT_SMTP_FROM`. Les personnes voient "Push isn't set up on this server."
+- il n'y a pas de sujet : ni `KEPT_VAPID_SUBJECT`, ni URL publique en `https`, ni `KEPT_SMTP_FROM`. Les personnes voient "Le push n’est pas configuré sur ce serveur."
 
 Le courriel et le centre de notifications fonctionnent malgré tout dans les deux cas.
 

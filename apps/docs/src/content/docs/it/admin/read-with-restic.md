@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-Ogni snapshot notturno contiene una **copia leggibile** di ogni posizione: un `index.html` che apri in un
+Ogni snapshot notturno contiene una **copia leggibile** di ogni luogo: un `index.html` che apri in un
 browser, un foglio di calcolo (CSV) degli oggetti, le miniature, e le ricevute e i documenti a cui le pagine
 collegano. È scritto per il giorno in cui Kept non può funzionare: il server ha preso fuoco, il disco si è guastato, o Kept è
 da tempo scomparso. Ti serve solo:
@@ -52,15 +52,15 @@ cartella `kept-readable`.
 
 ## 4. Aprilo
 
-Apri `kept-readable/backup/readable/index.html` in un browser. Elenca ogni posizione, con il suo
-proprietario e quando la copia è stata fatta; ogni `index.html` di posizione elenca i suoi luoghi e oggetti, con
+Apri `kept-readable/backup/readable/index.html` in un browser. Elenca ogni luogo, con il suo
+proprietario e quando la copia è stata fatta; ogni `index.html` di luogo elenca i suoi posti e oggetti, con
 le loro foto, i dettagli dell'acquisto e i documenti. `README.txt` accanto dice lo stesso.
 
-Le pagine non necessitano di rete e non caricano nulla da altrove. Il CSV di ogni posizione si apre in un
+Le pagine non necessitano di rete e non caricano nulla da altrove. Il CSV di ogni luogo si apre in un
 foglio di calcolo.
 
-La copia di ogni posizione è ciò che il suo **proprietario** poteva vedere in Kept: i soldi appaiono come il proprietario li vedeva,
-e i valori segreti (la password Wi-Fi che hai memorizzato sul router) non ci sono mai. Una posizione la cui copia è fallita quella notte è elencata come "non inclusa questa notte"; prendi lo snapshot precedente.
+La copia di ogni luogo è ciò che il suo **proprietario** poteva vedere in Kept: i soldi appaiono come il proprietario li vedeva,
+e i valori segreti (la password Wi-Fi che hai memorizzato sul router) non ci sono mai. Un luogo la cui copia è fallita quella notte è elencato come "not included tonight"; prendi lo snapshot precedente.
 
 ## Sfoglia senza ripristinare
 

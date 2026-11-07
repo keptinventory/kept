@@ -61,10 +61,10 @@ Homebox v0.26 tạo một xuất mỗi lần nó khởi động. Khởi động 
 lên v0.27.0, không có giới hạn này.
 :::
 
-Sau khi tải lên, Kept hiển thị bộ sưu tập và ngày xuất. Nó vào **Một địa điểm mới** hoặc **Một địa điểm bạn quản lý**, nơi đồ vật đã có ở đó và
-chạy lại chỉ thêm cái mới. Một địa điểm mới được tạo khi bạn nhấn **Nhập**, không phải trước: một lần nhập bạn dừng ở bước kiểm tra không để lại gì.
+Sau khi tải lên, Kept hiển thị bộ sưu tập và ngày xuất. Nó vào **Một địa điểm mới** hoặc **Một địa điểm bạn quản lý**, nơi đồ vật đã có ở đó vẫn được giữ nguyên và
+chạy lại chỉ thêm cái mới. Một địa điểm mới được tạo khi bạn nhấn **Nhập**, không phải trước: một lần nhập bạn dừng ở bước kiểm tra không để lại gì. **Kết nối với Homebox (không bắt buộc)** đọc đơn vị tiền tệ của bộ sưu tập, thứ mà tệp ZIP không có: cung cấp địa chỉ của Homebox và một khóa API, hoặc email và mật khẩu. Chúng chỉ được dùng một lần và không bao giờ được lưu lại.
 
-Tiếp theo là **Theo dõi gì**: **Thiết yếu** (phòng, hộp, nhãn và tìm kiếm),
+Với một địa điểm mới, tiếp theo là **Theo dõi gì**: **Thiết yếu** (phòng, hộp, nhãn và tìm kiếm),
 và thêm vào đó, được tích, những gì bản sao lưu dùng: **Giá trên 10 đồ vật** bật Tiền, **5 bảo hành** bật Bảo hành, **2 mục bảo trì** bật Lịch trình. Bỏ tích một và dữ liệu đó ở lại trong ghi chú của đồ vật như văn bản, không thể thành bản ghi sau. Bản sao lưu không có cái nào bắt đầu chỉ với Thiết yếu. **Cũng áp dụng cho Cá nhân** cho địa điểm Cá nhân của bạn cái giống vậy, nên thực đơn chỉ hiện những gì bạn theo dõi. Thay đổi bất cứ lúc nào trong **Cài đặt địa điểm → Theo dõi gì**; tắt cái gì không bao giờ xóa gì.
 
 Sau đó chọn:

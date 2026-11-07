@@ -20,7 +20,7 @@ docker compose run --rm migrate admin <command>
 
 نوعان من الأوامر تحتاجان إلى أحجام حاوية التقديم بدلًا من ذلك:
 
-- `recovery-kit` تستقر المفاتيح من حاوية الإعدادات وترسلها حتى ولم تكن هناك قاعدة بيانات:
+- `recovery-kit` يقرأ المفاتيح من وحدة تخزين الإعدادات ويطبعها حتى إن لم تكن هناك قاعدة بيانات:
   `docker compose exec kept kept admin recovery-kit`. وبالإضافة إلى `KEPT_OWNER_DATABASE_URL` (في
   الأسفل) تحتوي أيضًا على مستودع النسخ الاحتياطي وكلمة مروره وبيانات اعتماده.
 - `token create` تحتاج إلى المفاتيح وتسجيلات التقديم، التي يملكها الحاوية `kept`:
@@ -40,7 +40,7 @@ docker compose run --rm migrate admin <command>
 | `kept admin disable-user <login>` / `enable-user <login>` | يمنع حسابًا من التسجيل الدخول (ويُنهي جلساته)، أو يسمح له مرة أخرى. |
 | `kept admin transfer-ownership <locationId> <toUserId>` | يعطي الموقع لمسؤول آخر؛ يصبح المالك السابق مشرفًا عليه. |
 | `kept admin recovery-kit [--format text\|html] [--out <file>]` | طقم الاسترداد الذي يُبقى بعيدًا عن الخادم: المفاتيح، ومستودع النسخ الاحتياطي وبيانات اعتماده، وخطوات الاسترداد. انظر [طقم الاسترداد](/ar/admin/recovery-kit/). |
-| `kept admin token create --user <login> --scope read\|write --name <name>` | رمز شخصي لعملاء MCP و Home Assistant، يُطبع مرة واحدة؛ `--expires <days>`، `--location <id or name>` (يمكن تكراره)، `--confirm-cross-location`. منذ 1.3.0. انظر [رمزًا من الخادم](#رمز-من-الخادم). |
+| `kept admin token create --user <login> --scope read\|write --name <name>` | رمز شخصي لعملاء MCP و Home Assistant، يُطبع مرة واحدة؛ `--expires <days>`، `--location <id or name>` (يمكن تكراره)، `--confirm-cross-location`. منذ 1.13.0. انظر [رمزًا من الخادم](#رمز-من-الخادم). |
 | `kept admin gen-key` | تطبع مفتاحًا جديدًا، ليضع `KEPT_SECRET_KEY` أو `KEPT_AUTH_SECRET` بنفسك. |
 | `kept admin rotate-key` | يجعل مفتاحًا سريًا جديدًا هو الحالي ويغلّف كل الأسرار المخزنة مرة أخرى. `--resume` يُكمل السابق؛ `--drop <version>` يزيل مفتاحًا متقاعدًا لا يستخدمه أحد. |
 | `kept admin backup` | يُنشئ الآن نسخًا احتياطيًا (لقطة restic)؛ `--list` يدرج اللقطات، وأي نسخ احتياطية أقدم قبل restic؛ `--accept-size` يقبل نسخة احتياطية أصغر بكثير كالوضع الجديد الطبيعي. انظر [النسخ الاحتياطي](/ar/admin/backups/). |
@@ -62,7 +62,7 @@ docker compose run --rm migrate admin <command>
 التطبيق يولد رموزًا شخصية فقط عبر HTTPS (الإعدادات → الربط ترفض الاتصال عبر `http` العادي).
 يمكن لتطبيق Kept على الشبكة الرئيسية عبر `http` التوصّل بتطبيق ذكاء اصطناعي أو
 [Home Assistant](/ar/users/home-assistant/): الشخص الذي يشغّل الخادم يولد الرمز هناك.
-منذ 1.3.0:
+منذ 1.13.0:
 
 ```sh
 docker compose exec kept kept admin token create \

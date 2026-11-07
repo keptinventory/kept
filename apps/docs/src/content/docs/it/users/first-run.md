@@ -29,21 +29,21 @@ Home si apre con **Per iniziare**, una riga con i tuoi progressi e il prossimo p
 | Passaggio | Cosa chiede |
 |---|---|
 | **Metti Kept su HTTPS** | Mostrato all'amministratore dell'istanza mentre Kept viene servito tramite HTTP semplice. Gli smartphone bloccano la fotocamera, l'installazione di Kept, le notifiche push e la posizione su HTTP. Consulta [HTTPS](/it/install/https/). |
-| **Crea la tua prima casa** | Una posizione, qui sotto. |
+| **Crea la tua prima casa** | Un luogo, qui sotto. |
 | **Aggiungi 3 oggetti** | Alcuni oggetti che odio perdere di vista. |
-| **Stampa la tua prima etichetta** | Quando le Etichette sono attive in una posizione. |
+| **Stampa la tua prima etichetta** | Quando le Etichette sono attive in un luogo. |
 | **Invita qualcuno** | Un link o un codice QR; nessuna persona necessita di email. |
-| **Collega un provider di IA** | Non mostrato ai membri invitati, o in una posizione con il preset Essenziali. |
+| **Collega un provider di IA** | Non mostrato ai membri invitati, o in un luogo con il preset Essenziali. |
 | **Installa sul telefono** | Si spunta da solo la prima volta che apri Kept dall'icona nella schermata iniziale del telefono. |
 
 **×** lo nasconde definitivamente; **Aiuto → Elenco Per iniziare → Mostralo di nuovo** lo mostra nuovamente. Scompare da solo quando tutti i passaggi sono completati. Maggiori informazioni sulla Home in [Uso quotidiano](/it/users/everyday-use/#home).
 
 ## 3. Crea la tua prima casa
 
-Ogni utente ha una posizione **Personale** fin dall'inizio: è tua sola (nessun membro, invito o link di condivisione) ed è dove viene salvata una cattura senza posizione. Rinominala in **Impostazioni del luogo → Generali**, e Kept mostra il nuovo nome ovunque. Una volta che hai un'altra posizione, puoi [nasconderla](/it/users/locations/#nascondi-personale) in **Impostazioni → Profilo → I tuoi luoghi**. Gli oggetti condivisi appartengono a una posizione dedicata. Scegli **Crea la tua prima casa** (o **Nuovo luogo** sulla Home):
+Ogni utente ha un luogo **Personale** fin dall'inizio: è solo tuo (nessun membro, invito o link di condivisione) ed è dove viene salvata una cattura senza luogo. Rinominalo in **Impostazioni del luogo → Generali**, e Kept mostra il nuovo nome ovunque. Una volta che hai un altro luogo, puoi [nasconderlo](/it/users/locations/#nascondi-personale) in **Impostazioni → Profilo → I tuoi luoghi**. Gli oggetti condivisi appartengono a un luogo dedicato. Scegli **Crea la tua prima casa** (o **Nuovo luogo** sulla Home):
 
 1. **Come si chiama questo luogo?** Un nome, ad esempio Casa o Garage, e il suo tipo: Casa, Appartamento, Garage, Unità di deposito, Ufficio, Casa vacanze o Altro.
-2. **Stanze.** Il modello del tipo compila stanze e punti; rinomina, rimuovi o **Aggiungi stanza o punto**. Ogni posizione ha anche **Senza posto**, per gli oggetti che non hanno ancora una posizione. **Salta** mantiene solo **Senza posto**.
+2. **Stanze.** Il modello del tipo compila stanze e punti; rinomina, rimuovi o **Aggiungi stanza o punto**. Ogni luogo ha anche **Senza posto**, per gli oggetti che non hanno ancora un posto. **Salta** mantiene solo **Senza posto**.
 3. **Cosa monitorare.** Tre preset:
    - **Essenziali**: ricerca di oggetti: stanze, scatole, etichette e ricerca.
    - **Famiglia**: aggiunge ricevute e garanzie, promemori, prestiti, documenti e veicoli.
@@ -53,11 +53,11 @@ Il fuso orario e la valuta provengono dal tuo browser. Modificali, e attiva o di
 
 ## 4. Aggiungi il tuo primo oggetto
 
-Il modo più veloce è **Acquisisci**, la scheda centrale sul telefono: punta la fotocamera, premi l'otturatore, e l'oggetto viene salvato dove indica il chip della posizione in alto. Un nome è facoltativo durante la cattura: con un provider di IA collegato, Kept lo nomina dalla foto; senza uno, gli oggetti senza nome aspettano nel **In arrivo** per un nome. Su un computer, **Aggiungi qui** su una stanza o una scatola aggiunge un oggetto con un modulo. [Uso quotidiano](/it/users/everyday-use/) tratta la cattura, le etichette e il resto.
+Il modo più veloce è **Acquisisci**, la scheda centrale sul telefono: punta la fotocamera, premi l'otturatore, e l'oggetto viene salvato dove indica il chip del posto in alto. Un nome è facoltativo durante la cattura: con un provider di IA collegato, Kept lo nomina dalla foto; senza uno, gli oggetti senza nome aspettano nel **In arrivo** per un nome. Su un computer, **Aggiungi qui** su una stanza o una scatola aggiunge un oggetto con un modulo. [Uso quotidiano](/it/users/everyday-use/) tratta la cattura, le etichette e il resto.
 
 ## 5. Invita persone
 
-La condivisione avviene per posizione: qualcuno che inviti a Home vede la Home, e nient'altro di tuo. Dopo aver creato una posizione, la Home mostra una scheda **Invita persone a …**; la stessa pagina si trova in **Impostazioni del luogo → Membri → Invita**.
+La condivisione avviene per luogo: qualcuno che inviti a Home vede la Home, e nient'altro di tuo. Dopo aver creato un luogo, la Home mostra una scheda **Invita persone a …**; la stessa pagina si trova in **Impostazioni del luogo → Membri → Invita**.
 
 1. Scegli il **Ruolo** e, in **Accesso**, **Nessuna data di fine** o **Fino a una data**. Il loro accesso, e qualsiasi token generano, termina in quella data.
 2. **Crea link di invito.** Ottieni il link con **Copia link** e un codice QR da **Eseguire la scansione con il loro telefono**. Il link funziona una sola volta, per 7 giorni, e appare in **Membri** come invito in attesa finché non viene utilizzato, dove puoi revocarlo.
@@ -67,25 +67,27 @@ La persona apre il link, poi si unisce con il proprio account o ne crea uno; men
 
 ### I ruoli
 
-| Proprietario | Tutto, comprese le regole di autenticazione a due fattori, trasferimento e cancellazione. C'è un solo proprietario. |
-| Amministratore | Invita e rimuove membri e visualizzatori, impostazioni e moduli, importa ed esporta, link di condivisione e pacchi di richiesta, elimina definitivamente. Solo il proprietario concede o revoca gli amministratori. |
-| Membro | Aggiungi, modifica, sposta, presta e sposta nel cestino gli oggetti; registra letture e servizi; stampa etichette; usa l'acquisizione con IA. Il denaro è visibile. |
-| Visualizzatore | Guarda e cerca solo. Il denaro è nascosto a meno che la posizione consenta ai visualizzatori di vederlo; l'assistente risponde ma non può modificare nulla. |
+| Ruolo | Cosa può fare in quel luogo |
+|---|---|
+| **Proprietario** | Tutto, comprese le regole di autenticazione a due fattori, trasferimento e cancellazione. C'è un solo proprietario. |
+| **Amministratore** | Invita e rimuove membri e visualizzatori, impostazioni e moduli, importa ed esporta, link di condivisione e pacchi di richiesta, elimina definitivamente. Solo il proprietario concede o revoca gli amministratori. |
+| **Membro** | Aggiunge, modifica, sposta, presta e cestina gli oggetti; registra letture e interventi; stampa etichette; usa l'acquisizione con IA. Il denaro è visibile. |
+| **Visualizzatore** | Solo guarda e cerca. Il denaro è nascosto a meno che il luogo consenta ai visualizzatori di vederlo; l'assistente risponde ma non può modificare nulla. |
 
 La matrice completa è `MATRIX` in
 [`packages/shared/src/roles.ts`](https://github.com/keptinventory/kept/blob/main/packages/shared/src/roles.ts).
 
 ### Persone senza email
 
-Per un figlio o un genitore senza email, un proprietario o amministratore utilizza **Aggiungi qualcuno senza email** nella pagina Membri. Kept crea un **account gestito** con un nome utente e mostra un codice monouso (funziona una sola volta, per 30 minuti). La persona accede con **Ho un codice monouso**, il proprio nome utente e il codice, e scelie la propria password; tu non la vedrai mai. Chi ha creato l'account (mentre ancora proprietario o amministratore lì), o il proprietario della posizione, può emettere un nuovo codice più tardi, che disconnette l'account ovunque. La persona può aggiungere un'email per prendere il controllo dell'account. Un account gestito non può possedere una posizione, e una posizione può contenere al massimo 20 account gestiti.
+Per un figlio o un genitore senza email, un proprietario o amministratore utilizza **Aggiungi qualcuno senza email** nella pagina Membri. Kept crea un **account gestito** con un nome utente e mostra un codice monouso (funziona una sola volta, per 30 minuti). La persona accede con **Ho un codice monouso**, il proprio nome utente e il codice, e sceglie la propria password; tu non la vedrai mai. Chi ha creato l'account (mentre ancora proprietario o amministratore lì), o il proprietario del luogo, può emettere un nuovo codice più tardi, che disconnette l'account ovunque. La persona può aggiungere un'email per prendere il controllo dell'account. Un account gestito non può possedere un luogo, e un luogo può contenere al massimo 20 account gestiti.
 
 ## 6. Lingua e tema
 
 **Impostazioni → Profilo → Aspetto** contiene le scelte di visualizzazione del dispositivo, applicate prima che la pagina venga disegnata:
 
 - **Lingua**: arabo, francese, inglese, italiano, spagnolo, tedesco, ucraino o vietnamita.
-  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore.
-- **Cifre in arabo**: occidentali (0123) o orientali (٠١٢³), mostrati solo quando la lingua è arabo.
+  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore. Le email e i promemoria seguono l'ultima lingua che hai scelto.
+- **Cifre in arabo**: occidentali (0123) o orientali (٠١٢٣), mostrati solo quando la lingua è arabo.
   Gli ID brevi e i numeri di serie rimangono sempre in cifre occidentali.
 - **Regione**: **Stati Uniti** (29 ott) o **Regno Unito** (29 ott, 29/10/2026), mostrato solo quando la lingua è inglese.
 - **Formato data**: **Predefinito** (29 ott, con l'anno soltanto per altri anni), 29 ott 2026,
@@ -101,11 +103,11 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 | Capitolo | Cosa mostra |
 |---|---|
 | Nozioni di base | Home, i tuoi luoghi, Scansione, Ricerca, e dove si trova tutto il resto |
-| Oggetti e posti | aggiunta a una posizione, cosa vi si trova, e la pagina di un oggetto e le sue schede |
-| Grafico e mappa 3D | l'interruttore Lista · Griglia · Grafico · Tabella · Mappa (Tabella su un computer), il grafico in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
+| Oggetti e posti | aggiunta a un luogo, cosa vi si trova, e la pagina di un oggetto e le sue schede |
+| Grafo e mappa 3D | l'interruttore Lista · Griglia · Grafo · Tabella · Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
 | Acquisizione e In arrivo | scegli cosa acquisire, l'otturatore, e verificare cosa Kept ha letto |
 | Scansione | una sessione di scansione: conta, imballa o spostati, dove, e cosa cambia Finish |
-| Ricerca ed etichette | il campo di ricerca, le visualizzazioni salvate, Seleziona (sposta, stampa etichette, sposta nel cestino), stampa etichette e Scansione, che può mettere un'etichetta vuota in una posizione che possiedi |
+| Ricerca ed etichette | il campo di ricerca, le visualizzazioni salvate, Seleziona (sposta, stampa etichette, sposta nel cestino), stampa etichette e Scansione, che può mettere un'etichetta vuota su un posto che hai |
 | Spostamento | avvio di uno spostamento, le sue scatole, e dove si trovano |
 | Prestito | ciò che è prestato, Segna come restituito, e Presta su un oggetto |
 | Pianificazione e promemori | un nuovo programma, cosa è scaduto, Completa, e come raggiungerti i promemori |

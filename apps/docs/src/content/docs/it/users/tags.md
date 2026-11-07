@@ -6,7 +6,7 @@ description: Tags dicono cos'altro è un oggetto, oltre dove si trova. Aggiungi 
 **Posti** dicono dove si trova un oggetto. **Tag** dicono cos'altro è: *camping*, *winter*, *kids*,
 *fragile*. Un oggetto può avere fino a 50 tag; un account fino a 1.000.
 
-I tag appartengono all'account, quindi ogni posizione di esso li condivide. Solo gli oggetti hanno tag (le scatole sono oggetti); posti, documenti e persone no.
+I tag appartengono all'account, quindi ogni suo luogo li condivide. Solo gli oggetti hanno tag (le scatole sono oggetti); posti, documenti e persone no.
 
 ## Aggiunta dei tag
 
@@ -33,7 +33,7 @@ Ogni tag ha un colore da un insieme fisso di dodici, scelto per essere leggibile
 
 ## La pagina di un tag
 
-Fai clic su un tag nella pagina di un oggetto, o su una riga in **Impostazioni → Account → Tag**. Elenca tutto ciò che ha quel tag nelle tue posizioni, con quanti in ciascuna, e la solita ricerca, filtri e raggruppamento della lista. Proprietari e amministratori rinominano, riccolorano, uniscono ed eliminano qui.
+Fai clic su un tag nella pagina di un oggetto, o su una riga in **Impostazioni → Account → Tag**. Elenca tutto ciò che ha quel tag nei tuoi luoghi, con quanti in ciascuno, e la solita ricerca, filtri e raggruppamento della lista. Proprietari e amministratori rinominano, riccolorano, uniscono ed eliminano qui.
 
 - **Unisci** incorpora un tag in un altro: i suoi oggetti ricevono l'altro tag.
 - **Elimina** funziona solo per un tag che nessun oggetto ha, compresi gli oggetti nel Cestino. Usa invece l'unione.
@@ -59,6 +59,6 @@ Il telefono conserva i tuoi tag: i chip vengono mostrati, e il filtro tag funzio
 
 ## Importazioni
 
-- **Homebox:** i tag vengono importati con i loro colori; i tag annidati vengono appiattiti. I tag delle
-  posizioni di Homebox non vengono mantenuti, e il rapporto di importazione lo indica.
+- **Homebox:** i tag vengono importati con i loro colori; i tag annidati vengono appiattiti. I tag dei
+  luoghi di Homebox non vengono mantenuti, e il rapporto di importazione lo indica.
 - **CSV:** una colonna `tags` crea i tag che denomina.

@@ -40,7 +40,7 @@ eingeschlossen. Bei Speichermangel tötete das System Kepts Prozess und Docker s
 
 - **1 GB, 1 oder 2 Kerne:** getestet, jeder Lauf bestanden, mit etwa 150 MB Spielraum am Spitzenwert.
 - **2 GB:** Spielraum, für andere Dienste neben Kept.
-- **768 MB:** Kept lief, und Jetzt sichern (der Pfad der geplanten Sicherung) auch; `kept admin backup`
+- **768 MB:** Kept lief, und Jetzt ausführen (der Pfad der geplanten Sicherung) auch; `kept admin backup`
   während der Foto-Uploads lief dem Speicher aus. Nicht empfohlen.
 
 ## Raspberry Pi

@@ -62,9 +62,9 @@ journalisés.
 
 Les deux sont facultatifs et désactivés par défaut.
 
--**Suivi :** avec `OTEL_EXPORTER_OTLP_ENDPOINT` défini, Kept envoie les traces OpenTelemetry de ses
+- **Suivi :** avec `OTEL_EXPORTER_OTLP_ENDPOINT` défini, Kept envoie les traces OpenTelemetry de ses
 requêtes HTTP et de ses requêtes de base de données à votre collecteur. Non défini, aucun des codes de
 suivi n'est même chargé, et un collecteur qui est indisponible ne ralentit jamais une requête.
--**Rapport d'erreurs :** avec un DSN compatible Sentry dans `KEPT_ERROR_DSN`, les erreurs non gérées sont
+- **Rapport d'erreurs :** avec un DSN compatible Sentry dans `KEPT_ERROR_DSN`, les erreurs non gérées sont
 signalées avec l'identifiant de la requête et la route, et jamais le corps de la requête, l'en-tête,
 la chaîne de requête, le nom ou quoi que ce soit stocké quelque part.

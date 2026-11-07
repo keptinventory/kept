@@ -29,19 +29,19 @@ modo.
   ricevuta compila l'acquisto, un'etichetta compila marca, modello e seriale, e i valori suggeriti
   aspettano nell'**In arrivo** da accettare. Prezzi, date e seriali non vengono mai accettati al
   posto tuo.
-- **Email in arrivo** (Impostazioni della posizione → Email in arrivo, proprietari e
+- **Email in arrivo** (Impostazioni del luogo → Email in arrivo, proprietari e
   amministratori): Kept controlla una cartella di una casella di posta che hai già, via IMAP, ogni
   10 minuti. Le foto e i PDF di ogni messaggio, oppure il suo testo se non ne ha, diventano una
   ricevuta bozza nell'**In arrivo**. Viene letta solo la posta arrivata dopo la connessione e nulla
   nella casella viene modificato: nessun messaggio viene segnato come letto, spostato o cancellato.
   Filtra le ricevute in una cartella come `Kept`; **Solo da questi mittenti** tiene fuori il rumore,
   ma un indirizzo mittente può essere falsificato, quindi non è un controllo di sicurezza. Una
-  password errata, oppure il fatto che la persona che l'ha collegata non amministri più la posizione,
+  password errata, oppure il fatto che la persona che l'ha collegata non amministri più il luogo,
   lo disattiva finché non viene salvato di nuovo.
 - **Garanzie** (Household e Complete) mostrano una barra di copertura dall'acquisto alla data di
   fine. Una **richiesta** registra una riparazione o una sostituzione, e una richiesta che non è
   costata nulla mostra "La garanzia ti ha fatto risparmiare".
-- **Documenti** nel menu sono i documenti propri della posizione (il contratto d'affitto,
+- **Documenti** nel menu sono i documenti propri del luogo (il contratto d'affitto,
   l'assicurazione della casa) e **In scadenza** elenca oggetti, documenti e garanzie per data. Il
   testo dei PDF è ricercabile.
 

@@ -25,11 +25,11 @@ Las claves **no** están en la copia de seguridad. Guarda [el kit de recuperaci�
 | Un bucket compatible con S3: AWS, o el endpoint S3 de otro proveedor | `KEPT_BACKUP_S3_BUCKET` y las demás `KEPT_BACKUP_S3_*` | `restic/` bajo `KEPT_BACKUP_S3_PREFIX` |
 | Un servidor SFTP | `KEPT_BACKUP_SFTP` (la sintaxis `sftp:` de restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | la ubicación que das |
 
-Elige un solo destino. Mejor otra máquina o incluso otro sitio: un directorio en el mismo disco que los datos de Kept se rechaza, y la página de estado avisa si el destino comparte disco con ellos. Se espera que los endpoints S3 de Backblaze B2 y Cloudflare R2 funcionen, pero no se han probado. SFTP fija la clave del host del servidor desde el archivo known-hosts y solo se conecta si coincide.
+Elige un solo destino. Mejor otra máquina u otro sitio: un directorio en el mismo disco que los datos de Kept se rechaza, y la página de estado avisa si el destino comparte disco con ellos. Se espera que los endpoints S3 de Backblaze B2 y Cloudflare R2 funcionen, pero no se han probado. SFTP fija la clave del host del servidor desde el archivo known-hosts y solo se conecta si coincide.
 
 ## Activarlo
 
-Los administradores de la instancia ponen el destino y la contraseña en **Administrador → Copias de seguridad**, por HTTPS, después de confirmar el kit de recuperación. "Test" comprueba que Kept puede abrir (o crear) el repositorio; "Back up now" ejecuta uno de inmediato. Una variable de entorno supera a la pantalla y aparece ahí como bloqueada, para que un operador pueda corregir el destino en el despliegue.
+Los administradores de la instancia ponen el destino y la contraseña en **Administrador → Copias de seguridad**, por HTTPS, después de confirmar el kit de recuperación. "Prueba" comprueba que Kept puede abrir (o crear) el repositorio; "Ejecutar ahora" ejecuta una de inmediato. Una variable de entorno supera a la pantalla y aparece ahí como bloqueada, para que un operador pueda corregir el destino en el despliegue.
 
 **La contraseña** tiene al menos 12 caracteres (`KEPT_BACKUP_PASSWORD`, o se configura en la pantalla).
 **Sin contraseña, no hay copia:** Kept nunca escribe una copia sin cifrar. Si pierdes la contraseña, la
@@ -71,24 +71,24 @@ sudo chmod 700 /mnt/backup/kept
 
 ## Cuándo y cuánto tiempo
 
-- **Cuándo:** cada noche a la hora configurada en Admin → Backups, `HH:MM` en UTC (por defecto `02:30`).
+- **Cuándo:** cada noche a la hora configurada en Administrador → Copias de seguridad, `HH:MM` en UTC (por defecto `02:30`).
   Un nuevo horario se aplica a partir de la noche siguiente, sin reinicio; `KEPT_BACKUP_TIME` lo fija en su lugar.
-- **Back up now** ejecuta uno de inmediato; al pulsarlo otra vez mientras ese espera o se ejecuta se rechaza
-  ("A backup is already running") en lugar de ponerlo dos veces en cola. Una copia cortada por un reinicio o por
-  quedarse sin memoria no la bloquea; la siguiente ejecución la marca como interrumpida.
+- **Ejecutar ahora** ejecuta una de inmediato; pulsarlo otra vez mientras esa espera o se ejecuta se rechaza
+  ("Ya se está ejecutando una copia de seguridad") en lugar de ponerla dos veces en cola. Una copia cortada por un reinicio o por
+  quedarse sin memoria no lo bloquea; la siguiente ejecución la marca como interrumpida.
 - **En una máquina pequeña** (menos de 4 GB, o un límite del contenedor inferior a 4 GB) restic se ejecuta con como máximo dos
   núcleos con un límite suave de memoria; `GOMAXPROCS` y `GOMEMLIMIT` en el entorno de Kept (con Compose,
   un `compose.override.yaml`) anulan ambos.
 - **Cuánto tiempo se guardan:** la instantánea más reciente de cada uno de los últimos **7 días, 4 semanas y 6
-  meses** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). `KEPT_BACKUP_KEEP` del alfa se
+  meses** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). `KEPT_BACKUP_KEEP` de la alpha se
   lee como el conteo diario durante un lanzamiento. Las instantáneas tomadas antes de una actualización conservan sus últimas 3.
 - **Una copia sospechosamente pequeña** (un volcado menor de la mitad del tamaño de la última buena, o con muchos menos
-  cosas, lugares o archivos) se toma igualmente, pero esa noche no se borra nada antiguo y se avisa
+  objetos, lugares o archivos) se toma igualmente, pero esa noche no se borra nada antiguo y se avisa
   a los administradores, para que una mala noche nunca pueda desplazar las instantáneas buenas.
 
 ## Supervisarlo
 
-Admin → Status muestra la última copia y su antigüedad, el número de instantáneas, el tamaño del repositorio,
+Administrador → Estado muestra la última copia y su antigüedad, el número de instantáneas, el tamaño del repositorio,
 el último simulacro de restauración y los discos. Los administradores reciben avisos por correo y push cuando:
 
 | Alerta | Cuándo |
@@ -98,7 +98,7 @@ el último simulacro de restauración y los discos. Los administradores reciben 
 | Tamaño sospechoso | una ejecución fue mucho menor que la última buena |
 | Poco espacio en disco | el disco de datos o un destino de directorio está al 85 % de su capacidad |
 | Versionado del bucket desactivado | los archivos están en S3 y el bucket no guarda versiones antiguas |
-| Simulacro de restauración vencido | no hay [simulacro de restauración](/es/admin/restore/#el-simulacro-mensual) en 30 días |
+| Simulacro de restauración pendiente | no hay [simulacro de restauración](/es/admin/restore/#el-simulacro-mensual) en 30 días |
 
 `/metrics` (con `KEPT_METRICS_TOKEN`) añade el momento de la última copia buena y el uso de los discos. Mira
 [monitorización](/es/admin/observability/).

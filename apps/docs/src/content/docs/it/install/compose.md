@@ -131,8 +131,8 @@ Stampa le chiavi e tienile da qualche altra parte oltre a questo server, come un
 docker compose exec kept kept admin recovery-kit
 ```
 
-Admin → Status ti chiede di confermare il kit di recupero, e Kept lo richiede prima del primo valore
-segreto, chiave AI o impostazione di backup. Vedi [il kit di recupero](/it/admin/recovery-kit/).
+Admin → Status ti chiede di confermare il kit di ripristino, e Kept lo richiede prima del primo valore
+segreto, chiave AI o impostazione di backup. Vedi [il kit di ripristino](/it/admin/recovery-kit/).
 
 ## 5. Prossimi passi
 
@@ -149,7 +149,7 @@ segreto, chiave AI o impostazione di backup. Vedi [il kit di recupero](/it/admin
 |---|---|---|
 | `kept-db` | il database Postgres | tramite il backup di Kept, mai copiando il volume mentre è in esecuzione |
 | `kept-data` | file caricati (con `KEPT_STORAGE=local`, il default) | tramite il backup di Kept |
-| `kept-config` | `KEPT_SECRET_KEY` e `KEPT_AUTH_SECRET` generate, e le password dei login `kept_app`, `kept_auth` e `kept_system` | conserva il kit di recupero; le password vengono rigenerate se perse |
+| `kept-config` | `KEPT_SECRET_KEY` e `KEPT_AUTH_SECRET` generate, e le password dei login `kept_app`, `kept_auth` e `kept_system` | conserva il kit di ripristino; le password vengono rigenerate se perse |
 | `kept-owner` | la password del login `kept_owner` | no; viene rigenerata se persa |
 | `caddy-data`, `caddy-config` | i certificati di Caddy (profilo `https` di `compose.full.yaml`) | no; Caddy ne ottiene di nuovi |
 

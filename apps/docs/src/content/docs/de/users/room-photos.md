@@ -46,7 +46,13 @@ Der Posteingang zeigt eine **Raum**-Karte am Anfang des Aufnahmebatches, wobei d
   derselben Marke und des gleichen Modells oder desselben Namens. Markiere sie als gesehen und **Als gesehen markieren**. 
   Ein Objekt, dessen Etikett gelesen wurde, ist standardmäßig angekreuzt.
 - Jedes Foto sagt, was es lieferte. „Konnte Foto 3 nicht lesen“ bedeutet, dass dieses Foto fehlgeschlagen ist und die anderen 
-  noch zählt; „Dieses Foto zeigte mehr; mache ein näheres“ bedeutet, dass es mehr zeigte als ein Foto auflisten kann (60 Objekte).
+  trotzdem zählen; „Dieses Foto zeigte mehr; mache ein näheres“ bedeutet, dass es mehr zeigte als ein Foto auflisten kann (60 Objekte).
+
+Personen, Haustiere und der Raum selbst (Wände, Böden, Fenster, Türen, feste Einbauten) werden nie aufgelistet, und
+von einer Person wird nie ein Bild ausgeschnitten.
+
+**Erledigt** schließt die Karte. **Verwerfen** verwirft die Fotos. Wenn kein Foto gelesen werden konnte, liest
+**Wiederholen** sie noch einmal.
 
 ### Auf der Karte
 

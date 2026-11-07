@@ -1,6 +1,6 @@
 ---
 title: Backup
-description: Istantanee restic cifrate nightly del database, dei file e di una copia leggibile, verso un altro disco, un bucket S3 o un server SFTP.
+description: Istantanee restic notturne cifrate del database, dei file e di una copia leggibile, verso un altro disco, un bucket S3 o un server SFTP.
 sidebar:
   order: 1
 ---
@@ -20,7 +20,7 @@ disco stesso del server.
   aprono in un browser solo con restic. Vedi
   [leggere l'inventario solo con restic](/it/admin/read-with-restic/).
 
-Le chiavi **non** sono nel backup. Conserva [il kit di recupero](/it/admin/recovery-kit/) altrove.
+Le chiavi **non** sono nel backup. Conserva [il kit di ripristino](/it/admin/recovery-kit/) altrove.
 
 ## Dove può andare
 
@@ -39,13 +39,13 @@ corrisponde.
 ## Come attivarlo
 
 Gli amministratori dell'istanza impostano destinazione e password in **Admin → Backup**, via HTTPS,
-dopo aver preso atto del kit di recupero. "Test" verifica che Kept possa aprire (o creare) il
-repository; "Backup ora" esegue subito un backup. Una variabile d'ambiente ha precedenza sulla
+dopo aver preso atto del kit di ripristino. "Test" verifica che Kept possa aprire (o creare) il
+repository; "Esegui ora" esegue subito un backup. Una variabile d'ambiente ha precedenza sulla
 schermata e lì risulta bloccata, così un operatore può sistemare la destinazione nel deployment.
 
 **La password** è di almeno 12 caratteri (`KEPT_BACKUP_PASSWORD`, oppure impostata sulla schermata).
 **Nessuna password, nessun backup:** Kept non scrive mai un backup non cifrato. Se perdi la
-password, il backup è illeggibile, ed è per questo che è nel kit di recupero.
+password, il backup è illeggibile, ed è per questo che è nel kit di ripristino.
 
 Il backup viene eseguito nel worker come proprietario del database, quindi il worker ha bisogno anche
 di `KEPT_OWNER_DATABASE_URL`. Con Compose, `compose.yaml` passa già ogni variabile `KEPT_BACKUP_*`
@@ -71,7 +71,7 @@ La password del proprietario proviene dal volume `kept-owner`, dove il bootstrap
 precedente alla 1.13.0 con `KEPT_DB_OWNER_PASSWORD` in `.env` usa invece quella, e la riga del file non
 fa nulla).
 
-Poi imposti la destinazione e la password sulla schermata, oppure bloccale in `.env`
+Poi imposta la destinazione e la password sulla schermata, oppure bloccale in `.env`
 (`KEPT_BACKUP_DIR=/backups`, `KEPT_BACKUP_PASSWORD=…`).
 
 La directory deve appartenere all'utente di Kept:
@@ -86,8 +86,8 @@ sudo chmod 700 /mnt/backup/kept
 
 - **Quando:** ogni notte all'orario impostato in Admin → Backup, `HH:MM` in UTC (predefinito `02:30`).
   Un nuovo orario si applica dalla notte successiva, senza riavvio; `KEPT_BACKUP_TIME` lo fissa invece.
-- **Backup ora** esegue uno subito; ripremendolo mentre quello è in attesa o in esecuzione viene
-  rifiutato ("Un backup è già in esecuzione") invece di metterlo due volte in coda. Un backup
+- **Esegui ora** esegue uno subito; ripremendolo mentre quello è in attesa o in esecuzione viene
+  rifiutato ("Un backup è già in corso") invece di metterlo due volte in coda. Un backup
   interrotto da un riavvio o dalla mancanza di memoria non lo blocca; l'esecuzione successiva lo
   segna come interrotto.
 - **Su una macchina piccola** (meno di 4 GB, o un limite del container inferiore a 4 GB) restic gira
@@ -98,13 +98,13 @@ sudo chmod 700 /mnt/backup/kept
   dell'alpha è letto come conteggio giornaliero per una release. Le istantanee prese prima di un
   aggiornamento conservano le ultime 3.
 - **Un backup sospettosamente piccolo** (un dump inferiore alla metà delle dimensioni dell'ultimo
-  buono, o con molti meno oggetti, luoghi o file) viene comunque eseguito, ma quella notte non si
+  buono, o con molti meno oggetti, posti o file) viene comunque eseguito, ma quella notte non si
   rimuove nulla di vecchio e gli amministratori vengono avvisati, così una brutta notte non può mai
   spingere fuori gli snapshot buoni.
 
 ## Monitorarlo
 
-Admin → Status mostra l'ultimo backup e la sua età, il numero di snapshot, la dimensione del
+Admin → Stato mostra l'ultimo backup e la sua età, il numero di snapshot, la dimensione del
 repository, l'ultima prova di ripristino e i dischi. Gli amministratori vengono avvisati per email e
 push quando:
 

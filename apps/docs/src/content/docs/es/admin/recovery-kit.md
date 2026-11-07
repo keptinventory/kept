@@ -29,7 +29,7 @@ docker compose exec kept kept admin recovery-kit
 
 Imprime en la terminal; no se escribe nada en ninguna parte. `--format html` da la página imprimible, y `--out <file>` la escribe en un archivo legible solo por ti. Las claves se imprimen incluso cuando la base de datos está caída; la mitad de la copia de seguridad necesita el inicio de sesión del propietario de la base de datos (`KEPT_OWNER_DATABASE_URL`, el `compose.override.yaml` que [las copias de seguridad](/es/admin/backups/#activarlo) usan lo da), y sin él el kit dice que falta. Con ese inicio de sesión, la impresión cuenta como una descarga (más abajo) y se audita.
 
-Desde la web: **Administrador → Estado → Kit de recuperación → Descargar kit de recuperación**, como administrador de la instancia, solo por HTTPS, después de volver a escribir tu contraseña (o, para una cuenta sin una, dentro de los diez minutos siguientes al inicio de sesión: un inicio de sesión con passkey cuenta; de lo contrario "Vuelve a iniciar sesión"). Elige un archivo de texto o una página imprimible. Cada descarga se audita, y nada del kit se guarda en ningún sitio que un visitante posterior pueda abrir.
+Desde la web: **Administrador → Estado → Kit de recuperación → Descargar kit de recuperación**, como administrador de la instancia, solo por HTTPS, después de volver a escribir tu contraseña (o, para una cuenta sin una, dentro de los diez minutos siguientes al inicio de sesión: un inicio de sesión con llave de acceso cuenta; de lo contrario "Vuelve a iniciar sesión"). Elige un archivo de texto o una página imprimible. Cada descarga se audita, y nada del kit se guarda en ningún sitio que un visitante posterior pueda abrir.
 
 ## Cuando Kept lo pide
 

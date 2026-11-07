@@ -93,7 +93,7 @@ una hora y la app lo renueva sin preguntarte de nuevo; Kept comprueba tu permiso
 
 La app tiene que iniciar sesión de nuevo tras cualquier cosa que cierre sesión en tus otros dispositivos: **Cerrar sesión en todos
 los otros dispositivos**, una contraseña nueva o un restablecimiento de contraseña, un cambio en los dos factores, códigos de respaldo o
-passkeys, desvincular un inicio de sesión externo, una dirección de correo nueva, o un administrador cerrando tu sesión en todas partes
+llaves de acceso, desvincular un inicio de sesión externo, una dirección de correo nueva, o un administrador cerrando tu sesión en todas partes
 o desactivando tu cuenta. Cerrar sesión en un dispositivo elegido deja la app conectada.
 
 Una excepción: pedir borrar tu cuenta cierra sesión en tus otros dispositivos pero mantiene el inicio de sesión
@@ -165,6 +165,13 @@ superior. La parte de Kept que necesita una herramienta es el nombre bajo **Qué
 | `adjust_stock` | cambio | Objetos que se te acaban | Añade o quita del stock de un consumible. |
 | `list_tags` | lectura | | Qué etiquetas hay, con cuántos objetos tienen cada una. |
 | `tag_things` | cambio | | Añade etiquetas a objetos, o quítalas; un nombre nuevo crea la etiqueta. |
+| `list_moves` | lectura | Mudanza | Qué mudanzas hay, con cuántas cajas están embaladas, en tránsito y desempaquetadas. |
+| `get_move` | lectura | Mudanza | Dónde está cada caja de una mudanza, y qué números faltan todavía. |
+| `start_move` | cambio | Mudanza | Inicia una mudanza, a otra ubicación o entre habitaciones de esta. |
+| `add_box` | cambio | Mudanza | Añade la siguiente caja numerada: una nueva, o un contenedor que ya tienes. |
+| `pack_into_box` | cambio | Mudanza | Embalajea objetos en una caja. |
+| `set_box_status` | cambio | Mudanza | Marca una caja como embalada o en tránsito, o elige su habitación. |
+| `unpack_box` | cambio | Mudanza | Desembala una caja en una habitación; todo lo que tiene va con ella. |
 
 **Campos de un objeto.** `add_thing` y `update_thing` toman todos los campos que puedes fijar en un objeto en la
 app, cada uno en su campo en vez de en las notas: nombre, cuántos, tipo (por nombre, en inglés o
@@ -178,13 +185,6 @@ o registrando una, como hace la página del objeto. Un precio necesita Dinero ac
 vea dinero, como en la app; un mínimo necesita **Objetos que se te acaban**. Un tipo que Kept no conoce
 se omite y la respuesta `not_set` lo dice; la tarjeta del asistente
 lo muestra como "no fijado" con un selector.
-| `list_moves` | lectura | Mudanza | Qué mudanzas hay, con cuántas cajas están embaladas, en tránsito y desempaquetadas. |
-| `get_move` | lectura | Mudanza | Dónde está cada caja de una mudanza, y qué números faltan todavía. |
-| `start_move` | cambio | Mudanza | Inicia una mudanza, a otra ubicación o entre habitaciones de esta. |
-| `add_box` | cambio | Mudanza | Añade la siguiente caja numerada: una nueva, o un contenedor que ya tienes. |
-| `pack_into_box` | cambio | Mudanza | Embalajea objetos en una caja. |
-| `set_box_status` | cambio | Mudanza | Marca una caja como embalada o en tránsito, o elige su habitación. |
-| `unpack_box` | cambio | Mudanza | Desembala una caja en una habitación; todo lo que tiene va con ella. |
 
 Las herramientas de mudanza son solo para apps conectadas; el asistente en Kept no las usa.
 

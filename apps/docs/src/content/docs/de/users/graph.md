@@ -3,7 +3,7 @@ title: Der Graph
 description: Sieh einen Standort als Graph seiner Etagen, Räume, Behälter und Dinge in 2D oder 3D, mit dem, was Aufmerksamkeit erfordert, und deinen Tags.
 ---
 
-A location's page has five layouts: **Liste**, **Raster**, **Graph**, **Tabelle** und **Karte**. Tabelle
+Die Seite eines Standorts hat fünf Ansichten: **Liste**, **Raster**, **Graph**, **Tabelle** und **Karte**. Tabelle
 ist nur auf breiten Bildschirmen verfügbar, sodass ein Telefon Liste · Raster · Graph · Karte zeigt.
 **Graph** zeichnet den Standort als Knoten und Verbindungen: den Standort, seine Etagen, die Räume darauf, die Regale, Schränke und Behälter in den Räumen sowie die Dinge darin.
 Kept merkt sich deine Wahl für jeden Standort auf jedem Gerät.
