@@ -1,7 +1,7 @@
 /**
  * A thing's shape on the map (1.x, D249): the card's "Shape: TV, from its type · Change" line
  * and the picker it opens. The picker is a sheet (a dialog from `md` up): a search over the
- * shapes' names and their words in five languages, then **Suggested** (from the thing's type and
+ * shapes' names and their words in every language, then **Suggested** (from the thing's type and
  * name, @kept/shared suggestShapes) and every shape in its group, each with its picture. While a
  * search is typed only the shapes that match show, best first, in one grid (#130). The pictures
  * are one sprite (thumbs/shapes.webp, scripts/render-map-thumbs.mjs), fetched the first time the

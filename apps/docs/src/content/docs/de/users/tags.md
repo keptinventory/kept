@@ -23,7 +23,7 @@ Jede Änderung hat **Rückgängig**.
 
 ## Wer was tun kann
 
-| | Owner | Admin | Member | Viewer |
+| | Eigentümer | Admin | Mitglied | Betrachter |
 |---|---|---|---|---|
 | Schlagwörter sehen, danach filtern | ✓ | ✓ | ✓ | ✓ |
 | Gegenständen Schlagwörter geben, neues Schlagwort erstellen | ✓ | ✓ | ✓ | |

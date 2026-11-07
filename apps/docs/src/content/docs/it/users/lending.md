@@ -7,7 +7,7 @@ Kept ricorda chi ha i tuoi oggetti. Presta il trapano a un vicino con una scaden
 
 ## Attivalo
 
-Prestiti è un modulo: **Impostazioni del luogo → Cosa monitorare → Prestiti**. Fa parte dei preset **Famiglia** e **Completa**. La posizione Personale di un nuovo account inizia su **Essenziali**, quindi attivalo lì se presti dalla posizione Personale ([moduli e preset](/it/users/modules/)).
+Prestiti è un modulo: **Impostazioni del luogo → Cosa monitorare → Prestiti**. Fa parte dei preset **Famiglia** e **Completa**. Il luogo Personale di un nuovo account inizia su **Essenziali**, quindi attivalo lì se presti dal luogo Personale ([moduli e preset](/it/users/modules/)).
 
 Quando è disattivato, **Presta** su un oggetto e la pagina **Prestiti** lo indicano. Un proprietario o amministratore del luogo ha **Attiva qui i prestiti**: con un tocco si apre il modulo per prestare. Tutti gli altri vedono chi può attivarlo.
 
@@ -26,7 +26,7 @@ Registra ciò che hai preso in prestito da qualcuno, con dove si trova e quando 
 
 ## Cosa è fuori e con chi
 
-- **Prestiti**, nel menu: tutto ciò che hai prestato e preso in prestito, in tutte le tue posizioni, prima gli scaduti. Filtra per persona, luogo o stato (fuori ora, scaduto, restituito) e raggruppa per persona o luogo.
+- **Prestiti**, nel menu: tutto ciò che hai prestato e preso in prestito, in tutti i tuoi luoghi, prima gli scaduti. Filtra per persona, luogo o stato (fuori ora, scaduto, restituito) e raggruppa per persona o luogo.
 - **Home**: la scheda **Prestati** conta ciò che è fuori; toccala per la lista.
 - **La pagina di una persona**: cosa ha preso da te, cosa ti ha prestato e lo storico.
 
@@ -43,4 +43,4 @@ Due giorni prima della scadenza, e quando un prestito è scaduto, tramite ogni c
 Chi prende in prestito non ha bisogno di un account. Quando qualcuno deve vedere da sé l'inventario:
 
 - **Invitali come visualizzatore**, con una data di scadenza se è per un periodo ([condividere un luogo](/it/users/sharing/)).
-- **Invia un link di condivisione**: in sola lettura, senza account, per una scatola, un luogo o una ricerca.
+- **Invia un link di condivisione**: in sola lettura, senza account, per una scatola, un posto o una ricerca.

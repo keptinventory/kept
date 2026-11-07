@@ -49,7 +49,7 @@ den Typ von Paperless und den Korrespondenten sowie sein Datum, mit:
 - **Trennen**: es wird vom Ding entfernt. Paperless behält es.
 
 Die Art ergibt sich aus dem Dokumenttyp in Paperless, dann aus seinen Tags: *Beleg*, *Rechnung*,
-*Anleitung* und *Garantie* (und dieselben Wörter auf Französisch, Deutsch, Italienisch und Arabisch) werden
+*Anleitung* und *Garantie* (und dieselben Wörter in den anderen Sprachen von Kept) werden
 erkannt, alles andere ist ein Dokument. Danach kannst du die Art selbst ändern, und **In Kept kopieren**
 kopiert das Dokument mit dieser Art. Der **Art**-Filter in Unterlagen verengt Dateien und verknüpfte Dokumente zusammen.
 

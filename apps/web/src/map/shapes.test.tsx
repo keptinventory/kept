@@ -15,7 +15,7 @@ const tv: ShapeInput = {
   isContainer: false,
 };
 
-function picker(onPick = vi.fn(), input = tv, locale: 'en' | 'ar' | 'fr' = 'en') {
+function picker(onPick = vi.fn(), input = tv, locale: 'ar' | 'en' | 'fr' = 'en') {
   return renderUI(
     <ShapePicker
       isOpen

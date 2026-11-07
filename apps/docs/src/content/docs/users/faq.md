@@ -110,8 +110,8 @@ no Kept needed. To bring Kept itself back on a new machine you also need the rec
 
 ## Which languages does it speak?
 
-English, Arabic (laid out right to left), French, German, Italian, Vietnamese, Ukrainian and
-Spanish, chosen per device. See [language and theme](/users/first-run/#6-language-and-theme).
+Arabic (laid out right to left), English, French, German, Italian, Spanish, Ukrainian and
+Vietnamese, chosen per device. See [language and theme](/users/first-run/#6-language-and-theme).
 
 ## What licence is it under?
 

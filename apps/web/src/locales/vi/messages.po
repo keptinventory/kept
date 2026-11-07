@@ -2261,7 +2261,7 @@ msgid "Filter by"
 msgstr "Lọc theo"
 
 msgid "Filters"
-msgstr "Các bộ lọc"
+msgstr "Bộ lọc"
 
 msgid "Filters in use"
 msgstr "Các bộ lọc đang dùng"
@@ -2630,8 +2630,8 @@ msgstr "Danh tính"
 msgid "If <0>{to}</0> has an account here, a link to set a new password is on its way. It works once, for an hour."
 msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đặt mật khẩu mới đang được gửi tới. Liên kết chỉ dùng được một lần, trong một giờ."
 
-msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 5 minutes."
-msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đăng nhập đang được gửi tới. Liên kết chỉ dùng được một lần, trong 5 phút."
+msgid "If <0>{to}</0> has an account here, a sign-in link is on its way. It works once, for 15 minutes."
+msgstr "Nếu <0>{to}</0> có tài khoản tại đây, liên kết đăng nhập đang được gửi tới. Liên kết chỉ dùng được một lần, trong 15 phút."
 
 msgid "If that disk fails, the backups go with it. Point the backup at another disk."
 msgstr "Nếu ổ đĩa đó hỏng, các bản sao lưu cũng mất theo. Hãy trỏ sao lưu sang một ổ đĩa khác."
@@ -3098,7 +3098,7 @@ msgstr "Lần thấy gần nhất"
 
 msgctxt "Display button"
 msgid "Last seen"
-msgstr "Lần thấy gần nhất"
+msgstr "Đã thấy"
 
 msgid "Later readings count on from it, so this one fits."
 msgstr "Các chỉ số sau tính tiếp từ nó, vì vậy chỉ số này phù hợp."
@@ -5290,11 +5290,11 @@ msgstr "Đăng xuất khỏi mọi thiết bị khác?"
 msgid "Sign out others"
 msgstr "Đăng xuất các thiết bị khác"
 
-msgid "Sign-in link sent. It works once, for 5 minutes."
-msgstr "Đã gửi liên kết đăng nhập. Liên kết chỉ dùng được một lần, trong 5 phút."
+msgid "Sign-in link sent. It works once, for 15 minutes."
+msgstr "Đã gửi liên kết đăng nhập. Liên kết chỉ dùng được một lần, trong 15 phút."
 
-msgid "Sign-in links work once, for 5 minutes. <0>Ask for a new one</0>."
-msgstr "Liên kết đăng nhập chỉ dùng được một lần, trong 5 phút. <0>Yêu cầu liên kết mới</0>."
+msgid "Sign-in links work once, for 15 minutes. <0>Ask for a new one</0>."
+msgstr "Liên kết đăng nhập chỉ dùng được một lần, trong 15 phút. <0>Yêu cầu liên kết mới</0>."
 
 msgid "Sign-up"
 msgstr "Đăng ký"
@@ -6346,7 +6346,7 @@ msgid "Viewers look around and copy links. They can't change anything."
 msgstr "Người xem chỉ xem quanh và sao chép liên kết. Họ không thể thay đổi gì."
 
 msgid "Views"
-msgstr "Chế độ xem"
+msgstr "Dạng xem"
 
 msgid "Waiting · ID pending"
 msgstr "Đang chờ · Chưa có ID"
@@ -7936,7 +7936,7 @@ msgid "Make the places the file names that don't exist yet"
 msgstr "Tạo các vị trí mà tệp nhắc đến nhưng chưa có"
 
 msgid "Manual link"
-msgstr "Liên kết thủ công"
+msgstr "Liên kết sách hướng dẫn"
 
 msgid "Mapped"
 msgstr "Đã khớp"
@@ -16589,10 +16589,10 @@ msgid "No shape matches “{query}”. Try Small thing or Small device, and give
 msgstr "Không có hình dạng nào khớp với “{query}”. Hãy thử Đồ vật nhỏ hoặc Thiết bị nhỏ, và đặt cho nó một cái tên nói rõ nó là gì."
 
 msgid "Table"
-msgstr "Bàn"
+msgstr "Bảng"
 
 msgid "table"
-msgstr "bàn"
+msgstr "bảng"
 
 msgid "{count, plural, one {Move # thing} other {Move # things}}"
 msgstr "{count, plural, one {Di chuyển # đồ vật} other {Di chuyển # đồ vật}}"

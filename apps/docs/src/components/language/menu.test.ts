@@ -6,14 +6,14 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const LANGUAGES = [
-  ['en', 'English'],
   ['ar', 'العربية'],
-  ['fr', 'Français'],
   ['de', 'Deutsch'],
-  ['it', 'Italiano'],
-  ['vi', 'Tiếng Việt'],
-  ['uk', 'Українська'],
+  ['en', 'English'],
   ['es', 'Español'],
+  ['fr', 'Français'],
+  ['it', 'Italiano'],
+  ['uk', 'Українська'],
+  ['vi', 'Tiếng Việt'],
 ];
 
 function markup(current: string): string {
@@ -161,13 +161,13 @@ describe('the language menu', () => {
     await open();
     type('');
     press('ArrowDown');
-    expect(active()).toBe(link('English'));
-    press('ArrowDown');
     expect(active()).toBe(link('العربية'));
+    press('ArrowDown');
+    expect(active()).toBe(link('Deutsch'));
     press('End');
-    expect(active()).toBe(link('Español'));
+    expect(active()).toBe(link('Tiếng Việt'));
     press('Home');
-    expect(active()).toBe(link('English'));
+    expect(active()).toBe(link('العربية'));
     press('End');
     press('ArrowDown');
     expect(active()).toBe(filter());
@@ -188,7 +188,7 @@ describe('the language menu', () => {
     details().open = false;
     summary().focus();
     press('ArrowUp');
-    expect(active()).toBe(link('Español'));
+    expect(active()).toBe(link('Tiếng Việt'));
   });
 
   it('closes with Escape from the box, returns to the button, and clears the filter', async () => {

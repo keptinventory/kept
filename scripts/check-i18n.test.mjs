@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { compareCatalogues, icuShape, missingLocales, shapeProblems } from './check-i18n.mjs';
+import {
+  compareCatalogues,
+  icuShape,
+  missingLocales,
+  oneLosesNumber,
+  shapeProblems,
+} from './check-i18n.mjs';
 
 const extracted = (...ids) => new Map(ids.map((id) => [id, { message: id }]));
 
@@ -54,9 +60,9 @@ describe('compareCatalogues', () => {
 
 describe('the languages the app ships', () => {
   it('requires all eight in the config', () => {
-    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'])).toEqual([]);
-    expect(missingLocales(['en', 'ar'])).toEqual(['fr', 'de', 'it', 'vi', 'uk', 'es']);
-    expect(missingLocales(['en', 'ar', 'fr', 'de', 'it'])).toEqual(['vi', 'uk', 'es']);
+    expect(missingLocales(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'])).toEqual([]);
+    expect(missingLocales(['en', 'ar'])).toEqual(['de', 'es', 'fr', 'it', 'uk', 'vi']);
+    expect(missingLocales(['ar', 'de', 'en', 'fr', 'it'])).toEqual(['es', 'uk', 'vi']);
   });
 
   it('flags a translation that drops a placeholder, a tag or a plural', () => {
@@ -67,6 +73,7 @@ describe('the languages the app ships', () => {
       ['ok', { message: 'Saved {n}' }],
     ]);
     const r = shapeProblems(src, {
+      de: { p: '', t: '<0>{0}</0> ist leer' },
       en: {},
       fr: {
         p: '{name} déplacé',
@@ -74,7 +81,6 @@ describe('the languages the app ships', () => {
         n: '{n} objets',
         ok: 'Enregistré : {n}',
       },
-      de: { p: '', t: '<0>{0}</0> ist leer' },
     });
     expect(r.fr).toEqual([
       { id: 'p', why: 'placeholders' },
@@ -86,15 +92,54 @@ describe('the languages the app ships', () => {
   });
 });
 
+describe('a plural whose one branch is also 21, 31, 101', () => {
+  const lost =
+    '{n, plural, one {Відкрито один раз} few {Відкрито # рази} other {Відкрито # разів}}';
+  const kept =
+    '{n, plural, =1 {Відкрито один раз} one {Відкрито # раз} few {Відкрито # рази} other {Відкрито # разів}}';
+
+  it('fails when one has no # and another branch has', () => {
+    expect(oneLosesNumber(lost)).toBe(true);
+    expect(oneLosesNumber('{n, plural, one {з 1 локацією} other {з # локаціями}}')).toBe(true);
+  });
+
+  it('passes =1 with # in one, and a plural with no # at all', () => {
+    expect(oneLosesNumber(kept)).toBe(false);
+    expect(oneLosesNumber('{n, plural, one {подія} few {події} many {подій} other {події}}')).toBe(
+      false,
+    );
+    expect(oneLosesNumber('Без числа')).toBe(false);
+  });
+
+  it('reads branches past a placeholder inside one', () => {
+    expect(oneLosesNumber('{n, plural, one {Позичено {who}} other {Позичено {who}: #}}')).toBe(
+      true,
+    );
+  });
+
+  it('only counts against the languages it applies to', () => {
+    const source = '{n, plural, one {Opened once} other {Opened # times}}';
+    const r = shapeProblems(new Map([['k', { message: source }]]), {
+      en: {},
+      fr: { k: '{n, plural, one {Ouvert une fois} other {Ouvert # fois}}' },
+      uk: { k: lost },
+    });
+    expect(r.fr).toEqual([]);
+    expect(r.uk).toEqual([{ id: 'k', why: expect.stringContaining('=1') }]);
+    const fixed = shapeProblems(new Map([['k', { message: source }]]), { uk: { k: kept } });
+    expect(fixed.uk).toEqual([]);
+  });
+});
+
 describe("a message's shape (an ICU walk, not a regex)", () => {
   it('takes a one-word plural branch as text, not a placeholder', () => {
     expect(icuShape('{n, plural, one {thing} other {things}}')).toEqual({ names: 'n', plurals: 1 });
     const src = new Map([['k', { message: '{n, plural, one {thing} other {things}}' }]]);
     const r = shapeProblems(src, {
-      en: {},
       ar: {
         k: '{n, plural, zero {أشياء} one {شيء} two {شيئان} few {أشياء} many {شيئًا} other {شيء}}',
       },
+      en: {},
       fr: { k: '{n, plural, one {objet} other {objets}}' },
     });
     expect(r).toEqual({ ar: [], fr: [] });

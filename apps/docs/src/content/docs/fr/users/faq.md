@@ -110,8 +110,8 @@ sans Kept. Pour remettre Kept lui-même en route sur une nouvelle machine, il vo
 
 ## Quelles langues parle-t-il ?
 
-Anglais, arabe (affiché de droite à gauche), français, allemand, italien, vietnamien, ukrainien et
-espagnol, choisis par appareil. Voir [langue et thème](/fr/users/first-run/#6-langue-et-thème).
+Allemand, anglais, arabe (affiché de droite à gauche), espagnol, français, italien, ukrainien et
+vietnamien, choisis par appareil. Voir [langue et thème](/fr/users/first-run/#6-langue-et-thème).
 
 ## Sous quelle licence est-il ?
 

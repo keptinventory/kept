@@ -8,16 +8,18 @@ import { conflict, unauthenticated } from '../http/errors.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { hiddenLocationIds } from '../locations/hidden.js';
 import { Iso, LocationKind, RoleSchema } from '../locations/views.js';
+import { MAIL_LOCALES } from '../mail/messages.js';
 import { auditMine } from '../notify/prefs.js';
 import { RECOVERY_KIT_KEY } from '../setup/recovery-kit.js';
 
 // GET /api/v1/me (the web shell's first query): who is signed in, their
 // display preferences, whether they are an instance admin, and the locations they belong to.
 //
-// PATCH /api/v1/me {suggestLocation?, hidePersonal?}: "Suggest where I am" (the phone's
-// location suggestion) and "Hide Personal" (#392) are the person's, across devices, in
-// user_profiles. Audited `me.preferences` on the person's own account.
-// → 200 {suggestLocation, hidePersonal}. Hiding Personal while it is the only location the session
+// PATCH /api/v1/me {suggestLocation?, hidePersonal?, locale?}: "Suggest where I am" (the phone's
+// location suggestion), "Hide Personal" (#392) and the language chosen in the app (what mail is
+// written in, mail/transport.ts) are the person's, across devices, in user_profiles. Audited
+// `me.preferences` on the person's own account.
+// → 200 {suggestLocation, hidePersonal, locale}. Hiding Personal while it is the only location the session
 // can see is 409; hidden already and left with nothing else, it shows by itself
 // (kept.hidden_location_ids, read on every request), and that is what `personalHidden` reports.
 //
@@ -187,23 +189,39 @@ export async function meRoutes(
   );
 
   const Patch = z
-    .object({ suggestLocation: z.boolean().optional(), hidePersonal: z.boolean().optional() })
+    .object({
+      suggestLocation: z.boolean().optional(),
+      hidePersonal: z.boolean().optional(),
+      locale: z.enum(MAIL_LOCALES).optional(),
+    })
     .strict()
-    .refine((b) => b.suggestLocation !== undefined || b.hidePersonal !== undefined, {
-      message: 'Send suggestLocation or hidePersonal.',
-    });
+    .refine(
+      (b) =>
+        b.suggestLocation !== undefined || b.hidePersonal !== undefined || b.locale !== undefined,
+      { message: 'Send suggestLocation, hidePersonal or locale.' },
+    );
   app.patch(
     '/api/v1/me',
     {
       schema: {
         body: Patch,
-        response: { 200: z.object({ suggestLocation: z.boolean(), hidePersonal: z.boolean() }) },
+        response: {
+          200: z.object({
+            suggestLocation: z.boolean(),
+            hidePersonal: z.boolean(),
+            locale: z.string(),
+          }),
+        },
       },
     },
     (req, reply) =>
       scopedWrite(pools, req, reply, async (tx, client, scope) => {
-        const { rows } = await client.query<{ suggest_location: boolean; hide_personal: boolean }>(
-          `SELECT suggest_location, hide_personal FROM public.user_profiles
+        const { rows } = await client.query<{
+          suggest_location: boolean;
+          hide_personal: boolean;
+          locale: string;
+        }>(
+          `SELECT suggest_location, hide_personal, locale FROM public.user_profiles
             WHERE user_id = kept.current_user_id() FOR UPDATE`,
         );
         const before = rows[0];
@@ -211,18 +229,20 @@ export async function meRoutes(
         const want = {
           suggest_location: req.body.suggestLocation ?? before.suggest_location,
           hide_personal: req.body.hidePersonal ?? before.hide_personal,
+          locale: req.body.locale ?? before.locale,
         };
         if (want.hide_personal && !before.hide_personal && !(await hasAnotherLocation(client))) {
           throw conflict('Personal is your only location, so it stays. Add or join another first.');
         }
         if (
           before.suggest_location !== want.suggest_location ||
-          before.hide_personal !== want.hide_personal
+          before.hide_personal !== want.hide_personal ||
+          before.locale !== want.locale
         ) {
           await client.query(
-            `UPDATE public.user_profiles SET suggest_location = $1, hide_personal = $2
+            `UPDATE public.user_profiles SET suggest_location = $1, hide_personal = $2, locale = $3
               WHERE user_id = kept.current_user_id()`,
-            [want.suggest_location, want.hide_personal],
+            [want.suggest_location, want.hide_personal, want.locale],
           );
           await auditMine(tx, scope.userId, {
             action: 'me.preferences',
@@ -234,7 +254,11 @@ export async function meRoutes(
         }
         return {
           status: 200,
-          body: { suggestLocation: want.suggest_location, hidePersonal: want.hide_personal },
+          body: {
+            suggestLocation: want.suggest_location,
+            hidePersonal: want.hide_personal,
+            locale: want.locale,
+          },
         };
       }),
   );

@@ -7,7 +7,7 @@ Mỗi mục là một triệu chứng, nguyên nhân và cách khắc phục. C�
 
 ## Trước hết, hãy xem
 
-- **Quản trị → Trạng thái** tự đặt tên cho hầu hết các vấn đề: thư, các tác vụ nền thất bại, quét nhắc nhở, sao lưu và bài tập khôi phục, ổ đĩa, bản phát hành và các lần di chuyển của nó, HTTPS.
+- **Quản trị → Trạng thái** tự đặt tên cho hầu hết các vấn đề: thư, các tác vụ nền thất bại, quét nhắc nhở, sao lưu và diễn tập khôi phục, ổ đĩa, bản phát hành và các lần di chuyển của nó, HTTPS.
 - **Nhật ký:** `docker compose logs kept` và `docker compose logs migrate`. `KEPT_LOG_FORMAT=pretty` khiến chúng dễ đọc bằng mắt; `KEPT_LOG_LEVEL` (mặc định `info`) đặt mức độ.
 - **ID yêu cầu:** mọi phản hồi đều mang `x-request-id`; tìm trong nhật ký để tìm dòng thuộc về báo cáo.
 - **Các kiểm tra:** `/healthz` (tiến trình phục vụ HTTP), `/readyz` (cả hai kết nối cơ sở dữ liệu đều trả lời), `/version` (phiên bản, commit, nguồn). Xem [giám sát](/vi/admin/observability/).

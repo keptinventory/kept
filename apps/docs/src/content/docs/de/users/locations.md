@@ -148,8 +148,7 @@ eigene Einstellung: niemand sonst sieht eine Änderung.
 
 - **Verschwunden aus:** den Standorten im Menü, Home, Listen, Suche und deren Filtern. Ein Modul, das nur
   Persönlich verfolgt (Fahrzeuge zum Beispiel), verschwindet mit ihm aus dem Menü.
-- **Unverändert:** alles darin. Ein Link auf Pers Schönlich? wait typo: "Persönlich" no umlaut issues. 
-  Link auf Persönlich. Ein Link auf Persönlich oder auf einen Gegenstand darin öffnet es immer noch. Ausblenden
+- **Unverändert:** alles darin. Ein Link auf Persönlich oder auf einen Gegenstand darin öffnet es immer noch. Ausblenden
   ist aufräumen, nicht schützen: es sperrt nichts.
 - **Erinnerungen erreichen dich weiter**, als Benachrichtigungen, im Digest und im Kalender-Feed. Schalte sie in
   **Einstellungen → Profil → Benachrichtigungen** aus, wo Persönlich weiter gelistet ist.

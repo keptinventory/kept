@@ -28,6 +28,6 @@ Ein **Schadenpaket** ist eine ZIP-Datei des Versicherungsberichts mit jedem Bele
 
 ## Siehe auch
 
-[Tägliche Nutzung](/de/users/everyday-use/) für das größere Bild.
-[Import und Export](/de/users/import-export/) für das Exportieren eines Standorts als vollständigen Export.
-[Kits und Übergaben](/de/users/kits/) zum Ausleihen von Dingen.
+- [Tägliche Nutzung](/de/users/everyday-use/) für das größere Bild.
+- [Import und Export](/de/users/import-export/) für das Exportieren eines Standorts als vollständigen Export.
+- [Kits und Übergaben](/de/users/kits/) zum Ausleihen von Dingen.

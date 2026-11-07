@@ -14,11 +14,11 @@ dedupliziert (eine Nacht, in der nichts Neues hinzukommt, fügt fast nichts hinz
   und einem Digest ihrer Daten, damit eine Wiederherstellung beweisen kann, dass genau das zurückgeholt wurde, was da war.
 - **Die Dateien** (Fotos, Belege, Dokumente), wenn sie auf der Festplatte des Servers gespeichert sind. Mit
   S3-Dateispeicher sind sie es nicht: siehe [unten](#wenn-dateien-in-s3-liegen).
-- **Eine lesbare Kopie jedes Orts**: Webseiten, Tabellen, Vorschaubilder und Belege, die
-  in einem Browser mit nichts als restic geöffnet werden. Siehe
+- **Eine lesbare Kopie jedes Standorts**: Webseiten, Tabellen, Vorschaubilder und Belege, die
+  sich in einem Browser öffnen lassen, mit nichts als restic. Siehe
   [dein Inventar mit restic allein lesen](/de/admin/read-with-restic/).
 
-Die Schlüssel sind **nicht** im Backup. Bewahre [das Recovery-Kit](/de/admin/recovery-kit/) an anderer Stelle auf.
+Die Schlüssel sind **nicht** im Backup. Bewahre [das Wiederherstellungskit](/de/admin/recovery-kit/) an anderer Stelle auf.
 
 ## Wohin es gehen kann
 
@@ -26,22 +26,22 @@ Die Schlüssel sind **nicht** im Backup. Bewahre [das Recovery-Kit](/de/admin/re
 |---|---|---|
 | Ein Verzeichnis: eine andere Festplatte oder eine auf dem Server gemountete NAS-Freigabe | `KEPT_BACKUP_DIR` (absolut, außerhalb von `KEPT_DATA_DIR`) | `<directory>/restic` |
 | Ein S3-kompatibler Bucket: AWS oder der S3-Endpoint eines anderen Anbieters | `KEPT_BACKUP_S3_BUCKET` und die anderen `KEPT_BACKUP_S3_*` | `restic/` unter `KEPT_BACKUP_S3_PREFIX` |
-| Ein SFTP-Server | `KEPT_BACKUP_SFTP` (restic's `sftp:`-Syntax), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | der Ort, den du angibst |
+| Ein SFTP-Server | `KEPT_BACKUP_SFTP` (`sftp:`-Syntax von restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | der Ort, den du angibst |
 
-Setze ein Ziel. Bevorzuge einen anderen Rechner oder einen anderen Standort: Ein Verzeichnis auf derselben Festplatte wie Kepts
+Setze genau ein Ziel. Bevorzuge einen anderen Rechner oder einen anderen Standort: Ein Verzeichnis auf derselben Festplatte wie Kepts
 Daten wird abgelehnt, und die Statusseite warnt, wenn das Ziel sich eine Festplatte mit ihnen teilt. Die S3-Endpoints von Backblaze B2 und
-Cloudflare R2 sollten funktionieren, wurden aber nicht getestet. SFTP heftet den Host-Key des Servers aus der known-hosts-Datei an und verbindet sich nur, wenn er übereinstimmt.
+Cloudflare R2 sollten funktionieren, wurden aber nicht getestet. SFTP pinnt den Host-Key des Servers aus der known-hosts-Datei und verbindet sich nur, wenn er übereinstimmt.
 
 ## Aktivieren
 
 Instanz-Admins setzen das Ziel und das Passwort in **Admin → Sicherungen**, über HTTPS, nach
-der Bestätigung des Recovery-Kits. "Testen" prüft, ob Kept das Repository öffnen (oder erstellen) kann; "Jetzt sichern"
-führt eine sofort aus. Eine Umgebungsvariable übertrumpft den Bildschirm und erscheint dort als gesperrt, damit ein
-Operator das Ziel im Deployment korrigieren kann.
+der Bestätigung des Wiederherstellungskits. "Testen" prüft, ob Kept das Repository öffnen (oder erstellen) kann; "Jetzt ausführen"
+führt eine sofort aus. Eine Umgebungsvariable hat Vorrang vor dieser Seite und erscheint dort als gesperrt, damit ein
+Operator das Ziel im Deployment fest vorgeben kann.
 
-**Das Passwort** besteht aus mindestens 12 Zeichen (`KEPT_BACKUP_PASSWORD` oder auf dem Bildschirm eingestellt).
+**Das Passwort** besteht aus mindestens 12 Zeichen (`KEPT_BACKUP_PASSWORD` oder auf der Seite eingestellt).
 **Kein Passwort, kein Backup:** Kept schreibt niemals ein unverschlüsseltes Backup. Verlierst du das Passwort, ist das
-Backup unlesbar – darum ist es im Recovery-Kit.
+Backup unlesbar – darum steht das Passwort im Wiederherstellungskit.
 
 Das Backup läuft im Worker als Datenbankbesitzer, daher braucht der Worker auch `KEPT_OWNER_DATABASE_URL`.
 Mit Compose übergibt `compose.yaml` bereits jede `KEPT_BACKUP_*`-Variable aus `.env`
@@ -66,7 +66,7 @@ Das Passwort des Besitzers stammt aus dem `kept-owner`-Volume, wo der Bootstrap 
 vor 1.13.0 mit `KEPT_DB_OWNER_PASSWORD` in `.env` nutzt stattdessen dieses, und die Dateizeile
 bewirkt nichts).
 
-Dann setze entweder das Ziel und das Passwort auf dem Bildschirm, oder fixiere sie in `.env`
+Dann setze entweder das Ziel und das Passwort auf der Seite, oder fixiere sie in `.env`
 (`KEPT_BACKUP_DIR=/backups`, `KEPT_BACKUP_PASSWORD=…`).
 
 Das Verzeichnis muss Kepts Benutzer gehören:
@@ -81,15 +81,15 @@ sudo chmod 700 /mnt/backup/kept
 
 - **Wann:** jede Nacht zur in Admin → Sicherungen eingestellten Zeit, `HH:MM` in UTC (Standard `02:30`).
   Eine neue Zeit gilt ab der nächsten Nacht, ohne Neustart; `KEPT_BACKUP_TIME` fixiert sie stattdessen.
-- **Jetzt sichern** führt eine sofort aus; wird sie erneut gedrückt, während jene wartet oder läuft, wird das abgelehnt
-  ("Es läuft bereits eine Sicherung") statt zweimal in die Warteschlange zu kommen. Ein durch Neustart oder
+- **Jetzt ausführen** startet sofort eine Sicherung; ein erneuter Klick, während diese wartet oder läuft, wird abgelehnt
+  ("Eine Sicherung läuft bereits"), statt sie zweimal in die Warteschlange zu stellen. Ein durch Neustart oder
   durch Speichermangel abgebrochenes Backup blockiert nicht; der nächste Lauf markiert dieses als unterbrochen.
 - **Auf einer kleinen Maschine** (unter 4 GB oder einem Container-Limit unter 4 GB) läuft restic auf höchstens zwei
-  Kernen mit einem weichen Speicherlimit; `GOMAXPROCS` und `GOMEMLIMIT` in Kepts Umgebung (mit Compose,
-  eine `compose.override.yaml`) überschreiben beides.
+  Kernen mit einem weichen Speicherlimit; `GOMAXPROCS` und `GOMEMLIMIT` in Kepts Umgebung (bei Compose
+  in einer `compose.override.yaml`) überschreiben beides.
 - **Wie lange sie aufbewahrt werden:** der neueste Snapshot von jedem der letzten **7 Tage, 4 Wochen und 6
-  Monate** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). Des Alphas `KEPT_BACKUP_KEEP` wird
-  für eine Release als Tagesanzahl gelesen. Vor einem Upgrade angelegte Snapshots behalten ihre letzten 3.
+  Monate** (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`). `KEPT_BACKUP_KEEP` aus der Alpha wird
+  für ein Release als Tagesanzahl gelesen. Von den vor einem Upgrade angelegten Snapshots bleiben die letzten 3 erhalten.
 - **Ein verdächtig kleines Backup** (ein Dump unter der Hälfte der Größe des letzten guten, oder deutlich weniger
   Dinge, Orte oder Dateien) wird trotzdem erstellt, aber in dieser Nacht wird nichts Altes entfernt und Admins werden
   benachrichtigt, sodass eine schlechte Nacht die guten Snapshots nie verdrängen kann.
@@ -122,5 +122,5 @@ vergleichen den Hash jeder Datei im Manifest mit dem Bucket.
 ## Die Backups der Alpha
 
 Backups, die vor restic von der Alpha gemacht wurden (`runs/` und `blobs/` neben dem neuen `restic/`-Verzeichnis), werden nie
-wieder geschrieben und bleiben mit `kept admin restore --legacy <id>` für eine Release wiederherstellbar. Lösche
+wieder geschrieben und bleiben mit `kept admin restore --legacy <id>` für ein Release wiederherstellbar. Lösche
 sie, sobald ein restic-Snapshot eine Wiederherstellungsübung bestanden hat.

@@ -13,14 +13,14 @@ Il fonctionne sur un téléphone sans signal, ce qui constitue la majeure partie
 
 ## L'activer
 
-Le déménagement fait partie du préset **Complet**. Pour tout autre emplacement, un propriétaire ou un administrateur active **Déménagement** dans **Paramètres du lieu → Ce que vous suivez**. Il nécessite **Étiquettes et codes QR**, que chaque préset possède. Son entrée, **Déménagement**, apparaît alors dans la barre latérale (sur un téléphone, sous **Plus**).
+Le déménagement fait partie du préset **Complet**. Pour tout autre lieu, un propriétaire ou un administrateur active **Déménagement** dans **Paramètres du lieu → Ce que vous suivez**. Il nécessite **Étiquettes et codes QR**, que chaque préset possède. Son entrée, **Déménagement**, apparaît alors dans la barre latérale (sur un téléphone, sous **Plus**).
 
 ## 1. Démarrer un déménagement
 
 1. **Déménagement → Démarrer un déménagement**.
-2. Un **nom** (« Vers le nouvel appartement »), et où il est **Destination** : un autre de vos emplacements, ou les pièces du même lorsque vous ne faites qu'une réorganisation.
+2. Un **nom** (« Vers le nouvel appartement »), et où il est **Destination** : un autre de vos lieux, ou les pièces du même lorsque vous ne faites qu'une réorganisation.
 
-En déménageant vers un nouveau domicile ? Ajoutez-le d'abord comme un emplacement, avec ses pièces, afin que chaque carton puisse aller directement dans sa pièce.
+En déménageant vers un nouveau domicile ? Ajoutez-le d'abord comme un lieu, avec ses pièces, afin que chaque carton puisse aller directement dans sa pièce.
 
 ## 2. Emballer
 
@@ -72,6 +72,6 @@ Une application connectée avec **Lire et modifier** (ChatGPT, Claude : [connect
 | Démarrer un déménagement, ajouter des cartons, emballer, marquer et déballer | | Oui | Oui |
 | Supprimer un déménagement (ses cartons restent, en tant que cartons) | | Oui | Oui |
 
-Le déballage vers un autre emplacement nécessite que vous puissiez y ajouter des objets également. Chaque modification figure dans l'historique du carton et dans l'activité de l'emplacement.
+Le déballage vers un autre lieu nécessite que vous puissiez y ajouter des objets également. Chaque modification figure dans l'historique du carton et dans l'activité du lieu.
 
-Une exportation Kept inclut également les déménagements : le numéro de chaque carton, son état et la pièce de destination, avec les cartons et tout leur contenu en tant qu'objets, situés où ils se trouvent. Importés, un déménagement vers un autre emplacement devient un déménagement au sein du nouveau, avec ses pièces à choisir à nouveau (l'exportation contient un seul emplacement). Un carton déjà déballé vers un autre emplacement figure dans l'exportation de cet emplacement en tant qu'objet.
+Une exportation Kept inclut également les déménagements : le numéro de chaque carton, son état et la pièce de destination, avec les cartons et tout leur contenu en tant qu'objets, situés où ils se trouvent. Importés, un déménagement vers un autre lieu devient un déménagement au sein du nouveau, avec ses pièces à choisir à nouveau (l'exportation contient un seul lieu). Un carton déjà déballé vers un autre lieu figure dans l'exportation de ce lieu en tant qu'objet.

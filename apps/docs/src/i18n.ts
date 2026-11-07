@@ -5,7 +5,7 @@
  */
 import { locales } from './locales.mjs';
 
-export type Lang = 'en' | 'ar' | 'fr' | 'de' | 'it' | 'vi' | 'uk' | 'es';
+export type Lang = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
 /** The languages whose words are written out in the component tables. */
 export type OtherLang = Exclude<Lang, 'en' | 'ar'>;
 

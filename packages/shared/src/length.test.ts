@@ -148,7 +148,7 @@ describe('readLength: what was typed (1.14.4 review)', () => {
     expect(readLength('3.58m', 'en-GB')).toBe(3.58);
     expect(readLength('.5', 'en')).toBe(0.5);
     expect(readLength('4', 'en')).toBe(4);
-    for (const l of ['fr', 'de', 'it', 'vi', 'uk', 'es']) {
+    for (const l of ['de', 'es', 'fr', 'it', 'uk', 'vi']) {
       expect(readLength('0,8', l)).toBe(0.8);
       expect(readLength('0,80\u202fm', l)).toBe(0.8);
     }

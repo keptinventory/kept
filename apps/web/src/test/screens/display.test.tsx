@@ -31,14 +31,14 @@ describe('Settings → Me → Display', () => {
     const list = await screen.findByRole('listbox');
     const options = within(list).getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual([
-      'English',
       'العربية',
-      'Français',
       'Deutsch',
-      'Italiano',
-      'Tiếng Việt',
-      'Українська',
+      'English',
       'Español',
+      'Français',
+      'Italiano',
+      'Українська',
+      'Tiếng Việt',
     ]);
     // A flag (SVG, never an emoji) beside every name, marked decorative.
     for (const o of options) {
@@ -46,7 +46,7 @@ describe('Settings → Me → Display', () => {
       expect(flag).not.toBeNull();
       expect(flag).toHaveAttribute('aria-hidden', 'true');
     }
-    expect(options[1]?.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');
+    expect(options[0]?.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');
     await user.click(within(list).getByRole('option', { name: 'Français' }));
     await findHeading('Paramètres');
     expect(localStorage.getItem('kept.locale')).toBe('fr');

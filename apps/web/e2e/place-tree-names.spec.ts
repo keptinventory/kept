@@ -73,7 +73,7 @@ async function makeLocation(page: Page, name: string) {
 async function treeIn(
   page: Page,
   office: string,
-  locale: 'en' | 'de' | 'ar',
+  locale: 'ar' | 'de' | 'en',
   words: string,
   locationName: string,
 ): Promise<Locator> {

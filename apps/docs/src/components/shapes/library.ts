@@ -34,14 +34,14 @@ export type LibraryShape = {
 export type LibraryGroup = { id: ShapeGroup; label: string; shapes: LibraryShape[] };
 
 const LANGS: readonly { lang: ShapeLang; label: string }[] = [
-  { lang: 'en', label: 'English' },
   { lang: 'ar', label: 'Arabic' },
-  { lang: 'fr', label: 'French' },
   { lang: 'de', label: 'German' },
-  { lang: 'it', label: 'Italian' },
-  { lang: 'vi', label: 'Vietnamese' },
-  { lang: 'uk', label: 'Ukrainian' },
+  { lang: 'en', label: 'English' },
   { lang: 'es', label: 'Spanish' },
+  { lang: 'fr', label: 'French' },
+  { lang: 'it', label: 'Italian' },
+  { lang: 'uk', label: 'Ukrainian' },
+  { lang: 'vi', label: 'Vietnamese' },
 ];
 
 /** Metres to centimetres, to the millimetre under 10 cm and to the centimetre above. */

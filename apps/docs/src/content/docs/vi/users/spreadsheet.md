@@ -3,7 +3,7 @@ title: Chế độ xem bảng tính
 description: "Một địa điểm dưới dạng hàng trên máy tính: ô có thể chỉnh sửa, thao tác hàng loạt, phím tắt, xung đột và xuất CSV."
 ---
 
-Trên máy tính (cửa sổ rộng 1024 pixel trở lên), **Bàn** của một địa điểm hiển thị mọi đồ vật trong đó dưới dạng một hàng, để dọn dẹp nhiều đồ vật cùng lúc. Điện thoại vẫn giữ chế độ danh sách.
+Trên máy tính (cửa sổ rộng 1024 pixel trở lên), **Bảng** của một địa điểm hiển thị mọi đồ vật trong đó dưới dạng một hàng, để dọn dẹp nhiều đồ vật cùng lúc. Điện thoại vẫn giữ chế độ danh sách.
 
 ![Một địa điểm dưới dạng bảng: các cột tên, vị trí, ID ngắn, loại, thương hiệu và mẫu; hai hàng được chọn với Di chuyển đến, Thẻ, Đặt một trường và Di chuyển vào Thùng rác ở trên; một ô mẫu đã thay đổi được làm nổi bật và "Lưu 1 thay đổi" ở dưới cùng](../../../../assets/screens/sheet-desktop-light.webp)
 

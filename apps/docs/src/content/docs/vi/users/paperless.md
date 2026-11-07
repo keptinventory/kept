@@ -38,7 +38,7 @@ Các tài liệu đã liên kết nằm trong cùng danh sách Giấy tờ với
 - **Sao chép vào Kept**: xem dưới.
 - **Hủy liên kết**: nó rời khỏi đồ vật. Paperless giữ nó.
 
-Loại đến từ loại của tài liệu trong Paperless, sau đó các thẻ: *Receipt*, *Invoice*, *Manual* và *Warranty* (cùng các từ này bằng tiếng Pháp, Đức, Ý và Ả Rập) được nhận diện, bất cứ thứ gì khác là tài liệu. Sau đó loại do bạn quyết định, và **Sao chép vào Kept** sao chép tài liệu với loại đó. Bộ lọc **Loại** trong Giấy tờ thu hẹp cả tệp và tài liệu đã liên kết cùng nhau.
+Loại đến từ loại của tài liệu trong Paperless, sau đó các thẻ: *Receipt*, *Invoice*, *Manual* và *Warranty* (cùng các từ này bằng các ngôn ngữ khác của Kept) được nhận diện, bất cứ thứ gì khác là tài liệu. Sau đó loại do bạn quyết định, và **Sao chép vào Kept** sao chép tài liệu với loại đó. Bộ lọc **Loại** trong Giấy tờ thu hẹp cả tệp và tài liệu đã liên kết cùng nhau.
 
 **Từ [nhập Homebox](/vi/users/import-export/#một-bản-xuất-homebox):** một liên kết Homebox đến một trong các tài liệu Paperless của bạn (`…/documents/123`, hoặc `…/api/documents/123/download/` của API) tại địa chỉ địa điểm này đang kết nối sẽ nhập như một tài liệu đã liên kết trên đồ vật hoặc vị trí. Tiêu đề đến từ Paperless, loại từ loại đính kèm Homebox của nó. Kết nối Paperless trước khi nhập; bất kỳ liên kết nào khác vẫn là liên kết thuần túy.
 

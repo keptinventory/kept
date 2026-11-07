@@ -11,6 +11,7 @@
  */
 import {
   CSV_LIMITS,
+  decimalCommaAsPoint,
   type ImportIssue,
   type ImportIssueCode,
   type ImportIssueParams,
@@ -92,7 +93,8 @@ export function mockDryRun(
     seen.set(key, rowNo);
 
     for (const c of cellsOf(row, 'quantity')) {
-      if (!/^\d{1,9}(?:\.\d{1,3})?$/.test(fold(c.value).replace(/٫/g, '.'))) {
+      const quantity = decimalCommaAsPoint(fold(c.value).replace(/٫/g, '.').replace(/\s/g, ''));
+      if (!/^\d{1,9}(?:\.\d{1,3})?$/.test(quantity.replace(/[,٬]/g, ''))) {
         text(c.column, 'not_quantity', 'Not a quantity.');
       }
     }

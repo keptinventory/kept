@@ -10,10 +10,11 @@
 //
 // It also fails when a message has an empty translation in a non-source locale (every msgstr is written; an empty one would show English in that language's UI).
 //
-// Every language the app ships (English, Arabic, French, German, Italian, Vietnamese, Ukrainian,
+// Every language the app ships (Arabic, English, French, German, Italian, Ukrainian, Vietnamese,
 // Spanish) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
 // same placeholders ({name}, {0}), the same numbered tags (<0>…</0>) and the same number of ICU
-// plurals, or the message would drop a value or break at runtime.
+// plurals, or the message would drop a value or break at runtime. In Ukrainian, whose `one` is also
+// 21, 31 and 101, a plural's `one` branch must keep the number the other branches show.
 //
 // It does NOT fail on:
 //   - obsolete entries (in a catalogue, gone from the source): harmless at runtime (counted);
@@ -50,7 +51,7 @@ export function compareCatalogues(extracted, catalogues, sourceLocale = 'en') {
 }
 
 /** The languages the app ships. Removing one from lingui.config.ts fails the check. */
-export const REQUIRED_LOCALES = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
+export const REQUIRED_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
 
 /** Required locales the config doesn't list. */
 export function missingLocales(configLocales) {
@@ -147,6 +148,38 @@ const tags = (s) =>
 const plurals = (s) => icuShape(s).plurals;
 
 /**
+ * Languages whose `one` isn't only 1: in Ukrainian it is also 21, 31, 101…, so a `one` branch
+ * written for exactly one loses the number there ("Opened once" at 21). Exactly one is `=1`, and
+ * `one` carries `#`.
+ */
+const ONE_IS_NOT_ONLY_ONE = new Set(['uk']);
+
+/** A plural whose `one` branch has no `#` while another branch has: the number goes missing. A
+ * plural with no `#` anywhere ("thing in it" beside a number shown apart) keeps it. */
+export function oneLosesNumber(s) {
+  for (const start of s.matchAll(/\bplural\s*,/g)) {
+    const branches = {};
+    let i = start.index + start[0].length;
+    while (i < s.length) {
+      const selector = /^\s*(=?[\w-]+)\s*\{/.exec(s.slice(i));
+      if (!selector) break;
+      i += selector[0].length;
+      const body = i;
+      for (let depth = 1; depth > 0 && i < s.length; i++) {
+        if (s[i] === '{') depth++;
+        else if (s[i] === '}') depth--;
+      }
+      branches[selector[1]] = s.slice(body, i - 1);
+    }
+    const { one, ...others } = branches;
+    if (one !== undefined && !one.includes('#')) {
+      if (Object.values(others).some((body) => body.includes('#'))) return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Translations whose shape differs from their source: placeholders, numbered tags or ICU plural
  * count. Per locale, a list of `{ id, why }`. Untranslated (empty) entries are skipped here.
  */
@@ -162,6 +195,8 @@ export function shapeProblems(extracted, catalogues, sourceLocale = 'en') {
       if (placeholders(t) !== placeholders(source)) out[locale].push({ id, why: 'placeholders' });
       else if (tags(t) !== tags(source)) out[locale].push({ id, why: 'tags' });
       else if (plurals(t) !== plurals(source)) out[locale].push({ id, why: 'plurals' });
+      else if (ONE_IS_NOT_ONLY_ONE.has(locale) && oneLosesNumber(t))
+        out[locale].push({ id, why: 'one without #: use =1 for exactly one, and # in one' });
     }
   }
   return out;

@@ -84,7 +84,7 @@ function ConfirmPage() {
         >
           {expired ? (
             <Trans>
-              Sign-in links work once, for 5 minutes.{' '}
+              Sign-in links work once, for 15 minutes.{' '}
               <Link to="/signin" className="underline">
                 Ask for a new one
               </Link>

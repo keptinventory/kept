@@ -46,7 +46,7 @@ La consegna dirà poi "11 di 12 tornati". **Annulla** rimette ogni riga come pri
 Un **kit** è un contenitore con un elenco di parti: ciò che dovrebbe esserci. Sposta una parte fuori, prestatela o perdila, e il kit lo sa ancora.
 
 - **Parti → Rendilo un kit** su un contenitore: i suoi contenuti sono spuntati come parti; aggiungine altre tramite ricerca.
-- Una cosa è parte di al massimo un kit, nella posizione del kit.
+- Una cosa è parte di al massimo un kit, nel luogo del kit.
 - La scheda **Parti** dice **Completo**, "2 parti non nel kit" oppure **Con Sam dal 3 Oct**, e ogni parte: Nel kit, Altrove (con **Rimetti**), Mancante, Con qualcuno, oppure Nel cestino.
 - **Controlla questo kit** lo conta con una [sessione di scansione](/it/users/scanning-sessions/): il suo elenco è composto dalle parti, ovunque si trovino.
 - **Modifica le parti** e **Non più un kit** possono essere annullati per 7 giorni.
@@ -61,4 +61,4 @@ Un **kit** è un contenitore con un elenco di parti: ciò che dovrebbe esserci. 
 | Creare un kit, modificare parti, sciogliere | ✓ | — |
 | Controllare un kit | ✓ | Un controllo: nulla salvato |
 
-Prestiti e restituzioni richiedono una connessione. Offline, lo stato mostra ("con Sam"), e un controllo kit funziona come qualsiasi conteggio. Un'esportazione Kept include consegne, le loro righe e kit con la posizione.
+Prestiti e restituzioni richiedono una connessione. Offline, lo stato mostra ("con Sam"), e un controllo kit funziona come qualsiasi conteggio. Un'esportazione Kept include consegne, le loro righe e kit con il luogo.

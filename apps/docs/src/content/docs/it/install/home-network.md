@@ -15,7 +15,7 @@ Alcune cose richiedono HTTPS. Alcune perché Kept rifiuta di consegnare una chia
 
 | | Con HTTP in chiaro | Perché |
 |---|---|---|
-| Oggetti, luoghi, ricerca, spostamenti, etichette, report | Funziona | |
+| Oggetti, posti, ricerca, spostamenti, etichette, report | Funziona | |
 | Foto e file, scelti dal dispositivo | Funziona | |
 | Importazione (Homebox, CSV, un'esportazione di Kept) | Funziona | |
 | Aprire i segreti di un'esportazione durante l'importazione | Richiede HTTPS. Con HTTP in chiaro il resto dell'esportazione viene importato senza di essi | Kept: la passphrase e i valori segreti |
@@ -25,7 +25,7 @@ Alcune cose richiedono HTTPS. Alcune perché Kept rifiuta di consegnare una chia
 | Esportazione con valori segreti | Richiede HTTPS | Kept: i segreti e la loro passphrase |
 | Token per app IA (MCP) e Home Assistant | Non dal browser. Creane uno sul server: `kept admin token create` ([CLI](/it/admin/cli/#un-token-dal-server)) | Kept: un token è una chiave |
 | Collegare un'app con OAuth (un connettore) | Richiede HTTPS | Kept: OAuth richiede un indirizzo sicuro |
-| Scaricare il kit di recupero | Non dal browser. Sul server: `kept admin recovery-kit` ([CLI](/it/admin/cli/)) | Kept: contiene le chiavi del server |
+| Scaricare il kit di ripristino | Non dal browser. Sul server: `kept admin recovery-kit` ([CLI](/it/admin/cli/)) | Kept: contiene le chiavi del server |
 | Impostazioni di backup e il loro test | Richiede HTTPS, oppure impostale nell'ambiente del server ([configurazione](/it/reference/configuration/)) | Kept: la password del backup |
 | Passkey | Richiede HTTPS | Il browser: niente passkey su un indirizzo HTTP in chiaro |
 | Fotocamera, installare Kept, lavorare offline, notifiche push, posizione | Richiede HTTPS | Il browser |

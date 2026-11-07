@@ -69,7 +69,7 @@ Bản sao đọc được của bản sao mở trong bất kỳ trình duyệt n
 
 ## Nó nói được những ngôn ngữ nào?
 
-Tiếng Anh, Ả Rập (bố cục phải sang trái), Pháp, Đức, Ý, Việt, Ukraina và Tây Ban Nha, chọn theo thiết bị. Xem [ngôn ngữ và giao diện](/vi/users/first-run/#6-ngôn-ngữ-và-chủ-đề).
+Tiếng Ả Rập (bố cục phải sang trái), Anh, Đức, Pháp, Tây Ban Nha, Ukraina, Việt và Ý, chọn theo thiết bị. Xem [ngôn ngữ và giao diện](/vi/users/first-run/#6-ngôn-ngữ-và-chủ-đề).
 
 ## Phép phép nào?
 

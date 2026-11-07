@@ -18,7 +18,7 @@ khôi phục từ máy chủ bị mất:
 4. Trỏ địa chỉ cũ tới máy chủ mới (DNS, hoặc proxy của bạn), giữ `KEPT_PUBLIC_URL` không đổi,
    và khởi động Kept. Nhãn và mã QR vẫn hoạt động vì địa chỉ không thay đổi.
 5. Dừng máy chủ cũ sau khi máy chủ mới được kiểm tra, và giữ đĩa cũ cho đến khi máy chủ mới đã có
-   bản sao lưu tốt và [bài tập khôi phục](/vi/admin/restore/#bài-tập-hàng-tháng).
+   bản sao lưu tốt và [diễn tập khôi phục](/vi/admin/restore/#diễn-tập-hàng-tháng).
 
 Nếu địa chỉ thay đổi, các nhãn đã in vẫn mang theo địa chỉ cũ: hãy trỏ tên máy chủ cũ
 cũng tới máy chủ mới, và liệt kê nó trong số các tên máy chủ cũ của thực thể: Kept sau đó sẽ

@@ -75,7 +75,7 @@ function ConfirmAddressFirst() {
   const send = useMutation({
     mutationFn: () => requestMagicLink(email ?? ''),
     onSuccess: () =>
-      toast({ title: t`Sign-in link sent. It works once, for 5 minutes.`, tone: 'ok' }),
+      toast({ title: t`Sign-in link sent. It works once, for 15 minutes.`, tone: 'ok' }),
     onError: (e) => toast({ title: errorText(e), tone: 'danger' }),
   });
   return (

@@ -58,6 +58,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'article',
     'designation',
     'objet',
+    'produit',
+    'libellé',
+    'intitulé',
     'bezeichnung',
     'artikel',
     'gegenstand',
@@ -143,6 +146,7 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'номер моделі',
     'kiểu máy',
     'mã model',
+    'mô hình',
   ],
   serial: [
     'serial',
@@ -160,8 +164,10 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'matricola',
     'serie',
     'nro de serie',
+    'nº de serie',
     'серійний номер',
     'серійний',
+    'серійний №',
     'số sê-ri',
     'số seri',
     'số serial',
@@ -350,6 +356,7 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'дата купівлі',
     'куплено',
     'придбано',
+    'дата придбання',
     'ngày mua',
   ],
   vendor: [
@@ -524,20 +531,41 @@ const LOOKUP = (() => {
   return map;
 })();
 
+/** Vietnamese words that without their marks are other words ("The", "Ten", "Hang", "MA"; "Hàng"
+ * is another Vietnamese word), so a header only means them with the marks. */
+const MARKS_REQUIRED: ReadonlyMap<string, string> = new Map(
+  ['tên', 'thẻ', 'hãng', 'mã'].map((word) => [normaliseHeader(word), word]),
+);
+
+/** A header compared with its marks: composed, lowercase, no brackets or punctuation. */
+function markedHeader(header: string): string {
+  return header
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
+    .trim();
+}
+
 /** The field a header names, or null. A Homebox export's `HB.` prefix is looked past. */
 export function fieldFromHeader(header: string): MappableField | null {
   const h = normaliseHeader(header);
+  const word = MARKS_REQUIRED.get(h);
+  if (word && markedHeader(header) !== word) return null;
   return LOOKUP.get(h) ?? LOOKUP.get(h.replace(/^hb /, '')) ?? null;
 }
 
 /**
- * "Nombre" is French for how many and Spanish for the name. WORDS holds the French; a sheet with
- * no other name column means the Spanish, since every sheet has a name.
+ * "Nombre" is French for how many and Spanish for the name. WORDS holds the French. Another column
+ * saying how many means the Spanish; otherwise another column naming the thing means the French;
+ * alone it's the name, since every sheet has one.
  */
 function fieldIn(column: string, columns: readonly string[]): MappableField | null {
   const field = fieldFromHeader(column);
   if (normaliseHeader(column) !== 'nombre') return field;
-  return columns.some((c) => fieldFromHeader(c) === 'name') ? field : 'name';
+  const others = columns.filter((c) => normaliseHeader(c) !== 'nombre').map(fieldFromHeader);
+  if (others.includes('quantity')) return 'name';
+  return others.includes('name') ? 'quantity' : 'name';
 }
 
 /**

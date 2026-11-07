@@ -51,7 +51,7 @@ Paperless's type and correspondent, and its date, with:
 - **Unlink**: it comes off the thing. Paperless keeps it.
 
 The kind comes from the document's type in Paperless, then its tags: *Receipt*, *Invoice*,
-*Manual* and *Warranty* (and the same words in French, German, Italian and Arabic) are
+*Manual* and *Warranty* (and the same words in Kept's other languages) are
 recognised, anything else is a document. After that the kind is yours to change, and **Copy
 into Kept** copies the document in that kind. The **Kind** filter in Paperwork narrows the files
 and the linked documents together.

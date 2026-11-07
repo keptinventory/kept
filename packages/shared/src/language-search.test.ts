@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { findLanguages, languageSearch } from './language-search.js';
 
 const LANGUAGES = [
-  { id: 'en', name: 'English' },
   { id: 'ar', name: 'العربية' },
-  { id: 'fr', name: 'Français' },
   { id: 'de', name: 'Deutsch' },
+  { id: 'en', name: 'English' },
+  { id: 'fr', name: 'Français' },
   { id: 'it', name: 'Italiano' },
   { id: 'vi', name: 'Tiếng Việt' },
 ];
@@ -20,8 +20,8 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('findLanguages', () => {
   it('shows every language, in the list order, for an empty box', () => {
-    expect(find('')).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi']);
-    expect(find('   ')).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi']);
+    expect(find('')).toEqual(['ar', 'de', 'en', 'fr', 'it', 'vi']);
+    expect(find('   ')).toEqual(['ar', 'de', 'en', 'fr', 'it', 'vi']);
   });
 
   it('finds a language by its own name', () => {
@@ -101,7 +101,7 @@ describe('findLanguages', () => {
   });
 
   it('never lets a short query match everything', () => {
-    for (const tag of ['en', 'ar', 'fr', 'de', 'it', 'vi']) {
+    for (const tag of ['ar', 'de', 'en', 'fr', 'it', 'vi']) {
       for (const query of ['a', 'e', 'i', 'n', 's', 'ا', 'ال', 'an', 'is']) {
         expect(find(query, tag).length, `${query} in ${tag}`).toBeLessThan(LANGUAGES.length);
       }

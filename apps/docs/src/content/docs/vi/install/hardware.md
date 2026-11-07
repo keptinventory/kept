@@ -31,7 +31,7 @@ Các đỉnh là bộ nhớ không thể trả lại (bộ nhớ cache trang kh�
 
 - **1 GB, 1 hoặc 2 nhân:** đã kiểm tra, mọi lần chạy đều vượt qua, với khoảng 150 MB dư thừa ở đỉnh.
 - **2 GB:** dư thừa, cho các dịch vụ khác bên cạnh Kept.
-- **768 MB:** Kept chạy được, và Sao lưu ngay (đường dẫn của bản sao lưu theo lịch trình) cũng chạy được; `kept admin backup` trong khi ảnh tải lên hết bộ nhớ. Không khuyến nghị.
+- **768 MB:** Kept chạy được, và Chạy ngay (đường dẫn của bản sao lưu theo lịch trình) cũng chạy được; `kept admin backup` trong khi ảnh tải lên hết bộ nhớ. Không khuyến nghị.
 
 ## Raspberry Pi
 

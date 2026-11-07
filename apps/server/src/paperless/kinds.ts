@@ -21,6 +21,7 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'garantías',
       'гарантія',
       'гарантії',
+      'гарантійний',
       'bảo hành',
     ],
   ],
@@ -38,6 +39,7 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'manuales',
       'instructivo',
       'instructivos',
+      'instrucciones',
       'інструкція',
       'інструкції',
       'посібник',
@@ -78,7 +80,6 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'recibos',
       'comprobante',
       'comprobantes',
-      'tickets',
       'чек',
       'чеки',
       'квитанція',
@@ -101,9 +102,15 @@ const wordsOf = (s: string) =>
 
 const FOLDED = WORDS.map(([kind, words]) => [kind, words.map((w) => ` ${wordsOf(w)} `)] as const);
 
+/** Names that hold a kind's word and mean something else: a checklist, proof of address, a bank
+ * account. They're taken out before matching. */
+const NOT_KINDS = ['чек-лист', 'comprobante de domicilio', 'банківський рахунок'].map(
+  (phrase) => ` ${wordsOf(phrase)} `,
+);
+
 function kindOfName(name: string | null | undefined): PaperlessKind | null {
   if (!name) return null;
-  const padded = ` ${wordsOf(name)} `;
+  const padded = NOT_KINDS.reduce((s, phrase) => s.replaceAll(phrase, ' '), ` ${wordsOf(name)} `);
   for (const [kind, entries] of FOLDED) if (entries.some((e) => padded.includes(e))) return kind;
   return null;
 }

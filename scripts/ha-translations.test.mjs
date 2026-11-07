@@ -8,6 +8,9 @@ import { describe, expect, it } from 'vitest';
 
 const DIR = new URL('../homeassistant/kept/translations/', import.meta.url);
 const LANGUAGES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
+// Home Assistant lists Latin American Spanish as its own language and falls back to English from
+// it, not to Spanish, so it gets the Spanish file again.
+const FILES = [...LANGUAGES, 'es-419'];
 
 const read = (lang) => readFileSync(new URL(`${lang}.yaml`, DIR), 'utf8');
 /** The file's keys, from its layout (two levels of options, then `name` and `description`). */
@@ -28,7 +31,11 @@ const literal = (text) =>
 
 describe('the Home Assistant option labels', () => {
   it('are there in every language of the app, and only those', () => {
-    expect(readdirSync(DIR).sort()).toEqual(LANGUAGES.map((lang) => `${lang}.yaml`));
+    expect(readdirSync(DIR).sort()).toEqual(FILES.map((lang) => `${lang}.yaml`).sort());
+  });
+
+  it('say the same in Latin American Spanish as in Spanish', () => {
+    expect(read('es-419')).toBe(read('es'));
   });
 
   it.each(LANGUAGES)('%s has the same options as English', (lang) => {

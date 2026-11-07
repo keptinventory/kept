@@ -9,19 +9,19 @@ description: Photographiez une pièce, un placard ou une étagère, et Kept rép
 
 Le mode Pièce lit les photos avec l'IA, il a donc besoin de ce dont toute capture IA nécessite :
 
-- **Capture par IA** activée dans l'emplacement (un propriétaire ou un administrateur l'active, dans **Paramètres du lieu → Ce qu'il faut suivre**), et un fournisseur d'IA capable de lire des photos ([fournisseurs d'IA](/fr/users/ai-providers/)).
-- Vous pouvez modifier les éléments de l'emplacement : membres, administrateurs et propriétaires. Les spectateurs ne voient pas le mode.
+- **Capture par IA** activée dans le lieu (un propriétaire ou un administrateur l'active, dans **Paramètres du lieu → Ce qu'il faut suivre**), et un fournisseur d'IA capable de lire des photos ([fournisseurs d'IA](/fr/users/ai-providers/)).
+- Vous pouvez modifier les objets du lieu : membres, administrateurs et propriétaires. Les spectateurs ne voient pas le mode.
 
-Lorsque le mode Pièce ne peut pas s'exécuter, il indique la raison au lieu de se cacher : la capture par IA est désactivée dans l'emplacement, aucun fournisseur capable de lire des photos n'est configuré, ou le budget IA est épuisé pour le moment.
+Lorsque le mode Pièce ne peut pas s'exécuter, il indique la raison au lieu de se cacher : la capture par IA est désactivée dans le lieu, aucun fournisseur capable de lire des photos n'est configuré, ou le budget IA est épuisé pour le moment.
 
 ## Prenez les photos
 
-1. Ouvrez **Capture**, puis **Pièce** sur la bande des modes. Depuis la page d'un emplacement, **Remplir à partir de photos** l'ouvre sur cet emplacement ; sur la [carte de l'emplacement](/fr/users/location-map/), la carte d'une pièce comporte **Photographier cette pièce**.
-2. Vérifiez où vont les photos : la puce d'emplacement en haut. Une capture de pièce va dans une pièce, un emplacement ou une boîte, jamais dans la zone Non placé.
+1. Ouvrez **Capture**, puis **Pièce** sur la bande des modes. Depuis la page d'un emplacement, **Remplir à partir de photos** l'ouvre sur cet emplacement ; sur la [carte du lieu](/fr/users/location-map/), la carte d'une pièce comporte **Photographier cette pièce**.
+2. Vérifiez où vont les photos : la puce d'emplacement en haut. Une capture de pièce va dans une pièce, un endroit ou une boîte, jamais dans la zone Sans emplacement.
 3. Prenez de 1 à 5 photos, ou choisissez-les avec **Galerie**. Tenez-vous dans l'encadrement de la porte et prenez une photo par mur. Chaque photo attend dans le plateau, où vous pouvez la supprimer.
 4. **Envoyer**. Hors ligne, les photos restent sur le téléphone et sont envoyées lorsqu'il revient en ligne, comme toute capture.
 
-Kept lit les étiquettes présentes sur les photos sur le téléphone avant leur envoie. Un objet dont l'étiquette est visible est connu avec certitude, où qu'il se trouve dans l'emplacement.
+Kept lit les étiquettes présentes sur les photos sur le téléphone avant leur envoie. Un objet dont l'étiquette est visible est connu avec certitude, où qu'il se trouve dans le lieu.
 
 ## Examinez la pièce
 
@@ -38,7 +38,7 @@ Les personnes, les animaux et la pièce elle-même (murs, sols, fenêtres, porte
 
 ### Sur la carte
 
-Lorsque la pièce est dessinée sur la [carte de l'emplacement](/fr/users/location-map/), chaque objet accepté est placé sur le sol de la pièce avec une forme devinée à partir de son type et de son nom, dans un espace libre. La prochaine fois que vous **Organisez**, la carte liste ce que Kept a placé, afin que vous puissiez déplacer chaque objet là où il se trouve réellement. Le placement effectué par Kept n'interrompt jamais quelqu'un qui organise la carte en même temps.
+Lorsque la pièce est dessinée sur la [carte du lieu](/fr/users/location-map/), chaque objet accepté est placé sur le sol de la pièce avec une forme devinée à partir de son type et de son nom, dans un espace libre. La prochaine fois que vous **Organisez**, la carte liste ce que Kept a placé, afin que vous puissiez déplacer chaque objet là où il se trouve réellement. Le placement effectué par Kept n'interrompt jamais quelqu'un qui organise la carte en même temps.
 
 ## Quel est le coût
 
@@ -50,8 +50,8 @@ La lecture des pièces compte dans les mêmes budgets et plafonds que les autres
 
 - Ce que reçoit le fournisseur est identique à toute capture : une copie de chaque photo avec les données de localisation et d'appareil supprimées, ainsi que les instructions fixes.
 - **Les photos complètes de la pièce sont supprimées lorsque vous fermez la carte de la pièce** (Terminé ou Rejeter). Chaque brouillon ne conserve que son propre découpage.
-- **Pendant que la carte de la pièce est ouverte, ses photos sont privées aux personnes qui l'examinent** : propriétaires, administrateurs et membres de l'emplacement. Les spectateurs ne les voient pas sur la page de la pièce ou de la boîte, dans la recherche ou sur leur téléphone, et ni un jeton API en lecture seule, une connexion MCP en lecture seule ni un lien de partage ne peuvent y accéder. Tant qu'elle est en cours d'examen, une photo de pièce ne devient jamais la photo de couverture d'une boîte.
-- Pour conserver les photos complètes à la place, un propriétaire ou un administrateur active **Garder les photos de pièce après la revue** dans **Paramètres du lieu → Général**. Après **Terminé**, elles restent sur la page de la pièce comme des photos ordinaires, visibles par tous ceux qui voient l'emplacement.
+- **Pendant que la carte de la pièce est ouverte, ses photos sont privées aux personnes qui l'examinent** : propriétaires, administrateurs et membres du lieu. Les spectateurs ne les voient pas sur la page de la pièce ou de la boîte, dans la recherche ou sur leur téléphone, et ni un jeton API en lecture seule, une connexion MCP en lecture seule ni un lien de partage ne peuvent y accéder. Tant qu'elle est en cours d'examen, une photo de pièce ne devient jamais la photo de couverture d'une boîte.
+- Pour conserver les photos complètes à la place, un propriétaire ou un administrateur active **Garder les photos de pièce après la revue** dans **Paramètres du lieu → Général**. Après **Terminé**, elles restent sur la page de la pièce comme des photos ordinaires, visibles par tous ceux qui voient le lieu.
 
 ## Dans Essayez Kept
 

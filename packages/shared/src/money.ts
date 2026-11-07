@@ -43,15 +43,36 @@ function westernDigit(d: string): string {
   return String(c >= 0x06f0 ? c - 0x06f0 : c - 0x0660);
 }
 
+const COMMA_BEFORE_DECIMALS = /^(-?\d*),(\d{1,2})$/;
+const COMMA_AFTER_ZERO = /^(-?0+),(\d+)$/;
+const POINTS_THEN_COMMA = /^(-?\d{1,3}(?:\.\d{3})+),(\d+)$/;
+
+/**
+ * A number with a decimal comma, rewritten with a decimal point; anything else comes back as it
+ * was. Takes Western digits and no spaces. A comma is the decimal mark before one or two digits at
+ * the end (`2,5`, `12,50`), after a zero integer part (`0,125`), or after points grouping in threes
+ * (`1.234,5`). `1,234` and `1,234,567` stay grouping. `٬` is never a decimal mark, so call this
+ * before turning it into a comma.
+ */
+export function decimalCommaAsPoint(s: string): string {
+  const grouped = POINTS_THEN_COMMA.exec(s);
+  if (grouped) return `${(grouped[1] ?? '').replaceAll('.', '')}.${grouped[2]}`;
+  return s.replace(COMMA_BEFORE_DECIMALS, '$1.$2').replace(COMMA_AFTER_ZERO, '$1.$2');
+}
+
 /**
  * Parse what a person typed into a canonical amount string. Accepts Western, Eastern Arabic
- * (٠–٩) and Persian (۰–۹) digits, `.` or `٫` as the decimal separator, and `,` or `٬` grouping in
- * threes (D172). Leading zeros and trailing fractional zeros are dropped: `"١٬٢٠٠٫٥٠"` → `"1200.5"`.
+ * (٠–٩) and Persian (۰–۹) digits, `.` or `٫` as the decimal separator, a comma as the decimal
+ * mark where `decimalCommaAsPoint` says it is one, and `,` or `٬` grouping in threes (D172).
+ * `1.234` is one and a bit: a point alone is always the decimal mark. Leading zeros and trailing
+ * fractional zeros are dropped: `"١٬٢٠٠٫٥٠"` → `"1200.5"`.
  * Throws `AmountError` (`invalid_amount`) for anything else, including negatives, exponents,
  * more than 4 significant decimals or more than 12 integer digits.
  */
 export function parseAmount(input: string): string {
-  const s = input.trim().replace(LOCAL_DIGIT, westernDigit).replace(/٫/g, '.').replace(/٬/g, ',');
+  const s = decimalCommaAsPoint(
+    input.trim().replace(LOCAL_DIGIT, westernDigit).replace(/٫/g, '.'),
+  ).replace(/٬/g, ',');
   const m = GROUPED.exec(s);
   if (!m) throw new AmountError(input);
   const intRaw = (m[1] ?? '').replaceAll(',', '');

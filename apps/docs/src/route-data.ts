@@ -88,14 +88,14 @@ for (const file of Object.keys(import.meta.glob('./content/docs/*/**/*.{md,mdx}'
 }
 
 const OG_LOCALES: Record<string, string> = {
-  en: 'en_US',
   ar: 'ar_AR',
-  fr: 'fr_FR',
   de: 'de_DE',
-  it: 'it_IT',
-  vi: 'vi_VN',
-  uk: 'uk_UA',
+  en: 'en_US',
   es: 'es_ES',
+  fr: 'fr_FR',
+  it: 'it_IT',
+  uk: 'uk_UA',
+  vi: 'vi_VN',
 };
 
 export const onRequest = defineRouteMiddleware(async (context, next) => {

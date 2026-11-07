@@ -3,7 +3,7 @@ title: Le graphe
 description: Voir un lieu comme un graphe de ses étages, pièces, boîtes et objets, en 2D ou 3D, avec ce qui demande attention et vos étiquettes.
 ---
 
-La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graph**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste · Grille · Graph · Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur ce lieu.
+La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste · Grille · Graph · Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur ce lieu.
 
 Le graphe a besoin d'une connexion, comme la carte : il ne fait pas partie de la copie hors ligne du téléphone. Il ne se charge que lorsque vous l'ouvrez.
 

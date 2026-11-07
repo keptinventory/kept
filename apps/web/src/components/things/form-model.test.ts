@@ -81,6 +81,11 @@ describe('form model', () => {
 
   it('reads Eastern Arabic and Persian digits and the Arabic decimal separator', () => {
     expect(westernNumber('١٬٢٠٠٫٥')).toBe('1200.5');
+    expect(westernNumber('1,234')).toBe('1234');
+    expect(westernNumber('1.234,5')).toBe('1234.5');
+    expect(parseNumber('2,5')).toBe(2.5);
+    expect(parseNumber('0,125')).toBe(0.125);
+    expect(parseNumber('-2,5')).toBe(-2.5);
     expect(parseNumber('۴۲')).toBe(42);
     expect(parseNumber('')).toBeNull();
     expect(parseNumber('abc')).toBeNaN();

@@ -123,7 +123,7 @@ and search evaluations) and `assets/` (report fonts).
 | `components` | Screens' building blocks, by feature, and the shared UI kit |
 | `i18n` | Lingui setup |
 | `lib` | Formatting, bidi isolation, preferences, small helpers |
-| `locales` | The `en`, `ar`, `fr`, `de` and `it` catalogues (`messages.po`) |
+| `locales` | One catalogue per language (`messages.po`) |
 | `offline` | The Dexie database, the queue, the sync engine, app lock |
 | `pwa` | Service-worker registration, install, push, share target, diagnostics |
 | `routes` | TanStack Router file routes (`routeTree.gen.ts` is generated) |

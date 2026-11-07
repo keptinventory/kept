@@ -25,9 +25,9 @@ import { type ResolvedFieldView, resolvedFields, typeCapabilities } from '../thi
 import { fitsField } from '../things/validate.js';
 import {
   cell,
-  foldDigits,
   type ImportChoices,
   legacyCodeOf,
+  numberCell,
   parseBoolean,
   parseDate,
   parsePrice,
@@ -284,7 +284,7 @@ export async function loadTypes(
         AND NOT t.is_field_group AND t.archived_at IS NULL`,
     [accountId],
   );
-  const locales: BuiltinNameLocale[] = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'];
+  const locales: BuiltinNameLocale[] = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
   const namesOf = (key: string) =>
     locales.map((l) => builtinTypeName(key, l)).filter((n): n is string => !!n);
   // Built-ins first, so the account's own (and its customised copies) win.
@@ -556,12 +556,8 @@ function customValue(
     switch (field.kind) {
       case 'text':
         return s;
-      case 'number': {
-        const t = foldDigits(s)
-          .replace(/٫/g, '.')
-          .replace(/[\s,٬]/g, '');
-        return /^-?\d+(?:\.\d+)?$/.test(t) ? Number(t) : undefined;
-      }
+      case 'number':
+        return numberCell(s);
       case 'date':
         return parseDate(s, choices.dateFormat) ?? undefined;
       case 'boolean':

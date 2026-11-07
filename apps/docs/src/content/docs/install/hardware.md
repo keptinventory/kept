@@ -40,7 +40,7 @@ included. Out of memory, the system killed Kept's process and Docker restarted i
 
 - **1 GB, 1 or 2 cores:** tested, every run passed, with about 150 MB to spare at the peak.
 - **2 GB:** room to spare, for other services beside Kept.
-- **768 MB:** Kept ran, and so did Back up now (the scheduled backup's path); `kept admin backup`
+- **768 MB:** Kept ran, and so did **Run now** (the scheduled backup's path); `kept admin backup`
   while photos uploaded ran out of memory. Not recommended.
 
 ## Raspberry Pi

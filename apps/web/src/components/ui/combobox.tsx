@@ -66,7 +66,7 @@ const KEYBOARD_SETTLES_MS = 700;
 /** A close this soon after a scroll was caused by it, not by a choice or Escape. */
 const CLOSED_BY_SCROLL_MS = 100;
 
-/** The box of a `showsChoice` Combobox. */
+/** The box of a `showsChoice` Combobox. Enter chooses the first match for what was typed. */
 function ChoiceInput(props: InputProps) {
   const state = useContext(ComboBoxStateContext);
   const focused = useRef<{ input: HTMLInputElement; at: number } | null>(null);
@@ -107,6 +107,16 @@ function ChoiceInput(props: InputProps) {
         e.currentTarget.select();
         if (window.matchMedia?.('(pointer: coarse)').matches)
           focused.current = { input: e.currentTarget, at: performance.now() };
+      }}
+      onKeyDownCapture={(e) => {
+        // Before React Aria reads Enter: with nothing highlighted it would only close the list and
+        // put the old text back. The whole list, opened by a click, has nothing typed to match.
+        if (e.key !== 'Enter' || !state?.isOpen || state.selectionManager.focusedKey != null)
+          return;
+        const typed = state.inputValue.trim();
+        if (typed === '' || typed === state.selectedItem?.textValue) return;
+        const first = state.collection.getFirstKey();
+        if (first != null) state.selectionManager.setFocusedKey(first);
       }}
       onClick={(e) => {
         if (!state || state.isOpen) return;

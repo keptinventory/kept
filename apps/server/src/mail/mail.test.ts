@@ -363,7 +363,7 @@ describe('the message table', () => {
   });
 
   it('writes every language beyond English and Arabic as its own text, never English left in', () => {
-    for (const locale of ['fr', 'de', 'it', 'vi', 'uk', 'es'] as const) {
+    for (const locale of ['de', 'es', 'fr', 'it', 'uk', 'vi'] as const) {
       for (const mail of EVERY_MAIL) {
         const en = messageFor(mail, 'en', ctx);
         const m = messageFor(mail, locale, ctx);
@@ -437,7 +437,7 @@ describe('the operations alerts', () => {
     expect(en.paragraphs[0]).toBe('It is 91% full, with 1.5 GB left.');
     expect(messageFor(backup as MailBody, 'en', ctx).subject).toContain('backup disk');
     expect(messageFor(data as MailBody, 'fr', ctx).paragraphs[0]).toContain('1,5 Go');
-    for (const locale of ['vi', 'uk', 'es'] as const)
+    for (const locale of ['es', 'uk', 'vi'] as const)
       expect(messageFor(data as MailBody, locale, ctx).paragraphs[0]).toContain('1,5');
   });
 });
@@ -599,14 +599,14 @@ describe('renderMail', () => {
 
   it('sets the language and direction, and spells the link out in the text', () => {
     const cases: [MailLocale, string][] = [
-      ['en', 'dir="ltr"'],
       ['ar', 'dir="rtl"'],
-      ['fr', 'dir="ltr"'],
       ['de', 'dir="ltr"'],
-      ['it', 'dir="ltr"'],
-      ['vi', 'dir="ltr"'],
-      ['uk', 'dir="ltr"'],
+      ['en', 'dir="ltr"'],
       ['es', 'dir="ltr"'],
+      ['fr', 'dir="ltr"'],
+      ['it', 'dir="ltr"'],
+      ['uk', 'dir="ltr"'],
+      ['vi', 'dir="ltr"'],
     ];
     for (const [locale, dir] of cases) {
       const mail = EVERY_MAIL[0] as MailBody & { url: string };

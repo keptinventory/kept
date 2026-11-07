@@ -73,8 +73,9 @@ a location turns them on in **Location settings → What to track**
   network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network);
   one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
   name and a Tailscale name.
-- **Languages**: English, Arabic (right to left), French, German, Italian, Vietnamese, Ukrainian
-  and Spanish; type to find yours in the picker, and dates in your region's style, or as you choose.
+- **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
+  and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
+  The user, admin and install docs are in every language too.
 
 ## On your phone
 

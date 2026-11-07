@@ -65,7 +65,7 @@ Caja: véase Contenedor.
 
 **Stock de etiquetas**: sobre qué se imprimen las etiquetas: una hoja A4 o Letter, un rollo de impresora de etiquetas o cinta de rotuladora. La cinta estrecha (9 y 12 mm) no tiene espacio para un código QR; **Escanear** lee su ID corto impreso en su lugar. [Impresión](/es/users/short-ids/#impresión)
 
-**Diseño**: cómo la página de una ubicación muestra lo que contiene: **Lista**, **Cuadrícula**, **Grafo**, **Mesa** (en una computadora) o **Mapa**. Kept recuerda la elección por ubicación en cada dispositivo. [Ubicaciones, habitaciones y cajas](/es/users/locations/)
+**Diseño**: cómo la página de una ubicación muestra lo que contiene: **Lista**, **Cuadrícula**, **Grafo**, **Tabla** (en una computadora) o **Mapa**. Kept recuerda la elección por ubicación en cada dispositivo. [Ubicaciones, habitaciones y cajas](/es/users/locations/)
 
 **Préstamos**: registrar que un objeto, o parte de una cantidad, está con alguien, con fecha de vencimiento, su condición y fotos.
 

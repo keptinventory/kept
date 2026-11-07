@@ -52,6 +52,16 @@ describe('parseAmount', () => {
     ['١,٢٠٠', '1200'],
     ['۱۲۳۴٫۵', '1234.5'],
     ['1٬234.5', '1234.5'],
+    ['12,50', '12.5'],
+    ['12,5', '12.5'],
+    ['1,23', '1.23'],
+    [',5', '0.5'],
+    ['0,125', '0.125'],
+    ['1234,50', '1234.5'],
+    ['1.234,50', '1234.5'],
+    ['1.234,56', '1234.56'],
+    ['1.234.567,5', '1234567.5'],
+    ['١٢٫٥٠', '12.5'],
   ])('%j → %j', (input, expected) => {
     expect(parseAmount(input)).toBe(expected);
   });
@@ -65,10 +75,12 @@ describe('parseAmount', () => {
     '1E5',
     'abc',
     '1.23456',
-    '1,23',
     '12,34,567',
     '1,234,56',
-    '1.234,56',
+    '1,2,3',
+    '12.34,5',
+    '1234,567',
+    '١٬٥',
     '1..2',
     '.',
     ',',
@@ -86,8 +98,14 @@ describe('parseAmount', () => {
     }
   });
 
+  it('keeps a comma before three digits as grouping, and a lone point as the decimal mark', () => {
+    expect(parseAmount('1,234')).toBe('1234');
+    expect(parseAmount('1,234,567')).toBe('1234567');
+    expect(parseAmount('1.234')).toBe('1.234');
+  });
+
   it('is idempotent on its own output', () => {
-    for (const s of ['1,234.50', '١٬٢٠٠٫٥٠', '.5', '007']) {
+    for (const s of ['1,234.50', '١٬٢٠٠٫٥٠', '.5', '007', '12,50', '1.234,50']) {
       const once = parseAmount(s);
       expect(parseAmount(once)).toBe(once);
     }

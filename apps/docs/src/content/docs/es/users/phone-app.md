@@ -64,7 +64,7 @@ Lo que haces sin conexión entra en una cola y se envía cuando el teléfono vue
 
 **Configuración → Este dispositivo → Bloqueo de la aplicación** bloquea Kept en este teléfono con un PIN de 6 a 12 dígitos, y con **Desbloquear con Face ID o huella digital** cuando el teléfono puede verificarte. Con el bloqueo activado, Kept pide el PIN al arrancar en frío y tras 5 minutos oculto o inactivo, en línea o sin conexión.
 
-Face ID o la huella digital aquí desbloquean Kept solo en este dispositivo; nunca te inician sesión. Para iniciar sesión con Face ID o una huella digital, añade una clave de acceso en
+Face ID o la huella digital aquí desbloquean Kept solo en este dispositivo; nunca te inician sesión. Para iniciar sesión con Face ID o una huella digital, añade una llave de acceso en
 [Inicio de sesión y seguridad](/es/users/sign-in-security/).
 
 - Diez PINs incorrectos seguidos eliminan la copia de Kept de este teléfono y cierran tu sesión, conservando tus propias capturas sin enviar. **¿Lo olvidaste? Cierra sesión e inicia sesión de nuevo** hace lo mismo.

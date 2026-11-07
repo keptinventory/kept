@@ -68,9 +68,9 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   über einfaches http, [Anmeldungen, solange der Admin sie festlegt](/de/install/home-network/#bleiben-in-deinem-heimnetz);
   ein Kept auf [mehr als einer Adresse](/de/install/home-network/#mehr-als-eine-adresse), wie einem LAN-Namen und
   einem Tailscale-Namen.
-- **Sprachen**: Englisch, Arabisch (rechts nach links), Französisch, Deutsch, Italienisch, Vietnamesisch,
-  Ukrainisch und Spanisch; tippe, um deine in der Auswahlliste zu finden, und Datumsangaben im Stil deiner
-  Region oder wie du es wählst.
+- **Sprachen**: Arabisch (rechts nach links), Deutsch, Englisch, Französisch, Italienisch, Spanisch,
+  Ukrainisch und Vietnamesisch; tippe, um deine in der Auswahlliste zu finden, und Datumsangaben im Stil deiner
+  Region oder wie du es wählst. Auch die Dokumentation für Nutzung, Verwaltung und Installation gibt es in jeder dieser Sprachen.
 
 ## Auf deinem Telefon
 

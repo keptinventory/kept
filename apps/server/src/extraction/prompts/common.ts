@@ -43,14 +43,14 @@ export function systemPrompt(mode: string, rules: readonly string[]): string {
 
 /** Language names the prompts use for the codes Kept ships (D204); others are passed as codes. */
 const LANGUAGE_NAMES: Readonly<Record<string, string>> = Object.freeze({
-  en: 'English',
   ar: 'Arabic',
-  fr: 'French',
   de: 'German',
-  it: 'Italian',
-  vi: 'Vietnamese',
-  uk: 'Ukrainian',
+  en: 'English',
   es: 'Spanish',
+  fr: 'French',
+  it: 'Italian',
+  uk: 'Ukrainian',
+  vi: 'Vietnamese',
 });
 
 export function languageList(codes: readonly string[]): string {

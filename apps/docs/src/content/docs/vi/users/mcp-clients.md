@@ -164,13 +164,6 @@ hoạt động với cả hai loại truy cập; công cụ **thay đổi** cầ
 | `adjust_stock` | change | Đồ vật bạn dùng hết | Thêm vào hoặc lấy từ tồn kho của tiêu hao. |
 | `list_tags` | read | | Những thẻ nào có, với bao nhiêu đồ vật có mỗi thẻ. |
 | `tag_things` | change | | Thêm thẻ vào đồ vật, hoặc gỡ chúng; tên mới tạo thẻ. |
-
-**Các trường của đồ vật.** `add_thing` và `update_thing` lấy mọi trường bạn có thể đặt trên đồ vật trong
-ứng dụng, mỗi cái trong trường riêng thay vì trong ghi chú: tên, bao nhiêu, loại (theo tên, bằng tiếng Anh
-hoặc tiếng Ả Rập, hoặc theo id), thương hiệu (tạo nếu mới), mẫu, số seri, mã vạch, màu, tình trạng, ghi chú,
-tên khác, thẻ (tên mới tạo thẻ, cho thành viên trở lên), của ai nó là (một người, tạo nếu mới), liên kết sổ hướng dẫn,
-hết hạn và bao nhiêu ngày trước để nhắc, tối thiểu của tiêu hao, và các trường riêng của loại theo khóa. `add_thing` cũng lấy nó đi đâu và mua (ngày, giá một cái với tiền tệ, và cửa hàng); `update_thing` cũng lấy nó từ đâu, và mua của nó: ngày, cửa hàng, dòng của nó trên hóa đơn, giá một cái với tiền tệ và ghi chú, thay đổi mua nó có hoặc ghi một cái, như trang đồ vật làm. Giá cần Bật tiền và vai trò thấy tiền, như trong ứng dụng; tối thiểu cần **Đồ vật bạn dùng hết**. Loại Kept không biết bị bỏ qua và `not_set` trong câu trả lời nói vậy; thẻ của trợ lý
-hiện nó như "chưa đặt" với bộ chọn.
 | `list_moves` | read | Chuyển nhà | Những chuyển nhà nào có, với bao nhiêu hộp đã đóng, đang vận chuyển và đã mở. |
 | `get_move` | read | Chuyển nhà | Mỗi hộp của một lần chuyển ở đâu, và số nào còn thiếu. |
 | `start_move` | change | Chuyển nhà | Bắt đầu một lần chuyển, đến vị trí khác hoặc giữa các phòng của cái này. |
@@ -178,6 +171,13 @@ hiện nó như "chưa đặt" với bộ chọn.
 | `pack_into_box` | change | Chuyển nhà | Đóng đồ vật vào hộp. |
 | `set_box_status` | change | Chuyển nhà | Đánh dấu hộp đã đóng hoặc đang vận chuyển, hoặc chọn phòng của nó. |
 | `unpack_box` | change | Chuyển nhà | Mở hộp vào phòng; mọi thứ trong nó đi theo. |
+
+**Các trường của đồ vật.** `add_thing` và `update_thing` lấy mọi trường bạn có thể đặt trên đồ vật trong
+ứng dụng, mỗi cái trong trường riêng thay vì trong ghi chú: tên, bao nhiêu, loại (theo tên, bằng tiếng Anh
+hoặc tiếng Ả Rập, hoặc theo id), thương hiệu (tạo nếu mới), mẫu, số seri, mã vạch, màu, tình trạng, ghi chú,
+tên khác, thẻ (tên mới tạo thẻ, cho thành viên trở lên), của ai nó là (một người, tạo nếu mới), liên kết sổ hướng dẫn,
+hết hạn và bao nhiêu ngày trước để nhắc, tối thiểu của tiêu hao, và các trường riêng của loại theo khóa. `add_thing` cũng lấy nó đi đâu và mua (ngày, giá một cái với tiền tệ, và cửa hàng); `update_thing` cũng lấy nó từ đâu, và mua của nó: ngày, cửa hàng, dòng của nó trên hóa đơn, giá một cái với tiền tệ và ghi chú, thay đổi mua nó có hoặc ghi một cái, như trang đồ vật làm. Giá cần Bật tiền và vai trò thấy tiền, như trong ứng dụng; tối thiểu cần **Đồ vật bạn dùng hết**. Loại Kept không biết bị bỏ qua và `not_set` trong câu trả lời nói vậy; thẻ của trợ lý
+hiện nó như "chưa đặt" với bộ chọn.
 
 Các công cụ chuyển nhà chỉ dành cho ứng dụng đã kết nối; trợ lý trong Kept không dùng chúng.
 

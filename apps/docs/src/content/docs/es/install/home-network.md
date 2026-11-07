@@ -29,7 +29,7 @@ en una dirección segura, algo que Kept no puede cambiar.
 | Conectar una app con OAuth (un conector) | Necesita HTTPS | Kept: OAuth necesita una dirección segura |
 | Descargar el kit de recuperación | No desde el navegador. En el servidor: `kept admin recovery-kit` ([CLI](/es/admin/cli/)) | Kept: contiene las claves del servidor |
 | Configuración de copias de seguridad y su prueba | Necesita HTTPS, o configúralas en el entorno del servidor ([configuración](/es/reference/configuration/)) | Kept: la contraseña de la copia de seguridad |
-| Passkeys | Necesita HTTPS | El navegador: no hay passkeys en una dirección HTTP sin cifrar |
+| Llaves de acceso | Necesita HTTPS | El navegador: no hay llaves de acceso en una dirección HTTP sin cifrar |
 | La cámara, instalar Kept, trabajar sin conexión, notificaciones push, ubicación | Necesita HTTPS | El navegador |
 
 Por HTTP sin cifrar un inicio de sesión también dura 12 horas y no se renueva; por HTTPS dura 30 días. Para
@@ -105,7 +105,7 @@ primero.
 |---|---|---|
 | Usar Kept, iniciar sesión con contraseña o código de un solo uso | Sí | Sí |
 | Un enlace por correo o restablecimiento de contraseña | Se abre aquí | Se abre en `KEPT_PUBLIC_URL` |
-| Passkeys | Sí, por HTTPS | No; una passkey pertenece a una dirección |
+| Llaves de acceso | Sí, por HTTPS | No; una llave de acceso pertenece a una dirección |
 | Inicio de sesión con Google y OIDC | Sí | El botón abre `KEPT_PUBLIC_URL` |
 | Apps de IA (MCP, OAuth) | Sí | Conéctalas en `KEPT_PUBLIC_URL`: `/mcp` rechaza esta dirección, y el consentimiento de OAuth se rechaza aquí |
 | Enlaces, etiquetas, códigos QR, correo, feeds de calendario | Apuntan aquí | Siguen apuntando a `KEPT_PUBLIC_URL` |

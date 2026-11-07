@@ -9,14 +9,14 @@ import type { ToolSpec } from '../ai/convert.js';
 export const PROMPT_VERSION = 'assistant-2';
 
 const LANGUAGES: Record<string, string> = {
-  en: 'English',
   ar: 'Arabic',
-  fr: 'French',
   de: 'German',
-  it: 'Italian',
-  vi: 'Vietnamese',
-  uk: 'Ukrainian',
+  en: 'English',
   es: 'Spanish',
+  fr: 'French',
+  it: 'Italian',
+  uk: 'Ukrainian',
+  vi: 'Vietnamese',
 };
 
 export type PromptLocation = { id: string; name: string; role: Role; canWrite: boolean };

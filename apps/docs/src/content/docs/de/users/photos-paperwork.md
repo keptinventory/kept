@@ -24,7 +24,7 @@ die Handbücher eines Zimmers werden gleich benannt.
   zeigt das Foto in voller Größe, um herumzuschwenken; **−** (Herauszoomen) passt es erneut an den Bildschirm an.
   Auf einem Telefon verwendet ein Zweifinger-Geste den eigenen Zoom des Browsers. **×** (Schließen), Escape oder Zurück schließen es, und die
   Seite bleibt auf dem Foto, das du verlassen hast. Ein Foto, das bereits auf der Seite ist, kann auch offline geöffnet werden.
-- **Erfassungsmodi** (Thing, Receipt, Label, Reading): mit KI-Verbindung füllt ein Beleg den Kauf aus,
+- **Erfassungsmodi** (Gegenstand, Beleg, Etikett, Ablesung): mit KI-Verbindung füllt ein Beleg den Kauf aus,
   ein Etikett füllt Marke, Modell und Seriennummer aus, und vorgeschlagene Werte warten im **Eingang**
   darauf, dass du sie akzeptierst. Preise, Daten und Seriennummern werden niemals automatisch für dich angenommen.
 - **E-Mail-Eingang** (Standort-Einstellungen → E-Mail-Eingang, Besitzer und Administratoren): Kept überprüft einen Ordner eines

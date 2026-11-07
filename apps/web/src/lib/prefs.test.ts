@@ -40,7 +40,7 @@ afterEach(() => {
 
 describe('languages', () => {
   it('has the languages, and knows a tag by its language', () => {
-    expect(LOCALES).toEqual(['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es']);
+    expect(LOCALES).toEqual(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']);
     expect(isLocale('it')).toBe(true);
     expect(isLocale('vi')).toBe(true);
     expect(isLocale('uk')).toBe(true);

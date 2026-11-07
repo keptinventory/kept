@@ -16,6 +16,33 @@ const ALL = toolsIn(owner, 'assistant', 'owner', new Set(MODULE_IDS));
 const offered = (question: string, used: string[] = []) =>
   offeredTools(ALL, { questions: [question], used })[0] as ToolName[];
 
+describe('Spanish stems stay on Spanish words', () => {
+  it.each([
+    ['Quelle est la réponse ?', 'adjust_stock'],
+    ['How do I recuperate the cost?', 'return_thing'],
+    ['Why did they devolve the power?', 'return_thing'],
+    ['Devolved power in the proximity of it', 'upcoming'],
+  ])('%s offers no %s', (question, tool) => {
+    expect(offered(question)).not.toContain(tool);
+  });
+
+  it.each([
+    ['Repón el café', 'adjust_stock'],
+    ['Tengo que reponer las pilas', 'adjust_stock'],
+    ['Repongo el papel mañana', 'adjust_stock'],
+    ['Recuperé la cámara', 'return_thing'],
+    ['Ya he recuperado el taladro', 'return_thing'],
+    ['Tengo que recuperar la escalera', 'return_thing'],
+    ['Tengo que devolverlo', 'return_thing'],
+    ['Lo devolvimos ayer', 'return_thing'],
+    ['¿Qué hay próximamente?', 'upcoming'],
+    ['Las próximas tareas', 'upcoming'],
+    ['El próximo mantenimiento', 'upcoming'],
+  ])('%s still offers %s', (question, tool) => {
+    expect(offered(question)).toContain(tool);
+  });
+});
+
 describe('choosing the tools a step offers', () => {
   it('a question naming no topic gets the core: finding things and the everyday changes', () => {
     expect(offered('Are you working?')).toEqual(ALL.filter((t) => CORE_TOOLS.includes(t)));

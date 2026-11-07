@@ -10,7 +10,7 @@ sidebar:
 Questo sposta tutto (ogni account, sede, file e impostazione) ed è la stessa procedura del recupero da un server perso:
 
 1. Sul vecchio server, fai un backup e lascia che finisca, poi stampa il
-   [kit di recupero](/it/admin/recovery-kit/).
+   [kit di ripristino](/it/admin/recovery-kit/).
 2. Sul nuovo server, [installa Kept](/it/install/compose/) con le chiavi del kit in `.env` e la stessa
    destinazione di backup, ma **non avviare ancora Kept**.
 3. [Ripristina](/it/admin/restore/#dopo-aver-perso-il-server) l'ultimo backup nel nuovo, vuoto database.

@@ -121,8 +121,8 @@ benötigst du ebenfalls das Wiederherstellungskit. Siehe
 
 ## Welche Sprachen spricht es?
 
-Englisch, Arabisch (von rechts nach links), Französisch, Deutsch, Italienisch, Vietnamesisch,
-Ukrainisch und Spanisch, pro Gerät wählbar. Siehe [Sprache und Design](/de/users/first-run/#6-sprache-und-design).
+Arabisch (von rechts nach links), Deutsch, Englisch, Französisch, Italienisch, Spanisch,
+Ukrainisch und Vietnamesisch, pro Gerät wählbar. Siehe [Sprache und Design](/de/users/first-run/#6-sprache-und-design).
 
 ## Unter welcher Lizenz steht es?
 

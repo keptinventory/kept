@@ -51,11 +51,11 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
 <Section eyebrow="Kept, opened" title="Un inventaire, sur votre bureau et votre téléphone" id="opened" split>
   <Fragment slot="points">
     <li><span><strong>Accueil :</strong> ce dont vous avez besoin, en un coup d'œil.</span></li>
-    <li><span><strong>Emplacements :</strong> pièces, étagères, boîtes. Une carte de chacun.</span></li>
+    <li><span><strong>Lieux :</strong> pièces, étagères, boîtes. Une carte de chacun.</span></li>
     <li><span><strong>Téléphone :</strong> capturer, scanner, rechercher. Hors ligne aussi.</span></li>
   </Fragment>
   <Opened
-    desktopAlt="L'accueil de Kept sur un bureau : Commencer, les tuiles « Ce dont vous avez besoin », des éléments en retard à ceux longtemps invisibles, les emplacements avec leurs aperçus de carte, les raccourcis et les Perspectives"
+    desktopAlt="L'accueil de Kept sur un bureau : Commencer, les tuiles « Ce dont vous avez besoin », des éléments en retard à ceux longtemps invisibles, les lieux avec leurs aperçus de carte, les raccourcis et les Perspectives"
     phoneAlt="L'accueil de Kept sur un téléphone : Commencer, les tuiles « Ce dont vous avez besoin » et les raccourcis, au-dessus de la barre d'onglets avec son bouton Capturer"
   />
 </Section>
@@ -66,7 +66,7 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
     heading="h3"
     items={[
       { icon: 'map', title: 'Carte 3D', body: 'Étages, pièces, meubles. Épingles pour ce dont vous avez besoin.', href: '/fr/users/location-map/' },
-      { icon: 'places', title: 'Pièces et boîtes', body: "Des places dans des places. Déplacez une boîte ; ce qu'elle contient se déplace aussi.", href: '/fr/users/everyday-use/#lieux-pièces-et-boîtes' },
+      { icon: 'places', title: 'Pièces et boîtes', body: "Des emplacements dans des emplacements. Déplacez une boîte ; ce qu'elle contient se déplace aussi.", href: '/fr/users/everyday-use/#lieux-pièces-et-boîtes' },
       { icon: 'qrcode', title: 'Étiquettes QR', body: "Un court identifiant sur tout. Scannez une boîte, voyez ce qu'elle contient.", href: '/fr/users/everyday-use/#id-courts-et-étiquettes' },
       { icon: 'schedule', title: 'Garanties et services', body: "Par date ou lecture du compteur. Dans l'ordre où ils expirent.", href: '/fr/users/everyday-use/#rappels-et-notifications' },
       { icon: 'phone', title: 'Application téléphone, hors ligne', body: 'Capturez, scannez, recherchez sans réseau. Synchronisation ultérieure.', href: '/fr/users/phone-app/' },
@@ -85,8 +85,8 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
         { icon: 'vehicle', title: 'Véhicules et machines', body: 'Lectures, services, carburant, coûts.', href: '/fr/users/everyday-use/#véhicules-et-machines' },
         { icon: 'stock', title: 'Consommables et stock', body: "Un minimum par objet. Prévenu lorsqu'il vient à manquer.", href: '/fr/users/everyday-use/#véhicules-et-machines' },
         { icon: 'condition', title: "Rapport d'état", body: 'Entrée des lieux, sortie des lieux, pièce par pièce. Avec photos.', href: '/fr/users/everyday-use/#états-des-lieux-location' },
-        { icon: 'insights', title: 'Perspectives', body: 'Dépenses par année, valeur par lieu. Jamais estimées.', href: '/fr/users/everyday-use/#statistiques' },
-        { icon: 'language', title: 'Dans votre langue', body: 'English, العربية, Français, Deutsch, Italiano, Tiếng Việt, Українska, Español.', href: '/fr/users/first-run/#6-langue-et-thème' },
+        { icon: 'insights', title: 'Perspectives', body: 'Dépenses par année, valeur par emplacement. Jamais estimées.', href: '/fr/users/everyday-use/#statistiques' },
+        { icon: 'language', title: 'Dans votre langue', body: 'العربية, Deutsch, English, Español, Français, Italiano, Українська, Tiếng Việt', href: '/fr/users/first-run/#6-langue-et-thème' },
       ]}
     />
   </details>
@@ -112,8 +112,8 @@ import clipWebm from '../../../assets/clips/map-add-tv-short.webm?url';
       { name: 'vehicles', title: 'Véhicules', caption: 'Dernière lecture, prochain service, date du permis, consommation de carburant.', alt: 'Véhicules : une voiture, un générateur et une deuxième voiture, avec lectures du compteur et ce qui est dû' },
       { name: 'lending', title: 'Prêt', caption: "Ce que vous avez prêté, à qui. Ce que vous avez emprunté. Ce qui est en retard.", alt: 'Prêt : une perceuse prêtée et deux jours en retard, et une échelle empruntée' },
       { name: 'assistant', title: 'Assistant', caption: "Demandez où se trouve quelque chose. La réponse cite ce qu'il a trouvé ; les changements attendent votre action.", alt: "L'assistant répondant où se trouve le câble HDMI, citant le câble et sa boîte, avec un déplacement à confirmer" },
-      { name: 'connections', title: 'Connexions', caption: 'Jetons pour les applications IA et les scripts, chacun limité aux emplacements que vous choisissez. Webhooks.', alt: 'Paramètres des connexions : deux jetons personnels, une application connectée et les webhooks' },
-      { name: 'track', title: "Ce qu'il faut suivre", caption: 'Par emplacement : essentiels, ménage ou complet. Ensuite, chaque module séparément.', alt: "Les paramètres « Ce qu'il faut suivre » d'un emplacement : le préréglage ménage choisi, avec ses modules activés" },
+      { name: 'connections', title: 'Connexions', caption: 'Jetons pour les applications IA et les scripts, chacun limité aux lieux que vous choisissez. Webhooks.', alt: 'Paramètres des connexions : deux jetons personnels, une application connectée et les webhooks' },
+      { name: 'track', title: "Ce qu'il faut suivre", caption: 'Par lieu : essentiels, ménage ou complet. Ensuite, chaque module séparément.', alt: "Les paramètres « Ce qu'il faut suivre » d'un lieu : le préréglage ménage choisi, avec ses modules activés" },
     ]}
   />
 </Section>

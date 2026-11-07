@@ -1,6 +1,6 @@
 ---
 title: Paperless-ngx
-description: Collega un oggetto o un luogo alle sue ricevute, manuali e carte di garanzia in Paperless-ngx. Kept memorizza il collegamento e un titolo, non il file, salvo che lo copi dentro.
+description: Collega un oggetto o un posto alle sue ricevute, manuali e carte di garanzia in Paperless-ngx. Kept memorizza il collegamento e un titolo, non il file, salvo che lo copi dentro.
 ---
 
 Se tieni i tuoi documenti in [Paperless-ngx](https://docs.paperless-ngx.com/), Kept può collegare un oggetto ai suoi documenti lì invece di caricarli due volte. Il trapano mostra la sua ricevuta e il suo manuale; la cucina mostra la fattura del frigorifero.
@@ -18,7 +18,7 @@ Facoltativo: solo se già esegui Paperless-ngx. Kept funziona allo stesso modo s
 
 ## Connetti
 
-Un proprietario o amministratore della posizione:
+Un proprietario o amministratore del luogo:
 
 1. **Impostazioni del luogo → Paperless**.
 2. **Indirizzo di Paperless**: l'indirizzo con cui apri Paperless, ad esempio
@@ -29,7 +29,7 @@ Una volta connesso, la pagina mostra la versione di Paperless e quanti documenti
 
 ## Collegare documenti
 
-Nella pagina di un oggetto, sotto **Documenti**, **Collega da Paperless** si trova accanto a **Aggiungi un file** (in una pagina di luogo, accanto a **Aggiungi documento**). Apre una ricerca nel tuo Paperless: parole dal titolo o dal testo, un corrispondente, un tipo o un tag. L'inizio di una parola basta: `Camel` trova "Camelot". La sintassi di ricerca di Paperless stessa passa mentre la digiti, ad esempio `title:manual` o `*amel*` per il mezzo di una parola. Spunta uno o più e **Collega**.
+Nella pagina di un oggetto, sotto **Documenti**, **Collega da Paperless** si trova accanto a **Aggiungi un file** (in una pagina di posto, accanto a **Aggiungi documento**). Apre una ricerca nel tuo Paperless: parole dal titolo o dal testo, un corrispondente, un tipo o un tag. L'inizio di una parola basta: `Camel` trova "Camelot". La sintassi di ricerca di Paperless stessa passa mentre la digiti, ad esempio `title:manual` o `*amel*` per il mezzo di una parola. Spunta uno o più e **Collega**.
 
 I documenti collegati appaiono nello stesso elenco Documenti dei file. Ogni documento mostra la sua miniatura, il suo titolo, il tipo e il corrispondente di Paperless, e la data, con:
 
@@ -39,9 +39,9 @@ I documenti collegati appaiono nello stesso elenco Documenti dei file. Ogni docu
 - **Copia in Kept**: vedi sotto.
 - **Scollega**: viene rimosso dall'oggetto. Paperless lo conserva.
 
-Il tipo deriva dal tipo del documento in Paperless, poi dai suoi tag: *Ricevuta*, *Fattura*, *Manuale* e *Garanzia* (e le stesse parole in francese, tedesco, italiano e arabo) vengono riconosciuti; qualsiasi altra cosa è un documento. Dopo di ciò il tipo è a tua scelta, e **Copia in Kept** copia il documento in quel tipo. Il filtro **Tipo** in Documenti restringe insieme i file e i documenti collegati.
+Il tipo deriva dal tipo del documento in Paperless, poi dai suoi tag: *Ricevuta*, *Fattura*, *Manuale* e *Garanzia* (e le stesse parole nelle altre lingue di Kept) vengono riconosciuti; qualsiasi altra cosa è un documento. Dopo di ciò il tipo è a tua scelta, e **Copia in Kept** copia il documento in quel tipo. Il filtro **Tipo** in Documenti restringe insieme i file e i documenti collegati.
 
-**Da un [importazione da Homebox](/it/users/import-export/#unesportazione-di-homebox):** un collegamento di Homebox a uno dei tuoi documenti Paperless (`…/documents/123`, oppure l'API `…/api/documents/123/download/`) all'indirizzo a cui questa posizione è connessa viene importato come documento collegato sull'oggetto o sul luogo. Il suo titolo proviene da Paperless, il suo tipo dal tipo di allegato di Homebox. Connetti Paperless prima dell'importazione; qualsiasi altro collegamento rimane un collegamento semplice.
+**Da un [importazione da Homebox](/it/users/import-export/#unesportazione-di-homebox):** un collegamento di Homebox a uno dei tuoi documenti Paperless (`…/documents/123`, oppure l'API `…/api/documents/123/download/`) all'indirizzo a cui questo luogo è connesso viene importato come documento collegato sull'oggetto o sul posto. Il suo titolo proviene da Paperless, il suo tipo dal tipo di allegato di Homebox. Connetti Paperless prima dell'importazione; qualsiasi altro collegamento rimane un collegamento semplice.
 
 Kept chiede a Paperless i titoli quando l'importazione viene eseguita, non quando controlla l'esportazione. Se Paperless non è raggiungibile, o non ha un documento o non lo mostra al suo utente, l'importazione comunque termina e quel collegamento mantiene il titolo di Homebox, oppure il suo indirizzo se Homebox non ne ha uno. Il rapporto dell'importazione indica quanti. Per ottenere successivamente il titolo da Paperless, **Scollega** il documento e usa **Collega da Paperless**, oppure **Copia in Kept**.
 
@@ -65,16 +65,16 @@ Kept chiede a Paperless i titoli quando l'importazione viene eseguita, non quand
 | Modificare il tipo, scollegare | | Propri propri | Qualsiasi |
 | Collegare, modificare, scollegare | | | ✓ |
 
-Le ricevute e le fatture riguardano denaro: dove il denaro è nascosto per te in una posizione, le ricevute e le fatture collegate sono nascoste anch'esse, e non puoi trasformare un documento collegato in uno.
+Le ricevute e le fatture riguardano denaro: dove il denaro è nascosto per te in un luogo, le ricevute e le fatture collegate sono nascoste anch'esse, e non puoi trasformare un documento collegato in uno.
 
-Un [token personale](/it/users/mcp-clients/#crea-un-token-personale) legge i collegamenti di un oggetto o di un luogo (`GET /api/v1/paperless-links?thingId=…`), mai la connessione, una ricerca, una miniatura o un documento. Lo strumento MCP `get_thing` elenca i documenti collegati di un oggetto per titolo.
+Un [token personale](/it/users/mcp-clients/#crea-un-token-personale) legge i collegamenti di un oggetto o di un posto (`GET /api/v1/paperless-links?thingId=…`), mai la connessione, una ricerca, una miniatura o un documento. Lo strumento MCP `get_thing` elenca i documenti collegati di un oggetto per titolo.
 
 ## Privacy
 
 - Il token è sigillato con la chiave segreta di Kept, come una password della cassetta delle lettere. Kept non lo mostra mai, lo registra, o lo inserisce in una voce di controllo o in un'esportazione.
 - Il tuo browser non comunica mai direttamente con Paperless usando il token. Ricerche, miniature e download passano attraverso Kept, che prima verifica che tu possa vedere l'oggetto. Le miniature vengono ricodificate da Kept e conservate per cinque minuti.
 - **Apri in Paperless** è un collegamento ordinario: ti autentichi su Paperless come te stesso.
-- Spostare un oggetto in un'altra posizione rimuove i suoi collegamenti: essi indicano documenti nella Paperless della posizione precedente, che i membri della nuova posizione potrebbero non vedere.
+- Spostare un oggetto in un altro luogo rimuove i suoi collegamenti: essi indicano documenti nel Paperless del luogo precedente, che i membri del nuovo luogo potrebbero non vedere.
 
 ## Scollega
 

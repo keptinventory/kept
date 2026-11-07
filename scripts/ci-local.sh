@@ -167,7 +167,7 @@ step_install() { pnpm install --frozen-lockfile; }
 step_lint() { pnpm lint; }
 
 # `lingui extract` into a scratch copy of the catalogues; a new msgid, or an empty
-# translation in ar, fr, de or it, fails (scripts/check-i18n-extract.mjs).
+# translation in any language, fails (scripts/check-i18n-extract.mjs).
 step_catalogues() { node scripts/check-i18n-extract.mjs; }
 
 step_typecheck() { pnpm typecheck; }

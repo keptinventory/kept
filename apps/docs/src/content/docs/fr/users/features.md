@@ -73,9 +73,9 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   réseau domestique en http simple, [connexions tant que l'administrateur le détermine](/fr/install/home-network/#rester-sur-votre-réseau) ;
   un seul Kept sur [plusieurs adresses](/fr/install/home-network/#plusieurs-adresses), comme un nom de
   réseau local et un nom Tailscale.
-- **Langues** : anglais, arabe (de droite à gauche), français, allemand, italien, vietnamien,
-  ukrainien et espagnol ; tapez pour trouver le vôtre dans le sélecteur, et des dates au style de
-  votre région, ou à votre choix.
+- **Langues** : allemand, anglais, arabe (de droite à gauche), espagnol, français, italien,
+  ukrainien et vietnamien ; tapez pour trouver le vôtre dans le sélecteur, et des dates au style de
+  votre région, ou à votre choix. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
 
 ## Sur votre téléphone
 

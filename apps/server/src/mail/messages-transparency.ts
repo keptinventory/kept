@@ -37,35 +37,6 @@ const NAMES = {
 } as const;
 
 const WORDS: Record<MailLocale, Words> = {
-  en: {
-    oidcOn: {
-      subject: (name) => `Sign-in with ${name} changed on Kept`,
-      body: (name) =>
-        `The person who runs this Kept changed sign-in with ${name}. Your password, passkeys and email links work as before.`,
-    },
-    oidcOff: {
-      subject: 'Sign-in with an outside account is off on Kept',
-      body: 'The person who runs this Kept turned off sign-in with an outside account. Sign in with your password, a passkey or an email link.',
-    },
-    oidcFootnote:
-      'Everyone with an account here is told when sign-in changes. If you didn’t expect it, ask the person who runs this Kept.',
-    smtp: {
-      subject: (sender) => `Kept now sends mail from ${sender}`,
-      body: (sender) =>
-        `The person who runs this Kept changed how it sends mail. Its mail now comes from ${sender}, as this message did.`,
-      footnote:
-        'Everyone with an account here is told when this changes. If a message that says it is from Kept comes from another address, don’t follow its links.',
-    },
-    ai: {
-      subject: (provider) => `Kept’s default AI provider is now ${provider}`,
-      body: (provider) =>
-        `The person who runs this Kept changed its default AI provider to ${provider}. Where your locations use this Kept’s AI, what you send to the AI (photos, receipts and questions) now goes to ${provider}.`,
-      action: 'Open AI settings',
-      footnote:
-        'AI settings show which provider each of your locations uses, and let an owner choose another.',
-    },
-    providers: { ...NAMES, openai_compatible: 'an OpenAI-compatible server' },
-  },
   ar: {
     oidcOn: {
       subject: (name) => `تغيّر تسجيل الدخول عبر ${name} في Kept`,
@@ -94,35 +65,6 @@ const WORDS: Record<MailLocale, Words> = {
         'تُظهر إعدادات الذكاء الاصطناعي المزوّد الذي يستخدمه كل موقع من مواقعك، ويختار فيها المالك غيره.',
     },
     providers: { ...NAMES, openai_compatible: 'خادم متوافق مع OpenAI' },
-  },
-  fr: {
-    oidcOn: {
-      subject: (name) => `La connexion avec ${name} a changé sur Kept`,
-      body: (name) =>
-        `La personne qui gère ce Kept a modifié la connexion avec ${name}. Votre mot de passe, vos clés d’accès et les liens par e-mail fonctionnent comme avant.`,
-    },
-    oidcOff: {
-      subject: 'La connexion avec un compte externe est désactivée sur Kept',
-      body: 'La personne qui gère ce Kept a désactivé la connexion avec un compte externe. Connectez-vous avec votre mot de passe, une clé d’accès ou un lien par e-mail.',
-    },
-    oidcFootnote:
-      'Chaque personne ayant un compte ici est prévenue quand la connexion change. Si vous ne vous y attendiez pas, demandez à la personne qui gère ce Kept.',
-    smtp: {
-      subject: (sender) => `Kept envoie désormais ses e-mails depuis ${sender}`,
-      body: (sender) =>
-        `La personne qui gère ce Kept a modifié l’envoi des e-mails. Ils viennent désormais de ${sender}, comme ce message.`,
-      footnote:
-        'Chaque personne ayant un compte ici est prévenue de ce changement. Si un message se disant de Kept vient d’une autre adresse, n’ouvrez pas ses liens.',
-    },
-    ai: {
-      subject: (provider) => `Le fournisseur d’IA par défaut de Kept est désormais ${provider}`,
-      body: (provider) =>
-        `La personne qui gère ce Kept a choisi ${provider} comme fournisseur d’IA par défaut. Là où vos lieux utilisent l’IA de ce Kept, ce que vous envoyez à l’IA (photos, reçus et questions) va désormais à ${provider}.`,
-      action: 'Ouvrir les réglages d’IA',
-      footnote:
-        'Les réglages d’IA indiquent le fournisseur utilisé par chacun de vos lieux, et permettent au propriétaire d’en choisir un autre.',
-    },
-    providers: { ...NAMES, openai_compatible: 'un serveur compatible OpenAI' },
   },
   de: {
     oidcOn: {
@@ -153,6 +95,93 @@ const WORDS: Record<MailLocale, Words> = {
     },
     providers: { ...NAMES, openai_compatible: 'ein OpenAI-kompatibler Server' },
   },
+  en: {
+    oidcOn: {
+      subject: (name) => `Sign-in with ${name} changed on Kept`,
+      body: (name) =>
+        `The person who runs this Kept changed sign-in with ${name}. Your password, passkeys and email links work as before.`,
+    },
+    oidcOff: {
+      subject: 'Sign-in with an outside account is off on Kept',
+      body: 'The person who runs this Kept turned off sign-in with an outside account. Sign in with your password, a passkey or an email link.',
+    },
+    oidcFootnote:
+      'Everyone with an account here is told when sign-in changes. If you didn’t expect it, ask the person who runs this Kept.',
+    smtp: {
+      subject: (sender) => `Kept now sends mail from ${sender}`,
+      body: (sender) =>
+        `The person who runs this Kept changed how it sends mail. Its mail now comes from ${sender}, as this message did.`,
+      footnote:
+        'Everyone with an account here is told when this changes. If a message that says it is from Kept comes from another address, don’t follow its links.',
+    },
+    ai: {
+      subject: (provider) => `Kept’s default AI provider is now ${provider}`,
+      body: (provider) =>
+        `The person who runs this Kept changed its default AI provider to ${provider}. Where your locations use this Kept’s AI, what you send to the AI (photos, receipts and questions) now goes to ${provider}.`,
+      action: 'Open AI settings',
+      footnote:
+        'AI settings show which provider each of your locations uses, and let an owner choose another.',
+    },
+    providers: { ...NAMES, openai_compatible: 'an OpenAI-compatible server' },
+  },
+  es: {
+    oidcOn: {
+      subject: (name) => `Cambió el inicio de sesión con ${name} en Kept`,
+      body: (name) =>
+        `La persona que administra este Kept cambió el inicio de sesión con ${name}. Tu contraseña, llaves de acceso y enlaces de correo funcionan como antes.`,
+    },
+    oidcOff: {
+      subject: 'El inicio de sesión con una cuenta externa está desactivado en Kept',
+      body: 'La persona que administra este Kept desactivó el inicio de sesión con una cuenta externa. Inicia sesión con tu contraseña, una llave de acceso o un enlace de correo.',
+    },
+    oidcFootnote:
+      'Todas las personas con una cuenta aquí reciben un aviso cuando cambia el inicio de sesión. Si no lo esperabas, pregunta a la persona que administra este Kept.',
+    smtp: {
+      subject: (sender) => `Kept ahora envía correo desde ${sender}`,
+      body: (sender) =>
+        `La persona que administra este Kept cambió cómo envía correo. Su correo ahora viene desde ${sender}, como este mensaje.`,
+      footnote:
+        'Todas las personas con una cuenta aquí reciben un aviso cuando esto cambia. Si un mensaje dice que es de Kept y viene de otra dirección, no sigas sus enlaces.',
+    },
+    ai: {
+      subject: (provider) => `El proveedor de IA predeterminado de Kept ahora es ${provider}`,
+      body: (provider) =>
+        `La persona que administra este Kept cambió su proveedor de IA predeterminado a ${provider}. Donde tus ubicaciones usan la IA de este Kept, lo que envías a la IA (fotos, recibos y preguntas) ahora va a ${provider}.`,
+      action: 'Abrir configuración de IA',
+      footnote:
+        'La configuración de IA muestra qué proveedor usa cada una de tus ubicaciones y permite al propietario elegir otro.',
+    },
+    providers: { ...NAMES, openai_compatible: 'un servidor compatible con OpenAI' },
+  },
+  fr: {
+    oidcOn: {
+      subject: (name) => `La connexion avec ${name} a changé sur Kept`,
+      body: (name) =>
+        `La personne qui gère ce Kept a modifié la connexion avec ${name}. Votre mot de passe, vos clés d’accès et les liens par e-mail fonctionnent comme avant.`,
+    },
+    oidcOff: {
+      subject: 'La connexion avec un compte externe est désactivée sur Kept',
+      body: 'La personne qui gère ce Kept a désactivé la connexion avec un compte externe. Connectez-vous avec votre mot de passe, une clé d’accès ou un lien par e-mail.',
+    },
+    oidcFootnote:
+      'Chaque personne ayant un compte ici est prévenue quand la connexion change. Si vous ne vous y attendiez pas, demandez à la personne qui gère ce Kept.',
+    smtp: {
+      subject: (sender) => `Kept envoie désormais ses e-mails depuis ${sender}`,
+      body: (sender) =>
+        `La personne qui gère ce Kept a modifié l’envoi des e-mails. Ils viennent désormais de ${sender}, comme ce message.`,
+      footnote:
+        'Chaque personne ayant un compte ici est prévenue de ce changement. Si un message se disant de Kept vient d’une autre adresse, n’ouvrez pas ses liens.',
+    },
+    ai: {
+      subject: (provider) => `Le fournisseur d’IA par défaut de Kept est désormais ${provider}`,
+      body: (provider) =>
+        `La personne qui gère ce Kept a choisi ${provider} comme fournisseur d’IA par défaut. Là où vos lieux utilisent l’IA de ce Kept, ce que vous envoyez à l’IA (photos, reçus et questions) va désormais à ${provider}.`,
+      action: 'Ouvrir les réglages d’IA',
+      footnote:
+        'Les réglages d’IA indiquent le fournisseur utilisé par chacun de vos lieux, et permettent au propriétaire d’en choisir un autre.',
+    },
+    providers: { ...NAMES, openai_compatible: 'un serveur compatible OpenAI' },
+  },
   it: {
     oidcOn: {
       subject: (name) => `L’accesso con ${name} è cambiato su Kept`,
@@ -181,35 +210,6 @@ const WORDS: Record<MailLocale, Words> = {
         'Le impostazioni IA mostrano quale fornitore usa ciascuno dei tuoi luoghi, e lì il proprietario può sceglierne un altro.',
     },
     providers: { ...NAMES, openai_compatible: 'un server compatibile con OpenAI' },
-  },
-  vi: {
-    oidcOn: {
-      subject: (name) => `Đăng nhập với ${name} đã thay đổi trên Kept`,
-      body: (name) =>
-        `Người quản lý Kept này đã thay đổi đăng nhập với ${name}. Mật khẩu, khóa truy cập và liên kết email của bạn vẫn hoạt động như trước.`,
-    },
-    oidcOff: {
-      subject: 'Đăng nhập với tài khoản bên ngoài bị tắt trên Kept',
-      body: 'Người quản lý Kept này đã tắt đăng nhập với tài khoản bên ngoài. Đăng nhập bằng mật khẩu của bạn, một khóa truy cập hoặc một liên kết email.',
-    },
-    oidcFootnote:
-      'Mọi người có tài khoản ở đây đều được thông báo khi đăng nhập thay đổi. Nếu bạn không mong đợi điều đó, hãy hỏi người quản lý Kept này.',
-    smtp: {
-      subject: (sender) => `Kept hiện gửi thư từ ${sender}`,
-      body: (sender) =>
-        `Người quản lý Kept này đã thay đổi cách gửi thư. Thư hiện đến từ ${sender}, như thư này.`,
-      footnote:
-        'Mọi người có tài khoản ở đây được thông báo khi thay đổi này diễn ra. Nếu một thư tự nhận là từ Kept đến từ một địa chỉ khác, đừng mở các liên kết trong thư.',
-    },
-    ai: {
-      subject: (provider) => `Nhà cung cấp AI mặc định của Kept hiện là ${provider}`,
-      body: (provider) =>
-        `Người quản lý Kept này đã thay đổi nhà cung cấp AI mặc định thành ${provider}. Ở những địa điểm của bạn dùng AI của Kept này, những gì bạn gửi cho AI (ảnh, hóa đơn và câu hỏi) giờ sẽ đến ${provider}.`,
-      action: 'Mở cài đặt AI',
-      footnote:
-        'Cài đặt AI chỉ ra nhà cung cấp nào mỗi địa điểm của bạn dùng, và cho phép chủ sở hữu chọn một nhà cung cấp khác.',
-    },
-    providers: { ...NAMES, openai_compatible: 'máy chủ tương thích với OpenAI' },
   },
   uk: {
     oidcOn: {
@@ -240,34 +240,34 @@ const WORDS: Record<MailLocale, Words> = {
     },
     providers: { ...NAMES, openai_compatible: 'сервер, сумісний з OpenAI' },
   },
-  es: {
+  vi: {
     oidcOn: {
-      subject: (name) => `Cambió el inicio de sesión con ${name} en Kept`,
+      subject: (name) => `Đăng nhập với ${name} đã thay đổi trên Kept`,
       body: (name) =>
-        `La persona que administra este Kept cambió el inicio de sesión con ${name}. Tu contraseña, claves de acceso y enlaces de correo funcionan como antes.`,
+        `Người quản lý Kept này đã thay đổi đăng nhập với ${name}. Mật khẩu, khóa truy cập và liên kết email của bạn vẫn hoạt động như trước.`,
     },
     oidcOff: {
-      subject: 'El inicio de sesión con una cuenta externa está desactivado en Kept',
-      body: 'La persona que administra este Kept desactivó el inicio de sesión con una cuenta externa. Inicia sesión con tu contraseña, una clave de acceso o un enlace de correo.',
+      subject: 'Đăng nhập với tài khoản bên ngoài bị tắt trên Kept',
+      body: 'Người quản lý Kept này đã tắt đăng nhập với tài khoản bên ngoài. Đăng nhập bằng mật khẩu của bạn, một khóa truy cập hoặc một liên kết email.',
     },
     oidcFootnote:
-      'Todas las personas con una cuenta aquí reciben un aviso cuando cambia el inicio de sesión. Si no lo esperabas, pregunta a la persona que administra este Kept.',
+      'Mọi người có tài khoản ở đây đều được thông báo khi đăng nhập thay đổi. Nếu bạn không mong đợi điều đó, hãy hỏi người quản lý Kept này.',
     smtp: {
-      subject: (sender) => `Kept ahora envía correo desde ${sender}`,
+      subject: (sender) => `Kept hiện gửi thư từ ${sender}`,
       body: (sender) =>
-        `La persona que administra este Kept cambió cómo envía correo. Su correo ahora viene desde ${sender}, como este mensaje.`,
+        `Người quản lý Kept này đã thay đổi cách gửi thư. Thư hiện đến từ ${sender}, như thư này.`,
       footnote:
-        'Todas las personas con una cuenta aquí reciben un aviso cuando esto cambia. Si un mensaje dice que es de Kept y viene de otra dirección, no sigas sus enlaces.',
+        'Mọi người có tài khoản ở đây được thông báo khi thay đổi này diễn ra. Nếu một thư tự nhận là từ Kept đến từ một địa chỉ khác, đừng mở các liên kết trong thư.',
     },
     ai: {
-      subject: (provider) => `El proveedor de IA predeterminado de Kept ahora es ${provider}`,
+      subject: (provider) => `Nhà cung cấp AI mặc định của Kept hiện là ${provider}`,
       body: (provider) =>
-        `La persona que administra este Kept cambió su proveedor de IA predeterminado a ${provider}. Donde tus ubicaciones usan la IA de este Kept, lo que envías a la IA (fotos, recibos y preguntas) ahora va a ${provider}.`,
-      action: 'Abrir configuración de IA',
+        `Người quản lý Kept này đã thay đổi nhà cung cấp AI mặc định thành ${provider}. Ở những địa điểm của bạn dùng AI của Kept này, những gì bạn gửi cho AI (ảnh, hóa đơn và câu hỏi) giờ sẽ đến ${provider}.`,
+      action: 'Mở cài đặt AI',
       footnote:
-        'La configuración de IA muestra qué proveedor usa cada una de tus ubicaciones y permite al propietario elegir otro.',
+        'Cài đặt AI chỉ ra nhà cung cấp nào mỗi địa điểm của bạn dùng, và cho phép chủ sở hữu chọn một nhà cung cấp khác.',
     },
-    providers: { ...NAMES, openai_compatible: 'un servidor compatible con OpenAI' },
+    providers: { ...NAMES, openai_compatible: 'máy chủ tương thích với OpenAI' },
   },
 };
 
@@ -300,12 +300,12 @@ function table(locale: MailLocale): TransparencyTable {
 }
 
 export const TRANSPARENCY_MESSAGES: Record<MailLocale, TransparencyTable> = {
-  en: table('en'),
   ar: table('ar'),
-  fr: table('fr'),
   de: table('de'),
-  it: table('it'),
-  vi: table('vi'),
-  uk: table('uk'),
+  en: table('en'),
   es: table('es'),
+  fr: table('fr'),
+  it: table('it'),
+  uk: table('uk'),
+  vi: table('vi'),
 };

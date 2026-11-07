@@ -8,17 +8,17 @@ import clipMp4 from '../../../../assets/clips/map-add-tv.mp4?url';
 import clipPoster from '../../../../assets/clips/map-add-tv-poster.webp?url';
 import clipWebm from '../../../../assets/clips/map-add-tv.webm?url';
 
-La page d'un lieu a cinq dispositions : **Liste**, **Grille**, [**Graphique**](/fr/users/graph/), **Tableau** et
+La page d'un lieu a cinq dispositions : **Liste**, **Grille**, [**Graphe**](/fr/users/graph/), **Tableau** et
 **Carte**. La carte dessine le lieu en 3D : chaque étage, ses pièces et les étagères, placards et
 boîtes qu'ils contiennent. Touchez n'importe quoi pour voir ce que c'est, où c'est et ce qu'il y a
 dedans. Liste reste par défaut ; Kept mémorise votre choix pour chaque lieu sur chaque appareil. Dans
 Carte, la carte guide et remplit l'écran ; les boutons du lieu (Imprimer l'inventaire, Imprimer les
 étiquettes et les autres), **Ajouter ici** et **Sans emplacement** la suivent.
 
-La page d'un étage ou d'une pièce a aussi **Carte** : la même carte, ouverte sur ce lieu. Un étage
+La page d'un étage ou d'une pièce a aussi **Carte** : la même carte, ouverte sur cet emplacement. Un étage
 s'ouvre sur cet étage, une pièce s'ouvre à l'intérieur avec sa fiche, et une étagère ou un placard
-est sélectionné dans sa pièce. Un lieu que la carte ne dessine pas s'ouvre sur sa pièce avec une
-note. Kept mémorise le choix pour chaque lieu.
+est sélectionné dans sa pièce. Un emplacement que la carte ne dessine pas s'ouvre sur sa pièce avec une
+note. Kept mémorise le choix pour chaque emplacement.
 
 Pour le voir avant d'installer quoi que ce soit, [essayez la carte](/fr/try/map/) avec une maison
 exemple dans votre navigateur.
@@ -34,9 +34,9 @@ Elle ne se charge que quand vous l'ouvrez, pour que le reste de Kept reste aussi
 
 | Sur la carte | D'où ça vient |
 |---|---|
-| **Étages** | Les lieux du genre **Étage** en haut du lieu. S'il n'y en a pas, le lieu est sur un seul niveau. |
-| **Pièces** | Tout lieu directement sur un étage (ou en haut, s'il n'y a pas d'étage), quel que soit son genre. |
-| **Étagères, placards, zones** | Les lieux directement dans une pièce. |
+| **Étages** | Les emplacements du genre **Étage** en haut du lieu. S'il n'y en a pas, le lieu est sur un seul niveau. |
+| **Pièces** | Tout emplacement directement sur un étage (ou en haut, s'il n'y a pas d'étage), quel que soit son genre. |
+| **Étagères, placards, zones** | Les emplacements directement dans une pièce. |
 | **Boîtes et autres conteneurs** | Les conteneurs directement dans une pièce. |
 | **Tout le reste** | Un objet que vous mettez vous-même sur la carte, comme la TV ou la voiture. |
 
@@ -46,7 +46,7 @@ avez sélectionné garde toujours son nom.
 
 Le reste est compté : une étagère indique combien d'objets sont dessus, et sa fiche les liste.
 Nul besoin d'arranger quoi que ce soit d'abord. Les pièces que personne n'a arrangées sont
-disposées côte à côte dans l'ordre de la liste des lieux, et ce qui s'y trouve en rangées ;
+disposées côte à côte dans l'ordre de la liste des emplacements, et ce qui s'y trouve en rangées ;
 **Organiser** les déplace à leur vraie place. Une pièce appelée "Jardin", "Balcon" ou "Terrasse" est
 dessinée en une seule.
 
@@ -131,7 +131,7 @@ qu'organisé. **Organiser** démarre :
   pièce glisse le long à la place ("Rooms can't overlap.").
 - **Dessiner une pièce** sur sol vide. Cela devient tout de suite un nouveau lieu sur cet étage.
 - **Depuis un plan** lit les pièces d'un plan d'étage (ci-dessous).
-- **Ajouter un étage** ajoute un lieu du genre Étage, avec une pièce dedans.
+- **Ajouter un étage** ajoute un emplacement du genre Étage, avec une pièce dedans.
 - Sélectionnez une pièce pour définir son **genre** (pièce, balcon, terrasse, jardin), son **sol**
   (bois, carrelage, béton, terrasse, gazon) et sa **Largeur** et sa **Longueur**, ou pour
   **mettre un objet de cette pièce sur la carte**. Voir [La vraie taille d'une pièce](#la-vraie-taille-dune-pièce).
@@ -357,8 +357,8 @@ d’étage** (section suivante) et **Organiser**. Pour dessiner vous-même les p
 2. Choisissez **Dessiner une pièce** et glissez sur le sol vide. La pièce est tout de suite un
    nouveau lieu dans Kept, nommée Pièce 1 ; renommez-la depuis **Ouvrir le lieu** sur sa fiche.
 3. Touchez **Terminé**.
-4. Donnez aux objets un lieu dans cette pièce. Sur le lieu, **Les ranger** parcourt Sans
-   emplacement un objet à la fois avec un sélecteur de lieu ; ou ouvrez un objet et utilisez
+4. Donnez aux objets un emplacement dans cette pièce. Sur le lieu, **Les ranger** parcourt Sans
+   emplacement un objet à la fois avec un sélecteur d'emplacement ; ou ouvrez un objet et utilisez
    **Actions → Déplacer**.
 5. De retour sur la carte, mettez-les dessus comme ci-dessus : **Organiser**, la pièce, **Mettre
    sur la carte**.
@@ -423,7 +423,7 @@ profondeur d'une pièce, et **Remettre à l'échelle** : chaque pièce est redes
 ça.
 
 **Ajouter.** **Ajouter 5 pièces** (le nombre de pièces activées) crée les pièces, et tout nouvel
-étage, comme des lieux ordinaires, et les met sur la carte à côté de ce qui y était. Le message
+étage, comme des emplacements ordinaires, et les met sur la carte à côté de ce qui y était. Le message
 propose **Annuler**, qui les enlève toutes de la carte et met les pièces créées à la corbeille,
 tant que rien n'a été mis dedans et qu'aucune n'a été renommée ou déplacée depuis. L'historique
 montre une ligne : **Ajout de 5 pièces depuis un plan d'étage**. **Jeter** jette le plan ; rien
@@ -435,9 +435,9 @@ une pièce qui n'est pas un rectangle devient son plus grand rectangle.
 
 ### Ce que Sans emplacement veut dire ici
 
-**Sans emplacement** contient les objets qui n'ont pas encore de lieu. Ils ne sont dans aucune
+**Sans emplacement** contient les objets qui n'ont pas encore d'emplacement. Ils ne sont dans aucune
 pièce, donc ils ne sont pas sur la carte et **Mettre sur la carte** ne les liste pas. Donnez
-d'abord un lieu dans une pièce à un objet ; il apparaît ensuite dans la liste de cette pièce.
+d'abord un emplacement dans une pièce à un objet ; il apparaît ensuite dans la liste de cette pièce.
 
 ## Modèles détaillés
 

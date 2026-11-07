@@ -122,8 +122,8 @@ docker compose run --rm migrate admin setup-code
 docker compose exec kept kept admin recovery-kit
 ```
 
-تطلب صفحة الإدارة ← الحالة إقرارك بحزمة الاسترداد، ويشترطه Kept قبل أول قيمة سرية أو مفتاح ذكاء
-اصطناعي أو إعداد نسخ احتياطي. راجع [حزمة الاسترداد](/ar/admin/recovery-kit/).
+تطلب صفحة الإدارة ← الحالة إقرارك بحقيبة الاسترداد، ويشترطه Kept قبل أول قيمة سرية أو مفتاح ذكاء
+اصطناعي أو إعداد نسخ احتياطي. راجع [حقيبة الاسترداد](/ar/admin/recovery-kit/).
 
 ## ٥. بعد ذلك
 
@@ -140,7 +140,7 @@ docker compose exec kept kept admin recovery-kit
 |---|---|---|
 | `kept-db` | قاعدة بيانات Postgres | عبر النسخ الاحتياطي في Kept، ولا تنسخ المجلد أثناء التشغيل أبدًا |
 | `kept-data` | الملفات المرفوعة (مع `KEPT_STORAGE=local`، الافتراضي) | عبر النسخ الاحتياطي في Kept |
-| `kept-config` | ‏`KEPT_SECRET_KEY` و`KEPT_AUTH_SECRET` المولَّدان، وكلمات مرور الحسابات `kept_app` و`kept_auth` و`kept_system` | احفظ حزمة الاسترداد؛ وتُولَّد كلمات المرور من جديد إن ضاعت |
+| `kept-config` | ‏`KEPT_SECRET_KEY` و`KEPT_AUTH_SECRET` المولَّدان، وكلمات مرور الحسابات `kept_app` و`kept_auth` و`kept_system` | احفظ حقيبة الاسترداد؛ وتُولَّد كلمات المرور من جديد إن ضاعت |
 | `kept-owner` | كلمة مرور الحساب `kept_owner` | لا؛ تُولَّد من جديد إن ضاعت |
 | `caddy-data` و`caddy-config` | شهادات Caddy (ملف التعريف `https` في `compose.full.yaml`) | لا؛ يحصل Caddy على شهادات جديدة |
 

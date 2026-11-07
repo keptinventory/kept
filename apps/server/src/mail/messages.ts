@@ -31,10 +31,9 @@ export type { Chrome, Message, MessageContext } from './message-kit.js';
 // Lingui's, on the web side; server mail has this small typed table instead, keyed by the
 // recipient's profile locale (mail/transport.ts). A kind missing from a language is a type
 // error, so a new mail kind can't ship untranslated. The test checks every kind renders in each.
-// English and Arabic live here; French, German and Italian (D204), Vietnamese, Ukrainian and
-// Spanish in messages-<locale>.ts.
+// English and Arabic live here; every other language in messages-<locale>.ts.
 
-export const MAIL_LOCALES = ['en', 'ar', 'fr', 'de', 'it', 'vi', 'uk', 'es'] as const;
+export const MAIL_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
 export type MailLocale = (typeof MAIL_LOCALES)[number];
 
 /** The mail language for a BCP 47 tag (`ar-EG` → `ar`, `fr-CA` → `fr`); English for anything else. */
@@ -972,35 +971,35 @@ const AR: CoreTable = {
 };
 
 export const MESSAGES: Record<MailLocale, Table> = {
-  en: { ...EN, ...NOTIFY_MESSAGES.en, ...TRANSPARENCY_MESSAGES.en },
   ar: { ...AR, ...NOTIFY_MESSAGES.ar, ...TRANSPARENCY_MESSAGES.ar },
-  fr: { ...FR, ...NOTIFY_MESSAGES.fr, ...TRANSPARENCY_MESSAGES.fr },
   de: { ...DE, ...NOTIFY_MESSAGES.de, ...TRANSPARENCY_MESSAGES.de },
-  it: { ...IT, ...NOTIFY_MESSAGES.it, ...TRANSPARENCY_MESSAGES.it },
-  vi: { ...VI, ...NOTIFY_MESSAGES.vi, ...TRANSPARENCY_MESSAGES.vi },
-  uk: { ...UK, ...NOTIFY_MESSAGES.uk, ...TRANSPARENCY_MESSAGES.uk },
+  en: { ...EN, ...NOTIFY_MESSAGES.en, ...TRANSPARENCY_MESSAGES.en },
   es: { ...ES, ...NOTIFY_MESSAGES.es, ...TRANSPARENCY_MESSAGES.es },
+  fr: { ...FR, ...NOTIFY_MESSAGES.fr, ...TRANSPARENCY_MESSAGES.fr },
+  it: { ...IT, ...NOTIFY_MESSAGES.it, ...TRANSPARENCY_MESSAGES.it },
+  uk: { ...UK, ...NOTIFY_MESSAGES.uk, ...TRANSPARENCY_MESSAGES.uk },
+  vi: { ...VI, ...NOTIFY_MESSAGES.vi, ...TRANSPARENCY_MESSAGES.vi },
 };
 
 export const CHROME: Record<MailLocale, Chrome> = {
-  en: {
-    dir: 'ltr',
-    linkFallback: 'If the button doesn’t work, copy this address into your browser:',
-    sentBy: (host) => `Sent by Kept at ${host}.`,
-    about: (site) => `Kept, the open-source home inventory: ${site}`,
-  },
   ar: {
     dir: 'rtl',
     linkFallback: 'إذا لم يعمل الزر، فانسخ هذا الرابط والصقه في المتصفح:',
     sentBy: (host) => `أُرسلت من Kept على ${host}.`,
     about: (site) => `Kept، جرد المنزل مفتوح المصدر: ${site}`,
   },
-  fr: FR_CHROME,
   de: DE_CHROME,
-  it: IT_CHROME,
-  vi: VI_CHROME,
-  uk: UK_CHROME,
+  en: {
+    dir: 'ltr',
+    linkFallback: 'If the button doesn’t work, copy this address into your browser:',
+    sentBy: (host) => `Sent by Kept at ${host}.`,
+    about: (site) => `Kept, the open-source home inventory: ${site}`,
+  },
   es: ES_CHROME,
+  fr: FR_CHROME,
+  it: IT_CHROME,
+  uk: UK_CHROME,
+  vi: VI_CHROME,
 };
 
 /** What `mail` says in `locale`. */

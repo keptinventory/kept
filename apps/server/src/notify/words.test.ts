@@ -19,14 +19,14 @@ const PUBLIC_URL = 'https://kept.example.org';
 const ctx = { publicUrl: PUBLIC_URL };
 
 const NAMES: Record<MailLocale, { thing: string; path: string; location: string }> = {
-  en: { thing: 'Drill', path: 'Garage › Shelf', location: 'Home' },
   ar: { thing: 'مثقاب', path: 'المرآب › الرف', location: 'بيت العائلة' },
-  fr: { thing: 'Perceuse', path: 'Garage › Étagère', location: 'Maison' },
   de: { thing: 'Bohrmaschine', path: 'Garage › Regal', location: 'Zuhause' },
-  it: { thing: 'Trapano', path: 'Garage › Scaffale', location: 'Casa' },
-  vi: { thing: 'Máy khoan', path: 'Nhà xe › Kệ', location: 'Nhà' },
-  uk: { thing: 'Дриль', path: 'Гараж › Полиця', location: 'Дім' },
+  en: { thing: 'Drill', path: 'Garage › Shelf', location: 'Home' },
   es: { thing: 'Taladro', path: 'Garaje › Estante', location: 'Casa' },
+  fr: { thing: 'Perceuse', path: 'Garage › Étagère', location: 'Maison' },
+  it: { thing: 'Trapano', path: 'Garage › Scaffale', location: 'Casa' },
+  uk: { thing: 'Дриль', path: 'Гараж › Полиця', location: 'Дім' },
+  vi: { thing: 'Máy khoan', path: 'Nhà xe › Kệ', location: 'Nhà' },
 };
 
 function facts(locale: MailLocale, f: Partial<ReminderFacts>): ReminderFacts {

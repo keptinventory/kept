@@ -3,6 +3,7 @@ import {
   CSV_LIMITS,
   DATE_FORMATS,
   type DateFormat,
+  decimalCommaAsPoint,
   HB_CSV_PRESET_COLUMNS,
   HomeboxCsvChoices,
   isHomeboxCsv,
@@ -149,18 +150,32 @@ export function cell(value: string | undefined): string {
   return (value ?? '').normalize('NFC').trim();
 }
 
-/** A quantity (`3`, `٣٤٥`, `2.5`, `2٫5`), or null when it isn't one a thing can hold. */
+/** A number cell with Western digits and one decimal point: `٫` and a decimal comma become the
+ * point, grouping marks and spaces go. */
+function plainNumber(value: string): string {
+  const spaced = foldDigits(value).replace(/٫/g, '.').replace(/\s/g, '');
+  const point = decimalCommaAsPoint(spaced);
+  // `1234,567` is neither grouping nor a clear decimal: left as is, so the cell is refused.
+  if (point.includes(',') && !/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(point)) return point;
+  return point.replace(/[,٬]/g, '');
+}
+
+/** A quantity (`3`, `٣٤٥`, `2.5`, `2٫5`, `2,5`), or null when it isn't one a thing can hold. */
 export function parseQuantity(value: string): number | null {
-  const s = foldDigits(value)
-    .replace(/٫/g, '.')
-    .replace(/[\s,٬]/g, '');
+  const s = plainNumber(value);
   if (!/^\d{1,9}(?:\.\d{1,3})?$/.test(s)) return null;
   const n = Number(s);
   return Number.isFinite(n) && n <= 999_999_999 ? n : null;
 }
 
+/** A number custom field's value, sign allowed, or undefined. */
+export function numberCell(value: string): number | undefined {
+  const s = plainNumber(value);
+  return /^-?\d+(?:\.\d+)?$/.test(s) ? Number(s) : undefined;
+}
+
 /** A price in @kept/shared's canonical form, or null. Accepts what parseAmount accepts
- * (Eastern digits, `٫`, grouping in threes) after dropping spaces. */
+ * (Eastern digits, `٫`, a decimal comma, grouping in threes) after dropping spaces. */
 export function parsePrice(value: string): string | null {
   try {
     return parseAmount(value.replace(/\s/g, ''));
@@ -173,11 +188,26 @@ export function parseDate(value: string, format: DateFormat): string | null {
   return parseCsvDate(value, format);
 }
 
-const YES = new Set(['yes', 'y', 'true', '1', 'نعم', 'oui', 'ja', 'sì', 'si', '✓', 'x']);
-const NO = new Set(['no', 'n', 'false', '0', 'لا', 'non', 'nein', '']);
+const YES = new Set([
+  'yes',
+  'y',
+  'true',
+  '1',
+  'نعم',
+  'ja',
+  'sí',
+  'si',
+  'oui',
+  'sì',
+  'так',
+  'có',
+  '✓',
+  'x',
+]);
+const NO = new Set(['no', 'n', 'false', '0', 'لا', 'nein', 'non', 'ні', 'không', '']);
 /** A yes/no cell, or null. */
 export function parseBoolean(value: string): boolean | null {
-  const s = foldDigits(value).toLowerCase();
+  const s = foldDigits(value).normalize('NFC').toLowerCase();
   if (YES.has(s)) return true;
   if (NO.has(s)) return false;
   return null;

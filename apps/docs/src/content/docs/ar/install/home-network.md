@@ -128,15 +128,15 @@ tailscale serve --bg 8080
 
 بدون Tailscale ودون نطاق عام، يمكن لـ Caddy توقيع شهادة لاسم شبكة منزلية بنفسه (`tls internal`). يعمل، لكنه ليس سريعًا: **يجب إخبار كل جهاز يفتح Kept بالثقة في شهادة جذر Caddy**، واحد تلو الآخر، لكل شخص في المنزل. حتى يثق جهاز به، متصفحه يعرض تحذير أمان.
 
-١. اختر اسمًا يستطيع كل جهاز تحليله للجهاز، مثلًا `kept.home.arpa` (إدخال DNS على راوترك، أو إدخال في ملف hosts لكل جهاز).
-٢. اضبطه في `.env`:
+1. اختر اسمًا يستطيع كل جهاز تحليله للجهاز، مثلًا `kept.home.arpa` (إدخال DNS على راوترك، أو إدخال في ملف hosts لكل جهاز).
+2. اضبطه في `.env`:
 
    ```sh
    KEPT_DOMAIN=kept.home.arpa
    KEPT_PUBLIC_URL=https://kept.home.arpa
    ```
 
-٣. يأتي Caddy مع `compose.full.yaml`: نزِّله و `docker/caddy/Caddyfile`، واضبط
+3. يأتي Caddy مع `compose.full.yaml`: نزِّله و `docker/caddy/Caddyfile`، واضبط
    `COMPOSE_FILE=compose.full.yaml` في `.env`، كما في
    [ضع Kept على HTTPS](/ar/install/https/#ملف-تعريف-caddy-في-compose). ثم أضف `tls internal` إلى Caddyfile:
 
@@ -148,14 +148,14 @@ tailscale serve --bg 8080
    }
    ```
 
-٤. شغِّل Caddy وانسخ شهادته الجذرية من حجم بياناته:
+4. شغِّل Caddy وانسخ شهادته الجذرية من حجم بياناته:
 
    ```sh
    docker compose --profile https up -d
    docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./kept-root.crt
    ```
 
-٥. ثبِّت `kept-root.crt` على كل جهاز وائتمنه:
+5. ثبِّت `kept-root.crt` على كل جهاز وائتمنه:
    - **iPhone و iPad:** أرسله للجهاز (AirDrop أو بريد)، ثبِّت الملف الشخصي في
      الإعدادات → عام → VPN وإدارة الجهاز، ثم فعِّل الثقة الكاملة له في الإعدادات →
      عام → حول → إعدادات ثقة الشهادات.

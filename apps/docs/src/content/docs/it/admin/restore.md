@@ -16,8 +16,8 @@ Kept ripristina **solo in un nuovo database vuoto**, lo verifica e lascia a te l
    ```
 
    Questo esegue la CLI in un container `kept` usa e getta, che ha il volume dati, le chiavi, il login
-   del proprietario dal tuo `compose.override.yaml` e le impostazioni di backup (i `.env`, o quelle salvate in
-   Admin → Backups; vedi [backup](/it/admin/backups/#come-attivarlo)).
+   del proprietario dal tuo `compose.override.yaml` e le impostazioni di backup (quelle del `.env`, o quelle salvate in
+   Admin → Backup; vedi [backup](/it/admin/backups/#come-attivarlo)).
 
 2. **Crea un database vuoto accanto a quello live, come superutente del database:**
 
@@ -61,7 +61,7 @@ questi comandi invece di eseguirli.
 ## Dopo aver perso il server
 
 Sulla nuova macchina: installa Kept come in [Installa con Docker Compose](/it/install/compose/) e, prima del
-primo avvio, metti le **chiavi del kit di recupero** in `.env` (`KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET`,
+primo avvio, metti le **chiavi del kit di ripristino** in `.env` (`KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET`,
 e `KEPT_SECRET_KEY_VERSION` e `KEPT_SECRET_KEYS_RETIRED` se il kit le elenca), con il
 target di backup e la sua password in `compose.override.yaml`. Poi:
 
@@ -92,7 +92,7 @@ docker compose exec db psql -U postgres -c "DROP DATABASE kept_drill"
 
 La prova ripristina l'ultimo snapshot valido, confronta conteggi e digest, verifica lo SHA-256 di 50
 file (`--all-files` li verifica tutti) e registra la prova nel database **live**, il che azzera
-l'avviso "restore drill due" su Admin → Status. Non tocca mai i dati live.
+l'avviso "restore drill due" su Admin → Stato. Non tocca mai i dati live.
 
 ## Verifica del repository
 

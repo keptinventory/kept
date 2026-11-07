@@ -35,7 +35,7 @@ body:
     id: words
     attributes:
       label: What people call it
-      description: Other names a search should find it by, in any language Kept speaks (English, Arabic, French, German, Italian).
+      description: Other names a search should find it by, in any language Kept speaks.
       placeholder: "label maker, Beschriftungsgerät, étiqueteuse"
   - type: input
     id: where
