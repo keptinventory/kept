@@ -1,7 +1,7 @@
 /** Members and roles, Invite, Settings → Me (sessions, two-factor enrolment). */
 import type { Role } from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { firstRunScenario, IDS, ownerScenario } from '@/api/mock/fixtures';
 import { MockReply } from '@/api/mock/server';
 import { paths } from '@/api/paths';
@@ -424,5 +424,40 @@ describe('Settings → Me', () => {
     // The catalogue reloads with the new digits first, so the choice is stored a moment later.
     await waitFor(() => expect(localStorage.getItem('kept.digits')).toBe('western'));
     expectLogicalOnly();
+  });
+});
+
+describe('the first last day an invite or a member can have', () => {
+  // 23:00 UTC on 31 October is already 1 November in Cairo (UTC+2), where Home is: the first last
+  // day is 2 November there, not 1 November, the day after the UTC day (#459).
+  const lateInCairo = new Date('2026-10-31T23:00:00Z');
+  afterEach(() => vi.useRealTimers());
+
+  /** The calendar's day cell, as React Aria names it ("Sunday, November 1, 2026"). */
+  const cell = (name: RegExp) =>
+    screen.getAllByRole('button').find((b) => name.test(b.getAttribute('aria-label') ?? ''));
+
+  it('is tomorrow where the location is, on the invite page', async () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: lateInCairo });
+    const { user } = await renderApp(invite);
+    await findHeading('Invite to Home');
+    await user.click(screen.getByRole('radio', { name: 'Until a date' }));
+    await user.click(screen.getByRole('button', { name: /Choose a date/ }));
+    await screen.findByRole('grid');
+    expect(cell(/November 1, 2026/)).toHaveAttribute('aria-disabled', 'true');
+    expect(cell(/November 2, 2026/)).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('is tomorrow where the location is, in a member’s sheet', async () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: lateInCairo });
+    const { user } = await renderApp(members);
+    await screen.findByRole('heading', { name: 'Admins' });
+    await user.click(phoneRow('Alfred'));
+    const dialog = screen.getByRole('dialog', { name: 'Alfred' });
+    await user.click(within(dialog).getByRole('radio', { name: 'Until a date' }));
+    await user.click(within(dialog).getByRole('button', { name: /Choose a date/ }));
+    await screen.findByRole('grid');
+    expect(cell(/November 1, 2026/)).toHaveAttribute('aria-disabled', 'true');
+    expect(cell(/November 2, 2026/)).not.toHaveAttribute('aria-disabled');
   });
 });
