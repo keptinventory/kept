@@ -3094,11 +3094,11 @@ msgid "Last saved: {lastName} · ID pending"
 msgstr "Lưu gần nhất: {lastName} · ID đang chờ"
 
 msgid "Last seen"
-msgstr "Đã thấy"
+msgstr "Lần thấy gần nhất"
 
 msgctxt "Display button"
 msgid "Last seen"
-msgstr "Lần thấy gần nhất"
+msgstr "Đã thấy"
 
 msgid "Later readings count on from it, so this one fits."
 msgstr "Các chỉ số sau tính tiếp từ nó, vì vậy chỉ số này phù hợp."
