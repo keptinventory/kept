@@ -12,7 +12,7 @@ import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import { Label, Radio, RadioGroup } from 'react-aria-components';
 import type { LocationKind } from '@/api/types';
-import { flattenPlaces, lastPlaceIn } from '@/components/capture/target';
+import { flattenPlaces, lastPlaceIn, shownLocations } from '@/components/capture/target';
 import { usePlaceName } from '@/components/places/labels';
 import { type PickedPlace, PlacePicker, placeMatches } from '@/components/places/move-picker';
 import { TextField } from '@/components/ui/text-field';
@@ -32,9 +32,11 @@ export function usePhoneWorld(store: OfflineStore | null, locationIds?: readonly
     let live = true;
     void (async () => {
       const only = key ? new Set(key.split(',')) : null;
-      const locations = (await store.locations()).filter(
-        (l) => can(l.role, 'things.edit') && (only ? only.has(l.id) : l.id !== hidden),
-      );
+      const writable = (await store.locations()).filter((l) => can(l.role, 'things.edit'));
+      // A hidden Personal (#392) only when it is the only place you can write (#459), as Capture.
+      const locations = only
+        ? writable.filter((l) => only.has(l.id))
+        : shownLocations(writable, hidden);
       const places: Record<string, SnapPlace[]> = {};
       for (const l of locations)
         places[l.id] = (await store.placesOf(l.id)).filter((p) => !p.deleted);
