@@ -251,6 +251,30 @@ describe('with Personal hidden', () => {
     expect(within(grid).getByRole('row', { name: /^Personal/ })).toBeInTheDocument();
   });
 
+  it('a template sheet keeps a hidden Personal it was shared with, once deselected (#459)', async () => {
+    const state = hidden();
+    const box = state.capture.templates[0];
+    if (!box) throw new Error('the mock has no template');
+    box.locations = [
+      { id: IDS.personal, name: 'Personal' },
+      { id: IDS.home, name: 'Home' },
+    ];
+    const { user } = await renderApp('/settings/account/templates', { state });
+    await screen.findByRole('list', { name: 'Templates' });
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Edit template' });
+    await user.click(within(sheet).getByRole('button', { name: /Share with/ }));
+    await user.click(await screen.findByRole('option', { name: 'Personal' }));
+    // Deselected, and still there to choose again.
+    const personal = await screen.findByRole('option', { name: 'Personal' });
+    expect(personal).toHaveAttribute('aria-selected', 'false');
+    await user.click(personal);
+    expect(screen.getByRole('option', { name: 'Personal' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
   it('the personal AI key says what it is for', async () => {
     await renderApp('/settings/me/ai', { state: hidden() });
     expect(
