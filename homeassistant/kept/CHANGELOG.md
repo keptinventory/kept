@@ -3,6 +3,13 @@
 The app's version is Kept's. Newest first; Kept's full notes:
 <https://github.com/keptinventory/kept/blob/main/CHANGELOG.md>.
 
+## 1.14.6
+
+- Kept in Spanish. The app, emails, reminders and the docs (#460).
+- Docs in every language. User, admin and install pages in Arabic, English, French, German, Italian, Spanish, Ukrainian and Vietnamese (#461).
+- Type to find your language. In the app's picker and on the docs site (#450). Emails and reminders now follow the language you pick.
+- Emails and the assistant in Ukrainian and Vietnamese too. Reminders, push, built-in names, Try the map, shape search and the Home Assistant app's options follow. PDFs stay in English and Arabic for now.
+
 ## 1.14.5
 
 - Caddy or Ollama: one step before you upgrade. `compose.yaml` now runs Kept alone. If you use either, download `compose.full.yaml` and set `COMPOSE_FILE=compose.full.yaml` in `.env`, or the next download of `compose.yaml` leaves Kept on plain http. Behind your own proxy, `KEPT_TRUSTED_PROXIES` in `.env` now takes effect. New settings need the new `compose.yaml`: bumping only `KEPT_IMAGE` keeps the old file (#414).
