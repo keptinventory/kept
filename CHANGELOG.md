@@ -3,6 +3,35 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.6 (2026-11-07)
+
+### Highlights
+
+- **Kept in Spanish.** The app, emails, reminders and the docs (#460).
+  <!-- whats-new ![settings](spanish.webp) -->
+- **Docs in every language.** User, admin and install pages in Arabic, English, French, German, Italian, Spanish, Ukrainian and Vietnamese (#461).
+- **Type to find your language.** In the app's picker and on the docs site (#450). Emails and reminders now follow the language you pick.
+  <!-- whats-new ![settings](language-search.mp4) -->
+- **Emails and the assistant in Ukrainian and Vietnamese too.** Reminders, push, built-in names, Try the map, shape search and the Home Assistant app's options follow. PDFs stay in English and Arabic for now.
+
+### Other
+
+- Final language fixes: alphabetical lists, decimal commas, Ukrainian plurals and the translated docs (#471) (29e92c0)
+- The last language gaps: import words, Paperless, Homebox, and docs that named too few languages (#468) (fff36ff)
+- Try the map, shape search and Home Assistant labels in every language (#466) (f7dfd48)
+- Emails, reminders and the assistant's replies in Vietnamese, Ukrainian and Spanish (#467) (338e369)
+- Corrections to the translated docs and catalogues (#464) (4c26f21)
+- Spanish in the app, and docs pages in every language (#463, closes #460, #461) (a5bb458)
+- Language pickers: type to find a language, in the app and the docs (#451, closes #450) (e571c28)
+
+### Documentation
+
+- **release:** the 1.14.5 record (#458) (5843c69)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.14.5 (2026-11-05)
 
 ### Highlights
