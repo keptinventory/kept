@@ -30,6 +30,7 @@ import { useConfirm } from '@/components/ui/confirm';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { amountText, readAmount } from '@/lib/amount';
 import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { CapBar, useCapName } from './cap-bars';
@@ -57,6 +58,14 @@ function useTaskName(): (task: AiTask) => string {
 
 const digits = (s: string) => s.replace(/[\s,_]/g, '');
 const positive = (s: string) => s.trim() !== '' && Number(digits(s)) > 0;
+/** A money cap as typed, read by the reader's language (#474); NaN when it isn't an amount. */
+function amountValue(s: string): number {
+  try {
+    return Number(readAmount(s));
+  } catch {
+    return Number.NaN;
+  }
+}
 
 /** The cap editor: money (amount + currency) and/or tokens a month; for a budget, per minute/day. */
 function CapSheet({
@@ -79,7 +88,7 @@ function CapSheet({
   const errorText = useErrorText();
   const online = useOnline();
   const money = useMoney();
-  const [amount, setAmount] = useState(cap?.monthlyCap?.amount ?? '');
+  const [amount, setAmount] = useState(() => amountText(cap?.monthlyCap?.amount));
   const [currency, setCurrency] = useState<string | null>(
     cap?.monthlyCap?.currency ?? accountCap?.monthlyCap?.currency ?? 'USD',
   );
@@ -91,8 +100,7 @@ function CapSheet({
     target.scope === 'location' &&
     !!accountCap?.monthlyCap &&
     accountCap.monthlyCap.currency === currency &&
-    positive(amount) &&
-    Number(amount) > Number(accountCap.monthlyCap.amount);
+    amountValue(amount) > Number(accountCap.monthlyCap.amount);
   const aboveText = t`Can't be above the account's cap`;
   const save = useMutation({
     mutationFn: () => {
@@ -106,8 +114,8 @@ function CapSheet({
           ? {}
           : {
               monthlyCap:
-                positive(amount) && currency
-                  ? { amount: Number(digits(amount)).toFixed(2), currency }
+                amountValue(amount) > 0 && currency
+                  ? { amount: amountValue(amount).toFixed(2), currency }
                   : null,
             }),
         ...(positive(month) ? { tokensPerMonth: Number(digits(month)) } : {}),
@@ -130,7 +138,7 @@ function CapSheet({
   });
   const nothing = budget
     ? !positive(month) && !positive(day) && !positive(minute)
-    : !positive(amount) && !positive(month);
+    : !(amountValue(amount) > 0) && !positive(month);
   return (
     <form
       className="grid gap-3"

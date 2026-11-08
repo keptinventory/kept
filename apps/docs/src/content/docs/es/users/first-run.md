@@ -121,11 +121,16 @@ tiene como máximo 20 de ellas.
 - **Idioma**: العربية, Deutsch, English, Español, Français, Italiano, Українська o Tiếng Việt.
   Abre la lista, o escribe para encontrar uno: su propio nombre, su nombre en inglés o en el idioma que estés
   usando, y los pequeños errores tipográficos están bien (`german`, `deutsch` y `francais` funcionan todos). El árabe diseña toda la aplicación
-  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
+  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Hasta que elijas uno, Kept sigue el idioma del navegador. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
 - **Dígitos en árabe**: Occidentales (0123) u orientales (٠١٢٣), mostrados solo mientras el idioma es árabe.
   Los ID cortos y los números de serie siempre se mantienen en dígitos occidentales.
 - **Región**: **Estados Unidos** (29 oct) o **Reino Unido** (29 oct, 29/10/2026), mostrado solo
   mientras el idioma es inglés.
+  En español, los números y las fechas siguen la región del navegador: un navegador configurado
+  para México escribe `1,234,567.5` y uno para España `1.234.567,5`.
+- **Los importes** se leen como los escribe tu idioma. Donde la coma es el separador decimal, como en
+  España, `1.234` es mil doscientos treinta y cuatro y `12,50` es doce y medio. Un importe que se
+  puede leer de dos maneras, como `0.125`, se rechaza en lugar de adivinarse.
 - **Formato de fecha**: **Predeterminado** (29 oct, con el año solo para otros años), 29 oct 2026,
   29/10/2026 o 2026-10-29 (como los escribe el Reino Unido). Cada opción muestra la fecha de hoy
   escrita así, en tu región. Las fechas de compra y

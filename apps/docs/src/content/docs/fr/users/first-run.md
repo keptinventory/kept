@@ -119,11 +119,16 @@ contient au plus 20 comptes gérés.
 - **Langue** : العربية, Deutsch, English, Español, Français, Italiano, Українська ou Tiếng Việt.
   Ouvrez la liste, ou saisissez pour en trouver une : son nom, son nom en anglais ou dans la langue que vous
   utilisez, et les petites fautes de frappe passent (`german`, `deutsch` et `francais` fonctionnent tous). L’arabe présente toute l’application de droite
-  à gauche. Les pages de connexion ont le même sélecteur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
+  à gauche. Les pages de connexion ont le même sélecteur. Tant que vous n’en choisissez pas une, Kept suit la langue du navigateur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
 - **Chiffres arabes orientaux** : Occidentaux (0123) ou Orientaux (٠١٢٣), affichés uniquement quand la langue est l’arabe.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement
   quand la langue est l’anglais.
+  En espagnol, les nombres et les dates suivent la région du navigateur : un navigateur réglé sur le
+  Mexique écrit `1,234,567.5`, un navigateur réglé sur l’Espagne `1.234.567,5`.
+- **Les montants** sont lus comme votre langue les écrit. Là où la virgule est le séparateur
+  décimal, comme en français, `1.234` vaut mille deux cent trente-quatre et `12,50` douze et demi.
+  Un montant qui peut se lire de deux façons, comme `0.125`, est refusé plutôt que deviné.
 - **Format de date** : **Par défaut** (29 Oct, avec l’année seulement pour les autres années), 29 Oct 2026,
   29/10/2026 ou 2026-10-29 (comme l’écrit le Royaume-Uni). Chaque choix affiche la date du jour
   écrite ainsi, dans votre région. Les dates d’achat et de

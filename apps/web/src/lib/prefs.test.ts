@@ -64,6 +64,30 @@ describe('languages', () => {
     expect(new Intl.NumberFormat(formatLocale('de', 'western')).format(1234.5)).toBe('1.234,5');
   });
 
+  it('writes Spanish numbers and dates in the browser’s region; the catalogue stays es (#474)', () => {
+    vi.stubGlobal('navigator', { language: 'es-MX' });
+    expect(formatLocale('es', 'western')).toBe('es-MX');
+    expect(new Intl.NumberFormat(formatLocale('es', 'western')).format(1234567.5)).toBe(
+      '1,234,567.5',
+    );
+    vi.stubGlobal('navigator', { language: 'es-419' });
+    expect(formatLocale('es', 'eastern')).toBe('es-419');
+    vi.stubGlobal('navigator', { language: 'es-AR-u-nu-arab' });
+    expect(formatLocale('es', 'western')).toBe('es-AR');
+    vi.stubGlobal('navigator', { language: 'es-ES' });
+    expect(new Intl.NumberFormat(formatLocale('es', 'western')).format(1234567.5)).toBe(
+      '1.234.567,5',
+    );
+    vi.stubGlobal('navigator', { language: 'es' });
+    expect(formatLocale('es', 'western')).toBe('es');
+    // A browser in another language: Spain's Spanish, as before.
+    vi.stubGlobal('navigator', { language: 'en-US' });
+    expect(formatLocale('es', 'western')).toBe('es');
+    // Only Spanish follows the browser's region; English has its own choice.
+    vi.stubGlobal('navigator', { language: 'fr-CA' });
+    expect(formatLocale('fr', 'western')).toBe('fr');
+  });
+
   it('starts in the stored language, else the browser’s when it is one of them', () => {
     vi.stubGlobal('navigator', { language: 'it-IT' });
     expect(initialLocale()).toBe('it');
