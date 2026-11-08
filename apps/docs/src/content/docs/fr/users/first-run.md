@@ -124,6 +124,8 @@ contient au plus 20 comptes gérés.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement
   quand la langue est l’anglais.
+  En espagnol, les nombres et les dates suivent la région du navigateur : un navigateur réglé sur le
+  Mexique écrit `1,234,567.5`, un navigateur réglé sur l’Espagne `1.234.567,5`.
 - **Les montants** sont lus comme votre langue les écrit. Là où la virgule est le séparateur
   décimal, comme en français, `1.234` vaut mille deux cent trente-quatre et `12,50` douze et demi.
   Un montant qui peut se lire de deux façons, comme `0.125`, est refusé plutôt que deviné.

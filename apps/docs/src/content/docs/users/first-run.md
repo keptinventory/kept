@@ -129,6 +129,8 @@ holds at most 20 of them.
   Short IDs and serial numbers always stay in Western digits.
 - **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only
   while the language is English.
+  Spanish has no choice to make: its numbers and dates follow the browser's region, so a browser
+  set to Mexico writes `1,234,567.5` and one set to Spain `1.234.567,5`.
 - **Amounts** are read the way your language writes them. Where the comma is the decimal mark, as
   in German, `1.234` is one thousand two hundred and thirty-four and `12,50` is twelve and a half.
   An amount that could be read either way, like `0.125`, is refused rather than guessed.

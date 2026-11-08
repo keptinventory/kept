@@ -128,6 +128,8 @@ nimmt höchstens 20 davon auf.
   Kurze IDs und Seriennummern bleiben immer bei westlichen Ziffern.
 - **Region**: **Vereinigte Staaten** (Oct 29) oder **Vereinigtes Königreich** (29 Oct, 29/10/2026), nur angezeigt, während die Sprache
   Englisch ist.
+  Spanisch folgt bei Zahlen und Datumsangaben der Region des Browsers: Ein auf Mexiko eingestellter
+  Browser schreibt `1,234,567.5`, einer auf Spanien `1.234.567,5`.
 - **Beträge** werden so gelesen, wie deine Sprache sie schreibt. Wo das Komma das Dezimalzeichen ist,
   wie im Deutschen, ist `1.234` eintausendzweihundertvierunddreißig und `12,50` zwölfeinhalb. Ein
   Betrag, der sich auf zwei Arten lesen lässt, etwa `0.125`, wird abgelehnt statt geraten.

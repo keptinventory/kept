@@ -102,8 +102,24 @@ export function storedDateFormat(): DateFormatPref {
 }
 
 /**
- * The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system, and in
- * English its region (`en-GB`, #362). The region defaults to the one chosen on this device.
+ * #474: Spanish as the browser's region writes it (`es-MX`, `es-419`: 1,234,567.5; `es-ES`:
+ * 1.234.567,5), for a browser in Spanish; Spain's otherwise. Only the region is taken.
+ */
+function spanishTag(): string {
+  const nav = typeof navigator !== 'undefined' ? navigator.language : undefined;
+  if (!nav || localeOfTag(nav) !== 'es') return 'es';
+  try {
+    const region = new Intl.Locale(nav.replace('_', '-')).region;
+    return region ? `es-${region}` : 'es';
+  } catch {
+    return 'es';
+  }
+}
+
+/**
+ * The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system, in
+ * English its region (`en-GB`, #362), the one chosen on this device by default, and in Spanish the
+ * browser's region (#474). The catalogue is the language's alone.
  */
 export function formatLocale(
   locale: Locale,
@@ -111,6 +127,7 @@ export function formatLocale(
   region: EnglishRegion = state.region,
 ): string {
   if (locale === 'en') return region === 'gb' ? 'en-GB' : 'en';
+  if (locale === 'es') return spanishTag();
   if (locale !== 'ar') return locale;
   return digits === 'eastern' ? 'ar-u-nu-arab' : 'ar-u-nu-latn';
 }

@@ -126,6 +126,8 @@ tiene como máximo 20 de ellas.
   Los ID cortos y los números de serie siempre se mantienen en dígitos occidentales.
 - **Región**: **Estados Unidos** (29 oct) o **Reino Unido** (29 oct, 29/10/2026), mostrado solo
   mientras el idioma es inglés.
+  En español, los números y las fechas siguen la región del navegador: un navegador configurado
+  para México escribe `1,234,567.5` y uno para España `1.234.567,5`.
 - **Los importes** se leen como los escribe tu idioma. Donde la coma es el separador decimal, como en
   España, `1.234` es mil doscientos treinta y cuatro y `12,50` es doce y medio. Un importe que se
   puede leer de dos maneras, como `0.125`, se rechaza en lugar de adivinarse.
