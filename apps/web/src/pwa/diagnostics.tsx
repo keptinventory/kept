@@ -48,7 +48,7 @@ export function DiagnosticsPanel({
 
   const rows = (results ?? []).map((result) => ({ label: labels[result.key], result }));
   const report = reportText(
-    [`Kept diagnostics · ${new Date().toISOString()}`, navigator.userAgent],
+    [`Kept diagnostics, ${new Date().toISOString()}`, navigator.userAgent],
     rows,
   );
 

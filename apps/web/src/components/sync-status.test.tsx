@@ -87,13 +87,13 @@ describe('the sync status line', () => {
 
   it('offline with changes waiting, which may not be captures (a label claim is one too)', async () => {
     await show({ ...base, problem: 'offline', counts: { ...base.counts, waiting: 12 } });
-    expect(screen.getByText('Offline · 12 waiting to sync')).toBeInTheDocument();
+    expect(screen.getByText('Offline, 12 waiting to sync')).toBeInTheDocument();
     expect(screen.queryByText(/captures? waiting/)).toBeNull();
   });
 
   it('offline with nothing waiting says how old the copy is', async () => {
     await show({ ...base, problem: 'offline' });
-    expect(screen.getByText(/^Offline · as of last sync, /)).toBeInTheDocument();
+    expect(screen.getByText(/^Offline, as of last sync, /)).toBeInTheDocument();
   });
 
   it('a refused queue asks for an update, and a full phone says so', async () => {

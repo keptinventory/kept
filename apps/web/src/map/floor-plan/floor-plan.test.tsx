@@ -151,7 +151,7 @@ describe('an open plan’s state', () => {
       />,
     );
     expect(
-      screen.getByText('Waiting for an AI provider · ask an admin to connect one'),
+      screen.getByText('Waiting for an AI provider, ask an admin to connect one'),
     ).toBeTruthy();
   });
   it('failed, a PDF: try again, a screenshot, or discard', async () => {

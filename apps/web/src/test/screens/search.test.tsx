@@ -54,8 +54,8 @@ describe('search', () => {
     expect(within(cable).getByText('HDMI').tagName).toBe('MARK');
     // Things from two locations: each gets its heading ("Home · 1", "بيت العائلة · 1").
     expect([...list.querySelectorAll('[role="presentation"]')].map((h) => h.textContent)).toEqual([
-      'Home · 1',
-      'بيت العائلة · 1',
+      'Home, 1',
+      'بيت العائلة, 1',
     ]);
   });
 
@@ -169,8 +169,8 @@ describe('search', () => {
     const section = heading.closest('section') as HTMLElement;
     const links = within(section).getAllByRole('link');
     expect(links.map((l) => l.getAttribute('href'))).toEqual([`/t/${T.drill}`, `/t/${T.drill}`]);
-    expect(within(section).getByText(/^Manual ·/)).toBeInTheDocument();
-    expect(within(section).getByText(/^Receipt ·/)).toBeInTheDocument();
+    expect(within(section).getByText(/^Manual,/)).toBeInTheDocument();
+    expect(within(section).getByText(/^Receipt,/)).toBeInTheDocument();
     // The excerpt is text: its markup shows as typed, and only the matched word is marked.
     const snippets = section.querySelectorAll('[data-snippet]');
     expect(snippets).toHaveLength(2);
@@ -183,8 +183,8 @@ describe('search', () => {
     await renderApp('/search?q=torque', { state: withDocuments(asRole('viewer')) });
     const heading = await screen.findByRole('heading', { name: /Documents/ });
     const section = heading.closest('section') as HTMLElement;
-    expect(within(section).getByText(/^Manual ·/)).toBeInTheDocument();
-    expect(within(section).queryByText(/^Receipt ·/)).toBeNull();
+    expect(within(section).getByText(/^Manual,/)).toBeInTheDocument();
+    expect(within(section).queryByText(/^Receipt,/)).toBeNull();
     expect(section.querySelector('[data-snippet]')).toBeNull();
   });
 

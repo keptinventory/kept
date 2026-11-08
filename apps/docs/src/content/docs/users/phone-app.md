@@ -46,7 +46,7 @@ person's copy from the phone.
 What you do offline goes into a queue and is sent when the phone is back online. A line under the
 header appears only when there's something to say:
 
-- **Offline · 12 waiting to sync**, or **Offline · as of last sync, 14:02**.
+- **Offline, 12 waiting to sync**, or **Offline, as of last sync, 14:02**.
 - New things show **ID pending** until the server gives them their short ID; labels for them can
   be printed once it arrives (Labels offers **Print pending labels**).
 - **On iPhone, the queue moves only while Kept is open**: the line says **Open to finish syncing

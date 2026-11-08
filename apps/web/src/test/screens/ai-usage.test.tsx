@@ -172,7 +172,7 @@ describe('AI usage', () => {
 describe('the AI line', () => {
   it('with a price opens its ledger row; without one says cost unknown', async () => {
     const { user } = await renderApp(`/t/${INV_IDS.thing.drill}`);
-    const line = await screen.findByRole('button', { name: /^AI · Groq · / });
+    const line = await screen.findByRole('button', { name: /^AI, Groq, / });
     expect(line).toHaveTextContent('≈ $0.003');
     expect(line).toHaveTextContent('paid by you');
     await user.click(line);

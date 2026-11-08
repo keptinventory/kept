@@ -68,7 +68,7 @@ llamadas hace, los tokens que consume y el coste según la tabla de precios, a p
 - **Capturar** (modos Objeto, Recibo, Etiqueta, Lectura): una llamada por foto. Se rellenan nombres,
   marcas, modelos y tipos; precios, fechas, series y lecturas esperan en la bandeja de entrada como
   valores sugeridos para que los aceptes. Cada borrador rellenado con IA lleva una línea como
-  "Leído por qwen/qwen3.8-27b (Groq) · 2,502 tokens", con su coste y quién lo pagó.
+  "Leído por qwen/qwen3.8-27b (Groq), 2,502 tokens", con su coste y quién lo pagó.
 - **Varios objetos en una foto** (modo Objeto; Administrador → Configuración, desactivado por
   defecto): la misma llamada nombra hasta 12 objetos en la foto. La primera rellena el borrador de la
   propia captura y conserva la foto; cada una de las demás se convierte en un borrador a su lado, en
@@ -116,10 +116,10 @@ Nada está limitado por dinero salvo que alguien lo elija: tras la primera clave
 - **Pausar IA** detiene todas las llamadas a mano hasta que reanudes.
 
 Cuando se alcanza un límite, la IA se pausa solo para ese ámbito, con un aviso como "IA pausada
-hasta el 1 de oct · límite mensual de Home alcanzado". **Las capturas se siguen guardando; el
+hasta el 1 de oct, límite mensual de Home alcanzado". **Las capturas se siguen guardando; el
 nombrado espera**, y se reanuda cuando la IA lo haga. Quien fijó el límite obtiene **Reanudar
 ahora**, para subirlo, quitarlo o mantener la pausa. El propio límite de tasa de un proveedor no
-es una pausa: las líneas de progreso dicen "Esperando a Groq · unos 20 s" y siguen.
+es una pausa: las líneas de progreso dicen "Esperando a Groq, unos 20 s" y siguen.
 
 **Una petición al asistente se mantiene por debajo del límite por minuto del proveedor** una vez que
 el proveedor lo ha indicado (nivel gratuito de Groq: 8,000 tokens por minuto). Cada petición incluye

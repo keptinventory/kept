@@ -124,7 +124,7 @@ chứa tối đa 20 tài khoản như vậy.
 |---|---|
 | Cơ bản | Trang chủ, các địa điểm của bạn, Quét, Tìm kiếm, và nơi mọi thứ khác ở |
 | Đồ vật & vị trí | thêm vào địa điểm, những gì có trong đó, và trang của một đồ vật cùng các thẻ |
-| Đồ thị & bản đồ 3D | công tắc Danh sách · Lưới · Đồ thị · Bảng · Bản đồ (Bảng trên máy tính), đồ thị 2D hoặc 3D, 3D hoặc mặt bằng, ghim, tầng và Sắp xếp, nơi phòng di chuyển cùng những gì bên trong |
+| Đồ thị & bản đồ 3D | công tắc Danh sách, Lưới, Đồ thị, Bảng, Bản đồ (Bảng trên máy tính), đồ thị 2D hoặc 3D, 3D hoặc mặt bằng, ghim, tầng và Sắp xếp, nơi phòng di chuyển cùng những gì bên trong |
 | Chụp & Hộp thư đến | chọn gì để chụp, nút chụp, và xem lại Kept đọc được gì |
 | Quét | một phiên quét: đếm, đóng gói hoặc di chuyển, đâu, và điều Finish thay đổi gì |
 | Tìm kiếm & nhãn | ô tìm kiếm, khung nhìn đã lưu, Chọn (di chuyển, in nhãn, Di chuyển đến Rác), in nhãn và Quét, có thể dán nhãn trống lên vị trí bạn có |
@@ -141,7 +141,7 @@ Chỉ liệt kê các chương bạn có: chương của một mô-đun hiện k
 - Phía trên: bao nhiêu chương đã xong, với một thanh mỏng, và **Xem hướng dẫn**. Khi một số đã xong nó đọc **Tiếp tục hướng dẫn** và tiếp tục ở chương đầu tiên bạn chưa xong.
 - Phía dưới, một hàng ngắn mỗi chương: số thứ tự và các bước. Chạm vào hàng để bắt đầu hướng dẫn tại chương đó. Chương xong gập lại dưới **Xong (N)**; mở để chơi lại.
 - Hướng dẫn bắt đầu từ Trợ giúp. Thanh trên cùng của trang giữ công cụ của trang đó; **Bắt đầu phiên** của phiên quét có **Cho tôi xem** nhỏ cho chương của nó.
-- Cửa sổ bật lên chỉ vị trí bạn đang ở: "Chương 3 của 12 · bước 2 của 5".
+- Cửa sổ bật lên chỉ vị trí bạn đang ở: "Chương 3 của 12, bước 2 của 5".
 - **Tiếp theo** chuyển tiếp, **Quay lại** lùi trong chương, phím mũi tên làm cả hai, và **Esc**
   hoặc **×** đóng lại.
 - Bước cuối của chương gọi tên chương sau: **Tiếp tục** đi thẳng vào nó, **Dừng tại đây**

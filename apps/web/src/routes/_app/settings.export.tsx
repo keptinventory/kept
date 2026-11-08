@@ -88,7 +88,6 @@ function ExportPage() {
           {!online ? <Notice tone="warn" title={<Trans>Needs a connection</Trans>} /> : null}
           <ExportList
             locations={locations.data ?? []}
-            personalId={(locations.data ?? []).find((l) => l.kind === 'personal')?.id}
             onAgain={(run) =>
               setAgain({
                 scope:

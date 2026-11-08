@@ -59,7 +59,7 @@ recordatorios se pausan. Volver a activarlo recupera todo, porque no se borró n
   se ejecutan siempre.
 - **Los dependientes también desaparecen.** El combustible necesita Vehículos, y la mudanza necesita Etiquetas y códigos QR: desactivar
   aquello que necesita un módulo desactiva también ese módulo. Su interruptor muestra entonces
-  *Necesita Vehículos · desactivado en esta ubicación*.
+  *Necesita Vehículos, desactivado en esta ubicación*.
 - **El menú sigue a todas tus ubicaciones.** En **Rastreo**, una entrada (Calendarios, Préstamos,
   Documentación, Consumibles, Vehículos, Mudanza, Perspectivas) aparece una vez que su módulo está activo en cualquiera de tus
   ubicaciones. En **Herramientas**, **Etiquetas** aparece mientras Etiquetas esté activo en algún lugar, y **Conteos** está

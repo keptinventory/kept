@@ -24,17 +24,17 @@ Where this page and the code disagree, the code is right; please open an issue.
 <text class="kd-t" x="100" y="176" text-anchor="middle">MCP clients</text>
 <text class="kd-t2" x="100" y="194" text-anchor="middle">token or OAuth</text>
 <rect class="kd-zone" x="205" y="14" width="270" height="300" rx="8"/>
-<text class="kd-zone-t" x="220" y="34">Kept image · KEPT_ROLE=all runs both</text>
+<text class="kd-zone-t" x="220" y="34">Kept image, KEPT_ROLE=all runs both</text>
 <rect class="kd-box" x="225" y="50" width="230" height="70" rx="6"/>
 <text class="kd-t" x="340" y="78" text-anchor="middle">Web: Fastify</text>
 <text class="kd-t2 kd-mono" x="340" y="98" text-anchor="middle">KEPT_ROLE=web</text>
-<text class="kd-t2" x="340" y="113" text-anchor="middle">/api/v1 · /mcp · the web bundle</text>
+<text class="kd-t2" x="340" y="113" text-anchor="middle">/api/v1, /mcp, the web bundle</text>
 <rect class="kd-box" x="225" y="145" width="230" height="70" rx="6"/>
 <text class="kd-t" x="340" y="173" text-anchor="middle">Worker: pg-boss jobs</text>
 <text class="kd-t2 kd-mono" x="340" y="193" text-anchor="middle">KEPT_ROLE=worker</text>
 <text class="kd-t2" x="340" y="208" text-anchor="middle">reminders, AI, purge, backup</text>
 <rect class="kd-box kd-sunken" x="225" y="245" width="230" height="52" rx="6"/>
-<text class="kd-t" x="340" y="267" text-anchor="middle">kept migrate · kept admin</text>
+<text class="kd-t" x="340" y="267" text-anchor="middle">kept migrate, kept admin</text>
 <text class="kd-t2" x="340" y="285" text-anchor="middle">one-shot, as kept_owner</text>
 <rect class="kd-box kd-accent" x="520" y="20" width="220" height="64" rx="6"/>
 <text class="kd-t kd-on-accent" x="630" y="46" text-anchor="middle">Postgres 18 + pgvector</text>
@@ -91,10 +91,10 @@ app, or both.
 <text class="kd-t2" x="100" y="74" text-anchor="middle">our own request id</text>
 <rect class="kd-box" x="210" y="30" width="160" height="58" rx="6"/>
 <text class="kd-t" x="290" y="55" text-anchor="middle">onRequest hooks</text>
-<text class="kd-t2" x="290" y="74" text-anchor="middle">CSRF · token · session</text>
+<text class="kd-t2" x="290" y="74" text-anchor="middle">CSRF, token, session</text>
 <rect class="kd-box" x="400" y="30" width="160" height="58" rx="6"/>
 <text class="kd-t" x="480" y="55" text-anchor="middle">Validation</text>
-<text class="kd-t2" x="480" y="74" text-anchor="middle">zod · module gate</text>
+<text class="kd-t2" x="480" y="74" text-anchor="middle">zod, module gate</text>
 <rect class="kd-box" x="590" y="30" width="150" height="58" rx="6"/>
 <text class="kd-t kd-mono" x="665" y="55" text-anchor="middle">scopedWrite()</text>
 <text class="kd-t2" x="665" y="74" text-anchor="middle">Idempotency-Key</text>
@@ -102,7 +102,7 @@ app, or both.
 <text class="kd-zone-t" x="24" y="142">one transaction on kept_app: withScope()</text>
 <rect class="kd-box kd-accent" x="30" y="160" width="160" height="62" rx="6"/>
 <text class="kd-t kd-on-accent" x="110" y="186" text-anchor="middle">BEGIN, set_config</text>
-<text class="kd-t2 kd-on-accent kd-mono" x="110" y="206" text-anchor="middle">app.user_id · app.mfa</text>
+<text class="kd-t2 kd-on-accent kd-mono" x="110" y="206" text-anchor="middle">app.user_id, app.mfa</text>
 <rect class="kd-box" x="215" y="160" width="160" height="62" rx="6"/>
 <text class="kd-t" x="295" y="186" text-anchor="middle">Route handler</text>
 <text class="kd-t2" x="295" y="206" text-anchor="middle">RLS filters every row</text>

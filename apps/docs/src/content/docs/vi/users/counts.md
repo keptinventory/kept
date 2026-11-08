@@ -14,7 +14,7 @@ Tìm kiếm theo những gì đã được kiểm kê, và lọc theo loại (ki
 ## Trang của một lần kiểm kê
 
 - **Tìm thấy X của Y**, khi nào, mất bao lâu, ai đã kiểm kê (mọi người, trong một lần kiểm kê chung) và ai đã hoàn thành nó.
-- **Kể từ lần kiểm kê trước** của cùng một vị trí hoặc hộp: "1 mới bị thiếu · 0 tìm thấy lại · 2 đồ vật mới", với liên kết đến lần trước.
+- **Kể từ lần kiểm kê trước** của cùng một vị trí hoặc hộp: "1 mới bị thiếu, 0 tìm thấy lại, 2 đồ vật mới", với liên kết đến lần trước.
 - Các danh sách của nó, mỗi hàng liên kết đến đồ vật với vị trí hiện tại của nó:
 
 | Danh sách | Ý nghĩa |

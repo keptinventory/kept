@@ -1,4 +1,5 @@
 /** Hide the Personal location (#392): Settings → Me, what leaves the app, and what stays. */
+import { newId } from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { capturePaths } from '@/api/capture/paths';
@@ -15,6 +16,7 @@ import { paths } from '@/api/paths';
 import { PORTABILITY_IDS, pt } from '@/api/portability/mock/state';
 import { defaultTarget, shownLocations } from '@/components/capture/target';
 import { findHeading, renderApp } from '@/test/app';
+import { openFilters } from '@/test/filters';
 
 /** Ibrahim with Personal hidden. */
 const hidden = () => {
@@ -234,6 +236,43 @@ describe('with Personal hidden', () => {
     const sheet = await screen.findByRole('dialog', { name: 'Export a location' });
     await user.click(within(sheet).getByRole('button', { name: /Location/ }));
     expect(await screen.findByRole('option', { name: 'Personal' })).toBeInTheDocument();
+  });
+
+  it('the export list filters Personal by its name, beside one My data (#459)', async () => {
+    const state = hidden();
+    const me = pt(state).exports.find((r) => r.scope === 'me');
+    if (!me) throw new Error('the mock has no My data export');
+    pt(state).exports.push({ ...me, id: newId(), scope: 'location', locationId: IDS.personal });
+    const { user } = await renderApp('/settings/export', { state });
+    await screen.findByRole('button', { name: /^Filters/ });
+    const sheet = await openFilters(user, 'Location');
+    const grid = within(sheet).getByRole('grid', { name: 'Location' });
+    expect(within(grid).getAllByRole('row', { name: /^My data/ })).toHaveLength(1);
+    expect(within(grid).getByRole('row', { name: /^Personal/ })).toBeInTheDocument();
+  });
+
+  it('a template sheet keeps a hidden Personal it was shared with, once deselected (#459)', async () => {
+    const state = hidden();
+    const box = state.capture.templates[0];
+    if (!box) throw new Error('the mock has no template');
+    box.locations = [
+      { id: IDS.personal, name: 'Personal' },
+      { id: IDS.home, name: 'Home' },
+    ];
+    const { user } = await renderApp('/settings/account/templates', { state });
+    await screen.findByRole('list', { name: 'Templates' });
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Edit template' });
+    await user.click(within(sheet).getByRole('button', { name: /Share with/ }));
+    await user.click(await screen.findByRole('option', { name: 'Personal' }));
+    // Deselected, and still there to choose again.
+    const personal = await screen.findByRole('option', { name: 'Personal' });
+    expect(personal).toHaveAttribute('aria-selected', 'false');
+    await user.click(personal);
+    expect(screen.getByRole('option', { name: 'Personal' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   });
 
   it('the personal AI key says what it is for', async () => {
