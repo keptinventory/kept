@@ -170,13 +170,13 @@ test('names first: the amber tape only once a label is printed, online and offli
     .toBe(true);
   await context.setOffline(true);
   await row(fan.name).click();
-  await expect(page.getByText(/^On this phone · as of last sync, /)).toBeVisible({
+  await expect(page.getByText(/^On this phone, as of last sync, /)).toBeVisible({
     timeout: 15_000,
   });
   await expect(page.getByRole('img', { name: fan.code })).toHaveAttribute('data-variant', 'tape');
   await page.goBack();
   await row(tray.name).click();
-  await expect(page.getByText(/^On this phone · as of last sync, /)).toBeVisible({
+  await expect(page.getByText(/^On this phone, as of last sync, /)).toBeVisible({
     timeout: 15_000,
   });
   await expect(page.getByRole('img', { name: tray.code })).toHaveAttribute('data-variant', 'quiet');

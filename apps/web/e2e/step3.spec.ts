@@ -204,7 +204,7 @@ test('offline capture: three things into Garage › Shelf A, found offline, name
 
   // The connection drops with the app open: Home says what it shows is as of the last sync.
   await context.setOffline(true);
-  await expect(page.getByText(/^Offline · as of last sync, /).first()).toBeVisible({
+  await expect(page.getByText(/^Offline, as of last sync, /).first()).toBeVisible({
     timeout: 30_000,
   });
 
@@ -224,10 +224,10 @@ test('offline capture: three things into Garage › Shelf A, found offline, name
     await page.getByRole('button', { name: /^Take photo/ }).click();
     await expect(page.getByText(`${i} captured`, { exact: true })).toBeVisible();
   }
-  await expect(page.getByText('Offline · 3 waiting to sync').first()).toBeVisible();
+  await expect(page.getByText('Offline, 3 waiting to sync').first()).toBeVisible();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Capture done', level: 1 })).toBeVisible();
-  await expect(page.getByRole('img', { name: 'Waiting · ID pending' })).toHaveCount(3);
+  await expect(page.getByRole('img', { name: 'Waiting, ID pending' })).toHaveCount(3);
   await axe(page, 'Capture done');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
 
@@ -237,7 +237,7 @@ test('offline capture: three things into Garage › Shelf A, found offline, name
   const found = page.getByRole('link', { name: /E2E orbital sander/ }).first();
   await expect(found).toBeVisible({ timeout: 15_000 });
   await expect(found.getByText('ID pending')).toBeVisible();
-  await expect(page.getByText(/^On this phone · as of last sync, /)).toBeVisible();
+  await expect(page.getByText(/^On this phone, as of last sync, /)).toBeVisible();
   await axe(page, 'Search (offline)');
   await nav(page, 'Home').click();
 
@@ -246,7 +246,7 @@ test('offline capture: three things into Garage › Shelf A, found offline, name
   await expect(page.getByText(/waiting to sync/)).toHaveCount(0, { timeout: 60_000 });
   await expect(async () => {
     await page.goto('/inbox');
-    await expect(page.getByText(/· 3 captured · Garage › Shelf A/).first()).toBeVisible({
+    await expect(page.getByText(/, 3 captured, Garage › Shelf A/).first()).toBeVisible({
       timeout: 5_000,
     });
     await expect(page.getByRole('article', { name: 'Thing', exact: true })).toHaveCount(2, {
@@ -293,7 +293,7 @@ test('a cold reload while offline opens the signed-in app from the phone', async
   await expect(page.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible({
     timeout: 15_000,
   });
-  await expect(page.getByText(/^Offline · as of last sync, /).first()).toBeVisible();
+  await expect(page.getByText(/^Offline, as of last sync, /).first()).toBeVisible();
   await expect(page.getByText("Couldn't load this")).toHaveCount(0);
   // The frame is whole: the main navigation, and the locations from the last sync.
   await expect(nav(page, 'Search')).toBeVisible();
@@ -316,7 +316,7 @@ test('offline, the Search screen finds things kept on the phone', async ({ brows
   await controlled(page);
   await expect(page.getByRole('heading', { name: 'Home', level: 1 })).toBeVisible();
   await context.setOffline(true);
-  await expect(page.getByText(/^Offline · as of last sync, /).first()).toBeVisible({
+  await expect(page.getByText(/^Offline, as of last sync, /).first()).toBeVisible({
     timeout: 30_000,
   });
   await nav(page, 'Search').click();
@@ -325,7 +325,7 @@ test('offline, the Search screen finds things kept on the phone', async ({ brows
   await expect(drill).toBeVisible({ timeout: 15_000 });
   // The seed's drill carries a printed label: the tape, from the phone's copy.
   await expect(drill.getByRole('img', { name: DRILL.code })).toBeVisible();
-  await expect(page.getByText(/^On this phone · as of last sync, /)).toBeVisible();
+  await expect(page.getByText(/^On this phone, as of last sync, /)).toBeVisible();
   await expect(page.getByText('Documents need a connection')).toBeVisible();
   // By its short ID too, like the server.
   await page.getByRole('searchbox', { name: 'Search everything' }).fill(DRILL.code.toLowerCase());
@@ -519,7 +519,7 @@ test('receipt: a `$` receipt picked from the Gallery in Receipt mode asks USD or
 
   // Synced and read: a receipt, never a Thing draft, and a bare `$` waits for the person.
   const ask = page.getByRole('article').filter({ hasText: 'Needs a currency' });
-  // Exact: the question is "CORNER HARDWARE receipt · Needs a currency".
+  // Exact: the question is "CORNER HARDWARE receipt, Needs a currency".
   const review = page.getByRole('article', { name: 'CORNER HARDWARE receipt', exact: true });
   await expect(async () => {
     await page.goto('/inbox');
@@ -529,11 +529,11 @@ test('receipt: a `$` receipt picked from the Gallery in Receipt mode asks USD or
   await expect(ask).toContainText('“$” alone can mean US or Canadian dollars. Which was it?');
   // Both offered, neither chosen for them, here and in the review.
   const currency = ask.getByRole('group', { name: 'Currency' });
-  await expect(currency.getByRole('button')).toHaveText([/· USD$/, /· CAD$/]);
+  await expect(currency.getByRole('button')).toHaveText([/, USD$/, /, CAD$/]);
   await expect(review.getByRole('combobox', { name: 'Currency' })).toHaveValue('');
   // Both items, the question and the review, are on the page.
   await axe(page, 'Inbox: needs a currency, and the receipt review');
-  await currency.getByRole('button', { name: /· USD$/ }).click();
+  await currency.getByRole('button', { name: /, USD$/ }).click();
   await expect(ask).toHaveCount(0, { timeout: 20_000 });
 
   // The review takes the answer: shop, date and total as read, in USD, each line a new thing.
@@ -593,7 +593,7 @@ test('labels: three things on an A4 sheet from cell 5, printed to PDF at the she
   await expect(page.getByRole('heading', { name: 'Printing 3' })).toBeVisible();
   await page
     .getByRole('radiogroup', { name: 'Label stock' })
-    .getByRole('radio', { name: /^A4 sheet · 24 labels/ })
+    .getByRole('radio', { name: /^A4 sheet, 24 labels/ })
     .check({ force: true });
   await page.getByRole('radio', { name: 'Label 5, row 2, column 2' }).check({ force: true });
   await axe(page, 'Print labels');
