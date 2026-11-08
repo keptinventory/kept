@@ -261,6 +261,8 @@ const ON_DEMAND_ENTRIES = [
   // #238 (1.14.4): a furniture page's compartments, turned, merged or split
   // (places/compartments-lazy.tsx).
   '/src/components/places/compartments.tsx',
+  // #373: a rack's elevation and a piece of gear's position sheet (places/rack-lazy.tsx).
+  '/src/components/places/rack.tsx',
   // #294: several things to the Trash at once (things/bulk-trash.tsx), from a place's Select and
   // the spreadsheet; it reads and writes the server only.
   '/src/components/things/bulk-trash.tsx',

@@ -5,14 +5,16 @@
  * the purchase. Edit swaps the details for the form in place. The label as it prints (#366) is a
  * card in the side column from md, and a Label row in the details on a phone, which opens it.
  */
+import { shownRange } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Disclosure, DisclosurePanel, Heading, Button as RAButton } from 'react-aria-components';
 import { OwnCodesSection } from '@/components/codes/own-codes';
 import { KeepAtLeastSection } from '@/components/consumables/lazy';
 import { ChevronDownIcon, PencilIcon } from '@/components/icons';
 import { Pill, Section } from '@/components/page';
+import { GearSheet } from '@/components/places/rack-lazy';
 import { ThingTags } from '@/components/tags/thing-tags';
 import { Button } from '@/components/ui/button';
 import { sep, useFormat } from '@/lib/format';
@@ -138,6 +140,8 @@ function Details({
   add('barcode', t`Barcode`, thing.barcode ? <Printed>{thing.barcode}</Printed> : null);
   add('colour', t`Colour`, thing.colour ? <Bidi>{thing.colour}</Bidi> : null);
   add('condition', t`Condition`, thing.condition ? conditions[thing.condition] : null);
+  // #373: gear in a rack: its units there, or not placed yet.
+  add('rack', t`In the rack`, thing.rack ? <RackValue /> : null);
   add(
     'belongsTo',
     t`Belongs to`,
@@ -242,4 +246,58 @@ function Archived() {
       </DisclosurePanel>
     </Disclosure>
   );
+}
+
+/** #373: the rack a thing is in, its units and depth there, and Change (Place it). */
+function RackValue() {
+  const { thing, can } = useThingCtx();
+  const [open, setOpen] = useState(false);
+  const rack = thing.rack;
+  if (!rack) return null;
+  const at = rack.at;
+  return (
+    <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+      <Link to="/p/$id" params={{ id: rack.id }} className="text-info underline">
+        <bdi>{rack.name}</bdi>
+      </Link>
+      {at ? (
+        <>
+          <span dir="ltr" className="tabular-nums">
+            {rackUnitsLabel(rack, at.u, thing.rackUnits ?? 1)}
+          </span>
+          <span>
+            {at.full ? (
+              <Trans>Full depth</Trans>
+            ) : at.face === 'rear' ? (
+              <Trans>Rear, half depth</Trans>
+            ) : (
+              <Trans>Front, half depth</Trans>
+            )}
+          </span>
+        </>
+      ) : thing.rackUnits === 0 ? (
+        <Trans>Beside the rails (0U)</Trans>
+      ) : (
+        <Trans>Not placed yet</Trans>
+      )}
+      {can('things.edit') ? (
+        <Button variant="ghost" size="small" onPress={() => setOpen(true)}>
+          {at ? <Trans>Change</Trans> : <Trans>Place it</Trans>}
+        </Button>
+      ) : null}
+      {open ? (
+        <GearSheet rackId={rack.id} thingId={thing.id} onClose={() => setOpen(false)} />
+      ) : null}
+    </span>
+  );
+}
+
+/** "U12" or "U11–U12" in the rack's numbering, as the rails print them. */
+function rackUnitsLabel(
+  rack: { units: number; numbering: 'bottom' | 'top' },
+  u: number,
+  units: number,
+) {
+  const { from, to } = shownRange(rack, u, units);
+  return from === to ? `U${from}` : `U${from}–U${to}`;
 }

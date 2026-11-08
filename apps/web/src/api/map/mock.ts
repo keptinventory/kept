@@ -13,7 +13,7 @@ import {
   ROOM_KIND_SURFACE,
 } from '@kept/shared';
 import { SAMPLE_PLAN_SIZE, sampleAnswer } from '@/map/floor-plan/sample-plan';
-import { compartmentsOf, recordEvent, type StoredPlace } from '../inventory/mock/db';
+import { compartmentsOf, rackAtOf, recordEvent, type StoredPlace } from '../inventory/mock/db';
 import type { MockState } from '../mock/fixtures';
 import { err, forbidden, type MockRoute, notFound, reply, route } from '../mock/kit';
 import { mapPaths as p } from './paths';
@@ -195,6 +195,23 @@ export function mockMapView(state: MockState, locationId: string): MapView | nul
         .sort((a, b) => a.n - b.n),
     };
   };
+  // #373: a rack's gear, each at its unit.
+  const rackNode = (x: (typeof places)[number]) => {
+    if (!x.rackLayout) return {};
+    const { units, numbering, mount } = x.rackLayout;
+    return {
+      rack: {
+        units,
+        numbering,
+        mount,
+        gear: things.flatMap((t) => {
+          const at = t.placeId === x.id ? rackAtOf(t) : null;
+          const height = t.rackUnits ?? 1;
+          return at && height > 0 ? [{ id: t.id, name: t.name ?? '', units: height, ...at }] : [];
+        }),
+      },
+    };
+  };
   const compartmentOfThing = (id: string, parentId: string): string | null => {
     if (!byId.get(parentId)?.layout) return null;
     let cur = thingById.get(id);
@@ -263,6 +280,7 @@ export function mockMapView(state: MockState, locationId: string): MapView | nul
       quantity: 1,
       layout: stored.nodes.get(x.id) ?? null,
       ...furnitureNode(x),
+      ...rackNode(x),
     });
   }
   for (const x of things) {

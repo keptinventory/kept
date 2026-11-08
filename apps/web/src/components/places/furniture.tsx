@@ -13,7 +13,9 @@
 import {
   asItStands,
   BUILTIN_PLACE_TEMPLATES,
+  BUILTIN_RACK_TEMPLATES,
   type BuiltinPlaceTemplate,
+  type BuiltinRackTemplate,
   canTurn,
   cellsOf,
   fillPattern,
@@ -23,6 +25,10 @@ import {
   type PlaceLayout,
   type PlaceOrientation,
   patternProblem,
+  RACK_LIMITS,
+  type RackLayout,
+  type RackNumbering,
+  rackUnitsProblem,
   usesParent,
   withCount,
 } from '@kept/shared';
@@ -48,6 +54,7 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { useFormat } from '@/lib/format';
 import { useInvalidateBrowse } from './api';
+import { useRackCaption } from './rack';
 
 export type FurnitureFormProps = {
   locationId: string;
@@ -82,6 +89,15 @@ export function useBuiltinTemplateName() {
     if (b.key === 'bookcase') return t`Bookcase`;
     if (b.key === 'chest') return t`Chest of drawers`;
     return t`Shelving unit`;
+  };
+}
+
+/** A built-in rack template's name (#373): "19-inch rack, 42U", "12U on a wall". */
+export function useRackTemplateName() {
+  return ({ layout: { units, mount, width } }: BuiltinRackTemplate): string => {
+    if (mount === 'wall') return plural(units, { one: '#U on a wall', other: '#U on a wall' });
+    if (width === 10) return plural(units, { one: '10-inch rack, #U', other: '10-inch rack, #U' });
+    return plural(units, { one: '19-inch rack, #U', other: '19-inch rack, #U' });
   };
 }
 
@@ -133,12 +149,16 @@ type Choice = {
   compartmentName: string | null;
   codePattern: string | null;
   template: FromTemplateBody['template'];
+  /** A rack template (#373): its units, numbering and mount. */
+  rack?: RackLayout;
 };
 
 export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormProps) {
   const { t } = useLingui();
   const fmt = useFormat();
   const builtinName = useBuiltinTemplateName();
+  const rackName = useRackTemplateName();
+  const rackCaption = useRackCaption();
   const defaultName = useDefaultCompartmentName();
   const failedText = useFailedCodeText();
   const invalidate = useInvalidateBrowse();
@@ -159,6 +179,17 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
         codePattern: null,
         template: { builtin: b.key },
       })),
+      ...BUILTIN_RACK_TEMPLATES.map((b) => ({
+        id: `builtin:${b.key}`,
+        name: rackName(b),
+        // Unused for a rack: its units are its size.
+        layout: { kind: 'levels' as const, count: 1 },
+        adjustable: false,
+        compartmentName: null,
+        codePattern: null,
+        template: { builtin: b.key },
+        rack: b.layout,
+      })),
       ...(own.data?.items ?? []).map((x) => ({
         id: `own:${x.id}`,
         name: x.name,
@@ -169,7 +200,7 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
         template: { id: x.id },
       })),
     ],
-    [own.data, builtinName],
+    [own.data, builtinName, rackName],
   );
 
   const [choiceId, setChoiceId] = useState('builtin:cube_2x4');
@@ -180,9 +211,12 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
   const [compartmentName, setCompartmentName] = useState<string | null>(null);
   const [code, setCode] = useState('');
   const [codePattern, setCodePattern] = useState<string | null>(null);
+  const [unitsText, setUnitsText] = useState<string | null>(null);
+  const [numbering, setNumbering] = useState<RackNumbering>('bottom');
   const [errors, setErrors] = useState<{
     name?: string;
     count?: string;
+    units?: string;
     names?: string;
     codes?: string;
   }>({});
@@ -195,6 +229,8 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
     setCompartmentName(null);
     setCodePattern(null);
     setOrientation('upright');
+    setUnitsText(null);
+    setNumbering('bottom');
     setErrors({});
   };
 
@@ -218,6 +254,9 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
   const first = cells[0];
   const last = cells.at(-1);
 
+  const rack = choice.rack;
+  const units = unitsText === null ? (rack?.units ?? 0) : Number(unitsText);
+  const rackLayout = rack ? { ...rack, units, numbering } : null;
   const make = useMutation({
     mutationFn: () =>
       placeTemplateApi.fromTemplate(locationId, {
@@ -225,11 +264,7 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
         ...(parentId ? { parentId } : {}),
         template: choice.template,
         name: furnitureName.trim(),
-        ...(turnable ? { orientation: stands } : {}),
-        ...(choice.adjustable && count !== null ? { count } : {}),
-        compartmentName: namePattern.trim(),
-        ...(parentCode ? { code: parentCode } : {}),
-        codePattern: pattern.trim() ? pattern.trim() : null,
+        ...(rack ? { units, numbering, ...(parentCode ? { code: parentCode } : {}) } : rackless()),
       }),
     onSuccess: async ({ body, auditEvents }) => {
       await invalidate();
@@ -238,16 +273,28 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
       offerUndo(
         {
           title: t`Added ${added}`,
-          description: plural(inside, {
-            one: 'With # place inside',
-            other: 'With # places inside',
-          }),
+          description: rackLayout
+            ? rackCaption(rackLayout)
+            : plural(inside, {
+                one: 'With # place inside',
+                other: 'With # places inside',
+              }),
         },
         auditEvents,
       );
       onDone();
     },
   });
+  /** What furniture with compartments sends besides its template and name. */
+  function rackless(): Partial<FromTemplateBody> {
+    return {
+      ...(turnable ? { orientation: stands } : {}),
+      ...(choice.adjustable && count !== null ? { count } : {}),
+      compartmentName: namePattern.trim(),
+      ...(parentCode ? { code: parentCode } : {}),
+      codePattern: pattern.trim() ? pattern.trim() : null,
+    };
+  }
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -255,6 +302,15 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
     const n = furnitureName.trim();
     if (!n) next.name = t`Give it a name, like Cube shelf 01.`;
     else if (n.length > 120) next.name = t`Keep the name under 120 characters.`;
+    if (rack) {
+      if (rackUnitsProblem(units)) {
+        const max = fmt.num(RACK_LIMITS.units);
+        next.units = t`Choose 1 to ${max}.`;
+      }
+      setErrors(next);
+      if (Object.keys(next).length === 0) make.mutate();
+      return;
+    }
     if (choice.adjustable && !layoutOk) {
       const max = fmt.num(PLACE_LAYOUT_LIMITS.count);
       next.count = t`Choose 1 to ${max}.`;
@@ -301,6 +357,35 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
         errorMessage={errors.name}
         inputProps={{ dir: 'auto' }}
       />
+      {rack && rackLayout ? (
+        <>
+          <TextField
+            label={t`Units`}
+            description={t`How many rack units (U) high.`}
+            value={unitsText ?? String(rack.units)}
+            onChange={(v) => {
+              setUnitsText(v.replace(/\D/g, ''));
+              setErrors((x) => ({ ...x, units: undefined }));
+            }}
+            isInvalid={!!errors.units}
+            errorMessage={errors.units}
+            inputProps={{ inputMode: 'numeric', dir: 'ltr' }}
+          />
+          <Segmented<RackNumbering>
+            label={t`Numbered from`}
+            value={numbering}
+            onChange={setNumbering}
+            oneRow
+            options={[
+              { id: 'bottom', label: t`The bottom` },
+              { id: 'top', label: t`The top` },
+            ]}
+          />
+          {rackUnitsProblem(units) ? null : (
+            <p className="m-0 text-small text-ink-2">{rackCaption(rackLayout)}</p>
+          )}
+        </>
+      ) : null}
       {choice.adjustable ? (
         <TextField
           label={layout.kind === 'drawers' ? t`Drawers` : t`Shelves`}
@@ -325,7 +410,7 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
           ]}
         />
       ) : null}
-      {layoutOk ? (
+      {layoutOk && !rack ? (
         <figure className="m-0 grid gap-2">
           <figcaption className="text-small text-ink-2">
             <Trans>
@@ -350,26 +435,30 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
           </ol>
         </figure>
       ) : null}
-      <TextField
-        label={t`Compartment names`}
-        value={namePattern}
-        maxLength={120}
-        description={t`${N} is the number, ${ROW} and ${COL} where it sits.`}
-        onChange={(v) => {
-          setCompartmentName(v);
-          setErrors((x) => ({ ...x, names: undefined }));
-        }}
-        isInvalid={!!errors.names}
-        errorMessage={errors.names}
-        inputProps={{ dir: 'auto' }}
-      />
-      {first && last && !patternProblem(namePattern, { code: false }) ? (
-        <p className="m-0 text-small text-ink-2 [overflow-wrap:anywhere]">
-          <bdi>{fillPattern(namePattern, first)}</bdi>
-          {' … '}
-          <bdi>{fillPattern(namePattern, last)}</bdi>
-        </p>
-      ) : null}
+      {rack ? null : (
+        <>
+          <TextField
+            label={t`Compartment names`}
+            value={namePattern}
+            maxLength={120}
+            description={t`${N} is the number, ${ROW} and ${COL} where it sits.`}
+            onChange={(v) => {
+              setCompartmentName(v);
+              setErrors((x) => ({ ...x, names: undefined }));
+            }}
+            isInvalid={!!errors.names}
+            errorMessage={errors.names}
+            inputProps={{ dir: 'auto' }}
+          />
+          {first && last && !patternProblem(namePattern, { code: false }) ? (
+            <p className="m-0 text-small text-ink-2 [overflow-wrap:anywhere]">
+              <bdi>{fillPattern(namePattern, first)}</bdi>
+              {' … '}
+              <bdi>{fillPattern(namePattern, last)}</bdi>
+            </p>
+          ) : null}
+        </>
+      )}
       <TextField
         label={t`Its own code (optional)`}
         value={code}
@@ -381,31 +470,35 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
         }}
         inputProps={{ dir: 'ltr', autoCapitalize: 'characters' }}
       />
-      <TextField
-        label={t`Compartment codes (optional)`}
-        value={pattern}
-        maxLength={100}
-        placeholder="{parent}-F{col:02}{row:02}"
-        description={t`${PARENT} is its own code; ${PADDED} pads to two digits.`}
-        onChange={(v) => {
-          setCodePattern(v);
-          setErrors((x) => ({ ...x, codes: undefined }));
-        }}
-        isInvalid={!!errors.codes}
-        errorMessage={errors.codes}
-        inputProps={{ dir: 'ltr' }}
-      />
-      {first &&
-      last &&
-      pattern.trim() &&
-      !errors.codes &&
-      !patternProblem(pattern, { code: true }) ? (
-        <p className="m-0 text-small text-ink-2 [overflow-wrap:anywhere]" dir="ltr">
-          {codeOf(first)}
-          {' … '}
-          {codeOf(last)}
-        </p>
-      ) : null}
+      {rack ? null : (
+        <>
+          <TextField
+            label={t`Compartment codes (optional)`}
+            value={pattern}
+            maxLength={100}
+            placeholder="{parent}-F{col:02}{row:02}"
+            description={t`${PARENT} is its own code; ${PADDED} pads to two digits.`}
+            onChange={(v) => {
+              setCodePattern(v);
+              setErrors((x) => ({ ...x, codes: undefined }));
+            }}
+            isInvalid={!!errors.codes}
+            errorMessage={errors.codes}
+            inputProps={{ dir: 'ltr' }}
+          />
+          {first &&
+          last &&
+          pattern.trim() &&
+          !errors.codes &&
+          !patternProblem(pattern, { code: true }) ? (
+            <p className="m-0 text-small text-ink-2 [overflow-wrap:anywhere]" dir="ltr">
+              {codeOf(first)}
+              {' … '}
+              {codeOf(last)}
+            </p>
+          ) : null}
+        </>
+      )}
       {make.error ? <Notice tone="danger">{failedText(make.error)}</Notice> : null}
       <DialogFooter>
         <Button variant="secondary" onPress={onDone}>

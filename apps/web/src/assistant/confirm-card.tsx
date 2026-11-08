@@ -224,6 +224,10 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Size on the map`;
       case 'places':
         return t`Places`;
+      case 'rack':
+        return t`In the rack`;
+      case 'rackUnits':
+        return t`Rack units`;
     }
   };
 }
@@ -284,6 +288,21 @@ function ValueView({ v }: { v: Val }) {
       );
     case 'roomSize':
       return <RoomSizeView w={v.w} d={v.d} />;
+    case 'rack':
+      return v.at ? (
+        <span className="inline-flex flex-wrap gap-x-2">
+          <span dir="ltr">{`U${v.at.u}`}</span>
+          <span>
+            {v.at.full
+              ? t`Full depth`
+              : v.at.face === 'rear'
+                ? t`Rear, half depth`
+                : t`Front, half depth`}
+          </span>
+        </span>
+      ) : (
+        <span>{t`Not placed yet`}</span>
+      );
     case 'text':
       return v.v ? <bdi>{v.v}</bdi> : <span className="text-ink-3">{t`Nothing`}</span>;
     case 'path':

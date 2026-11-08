@@ -340,4 +340,20 @@ describe('update_thing rows', () => {
       ['purchaseNotes', { t: 'text', v: 'Bought used' }],
     ]);
   });
+
+  it('shows a piece of gear’s height and where it is mounted in its rack (#373)', () => {
+    const rows = (fields: Record<string, unknown>) =>
+      rowsOf({
+        ...proposal(
+          { thing_id: CAR, fields },
+          { [CAR]: { kind: 'thing', name: 'Switch', path: [] } },
+        ),
+        tool: 'update_thing',
+      })[0]?.fields.map((f) => [f.key, f.after]);
+    expect(rows({ rack_units: 1, rack_at: { u: 11, face: 'rear', full: false } })).toEqual([
+      ['rackUnits', { t: 'text', v: '1U' }],
+      ['rack', { t: 'rack', at: { u: 11, face: 'rear', full: false } }],
+    ]);
+    expect(rows({ rack_at: null })).toEqual([['rack', { t: 'rack', at: null }]]);
+  });
 });

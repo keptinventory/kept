@@ -99,7 +99,7 @@ const view: MapView = {
       isContainer: false,
       quantity: 1,
       layout: null,
-      grid: shelf.grid ?? null,
+      grid: shelf.grid?.kind === 'rack' ? null : (shelf.grid ?? null),
       compartments,
     },
   ],

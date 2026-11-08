@@ -39,7 +39,10 @@ export type Val =
   /** update_place (#238): furniture turned, its top to the right or left, renumbered or not. */
   | { t: 'turn'; v: 'right' | 'left'; renumber: boolean }
   /** create_place (#372): the room's width and length on the map, in whole centimetres. */
-  | { t: 'roomSize'; w: number; d: number };
+  | { t: 'roomSize'; w: number; d: number }
+  /** update_thing (#373): where gear is mounted in its rack (its lowest unit from the bottom), or
+   * null: off its unit. */
+  | { t: 'rack'; at: { u: number; face: 'front' | 'rear'; full: boolean } | null };
 
 export type FieldKey =
   | 'from'
@@ -94,7 +97,9 @@ export type FieldKey =
   | 'step'
   | 'turn'
   | 'size'
-  | 'places';
+  | 'places'
+  | 'rack'
+  | 'rackUnits';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
 
@@ -343,6 +348,21 @@ export function rowsOf(p: Proposal): CardRow[] {
       const custom = rec(f.custom);
       for (const [k, v] of Object.entries(custom))
         push('custom', { t: 'text', v: `${k}: ${v === null ? '' : String(v)}` });
+      // #373: gear in a rack, its height and where it is mounted.
+      if ('rack_units' in f) {
+        const n = f.rack_units;
+        push('rackUnits', typeof n === 'number' ? { t: 'text', v: `${n}U` } : { t: 'text', v: '' });
+      }
+      if ('rack_at' in f) {
+        const at = rec(f.rack_at);
+        push('rack', {
+          t: 'rack',
+          at:
+            typeof at.u === 'number' && (at.face === 'front' || at.face === 'rear')
+              ? { u: at.u, face: at.face, full: at.full !== false }
+              : null,
+        });
+      }
       // #348: its purchase, each part it changes (null clears one).
       if ('purchase' in f) {
         const buy = rec(f.purchase);

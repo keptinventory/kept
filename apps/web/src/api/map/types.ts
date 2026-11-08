@@ -68,6 +68,23 @@ export type MapNodeView = {
    * Missing from a server before 1.14.4. */
   grid?: { columns: number; rows: number; kind: 'grid' | 'levels' | 'drawers' } | null;
   compartments?: MapCompartment[];
+  /** A rack (#373): its units and the gear mounted in it. Missing from a server before 1.14.7. */
+  rack?: MapRack | null;
+};
+
+/** A rack on the map (#373): each piece of gear at its unit, counted from the bottom. */
+export type MapRack = {
+  units: number;
+  numbering: 'bottom' | 'top';
+  mount: 'floor' | 'wall';
+  gear: {
+    id: string;
+    name: string;
+    u: number;
+    units: number;
+    face: 'front' | 'rear';
+    full: boolean;
+  }[];
 };
 
 /** A compartment of furniture on the map (#238): where it sits on the furniture's grid. */
