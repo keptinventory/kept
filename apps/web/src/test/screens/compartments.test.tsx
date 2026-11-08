@@ -244,6 +244,83 @@ describe('a furniture place’s compartments', () => {
     } finally {
       if (original) Object.defineProperty(navigator, 'onLine', original);
       else Reflect.deleteProperty(navigator, 'onLine');
+      // Online again for the tests after this one: the last event said offline.
+      window.dispatchEvent(new Event('online'));
     }
+  });
+});
+
+describe('trashing furniture (#445)', () => {
+  const trashSheet = async (user: Awaited<ReturnType<typeof renderApp>>['user']) => {
+    await user.click(screen.getByRole('button', { name: /^Move to trash/ }));
+    return screen.findByRole('alertdialog', { name: 'Move Cube shelf 01 to the trash?' });
+  };
+
+  it('asks nothing when its compartments are empty: they go with it', async () => {
+    const { state, id } = withShelf();
+    const { user, mock } = await renderApp(`/p/${id}`, { state, digits: 'western' });
+    await findHeading('Cube shelf 01');
+    const sheet = await trashSheet(user);
+    expect(
+      within(sheet).getByText(
+        'Its 8 compartments go to the trash with it, and come back with it on Restore.',
+      ),
+    ).toBeVisible();
+    expect(within(sheet).queryByRole('radiogroup')).not.toBeInTheDocument();
+    await user.click(within(sheet).getByRole('button', { name: 'Move to trash' }));
+    await waitFor(() => expect(mock.lastCall('POST', p.placeTrash(id))?.body).toEqual({}));
+  });
+
+  it('asks only about what is in it and its compartments, and moves it to the room', async () => {
+    const { state, id } = withShelf();
+    const base = state.inventory.things.find((x) => x.id === INV_IDS.thing.tv);
+    if (!base) throw new Error('fixture');
+    const cube = '01970000-0000-7000-8000-00000000f103';
+    state.inventory.things.push({
+      ...base,
+      id: '01970000-0000-7000-8000-00000000f201',
+      shortCode: null,
+      name: 'Board games',
+      placeId: cube,
+      containerId: null,
+    });
+    const tray = state.inventory.places.find((x) => x.id === cube) as StoredPlace;
+    state.inventory.places.push({
+      ...tray,
+      id: '01970000-0000-7000-8000-00000000f202',
+      parentId: id,
+      name: 'Top tray',
+      kindKey: 'zone',
+      cell: undefined,
+      ownCodes: [],
+    });
+    const { user, mock } = await renderApp(`/p/${id}`, { state, digits: 'western' });
+    await findHeading('Cube shelf 01');
+    const sheet = await trashSheet(user);
+    expect(
+      within(sheet).getByText(
+        'Its 8 compartments go to the trash with it, and come back with it on Restore.',
+      ),
+    ).toBeVisible();
+    expect(
+      within(sheet).getByText(
+        (_, el) =>
+          el?.tagName === 'P' &&
+          plainText(el.textContent ?? '') ===
+            'Cube shelf 01 and its compartments hold 1 place and 1 thing. What should happen to them?',
+      ),
+    ).toBeVisible();
+    const move = within(sheet).getByRole('radio', { name: /Move them to Office/ });
+    expect(move).toBeChecked();
+    expect(
+      within(sheet).getByText('Only Cube shelf 01 and its compartments go to the trash.'),
+    ).toBeVisible();
+    await user.click(within(sheet).getByRole('button', { name: 'Move to trash' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', p.placeTrash(id))?.body).toEqual({
+        contents: 'move',
+        moveTo: { placeId: INV_IDS.place.office },
+      }),
+    );
   });
 });

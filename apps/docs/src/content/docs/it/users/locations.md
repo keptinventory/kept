@@ -39,6 +39,7 @@ Uno scaffale a cubi, una libreria o una cassettiera è un posto, e ogni cubo, ri
 - **Annulla:** l'**Annulla** della notifica mette il mobile e i suoi vani nel Cestino e libera i loro codici, a patto che non ci sia stato messo nulla dentro o modificato da allora.
 - **Etichette:** sul nuovo mobile, **Etichetta tutto qui** stampa un'etichetta per esso e per ogni vano, in ordine di conteggio.
 - **La sua pagina** mostra i vani come sta, numerati come le loro etichette. Tocca uno per aprirlo. **Stampa le loro etichette** li stampa tutti di nuovo, in ordine di conteggio, con i nomi che hanno ora.
+- **Sposta nel cestino:** i suoi vani vanno nel Cestino con esso e tornano con esso con **Ripristina**. Se c'è qualcosa nel mobile o in un vano, Kept chiede solo di quello: **Spostali in** la stanza in cui si trova (oppure **Scegli un altro posto**), oppure **Cestina anche quelli**. Una scatola si sposta così com'è, con ciò che contiene. Un posto che hai aggiunto tu al mobile conta come qualcosa al suo interno. L'**Annulla** della notifica rimette ogni cosa nel suo vano.
 
 ### Ruotare il mobile
 

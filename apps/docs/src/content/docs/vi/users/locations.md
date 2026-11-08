@@ -39,6 +39,7 @@ Một kệ ô vuông, một tủ sách hoặc một bộ ngăn kéo là một v�
 - **Hoàn tác:** **Hoàn tác** của toast bỏ đồ nội thất và các ngăn của nó vào Thùng rác và giải phóng mã của chúng, miễn là không có thứ gì được đặt vào hoặc thay đổi kể từ đó.
 - **Nhãn:** trên đồ nội thất mới, **Dán nhãn cho mọi thứ ở đây** in nhãn cho nó và cho mọi ngăn, theo thứ tự đếm.
 - **Trang của nó** hiện các ngăn như cách nó đứng, đánh số như nhãn của chúng. Chạm một cái để mở. **In nhãn của chúng** in tất cả lại, theo thứ tự đếm, với tên chúng có bây giờ.
+- **Di chuyển vào thùng rác:** các ngăn của nó đi cùng nó vào Thùng rác và quay lại cùng nó khi **Khôi phục**. Nếu có thứ gì trong nó hoặc trong bất kỳ ngăn nào, Kept chỉ hỏi về những thứ đó: **Di chuyển chúng đến** phòng nơi nó đứng (hoặc **Chọn một vị trí khác**), hoặc **Vứt chúng vào thùng rác luôn**. Một hộp được chuyển nguyên trạng, cùng với những gì bên trong. Một vị trí bạn tự thêm vào đồ nội thất được tính là thứ ở trong nó. **Hoàn tác** của toast đưa từng thứ về lại ngăn của nó.
 
 ### Xoay đồ nội thất
 

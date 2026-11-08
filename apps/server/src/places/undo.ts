@@ -156,8 +156,9 @@ async function undoPlace(args: UndoArgs): Promise<void> {
  * with it, as a restore brings it back (restorePlace): anything whose parent place or container
  * is still in the trash goes to the top level (a place) or the Unplaced area (a thing). What the
  * trash moved out (`moved_thing_ids`, `moved_place_ids`, `moved_to`) goes back in, where it is
- * still where the trash put it; anything moved on since stays where it is now. Every place and
- * thing that moves gets its own line, as the trash's did (#441).
+ * still where the trash put it; anything moved on since stays where it is now. What came out of
+ * one of the furniture's compartments (`moved_from`, #445) goes back into that compartment. Every
+ * place and thing that moves gets its own line, as the trash's did (#441).
  */
 async function undoPlaceTrash(args: UndoArgs): Promise<void> {
   const { event, client } = args;
@@ -223,25 +224,32 @@ async function undoPlaceTrash(args: UndoArgs): Promise<void> {
     const v = event.diff[field]?.after;
     return Array.isArray(v) ? (v as string[]) : [];
   };
+  // What came out of one of the furniture's compartments (#445) goes back into it, if it is
+  // live again (it came back with the batch); anything else into the place itself.
+  const from = JSON.stringify(event.diff.moved_from?.after ?? {});
+  const backInto = (alias: string, locParam: string, fromParam: string) =>
+    `coalesce((SELECT q.id FROM public.places q
+                WHERE q.id = (${fromParam}::jsonb ->> ${alias}.id::text)::uuid
+                  AND q.location_id = ${locParam} AND q.deleted_at IS NULL), $2::uuid)`;
   let back: Orphan[] = [];
   let placesBack: PlaceRelocation[] = [];
   if (to) {
     ({ rows: back } = await client.query<Orphan>(
-      `UPDATE public.things t SET place_id = $2, container_id = NULL
+      `UPDATE public.things t SET place_id = ${backInto('t', '$5', '$6')}, container_id = NULL
         WHERE t.id = ANY ($1::uuid[]) AND t.location_id = $5 AND t.deleted_at IS NULL
           AND t.place_id IS NOT DISTINCT FROM $3::uuid
           AND t.container_id IS NOT DISTINCT FROM $4::uuid
         RETURNING ${ORPHAN_RETURNING}`,
-      [ids('moved_thing_ids'), id, to.place_id, to.container_id, loc],
+      [ids('moved_thing_ids'), id, to.place_id, to.container_id, loc, from],
     ));
-    const { rows } = await client.query<{ id: string }>(
-      `UPDATE public.places SET parent_id = $2
-        WHERE id = ANY ($1::uuid[]) AND location_id = $4 AND deleted_at IS NULL
-          AND parent_id IS NOT DISTINCT FROM $3::uuid
-        RETURNING id`,
-      [ids('moved_place_ids'), id, to.parent_id, loc],
+    const { rows } = await client.query<{ id: string; parent_id: string }>(
+      `UPDATE public.places p SET parent_id = ${backInto('p', '$4', '$5')}
+        WHERE p.id = ANY ($1::uuid[]) AND p.location_id = $4 AND p.deleted_at IS NULL
+          AND p.parent_id IS NOT DISTINCT FROM $3::uuid
+        RETURNING p.id, p.parent_id`,
+      [ids('moved_place_ids'), id, to.parent_id, loc, from],
     );
-    placesBack = rows.map((r) => ({ id: r.id, before: to.parent_id, after: id }));
+    placesBack = rows.map((r) => ({ id: r.id, before: to.parent_id, after: r.parent_id }));
   }
 
   await args.audit({
