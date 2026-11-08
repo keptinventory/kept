@@ -8,10 +8,12 @@ import {
   capFactsOf,
   capitalise,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   tokens,
@@ -306,6 +308,24 @@ export const VI: CoreTable = {
     footnote: 'Nếu đó không phải bạn, bạn không cần làm gì.',
   }),
   'security-notice': (m, ctx) => VI_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('vi', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} trên ${os}`);
+    return {
+      subject: 'Một mã sao lưu đã được dùng để đăng nhập vào tài khoản Kept của bạn',
+      paragraphs: [
+        device
+          ? `Một mã sao lưu đã được dùng để đăng nhập vào tài khoản Kept của bạn vào ${when}, từ ${device}.`
+          : `Một mã sao lưu đã được dùng để đăng nhập vào tài khoản Kept của bạn vào ${when}.`,
+        m.left === 0
+          ? 'Đó là mã sao lưu cuối cùng của bạn. Hãy tạo mã mới trong Cài đặt → Đăng nhập và bảo mật → Mã dự phòng mới.'
+          : `Bạn còn ${m.left} mã sao lưu.`,
+        'Nếu bạn dùng mã này vì không còn ứng dụng xác thực, hãy thiết lập lại xác thực hai yếu tố với một ứng dụng mới trong Cài đặt → Đăng nhập và bảo mật → Thiết lập lại. Bạn cũng sẽ nhận được mã sao lưu mới.',
+      ],
+      footnote:
+        'Nếu đây không phải là bạn, hãy đặt lại mật khẩu ngay từ trang đăng nhập. Sau đó tạo mã sao lưu mới trong Cài đặt → Đăng nhập và bảo mật → Mã dự phòng mới (mã cũ sẽ ngừng hoạt động), và đăng xuất các thiết bị khác trong Cài đặt → Phiên và thiết bị → Đăng xuất khỏi tất cả thiết bị khác.',
+    };
+  },
   'admin-action': (m) => ({
     ...VI_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'Đây là thông báo tự động về tài khoản của bạn.',

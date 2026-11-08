@@ -7,10 +7,12 @@ import {
   capFactsOf,
   capitalise,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   type Table,
@@ -332,6 +334,26 @@ const EN: CoreTable = {
     footnote: 'If it wasn’t you, there’s nothing you need to do.',
   }),
   'security-notice': (m, ctx) => EN_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('en', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} on ${os}`);
+    return {
+      subject: 'A backup code was used to sign in to your Kept account',
+      paragraphs: [
+        device
+          ? `A backup code was used to sign in to your Kept account on ${when}, from ${device}.`
+          : `A backup code was used to sign in to your Kept account on ${when}.`,
+        m.left === 0
+          ? 'That was your last backup code. Make new ones in Settings → Sign-in and security → New backup codes.'
+          : m.left === 1
+            ? 'You have 1 backup code left.'
+            : `You have ${m.left} backup codes left.`,
+        'If you used it because your authenticator app is gone, set two-factor up again with a new app in Settings → Sign-in and security → Set up again. That gives you new backup codes too.',
+      ],
+      footnote:
+        'If this wasn’t you, reset your password now from the sign-in page. Then make new backup codes in Settings → Sign-in and security → New backup codes (the old ones stop working), and sign out everywhere else in Settings → Sessions and devices → Sign out of all other devices.',
+    };
+  },
   'admin-action': (m) => ({
     ...EN_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'This is an automatic notice about your account.',
@@ -524,6 +546,24 @@ const EN: CoreTable = {
 const AR_ROLE = { admin: 'مشرف', member: 'عضو', viewer: 'مشاهد' } as const;
 
 const AR_NOT_YOU = 'إذا لم تكن أنت، فأعد تعيين كلمة المرور فورًا من صفحة تسجيل الدخول.';
+
+/** How many backup codes are left, with the noun in the form the number asks for. */
+function arBackupCodesLeft(n: number): string {
+  switch (new Intl.PluralRules('ar').select(n)) {
+    case 'zero':
+      return 'كان هذا آخر رمز احتياطي لديك. أنشئ رموزًا جديدة من الإعدادات، قسم «تسجيل الدخول والأمان»، بزر «رموز احتياطية جديدة».';
+    case 'one':
+      return 'يتبقى لديك رمز احتياطي واحد.';
+    case 'two':
+      return 'يتبقى لديك رمزان احتياطيان.';
+    case 'few':
+      return `يتبقى لديك ${n} رموز احتياطية.`;
+    case 'many':
+      return `يتبقى لديك ${n} رمزًا احتياطيًا.`;
+    default:
+      return `يتبقى لديك ${n} رمز احتياطي.`;
+  }
+}
 
 const AR_SECURITY: Record<SecurityEvent, (ctx: MessageContext) => Message> = {
   'passkey-added': () => ({
@@ -785,6 +825,22 @@ const AR: CoreTable = {
     footnote: 'إذا لم تكن أنت، فلا داعي لفعل أي شيء.',
   }),
   'security-notice': (m, ctx) => AR_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('ar', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} على ${os}`);
+    return {
+      subject: 'استُخدم رمز احتياطي لتسجيل الدخول إلى حسابك على Kept',
+      paragraphs: [
+        device
+          ? `استُخدم رمز احتياطي لتسجيل الدخول إلى حسابك على Kept بتاريخ ${when}، من ${device}.`
+          : `استُخدم رمز احتياطي لتسجيل الدخول إلى حسابك على Kept بتاريخ ${when}.`,
+        arBackupCodesLeft(m.left),
+        'إذا استخدمته لأن تطبيق المصادقة لم يعد معك، فأعد إعداد التحقق بخطوتين بتطبيق جديد من الإعدادات، قسم «تسجيل الدخول والأمان»، بزر «إعداد من جديد». وستحصل بذلك على رموز احتياطية جديدة أيضًا.',
+      ],
+      footnote:
+        'إذا لم تكن أنت من استخدمه، فأعد تعيين كلمة المرور فورًا من صفحة تسجيل الدخول. ثم أنشئ رموزًا احتياطية جديدة من الإعدادات، قسم «تسجيل الدخول والأمان»، بزر «رموز احتياطية جديدة» (تتوقف الرموز القديمة عن العمل)، وسجّل الخروج من الأجهزة الأخرى من قسم «الجلسات والأجهزة» بزر «تسجيل الخروج من كل الأجهزة الأخرى».',
+    };
+  },
   'admin-action': (m) => ({
     ...AR_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'هذا إشعار تلقائي بشأن حسابك.',

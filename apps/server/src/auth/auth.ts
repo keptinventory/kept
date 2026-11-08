@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { passkey } from '@better-auth/passkey';
+import { describeUserAgent } from '@kept/shared';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError } from 'better-auth/api';
@@ -47,10 +48,22 @@ export type PasswordResetMail = MagicLinkMail;
 /** A credential change on the account, told to its owner (security review I3). */
 export type SecurityNoticeMail = { email: string; event: SecurityEvent };
 
+/** #419: a backup code signed someone in. When (ISO, shown in `timeZone`), on what (fixed labels
+ * from describeUserAgent, never the raw header) and how many codes are left. Never the code. */
+export type BackupCodeUsedMail = {
+  email: string;
+  at: string;
+  timeZone: string;
+  browser: string | null;
+  os: string | null;
+  left: number;
+};
+
 export type AuthMail = {
   sendMagicLink: (mail: MagicLinkMail) => Promise<void>;
   sendPasswordReset: (mail: PasswordResetMail) => Promise<void>;
   sendSecurityNotice: (mail: SecurityNoticeMail) => Promise<void>;
+  sendBackupCodeUsed: (mail: BackupCodeUsedMail) => Promise<void>;
 };
 
 export type AuthDeps = {
@@ -81,6 +94,9 @@ export type AuthDeps = {
   /** D197: a claim ends every token of the claimed account; main.ts runs
    * kept.revoke_user_tokens() on kept_system. Absent: tokens are left alone. */
   revokeTokensOnClaim?: (userId: string) => Promise<void>;
+  /** The profile's time zone, for the time in the backup-code mail (#419); main.ts reads it on
+   * kept_system. Absent, null or failing: the mail gives the time in UTC. */
+  timeZoneOf?: (userId: string) => Promise<string | null>;
   /** Generic OIDC sign-in, when KEPT_OIDC_ISSUER is set and boot-time discovery
    * worked (auth/oidc.ts bootOidc). Absent: no OIDC provider at all. */
   oidc?: AuthOidc | null;
@@ -278,6 +294,37 @@ export function createAuth(deps: AuthDeps) {
   const notify = (user: { email: string }, event: SecurityEvent) => {
     if (isUndeliverableEmail(user.email)) return;
     background('mail', () => mail.sendSecurityNotice({ email: user.email, event }));
+  };
+
+  // #419: what the mail says is read here, in the background, never in the request: a failed
+  // lookup or send reaches onBackgroundError and the sign-in has already been answered. Each code
+  // signs in once, so a set of codes can cause as many of these mails as it has codes, and making
+  // a new set needs a signed-in session and sends its own notice: no limiter of its own.
+  const backupCodeUsed = (
+    user: { id: string; email: string },
+    used: { at: Date; userAgent: string | null },
+  ) => {
+    if (isUndeliverableEmail(user.email)) return;
+    background('mail', async () => {
+      // Decrypted only to be counted, as Settings does (auth/sign-in-security.ts).
+      const viewed = await auth.api.viewBackupCodes({ body: { userId: user.id } });
+      // Without the profile's zone the notice still goes out, in UTC.
+      let timeZone: string | null = null;
+      try {
+        timeZone = (await deps.timeZoneOf?.(user.id)) ?? null;
+      } catch {
+        timeZone = null;
+      }
+      const { browser, os } = describeUserAgent(used.userAgent);
+      await mail.sendBackupCodeUsed({
+        email: user.email,
+        at: used.at.toISOString(),
+        timeZone: timeZone || 'UTC',
+        browser,
+        os,
+        left: viewed.backupCodes.length,
+      });
+    });
   };
 
   // An outside identity (generic OIDC, Google) is on: its rules apply to every OAuth sign-in,
@@ -501,6 +548,7 @@ export function createAuth(deps: AuthDeps) {
       keptSecurity({
         pool,
         notify,
+        backupCodeUsed,
         enrolmentNeedsVerifiedEmail: deps.enrolmentNeedsVerifiedEmail ?? false,
         ...(deps.revokeTokensOnClaim ? { revokeTokensOnClaim: deps.revokeTokensOnClaim } : {}),
         getSession: (headers) => {
