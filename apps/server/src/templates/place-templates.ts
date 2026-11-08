@@ -1,10 +1,13 @@
 import {
   BUILTIN_PLACE_TEMPLATE_KEYS,
+  BUILTIN_RACK_TEMPLATE_KEYS,
   builtinPlaceTemplate,
+  builtinRackTemplate,
   type CompartmentCell,
   canTurn,
   cellsOf,
   DEFAULT_COMPARTMENT_NAMES,
+  FURNITURE_KIND,
   fillPattern,
   layoutProblem,
   newId,
@@ -13,6 +16,10 @@ import {
   type PlaceLayout,
   type PlaceOrientation,
   patternProblem,
+  RACK_LIMITS,
+  RACK_NUMBERINGS,
+  type RackLayout,
+  rackUnitsProblem,
   usesParent,
   withCount,
 } from '@kept/shared';
@@ -434,7 +441,9 @@ export const FromTemplateBody = z.strictObject({
   id: z.uuid().optional(),
   parentId: z.uuid().nullable().optional(),
   template: z.union([
-    z.strictObject({ builtin: z.enum(BUILTIN_PLACE_TEMPLATE_KEYS) }),
+    z.strictObject({
+      builtin: z.enum([...BUILTIN_PLACE_TEMPLATE_KEYS, ...BUILTIN_RACK_TEMPLATE_KEYS]),
+    }),
     z.strictObject({ id: z.uuid() }),
   ]),
   name: NAME,
@@ -448,6 +457,10 @@ export const FromTemplateBody = z.strictObject({
   code: z.string().min(1).max(200).optional(),
   /** The compartments' codes (the template's when left out; null: none). */
   codePattern: CodePattern.nullable().optional(),
+  /** A rack (#373): how many units high (the template's otherwise). */
+  units: Whole.min(1).max(RACK_LIMITS.units).optional(),
+  /** A rack: U1 at the bottom (the template's) or at the top. */
+  numbering: z.enum(RACK_NUMBERINGS).optional(),
 });
 export type FromTemplateBody = z.infer<typeof FromTemplateBody>;
 
@@ -587,6 +600,11 @@ export async function createFromTemplate(
   );
   const accountId = loc[0]?.owner_account_id;
   if (!accountId) throw notFound();
+  const rack = 'builtin' in body.template ? builtinRackTemplate(body.template.builtin) : undefined;
+  if (rack) return createRack(c, locationId, accountId, body, rack.key, rack.layout);
+  if (body.units !== undefined || body.numbering !== undefined) {
+    throw invalid('Check body.units: only a rack takes units and a numbering.');
+  }
   const source = await sourceOf(c.client, locationId, body.template);
 
   if (body.count !== undefined && source.layout.kind === 'grid') {
@@ -718,6 +736,85 @@ export async function createFromTemplate(
       code: x.code,
     })),
   };
+}
+
+/**
+ * A rack from a rack template (#373): one furniture place whose layout is `{kind: 'rack', units,
+ * width, numbering, mount}`, with no compartment places (what sits in which unit is on the gear,
+ * racks.ts), and its own code if given. The same `place.create` audit and Undo as other furniture,
+ * with no compartments.
+ */
+async function createRack(
+  c: Ctx,
+  locationId: string,
+  accountId: string,
+  body: FromTemplateBody,
+  ref: string,
+  base: RackLayout,
+): Promise<MadeFurniture> {
+  if (body.count !== undefined) throw invalid('Check body.count: a rack takes units.');
+  if (body.orientation === 'side') throw invalid('Check body.orientation: a rack stands upright.');
+  if (body.codePattern) throw invalid('Check body.codePattern: a rack has no compartments.');
+  const layout: RackLayout = {
+    ...base,
+    units: body.units ?? base.units,
+    numbering: body.numbering ?? base.numbering,
+  };
+  const problem = rackUnitsProblem(layout.units);
+  if (problem) throw invalid(`Check body.units: ${problem}`);
+  await checkKinds(c.client, accountId, [FURNITURE_KIND]);
+  const id = body.id ? assertClientId(body.id) : newId();
+  const parentId = body.parentId ? body.parentId.toLowerCase() : null;
+  const code = body.code === undefined ? null : codeOf(body.code);
+  await lockTree(c.client, locationId);
+  if (parentId) {
+    const parent = await requireParent(c.client, locationId, parentId);
+    if (parent.isUnplaced) throw conflict(UNDER_UNPLACED);
+  }
+  await checkAllCodes(c.client, locationId, code ? [code] : []);
+  await c.client.query(
+    `INSERT INTO public.places (id, location_id, parent_id, name, kind_key, layout, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [id, locationId, parentId, body.name, FURNITURE_KIND, JSON.stringify(layout), c.scope.userId],
+  );
+  await lastInCustomOrder(c.client, id);
+  if (code) {
+    await c.client.query('SAVEPOINT rack_code');
+    try {
+      await c.client.query(
+        `INSERT INTO public.legacy_codes (location_id, source, source_collection, code, place_id)
+         VALUES ($1, 'own', '', $2, $3)`,
+        [locationId, code, id],
+      );
+      await c.client.query('RELEASE SAVEPOINT rack_code');
+    } catch (err) {
+      await c.client.query('ROLLBACK TO SAVEPOINT rack_code');
+      if (pgErrorOf(err)?.code === '23505') {
+        throw conflict('That code was just given to something else here. Try again.');
+      }
+      throw err;
+    }
+  }
+  const created = await requirePlace(c.client, id);
+  await audited(c.tx, {
+    locationId,
+    actor: actorOf(c.scope),
+    action: 'place.create',
+    entity: { type: 'place', id },
+    after: {
+      name: created.name,
+      parent_id: created.parentId,
+      kind_key: created.kindKey,
+      icon: created.icon,
+      template: ref,
+      layout,
+      compartments: [],
+      own_codes: code ? [code] : [],
+    },
+    requestId: c.requestId,
+    undoableUntil: undoableUntil(),
+  });
+  return { place: created, compartments: [] };
 }
 
 // ---------------------------------------------------------------------------------------------

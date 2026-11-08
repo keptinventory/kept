@@ -29,6 +29,7 @@ import { enqueueReindex } from '../search/jobs.js';
 import { STATE_SQL } from '../search/query.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
+import { rackWrite } from '../templates/racks.js';
 import {
   customClasses,
   moneyShaped,
@@ -670,6 +671,12 @@ export async function writeThingUpdate(
   if (typeChanged || body.custom) {
     put('custom', JSON.stringify(custom));
     put('archived_custom', JSON.stringify(archived));
+  }
+  // #373: gear in a rack, checked against what else is in it under the tree lock.
+  if (body.rackUnits !== undefined || body.rackAt !== undefined) {
+    const rackAt = await rackWrite(client, thing, body);
+    if (body.rackUnits !== undefined) put('rack_units', body.rackUnits);
+    if (rackAt !== undefined) put('rack_at', rackAt === null ? null : JSON.stringify(rackAt));
   }
   if (extras.reviewState) put('review_state', extras.reviewState);
   if (extras.fieldStatus) put('field_status', JSON.stringify(extras.fieldStatus));

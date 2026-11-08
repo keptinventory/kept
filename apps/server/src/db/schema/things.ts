@@ -86,6 +86,12 @@ export const things = pgTable(
     endedNotes: text('ended_notes'),
     acquiredFrom: text('acquired_from'),
     provenanceNotes: text('provenance_notes'),
+    /** Gear in a rack (#373, packages/shared racks.ts): how many rack units it takes, 0 to 60 in
+     * half units (0: beside the rails). NULL: not given (counted as 1U). */
+    rackUnits: numeric('rack_units', { precision: 3, scale: 1 }),
+    /** Where it is mounted in a rack, `{rackId, u, face, full}`: its lowest unit counted from the
+     * bottom, front or rear, full depth or half. Counts only while `place_id` is that rack. */
+    rackAt: jsonb('rack_at'),
     lastSeenAt: tstz('last_seen_at').notNull().defaultNow(),
     locationUncertain: boolean('location_uncertain').notNull().default(false),
     /** The type's field values by key (never secret ones, never money outside `{amount, currency}`). */
@@ -183,6 +189,11 @@ export const things = pgTable(
     check('things_custom_chk', sql`jsonb_typeof(custom) = 'object'`),
     check('things_archived_custom_chk', sql`jsonb_typeof(archived_custom) = 'object'`),
     check('things_field_status_chk', sql`jsonb_typeof(field_status) = 'object'`),
+    check(
+      'things_rack_units_chk',
+      sql`rack_units BETWEEN 0 AND 60 AND rack_units * 2 = trunc(rack_units * 2)`,
+    ),
+    check('things_rack_at_chk', sql`rack_at IS NULL OR jsonb_typeof(rack_at) = 'object'`),
     index('things_place_idx').on(t.placeId),
     index('things_container_idx').on(t.containerId),
     index('things_type_idx').on(t.typeId),

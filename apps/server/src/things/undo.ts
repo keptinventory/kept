@@ -1,3 +1,4 @@
+import { parseRackPosition } from '@kept/shared';
 import { actorOf } from '../audit/actor.js';
 import {
   changedSince,
@@ -10,6 +11,7 @@ import {
 import { AppError, conflict } from '../http/errors.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
+import { rackWrite } from '../templates/racks.js';
 import {
   customClasses,
   IMAGE_COLUMNS,
@@ -57,7 +59,7 @@ async function refuseIfChanged(args: UndoArgs, conflicts: string[]): Promise<voi
 }
 
 const COLUMNS = new Set<string>(IMAGE_COLUMNS);
-const JSON_COLUMNS = new Set<ImageColumn>(['aliases']);
+const JSON_COLUMNS = new Set<ImageColumn>(['aliases', 'rack_at']);
 
 /** Writes `image`'s values for `fields` back to the thing. */
 async function writeFields(
@@ -154,6 +156,26 @@ export async function undoFields(args: UndoArgs): Promise<void> {
   for (const [field, change] of Object.entries(diff)) {
     if (!('before' in change)) throw notUndoable();
     target[field] = change.before ?? null;
+  }
+  // #373: a position put back is checked again: the unit may have been taken since.
+  if ('rack_at' in target || 'rack_units' in target) {
+    const at = parseRackPosition(target.rack_at ?? current.rack_at);
+    const units = target.rack_units ?? current.rack_units;
+    await rackWrite(
+      client,
+      {
+        id: thingId,
+        location_id: event.locationId,
+        place_id: current.place_id as string | null,
+        container_id: current.container_id as string | null,
+      },
+      {
+        rackUnits: units === null || units === undefined ? null : Number(units),
+        ...('rack_at' in target
+          ? { rackAt: at ? { u: at.u, face: at.face, full: at.full } : null }
+          : {}),
+      },
+    );
   }
   await writeFields(args, thingId, event.locationId, current, target);
   const after = (await readImage(client, thingId)) as ThingImage;
