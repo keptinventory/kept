@@ -33,7 +33,7 @@ La Posta in arrivo mostra una scheda **Stanza** all'inizio del lotto di acquisiz
 
 - **Nuovi oggetti**: ogni bozza nella stanza, con la propria immagine, nome, marca, modello, colore e tipo compilati dove la foto li mostrava. Accetta, modifica o scarta queste bozze come qualsiasi altra bozza, oppure **Accetta i nomi** per l'intero lotto. Una bozza che sembra un oggetto che già possiedi è segnalata come probabile duplicato.
 - **Mobili contenitori** (scaffali, librerie, armadi, guardaroba, cassettiere):
-  **Aggiungi come luogo** ne fa un posto all'interno della stanza, così gli oggetti possono entrarvi. Altri mobili (un divano, un letto, un tavolo) sono bozze come qualsiasi altro oggetto.
+  **Aggiungi come posto** ne fa un posto all'interno della stanza, così gli oggetti possono entrarvi. Altri mobili (un divano, un letto, un tavolo) sono bozze come qualsiasi altro oggetto.
 - **Già in Kept**: oggetti che le foto hanno mostrato che la stanza già possiede, per la stessa etichetta, stessa marca e modello, o stesso nome. Seleziona questi oggetti e **Segna come visto**. Un oggetto la cui etichetta è stata letta inizia selezionato.
 - Ogni foto indica cosa ha fornito. «Impossibile leggere la foto 3» significa che quella foto ha fallito e le altre vengono comunque conteggiate; «Questa foto ne mostra di più; scatta una più ravvicinata» indica che mostra più oggetti di quanto una singola foto possa elencare (60 oggetti).
 

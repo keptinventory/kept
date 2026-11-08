@@ -27,7 +27,7 @@ da **Scansiona** una alla volta invece, tramite il suo ID corto stampato ([scans
 
 Se non hai ancora selezionato un posto, sceglilo dall'elenco oppure tocca **Scansiona la sua etichetta**.
 
-Per un conteggio di un posto, **Includi i luoghi al suo interno** è attivato per impostazione predefinita. Attiva **Una scatola che scansioni
+Per un conteggio di un posto, **Includi i posti al suo interno** è attivato per impostazione predefinita. Attiva **Una scatola che scansioni
 conta ciò che c'è dentro** quando conti le scatole senza aprirle.
 
 ## Mentre scansioni

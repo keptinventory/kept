@@ -3,19 +3,19 @@ title: Le graphe
 description: Voir un lieu comme un graphe de ses étages, pièces, boîtes et objets, en 2D ou 3D, avec ce qui demande attention et vos étiquettes.
 ---
 
-La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste · Grille · Graph · Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur ce lieu.
+La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste · Grille · Graph · Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur cet emplacement.
 
 Le graphe a besoin d'une connexion, comme la carte : il ne fait pas partie de la copie hors ligne du téléphone. Il ne se charge que lorsque vous l'ouvrez.
 
 ## 2D
 
-Le graphe 2D montre un lieu au centre et deux niveaux autour de lui : ce qui s'y trouve directement sur le premier cercle, et ce qui se trouve dans ces éléments sur le second, s'il y a de la place.
+Le graphe 2D montre un emplacement au centre et deux niveaux autour de lui : ce qui s'y trouve directement sur le premier cercle, et ce qui se trouve dans ces éléments sur le second, s'il y a de la place.
 
 - **Taille** indique la quantité contenue : un nœud plus grand contient plus d'objets.
 - Un nœud dont le contenu n'est pas dessiné affiche leur **nombre**.
 - **Choisissez** un nœud pour voir sa fiche. **Choisissez-le de nouveau**, ou **Entrer** sur la fiche, pour le placer au centre.
 - Le **chemin** au-dessus du graphe (Accueil › Rez-de-chaussée › Garage) permet de remonter.
-- **Pièces · Boîtes · Tout** choisit la profondeur de dessin : seulement les lieux, les lieux et les boîtes, ou tout jusqu'aux objets.
+- **Pièces · Boîtes · Tout** choisit la profondeur de dessin : seulement les emplacements, les emplacements et les boîtes, ou tout jusqu'aux objets.
 
 Faites glisser pour déplacer le graphe, défilez ou pincez pour zoomer, et le bouton maison réaffiche tout le lieu.
 
@@ -31,11 +31,11 @@ Choisir un nœud amène sa branche au premier plan : tout ce qui se trouve en de
 
 Des points sur un nœud indiquent ce qui demande attention à l'intérieur, dans les couleurs de la carte : **Stock bas** (rouge), **Prêtés** (bleu) et **Bientôt dû** (orange). Ils proviennent des mêmes endroits que les repères de la carte : Consommables, Prêt et emprunt, et plannings, garanties et documents. Le nom de chaque nœud pour un lecteur d'écran les mentionne aussi ("Garage, Pièce, 9 objets, 1 prêté").
 
-Activez **Étiquettes** pour ajouter vos étiquettes sous forme de puces colorées, chacune liée aux lieux et boîtes contenant les objets qu'elle porte. Choisissez une étiquette pour lister ce qui la porte.
+Activez **Étiquettes** pour ajouter vos étiquettes sous forme de puces colorées, chacune liée aux emplacements et boîtes contenant les objets qu'elle porte. Choisissez une étiquette pour lister ce qui la porte.
 
 ## La fiche
 
-La fiche montre où se trouve un nœud, ce qu'il est, combien d'objets il contient, ses repères et ce qui se trouve à l'intérieur (choisissez-en un). **Ouvrir** mène à sa page, **Voir sur la carte** ouvre la carte sur lui (ou sur le lieu qui contient un objet), et **Entrer** le place au centre du graphe 2D. Sur un téléphone, la fiche est une feuille en bas ; **×** ou Escape la ferme.
+La fiche montre où se trouve un nœud, ce qu'il est, combien d'objets il contient, ses repères et ce qui se trouve à l'intérieur (choisissez-en un). **Ouvrir** mène à sa page, **Voir sur la carte** ouvre la carte sur lui (ou sur l'emplacement qui contient un objet), et **Entrer** le place au centre du graphe 2D. Sur un téléphone, la fiche est une feuille en bas ; **×** ou Escape la ferme.
 
 ## Avec un clavier ou un lecteur d'écran
 
@@ -43,4 +43,4 @@ Chaque nœud est un bouton. Tab les parcourt dans l'ordre de l'arbre, Entrée en
 
 ## Grands lieux
 
-Kept dessine jusqu'à 2 000 objets dans un graphe. Au-delà, le reste est compté dans ses lieux et boîtes mais non dessiné. En 3D, un lieu comportant plus d'environ 450 lieux, boîtes et objets n'affiche les objets que pour la branche choisie.
+Kept dessine jusqu'à 2 000 objets dans un graphe. Au-delà, le reste est compté dans ses emplacements et boîtes mais non dessiné. En 3D, un lieu comportant plus d'environ 450 emplacements, boîtes et objets n'affiche les objets que pour la branche choisie.
