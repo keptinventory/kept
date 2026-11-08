@@ -42,7 +42,7 @@ Khi phòng được vẽ trên [bản đồ địa điểm](/vi/users/location-m
 
 ## Chi phí là gì
 
-Mỗi ảnh là một lần đọc AI, và một lượt chụp nhiều hơn một ảnh thêm một cuộc gọi ngắn chỉ văn bản gộp những gì các ảnh có chung. Trước khi gửi, khay hiển thị một mức trên cùng, chẳng hạn "Khoảng 3 ảnh · tối đa ~31,000 tokens · Groq": ảnh, hướng dẫn và câu trả lời dài nhất Kept cho phép, cho mỗi ảnh; câu trả lời ngắn hơn tốn ít hơn. Một mô hình suy nghĩ trước khi trả lời tính thêm chi phí suy nghĩ của nó.
+Mỗi ảnh là một lần đọc AI, và một lượt chụp nhiều hơn một ảnh thêm một cuộc gọi ngắn chỉ văn bản gộp những gì các ảnh có chung. Trước khi gửi, khay hiển thị một mức trên cùng, chẳng hạn "Khoảng 3 ảnh, tối đa ~31,000 tokens, Groq": ảnh, hướng dẫn và câu trả lời dài nhất Kept cho phép, cho mỗi ảnh; câu trả lời ngắn hơn tốn ít hơn. Một mô hình suy nghĩ trước khi trả lời tính thêm chi phí suy nghĩ của nó.
 
 Việc đọc phòng được tính vào cùng các ngân sách và giới hạn như đọc ảnh khác. Khi một giới hạn đạt tới, thẻ nói "Đang chờ ngân sách AI", và các ảnh được đọc khi AI khôi phục. Mỗi cuộc gọi hiện trong **Mức sử dụng AI** dưới dạng **Ảnh phòng** hoặc **Đã gộp ảnh phòng**.
 

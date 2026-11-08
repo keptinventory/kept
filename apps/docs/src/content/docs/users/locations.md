@@ -67,7 +67,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
 - On a computer or tablet, the sidebar marks the location you're in: on its page, and on its
   rooms, things, boxes and settings.
 
-![A location in Grid with Small tiles: the Places · 9 heading over the rooms, then the Things · 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
+![A location in Grid with Small tiles: the Places, 9 heading over the rooms, then the Things, 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
 
 ![The same grid in the dark theme](../../../assets/screens/grid-desktop-dark.webp)
 

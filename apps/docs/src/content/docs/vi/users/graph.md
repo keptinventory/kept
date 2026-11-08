@@ -3,7 +3,7 @@ title: "Sơ đồ"
 description: "Xem một địa điểm dưới dạng sơ đồ về các tầng, phòng, hộp và đồ vật của nó, ở 2D hoặc 3D, với những gì cần chú ý và các thẻ của bạn."
 ---
 
-Trang của một địa điểm có năm bố cục: **Danh sách**, **Lưới**, **Sơ đồ**, **Bảng** và **Bản đồ**. Bảng chỉ xuất hiện trên màn hình rộng, nên điện thoại hiển thị Danh sách · Lưới · Sơ đồ · Bản đồ. **Sơ đồ** vẽ địa điểm dưới dạng các nút và liên kết: địa điểm, các tầng của nó, các phòng trên các tầng, các kệ, tủ và hộp trong các phòng, và các đồ vật trong đó. Kept ghi nhớ lựa chọn của bạn cho mỗi địa điểm trên mỗi thiết bị. Trang của một tầng hoặc một phòng cũng có **Sơ đồ**, mở tại vị trí đó.
+Trang của một địa điểm có năm bố cục: **Danh sách**, **Lưới**, **Sơ đồ**, **Bảng** và **Bản đồ**. Bảng chỉ xuất hiện trên màn hình rộng, nên điện thoại hiển thị Danh sách, Lưới, Sơ đồ, Bản đồ. **Sơ đồ** vẽ địa điểm dưới dạng các nút và liên kết: địa điểm, các tầng của nó, các phòng trên các tầng, các kệ, tủ và hộp trong các phòng, và các đồ vật trong đó. Kept ghi nhớ lựa chọn của bạn cho mỗi địa điểm trên mỗi thiết bị. Trang của một tầng hoặc một phòng cũng có **Sơ đồ**, mở tại vị trí đó.
 
 Sơ đồ cần kết nối, giống như bản đồ: nó không phải là một phần của bản sao ngoại tuyến của điện thoại. Nó chỉ tải khi bạn mở nó.
 
@@ -15,7 +15,7 @@ Sơ đồ 2D hiển thị một vị trí ở giữa và hai cấp độ xung qu
 - Một nút có nội dung chưa được vẽ hiển thị **số lượng** của chúng.
 - **Chọn** một nút để xem thẻ của nó. **Chọn nó lại**, hoặc **Đi vào** trên thẻ, để đặt nó vào giữa.
 - **Đường dẫn** phía trên sơ đồ (Trang chủ › Tầng 1 › Garô) quay lại cấp trên.
-- **Phòng · Hộp · Tất cả** chọn độ sâu vẽ: chỉ các vị trí, vị trí và hộp, hoặc mọi thứ xuống tới các đồ vật.
+- **Phòng, Hộp, Tất cả** chọn độ sâu vẽ: chỉ các vị trí, vị trí và hộp, hoặc mọi thứ xuống tới các đồ vật.
 
 Kéo để di chuyển sơ đồ, cuộn hoặc chụm để phóng to/thu nhỏ, và nút hình ngôi nhà hiển thị lại toàn bộ địa điểm.
 

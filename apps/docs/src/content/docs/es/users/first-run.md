@@ -142,7 +142,7 @@ pasos cada uno:
 |---|---|
 | Aspectos básicos | Inicio, tus ubicaciones, Escanear, Buscar, y dónde está todo lo demás |
 | Objetos y lugares | añadir a una ubicación, qué contiene, y la página de un objeto y sus pestañas |
-| Gráfico y mapa 3D | el conmutador Lista · Cuadrícula · Gráfico · Tabla · Mapa (Tabla en una computadora), el gráfico en 2D o 3D, 3D o planta, pines, pisos y Organizar, donde una sala se mueve con lo que contiene |
+| Gráfico y mapa 3D | el conmutador Lista, Cuadrícula, Gráfico, Tabla, Mapa (Tabla en una computadora), el gráfico en 2D o 3D, 3D o planta, pines, pisos y Organizar, donde una sala se mueve con lo que contiene |
 | Capturar y Bandeja de entrada | elegir qué capturar, el obturador, y revisar lo que Kept leyó |
 | Escaneo | una sesión de escaneo: contar, empacar o mover, dónde, y qué cambia Finalizar |
 | Búsqueda y etiquetas | el campo de búsqueda, vistas guardadas, Seleccionar (mover, imprimir etiquetas, Mover a la papelera), imprimir etiquetas y Escanear, que puede poner una etiqueta en blanco en un lugar que tengas |
@@ -163,7 +163,7 @@ ubicaciones, y un espectador no recibe pasos que cambien nada.
   ese capítulo. Los capítulos terminados se pliegan bajo **Listo (N)**; ábrelo para reproducir uno de nuevo.
 - El tour comienza desde Ayuda. La barra superior de una página se mantiene con las herramientas propias de esa página; una sesión
   de escaneo tiene **Iniciar una sesión** con un pequeño **Enséñame** para su capítulo.
-- El emergente muestra dónde estás: «Capítulo 3 de 12 · paso 2 de 5».
+- El emergente muestra dónde estás: «Capítulo 3 de 12, paso 2 de 5».
 - **Siguiente** avanza, **Atrás** retrocede dentro del capítulo, las teclas de flecha hacen ambas cosas, y **Esc**
   o **×** lo cierran.
 - El último paso de un capítulo nombra al siguiente: **Continuar** entra directamente en él, **Detén aquí**

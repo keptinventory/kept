@@ -65,7 +65,7 @@ wo es tatsächlich steht. Das Platzieren von Objekten durch Kept unterbricht nie
 
 Jedes Foto entspricht einer KI-Abfrage, und eine Erfassung mit mehr als einem Foto fügt einen kurzen 
 Text-only-Aufruf hinzu, der das zusammenführt, was die Fotos gemeinsam haben. Bevor du sendest, 
-zeigt die Leiste eine obere Grenze an, beispielsweise „Etwa 3 Fotos · bis zu ~31.000 Tokens · Groq“: 
+zeigt die Leiste eine obere Grenze an, beispielsweise „Etwa 3 Fotos, bis zu ~31.000 Tokens, Groq“: 
 das Foto, die Anweisungen und die längste Antwort, die Kept pro Foto zulässt; eine kürzere Antwort kostet weniger. 
 Ein Modell, das vor dem Antworten nachdenkt, berechnet sein Denken zusätzlich.
 

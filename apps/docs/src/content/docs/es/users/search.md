@@ -17,7 +17,7 @@ En una computadora, ⌘K o Ctrl+K abre la búsqueda desde cualquier lugar.
 
 ## Búsqueda sin conexión
 
-En un teléfono, la búsqueda también funciona sin conexión desde la copia del teléfono, etiquetada **En este teléfono · desde la última sincronización**
+En un teléfono, la búsqueda también funciona sin conexión desde la copia del teléfono, etiquetada **En este teléfono, desde la última sincronización**
 Los resultados provienen de la copia local, y lo que cambias se sincroniza cuando vuelves a estar en línea.
 
 ## Búsqueda semántica

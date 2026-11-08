@@ -3,7 +3,7 @@ title: Le graphe
 description: Voir un lieu comme un graphe de ses étages, pièces, boîtes et objets, en 2D ou 3D, avec ce qui demande attention et vos étiquettes.
 ---
 
-La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste · Grille · Graph · Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur ce lieu.
+La page d'un lieu comporte cinq dispositions : **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**. Tableau n'apparaît que sur les grands écrans, donc un téléphone affiche Liste, Grille, Graph, Carte. **Graph** représente le lieu sous forme de nœuds et de liens : le lieu, ses étages, les pièces qui s'y trouvent, les étagères, placards et boîtes dans les pièces, et les objets qu'ils contiennent. Kept mémorise votre choix pour chaque lieu sur chaque appareil. La page d'un étage ou d'une pièce comporte aussi **Graph**, ouvert sur ce lieu.
 
 Le graphe a besoin d'une connexion, comme la carte : il ne fait pas partie de la copie hors ligne du téléphone. Il ne se charge que lorsque vous l'ouvrez.
 
@@ -15,7 +15,7 @@ Le graphe 2D montre un lieu au centre et deux niveaux autour de lui : ce qui s'y
 - Un nœud dont le contenu n'est pas dessiné affiche leur **nombre**.
 - **Choisissez** un nœud pour voir sa fiche. **Choisissez-le de nouveau**, ou **Entrer** sur la fiche, pour le placer au centre.
 - Le **chemin** au-dessus du graphe (Accueil › Rez-de-chaussée › Garage) permet de remonter.
-- **Pièces · Boîtes · Tout** choisit la profondeur de dessin : seulement les lieux, les lieux et les boîtes, ou tout jusqu'aux objets.
+- **Pièces, Boîtes, Tout** choisit la profondeur de dessin : seulement les lieux, les lieux et les boîtes, ou tout jusqu'aux objets.
 
 Faites glisser pour déplacer le graphe, défilez ou pincez pour zoomer, et le bouton maison réaffiche tout le lieu.
 
