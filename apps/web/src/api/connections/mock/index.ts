@@ -70,6 +70,9 @@ export function connectionsMockRoutes(state: MockState): MockRoute[] {
   return [
     // ----- linking Home Assistant (#376): only the Home Assistant app has it; tests turn it on -----
     route('GET', p.homeAssistantLinks, () => ({ available: false, items: [] })),
+    // Nothing is ever waiting outside the app, so a request to allow or decline has ended.
+    route('POST', p.homeAssistantApprove(':id'), () => notFound()),
+    route('POST', p.homeAssistantDecline(':id'), () => notFound()),
 
     // ----- tokens and connected apps -----
     route('GET', p.tokens, ({ query }) =>
