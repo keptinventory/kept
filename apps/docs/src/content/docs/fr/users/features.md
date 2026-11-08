@@ -45,7 +45,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 ## Le foyer
 
 - **[Prêt et emprunt](/fr/users/lending/)** : qui a quoi et quand c'est à rendre, avec rappels et un
-  message poli à copier. Les emprunteurs n'ont pas besoin de compte. Module : Prêt.
+  message poli à copier. Les emprunteurs n'ont pas besoin de compte. Chaque objet montre qui l'a eu,
+  dans l'ordre, comment il est revenu et qui l'a repris. Module : Prêt.
 - **[Kits et remises](/fr/users/kits/)** : prêtez une boîte avec tout ce qu'elle contient ; chaque objet
   revient sur sa propre fiche. Un kit se souvient de ce qu'il doit contenir.
 - **[Déménagement](/fr/users/moving/)** : des boîtes numérotées, une étiquette et une fiche de contenu

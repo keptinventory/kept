@@ -20,6 +20,7 @@ import {
   type Loc,
   ok,
   own,
+  setDisplayName,
 } from '../../test/things.js';
 import { runTool } from './context.js';
 import type { ToolContext } from './types.js';
@@ -123,6 +124,55 @@ describe('lending', () => {
       [lent.loan_id],
     );
     expect(loan?.returned_at).toBeNull();
+  });
+
+  it('returns as the return dialog does: damaged, a note, who took it back (#374, #215)', async () => {
+    await setDisplayName(db, ibrahim, 'Ibrahim');
+    const saw = await createThing(t, ibrahim, home, { name: 'Jigsaw' });
+    const lent = await data(louis, 'lend_thing', { thing_id: saw.id, person: 'Murdock' });
+    const refused = await tool(louis, 'return_thing', {
+      thing_id: saw.id,
+      taken_back_by: 'Nobody here',
+    });
+    expect(isToolError(refused)).toBe(true);
+    await data(louis, 'return_thing', {
+      thing_id: saw.id,
+      damaged: true,
+      note: 'Chipped blade',
+      taken_back_by: 'ibrahim',
+    });
+    const [loan] = await own<{
+      damaged: boolean;
+      taken_back_by: string | null;
+      return_notes: string | null;
+      condition_in: string | null;
+    }>(
+      db,
+      'SELECT damaged, taken_back_by, return_notes, condition_in FROM public.loans WHERE id = $1',
+      [lent.loan_id],
+    );
+    expect(loan).toEqual({
+      damaged: true,
+      taken_back_by: ibrahim.userId,
+      return_notes: 'Chipped blade',
+      condition_in: 'poor',
+    });
+    const [row] = await own<{ condition: string | null }>(
+      db,
+      'SELECT condition FROM public.things WHERE id = $1',
+      [saw.id],
+    );
+    expect(row?.condition).toBe('poor');
+
+    // Left out, the caller took it back.
+    const lent2 = await data(louis, 'lend_thing', { thing_id: saw.id, person: 'Murdock' });
+    await data(louis, 'return_thing', { thing_id: saw.id });
+    const [again] = await own<{ taken_back_by: string | null; damaged: boolean }>(
+      db,
+      'SELECT taken_back_by, damaged FROM public.loans WHERE id = $1',
+      [lent2.loan_id],
+    );
+    expect(again).toEqual({ taken_back_by: louis.userId, damaged: false });
   });
 
   it('borrows a thing in as the lender’s, in the Unplaced area when no place is named', async () => {

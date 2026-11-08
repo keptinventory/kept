@@ -33,6 +33,7 @@ import {
   placeSubject,
   recordHouseholdEvent,
   repairOf,
+  takerOf,
   thingSubject,
   todayIn,
 } from './db';
@@ -267,6 +268,12 @@ export function lendingRoutes(state: MockState): MockRoute[] {
       const stale = versionError(headers, loan);
       if (stale) return reply(stale.status, stale.body);
       const b = (body ?? {}) as ReturnBody;
+      // #374: who took it back (a member), and damaged (lent out only).
+      const taker = takerOf(state, loan.locationId, b.takenBackBy);
+      if (b.takenBackBy && !taker)
+        return invalid('Check body.takenBackBy: a member of this location.');
+      if (b.damaged && loan.direction !== 'out')
+        return invalid('Check body.damaged: only something lent out comes back damaged.');
       const beforeLoan = { ...loan };
       const beforeThing = structuredClone(t);
       let mergedInto: StoredThing | null = null;
@@ -318,13 +325,22 @@ export function lendingRoutes(state: MockState): MockRoute[] {
         t.lifecycle = 'returned_to_owner';
         t.ended = { on: todayIn(state, t.locationId), to: null, notes: null };
       }
-      if (b.updateCondition && b.conditionIn) t.condition = b.conditionIn;
+      const conditionIn =
+        b.conditionIn ??
+        (b.damaged
+          ? t.condition === 'broken' || t.condition === 'poor'
+            ? t.condition
+            : 'poor'
+          : undefined);
+      if ((b.updateCondition ?? !!b.damaged) && conditionIn) t.condition = conditionIn;
       t.rowVersion += 1;
       loan.returnedAt = b.returnedAt ?? now();
+      loan.damaged = !!b.damaged;
+      loan.takenBackBy = taker;
       // The return's own note (1.14): the lend note stays.
       if (b.notes !== undefined) loan.returnNotes = b.notes;
       loan.outcome = 'returned';
-      loan.condition = { out: loan.condition?.out ?? null, in: b.conditionIn ?? null };
+      loan.condition = { out: loan.condition?.out ?? null, in: conditionIn ?? null };
       loan.rowVersion += 1;
       recordHouseholdEvent(state, {
         action: 'loan.return',

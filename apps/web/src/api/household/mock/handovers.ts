@@ -33,6 +33,7 @@ import {
   placeSubject,
   recordHouseholdEvent,
   repairOf,
+  takerOf,
   thingSubject,
   todayIn,
 } from './db';
@@ -474,20 +475,31 @@ export function handoverRoutes(state: MockState): MockRoute[] {
 
   const closeLine = (
     l: StoredLoan,
-    how: { outcome: 'returned' | 'lost'; condition?: Condition; notes?: string; update?: boolean },
+    how: {
+      outcome: 'returned' | 'lost';
+      condition?: Condition;
+      notes?: string;
+      update?: boolean;
+      /** #374: came back damaged, and who took it back. */
+      damaged?: boolean;
+      taker?: { id: string; displayName: string } | null;
+    },
   ) => {
     const t = inv().things.find((x) => x.id === l.thingId);
     const before = { loan: { ...l }, thing: t ? structuredClone(t) : null };
     l.returnedAt = now();
     l.outcome = how.outcome;
-    l.condition = { out: l.condition?.out ?? null, in: how.condition ?? null };
+    const condition = how.condition ?? (how.damaged ? 'poor' : undefined);
+    l.condition = { out: l.condition?.out ?? null, in: condition ?? null };
+    l.damaged = !!how.damaged;
+    l.takenBackBy = how.outcome === 'lost' ? null : (how.taker ?? null);
     if (how.notes !== undefined) l.returnNotes = how.notes;
     l.rowVersion += 1;
     if (t && how.outcome === 'lost') {
       t.lifecycle = 'lost';
       t.ended = { on: todayIn(state, l.locationId), to: null, notes: null };
     }
-    if (t && how.update && how.condition) t.condition = how.condition;
+    if (t && (how.update ?? !!how.damaged) && condition) t.condition = condition;
     recordHouseholdEvent(state, {
       action: how.outcome === 'lost' ? 'loan.lost' : 'loan.return',
       entity: { type: 'loan', id: l.id },
@@ -535,6 +547,9 @@ export function handoverRoutes(state: MockState): MockRoute[] {
       if (!h || !locOf(state, h.locationId)) return notFound();
       if (!writable(h.locationId)) return err(403, 'forbidden', "You don't have permission.");
       const b = body as HandoverReturnBody;
+      const taker = takerOf(state, h.locationId, b.takenBackBy);
+      if (b.takenBackBy && !taker)
+        return err(400, 'validation', 'The request is not valid.', 'Check body.takenBackBy');
       for (const line of b.lines) {
         const l = hh(state).loans.find((x) => x.id === line.loanId && x.handoverId === h.id);
         if (!l)
@@ -566,7 +581,9 @@ export function handoverRoutes(state: MockState): MockRoute[] {
           outcome: line.outcome === 'lost' ? 'lost' : 'returned',
           ...(line.conditionIn ? { condition: line.conditionIn } : {}),
           ...(line.notes !== undefined ? { notes: line.notes } : {}),
-          ...(line.updateCondition ? { update: true } : {}),
+          ...(line.updateCondition !== undefined ? { update: line.updateCondition } : {}),
+          ...(line.outcome === 'damaged' ? { damaged: true } : {}),
+          taker,
         });
       }
       return handoverView(state, h);

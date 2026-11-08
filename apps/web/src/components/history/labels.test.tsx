@@ -51,3 +51,30 @@ describe.each(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const)(
     });
   },
 );
+
+function Damaged() {
+  const say = useSummary();
+  return (
+    <p>
+      {plainText(
+        say({
+          summaryKey: 'loan.return',
+          summaryParams: { person: 'Murdock', condition: 'poor', damaged: '1' },
+          summary: FALLBACK,
+        }),
+      )}
+    </p>
+  );
+}
+
+describe('a loan that came back damaged (#374)', () => {
+  it('says so, in the reader’s language', async () => {
+    await activateLocale('en');
+    render(
+      <AppProviders locale="en">
+        <Damaged />
+      </AppProviders>,
+    );
+    expect(await screen.findByText(/^Came back damaged from .?Murdock.?$/)).toBeInTheDocument();
+  });
+});

@@ -44,7 +44,8 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 ## El hogar
 
 - **[Préstamos y devoluciones](/es/users/lending/)**: quién tiene qué y cuándo debe devolverlo, con
-  recordatorios y un mensaje amable para copiar. Los prestatarios no necesitan cuenta. Módulo: Préstamos.
+  recordatorios y un mensaje amable para copiar. Los prestatarios no necesitan cuenta. Cada objeto
+  muestra quién lo tuvo, en orden, cómo regresó y quién lo recibió. Módulo: Préstamos.
 - **[Kits y entregas](/es/users/kits/)**: presta una caja con todo lo que contiene; cada objeto regresa
   en su propio registro. Un kit recuerda qué pertenece en ella.
 - **[Mudanza de casa](/es/users/moving/)**: cajas numeradas, una etiqueta y una hoja de contenido para cada

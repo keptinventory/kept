@@ -5,6 +5,9 @@
  * closes and the thing is marked lost, never deleted), and for a quantity, how many came back
  * (the rest stays out on its own line). Save closes each line as chosen, one undoable event each,
  * undone together from the toast.
+ *
+ * #374: "Damaged" comes back damaged, and the thing's condition follows unless switched off; one
+ * member took it all back (you by default).
  */
 import type { Condition, ReturnLineOutcome } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -24,6 +27,7 @@ import { TextField } from '@/components/ui/text-field';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { ConditionPicker } from './condition-picker';
+import { type TakenBackBy, TakenBackByPicker, takenBackByInput, useMyId } from './taken-back-by';
 
 type Choice = {
   outcome: ReturnLineOutcome;
@@ -64,6 +68,8 @@ export function HandoverReturnSheet({
         <Checklist
           key={q.data.id}
           handoverId={q.data.id}
+          locationId={q.data.locationId}
+          direction={q.data.direction}
           lines={q.data.lines.filter((l) => !l.returnedAt)}
           onClose={onClose}
           {...(onDone ? { onDone } : {})}
@@ -75,11 +81,15 @@ export function HandoverReturnSheet({
 
 function Checklist({
   handoverId,
+  locationId,
+  direction,
   lines,
   onClose,
   onDone,
 }: {
   handoverId: string;
+  locationId: string;
+  direction: 'out' | 'in';
   lines: HandoverLine[];
   onClose: () => void;
   onDone?: () => Promise<void>;
@@ -99,6 +109,8 @@ function Checklist({
   );
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [takenBackBy, setTakenBackBy] = useState<TakenBackBy>(null);
+  const myId = useMyId();
   const set = (id: string, patch: Partial<Choice>) =>
     setChoices((c) => ({ ...c, [id]: { ...(c[id] as Choice), ...patch } }));
 
@@ -112,6 +124,8 @@ function Checklist({
         line.conditionIn = c.condition;
         if (c.updateCondition) line.updateCondition = true;
       }
+      // Damaged (#374): the server updates its condition unless told not to.
+      if (c.outcome === 'damaged') line.updateCondition = c.updateCondition;
       if (c.outcome === 'back' || c.outcome === 'damaged') {
         const n = Number(westernNumber(c.back).trim());
         if (!(n > 0) || n > Number(l.quantity)) {
@@ -124,7 +138,9 @@ function Checklist({
     }
     setBusy(true);
     try {
+      const taker = takenBackByInput(takenBackBy, myId);
       const { body: after, auditEvents } = await householdApi.returnHandover(handoverId, {
+        ...(taker ? { takenBackBy: taker } : {}),
         lines: body,
       });
       const back = fmt.num(after.counts.returned);
@@ -173,6 +189,7 @@ function Checklist({
                   set(l.id, {
                     outcome: v,
                     ...(v === 'damaged' && !c.condition ? { condition: 'poor' as const } : {}),
+                    ...(v === 'damaged' ? { updateCondition: true } : {}),
                   })
                 }
                 options={[
@@ -229,6 +246,12 @@ function Checklist({
           );
         })}
       </ul>
+      <TakenBackByPicker
+        locationId={locationId}
+        direction={direction}
+        value={takenBackBy}
+        onChange={setTakenBackBy}
+      />
       {error ? (
         <p role="alert" className="m-0 text-danger text-small">
           {error}

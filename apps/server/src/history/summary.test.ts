@@ -41,6 +41,22 @@ describe('summaries (#140)', () => {
     expect(SUMMARY_LINE_KEYS.length).toBeGreaterThan(0);
   });
 
+  it('says a loan came back damaged (#374)', () => {
+    const diff = {
+      person_name: plain(null, 'Murdock'),
+      condition_in: plain(null, 'poor'),
+      damaged: plain(false, true),
+    };
+    const s = summarise(ev('loan.return', diff), { name: 'Jigsaw' });
+    expect(s.summaryParams).toMatchObject({ person: 'Murdock', condition: 'poor', damaged: '1' });
+    expect(s.summary).toBe('Came back damaged from Murdock');
+    const fine = summarise(ev('loan.return', { ...diff, damaged: plain(false, false) }), {
+      name: 'Jigsaw',
+    });
+    expect(fine.summaryParams.damaged).toBeUndefined();
+    expect(fine.summary).toBe('Came back from Murdock (poor)');
+  });
+
   it('keeps the fallback for an action this build does not know', () => {
     const s = summarise(ev('gizmo.frobnicate'), { name: null });
     expect(s).toMatchObject({
