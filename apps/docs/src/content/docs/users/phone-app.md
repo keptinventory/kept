@@ -84,10 +84,10 @@ how many captures are waiting from another account and deletes them only when th
   tag opens its thing when you're online. The full list:
   [Short IDs and labels](/users/everyday-use/#short-ids-and-labels).
 - **Suggest where I am**, a switch in Capture's place picker, compares your position with your
-  locations' positions on the phone itself and suggests the nearby one. Your position is never
-  sent or kept. A location has a position only if it came with one in a
-  [Kept export](/users/import-export/#a-kept-export): setting it in the app is coming, and until
-  then a location without one is never suggested.
+  locations' positions on the phone itself and suggests the one you're at: within 150 m of its
+  position, the nearer one if two are. Your position is never sent or kept. An owner or admin sets
+  a location's position in **Location settings → General → Position**
+  ([Its position](/users/locations/#its-position)); a location without one is never suggested.
 - **Dictate** fills the name by voice where the browser supports it.
 
 **Settings → Diagnostics** checks the camera, offline support and storage, and copies a report of

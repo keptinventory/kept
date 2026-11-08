@@ -62,6 +62,26 @@ Một khay ô vuông hoặc một kệ gỡ ra làm hai hoặc nhiều ngăn th�
 - **Mẫu của riêng bạn:** **Cài đặt → Tài khoản → Mẫu → Nội thất** có mẫu vị trí của tài khoản: ô vuông ngang và dọc (thẳng đứng), kệ hoặc ngăn kéo, các loại, tên và mẫu mã, chia sẻ với địa điểm bạn chọn. Chủ sở hữu và quản trị viên tạo chúng; bất kỳ ai có thể thêm vị trí dùng chúng.
 - **Ứng dụng AI** có thể làm tương tự: `create_place` lấy một `template`, và `update_place` một `turn` ([MCP clients](/vi/users/mcp-clients/#các-công-cụ)). Gộp và tách ở trong ứng dụng.
 
+## Vị trí của nó
+
+Vị trí của một địa điểm giúp **Gợi ý vị trí của tôi** trong Chụp chọn địa điểm đó khi bạn ở đó
+([Kept trên điện thoại của bạn](/vi/users/phone-app/)).
+
+- **Đặt vị trí:** **Cài đặt địa điểm → Chung → Vị trí**, dành cho chủ sở hữu và quản trị viên.
+  **Dùng vị trí hiện tại của tôi** đọc vị trí điện thoại một lần (trình duyệt hỏi trước) và điền
+  **Vĩ độ** và **Kinh độ**; hoặc tự nhập theo độ, ví dụ 30.0444 và 31.2357. Rồi **Lưu**. **Xóa vị
+  trí** xóa nó. Cá nhân không có vị trí: nó đi theo bạn khắp nơi.
+- **Qua HTTP thường**, trình duyệt từ chối cho biết vị trí: hãy tự nhập.
+- **Mở trong bản đồ** mở OpenStreetMap tại vị trí đã lưu trong một thẻ mới. Chỉ khi đó vị trí mới
+  rời khỏi Kept.
+- **Gần bao nhiêu:** Chụp gợi ý một địa điểm khi điện thoại cách vị trí của nó không quá 150 m, chọn
+  địa điểm gần hơn nếu có hai. 150 m đủ cho một ngôi nhà và khu vườn cộng với sai số thường gặp của
+  điện thoại trong nhà, mà vẫn phân biệt được hai con phố.
+- **Ai thấy vị trí:** chủ sở hữu và quản trị viên, trên trang này; và điện thoại của những người
+  thêm đồ ở đó, để gợi ý. Người xem và liên kết chia sẻ không bao giờ nhận được. Lịch sử cho biết
+  vị trí đã thay đổi, ai đổi và khi nào, không bao giờ cho biết ở đâu. Bản xuất của địa điểm có
+  chứa nó, và nhập bản xuất đó sẽ đưa nó trở lại.
+
 ## Ẩn Cá nhân
 
 Mọi người nhận một địa điểm **Cá nhân**. Nếu bạn không dùng nó, bật **Ẩn Cá nhân** trong **Cài đặt → Tôi → Các địa điểm của bạn**, và tắt để hiện lại bất cứ lúc nào. Đó là sở thích của bạn: không ai thấy thay đổi.

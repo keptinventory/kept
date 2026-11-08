@@ -13,6 +13,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   dans des lieux. Déplacez une boîte et son contenu suit. Un arbre de lieux que vous pouvez déplier ou replier.
 - **[Masquer Personnel](/fr/users/locations/#masquer-personnel)** : retirez votre lieu Personnel du
   menu, de l'accueil, des listes et de la recherche, et réaffichez-le à tout moment.
+- **[La position d’un lieu](/fr/users/locations/#sa-position)** : depuis le téléphone ou
+  saisie, pour que la capture propose le lieu où vous êtes.
 - **[Meubles avec compartiments](/fr/users/locations/#mobilier-à-compartiments)** : une étagère cube ou
   une commode, chaque compartiment est un lieu à part. Tournez-le sur le côté, fusionnez ou scindez
   des compartiments ; leurs étiquettes restent fonctionnelles.
