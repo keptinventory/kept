@@ -129,6 +129,9 @@ holds at most 20 of them.
   Short IDs and serial numbers always stay in Western digits.
 - **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only
   while the language is English.
+- **Amounts** are read the way your language writes them. Where the comma is the decimal mark, as
+  in German, `1.234` is one thousand two hundred and thirty-four and `12,50` is twelve and a half.
+  An amount that could be read either way, like `0.125`, is refused rather than guessed.
 - **Date format**: **Default** (29 Oct, with the year only for other years), 29 Oct 2026,
   29/10/2026 or 2026-10-29 (as the United Kingdom writes them). Each choice shows today's date
   written that way, in your region. Purchase and

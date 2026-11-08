@@ -128,6 +128,9 @@ nimmt höchstens 20 davon auf.
   Kurze IDs und Seriennummern bleiben immer bei westlichen Ziffern.
 - **Region**: **Vereinigte Staaten** (Oct 29) oder **Vereinigtes Königreich** (29 Oct, 29/10/2026), nur angezeigt, während die Sprache
   Englisch ist.
+- **Beträge** werden so gelesen, wie deine Sprache sie schreibt. Wo das Komma das Dezimalzeichen ist,
+  wie im Deutschen, ist `1.234` eintausendzweihundertvierunddreißig und `12,50` zwölfeinhalb. Ein
+  Betrag, der sich auf zwei Arten lesen lässt, etwa `0.125`, wird abgelehnt statt geraten.
 - **Datumsformat**: **Standard** (29 Oct, mit dem Jahr nur für andere Jahre), 29 Oct 2026,
   29/10/2026 oder 2026-10-29 (so, wie das Vereinigte Königreich sie schreibt). Jede Wahl zeigt das heutige Datum
   auf diese Weise, in deiner Region. Kauf- und

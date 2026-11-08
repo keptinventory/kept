@@ -113,6 +113,11 @@ export function formatLocale(
   return digits === 'eastern' ? 'ar-u-nu-arab' : 'ar-u-nu-latn';
 }
 
+/** The `formatLocale` tag for this device's choices now, outside React (amount fields, #474). */
+export function currentFormatLocale(): string {
+  return formatLocale(state.locale, state.digits);
+}
+
 export function directionOf(locale: Locale): 'ltr' | 'rtl' {
   return locale === 'ar' ? 'rtl' : 'ltr';
 }

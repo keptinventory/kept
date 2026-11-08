@@ -126,6 +126,9 @@ tiene como máximo 20 de ellas.
   Los ID cortos y los números de serie siempre se mantienen en dígitos occidentales.
 - **Región**: **Estados Unidos** (29 oct) o **Reino Unido** (29 oct, 29/10/2026), mostrado solo
   mientras el idioma es inglés.
+- **Los importes** se leen como los escribe tu idioma. Donde la coma es el separador decimal, como en
+  España, `1.234` es mil doscientos treinta y cuatro y `12,50` es doce y medio. Un importe que se
+  puede leer de dos maneras, como `0.125`, se rechaza en lugar de adivinarse.
 - **Formato de fecha**: **Predeterminado** (29 oct, con el año solo para otros años), 29 oct 2026,
   29/10/2026 o 2026-10-29 (como los escribe el Reino Unido). Cada opción muestra la fecha de hoy
   escrita así, en tu región. Las fechas de compra y

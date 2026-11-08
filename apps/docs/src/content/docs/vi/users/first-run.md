@@ -110,6 +110,9 @@ chứa tối đa 20 tài khoản như vậy.
 - **Chữ số trong tiếng Ả Rập**: Phương Tây (0123) hoặc Phương Đông (٠١٢٣), chỉ hiện khi ngôn ngữ là Ả Rập.
   ID ngắn và số seri luôn ở chữ số Phương Tây.
 - **Vùng**: **Hoa Kỳ** (Oct 29) hoặc **Vương quốc Anh** (29 Oct, 29/10/2026), chỉ hiện khi ngôn ngữ là Anh.
+- **Số tiền** được đọc theo cách ngôn ngữ của bạn viết. Ở nơi dấu phẩy là dấu thập phân, như tiếng
+  Việt, `1.234` là một nghìn hai trăm ba mươi tư và `12,50` là mười hai rưỡi. Số tiền có thể đọc theo
+  hai cách, như `0.125`, sẽ bị từ chối thay vì đoán.
 - **Định dạng ngày**: **Mặc định** (29 Oct, có năm chỉ cho năm khác), 29 Oct 2026,
   29/10/2026 hoặc 2026-10-29 (theo cách Vương quốc Anh viết). Mỗi lựa chọn hiển thị hôm nay viết theo cách đó, trong vùng của bạn. Ngày mua và
   bảo hành luôn hiển thị năm.

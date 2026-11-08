@@ -127,7 +127,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set
   and more than one address; an export with secret values needs HTTPS.
 - **Languages:** Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian and
-  Vietnamese; type to find yours. The user, admin and install docs are in every language too.
+  Vietnamese; type to find yours, and amounts are read as your language writes them. The user,
+  admin and install docs are in every language too.
 
 <p align="center">
   <img src="docs/assets/claude-mcp.webp" alt="Claude Code connected to Kept over MCP: asked to add a TV with its serial number, it puts it in Home › Living room" width="720">

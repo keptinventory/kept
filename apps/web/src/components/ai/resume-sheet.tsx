@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { amountText, readAmount } from '@/lib/amount';
 import { useFormat } from '@/lib/format';
 import { useCapWho } from './cap-bars';
 import { useMoney } from './labels';
@@ -77,7 +78,7 @@ function ResumeForm({ cap, close }: { cap: AiCap; close: () => void }) {
   const usedMoney = Number(cap.used.cost.find((c) => c.currency === currency)?.amount ?? 0);
   const [raise, setRaise] = useState(() =>
     cap.monthlyCap
-      ? raisedBy25(Math.max(usedMoney, Number(cap.monthlyCap.amount)))
+      ? amountText(raisedBy25(Math.max(usedMoney, Number(cap.monthlyCap.amount))))
       : cap.tokensPerMonth
         ? raisedBy25(Math.max(cap.used.tokens, cap.tokensPerMonth), true)
         : '',
@@ -110,10 +111,19 @@ function ResumeForm({ cap, close }: { cap: AiCap; close: () => void }) {
     },
     onError: (e) => toast({ tone: 'danger', title: errorText(e) }),
   });
-  const valid = raise.trim() !== '' && Number(raise) > 0 && Number.isFinite(Number(raise));
+  /** The raise as typed: money read by the reader's language (#474), or tokens. */
+  const raised = (): number => {
+    if (!cap.monthlyCap) return Number(raise);
+    try {
+      return Number(readAmount(raise));
+    } catch {
+      return Number.NaN;
+    }
+  };
+  const valid = raise.trim() !== '' && raised() > 0 && Number.isFinite(raised());
   const raiseBody = (): ResumeAiBody =>
     cap.monthlyCap
-      ? { raiseTo: { amount: Number(raise).toFixed(2), currency: cap.monthlyCap.currency } }
+      ? { raiseTo: { amount: raised().toFixed(2), currency: cap.monthlyCap.currency } }
       : { raiseTo: { tokens: Math.round(Number(raise)) } };
 
   return (

@@ -124,6 +124,9 @@ contient au plus 20 comptes gérés.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement
   quand la langue est l’anglais.
+- **Les montants** sont lus comme votre langue les écrit. Là où la virgule est le séparateur
+  décimal, comme en français, `1.234` vaut mille deux cent trente-quatre et `12,50` douze et demi.
+  Un montant qui peut se lire de deux façons, comme `0.125`, est refusé plutôt que deviné.
 - **Format de date** : **Par défaut** (29 Oct, avec l’année seulement pour les autres années), 29 Oct 2026,
   29/10/2026 ou 2026-10-29 (comme l’écrit le Royaume-Uni). Chaque choix affiche la date du jour
   écrite ainsi, dans votre région. Les dates d’achat et de

@@ -112,6 +112,59 @@ describe('parseAmount', () => {
   });
 });
 
+describe("parseAmount with the reader's language (#474)", () => {
+  it.each([
+    ['1.234', 'de', '1234'],
+    ['1.234', 'es', '1234'],
+    ['1.234', 'vi', '1234'],
+    ['1.234.567,5', 'it', '1234567.5'],
+    ['1.234,50', 'de', '1234.5'],
+    ['12,50', 'de', '12.5'],
+    ['1,234', 'de', '1.234'],
+    ['1234,567', 'fr', '1234.567'],
+    ['12.50', 'de', '12.5'],
+    ['12.5', 'es', '12.5'],
+    ['.5', 'de', '0.5'],
+    ['1250', 'de', '1250'],
+    ['12 345,5', 'fr', '12345.5'],
+    ['12\u202f345,5', 'fr', '12345.5'],
+    ['12\u00a0345', 'uk', '12345'],
+    ['١٬٢٠٠٫٥', 'de', '1200.5'],
+    ['1.234', 'en', '1.234'],
+    ['1,234', 'en', '1234'],
+    ['1.234', 'en-GB', '1.234'],
+    ['1.234', 'es-MX', '1.234'],
+    ['1,234.5', 'es-419', '1234.5'],
+    ['١٬٢٠٠٫٥', 'ar-u-nu-arab', '1200.5'],
+    ['1,200.5', 'ar-u-nu-latn', '1200.5'],
+  ])('%j in %s → %j', (input, locale, expected) => {
+    expect(parseAmount(input, { locale })).toBe(expected);
+  });
+
+  it.each([
+    ['0.125', 'de'],
+    ['1234.567', 'de'],
+    ['1.23.4', 'de'],
+    ['1.234.5', 'es'],
+    ['1,234,567', 'de'],
+    ['1,234.50', 'de'],
+    ['1,5.3', 'it'],
+    ['12 34', 'fr'],
+    ['1 234.5', 'fr'],
+    ['1.234 567', 'de'],
+    [',', 'de'],
+    ['1.234.567.890.123', 'de'],
+  ])('refuses %j in %s rather than guess', (input, locale) => {
+    expect(() => parseAmount(input, { locale })).toThrow(AmountError);
+  });
+
+  it('reads the same without a language as before: the API takes no locale', () => {
+    expect(parseAmount('1.234')).toBe('1.234');
+    expect(parseAmount('1,234')).toBe('1234');
+    expect(parseAmount('1.234', { locale: 'not a tag' })).toBe('1.234');
+  });
+});
+
 describe('canonicalAmount: one form on the wire, whatever was stored (numeric(16,4) pads)', () => {
   it.each([
     ['150.0000', '150'],
@@ -227,6 +280,30 @@ describe('formatMoney: five currencies × en/ar × western/eastern digits', () =
 
   it('defaults to English with Western digits', () => {
     expect(formatMoney('1200', 'GBP')).toBe('£1,200.00');
+  });
+});
+
+describe('formatAmount round-trips through parseAmount in every language (#474)', () => {
+  const tags = [
+    'ar-u-nu-arab',
+    'ar-u-nu-latn',
+    'de',
+    'en',
+    'en-GB',
+    'es',
+    'es-419',
+    'es-MX',
+    'fr',
+    'it',
+    'uk',
+    'vi',
+  ];
+  const amounts = ['0', '0.5', '1.234', '12.345', '1234', '12345.6789', '999999999999.9999'];
+  it.each(tags)('%s', (locale) => {
+    for (const amount of amounts) {
+      const shown = formatAmount(amount, { locale, digits: 'eastern' });
+      expect([amount, parseAmount(shown, { locale })]).toEqual([amount, amount]);
+    }
   });
 });
 

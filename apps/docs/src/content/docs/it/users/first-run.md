@@ -90,6 +90,9 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 - **Cifre in arabo**: occidentali (0123) o orientali (٠١٢٣), mostrati solo quando la lingua è arabo.
   Gli ID brevi e i numeri di serie rimangono sempre in cifre occidentali.
 - **Regione**: **Stati Uniti** (29 ott) o **Regno Unito** (29 ott, 29/10/2026), mostrato solo quando la lingua è inglese.
+- **Gli importi** si leggono come li scrive la tua lingua. Dove la virgola è il separatore decimale,
+  come in italiano, `1.234` è milleduecentotrentaquattro e `12,50` è dodici e mezzo. Un importo che
+  si può leggere in due modi, come `0.125`, viene rifiutato invece che indovinato.
 - **Formato data**: **Predefinito** (29 ott, con l'anno soltanto per altri anni), 29 ott 2026,
   29/10/2026 o 2026-10-29 (come li scrive il Regno Unito). Ogni scelta mostra la data odierna scritta in quel modo, nella tua regione. Le date di acquisto e
   di garanzia mostrano sempre l'anno.
