@@ -28871,3 +28871,41 @@ msgstr "<0>{0}</0> e i suoi vani contengono {inside}. Cosa vuoi farne?"
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Solo {placeName} e i suoi vani vanno nel cestino."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Tornato danneggiato"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Tornato danneggiato da {person}"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Restituito da"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "restituito da <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Non ancora restituito"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "dal {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Ripreso da"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "ripreso da <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Chi l’ha avuto"

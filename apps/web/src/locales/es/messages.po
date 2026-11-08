@@ -28871,3 +28871,41 @@ msgstr "<0>{0}</0> y sus compartimentos tienen {inside} dentro. ¿Qué debe pasa
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Solo {placeName} y sus compartimentos van a la papelera."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Volvió dañado"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Regresó dañado de {person}"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Devuelto por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "devuelto por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Aún no ha vuelto"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "desde {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Recibido por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "recibido por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Quién lo tuvo"

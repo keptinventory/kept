@@ -20920,3 +20920,41 @@ msgstr "<0>{0}</0> và các ngăn của nó có {inside}. Nên làm gì với ch
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Chỉ {placeName} và các ngăn của nó được chuyển vào thùng rác."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Trả lại bị hư hỏng"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "{person} đã trả lại, bị hư hỏng"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Người trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "do <0>{taker}</0> trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Chưa trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "từ {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Người nhận lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "do <0>{taker}</0> nhận lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Ai đã giữ"
