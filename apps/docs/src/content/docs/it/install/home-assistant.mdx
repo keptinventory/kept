@@ -91,7 +91,8 @@ non si aprono più.
 | | http semplice | https |
 |---|---|---|
 | Elementi, posti, ricerca, etichette, foto da file | sì | sì |
-| Token personali (l'integrazione), mostrare segreti, esportazioni | no | sì |
+| L'integrazione Kept, configurata dall'app | sì | sì |
+| Token personali (script), mostrare segreti, esportazioni | no | sì |
 | Passkey, la fotocamera, installazione dell'app sul telefono, push | no | sì |
 
 Dentro Home Assistant, Kept vale come https solo quando Home Assistant stesso è servito su https.
@@ -116,9 +117,6 @@ http semplice. Le passkey appartengono all'indirizzo proprio di Kept: accedi con
 
 ## L'integrazione
 
-Questa app esegue Kept; un'integrazione separata lo porta in Home Assistant. Attiva **https sulla
-porta di Kept** prima di collegarla ([l'app e l'integrazione](/it/users/home-assistant/#lapp-e-lintegrazione)).
+Questa app esegue Kept; un'integrazione separata lo porta in Home Assistant ([l'app e l'integrazione](/it/users/home-assistant/#lapp-e-lintegrazione)).
 
-[L'integrazione Kept](/it/users/home-assistant/) porta in Home Assistant ciò che è in scadenza. Dallei
-l'indirizzo di Kept e un token personale creato su https. Configurarla senza token, direttamente dall'app,
-arriverà in una release successiva.
+Installa [l'integrazione Kept](/it/users/home-assistant/) con HACS e riavvia Home Assistant: Kept compare come rilevato in **Impostazioni → Dispositivi e servizi**. Aggiungilo, poi consentilo in Kept (**Impostazioni → Connessioni**). Nessun token da copiare e nessun https: Kept e Home Assistant parlano sulla rete interna di Home Assistant.

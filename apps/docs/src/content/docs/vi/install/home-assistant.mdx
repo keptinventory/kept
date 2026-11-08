@@ -82,7 +82,8 @@ Tắt cổng 8080 (Cấu hình → Mạng) chỉ để lại thanh bên: nhãn v
 | | http thuần | https |
 |---|---|---|
 | Đồ vật, các vị trí, tìm kiếm, nhãn, ảnh từ một tệp | có | có |
-| Mã thông báo cá nhân (tích hợp), hiển thị bí mật, xuất khẩu | không | có |
+| Tích hợp Kept, thiết lập từ ứng dụng | có | có |
+| Mã thông báo cá nhân (script), hiển thị bí mật, xuất khẩu | không | có |
 | Khóa truy cập, máy ảnh, cài đặt ứng dụng điện thoại, đẩy | không | có |
 
 Bên trong Home Assistant, Kept chỉ được tính là https khi chính Home Assistant được phục vụ qua https.
@@ -100,8 +101,6 @@ http thuần. Khóa truy cập thuộc về địa chỉ riêng của Kept: đă
 
 ## Tích hợp
 
-Ứng dụng này chạy Kept; một tích hợp riêng đưa nó vào Home Assistant. Bật **https trên cổng của Kept** trước khi kết nối nó ([ứng dụng và tích hợp](/vi/users/home-assistant/#ứng-dụng-và-tích-hợp)).
+Ứng dụng này chạy Kept; một tích hợp riêng đưa nó vào Home Assistant ([ứng dụng và tích hợp](/vi/users/home-assistant/#ứng-dụng-và-tích-hợp)).
 
-[Tích hợp Kept](/vi/users/home-assistant/) đưa những thứ đến hạn vào Home Assistant. Cho nó
-địa chỉ của Kept và một mã thông báo cá nhân tạo qua https. Thiết lập nó mà không cần mã thông báo, trực tiếp từ
-ứng dụng, sẽ có trong một bản phát hành sau.
+Cài [tích hợp Kept](/vi/users/home-assistant/) bằng HACS rồi khởi động lại Home Assistant: Kept hiện là đã phát hiện trong **Cài đặt → Thiết bị & dịch vụ**. Thêm nó, rồi cho phép trong Kept (**Cài đặt → Kết nối**). Không có token để sao chép, không cần https: Kept và Home Assistant nói chuyện qua mạng nội bộ của Home Assistant.

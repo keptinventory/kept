@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { parseExtraAddresses } from '../apps/server/src/auth/addresses.ts';
-import { appEnv, shellExports } from '../docker/ha/options.mjs';
+import {
+  appEnv,
+  DISCOVERY_SERVICE,
+  discoveryMessage,
+  newLinkSecret,
+  readLinkSecret,
+  shellExports,
+} from '../docker/ha/options.mjs';
 
 // The Home Assistant app's options (homeassistant/kept/config.yaml `schema`) as Kept's environment,
 // and the address Kept is told it has (D272, spec §5.4, §7). docker/ha/kept-ha-start sources what
@@ -516,5 +523,59 @@ describe('setup without the code, by Supervisor version', () => {
   it('says so in the log when it stays off', () => {
     const { lines } = appEnv({ options: {}, info: { ...info, supervisor: '2026.10.3' }, self });
     expect(lines.join('\n')).toMatch(/2026\.10\.4/);
+  });
+});
+
+// #376: the discovery message that offers the Kept integration in Home Assistant. The domain must be
+// the one homeassistant/kept/config.yaml lists under `discovery` (the Supervisor refuses others).
+describe('discoveryMessage()', () => {
+  const secret = newLinkSecret();
+
+  it('names Kept on the internal network, its port in the container, and the link secret', () => {
+    expect(
+      discoveryMessage({ self: { hostname: 'a0d7b954-kept' }, ssl: false, linkSecret: secret }),
+    ).toEqual({
+      service: 'kept',
+      config: { host: 'a0d7b954-kept', port: 8080, ssl: false, link_secret: secret },
+    });
+  });
+
+  it('says https when Kept serves it on its port', () => {
+    const m = discoveryMessage({ self: { hostname: 'local-kept' }, ssl: true, linkSecret: secret });
+    expect(m?.config.ssl).toBe(true);
+  });
+
+  it('sends nothing without the host name or a well-formed secret', () => {
+    expect(discoveryMessage({ self: null, ssl: false, linkSecret: secret })).toBeNull();
+    expect(
+      discoveryMessage({ self: { hostname: 'local-kept' }, ssl: false, linkSecret: 'short' }),
+    ).toBeNull();
+    expect(
+      discoveryMessage({ self: { hostname: 'local-kept' }, ssl: false, linkSecret: null }),
+    ).toBeNull();
+  });
+
+  it('is for the domain the app lists under discovery', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const config = await readFile(
+      new URL('../homeassistant/kept/config.yaml', import.meta.url),
+      'utf8',
+    );
+    expect(config).toMatch(new RegExp(`^discovery:\\n  - ${DISCOVERY_SERVICE}$`, 'm'));
+  });
+});
+
+describe('the link secret', () => {
+  it('is 32 random bytes, base64url, different every time', () => {
+    const a = newLinkSecret();
+    expect(a).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(newLinkSecret()).not.toBe(a);
+  });
+
+  it('is read back only when it is one the script wrote', () => {
+    const a = newLinkSecret();
+    expect(readLinkSecret(`${a}\n`)).toBe(a);
+    expect(readLinkSecret('not a secret')).toBeNull();
+    expect(readLinkSecret(undefined)).toBeNull();
   });
 });

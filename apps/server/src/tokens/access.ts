@@ -111,6 +111,8 @@ export const NEVER_FOR_TOKENS: readonly RegExp[] = [
   /\/share-links(\/|$)/,
   // 1.x (D248): a location's Paperless-ngx connection, its search and its thumbnails.
   /\/paperless(\/|$)/,
+  // #376: linking the Kept integration from the Home Assistant app is a person's decision.
+  /^\/api\/v1\/home-assistant(\/|$)/,
   /^\/mcp(\/|$)/,
 ];
 

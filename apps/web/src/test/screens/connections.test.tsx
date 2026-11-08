@@ -12,7 +12,7 @@ import { connectionsPaths } from '@/api/connections/paths';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { type MockState, ownerScenario } from '@/api/mock/fixtures';
-import { err } from '@/api/mock/kit';
+import { err, reply } from '@/api/mock/kit';
 import { findHeading, renderApp } from '../app';
 
 const L = INV_IDS.loc;
@@ -88,6 +88,103 @@ describe('Connections', () => {
     expect(
       await sheet.findByText(/This needs a secure \(HTTPS\) connection.*kept admin token create/),
     ).toBeInTheDocument();
+  });
+
+  // #376: in the Home Assistant app, the Kept integration asks to connect; approving makes a token
+  // Home Assistant collects itself, so nothing secret is ever on this page.
+  it('approves a request from Home Assistant with New token’s choices, and shows no secret', async () => {
+    const request = {
+      id: '01926f00-0000-7000-8000-0000000b0001',
+      code: 'WDJK-7QXR',
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    };
+    let waiting = [request];
+    const { user, mock } = await renderApp('/settings/connections', {
+      setup: (m) => {
+        m.on('GET', connectionsPaths.homeAssistantLinks, () => ({
+          available: true,
+          items: waiting,
+        }));
+        m.on('POST', connectionsPaths.homeAssistantApprove(':id'), ({ body }) => {
+          waiting = [];
+          const b = body as { scope: 'read' | 'write'; locationIds: string[] };
+          return reply(201, {
+            token: {
+              id: '01926f00-0000-7000-8000-0000000b0002',
+              kind: 'personal',
+              name: 'Home Assistant',
+              scope: b.scope,
+              locations: b.locationIds.map((id) => ({ id, name: 'Home' })),
+              createdAt: new Date().toISOString(),
+              expiresAt: null,
+              lastUsedAt: null,
+              revokedAt: null,
+              revokedReason: null,
+              rowVersion: 1,
+            },
+          });
+        });
+      },
+    });
+    const list = await screen.findByRole('list', { name: 'Home Assistant' });
+    expect(within(list).getByText('Home Assistant asks to connect')).toBeInTheDocument();
+    expect(within(list).getByText('WDJK-7QXR')).toBeInTheDocument();
+    await user.click(within(list).getByRole('button', { name: 'Allow' }));
+    const sheet = within(await screen.findByRole('dialog', { name: 'Connect Home Assistant' }));
+    // No name and no expiry: the token is "Home Assistant", kept until revoked.
+    expect(sheet.queryByRole('textbox', { name: 'Name' })).toBeNull();
+    expect(sheet.getByRole('checkbox', { name: 'Home' })).toBeChecked();
+    await user.click(sheet.getByRole('button', { name: 'Allow' }));
+    expect(await sheet.findByText('Home Assistant is connected')).toBeInTheDocument();
+    expect(mock.lastCall('POST', connectionsPaths.homeAssistantApprove(request.id))?.body).toEqual({
+      scope: 'read',
+      locationIds: [L.home],
+    });
+    expect(document.body.textContent).not.toMatch(/kpt_/);
+    await user.click(sheet.getByRole('button', { name: 'Done' }));
+    await waitFor(() => expect(screen.queryByRole('list', { name: 'Home Assistant' })).toBeNull());
+  });
+
+  it('declines a request from Home Assistant, and says when one has ended', async () => {
+    const request = {
+      id: '01926f00-0000-7000-8000-0000000b0003',
+      code: 'MNPQ-3467',
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    };
+    const { user, mock } = await renderApp('/settings/connections', {
+      setup: (m) => {
+        m.on('GET', connectionsPaths.homeAssistantLinks, () => ({
+          available: true,
+          items: [request],
+        }));
+        m.on('POST', connectionsPaths.homeAssistantDecline(':id'), () => reply(204));
+        m.on('POST', connectionsPaths.homeAssistantApprove(':id'), () =>
+          err(404, 'not_found', 'Not found.'),
+        );
+      },
+    });
+    const list = await screen.findByRole('list', { name: 'Home Assistant' });
+    await user.click(within(list).getByRole('button', { name: 'Allow' }));
+    const sheet = within(await screen.findByRole('dialog', { name: 'Connect Home Assistant' }));
+    await user.click(sheet.getByRole('button', { name: 'Allow' }));
+    expect(
+      await sheet.findByText('This request has ended. Start again from Home Assistant.'),
+    ).toBeInTheDocument();
+    await user.click(sheet.getByRole('button', { name: 'Cancel' }));
+    await user.click(within(list).getByRole('button', { name: 'Decline' }));
+    await waitFor(() =>
+      expect(
+        mock.lastCall('POST', connectionsPaths.homeAssistantDecline(request.id)),
+      ).toBeDefined(),
+    );
+  });
+
+  it('shows nothing about Home Assistant outside the app', async () => {
+    await renderApp('/settings/connections');
+    await screen.findByRole('list', { name: 'Tokens and connected apps' });
+    expect(screen.queryByRole('list', { name: 'Home Assistant' })).toBeNull();
   });
 
   it('asks again before a write token for two locations', async () => {

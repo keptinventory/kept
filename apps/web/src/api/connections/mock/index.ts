@@ -68,6 +68,9 @@ export function connectionsMockRoutes(state: MockState): MockRoute[] {
   });
 
   return [
+    // ----- linking Home Assistant (#376): only the Home Assistant app has it; tests turn it on -----
+    route('GET', p.homeAssistantLinks, () => ({ available: false, items: [] })),
+
     // ----- tokens and connected apps -----
     route('GET', p.tokens, ({ query }) =>
       page(

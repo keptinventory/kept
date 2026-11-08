@@ -65,6 +65,12 @@ const ALLOWLIST: Record<string, string> = {
     "signs in to the location's saved mailbox to say whether it works, rate-limited to 6 a minute; it changes nothing (connecting, changing and removing the mailbox are audited: mailbox.create, mailbox.update, mailbox.delete)",
   'POST /api/v1/locations/:id/paperless/check':
     "signs in to the location's saved Paperless-ngx to say whether it works and which version it runs, rate-limited to 6 a minute; it changes nothing (connecting, changing and disconnecting are audited: paperless.connect, paperless.update, paperless.disconnect)",
+  'POST /api/v1/home-assistant/link-requests':
+    "#376: Home Assistant asks to link the Kept integration, with the app's link secret; the request lives in the process's memory for ten minutes and changes nothing, and the token a person's approval makes is audited (token.create)",
+  'POST /api/v1/home-assistant/link-requests/:id/claim':
+    '#376: Home Assistant collects, once, the token a person approved for its request; the token was audited when the approval made it (token.create), and the claim only drops the in-memory request',
+  'POST /api/v1/home-assistant/link-requests/:id/decline':
+    '#376: a person turns down an in-memory link request from Home Assistant; nothing was made, so nothing is audited',
   'POST /api/v1/notifications/read':
     "marks the caller's own notifications read (read_at only): a read receipt is the person's own bookkeeping, not a change to the household's data",
   'POST /api/v1/assistant/threads':

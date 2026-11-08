@@ -29,6 +29,8 @@ import { signInSecurityRoutes } from '../auth/sign-in-security.js';
 import type { Env } from '../config/env.js';
 import type { SecretKeys } from '../crypto/keyring.js';
 import type { Pools } from '../db/pools.js';
+import type { HomeAssistantLinks } from '../homeassistant/link.js';
+import { homeAssistantLinkRoutes } from '../homeassistant/routes.js';
 import { inviteRoutes } from '../invites/routes.js';
 import type { JobAdmin } from '../jobs/failed.js';
 import type { JobQueue } from '../jobs/queue.js';
@@ -50,6 +52,7 @@ import { activeTracing } from '../observability/state.js';
 import { setupRoutes } from '../setup/routes.js';
 import { derivativeKey, type FileStorage } from '../storage/blob-store.js';
 import { TOKEN_SECURITY_SCHEMES, tokenSecurityTransform } from '../tokens/openapi.js';
+import { clientNamesFrom } from '../tokens/service.js';
 import { bearerHook } from '../tokens/verify.js';
 import { LIBRARY_STYLE_HASHES } from './csp-styles.js';
 import { toErrorReply } from './errors.js';
@@ -143,6 +146,9 @@ export type AppOptions = {
   notify?: Pick<NotifyDeps, 'push' | 'transport' | 'appriseUrl'> | null;
   /** https served by Kept itself (KEPT_TLS_CERT_FILE, KEPT_TLS_KEY_FILE): the PEM contents. */
   tls?: { cert: Buffer; key: Buffer } | null;
+  /** #376: the open requests to link the Kept integration, from the app's link secret
+   * (KEPT_HA_LINK_SECRET_FILE). Used in app mode (KEPT_HA) only; otherwise its routes are 404. */
+  homeAssistantLinks?: HomeAssistantLinks | null;
 };
 
 export type KeptApp = FastifyInstance<
@@ -372,6 +378,14 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
       mailConfigured: opts.mailConfigured ?? false,
       ...(opts.notify?.transport ? { transport: opts.notify.transport } : {}),
     },
+  });
+  // #376: linking the Kept integration from the Home Assistant app (homeassistant/routes.ts).
+  await homeAssistantLinkRoutes(app, {
+    pools: opts.pools,
+    links: opts.env.KEPT_HA === true ? (opts.homeAssistantLinks ?? null) : null,
+    tokenKey,
+    publicUrl: opts.env.KEPT_PUBLIC_URL,
+    names: clientNamesFrom(opts.pools.auth ?? null),
   });
   if (auth) {
     const publicUrl = opts.env.KEPT_PUBLIC_URL;

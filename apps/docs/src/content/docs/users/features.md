@@ -94,7 +94,8 @@ a location turns them on in **Location settings → What to track**
 ## Works with
 
 - **[Home Assistant](/users/home-assistant/)**: Kept as a Home Assistant app, and an integration
-  for dashboards, automations and the calendar.
+  for dashboards, automations and the calendar. The app offers the integration in Home Assistant;
+  you allow it in Kept, with no token to copy.
 - **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them; the start of a
   word finds one in **Link from Paperless**. A [Homebox import](/users/import-export/) takes its
   links' titles from Paperless.

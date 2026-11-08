@@ -46,6 +46,11 @@ panel_admin: false
 # Home Assistant's certificates, read-only, for the `ssl` option (https on the port).
 map:
   - type: ssl
+# #376: the start script tells Home Assistant Kept is here (the Supervisor's POST /discovery), so
+# the Kept integration offers itself under Settings → Devices & services. The Supervisor refuses a
+# discovery message for a domain not listed here.
+discovery:
+  - kept
 options:
   log_level: info
   ssl: false
