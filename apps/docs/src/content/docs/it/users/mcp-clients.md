@@ -146,7 +146,7 @@ superiore. La parte di Kept di cui uno strumento ha bisogno è il nome sotto **C
 | `update_thing` | modifica | | Modifica qualsiasi campo di un oggetto che il modulo di modifica dell'app modifica (vedi sotto); `null` cancella uno. |
 | `move_thing` | modifica | | Sposta un oggetto, o una parte di una quantità, in un altro luogo o contenitore. |
 | `mark_seen` | modifica | | Ho appena visto questo oggetto dove Kept dice che sia. |
-| `create_place` | modifica | | Aggiungi un luogo sotto un altro luogo, o in cima al luogo. Con `template`, aggiungi mobili e un luogo per ciascun comparto in un solo passo, come fa [Mobili con scomparti](/it/users/locations/#mobili-con-vani); un'unica operazione Annulla riporta tutto indietro. Una stanza prende le sue dimensioni reali, `width_cm` e `length_cm` (da 50 cm a 100 m), e va sulla [mappa](/it/users/location-map/) con esse. |
+| `create_place` | modifica | | Aggiungi un luogo sotto un altro luogo, o in cima al luogo. Con `template`, aggiungi mobili e un luogo per ciascun comparto in un solo passo, come fa [Mobili con scomparti](/it/users/locations/#mobili-con-vani); un'unica operazione Annulla riporta tutto indietro. Una stanza prende le sue dimensioni reali, `width_cm` e `length_cm` (da 50 cm a 100 m), e va sulla [mappa](/it/users/location-map/) con esse. Un modello di armadio rack prende `units` e `numbering` ([Armadi rack](/it/users/locations/#armadi-rack)). |
 | `update_place` | modifica | | Modifica un luogo come nella sua pagina: rinominalo, cambia il suo tipo, spostalo in un altro luogo o in cima, imposta i suoi campi e l'ordine dei luoghi in esso (A-Z o Ordine personalizzato, poi Sposta su o Sposta giù). `turn` (`right` o `left`, dove è finito il suo lato superiore) ruota [mobili con comparti](/it/users/locations/#ruotare-il-mobile) sul fianco o sul retro, con `renumber` vero o falso. Annullabile per 7 giorni, tranne uno spostamento su o giù: il movimento opposto lo annulla. |
 | `turn_into_boxes` | modifica | | Trasforma fino a 50 luoghi in scatole, come fa **Trasforma posti in scatole**. Ciascuno mantiene il suo ID, l'etichetta e ciò che contiene; uno con luoghi dentro resta un luogo, e così uno in cima al luogo (trasforma quello in Kept). Un'unica operazione Annulla li riporta tutti indietro. |
 | `attach_link` | modifica | | Un link che apre il foglio di acquisizione di Kept per aggiungere una foto, una ricevuta o un documento. |
@@ -183,7 +183,7 @@ la riga sulla ricevuta, il prezzo di uno con la sua valuta e le note, modificand
 che ha o registrandone uno, come fa la pagina dell'oggetto. Un prezzo richiede che Money sia attivo e un ruolo che
 veda il denaro, come nell'app; un minimo richiede **Oggetti che si esauriscono**. Un tipo che Kept non conosce viene
 lasciato fuori e l'`not_set` della risposta lo dice; la scheda dell'assistente
-lo mostra come "not set" con un selettore.
+lo mostra come "not set" con un selettore. Un apparato in un armadio rack prende `rack_units` (la sua altezza, 0 accanto ai montanti) e `rack_at` (la sua unità più bassa contata dal basso, il lato e se è a profondità piena), rifiutato come nell’app se l’unità è occupata.
 
 Gli strumenti per il trasloco sono solo per le app collegate; l'assistente in Kept non li usa.
 
