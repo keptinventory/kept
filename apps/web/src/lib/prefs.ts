@@ -30,6 +30,8 @@ export const DATE_FORMATS: readonly DateFormatPref[] = ['auto', 'medium', 'numer
 
 export const THEME_KEY = 'kept.theme';
 export const LOCALE_KEY = 'kept.locale';
+/** #474: the chosen language this device last put on the account, so it is sent only once. */
+export const LOCALE_SENT_KEY = 'kept.localeSent';
 export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
 export const REGION_KEY = 'kept.region';
@@ -259,9 +261,41 @@ export function setThemePref(theme: ThemePref): void {
   set({ theme, resolvedTheme: resolve(theme) });
 }
 
+/** A language the person chose: kept on this device, and the one `chosenLocale` answers. */
 export function setLocale(locale: Locale): void {
   write(LOCALE_KEY, locale);
   set({ locale });
+}
+
+/**
+ * The language this page starts in, stored nowhere (#474): a browser's language is followed again
+ * when it changes or when Kept learns it, until the person picks one. Earlier versions stored the
+ * language on every start, so a language stored by them can't be told from a default.
+ */
+export function showLocale(locale: Locale): void {
+  set({ locale });
+}
+
+/** The language picked on this device, or null where it follows the browser. */
+export function chosenLocale(): Locale | null {
+  const v = read(LOCALE_KEY);
+  return isLocale(v) ? v : null;
+}
+
+/**
+ * The chosen language to put on the account whose language is `accountLocale`, once (#474): null
+ * when nothing was chosen here, when the account already has it, or when it was sent before.
+ * Another device's later choice stays the account's.
+ */
+export function localeToSend(accountLocale: string): Locale | null {
+  const chosen = chosenLocale();
+  if (!chosen || chosen === accountLocale || read(LOCALE_SENT_KEY) === chosen) return null;
+  return chosen;
+}
+
+/** The account has `locale` from this device. */
+export function markLocaleSent(locale: Locale): void {
+  write(LOCALE_SENT_KEY, locale);
 }
 
 export function setDigits(digits: Digits): void {

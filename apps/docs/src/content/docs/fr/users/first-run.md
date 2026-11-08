@@ -119,7 +119,7 @@ contient au plus 20 comptes gérés.
 - **Langue** : العربية, Deutsch, English, Español, Français, Italiano, Українська ou Tiếng Việt.
   Ouvrez la liste, ou saisissez pour en trouver une : son nom, son nom en anglais ou dans la langue que vous
   utilisez, et les petites fautes de frappe passent (`german`, `deutsch` et `francais` fonctionnent tous). L’arabe présente toute l’application de droite
-  à gauche. Les pages de connexion ont le même sélecteur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
+  à gauche. Les pages de connexion ont le même sélecteur. Tant que vous n’en choisissez pas une, Kept suit la langue du navigateur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
 - **Chiffres arabes orientaux** : Occidentaux (0123) ou Orientaux (٠١٢٣), affichés uniquement quand la langue est l’arabe.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement

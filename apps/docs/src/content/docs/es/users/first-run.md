@@ -121,7 +121,7 @@ tiene como máximo 20 de ellas.
 - **Idioma**: العربية, Deutsch, English, Español, Français, Italiano, Українська o Tiếng Việt.
   Abre la lista, o escribe para encontrar uno: su propio nombre, su nombre en inglés o en el idioma que estés
   usando, y los pequeños errores tipográficos están bien (`german`, `deutsch` y `francais` funcionan todos). El árabe diseña toda la aplicación
-  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
+  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Hasta que elijas uno, Kept sigue el idioma del navegador. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
 - **Dígitos en árabe**: Occidentales (0123) u orientales (٠١٢٣), mostrados solo mientras el idioma es árabe.
   Los ID cortos y los números de serie siempre se mantienen en dígitos occidentales.
 - **Región**: **Estados Unidos** (29 oct) o **Reino Unido** (29 oct, 29/10/2026), mostrado solo
