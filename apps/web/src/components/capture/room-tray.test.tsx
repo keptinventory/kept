@@ -31,7 +31,7 @@ describe('the room tray', () => {
         provider="groq"
       />,
     );
-    expect(screen.getByText(/^About 3 photos · up to ~[\d,]+ tokens · Groq$/)).toBeInTheDocument();
+    expect(screen.getByText(/^About 3 photos, up to ~[\d,]+ tokens, Groq$/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send 3 photos' })).toBeEnabled();
   });
 
@@ -68,7 +68,7 @@ describe('the room tray', () => {
       />
     );
     const one = await renderUI(tray(1));
-    expect(screen.getByText('1 photo · No AI runs in this demo')).toBeInTheDocument();
+    expect(screen.getByText('1 photo, No AI runs in this demo')).toBeInTheDocument();
     expect(screen.queryByText(/About 1 photo/)).toBeNull();
     one.unmount();
     await renderUI(tray(2), { locale: 'ar' });

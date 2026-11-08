@@ -230,7 +230,7 @@ describe('ListSurface (the list standard)', () => {
       'true',
     );
     await user.click(within(sheet).getByRole('button', { name: 'Done' }));
-    expect(display()).toHaveTextContent('Name · by kind');
+    expect(display()).toHaveTextContent('Name, by kind');
     expect(display()).toHaveAccessibleName('Display options: sorted by Name, A to Z, by kind');
     // Back to the default writes nothing.
     await user.click(display());
@@ -288,7 +288,7 @@ describe('ListSurface (the list standard)', () => {
     await user.click(within(menu).getByRole('menuitemradio', { name: 'Photos' }));
     await waitFor(() => expect(search(router).view).toBe('photos'));
     await user.click(within(sheet).getByRole('button', { name: 'Done' }));
-    expect(display()).toHaveTextContent('Added · photos');
+    expect(display()).toHaveTextContent('Added, photos');
     expect(display()).toHaveAccessibleName(
       'Display options: sorted by Added, Oldest first, photos',
     );
@@ -296,14 +296,14 @@ describe('ListSurface (the list standard)', () => {
 
   it('reads sort, dir, group and view from a linked URL', async () => {
     await renderList('/list?sort=added&dir=asc&group=kind&view=photos');
-    expect(display()).toHaveTextContent('Added · by kind · photos');
+    expect(display()).toHaveTextContent('Added, by kind, photos');
     expect(display()).toHaveAccessibleName(
       'Display options: sorted by Added, Oldest first, by kind, photos',
     );
     // On a narrow phone only the sort's name stays; nothing is cut short with an ellipsis.
     expect(display().innerHTML).not.toMatch(/truncate|text-ellipsis|line-clamp/);
     expect(display().querySelector('.min-\\[420px\\]\\:inline')).toHaveTextContent(
-      '· by kind · photos',
+      ', by kind, photos',
     );
   });
 

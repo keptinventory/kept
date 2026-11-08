@@ -120,7 +120,7 @@ export function CallFields({ call }: { call: AiCall }) {
         ) : null}
       </Field>
       <Field label={<Trans>When</Trans>}>
-        {fmt.dateTime(call.at)}{' '}
+        {fmt.dateTime(call.at)}
         <span className="text-small text-ink-2">
           <Trans>
             · attempt {fmt.num(call.attempt)} of request{' '}
@@ -241,7 +241,7 @@ export function CallFields({ call }: { call: AiCall }) {
           <Trans>Hidden in this location</Trans>
         ) : call.cost ? (
           <>
-            {approx(call.cost.amount, call.cost.currency)}{' '}
+            {approx(call.cost.amount, call.cost.currency)}
             <span className="text-small text-ink-2">
               {call.cost.source === 'provider' ? (
                 <Trans>· reported by the provider</Trans>

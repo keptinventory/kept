@@ -183,7 +183,7 @@ describe('furniture’s compartments on the map card (#238)', () => {
     const setInner = vi.fn();
     const { user } = await card(props({ part: id(32), setPart, setInner }));
     expect(await screen.findByRole('heading', { name: 'Cube 2' })).toBeVisible();
-    expect(screen.getByText('Inside · 1')).toBeVisible();
+    expect(screen.getByText('Inside, 1')).toBeVisible();
     expect(screen.getByRole('button', { name: /HDMI cables/ })).toBeVisible();
     expect(screen.queryByText('Torch')).toBeNull();
     expect(screen.getByRole('link', { name: 'Open the place' })).toHaveAttribute(

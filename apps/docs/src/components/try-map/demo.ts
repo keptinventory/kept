@@ -386,7 +386,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
           .map((i) => {
             const n = countIn(contents, i);
             const on = i.on ? plan.items.find((x) => x.id === i.on)?.name : null;
-            return `<li><button type="button" data-act="select" data-arg="${esc(i.id)}" data-k="select:${esc(i.id)}"><span>${esc(i.name)}${dots(flagsOf(contents, i.id))}</span><small>${labelTape(i.shortCode, i.labelPrinted)}${on ? ` · ${esc(w.onHost(on))}` : ''}</small><span class="q">${n !== null ? esc(f.num(n)) : ''}</span></button></li>`;
+            return `<li><button type="button" data-act="select" data-arg="${esc(i.id)}" data-k="select:${esc(i.id)}"><span>${esc(i.name)}${dots(flagsOf(contents, i.id))}</span><small>${labelTape(i.shortCode, i.labelPrinted)}${on ? `${i.labelPrinted && i.shortCode ? f.sep : ''}${esc(w.onHost(on))}` : ''}</small><span class="q">${n !== null ? esc(f.num(n)) : ''}</span></button></li>`;
           })
           .join('')}</ul>`;
       }
@@ -476,7 +476,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
       <div class="kmap-card-head">
         ${photo(it.subject === 'thing' ? it.id : null)}
         <div class="kd-col kd-small">
-          <span>${esc(words.models[baseModel(it.model)])}${n !== null ? ` · ${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
+          <span>${esc(words.models[baseModel(it.model)])}${n !== null ? `${f.sep}${esc(w.thingsInside(n, f.num(n)))}` : ''}</span>
           <span class="kd-wrap">${esc(meta)}</span>
           ${it.hang === undefined ? '' : `<span>${esc(w.height.onWall(f.num(it.hang)))}</span>`}
           ${placesLine}
@@ -572,7 +572,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
             ? `<ul class="kmap-crows">${inRoom
                 .map((i) => {
                   const n = countIn(contents, i);
-                  return `<li><button type="button" data-act="show-item" data-arg="${esc(i.id)}">${esc(i.name)}${n !== null ? ` · ${esc(f.num(n))}` : ''}</button></li>`;
+                  return `<li><button type="button" data-act="show-item" data-arg="${esc(i.id)}">${esc(i.name)}${n !== null ? `${f.sep}${esc(f.num(n))}` : ''}</button></li>`;
                 })
                 .join('')}</ul>`
             : ''
@@ -850,7 +850,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
       : '';
     const sub = (c: Item) =>
       c.shortCode
-        ? `${names[baseModel(c.model)]} · ${printedCode(c.shortCode)}`
+        ? `${names[baseModel(c.model)]}${f.sep}${printedCode(c.shortCode)}`
         : names[baseModel(c.model)];
     const group = (label: string, list: Item[], heading: boolean) =>
       list.length
@@ -1476,7 +1476,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
                 const el = overlay.querySelector<HTMLElement>('[data-slot="stats"]');
                 if (!el) return;
                 const m = modelStats();
-                el.textContent = `${s.fps ?? '–'} fps · worst ${s.worst ? s.worst.toFixed(0) : '–'} ms · ${s.calls} draw calls · ${(s.triangles / 1000).toFixed(0)}k tris · ${quality === 'detailed' ? `${m.count} models · ${(m.bytes / 1024).toFixed(0)} KB${m.loading ? ` · loading ${m.loading}` : ''}${m.failed ? ` · ${m.failed} failed` : ''}` : 'simple: nothing downloaded'} · first draw ${s.firstDraw ? s.firstDraw.toFixed(0) : '–'} ms`;
+                el.textContent = `${s.fps ?? '–'} fps, worst ${s.worst ? s.worst.toFixed(0) : '–'} ms, ${s.calls} draw calls, ${(s.triangles / 1000).toFixed(0)}k tris, ${quality === 'detailed' ? `${m.count} models, ${(m.bytes / 1024).toFixed(0)} KB${m.loading ? `, loading ${m.loading}` : ''}${m.failed ? `, ${m.failed} failed` : ''}` : 'simple: nothing downloaded'}, first draw ${s.firstDraw ? s.firstDraw.toFixed(0) : '–'} ms`;
               },
             }
           : {}),

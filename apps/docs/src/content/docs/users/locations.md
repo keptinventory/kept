@@ -56,7 +56,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   **Map**, each with its icon. **Graph** draws the location as a graph of its floors, rooms, boxes
   and things, in 2D or 3D ([The graph](/users/graph/)). **Table** shows its things as a spreadsheet,
   on a screen 1024 px wide or more ([The spreadsheet view](/users/spreadsheet/)), so a phone shows
-  List · Grid · Graph · Map. **Map** shows the location in 3D, floor by floor, with its rooms,
+  List, Grid, Graph, Map. **Map** shows the location in 3D, floor by floor, with its rooms,
   shelves and boxes ([The location map](/users/location-map/)). The list's **Display** menu offers
   the same choice. A place's own page (not Unplaced) has the switch too, without Table. Kept
   remembers the layout for each location and each place on that device.

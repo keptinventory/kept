@@ -649,7 +649,7 @@ describe('activity', () => {
     const safe = within(await feed()).getByRole('article', {
       name: 'Edited Wall safe',
     });
-    expect(safe.textContent).toContain('Combinationchanged · value not recorded');
+    expect(safe.textContent).toContain('Combinationchanged, value not recorded');
   });
 });
 
@@ -737,7 +737,7 @@ describe('the history timeline', () => {
     await renderTimeline({ kind: 'thing', id: T.safe });
     expect(
       (await screen.findAllByRole('article', { name: 'Edited Wall safe' }))[0]?.textContent,
-    ).toContain('changed · value not recorded');
+    ).toContain('changed, value not recorded');
   });
 
   it("a place's history", async () => {

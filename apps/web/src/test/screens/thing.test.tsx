@@ -104,10 +104,7 @@ describe('header and layout', () => {
     await waitFor(() =>
       expect((router.state.location.search as { tab?: string }).tab).toBe('claims'),
     );
-    expect(screen.getByRole('tab', { name: 'Claims · 1' })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    expect(screen.getByRole('tab', { name: 'Claims, 1' })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('a metered thing gets a Meters section with the needs-review reading', async () => {
@@ -294,7 +291,7 @@ describe('the action menu', () => {
         typeId: INV_IDS.type.charger,
       }),
     );
-    expect(await screen.findByText('Archived fields · 2')).toBeInTheDocument();
+    expect(await screen.findByText('Archived fields, 2')).toBeInTheDocument();
   });
 
   it('trashing a box with things inside asks what happens to them', async () => {
@@ -461,7 +458,7 @@ describe('a viewer’s thing detail', () => {
     await findHeading('Galaxy S23');
     const row = screen.getByRole('listitem', { name: 'Linked account or login' });
     expect(within(row).queryByRole('button', { name: 'Reveal' })).toBeNull();
-    expect(within(row).getByText("Secret · you can't reveal this one")).toBeInTheDocument();
+    expect(within(row).getByText("Secret, you can't reveal this one")).toBeInTheDocument();
     expect(within(row).queryByRole('button', { name: 'Replace' })).toBeNull();
   });
 });
@@ -480,9 +477,9 @@ describe('modules off', () => {
   it('Secrets off: a stored secret says "Off in this location", with Turn on for the owner', async () => {
     await renderApp(`/t/${T.safe}`, { state: essentials() });
     await findHeading('Wall safe');
-    expect(screen.getByText('Passwords and codes · Off in this location')).toBeInTheDocument();
+    expect(screen.getByText('Passwords and codes, Off in this location')).toBeInTheDocument();
     // Warranties are off too, and say so the same way.
-    expect(screen.getByText('Warranties · Off in this location')).toBeInTheDocument();
+    expect(screen.getByText('Warranties, Off in this location')).toBeInTheDocument();
     for (const link of screen.getAllByRole('link', { name: 'Turn on' }))
       expect(link).toHaveAttribute('href', `/settings/location/${IDS.home}/track`);
     expect(screen.queryByRole('button', { name: 'Reveal' })).toBeNull();
@@ -496,7 +493,7 @@ describe('modules off', () => {
     expect(label).toHaveTextContent('Off in this location');
     await user.click(label);
     const dialog = await screen.findByRole('dialog', { name: 'Label' });
-    expect(within(dialog).getByText('Labels & QR · Off in this location')).toBeInTheDocument();
+    expect(within(dialog).getByText('Labels & QR, Off in this location')).toBeInTheDocument();
   });
 
   it('a member sees "Ask an admin" instead of Turn on', async () => {
@@ -513,7 +510,7 @@ describe('modules off', () => {
 describe('secrets', () => {
   const secretsOn = () => withHome((h) => Object.assign(h, { modules: [...h.modules, 'secrets'] }));
 
-  it('Reveal shows the value with "Revealed · logged", then hides it after 30 s', async () => {
+  it('Reveal shows the value with "Revealed, logged", then hides it after 30 s', async () => {
     const { user, mock } = await renderApp(`/t/${T.safe}`, {
       state: secretsOn(),
       setup: (m) =>
@@ -525,7 +522,7 @@ describe('secrets', () => {
     await findHeading('Wall safe');
     await user.click(screen.getByRole('button', { name: 'Reveal' }));
     expect(await screen.findByText('17-42-08')).toBeInTheDocument();
-    expect(screen.getByText('Revealed · logged')).toBeInTheDocument();
+    expect(screen.getByText('Revealed, logged')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Copy' }));
     await waitFor(async () => expect(await copied()).toBe('17-42-08'));
     await waitFor(() =>

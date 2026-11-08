@@ -156,7 +156,7 @@ describe('the capture screen', () => {
     await user.keyboard('{ArrowRight}');
     expect(radios[1]).toBeChecked();
     expect(await shutter()).toHaveAccessibleName('Take photo: receipt');
-    expect(screen.getByText('Hold steady · fill the frame · original kept')).toBeInTheDocument();
+    expect(screen.getByText('Hold steady, fill the frame, original kept')).toBeInTheDocument();
     expect(screen.queryByText(/Edges found/)).toBeNull();
     expect(screen.getByRole('textbox', { name: 'Note (optional)' })).toBeInTheDocument();
     expect(localStorage.getItem('kept.capture.mode')).toBe('receipt');
@@ -319,7 +319,7 @@ describe('the capture screen', () => {
     expect(
       await screen.findByRole('button', { name: /Capturing into Cabin › Unplaced/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Nearby · tap to change')).toBeInTheDocument();
+    expect(screen.getByText('Nearby, tap to change')).toBeInTheDocument();
     expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -471,7 +471,7 @@ describe('the /capture route', () => {
       await waitFor(() => expect(within(tray).getAllByRole('listitem')).toHaveLength(2));
       // 2 × (Groq's 2,048 a photo + the prompt + the answer) + one merge.
       expect(
-        await screen.findByText(/About 2 photos · up to ~2[\d,]+ tokens · Groq/),
+        await screen.findByText(/About 2 photos, up to ~2[\d,]+ tokens, Groq/),
       ).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'Remove photo 2' }));
       await waitFor(() => expect(within(tray).getAllByRole('listitem')).toHaveLength(1));
@@ -533,7 +533,7 @@ describe('the /capture route', () => {
     expect(await shutter()).toBeDisabled();
     await user.click(chip);
     const sheet = await screen.findByRole('dialog', { name: 'What was read?' });
-    const meter = await within(sheet).findByRole('radio', { name: /Toyota Corolla · Odometer/ });
+    const meter = await within(sheet).findByRole('radio', { name: /Toyota Corolla, Odometer/ });
     // Things without a meter aren't offered.
     expect(within(sheet).queryByRole('radio', { name: /drill/i })).toBeNull();
     await user.click(meter);
@@ -560,9 +560,7 @@ describe('the /capture route', () => {
     await user.click(await screen.findByRole('radio', { name: 'Reading' }));
     await user.click(await screen.findByRole('button', { name: 'Choose what was read' }));
     const sheet = await screen.findByRole('dialog', { name: 'What was read?' });
-    await user.click(
-      await within(sheet).findByRole('radio', { name: /Toyota Corolla · Odometer/ }),
-    );
+    await user.click(await within(sheet).findByRole('radio', { name: /Toyota Corolla, Odometer/ }));
     // Eastern digits are read as the number they are.
     await user.type(
       await screen.findByRole('textbox', { name: 'Reading (km), optional' }),
@@ -613,7 +611,7 @@ describe('the /capture route', () => {
     await user.click(await screen.findByRole('button', { name: 'Choose what was read' }));
     const sheet = await screen.findByRole('dialog', { name: 'What was read?' });
     expect(
-      await within(sheet).findByRole('radio', { name: /Toyota Corolla · Odometer/ }),
+      await within(sheet).findByRole('radio', { name: /Toyota Corolla, Odometer/ }),
     ).toBeInTheDocument();
     expect(within(sheet).getByRole('radio', { name: /Litres boiled/ })).toBeInTheDocument();
     expect(within(sheet).queryByText('Needs a connection')).toBeNull();

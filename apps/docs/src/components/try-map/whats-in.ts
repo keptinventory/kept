@@ -103,7 +103,6 @@ export function whatsInHtml(a: WhatsInArgs): string {
       : `<p class="kmap-empty">${esc(w.nothingMatches)}</p>`;
   }
 
-  const sep = '<span aria-hidden="true">·</span>';
   const flag = (k: MapAttentionKind) =>
     `<span><span class="kmap-dot ${k}" aria-hidden="true"></span><b>${esc(f.num(sum[k]))}</b> ${esc(w.list.sum[k])}</span>`;
   const floors =
@@ -117,7 +116,7 @@ export function whatsInHtml(a: WhatsInArgs): string {
       : '';
   return `<div class="kd-list-head">
       <h2 id="kd-whats-in" class="kd-title">${esc(w.list.title(a.name))}</h2>
-      <p class="kmap-sum"><span><b>${esc(w.things(sum.things, f.num(sum.things)))}</b>${sep}${esc(w.list.rooms(sum.rooms, f.num(sum.rooms)))}${sum.floors > 1 ? `${sep}${esc(w.list.floors(sum.floors, f.num(sum.floors)))}` : ''}</span>${flag('low')}${flag('lent')}${flag('due')}</p>
+      <p class="kmap-sum"><b>${esc(w.things(sum.things, f.num(sum.things)))}</b><span>${esc(w.list.rooms(sum.rooms, f.num(sum.rooms)))}</span>${sum.floors > 1 ? `<span>${esc(w.list.floors(sum.floors, f.num(sum.floors)))}</span>` : ''}${flag('low')}${flag('lent')}${flag('due')}</p>
     </div>
     <div class="kd-list-tools">
       <input type="search" class="kmap-input kd-list-find" data-input="list-q" data-k="list-q" value="${esc(query.q)}" placeholder="${esc(w.list.find)}" aria-label="${esc(w.list.findLabel)}">

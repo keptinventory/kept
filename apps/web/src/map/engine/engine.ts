@@ -128,6 +128,8 @@ export type EngineInfo = {
     inside: (n: number) => string;
     openFloor: string;
     changeFloor: string;
+    /** Between a label's parts: a comma, the Arabic comma in Arabic (lib/format.ts `sep`). */
+    sep: string;
     /** #372: a room's size under its name in the plan view ("0.8 × 3.58 m"), from its sides in
      * metres; left out, the label is the name alone. */
     roomSize?: (w: number, d: number) => string;
@@ -1426,7 +1428,7 @@ export class MapEngine {
           let html: string;
           if (planView) {
             const onIt = childrenOn(this.plan.items, it.id).map((c) => c.name);
-            html = `<b>${esc(it.name)}</b>${n !== null ? ` · ${n}` : ''}`;
+            html = `<b>${esc(it.name)}</b>${n !== null ? `${esc(this.info.text.sep)}${n}` : ''}`;
             if (close && onIt.length)
               html += `\n${esc(onIt.map((x) => this.info.text.onIt(x)).join('\n'))}`;
             const first = close ? this.info.preview(it) : [];
@@ -1652,7 +1654,8 @@ export class MapEngine {
       const lvl =
         p && (p.type === 'room' ? this.roomOf(p.id)?.levelKey : this.itemLevel(this.itemOf(p.id)));
       const level = this.plan.levels.find((l) => l.key === lvl);
-      if (level) html = `<b>${esc(level.name)}</b> · ${esc(this.info.text.openFloor)}`;
+      if (level)
+        html = `<b>${esc(level.name)}</b>${esc(this.info.text.sep)}${esc(this.info.text.openFloor)}`;
     } else if (p?.type === 'item') {
       const it = this.itemOf(p.id);
       if (it) {

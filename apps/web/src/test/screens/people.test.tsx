@@ -47,7 +47,7 @@ describe('Members and roles', () => {
       'Pending invites',
     ]);
     expect(screen.getAllByText(/^Until /).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Managed account · by Alfred/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Managed account, by Alfred/).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(/No two-factor yet, so Home is hidden for them/).length,
     ).toBeGreaterThan(0);
@@ -191,7 +191,7 @@ describe('Require two-factor', () => {
     const confirm = await screen.findByRole('alertdialog', {
       name: 'Require two-factor for Home?',
     });
-    expect(confirm).toHaveTextContent('Not set up yet: Louis · Peter');
+    expect(confirm).toHaveTextContent('Not set up yet: Louis, Peter');
     expect(confirm).not.toHaveTextContent('Alfred');
     await user.click(within(confirm).getByRole('button', { name: 'Require two-factor' }));
     await waitFor(() =>
@@ -200,7 +200,7 @@ describe('Require two-factor', () => {
     expect(mock.lastCall('PATCH', paths.location(IDS.home))?.headers['if-match']).toBe('4');
     expect(await screen.findByText('Home now requires two-factor')).toBeInTheDocument();
     await waitFor(() => expect(control()).toBeChecked());
-    expect(await section()).toHaveTextContent('Not set up yet: Louis · Peter');
+    expect(await section()).toHaveTextContent('Not set up yet: Louis, Peter');
     expect(screen.getAllByText(/No two-factor yet, so Home is hidden for them/)).not.toHaveLength(
       0,
     );

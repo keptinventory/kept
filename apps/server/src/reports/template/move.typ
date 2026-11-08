@@ -37,7 +37,7 @@
   #if i > 0 { pagebreak() }
   #grid(columns: (1fr, auto), column-gutter: 8mm, align: (start + top, end + top),
     {
-      text(size: 9pt, fill: c.ink3, d.move + "  ·  " + d.route)
+      text(size: 9pt, fill: c.ink3, d.move + d.sep + d.route)
       v(1mm)
       text(size: 54pt, font: W(600), b.heading)
       linebreak()
