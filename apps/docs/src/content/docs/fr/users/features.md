@@ -16,6 +16,9 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 - **[Meubles avec compartiments](/fr/users/locations/#mobilier-à-compartiments)** : une étagère cube ou
   une commode, chaque compartiment est un lieu à part. Tournez-le sur le côté, fusionnez ou scindez
   des compartiments ; leurs étiquettes restent fonctionnelles.
+- **[Baies](/fr/users/locations/#baies)** : une baie serveur en unités de rack (U), avec ce qui
+  occupe chaque unité, sur sa page et sur la carte. Deux équipements dans une unité, ou au-delà du
+  haut, sont refusés.
 - **[Objets](/fr/users/things/)** : types, champs personnalisés, quantités, état, une archive et une
   corbeille dont vous restaurez.
 - **[Photos, reçus, manuels et garanties](/fr/users/photos-paperwork/)** : sur chaque objet, avec une

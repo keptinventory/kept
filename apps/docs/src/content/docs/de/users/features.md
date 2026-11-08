@@ -16,6 +16,9 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 - **[Möbel mit Fächern](/de/users/locations/#möbel-mit-fächern)**: ein Würfelregal oder
   eine Kommode, jedes Fach ist ein eigener Ort. Drehe es auf die Seite, führe Fächer zusammen oder teile sie;
   ihre Etiketten funktionieren weiter.
+- **[Serverschränke](/de/users/locations/#serverschränke)**: ein Serverschrank in Höheneinheiten
+  (HE), mit dem, was in welcher Einheit sitzt, auf seiner Seite und der Karte. Zwei Geräte in einer
+  Einheit, oder über den oberen Rand hinaus, werden abgelehnt.
 - **[Dinge](/de/users/things/)**: Typen, benutzerdefinierte Felder, Mengen, Zustand, ein Archiv und ein
   Papierkorb, aus dem du wiederherstellst.
 - **[Fotos, Belege, Anleitungen und Garantien](/de/users/photos-paperwork/)**: an jedem Ding, mit einer

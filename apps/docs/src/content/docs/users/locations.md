@@ -76,7 +76,8 @@ Links use IDs, never the path, so moving a thing never breaks a link to it.
 ## Furniture with compartments
 
 A cube shelf, a bookcase or a chest of drawers is one place, and each cube, shelf or drawer is a
-place inside it, with its own name, label and, if you like, its own code.
+place inside it, with its own name, label and, if you like, its own code. A server rack is
+furniture too, measured in rack units ([Racks](#racks)).
 
 - **Add here → Room or spot → Furniture with compartments…** makes the furniture and all its
   compartments in one step. Pick a template: a cube shelf 1 × 4, 2 × 2, 2 × 4, 4 × 4 or 2 × 8,
@@ -142,6 +143,35 @@ A cube insert or a removed shelf makes two or more compartments one.
   can add places uses them.
 - **AI apps** can do the same: `create_place` takes a `template`, and `update_place` a `turn`
   ([MCP clients](/users/mcp-clients/#the-tools)). Merging and splitting stay in the app.
+
+### Racks
+
+A 19-inch or 10-inch rack is furniture measured in rack units (U). Gear is a thing in it: how many
+units it takes, and the unit it starts at.
+
+- **Add here → Room or spot → Furniture with compartments…**, then a rack template: **19-inch
+  rack, 42U**, **19-inch rack, 24U**, **12U on a wall**, **6U on a wall** or **10-inch rack, 8U**.
+  Change its **Units** (1 to 60) and whether it is **Numbered from** **The bottom** (U1 at the
+  bottom, the usual way) or **The top**. A rack has no compartment places; **Its own code** is
+  optional.
+- **Its page** shows the rack **Seen from** the **Front** or the **Rear**, top to bottom: each
+  piece at its units (`U11`, `U5–U6`) and the free units between them as **Empty**. Units are
+  written as the rails print them, in every language.
+- **Put gear in:** move a thing into the rack as into any place. It shows under **Not placed
+  yet**, and **Place it** asks where: **Starts at** (its lowest unit, or its top one in a rack
+  numbered from the top), **Height** in rack units (halves too, such as 1.5), **Faces** (**Front**
+  or **Rear**) and **Depth**. **Full depth** takes the unit on both faces; **Half depth** only on
+  its own, so a half-depth switch at the front and a shelf at the rear can share a unit.
+- **Refused:** two pieces in the same unit on the same face, or a piece past the top of the rack.
+  Kept names the piece that is there ("U11 is taken by Switch at the front.") and saves nothing.
+- **Height 0** is gear beside the rails, such as a power strip or a cable manager: it takes no
+  unit and is listed under **Beside the rails (0U)**.
+- **The thing's page** shows **In the rack**: the rack, the units and the depth, with **Change**.
+  **Take it off its unit** frees the unit and leaves the thing in the rack.
+- **Moving gear out** of the rack frees its unit; moved back in, it is **Not placed yet** again.
+- **Undo** puts a position back, unless someone has taken that unit since.
+- **AI apps** can do the same: `create_place` takes a rack template with `units` and `numbering`,
+  and `update_thing` takes `rack_units` and `rack_at` ([MCP clients](/users/mcp-clients/#the-tools)).
 
 ## Hide Personal
 

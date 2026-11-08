@@ -16,6 +16,9 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 - **[Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos)**: una estantería cúbica o
   una cómoda, cada compartimento su propio lugar. Ponlo de lado, fusiona o divide
   compartimentos; sus etiquetas siguen funcionando.
+- **[Bastidores](/es/users/locations/#bastidores)**: un bastidor de servidor en unidades de rack
+  (U), con lo que ocupa cada unidad, en su página y en el mapa. Se rechazan dos equipos en una
+  unidad, o uno que pasa del tope.
 - **[Objetos](/es/users/things/)**: tipos, campos personalizados, cantidades, estado, un archivo y una
   papelera de la que puedes restaurar.
 - **[Fotos, recibos, manuales y garantías](/es/users/photos-paperwork/)**: en cada objeto, con una

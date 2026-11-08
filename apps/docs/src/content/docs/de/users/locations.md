@@ -145,6 +145,38 @@ Ein Würfeleinsatz oder ein entfernter Regalboden macht zwei oder mehr Fächer z
 - **KI-Apps** können dasselbe: `create_place` nimmt ein `template`, und `update_place` ein `turn`
   ([MCP-Clients](/de/users/mcp-clients/#die-werkzeuge)). Zusammenführen und Aufteilen bleiben in der App.
 
+### Serverschränke
+
+Ein 19-Zoll- oder 10-Zoll-Schrank ist ein Möbel, gemessen in Höheneinheiten (HE). Ein Gerät ist ein
+Gegenstand darin: wie viele Einheiten es belegt und bei welcher Einheit es beginnt.
+
+- **Hier hinzufügen → Raum oder Platz → Möbel mit Fächern …**, dann eine Schrankvorlage:
+  **19-Zoll-Schrank, 42 HE**, **19-Zoll-Schrank, 24 HE**, **Wandschrank, 12 HE**, **Wandschrank,
+  6 HE** oder **10-Zoll-Schrank, 8 HE**. Ändere die **Höheneinheiten** (1 bis 60) und ob er
+  **Nummeriert von** **Unten** (U1 unten, wie üblich) oder **Oben** ist. Ein Schrank hat keine
+  Fächer; **Eigener Code (optional)** geht trotzdem.
+- **Seine Seite** zeigt den Schrank (**Ansicht von** **Vorne** oder **Hinten**) von oben nach unten:
+  jedes Gerät bei seinen Einheiten (`U11`, `U5–U6`) und die freien Einheiten dazwischen als
+  **Leer**. Einheiten stehen da, wie die Schienen sie drucken, in jeder Sprache.
+- **Geräte einbauen:** Verschiebe einen Gegenstand in den Schrank wie an jeden Ort. Er steht unter
+  **Noch nicht eingebaut**, und **Einbauen** fragt nach **Beginnt bei** (seine unterste Einheit, in
+  einem von oben nummerierten Schrank seine oberste), **Höhe** in Höheneinheiten (auch halbe, etwa
+  1,5), **Seite** (**Vorne** oder **Hinten**) und **Tiefe**. **Volle Tiefe** belegt die Einheit auf
+  beiden Seiten, **Halbe Tiefe** nur auf seiner, sodass sich ein Switch vorne und ein Fachboden
+  hinten eine Einheit teilen.
+- **Abgelehnt:** zwei Geräte in derselben Einheit auf derselben Seite, oder ein Gerät über den oberen
+  Rand hinaus. Kept nennt das Gerät, das dort ist, und speichert nichts.
+- **Höhe 0** ist ein Gerät neben den Schienen, etwa eine Steckdosenleiste: Es belegt keine Einheit
+  und steht unter **Neben den Schienen (0 HE)**.
+- **Die Seite des Gegenstands** zeigt **Im Serverschrank**: den Schrank, die Einheiten und die
+  Tiefe, mit **Ändern**. **Aus der Einheit nehmen** gibt die Einheit frei; der Gegenstand bleibt im
+  Schrank.
+- **Ein Gerät herausnehmen** gibt seine Einheit frei; zurück im Schrank ist es wieder **Noch nicht
+  eingebaut**. **Rückgängig** setzt eine Position zurück, außer jemand hat die Einheit inzwischen
+  belegt.
+- **KI-Apps** können dasselbe: `create_place` nimmt eine Schrankvorlage mit `units` und
+  `numbering`, `update_thing` nimmt `rack_units` und `rack_at`.
+
 ## Persönlich ausblenden
 
 Jeder bekommt einen **Persönlich**-Standort. Wenn du ihn nicht brauchst, schalte **Persönlich ausblenden** in

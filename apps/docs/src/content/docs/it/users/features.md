@@ -16,6 +16,9 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 - **[Mobili con scomparti](/it/users/locations/#mobili-con-vani)**: una scaffalatura a cubi o
   un cassettone, ogni scomparto è un luogo a sé. Giralo di lato, unisci o dividi gli
   scomparti; le loro etichette continuano a funzionare.
+- **[Armadi rack](/it/users/locations/#armadi-rack)**: un armadio server in unità rack (U), con
+  ciò che occupa ogni unità, sulla sua pagina e sulla mappa. Due apparati in un'unità, o oltre la
+  cima, vengono rifiutati.
 - **[Oggetti](/it/users/things/)**: tipi, campi personalizzati, quantità, condizione, un archivio e un
   cestino da cui ripristinare.
 - **[Foto, ricevute, manuali e garanzie](/it/users/photos-paperwork/)**: su ogni oggetto, con una

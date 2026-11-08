@@ -16,6 +16,8 @@ a location turns them on in **Location settings → What to track**
 - **[Furniture with compartments](/users/locations/#furniture-with-compartments)**: a cube shelf or
   a chest of drawers, each compartment its own place. Turn it on its side, merge or split
   compartments; their labels keep working.
+- **[Racks](/users/locations/#racks)**: a server rack in rack units (U), with what sits in which
+  unit, on its page and the map. Two pieces in one unit, or past the top, are refused.
 - **[Things](/users/things/)**: types, custom fields, quantities, condition, an archive, and a
   trash you restore from.
 - **[Photos, receipts, manuals and warranties](/users/photos-paperwork/)**: on each thing, with a
