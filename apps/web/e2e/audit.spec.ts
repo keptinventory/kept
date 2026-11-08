@@ -166,7 +166,7 @@ test('axe: sign in and a missing page, nothing above minor', async ({ page }) =>
 });
 
 /**
- * The phone's filter strip keeps Filters · Views · Display on one row in every language, with
+ * The phone's filter strip keeps Filters, Views, Display on one row in every language, with
  * the longest Display words a list can show (UI audit L11: in Arabic it sat at its limit, and a
  * longer sort word would wrap it). A location's contents carry every sort, grouping and layout.
  */

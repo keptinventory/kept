@@ -60,7 +60,7 @@ type Entry =
 
 /** Whether `name` matches `q` the way search does: each word of q starts some word of name. */
 function nameMatches(name: string, q: string): boolean {
-  const words = normalize(name).split(/[\s›,.·-]+/);
+  const words = normalize(name).split(/[\s›,.\u00b7-]+/);
   const all = new Set([...words, ...words.map((w) => stripPrefixes(w))]);
   const qs = normalize(q).split(' ').filter(Boolean);
   return (

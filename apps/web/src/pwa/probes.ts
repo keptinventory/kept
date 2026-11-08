@@ -217,7 +217,7 @@ export function reportText(
   header: string[],
   rows: { label: string; result: ProbeResult }[],
 ): string {
-  const mark: Record<ProbeStatus, string> = { ok: '✓', fail: '✗', info: '·' };
+  const mark: Record<ProbeStatus, string> = { ok: '✓', fail: '✗', info: 'i' };
   return [
     ...header,
     '',

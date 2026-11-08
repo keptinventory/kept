@@ -39,7 +39,7 @@ const EN: Words = {
   states: { packed: 'Packed', in_transit: 'In transit', unpacked: 'Unpacked' },
   route: (from, to) => `${from} → ${to}`,
   scan: 'Scan the code to see this box in Kept and unpack it.',
-  generated: (who, when) => `Printed by ${who} · ${when}`,
+  generated: (who, when) => `Printed by ${who}, ${when}`,
   none: 'No boxes to print.',
 };
 
@@ -63,6 +63,8 @@ const AR: Words = {
 
 export type MoveView = {
   lang: ReportLocale;
+  /** Between a line's parts: a comma, the Arabic comma in Arabic; never the middle dot (#459). */
+  sep: string;
   dir: 'ltr' | 'rtl';
   title: string;
   move: string;
@@ -111,7 +113,7 @@ export function buildMoveView(
 ): MoveView {
   const ar = options.locale === 'ar';
   const w = ar ? AR : EN;
-  const sep = ar ? '، ' : ' · ';
+  const sep = ar ? '، ' : ', ';
   const intl = ar ? 'ar-EG' : 'en-GB';
   const numberingSystem: 'latn' | 'arab' = ar && options.digits === 'eastern' ? 'arab' : 'latn';
   const nf = new Intl.NumberFormat(intl, { numberingSystem, maximumFractionDigits: 3 });
@@ -123,6 +125,7 @@ export function buildMoveView(
   }).format(ctx.now);
   return {
     lang: options.locale,
+    sep,
     dir: ar ? 'rtl' : 'ltr',
     title: w.title,
     move: g.name,

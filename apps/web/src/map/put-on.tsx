@@ -22,6 +22,7 @@ import { printedCode } from '@/components/id-chip';
 import { Sheet } from '@/components/things/sheet';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
+import { sep } from '@/lib/format';
 import { useModelNames } from './labels';
 import { addableOn, childrenOn, holdersFor, type Item, type Plan, roomOn } from './layout';
 import { type ChosenShape, matches, offMapFor } from './list';
@@ -170,7 +171,7 @@ export function AddOnSheet({
   const disabled = limited && picked.size >= left ? rows.filter((c) => !picked.has(c.id)) : [];
   const sub = (c: Item) =>
     c.shortCode
-      ? `${names[baseModel(c.model)]} · ${printedCode(c.shortCode)}`
+      ? `${names[baseModel(c.model)]}${sep()}${printedCode(c.shortCode)}`
       : names[baseModel(c.model)];
   const n = picked.size;
   const onNow = childrenOn(plan.items, host.id)

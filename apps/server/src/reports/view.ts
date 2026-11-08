@@ -43,6 +43,8 @@ export type ViewPlace = {
 
 export type ReportView = {
   lang: ReportLocale;
+  /** Between a line's parts: a comma, the Arabic comma in Arabic; never the middle dot (#459). */
+  sep: string;
   dir: 'ltr' | 'rtl';
   /**
    * Between a path's steps: "›" left to right, "‹" right to left, pointing from the outer place
@@ -154,6 +156,7 @@ export function buildView(g: Gathered, options: ReportOptions, ctx: ViewContext)
   const locationName = new Map(g.locations.map((l) => [l.id, l.name]));
   const showMoney = options.include.money && g.moneyShown;
   const pathSeparator = options.locale === 'ar' ? '‹' : '›';
+  const sep = options.locale === 'ar' ? '، ' : ', ';
 
   const groups = new Map<string, { path: string[]; pathText: string; things: GatheredThing[] }>();
   for (const t of g.things) {
@@ -223,6 +226,7 @@ export function buildView(g: Gathered, options: ReportOptions, ctx: ViewContext)
 
   return {
     lang: options.locale,
+    sep,
     dir: options.locale === 'ar' ? 'rtl' : 'ltr',
     pathSeparator,
     digits: numbering(options.locale, options.digits),
@@ -231,11 +235,11 @@ export function buildView(g: Gathered, options: ReportOptions, ctx: ViewContext)
     scopeDetail: account
       ? [g.accountOwnerName, w.locationsList(list(g.locations.map((l) => l.name)))]
           .filter((x) => !!x)
-          .join(' · ')
+          .join(sep)
       : '',
     generatedBy: g.requesterName,
     generatedLine: w.generated(g.requesterName, when),
-    footer: ['Kept', ctx.instance, when].filter((x) => x !== '').join(' · '),
+    footer: ['Kept', ctx.instance, when].filter((x) => x !== '').join(sep),
     counts: {
       things: f.int(g.things.length),
       places: f.int(places.length),

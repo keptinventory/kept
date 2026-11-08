@@ -21,7 +21,7 @@ Am Computer öffnet ⌘K oder Ctrl+K die Suche von überall.
 ## Offline-Suche
 
 Auf dem Handy funktioniert die Suche auch offline aus der Kopie auf dem Handy, beschriftet mit
-**Auf diesem Telefon · Stand der letzten Synchronisierung**. Die Ergebnisse stammen aus der lokalen Kopie, und was du
+**Auf diesem Telefon, Stand der letzten Synchronisierung**. Die Ergebnisse stammen aus der lokalen Kopie, und was du
 änderst, synchronisiert sich, wenn du wieder online bist.
 
 ## Semantische Suche

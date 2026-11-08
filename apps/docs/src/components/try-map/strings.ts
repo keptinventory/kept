@@ -382,8 +382,8 @@ export const WORDS: Record<'en' | 'ar', Words> = {
     },
     close: 'Close',
     open: 'Open',
-    whatsHere: (n) => `What’s here · ${n}`,
-    insideN: (n) => `Inside · ${n}`,
+    whatsHere: (n) => `What’s here, ${n}`,
+    insideN: (n) => `Inside, ${n}`,
     details: 'Details',
     less: 'Less',
     turn: 'Turn',
@@ -494,7 +494,7 @@ export const WORDS: Record<'en' | 'ar', Words> = {
       onNow: (name) => `On ${name}`,
       takeOff: 'Take off',
       list: 'What can carry it',
-      shapeOn: (shape, on) => `${shape} · on ${on}`,
+      shapeOn: (shape, on) => `${shape}, on ${on}`,
       nothing: (room) =>
         `Nothing in ${room} can carry it. Put a desk, a shelf or a monitor on the map first.`,
       nothingElse: (room) => `Nothing else in ${room} can carry it.`,
@@ -570,8 +570,8 @@ export const WORDS: Record<'en' | 'ar', Words> = {
     },
     close: 'إغلاق',
     open: 'افتح',
-    whatsHere: (n) => `ما هنا · ${n}`,
-    insideN: (n) => `بداخله · ${n}`,
+    whatsHere: (n) => `ما هنا، ${n}`,
+    insideN: (n) => `بداخله، ${n}`,
     details: 'التفاصيل',
     less: 'أقل',
     turn: 'تدوير',
@@ -701,7 +701,7 @@ export const WORDS: Record<'en' | 'ar', Words> = {
       onNow: (name) => `على ${name}`,
       takeOff: 'أنزله',
       list: 'ما يمكنه حمله',
-      shapeOn: (shape, on) => `${shape} · على ${on}`,
+      shapeOn: (shape, on) => `${shape}، على ${on}`,
       nothing: (room) => `لا شيء في ${room} يمكنه حمله. ضع مكتبًا أو رفًا أو شاشة على الخريطة أولًا.`,
       nothingElse: (room) => `لا شيء آخر في ${room} يمكنه حمله.`,
       toAdd: 'أشياء توضع عليه',
@@ -796,6 +796,8 @@ export function formatter(lang: Lang) {
   const nf = new Intl.NumberFormat(tag);
   const day = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' });
   return {
+    /** Between a line's parts: a comma, the Arabic comma in Arabic; never the middle dot (#459). */
+    sep: lang === 'ar' ? '، ' : ', ',
     num: (n: number) => nf.format(n),
     /** A room's side (metres), to the centimetre, as the app's card and plan view say it (#372). */
     side: (m: number) => formatRoomSide(mToCm(m), tag),

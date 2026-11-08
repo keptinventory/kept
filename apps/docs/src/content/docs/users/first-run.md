@@ -150,7 +150,7 @@ steps each:
 |---|---|
 | Basics | Home, your locations, Scan, Search, and where everything else is |
 | Things & places | adding to a location, what's in it, and a thing's page and its tabs |
-| Graph & 3D map | the List · Grid · Graph · Table · Map switch (Table on a computer), the graph in 2D or 3D, 3D or plan, pins, floors and Arrange, where a room moves with what's in it |
+| Graph & 3D map | the List, Grid, Graph, Table, Map switch (Table on a computer), the graph in 2D or 3D, 3D or plan, pins, floors and Arrange, where a room moves with what's in it |
 | Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
 | Scanning | a scan session: count, pack or move, where, and what Finish changes |
 | Search & labels | the search field, saved views, Select (move, print labels, Move to Trash), printing labels and Scan, which can put a blank label on a place you have |
@@ -171,7 +171,7 @@ locations, and a viewer gets no steps that change anything.
   that chapter. Finished chapters fold away under **Done (N)**; open it to replay one.
 - The tour starts from Help. The top bar of a page keeps to that page's own tools; a scan
   session's **Start a session** has a small **Show me** for its chapter.
-- The popover shows where you are: "Chapter 3 of 12 · step 2 of 5".
+- The popover shows where you are: "Chapter 3 of 12, step 2 of 5".
 - **Next** moves on, **Back** goes back within the chapter, the arrow keys do both, and **Esc**
   or **×** closes it.
 - A chapter's last step names the next one: **Continue** goes straight into it, **Stop here**

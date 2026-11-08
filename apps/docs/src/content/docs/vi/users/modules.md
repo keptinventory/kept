@@ -44,7 +44,7 @@ Một mô-đun đang tắt bị ẩn mọi nơi nó sẽ xuất hiện (màn hì
 
 - **Lời nhắc tạm dừng cùng với mô-đun của chúng.** Lịch trình và những gì hết hạn chờ cùng với **Lời nhắc**, ngày bảo hành và đăng ký cùng với **Biên lai và bảo hành**, ngày tài liệu cùng với **Giấy tờ** (tài liệu của một phương tiện cũng tiếp tục chạy trong khi **Phương tiện** đang bật), khoản cho mượn cùng với **Cho mượn**, tồn kho thấp cùng với **Đồ vật bạn dùng hết**. Những lời nhắc về máy đo chưa được đọc trong thời gian gần đây luôn chạy.
 
-- **Những gì phụ thuộc cũng tắt theo.** Nhiên liệu cần Phương tiện, và Chuyển nhà cần Nhãn và mã QR: khi bạn tắt thứ một mô-đun cần, mô-đun đó cũng bị tắt theo. Công tắc của nó sau đó hiển thị *Cần Phương tiện · tắt trong địa điểm này*.
+- **Những gì phụ thuộc cũng tắt theo.** Nhiên liệu cần Phương tiện, và Chuyển nhà cần Nhãn và mã QR: khi bạn tắt thứ một mô-đun cần, mô-đun đó cũng bị tắt theo. Công tắc của nó sau đó hiển thị *Cần Phương tiện, tắt trong địa điểm này*.
 
 - **Menu tuân theo tất cả các địa điểm của bạn.** Dưới **Theo dõi**, một mục (Lịch trình, Cho mượn, Giấy tờ, Đồ vật bạn dùng hết, Phương tiện, Chuyển nhà, Thống kê) hiện ra khi mô-đun của nó đang bật trong bất kỳ địa điểm nào của bạn. Dưới **Công cụ**, **Nhãn** hiển thị trong khi **Nhãn** đang bật ở bất kỳ đâu, và **Kiểm kê** luôn có sẵn. Hoạt động, Thùng rác và Thông báo cũng luôn có sẵn.
 

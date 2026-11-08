@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayOf, endOfDay } from './day-end';
+import { dayOf, endOfDay, tomorrowIn } from './day-end';
 
 describe('membership end dates', () => {
   it('ends a day at its last second where the location is', () => {
@@ -14,5 +14,14 @@ describe('membership end dates', () => {
     for (const tz of ['Africa/Cairo', 'America/New_York', 'Asia/Tokyo', 'UTC']) {
       expect(dayOf(endOfDay('2026-10-31', tz), tz)).toBe('2026-10-31');
     }
+  });
+});
+
+describe('the first last day', () => {
+  it('is the day after today where the location is, not after the UTC day', () => {
+    const late = new Date('2026-10-31T23:00:00Z');
+    expect(tomorrowIn('Africa/Cairo', late)).toBe('2026-11-02');
+    expect(tomorrowIn('UTC', late)).toBe('2026-11-01');
+    expect(tomorrowIn('America/New_York', new Date('2026-11-01T02:00:00Z'))).toBe('2026-11-01');
   });
 });

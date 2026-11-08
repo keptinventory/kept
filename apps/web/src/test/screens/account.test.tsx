@@ -149,7 +149,7 @@ describe('Settings → Locations → Recently deleted', () => {
       'section',
     ) as HTMLElement;
     expect(within(section).getByText('Beach flat')).toBeInTheDocument();
-    expect(within(section).getByText(/Deleted .* · gone for good on /)).toBeInTheDocument();
+    expect(within(section).getByText(/Deleted .*, gone for good on /)).toBeInTheDocument();
     await user.click(within(section).getByRole('button', { name: 'Restore Beach flat' }));
     await waitFor(() =>
       expect(mock.lastCall('POST', paths.locationRestore(IDS.beach))).toBeTruthy(),

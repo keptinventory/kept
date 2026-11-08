@@ -40,12 +40,10 @@ import {
 
 export function ExportList({
   locations,
-  personalId,
   onAgain,
 }: {
   /** Every location the caller can see, to name each export's. */
   locations: LocationSummary[];
-  personalId: string | undefined;
   /** Export again: the sheet, with this export's scope and options. */
   onAgain: (run: ExportRun) => void;
 }) {
@@ -110,10 +108,10 @@ export function ExportList({
         from: 'static',
         options: scopes.map((k) => ({
           value: k,
+          // A hidden Personal exported on its own (#392) is a location like any other here, named
+          // as its rows name it: "My data" is the one scope (#459).
           label:
-            k === 'me' || k === personalId
-              ? t`My data`
-              : nameOf({ scope: 'location', locationId: k } as ExportRun),
+            k === 'me' ? t`My data` : nameOf({ scope: 'location', locationId: k } as ExportRun),
           count: count((r) => scopeKey(r) === k),
         })),
       },

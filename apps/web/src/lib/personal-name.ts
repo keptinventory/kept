@@ -5,6 +5,7 @@
  */
 import { useLingui } from '@lingui/react/macro';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { keys, useAllLocations, useMe } from '@/api/queries';
 import type { Me } from '@/api/types';
 import { useLocationName } from '@/lib/labels';
@@ -43,4 +44,11 @@ export function useMyDataLocation(): { name: string; insteadOfPersonal: boolean 
   return carried
     ? { name: name(carried), insteadOfPersonal: true }
     : { name: personal, insteadOfPersonal: false };
+}
+
+/** The locations chosen when a sheet opened. A hidden Personal among them stays offered while the
+ * sheet is open: deselected, it can be chosen again rather than vanish (#459). */
+export function useChosenAtOpen(ids: readonly (string | null | undefined)[]): readonly string[] {
+  const [atOpen] = useState(() => ids.filter((id): id is string => !!id));
+  return atOpen;
 }

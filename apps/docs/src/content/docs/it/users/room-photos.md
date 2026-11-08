@@ -48,7 +48,7 @@ Quando la stanza viene disegnata sulla [mappa del luogo](/it/users/location-map/
 
 ## Quanto costa
 
-Ogni foto corrisponde a una lettura AI, e un'acquisizione di più di una foto aggiunge una breve chiamata solo testo che unisce ciò che le foto hanno in comune. Prima di inviare, la vaschetta mostra un limite superiore, ad esempio «Circa 3 foto · fino a ~31.000 token · Groq»: la foto, le istruzioni e la risposta più lunga consentita da Kept per ogni foto; una risposta più breve costa meno. Un modello che pensa prima di rispondere addebita anche il tempo di pensiero.
+Ogni foto corrisponde a una lettura AI, e un'acquisizione di più di una foto aggiunge una breve chiamata solo testo che unisce ciò che le foto hanno in comune. Prima di inviare, la vaschetta mostra un limite superiore, ad esempio «Circa 3 foto, fino a ~31.000 token, Groq»: la foto, le istruzioni e la risposta più lunga consentita da Kept per ogni foto; una risposta più breve costa meno. Un modello che pensa prima di rispondere addebita anche il tempo di pensiero.
 
 La lettura della stanza conta dagli stessi budget e limiti delle altre letture di foto. Quando viene raggiunto un limite, la scheda mostra «In attesa del budget AI», e le foto vengono lette quando l'AI riprende. Ogni chiamata viene visualizzata in **Utilizzo dell’IA** come **Foto di stanza** o **Unione delle foto della stanza**.
 

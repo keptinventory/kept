@@ -109,7 +109,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 |---|---|
 | Nozioni di base | Home, i tuoi luoghi, Scansione, Ricerca, e dove si trova tutto il resto |
 | Oggetti e posti | aggiunta a un luogo, cosa vi si trova, e la pagina di un oggetto e le sue schede |
-| Grafo e mappa 3D | l'interruttore Lista · Griglia · Grafo · Tabella · Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
+| Grafo e mappa 3D | l'interruttore Lista, Griglia, Grafo, Tabella, Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
 | Acquisizione e In arrivo | scegli cosa acquisire, l'otturatore, e verificare cosa Kept ha letto |
 | Scansione | una sessione di scansione: conta, imballa o spostati, dove, e cosa cambia Finish |
 | Ricerca ed etichette | il campo di ricerca, le visualizzazioni salvate, Seleziona (sposta, stampa etichette, sposta nel cestino), stampa etichette e Scansione, che può mettere un'etichetta vuota su un posto che hai |
@@ -124,7 +124,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 - In alto: quanti capitoli sono completati, con una barra sottile, e **Fai il tour**. Quando alcuni sono completati, legge **Continua il tour** e riprende dal primo capitolo non ancora finito.
 - Sotto, una breve riga per capitolo: il suo numero e i suoi passaggi. Tocca una riga per avviare il tour da quel capitolo. I capitoli completati si riducono sotto **Fatto (N)**; aprilo per riprodurre nuovamente.
 - Il tour inizia da **Aiuto**. La barra superiore di una pagina rimane relativa agli strumenti di quella pagina; la sessione di scansione **Avvia una sessione** ha un piccolo **Mostrami** per il suo capitolo.
-- Il popup mostra dove ti trovi: "Capitolo 3 di 12 · passaggio 2 di 5".
+- Il popup mostra dove ti trovi: "Capitolo 3 di 12, passaggio 2 di 5".
 - **Avanti** procede, **Indietro** torna indietro nel capitolo, le frecce fanno entrambe le cose, e **Esc** o **×** lo chiudono.
 - L'ultimo passaggio di un capitolo indica il successivo: **Continua** vi accede direttamente, **Fermati qui** interrompe il tour lì. L'ultimo capitolo si conclude con **Fatto**.
 - La pagina continua a funzionare mentre il tour è in corso: tocca qualsiasi cosa fuori dall'evidenziazione. Andare in un posto che il tour non ha aperto lo chiude.

@@ -36,7 +36,7 @@ La copia nunca contiene valores secretos ni datos de contacto de personas. El di
 
 Lo que haces sin conexión entra en una cola y se envía cuando el teléfono vuelve a estar en línea. Una línea bajo el encabezado aparece solo cuando hay algo que decir:
 
-- **Sin conexión · 12 esperando para sincronizar**, o **Sin conexión · según la última sincronización, 14:02**.
+- **Sin conexión, 12 esperando para sincronizar**, o **Sin conexión, según la última sincronización, 14:02**.
 - Los objetos nuevos muestran **ID pendiente** hasta que el servidor les da su ID corto; las etiquetas para ellos se pueden imprimir cuando llegue (Etiquetas ofrece **Imprimir etiquetas pendientes**).
 - **En iPhone, la cola avanza solo mientras Kept está abierto**: la línea dice **Abrir para terminar de sincronizar (12)**. Deja Kept abierto en pantalla un momento cuando vuelvas a estar en línea.
 - **Actualizar Kept para terminar de sincronizar** significa que el servidor es más nuevo que la aplicación: recarga. La cola se conserva.

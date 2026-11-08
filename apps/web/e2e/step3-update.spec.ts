@@ -1,7 +1,7 @@
 /**
  * The update prompt: a new service worker waits while a capture session
  * is open (an upload may be under way), and only after it does Kept offer "A new version is
- * ready · Reload".
+ * ready, Reload".
  *
  * A second release is made by changing the served worker: the built apps/web/dist/sw.js gets one
  * more line (the server reads the bundle from disk per request, http/web.ts), which makes the

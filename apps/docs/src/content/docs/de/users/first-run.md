@@ -149,7 +149,7 @@ Schritten:
 |---|---|
 | Grundlagen | Home, deine Standorte, Scan, Suche und wo alles andere ist |
 | Gegenstände & Plätze | zu einem Standort hinzufügen, was darin ist, und die Seite eines Gegenstands sowie ihre Tabs |
-| Graph & 3D-Karte | die Liste · Raster · Graph · Tabelle · Karte umschalten (Tabelle am Computer), der Graph in 2D oder 3D, 3D oder Grundriss, Pins, Etagen und Anordnen, wo ein Raum sich mit dem mitbewegt, was darin ist |
+| Graph & 3D-Karte | die Liste, Raster, Graph, Tabelle, Karte umschalten (Tabelle am Computer), der Graph in 2D oder 3D, 3D oder Grundriss, Pins, Etagen und Anordnen, wo ein Raum sich mit dem mitbewegt, was darin ist |
 | Erfassen & Eingang | auswählen, was du erfasst, den Auslöser und das Überprüfen dessen, was Kept gelesen hat |
 | Scannen | eine Scan-Sitzung: zählen, packen oder verschieben, wo, und was Beenden ändert |
 | Suche & Etiketten | das Suchfeld, gespeicherte Ansichten, Auswählen (verschieben, Etiketten drucken, In den Papierkorb verschieben), Etiketten drucken und Scannen, womit du ein leeres Etikett auf einen Ort, den du hast, setzen kannst |
@@ -169,7 +169,7 @@ Standorte eingeschaltet ist, und ein Betrachter bekommt keine Schritte, die etwa
   diesem Kapitel zu starten. Erledigte Kapitel klappen unter **Erledigt (N)** weg; öffne es, um eines wiederzugeben.
 - Die Tour startet aus der Hilfe. Die obere Leiste einer Seite behält ihre eigenen Werkzeuge; das **Sitzung starten** einer
   Scan-Sitzung hat ein kleines **Zeig es mir** für sein Kapitel.
-- Das Popover zeigt, wo du bist: "Kapitel 3 von 12 · Schritt 2 von 5".
+- Das Popover zeigt, wo du bist: "Kapitel 3 von 12, Schritt 2 von 5".
 - **Weiter** geht voran, **Zurück** geht im Kapitel zurück, die Pfeiltasten machen beides, und **Esc**
   oder **×** schließt es.
 - Ein letzter Schritt eines Kapitels nennt das nächste: **Weiter** führt direkt hinein, **Hier aufhören**

@@ -36,7 +36,7 @@ La copia non contiene mai valori segreti né i contatti delle persone. Denaro e 
 
 Ciò che fai offline va in coda e viene inviato quando il telefono torna online. Una riga sotto l’intestazione compare solo quando c’è qualcosa da dire:
 
-- **Offline · 12 in attesa di sincronizzazione**, oppure **Offline · ultimo sync alle 14:02**.
+- **Offline, 12 in attesa di sincronizzazione**, oppure **Offline, ultimo sync alle 14:02**.
 - I nuovi oggetti mostrano **ID in attesa** finché il server non assegna il loro ID breve; le etichette per essi possono essere stampate quando arriva (Le etichette offrono **Stampa etichette in attesa**).
 - **Su iPhone, la coda avanza solo mentre Kept è aperto**: la riga dice **Apri per completare la sincronizzazione (12)**. Lascia Kept aperto sullo schermo per un momento quando torni online.
 - **Aggiorna Kept per completare la sincronizzazione** significa che il server è più recente dell’app: ricarica. La coda viene conservata.

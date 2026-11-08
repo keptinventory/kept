@@ -30,6 +30,7 @@ import { TypeIcon } from '@/components/type-icon';
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { toast } from '@/components/ui/toast';
 import { useLocationName } from '@/lib/labels';
+import { useChosenAtOpen } from '@/lib/personal-name';
 import { withoutCustomised } from '@/lib/type-list';
 import { cn } from '@/lib/utils';
 import { useTypeName } from './names';
@@ -264,9 +265,10 @@ export function WherePicker({
   const { t } = useLingui();
   const locationName = useLocationName();
   const locations = useAllLocations();
-  // A hidden Personal (#392) only for a thing already in it.
+  const atOpen = useChosenAtOpen([value.locationId]);
+  // A hidden Personal (#392) only for a thing already in it, even once another is chosen (#459).
   const writable = (locations.data ?? []).filter(
-    (l) => l.role !== 'viewer' && (!l.hidden || l.id === value.locationId),
+    (l) => l.role !== 'viewer' && (!l.hidden || l.id === value.locationId || atOpen.includes(l.id)),
   );
   const places = usePlaces(value.locationId);
   // The location's containers, every page: the server's container filter, so a box is offered
