@@ -1442,7 +1442,7 @@ export function mount(root: HTMLElement, { lang, installHref, pack }: MountOptio
             quantity: x.quantity,
           })),
         insideCount: (it) => (contents.under.get(it.id) ?? []).length,
-        text: { ...w.engine, roomSize: (wm, dm) => w.size(f.side(wm), f.side(dm)) },
+        text: { ...w.engine, sep: f.sep, roomSize: (wm, dm) => w.size(f.side(wm), f.side(dm)) },
       },
       events: {
         onState: (s) => {
