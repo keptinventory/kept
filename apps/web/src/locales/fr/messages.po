@@ -28871,3 +28871,160 @@ msgstr "<0>{0}</0> et ses compartiments contiennent {inside}. Que faut-il en fai
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Seuls {placeName} et ses compartiments sont mis à la corbeille."
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "Baie"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "Arrière"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "In the rack"
+msgstr "Dans la baie"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Full depth"
+msgstr "Pleine profondeur"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Rear, half depth"
+msgstr "Arrière, demi-profondeur"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Front, half depth"
+msgstr "Devant, demi-profondeur"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "À côté des rails (0U)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Not placed yet"
+msgstr "Pas encore placé"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "Le placer"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, one {Coffret mural, #U} other {Coffret mural, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, one {Baie 10 pouces, #U} other {Baie 10 pouces, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, one {Baie 19 pouces, #U} other {Baie 19 pouces, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "Units"
+msgstr "Unités"
+
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "Combien d'unités de rack (U) de haut."
+
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "Numérotées depuis"
+
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "Le bas"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "Le haut"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, one {# unité, U1 en haut} other {# unités, U1 en haut}}"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, one {# unité, U1 en bas} other {# unités, U1 en bas}}"
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "{u} est occupée par {name} à l'arrière."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "{u} est occupée par {name} à l'avant."
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, one {Ça ne rentre pas : la baie fait # unité de haut.} other {Ça ne rentre pas : la baie fait # unités de haut.}}"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "Un équipement sans hauteur se place à côté des rails."
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "Demi-unités seulement, comme 1, 1,5 ou 2."
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "Vue de"
+
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "Demi-profondeur"
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "Emplacement de {name} enregistré"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "Unité de {name} libérée"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} dans {rackName}"
+
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "Commence à"
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "Son unité du haut, selon la numérotation de la baie."
+
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "Son unité du bas, selon la numérotation de la baie."
+
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "En unités de rack, demi-unités permises. 0 se place à côté des rails."
+
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "Face"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "Le retirer de son unité"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "Unités de rack"

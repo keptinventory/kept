@@ -20920,3 +20920,160 @@ msgstr "<0>{0}</0> và các ngăn của nó có {inside}. Nên làm gì với ch
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Chỉ {placeName} và các ngăn của nó được chuyển vào thùng rác."
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "Tủ rack"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "Mặt sau"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "In the rack"
+msgstr "Trong tủ rack"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Full depth"
+msgstr "Hết chiều sâu"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Rear, half depth"
+msgstr "Mặt sau, nửa chiều sâu"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Front, half depth"
+msgstr "Mặt trước, nửa chiều sâu"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "Cạnh thanh ray (0U)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Not placed yet"
+msgstr "Chưa đặt vị trí"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "Đặt vị trí"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, one {Tủ rack treo tường, #U} other {Tủ rack treo tường, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, one {Tủ rack 10 inch, #U} other {Tủ rack 10 inch, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, one {Tủ rack 19 inch, #U} other {Tủ rack 19 inch, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "Units"
+msgstr "Số đơn vị"
+
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "Cao bao nhiêu đơn vị rack (U)."
+
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "Đánh số từ"
+
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "Dưới cùng"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "Trên cùng"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, one {# đơn vị, U1 ở trên cùng} other {# đơn vị, U1 ở trên cùng}}"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, one {# đơn vị, U1 ở dưới cùng} other {# đơn vị, U1 ở dưới cùng}}"
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "{u} đã có {name} ở mặt sau."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "{u} đã có {name} ở mặt trước."
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, one {Không vừa: tủ rack cao # đơn vị.} other {Không vừa: tủ rack cao # đơn vị.}}"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "Thiết bị không có chiều cao nằm cạnh thanh ray."
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "Chỉ nửa đơn vị, như 1, 1,5 hoặc 2."
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "Nhìn từ"
+
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "Nửa chiều sâu"
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "Đã đặt {name}"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "Đã gỡ {name} khỏi vị trí"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} trong {rackName}"
+
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "Bắt đầu tại"
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "Đơn vị trên cùng của nó, theo cách đánh số của tủ rack."
+
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "Đơn vị dưới cùng của nó, theo cách đánh số của tủ rack."
+
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "Tính bằng đơn vị rack, được phép nửa đơn vị. 0 là nằm cạnh thanh ray."
+
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "Mặt"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "Gỡ khỏi vị trí"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "Đơn vị rack"

@@ -30856,3 +30856,160 @@ msgstr "Усередині <0>{0}</0> та його відділень — {insi
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "До кошика потраплять лише {placeName} та його відділення."
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "Стійка"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "Зад"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "In the rack"
+msgstr "У стійці"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Full depth"
+msgstr "На всю глибину"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Rear, half depth"
+msgstr "Ззаду, на пів глибини"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Front, half depth"
+msgstr "Спереду, на пів глибини"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "Поруч із рейками (0U)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Not placed yet"
+msgstr "Ще не розміщено"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "Розмістити"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, one {Настінна стійка, #U} few {Настінна стійка, #U} many {Настінна стійка, #U} other {Настінна стійка, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, one {Стійка 10 дюймів, #U} few {Стійка 10 дюймів, #U} many {Стійка 10 дюймів, #U} other {Стійка 10 дюймів, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, one {Стійка 19 дюймів, #U} few {Стійка 19 дюймів, #U} many {Стійка 19 дюймів, #U} other {Стійка 19 дюймів, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "Units"
+msgstr "Юніти"
+
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "Скільки юнітів (U) заввишки."
+
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "Нумерація від"
+
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "Знизу"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "Згори"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, one {# юніт, U1 згори} few {# юніти, U1 згори} many {# юнітів, U1 згори} other {# юніта, U1 згори}}"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, one {# юніт, U1 знизу} few {# юніти, U1 знизу} many {# юнітів, U1 знизу} other {# юніта, U1 знизу}}"
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "{u} зайнято: {name}, ззаду."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "{u} зайнято: {name}, спереду."
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, one {Не вміщується: стійка заввишки # юніт.} few {Не вміщується: стійка заввишки # юніти.} many {Не вміщується: стійка заввишки # юнітів.} other {Не вміщується: стійка заввишки # юніта.}}"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "Обладнання без висоти кріпиться поруч із рейками."
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "Лише половинки юніта, як-от 1, 1,5 або 2."
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "Вигляд"
+
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "На пів глибини"
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "Розміщено: {name}"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "Знято з юніта: {name}"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} у {rackName}"
+
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "Починається з"
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "Його верхній юніт за нумерацією стійки."
+
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "Його нижній юніт за нумерацією стійки."
+
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "У юнітах, можна половинки. 0 означає поруч із рейками."
+
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "Сторона"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "Зняти з юніта"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "Юніти стійки"
