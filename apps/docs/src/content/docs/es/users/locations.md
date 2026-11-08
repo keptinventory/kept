@@ -98,6 +98,11 @@ lugar dentro de él, con su propio nombre, etiqueta y, si quieres, su propio có
   compartimento, en orden de conteo.
 - **Su página** muestra los compartimentos como se coloca, numerados como están sus etiquetas. Toca uno para abrirlo.
   **Imprimir sus etiquetas** imprime todos de nuevo, en orden de conteo, con los nombres que tienen ahora.
+- **Mover a la papelera:** sus compartimentos van a la papelera con él y vuelven con él al
+  **Restaurar**. Si hay algo en él o en algún compartimento, Kept pregunta solo por eso:
+  **Moverlos a** la habitación donde está (o **Elige otro lugar**), o **Tíralos también**. Una caja
+  se mueve tal cual, con lo que tiene dentro. Un lugar que agregaste tú al mueble cuenta como algo
+  que hay en él. El **Deshacer** del aviso devuelve cada cosa a su compartimento.
 
 ### Girar el mueble
 

@@ -39,6 +39,7 @@ Une étagère cube, une bibliothèque ou une armoire à tiroirs constitue un seu
 - **Annuler :** le **Annuler** du toast place le meuble et ses compartiments dans la corbeille et libère leurs codes, tant qu'aucun objet n'y a été placé ou modifié depuis.
 - **Étiquettes :** sur le nouveau meuble, **Tout étiqueter ici** imprime une étiquette pour lui et pour chaque compartiment, dans l'ordre de comptage.
 - **Sa page** affiche les compartiments tels qu'ils sont, numérotés comme leurs étiquettes. Appuyez sur un compartiment pour l'ouvrir. **Imprimer leurs étiquettes** les imprime à nouveau tous, dans l'ordre de comptage, avec les noms qu'ils ont actuellement.
+- **Mettre à la corbeille :** ses compartiments partent à la corbeille avec lui et reviennent avec lui lors de **Restaurer**. Si quelque chose se trouve dans le meuble ou dans un compartiment, Kept ne pose la question que pour cela : **Les déplacer vers** la pièce où il se trouve (ou **Choisir un autre emplacement**), ou **Les mettre aussi à la corbeille**. Une boîte part telle quelle, avec ce qu'elle contient. Un emplacement que vous avez ajouté vous-même au meuble compte comme quelque chose dedans. Le **Annuler** du toast remet chaque chose dans son compartiment.
 
 ### Retourner le mobilier
 

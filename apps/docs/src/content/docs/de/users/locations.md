@@ -105,6 +105,11 @@ Schublade ist ein Ort darin, mit eigenem Namen, Etikett und, wenn du willst, eig
 - **Seine Seite** zeigt die Fächer so, wie es steht, nummeriert wie ihre Etiketten. Tippe eines an,
   um es zu öffnen. **Ihre Etiketten drucken** druckt alle erneut in Zählreihenfolge mit den Namen,
   die sie jetzt haben.
+- **In den Papierkorb:** Seine Fächer kommen mit in den Papierkorb und beim **Wiederherstellen**
+  mit zurück. Liegt etwas darin oder in einem Fach, fragt Kept nur danach: **Verschieben in** den
+  Raum, in dem es steht (oder **Anderen Ort wählen**), oder **Auch sie in den Papierkorb**. Eine
+  Kiste wandert so, wie sie ist, mit allem darin. Ein Ort, den du selbst zu den Möbeln hinzugefügt
+  hast, zählt als etwas darin. Das **Rückgängig** des Toasts legt alles zurück in sein Fach.
 
 ### Möbel drehen
 
