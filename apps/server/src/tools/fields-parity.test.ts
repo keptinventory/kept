@@ -32,6 +32,9 @@ const AS_TOOL: Record<string, string> = {
   provenanceNotes: 'provenance_notes',
   custom: 'custom',
   purchase: 'purchase',
+  // #373: gear in a rack.
+  rackUnits: 'rack_units',
+  rackAt: 'rack_at',
 };
 
 /** Body fields no tool sets, and why. */
