@@ -113,6 +113,12 @@ Set up again never uses Better Auth's `/two-factor/enable`, which refuses an acc
 two-factor on. The old secret signs in until the new one's first code is proven. Every change
 except a rename signs out the other sessions and mails the owner.
 
+A backup code accepted by `/two-factor/verify-backup-code` mails the owner too (#419), from an
+after-hook that awaits nothing: the time in the profile's zone, the device named from the request's
+user agent (the same labels as Settings' sessions, never the raw header), and the codes left. Never
+the code. A refused code mails nothing, and each code works once, so a set can cause at most as many
+mails as it has codes.
+
 ## Limits
 
 | What | Limit | Where |

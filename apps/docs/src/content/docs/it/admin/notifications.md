@@ -43,7 +43,7 @@ o un log del server non contiene mai uno utilizzabile.
   indirizzo email e una nota al vecchio, una nota quando qualcuno prova a registrarsi con un indirizzo
   che ha già un account, e un avviso quando cambia una credenziale: la password, un passkey
   aggiunto o rimosso, un accesso esterno scollegato, l'autenticazione a due fattori attivata, riconfigurata o disattivata,
-  e nuovi codici di backup.
+  nuovi codici di backup e un accesso con un codice di backup (con l'ora, il dispositivo e i codici rimasti).
 - **Persone e luoghi**: inviti via email; al proprietario di un luogo, ogni nuovo membro o account gestito
   e ogni iscrizione che raggiunge la data di scadenza.
 - **Trasparenza**: quando un amministratore dell'istanza (o `kept admin`) agisce sull'account di qualcuno; e a

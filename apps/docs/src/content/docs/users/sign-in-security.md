@@ -22,7 +22,9 @@ Unlinking Google or your OIDC sign-in in **Sign-in methods** asks the same way.
 
 Each change signs out every other device, except renaming a passkey. Kept mails you when a passkey
 is added or removed, when an outside sign-in is unlinked, when two-factor is turned on, set up again
-or turned off, and when new backup codes are made. Managed accounts (a username, no email) get no mail.
+or turned off, and when new backup codes are made. It also mails you each time a backup code signs
+you in, with the time, the device, how many codes are left and what to do if it wasn't you.
+Managed accounts (a username, no email) get no mail.
 
 ## Passkeys
 
