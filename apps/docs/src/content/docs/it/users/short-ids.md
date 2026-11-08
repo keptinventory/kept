@@ -39,7 +39,7 @@ Dopo la stampa, **Stampate bene?** chiede conferma sul lotto appena stampato e l
 |---|---|
 | Un'etichetta Kept per qualcosa che vedi | La apre e la marca come vista appena ora |
 | Un codice Kept stampato senza codice QR (nastro stretto) | Lo apre, letto dal testo, oppure chiede **È questo il codice?** prima quando la lettura non è chiara ([qui sotto](#scansione-di-un-codice-senza-qr-code)) |
-| Un'etichetta bianca | Offre **Nuova scatola qui**, **Collegala a un oggetto esistente** o **Collegala a un luogo esistente** (una stanza, scaffale o punto) |
+| Un'etichetta bianca | Offre **Nuova scatola qui**, **Collegala a un oggetto esistente** o **Collegala a un posto esistente** (una stanza, scaffale o punto) |
 | Un codice a barre di prodotto | Offre di aggiungerlo come nuovo oggetto; con la ricerca del codice a barre attivata dall'amministratore, prende il nome da Open Food Facts, Open Products Facts o Open Beauty Facts |
 | Un numero di serie o un tag di beni che un oggetto possiede | Apre quell'oggetto |
 | Un codice a barre che un oggetto possiede | Apre quell'oggetto; alcuni oggetti chiedono quale |

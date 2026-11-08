@@ -8,8 +8,9 @@
  * `theirs` the latest version read after a 412. `toPatch(from, to)` turns the difference into
  * the PATCH body, converting back to wire types.
  */
-import { AmountError, decimalCommaAsPoint, parseAmount } from '@kept/shared';
+import { AmountError, decimalCommaAsPoint } from '@kept/shared';
 import type { Condition, ResolvedField, ThingView, UpdateThingBody } from '@/api/inventory/types';
+import { amountText, readAmount } from '@/lib/amount';
 
 export type Money = { amount: string; currency: string };
 export type FormValue = string | boolean | string[] | Money | null;
@@ -79,7 +80,13 @@ function toForm(field: ResolvedField, raw: unknown): FormValue {
   if (field.kind === 'multi_select' || field.repeatable)
     return (Array.isArray(raw) ? raw : [raw]).map(String);
   if (field.kind === 'boolean') return raw === true;
-  if (field.kind === 'money' && typeof raw === 'object') return raw as Money;
+  if (field.kind === 'money' && typeof raw === 'object') {
+    // Shown the way the reader types it (#474): "1234,5" in German, read back by readAmount.
+    const money = raw as Money;
+    return typeof money.amount === 'string'
+      ? { ...money, amount: amountText(money.amount) }
+      : money;
+  }
   return String(raw);
 }
 
@@ -171,7 +178,7 @@ export function validate(
       e[`custom.${f.key}`] = m.url;
     if (f.kind === 'money' && v && typeof v === 'object' && !Array.isArray(v)) {
       try {
-        parseAmount(v.amount);
+        readAmount(v.amount);
       } catch (err) {
         if (err instanceof AmountError) e[`custom.${f.key}`] = m.amount;
         else throw err;
@@ -192,7 +199,7 @@ function fromForm(field: ResolvedField, v: FormValue): unknown {
     return parseNumber(v as string);
   }
   if (field.kind === 'money' && typeof v === 'object' && !Array.isArray(v))
-    return { amount: parseAmount(v.amount), currency: v.currency };
+    return { amount: readAmount(v.amount), currency: v.currency };
   if (typeof v === 'string') return v.trim();
   return v;
 }

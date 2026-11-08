@@ -14,7 +14,7 @@ Cerca per ciò che è stato conteggiato, e filtra per tipo (conteggi, controlli 
 ## La pagina del conteggio
 
 - **Trovati X su Y**, quando, quanto tempo è durato, chi ha contato (tutti, in un conteggio condiviso) e chi lo ha completato.
-- **Dal conteggio precedente** dello stesso posto o scatola: "1 nuovo mancante · 0 ritrovato nuovamente · 2 nuovi oggetti", con un collegamento al precedente.
+- **Dal conteggio precedente** dello stesso posto o scatola: "1 nuovo mancante, 0 ritrovato nuovamente, 2 nuovi oggetti", con un collegamento al precedente.
 - I suoi elenchi, ogni riga collega l'oggetto con dove si trova ora:
 
 | Elenco | Cosa significa |

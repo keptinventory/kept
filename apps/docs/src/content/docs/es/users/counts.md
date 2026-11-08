@@ -14,7 +14,7 @@ Busca por lo que se contó y filtra por tipo (conteos, revisiones de caja), luga
 ## La página de un conteo
 
 - **Encontrado X de Y**, cuándo, cuánto tardó, quién contó (todos, en un conteo compartido) y quién lo terminó.
-- **Desde el recuento anterior** del mismo lugar o caja: "1 nuevo faltante · 0 encontrados de nuevo · 2 objetos nuevos", con un enlace al anterior.
+- **Desde el recuento anterior** del mismo lugar o caja: "1 nuevo faltante, 0 encontrados de nuevo, 2 objetos nuevos", con un enlace al anterior.
 - Sus listas, cada fila enlaza al objeto con dónde está ahora:
 
 | Lista | Qué significa |

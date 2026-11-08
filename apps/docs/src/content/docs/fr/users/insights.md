@@ -1,6 +1,6 @@
 ---
 title: Statistiques
-description: Dépenses liées aux objets, valeur par lieu, coûts des véhicules et couverture de garantie sur vos lieux, par devise et sans conversion.
+description: Dépenses liées aux objets, valeur par emplacement, coûts des véhicules et couverture de garantie sur vos lieux, par devise et sans conversion.
 ---
 
 **Statistiques** (dans la barre latérale, et sous Plus sur un téléphone) affiche des chiffres sur vos lieux avec Argent activé, ou sur un lieu choisi avec le filtre **Lieu**.
@@ -13,9 +13,9 @@ Achats confirmés, regroupés par année d'achat.
 - Un achat sans l'un ni l'autre est indiqué comme sans montant.
 - L'année en cours est affichée seule, "jusqu'ici", jamais comme une barre à côté des années complètes.
 
-## Valeur par lieu
+## Valeur par emplacement
 
-Chaque objet en cours d'utilisation, à sa dernière estimation, par lieu de premier niveau. Un objet dans une boîte dans un placard compte dans la pièce.
+Chaque objet en cours d'utilisation, à sa dernière estimation, par emplacement de premier niveau. Un objet dans une boîte dans un placard compte dans la pièce.
 
 Les objets sans estimation sont comptés mais n'ajoutent rien : Kept ne devine jamais une valeur.
 

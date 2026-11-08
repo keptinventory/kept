@@ -186,7 +186,7 @@ describe('Instance admin', () => {
     await renderApp('/admin/jobs');
     await screen.findByText('repair-orphans');
     expect(screen.getByText('It left no error message.')).toBeInTheDocument();
-    expect(screen.queryByText(/Home ·/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Home, /)).not.toBeInTheDocument();
   });
 
   it('Failed jobs: retry and discard; empty when none', async () => {
@@ -310,7 +310,7 @@ describe('Instance admin', () => {
 
   it('Status: the reminder scan, and says so when it stopped', async () => {
     await renderApp('/admin/status');
-    expect(await screen.findByText(/^Checked .* · 3 new$/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Checked .*, 3 new$/)).toBeInTheDocument();
     expect(screen.queryByText('Reminders have stopped going out')).toBeNull();
 
     const state = ownerScenario();

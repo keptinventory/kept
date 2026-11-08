@@ -64,7 +64,7 @@ some. Under **This month**, a bar per limit shows the spend so far.
 - **Capture** (Thing, Receipt, Label, Reading modes): one call per photo. Names, brands, models
   and types are filled in; prices, dates, serials and readings wait in the Inbox as suggested
   values for you to accept. Each AI-filled draft carries a line such as "Read by qwen/qwen3.8-27b
-  (Groq) · 2,502 tokens", with its cost and who paid.
+  (Groq), 2,502 tokens", with its cost and who paid.
 - **Several things in one photo** (Thing mode; Admin → Settings, off by default): the same one
   call names up to 12 things in the photo. The first fills in the capture's own draft and keeps
   the photo; each other one becomes a draft beside it, in the same place and batch, with its
@@ -106,9 +106,9 @@ monthly limit?** with a suggested amount, and **No limit**. Under **Advanced**, 
 - **Pause AI** stops all calls by hand until you resume.
 
 When a limit is reached, AI pauses for that scope only, with a banner such as "AI paused until
-1 Oct · Home's monthly cap reached". **Captures still save; naming waits**, and resumes when AI
+1 Oct, Home's monthly cap reached". **Captures still save; naming waits**, and resumes when AI
 does. Whoever set the cap gets **Resume now**, to raise it, remove it or keep paused. A provider's
-own rate limit is not a pause: progress lines say "Waiting for Groq · about 20 s" and carry on.
+own rate limit is not a pause: progress lines say "Waiting for Groq, about 20 s" and carry on.
 
 **One assistant request is kept under the provider's per-minute limit** once the provider has
 named it (Groq's free tier: 8,000 tokens a minute). Each request carries the tools the question is

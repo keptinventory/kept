@@ -47,7 +47,7 @@ type Topic = { tools: readonly ToolName[]; words: Readonly<Record<Lang, string>>
  * where a stem would run on into another word (`$`, or the forms listed one by one: кухня, кухні
  * but never кухонний). Spanish takes the same `$` where a stem runs on: ordena$ is not ordenador,
  * and forms are spelled out where a stem would take another language's word: repone is not French
- * réponse, próximo$ not English proximity. */
+ * réponse, próximo$ not English proximity, revisión$ not English revisit or Italian revisioni. */
 const TOPICS: Readonly<Record<string, Topic>> = {
   history: {
     tools: ['thing_history'],
@@ -135,7 +135,7 @@ const TOPICS: Readonly<Record<string, Topic>> = {
       ar: 'سيارة|عربية|موتوسيكل|صيانة|زيت|كاوتش|إطار|عداد|كيلو|بنزين|وقود|سولار|فول|تفويل|قراءة|كهرباء',
       de: 'auto|fahrzeug|wagen|inspektion|ölwechsel|reifen|kilometer|tacho|benzin|zähler|getankt',
       en: 'car|cars|vehicle|bike|motorbike|servic|oil|tyre|tire|mileage|odometer|km|miles|fuel|petrol|gas|diesel|refuel|filled up|fill up|fill-up|tank|reading|meter|hours|electricity',
-      es: 'coche$|coches$|carro$|carros$|auto$|autos$|automóvil|vehículo|moto$|motos$|motocicleta|bici$|bicis$|bicicleta|furgoneta|revisi|itv$|cambio de aceite|cambié el aceite|cambiado el aceite|cambiar el aceite|aceite del coche|aceite de motor|aceite del motor|neumátic|rueda$|ruedas$|kilometraje|kilómetro|cuentakilómetros|odómetro|km$|millas$|combustible|gasolina|diésel|gasóleo|repostar$|reposta$|reposté$|repostó$|repostado$|repostaje$|depósito lleno|lectura$|lecturas$|contador$|contadores$|electricidad|kilovatio|kwh',
+      es: 'coche$|coches$|carro$|carros$|auto$|autos$|automóvil|vehículo|moto$|motos$|motocicleta|bici$|bicis$|bicicleta|furgoneta|revisión$|revisiones$|itv$|cambio de aceite|cambié el aceite|cambiado el aceite|cambiar el aceite|aceite del coche|aceite de motor|aceite del motor|neumátic|rueda$|ruedas$|kilometraje|kilómetro|cuentakilómetros|odómetro|km$|millas$|combustible|gasolina|diésel|gasóleo|repostar$|reposta$|reposté$|repostó$|repostado$|repostaje$|depósito lleno|lectura$|lecturas$|contador$|contadores$|electricidad|kilovatio|kwh',
       fr: 'voiture|véhicule|vidange|pneu|kilométrage|compteur|essence|carburant|gazole|plein|relevé',
       it: 'macchina|veicolo|tagliando|olio|gomm|chilometr|contachilometri|benzina|carburante|gasolio|pieno|lettura|contatore',
       uk: 'автомобіл|авто$|автівк|автівц|транспортн|моя машин|мою машин|моєї машин|моїй машин|наша машин|нашу машин|нашої машин|на машині$|у машині$|в машині$|мотоцикл|скутер|мопед|велосипед|байк$|сервіс|техогляд|техобслугов|заміна масла|заміну масла|заміни масла|замінив масло|замінила масло|замінили масло|моторн|мастил|шина|шини|шину|шині|шин$|покришк|покришок|шиномонтаж|пробіг|одометр|спідометр|кілометр|км$|миль$|пальне|пального|пальним|пальному|бензин|бензобак|дизел|солярк|заправ|повний бак|лічильник|показання|показань|показник|мотогодин|електроенерг|кіловат|квт',

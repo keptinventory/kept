@@ -172,7 +172,7 @@ test('one Undo takes a whole save back', async ({ page }) => {
   await page.keyboard.type('TP-1');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('region', { name: 'Changes' })).toContainText(
-    '2 changes · on 1 thing',
+    '2 changes, on 1 thing',
   );
   await page.getByRole('button', { name: 'Save 2 changes' }).click();
   await page.getByRole('button', { name: 'Undo' }).first().click();

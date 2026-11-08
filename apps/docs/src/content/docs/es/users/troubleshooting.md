@@ -45,7 +45,7 @@ Una captura se guarda primero en el teléfono y se envía cuando el teléfono se
 - **En iPhone, la cola solo avanza mientras Kept está abierta.** La línea debajo del encabezado dice **Abrir para terminar de sincronizar** con un recuento: deja Kept en pantalla un momento mientras estás en línea.
 - **Sin nombre**, una captura espera en la **Bandeja de entrada**. **Fotos por revisar** en Inicio las muestra.
 
-### La búsqueda dice "En este teléfono · según la última sincronización"
+### La búsqueda dice "En este teléfono, según la última sincronización"
 
 La respuesta provino de la copia del propio teléfono, porque estás sin conexión. Vuelve a conectarte, luego desliza hacia abajo para actualizar.
 

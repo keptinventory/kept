@@ -76,7 +76,7 @@ a location turns them on in **Location settings → What to track**
   name and a Tailscale name.
 - **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
   and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
-  The user, admin and install docs are in every language too.
+  Amounts are read as your language writes them. The user, admin and install docs are in every language too.
 
 ## On your phone
 

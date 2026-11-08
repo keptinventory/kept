@@ -231,19 +231,18 @@ export function WhatsIn({
           <Trans>What’s in {name}</Trans>
         </h2>
         <p className="kmap-sum">
+          {/* Separate elements, spaced by the line's gap: no separator between them (#459). */}
+          <b>
+            <ThingCount n={sum.things} />
+          </b>
           <span>
-            <b>
-              <ThingCount n={sum.things} />
-            </b>
-            <span aria-hidden="true">·</span>
             <Plural value={sum.rooms} one="# room" other="# rooms" />
-            {sum.floors > 1 ? (
-              <>
-                <span aria-hidden="true">·</span>
-                <Plural value={sum.floors} one="# floor" other="# floors" />
-              </>
-            ) : null}
           </span>
+          {sum.floors > 1 ? (
+            <span>
+              <Plural value={sum.floors} one="# floor" other="# floors" />
+            </span>
+          ) : null}
           <span>
             <span className="kmap-dot low" aria-hidden="true" />
             <Trans>

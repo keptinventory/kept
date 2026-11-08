@@ -146,7 +146,16 @@ describe("What's in, under the map", () => {
   it('sums up the home: things, rooms, floors and each flag', () => {
     expect(list().querySelector('h2')?.textContent).toBe('What’s in Sample home');
     const sum = list().querySelector('.kmap-sum')?.textContent ?? '';
-    expect(sum).toMatch(/\d+ things·13 rooms·3 floors/);
+    // Separate elements, no separator between them (#459).
+    const parts = [...(list().querySelector('.kmap-sum')?.children ?? [])].map(
+      (e) => e.textContent,
+    );
+    expect(parts.slice(0, 3)).toEqual([
+      expect.stringMatching(/^\d+ things$/),
+      '13 rooms',
+      '3 floors',
+    ]);
+    expect(sum).not.toContain('\u00b7');
     expect(sum).toMatch(/\d+ low/);
     expect(sum).toMatch(/\d+ lent/);
     expect(sum).toMatch(/\d+ due/);

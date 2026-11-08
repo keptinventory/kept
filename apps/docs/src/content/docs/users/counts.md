@@ -19,7 +19,7 @@ the address, so a filtered list can be bookmarked or saved as a view.
 
 - **Found X of Y**, when, how long it took, who counted (everyone, in a shared count) and who
   finished it.
-- **Since the previous count** of the same place or box: "1 newly missing · 0 found again · 2 new
+- **Since the previous count** of the same place or box: "1 newly missing, 0 found again, 2 new
   things", with a link to the previous one.
 - Its lists, each row linking to the thing with where it is now:
 

@@ -97,7 +97,7 @@ describe('the location page', () => {
     });
     await findHeading('Home');
     await waitFor(() =>
-      expect(document.querySelector('main')?.textContent).toContain(`· ${live} things ·`),
+      expect(document.querySelector('main')?.textContent).toContain(`, ${live} things, `),
     );
   });
 
@@ -241,10 +241,10 @@ describe('Sort them', () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     await findHeading('Home');
     await user.click(await screen.findByRole('button', { name: 'Sort them' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Sort Unplaced · 1 of 2' });
+    const dialog = await screen.findByRole('dialog', { name: 'Sort Unplaced, 1 of 2' });
     expect(within(dialog).getByText('Untitled draft')).toBeInTheDocument();
     await user.click(within(dialog).getByRole('button', { name: 'Skip' }));
-    const second = await screen.findByRole('dialog', { name: 'Sort Unplaced · 2 of 2' });
+    const second = await screen.findByRole('dialog', { name: 'Sort Unplaced, 2 of 2' });
     expect(within(second).getByText('Galaxy S23')).toBeInTheDocument();
     await user.click(await within(second).findByRole('radio', { name: 'Kitchen' }));
     await user.click(within(second).getByRole('button', { name: 'Move here' }));
@@ -374,19 +374,19 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     return screen.findByRole('dialog', { name: 'Display' });
   };
 
-  it('shows Places · N, then Things · N, as headings across the grid that fold away', async () => {
+  it('shows Places, N, then Things, N, as headings across the grid that fold away', async () => {
     localStorage.clear();
     const { user } = await renderApp(`/loc/${IDS.home}?view=grid`);
     const ul = await contents();
-    const places = within(ul).getByRole('button', { name: /^Places · \d+$/ });
-    const things = within(ul).getByRole('button', { name: /^Things · \d+\+?$/ });
+    const places = within(ul).getByRole('button', { name: /^Places, \d+$/ });
+    const things = within(ul).getByRole('button', { name: /^Things, \d+\+?$/ });
     // The headings are rows of their own across the grid, Places before Things.
     expect(places.closest('li')).toHaveClass('col-span-full');
     expect(things.closest('li')).toHaveClass('col-span-full');
     expect(places.compareDocumentPosition(things) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const placeTiles = hrefsUnder(ul, '/p/');
-    expect(places.textContent).toBe(`Places · ${placeTiles.length}`);
-    expect(things.textContent).toBe(`Things · ${hrefsUnder(ul, '/t/').length}`);
+    expect(places.textContent).toBe(`Places, ${placeTiles.length}`);
+    expect(things.textContent).toBe(`Things, ${hrefsUnder(ul, '/t/').length}`);
     // Every place tile comes before the Things heading, every thing tile after it.
     for (const a of placeTiles)
       expect(a.compareDocumentPosition(things) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -407,7 +407,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
   it('List gets the same Things count', async () => {
     await renderApp(`/loc/${IDS.home}`);
     const ul = await contents();
-    expect(within(ul).getByRole('button', { name: /^Things · \d+\+?$/ })).toBeInTheDocument();
+    expect(within(ul).getByRole('button', { name: /^Things, \d+\+?$/ })).toBeInTheDocument();
   });
 
   it('groups things by type inside the grid, below Places', async () => {
@@ -421,7 +421,7 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     expect(within(ul).getAllByRole('button', { expanded: true })[0]?.textContent).toBe('Places');
   });
 
-  it('Size under Display: Small, Medium or Large, in the address, with 3 · 2 · 1 columns on a phone', async () => {
+  it('Size under Display: Small, Medium or Large, in the address, with 3, 2, 1 columns on a phone', async () => {
     localStorage.clear();
     const { user, router } = await renderApp(`/loc/${IDS.home}?view=grid`);
     let ul = await contents();
@@ -509,8 +509,8 @@ describe('a grid keeps places and things apart, in three sizes (#139)', () => {
     await renderApp(`/p/${P.office}?view=grid&size=small`, { state });
     const ul = await list('Contents of Office');
     expect(ul).toHaveAttribute('data-tile-size', 'small');
-    const places = within(ul).getByRole('button', { name: 'Places · 1' });
-    const things = within(ul).getByRole('button', { name: /^Things here · \d+$/ });
+    const places = within(ul).getByRole('button', { name: 'Places, 1' });
+    const things = within(ul).getByRole('button', { name: /^Things here, \d+$/ });
     expect(places.compareDocumentPosition(things) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(ul).getByRole('link', { name: 'Galaxy S23' })).toBeInTheDocument();
   });
@@ -741,7 +741,7 @@ describe('the place page', () => {
       'aria-current',
       'page',
     );
-    expect(screen.getByText(/Spot · 1 thing/)).toBeInTheDocument();
+    expect(screen.getByText(/Spot, 1 thing/)).toBeInTheDocument();
     // Its short ID.
     expect(
       within(await list('Contents of Desk drawer')).getByRole('link', { name: /Cable box/ }),
@@ -1239,7 +1239,7 @@ describe('ContentsList for a container', () => {
       await screen.findByRole('region', { name: "Photos of what's in Cable box" }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Display options/ })).toHaveTextContent(
-      'Name · photos',
+      'Name, photos',
     );
   });
 

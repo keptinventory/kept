@@ -68,6 +68,16 @@ const home: LocationDetail = {
 };
 
 describe('the shell copy', () => {
+  it('keeps Hide Personal as the person set it, so its switch reads right on a cold start offline (#459)', () => {
+    const hiding = me('u1');
+    hiding.personalHidden = true;
+    hiding.profile.hidePersonal = true;
+    const s = shellOf(hiding, [home], 1_000);
+    expect(s.me.profile.hidePersonal).toBe(true);
+    expect(s.me.personalHidden).toBe(true);
+    expect(shellOf(me('u1'), [home], 1_000).me.profile).not.toHaveProperty('hidePersonal');
+  });
+
   it('keeps only what the frame reads: no email, no version, successor or money setting', () => {
     const s = shellOf(me('u1'), [home], 1_000);
     expect(s.me.user.email).toBeNull();

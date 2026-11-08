@@ -1,6 +1,6 @@
 ---
 title: Uso quotidiano
-description: Home, luoghi e scatole, vista a tabella, oggetti ed etichette, documenti, ricerca, spostare gli oggetti, veicoli, promemoria, condivisione e il report assicurativo.
+description: Home, posti e scatole, vista a tabella, oggetti ed etichette, documenti, ricerca, spostare gli oggetti, veicoli, promemoria, condivisione e il report assicurativo.
 ---
 
 Kept risponde a tre domande su tutto ciò che possiedi: dov'è, quali documenti ha, e di cosa ha bisogno. Questa pagina ripercorre le schermate che fanno questo. Quelle che vedi dipendono dal tuo ruolo e da ciò che ogni luogo tiene traccia ([preset e ruoli](/it/users/first-run/#3-crea-la-tua-prima-casa)). Per provarle prima di installare, [prova Kept](/it/try/kept/) con un nucleo familiare di esempio nel browser.
@@ -39,7 +39,7 @@ Le foto vanno sull'oggetto; tutto il resto va sotto **Documenti**, conservato co
 
 Dettagli completi: [ricerca](/it/users/search/).
 
-**Cerca** trova gli oggetti per nome, marca, numero di serie, ID, posto, o le parole che l'AI ha aggiunto come alias, e raggruppa i risultati in oggetti, luoghi, persone, negozi e documenti (con un estratto del testo della ricevuta). I filtri restringono per luogo, posto, tipo, etichetta e stato; **Ricerche salvate** conserva un insieme di filtri per te o per un intero luogo. Su computer, ⌘K o Ctrl+K apre la stessa ricerca da qualsiasi punto.
+**Cerca** trova gli oggetti per nome, marca, numero di serie, ID, posto, o le parole che l'AI ha aggiunto come alias, e raggruppa i risultati in oggetti, posti, persone, negozi e documenti (con un estratto del testo della ricevuta). I filtri restringono per luogo, posto, tipo, etichetta e stato; **Ricerche salvate** conserva un insieme di filtri per te o per un intero luogo. Su computer, ⌘K o Ctrl+K apre la stessa ricerca da qualsiasi punto.
 ## Spostare gli oggetti
 
 - **Sposta** su un oggetto sceglie il nuovo posto o la nuova scatola. Spostare in un altro luogo a cui appartieni avvisa chi ne perderà di vista.

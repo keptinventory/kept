@@ -23,7 +23,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { QrCode } from '@/components/ui/qr-code';
 import { Segmented } from '@/components/ui/segmented';
 import { toast } from '@/components/ui/toast';
-import { dayOf, endOfDay } from '@/lib/day-end';
+import { dayOf, endOfDay, tomorrowIn } from '@/lib/day-end';
 import { useFormat } from '@/lib/format';
 import { useRoleLabels } from '@/lib/labels';
 import { grantableRoles } from '@/lib/roles';
@@ -65,7 +65,7 @@ function InviteForm({ location }: { location: LocationDetail }) {
     ? dayOf(location.membershipExpiresAt, location.timezone)
     : null;
   const capText = cap ? f.day(cap) : null;
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+  const tomorrow = tomorrowIn(location.timezone);
   const missingDate = limited && !until;
   // An admin whose own access ends can only invite until then (D180).
   const mustLimit = !!cap;
