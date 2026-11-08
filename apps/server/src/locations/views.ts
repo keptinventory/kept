@@ -1,4 +1,5 @@
 import {
+  can,
   effectiveModules,
   MODULE_IDS,
   type ModuleId,
@@ -42,6 +43,9 @@ export const LocationView = z.object({
   longUnseenMonths: z.number().int(),
   /** Room photos stay on their place after review (#194); deleted then by default. */
   keepRoomPhotos: z.boolean(),
+  /** Where it is (#375), for Capture's "Suggest where I am"; null when unset. Shown to owners and
+   * admins, who may change it; null for everyone else. */
+  position: z.object({ latitude: z.number(), longitude: z.number() }).nullable(),
   /** The owner's nominated successor (D165); shown to the owner only. */
   successorUserId: z.uuid().nullable(),
   memberCount: z.number().int(),
@@ -77,6 +81,8 @@ type LocationRow = {
   money_visible_to_viewers: boolean;
   long_unseen_months: number;
   keep_room_photos: boolean;
+  latitude: number | null;
+  longitude: number | null;
   successor_user_id: string | null;
   provider_resolved: boolean;
   hidden: boolean;
@@ -149,7 +155,7 @@ async function locationRows(
   const { rows } = await client.query<LocationRow>(
     `SELECT l.id, l.owner_account_id, l.name, l.kind, l.preset, l.timezone, l.currency, l.languages, l.require_2fa,
             l.money_visible_to_viewers, l.long_unseen_months, l.keep_room_photos,
-            l.successor_user_id, l.row_version,
+            l.latitude, l.longitude, l.successor_user_id, l.row_version,
             l.id IN (SELECT kept.hidden_location_ids()) AS hidden,
             l.created_at, l.updated_at, m.role, m.expires_at AS membership_expires_at,
             lower(l.name) AS sort_name,
@@ -206,6 +212,10 @@ async function locationRows(
       moneyVisibleToViewers: r.money_visible_to_viewers,
       longUnseenMonths: r.long_unseen_months,
       keepRoomPhotos: r.keep_room_photos,
+      position:
+        can(r.role, 'location.settings') && r.latitude !== null && r.longitude !== null
+          ? { latitude: r.latitude, longitude: r.longitude }
+          : null,
       successorUserId: r.role === 'owner' ? r.successor_user_id : null,
       memberCount: r.member_count,
       thingCount: r.thing_count,
