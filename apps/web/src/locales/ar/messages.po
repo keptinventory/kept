@@ -28909,3 +28909,44 @@ msgstr "استلمه <0>{taker}</0>"
 #: src/components/lending/thing-loans.tsx
 msgid "Who had it"
 msgstr "من كان معه"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "الموقع الجغرافي"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "عند تشغيل «اقترح مكاني» يختار الالتقاط هذا الموقع حين تكون هنا. يُقارَن موقع هاتفك على الهاتف نفسه ولا يُرسل أبدًا. لا يراه إلا المالكون والمشرفون."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "خط العرض"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "خط الطول"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "أدخل رقمًا من {from} إلى {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "استخدم مكاني الآن"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "تعذّر تحديد مكانك. حاول مرة أخرى، أو اكتبه."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "افتح في الخرائط"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "أزل الموقع الجغرافي"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "أُزيل الموقع الجغرافي"

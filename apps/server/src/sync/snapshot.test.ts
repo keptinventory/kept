@@ -363,6 +363,21 @@ describe('the first sync', () => {
     expect(owner.pages[0]?.locations.find((l) => l.id === home.id)?.role).toBe('owner');
   });
 
+  // #375: the position is for Capture's "Suggest where I am"; a viewer can't capture.
+  it("gives the location's position to those who add things, never to a viewer", async () => {
+    await own('UPDATE public.locations SET latitude = 30.0444, longitude = 31.2357 WHERE id = $1', [
+      home.id,
+    ]);
+    const homeOf = async (as: Person) => (await page(as)).locations.find((l) => l.id === home.id);
+    for (const as of [ibrahim, louis]) {
+      expect(await homeOf(as)).toMatchObject({ latitude: 30.0444, longitude: 31.2357 });
+    }
+    const asViewer = await homeOf(talia);
+    expect(asViewer?.role).toBe('viewer');
+    expect(asViewer).not.toHaveProperty('latitude');
+    expect(asViewer).not.toHaveProperty('longitude');
+  });
+
   it('never gives another household’s rows', async () => {
     const { pages } = await pull(ibrahim);
     const json = JSON.stringify(pages);

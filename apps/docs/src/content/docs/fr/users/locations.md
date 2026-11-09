@@ -61,6 +61,27 @@ Un insert de cube ou une étagère retirée fusionne deux ou plusieurs compartim
 - **Vos propres modèles :** **Paramètres → Compte → Modèles → Meubles** contient les modèles d'emplacement personnels du compte : cubes alignés et empilés (debout), étagères ou tiroirs, les types, les noms et le motif de code, partagés avec les lieux que vous sélectionnez. Les propriétaires et administrateurs les créent ; toute personne pouvant ajouter des emplacements les utilise.
 - Les **applications IA** peuvent faire de même : `create_place` prend un `template`, et `update_place` un `turn` ([clients MCP](/fr/users/mcp-clients/#les-outils)). La fusion et la division restent dans l'application.
 
+## Sa position
+
+La position d’un lieu permet à **Suggérer où je suis** de la capture de le choisir quand vous y
+êtes ([Kept sur votre téléphone](/fr/users/phone-app/)).
+
+- **La définir :** **Paramètres du lieu → Général → Position**, pour les propriétaires et les
+  administrateurs. **Utiliser ma position actuelle** lit une fois la position du téléphone (le
+  navigateur demande d’abord) et remplit **Latitude** et **Longitude** ; ou saisissez-les en degrés,
+  par exemple 30.0444 et 31.2357. Puis **Enregistrer**. **Retirer la position** l’efface. Personnel
+  n’en a pas : il vous suit partout.
+- **En HTTP simple**, les navigateurs refusent de donner la position : saisissez-la.
+- **Ouvrir dans les cartes** ouvre OpenStreetMap à la position enregistrée, dans un nouvel onglet.
+  C’est seulement alors que la position quitte Kept.
+- **À quelle distance :** la capture propose un lieu quand le téléphone est à 150 m ou moins de sa
+  position, le plus proche s’il y en a deux. 150 m couvrent une maison et son jardin plus l’erreur
+  habituelle d’un téléphone en intérieur, tout en distinguant deux rues.
+- **Qui la voit :** les propriétaires et les administrateurs, sur cette page ; et les téléphones de
+  ceux qui ajoutent des objets ici, pour la suggestion. Les lecteurs et les liens de partage ne la
+  reçoivent jamais. L’historique indique que la position a changé, qui l’a changée et quand, jamais
+  où. Un export du lieu la contient, et importer cet export la rétablit.
+
 ## Masquer Personnel
 
 Tout le monde possède un lieu **Personnel**. Si vous n'en avez aucune utilité, activez **Masquer Personnel** dans **Paramètres → Moi → Vos lieux**, et désactivez-le pour l'afficher à nouveau à tout moment. C'est votre propre préférence : personne d'autre ne remarque de changement.

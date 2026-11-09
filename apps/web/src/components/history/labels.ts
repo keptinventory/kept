@@ -79,6 +79,8 @@ export function useFieldLabel() {
     display_name: t`Name`,
     website: t`Website`,
     address: t`Address`,
+    // A location's position (#375): its history says "changed", never where.
+    position: t`Position`,
     phone: t`Phone`,
     support_phone: t`Support phone`,
     claim_url: t`Warranty claims page`,

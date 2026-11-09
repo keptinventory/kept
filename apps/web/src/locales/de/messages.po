@@ -28909,3 +28909,44 @@ msgstr "zurückgenommen von <0>{taker}</0>"
 #: src/components/lending/thing-loans.tsx
 msgid "Who had it"
 msgstr "Wer es hatte"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Position"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Ist „Vorschlagen, wo ich bin“ an, wählt Erfassen diesen Standort, wenn du hier bist. Die Position deines Telefons wird auf dem Telefon verglichen und nie gesendet. Nur Eigentümer und Admins sehen das."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Breitengrad"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Längengrad"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Gib eine Zahl von {from} bis {to} ein."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Meine aktuelle Position verwenden"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Deine Position konnte nicht ermittelt werden. Versuch es noch einmal oder gib sie ein."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "In Karten öffnen"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Position entfernen"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Position entfernt"

@@ -235,11 +235,17 @@ export type LocationDetail = LocationSummary & {
   longUnseenMonths?: number;
   /** Room photos stay on their place after review (#194). */
   keepRoomPhotos?: boolean;
+  /** Where it is (#375), for Capture's "Suggest where I am"; null when unset. Shown to owners
+   * and admins only (null for everyone else). */
+  position?: LocationPosition | null;
   /** The owner's nominated successor (D165); shown to the owner only. */
   successorUserId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
+
+/** WGS 84 degrees: latitude −90 to 90, longitude −180 to 180. */
+export type LocationPosition = { latitude: number; longitude: number };
 
 /** DELETE /api/v1/locations/:id: gone from every list, restorable until `purgeAfter`. */
 export type DeletedLocationResult = { id: string; purgeAfter: string };
@@ -265,6 +271,8 @@ export type UpdateLocationBody = {
   currency?: string;
   /** Room photos stay on their place after review (#194); deleted then by default. */
   keepRoomPhotos?: boolean;
+  /** Where it is (#375); null clears it. An owner or admin; never on Personal (409). */
+  position?: LocationPosition | null;
   /** Members need two-factor or a passkey to open the location. The owner only; turning it on
    * needs this session to have proven a second factor (403 `mfa_required`). */
   require2fa?: boolean;
