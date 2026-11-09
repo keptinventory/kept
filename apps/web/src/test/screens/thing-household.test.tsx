@@ -216,9 +216,9 @@ describe('the custody trail (#374)', () => {
     const rows = within(trail.closest('section') as HTMLElement).getAllByRole('listitem');
     expect(rows).toHaveLength(2);
     // The open loan first: overdue, nobody took it back yet.
-    expect(rows[0]).toHaveTextContent(/^Murdock · since .*Lent out · Overdue$/);
+    expect(rows[0]).toHaveTextContent(/^Murdock, since .*Lent out, Overdue$/);
     expect(rows[1]).toHaveTextContent(
-      /Murdock · .* – .*Came back damaged · came back poor · taken back by Bruce · Chipped chuck/,
+      /Murdock, .* – .*Came back damaged, came back poor, taken back by Bruce, Chipped chuck/,
     );
     expect(within(rows[1] as HTMLElement).getByText('Bruce').tagName).toBe('BDI');
   });
@@ -269,7 +269,7 @@ describe('the custody trail (#374)', () => {
       expect(
         within(trail.closest('section') as HTMLElement).getAllByRole('listitem')[0],
       ).toHaveTextContent(
-        /Came back damaged · came back poor · taken back by Bruce · Cracked casing/,
+        /Came back damaged, came back poor, taken back by Bruce, Cracked casing/,
       ),
     );
   });
