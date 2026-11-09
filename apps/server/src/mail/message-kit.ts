@@ -104,5 +104,37 @@ export function mailDay(tag: string, iso: string, timeZone: string): string {
   }
 }
 
+/** "8 November 2026 at 16:05 EET" in `tag`: the date and time in `timeZone`, the zone named
+ * (an unknown zone falls back to UTC; Arabic mail keeps Western digits). */
+export function mailTime(tag: string, iso: string, timeZone: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const locale = tag === 'ar' ? 'ar-u-nu-latn' : tag === 'en' ? 'en-GB' : tag;
+  const parts = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    // Each language's own clock: "16:05" in most, "4:05 م" in Arabic.
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  } as const;
+  try {
+    return new Intl.DateTimeFormat(locale, { ...parts, timeZone }).format(d);
+  } catch {
+    return new Intl.DateTimeFormat(locale, { ...parts, timeZone: 'UTC' }).format(d);
+  }
+}
+
+/** The device a backup code was used on, as the web names a session ("Safari on iPhone"), with
+ * `on` joining browser and system; null when the user agent said neither. */
+export function deviceName(
+  m: { browser: string | null; os: string | null },
+  on: (browser: string, os: string) => string,
+): string | null {
+  if (m.browser && m.os) return on(m.browser, m.os);
+  return m.browser ?? m.os ?? null;
+}
+
 /** A phrase with its first letter capitalised, for the start of a sentence. */
 export const capitalise = (s: string) => s.charAt(0).toLocaleUpperCase() + s.slice(1);

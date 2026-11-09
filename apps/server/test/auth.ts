@@ -1,6 +1,7 @@
 import { createHmac, randomBytes } from 'node:crypto';
 import {
   type AuthDeps,
+  type BackupCodeUsedMail,
   createAuth,
   type MagicLinkMail,
   type SecurityNoticeMail,
@@ -16,6 +17,7 @@ export type TestAuth = ReturnType<typeof createAuth> & {
   mails: MagicLinkMail[];
   resets: MagicLinkMail[];
   notices: SecurityNoticeMail[];
+  backupCodeNotices: BackupCodeUsedMail[];
 };
 
 /** A Better Auth instance on the worker's database, logging in as kept_auth. Instances made in
@@ -24,6 +26,7 @@ export function testAuth(db: TestDb, overrides: Partial<AuthDeps> = {}): TestAut
   const mails: MagicLinkMail[] = [];
   const resets: MagicLinkMail[] = [];
   const notices: SecurityNoticeMail[] = [];
+  const backupCodeNotices: BackupCodeUsedMail[] = [];
   const auth = createAuth({
     pool: db.pools.auth,
     revokeTokensOnClaim: (userId) => revokeTokensOnClaim(db.pools.system, userId),
@@ -37,11 +40,14 @@ export function testAuth(db: TestDb, overrides: Partial<AuthDeps> = {}): TestAut
       sendSecurityNotice: async (mail) => {
         notices.push(mail);
       },
+      sendBackupCodeUsed: async (mail) => {
+        backupCodeNotices.push(mail);
+      },
     },
     ...overrides,
     env: { KEPT_AUTH_SECRET: SECRET, KEPT_PUBLIC_URL: PUBLIC_URL, ...overrides.env },
   });
-  return Object.assign(auth, { mails, resets, notices });
+  return Object.assign(auth, { mails, resets, notices, backupCodeNotices });
 }
 
 /** The `Cookie` header a browser would send back after these `Set-Cookie` headers. Cookies
