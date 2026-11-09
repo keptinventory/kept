@@ -8,10 +8,12 @@ import {
   capFactsOf,
   capitalise,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   tokens,
@@ -320,6 +322,26 @@ export const FR: CoreTable = {
     footnote: 'Si ce n’était pas vous, vous n’avez rien à faire.',
   }),
   'security-notice': (m, ctx) => FR_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('fr', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} sur ${os}`);
+    return {
+      subject: 'Un code de secours a été utilisé pour se connecter à votre compte Kept',
+      paragraphs: [
+        device
+          ? `Un code de secours a été utilisé pour se connecter à votre compte Kept le ${when}, depuis ${device}.`
+          : `Un code de secours a été utilisé pour se connecter à votre compte Kept le ${when}.`,
+        m.left === 0
+          ? 'C’était votre dernier code de secours. Créez-en de nouveaux dans Paramètres → Connexion et sécurité → Nouveaux codes de secours.'
+          : m.left === 1
+            ? 'Il vous reste 1 code de secours.'
+            : `Il vous reste ${m.left} codes de secours.`,
+        'Si vous l’avez utilisé parce que vous n’avez plus votre application d’authentification, configurez à nouveau la double authentification avec une nouvelle application dans Paramètres → Connexion et sécurité → Configurer à nouveau. Vous obtiendrez aussi de nouveaux codes de secours.',
+      ],
+      footnote:
+        'Si vous n’êtes pas à l’origine de cette connexion, réinitialisez dès maintenant votre mot de passe depuis la page de connexion. Créez ensuite de nouveaux codes de secours dans Paramètres → Connexion et sécurité → Nouveaux codes de secours (les anciens ne fonctionneront plus), puis déconnectez vos autres appareils dans Paramètres → Sessions et appareils → Se déconnecter de tous les autres appareils.',
+    };
+  },
   'admin-action': (m) => ({
     ...FR_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'Ceci est une notification automatique concernant votre compte.',

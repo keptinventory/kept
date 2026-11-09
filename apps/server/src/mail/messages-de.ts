@@ -8,10 +8,12 @@ import {
   capFactsOf,
   capitalise,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   tokens,
@@ -310,6 +312,26 @@ export const DE: CoreTable = {
     footnote: 'Falls du es nicht warst, musst du nichts tun.',
   }),
   'security-notice': (m, ctx) => DE_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('de', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} auf ${os}`);
+    return {
+      subject: 'Ein Backup-Code wurde zur Anmeldung bei deinem Kept-Konto verwendet',
+      paragraphs: [
+        device
+          ? `Am ${when} wurde ein Backup-Code zur Anmeldung bei deinem Kept-Konto verwendet (${device}).`
+          : `Am ${when} wurde ein Backup-Code zur Anmeldung bei deinem Kept-Konto verwendet.`,
+        m.left === 0
+          ? 'Das war dein letzter Backup-Code. Erstelle neue unter Einstellungen → Anmeldung und Sicherheit → Neue Backup-Codes.'
+          : m.left === 1
+            ? 'Du hast noch 1 Backup-Code.'
+            : `Du hast noch ${m.left} Backup-Codes.`,
+        'Falls du ihn verwendet hast, weil deine Authenticator-App weg ist, richte die Zwei-Faktor-Authentifizierung mit einer neuen App neu ein: Einstellungen → Anmeldung und Sicherheit → Neu einrichten. Dabei bekommst du auch neue Backup-Codes.',
+      ],
+      footnote:
+        'Falls du das nicht warst, setze dein Passwort jetzt über die Anmeldeseite zurück. Erstelle danach neue Backup-Codes unter Einstellungen → Anmeldung und Sicherheit → Neue Backup-Codes (die alten funktionieren dann nicht mehr), und melde alle anderen Geräte ab unter Einstellungen → Sitzungen und Geräte → Von allen anderen Geräten abmelden.',
+    };
+  },
   'admin-action': (m) => ({
     ...DE_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'Dies ist eine automatische Benachrichtigung zu deinem Konto.',
