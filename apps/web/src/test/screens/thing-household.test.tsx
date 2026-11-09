@@ -268,9 +268,7 @@ describe('the custody trail (#374)', () => {
     await waitFor(() =>
       expect(
         within(trail.closest('section') as HTMLElement).getAllByRole('listitem')[0],
-      ).toHaveTextContent(
-        /Came back damaged, came back poor, taken back by Bruce, Cracked casing/,
-      ),
+      ).toHaveTextContent(/Came back damaged, came back poor, taken back by Bruce, Cracked casing/),
     );
   });
 });
