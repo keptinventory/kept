@@ -17,6 +17,7 @@ import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { mainAddressElsewhere, publicOrigin, underIngress } from '@/lib/base-path';
 import { leave } from '@/lib/leave';
+import { safeNext } from '@/lib/next';
 
 /** The configured provider's name, or null when OIDC is off (or the server predates it). */
 export function useOidcName(): string | null {
@@ -38,6 +39,24 @@ export function oidcErrorPath(next?: string, provider?: OutsideProvider): string
   if (provider === GOOGLE_PROVIDER_ID) q.set('via', GOOGLE_PROVIDER_ID);
   const s = q.toString();
   return s ? `/signin?${s}` : '/signin';
+}
+
+/**
+ * Where an outside sign-in starts on Kept's own address, from a page on another one (an extra
+ * address, D275, or Home Assistant ingress, D273), keeping where the person was going (#459): an
+ * invite's page with its token, or sign-in with `next`. An invite's token stays in the fragment,
+ * which the browser never sends to a server; `next` goes as a query value, never as part of the
+ * path, so the address can only be `origin`'s.
+ */
+export function signInThere(origin: string, next?: string, inviteToken?: string): string {
+  if (inviteToken) return `${origin}/invite#${encodeURIComponent(inviteToken)}`;
+  const path = safeNext(next);
+  if (!path) return `${origin}/signin`;
+  // An invite carried through sign-in ("I have an account: sign in"): its own page, which offers
+  // the same sign-in, so the token never goes into a query.
+  const invite = /^\/invite#([A-Za-z0-9_-]+)$/.exec(path);
+  if (invite?.[1]) return `${origin}/invite#${invite[1]}`;
+  return `${origin}/signin?next=${encodeURIComponent(path)}`;
 }
 
 export function OidcSignInButton({
@@ -75,9 +94,9 @@ export function OidcSignInButton({
         onPress={() =>
           // Under Home Assistant ingress (D273) the provider returns to Kept's own address, not to
           // Home Assistant, and on an extra address (D275) to the main one: sign in there, in a
-          // tab of its own.
+          // tab of its own, carrying where the person was going and an invite (#459).
           underIngress() || mainAddressElsewhere()
-            ? window.open(`${publicOrigin()}/signin`, '_blank', 'noopener')
+            ? window.open(signInThere(publicOrigin(), next, inviteToken), '_blank', 'noopener')
             : start.mutate()
         }
       >
