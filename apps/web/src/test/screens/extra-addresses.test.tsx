@@ -3,10 +3,10 @@
  * offers a password or an email link and says why not a passkey; the links people copy stay on the
  * main address; what can only happen there says so. With no main address named, nothing changes.
  */
-import { screen, within } from '@testing-library/react';
+import { cleanup, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
-import { ownerScenario, signedOutScenario } from '@/api/mock/fixtures';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { INVITE_TOKEN, ownerScenario, signedOutScenario } from '@/api/mock/fixtures';
 import type { MockApi } from '@/api/mock/server';
 import { paths } from '@/api/paths';
 import type { AdminStatus } from '@/api/types';
@@ -24,6 +24,7 @@ function stubPasskeysSupported() {
 }
 
 afterEach(() => {
+  vi.restoreAllMocks();
   noteMainAddress(undefined);
   Reflect.deleteProperty(window, 'PublicKeyCredential');
 });
@@ -200,5 +201,63 @@ describe('Admin → Status: addresses', () => {
     );
     expect(within(t).getByText('http://kept-ts.lan:8080')).toBeInTheDocument();
     expect(within(t).getByText('http://100.64.0.7')).toBeInTheDocument();
+  });
+});
+
+describe('an outside sign-in from an extra address (#459)', () => {
+  /** `GET /setup` naming the main address, with "Sign in with Home SSO" configured. */
+  const withSso = (mock: MockApi) =>
+    mock.on('GET', paths.setup, () => ({
+      needed: false,
+      mainAddress: MAIN,
+      oidc: { name: 'Home SSO' },
+    }));
+  /** The address the button opened, in a tab of its own. */
+  async function opened(path: string, button: string) {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    const { user, mock } = await renderApp(path, { state: signedOutScenario(), setup: withSso });
+    await user.click(await screen.findByRole('button', { name: button }));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(open.mock.calls[0]?.slice(1)).toEqual(['_blank', 'noopener']);
+    // Nothing starts here: the provider would come back to the main address anyway.
+    expect(mock.lastCall('POST', paths.auth.signInSocial)).toBeFalsy();
+    return String(open.mock.calls[0]?.[0]);
+  }
+
+  it('keeps where the person was going', async () => {
+    const url = await opened('/signin?next=%2Fthings%2Fabc', 'Sign in with Home SSO');
+    expect(url).toBe(`${MAIN}/signin?next=%2Fthings%2Fabc`);
+  });
+
+  it('with nowhere to go, opens sign-in there', async () => {
+    expect(await opened('/signin', 'Sign in with Home SSO')).toBe(`${MAIN}/signin`);
+  });
+
+  it('keeps the invite: its page there, the token still in the fragment', async () => {
+    const url = await opened(`/invite#${INVITE_TOKEN}`, 'Join with Home SSO');
+    expect(url).toBe(`${MAIN}/invite#${INVITE_TOKEN}`);
+  });
+
+  it('an invite carried by sign-in goes to its page too, never into a query', async () => {
+    const url = await opened(
+      `/signin?next=${encodeURIComponent(`/invite#${INVITE_TOKEN}`)}`,
+      'Sign in with Home SSO',
+    );
+    expect(url).toBe(`${MAIN}/invite#${INVITE_TOKEN}`);
+    expect(new URL(url).search).toBe('');
+  });
+
+  it('never leaves the main address, whatever `next` says', async () => {
+    for (const next of [
+      '//evil.example/x',
+      '/\\evil.example',
+      '/\t/evil.example',
+      '/%09/evil.example',
+    ]) {
+      vi.restoreAllMocks();
+      cleanup();
+      const url = await opened(`/signin?next=${encodeURIComponent(next)}`, 'Sign in with Home SSO');
+      expect(new URL(url).origin, next).toBe(MAIN);
+    }
   });
 });
