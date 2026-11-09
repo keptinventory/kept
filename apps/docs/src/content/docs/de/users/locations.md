@@ -145,6 +145,27 @@ Ein Würfeleinsatz oder ein entfernter Regalboden macht zwei oder mehr Fächer z
 - **KI-Apps** können dasselbe: `create_place` nimmt ein `template`, und `update_place` ein `turn`
   ([MCP-Clients](/de/users/mcp-clients/#die-werkzeuge)). Zusammenführen und Aufteilen bleiben in der App.
 
+## Seine Position
+
+Mit der Position eines Standorts wählt **Vorschlagen, wo ich bin** in Erfassen ihn, wenn du dort
+bist ([Kept auf deinem Telefon](/de/users/phone-app/)).
+
+- **Festlegen:** **Standorteinstellungen → Allgemein → Position**, für Eigentümer und Admins.
+  **Meine aktuelle Position verwenden** liest die Position des Telefons einmal (der Browser fragt
+  zuerst) und füllt **Breitengrad** und **Längengrad**; oder tippe sie in Grad ein, etwa 30.0444
+  und 31.2357. Dann **Speichern**. **Position entfernen** löscht sie. Persönlich hat keine: es geht
+  mit dir, wohin du gehst.
+- **Über einfaches HTTP** geben Browser die Position nicht heraus: tippe sie stattdessen ein.
+- **In Karten öffnen** öffnet OpenStreetMap an der gespeicherten Position in einem neuen Tab. Erst
+  dann verlässt die Position Kept.
+- **Wie nah:** Erfassen schlägt einen Standort vor, wenn das Telefon höchstens 150 m von seiner
+  Position entfernt ist, bei zweien den näheren. 150 m decken ein Haus mit Garten und die übliche
+  Ungenauigkeit eines Telefons im Haus ab und unterscheiden trotzdem zwei Straßen.
+- **Wer sie sieht:** Eigentümer und Admins auf dieser Seite, und für den Vorschlag die Telefone
+  derer, die dort Dinge hinzufügen. Betrachter und geteilte Links bekommen sie nie. Der Verlauf sagt,
+  dass sich die Position geändert hat, wer sie geändert hat und wann, nie wo. Ein Export des
+  Standorts enthält sie, und der Import dieses Exports bringt sie zurück.
+
 ## Persönlich ausblenden
 
 Jeder bekommt einen **Persönlich**-Standort. Wenn du ihn nicht brauchst, schalte **Persönlich ausblenden** in

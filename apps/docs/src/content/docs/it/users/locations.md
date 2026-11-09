@@ -62,6 +62,26 @@ Un inserto a cubi o un ripiano rimosso rende un unico vano da due o più vani.
 - **I tuoi modelli:** **Impostazioni → Account → Modelli → Mobili** ha i modelli di posto dell'account: cubi in orizzontale e in verticale (in piedi), ripiani o cassetti, i tipi, i nomi e il modello di codice, condivisi con i luoghi che scegli. Proprietari e amministratori li creano; chiunque possa aggiungere posti li usa.
 - Le app AI possono fare lo stesso: `create_place` prende un `template`, e `update_place` un `turn` ([client MCP](/it/users/mcp-clients/#gli-strumenti)). Unire e dividere restano nell'app.
 
+## La sua posizione
+
+La posizione di un luogo permette a **Suggerisci dove sono** di **Acquisisci** di sceglierlo quando
+sei lì ([Kept sul tuo telefono](/it/users/phone-app/)).
+
+- **Impostarla:** **Impostazioni del luogo → Generali → Posizione**, per proprietari e
+  amministratori. **Usa dove sono ora** legge una volta la posizione del telefono (prima il browser
+  chiede) e riempie **Latitudine** e **Longitudine**; oppure scrivile in gradi, per esempio 30.0444 e
+  31.2357. Poi **Salva**. **Rimuovi posizione** la cancella. Personale non ne ha: ti segue ovunque.
+- **Su HTTP semplice** i browser rifiutano di dare la posizione: scrivila a mano.
+- **Apri nelle mappe** apre OpenStreetMap alla posizione salvata, in una nuova scheda. Solo allora la
+  posizione esce da Kept.
+- **Quanto vicino:** Acquisisci suggerisce un luogo quando il telefono è entro 150 m dalla sua
+  posizione, il più vicino se sono due. 150 m coprono una casa con il giardino più il solito errore
+  di un telefono al chiuso, e distinguono comunque due strade.
+- **Chi la vede:** proprietari e amministratori, in questa pagina; e i telefoni di chi aggiunge cose
+  lì, per il suggerimento. I visualizzatori e i link condivisi non la ricevono mai. La
+  cronologia dice che la posizione è cambiata, chi l’ha cambiata e quando, mai dove. Un’esportazione
+  del luogo la contiene, e importarla la riporta.
+
 ## Nascondi Personale
 
 Ognuno ha un luogo **Personale**. Se non ti serve, attiva **Nascondi Personale** in **Impostazioni → Profilo → I tuoi luoghi**, e disattivalo per mostrarlo di nuovo in qualsiasi momento. È una tua preferenza: nessun altro vede un cambiamento.

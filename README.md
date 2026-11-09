@@ -113,7 +113,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   condition reports, an insurance report and insights.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
-  Ollama) suggests the details and you confirm them. Without one, you type them.
+  Ollama) suggests the details and you confirm them. Without one, you type them. Give a location
+  its position and Capture suggests it when you are there.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
