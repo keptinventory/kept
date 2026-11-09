@@ -127,7 +127,6 @@ describe('looksLikeBox', () => {
     'Коробка 2',
     'Контейнер для іграшок',
     'Кошик',
-    'Ящик 4',
     'Hộp 01',
     'Thùng đồ',
     'Giỏ đồ chơi',
@@ -151,6 +150,12 @@ describe('looksLikeBox', () => {
     'Estante',
     'Baño',
     'Шухляда 2', // a drawer
+    'Ящик 4', // a box, and as often a drawer (#474)
+    'Ящики столу',
+    'Скринька', // a casket, or a letterbox
+    'Поштова скринька',
+    'Caja registradora', // a till (#474)
+    'Cajas registradoras',
     'Кухня',
     'Гараж',
     'Полиця',

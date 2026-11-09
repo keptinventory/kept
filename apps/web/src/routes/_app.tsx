@@ -15,6 +15,7 @@ import { AccountDeletionPending } from '@/components/delete-account';
 import { AppLockGate } from '@/components/device/app-lock';
 import { OriginMismatchBanner } from '@/components/origin-mismatch';
 import { ErrorState, Skeleton } from '@/components/page';
+import { useSendChosenLocale } from '@/lib/account-locale';
 import { signedInGate } from '@/lib/signed-in-gate';
 import { cn } from '@/lib/utils';
 import { InsecureBanner } from '@/pwa/insecure-banner';
@@ -62,6 +63,9 @@ function SignedInFrame() {
     ...(inbox > 0 ? { inbox } : {}),
     ...(notifications > 0 ? { notifications } : {}),
   };
+
+  // A language picked on this device before it reached the account (#474).
+  useSendChosenLocale(me.data && !leaving && !TRY ? me.data.profile.locale : undefined);
 
   // The session ended while the app was open.
   useEffect(() => {

@@ -123,11 +123,16 @@ nimmt höchstens 20 davon auf.
 - **Sprache**: العربية, Deutsch, English, Español, Français, Italiano, Українська oder Tiếng Việt.
   Öffne die Liste oder tippe, um eine zu finden: ihren eigenen Namen, ihren Namen auf Englisch oder in der Sprache, die du
   verwendest, und kleine Tippfehler sind in Ordnung (`german`, `deutsch` und `francais` funktionieren alle). Arabisch legt die ganze App von rechts
-  nach links aus. Die Anmeldeseiten haben denselben Auswähler. E-Mails und Erinnerungen folgen der Sprache, die du zuletzt gewählt hast.
+  nach links aus. Die Anmeldeseiten haben denselben Auswähler. Bis du eine wählst, folgt Kept der Sprache des Browsers. E-Mails und Erinnerungen folgen der Sprache, die du zuletzt gewählt hast.
 - **Ziffern auf Arabisch**: Westlich (0123) oder Östlich (٠١٢٣), nur angezeigt, während die Sprache Arabisch ist.
   Kurze IDs und Seriennummern bleiben immer bei westlichen Ziffern.
 - **Region**: **Vereinigte Staaten** (Oct 29) oder **Vereinigtes Königreich** (29 Oct, 29/10/2026), nur angezeigt, während die Sprache
   Englisch ist.
+  Spanisch folgt bei Zahlen und Datumsangaben der Region des Browsers: Ein auf Mexiko eingestellter
+  Browser schreibt `1,234,567.5`, einer auf Spanien `1.234.567,5`.
+- **Beträge** werden so gelesen, wie deine Sprache sie schreibt. Wo das Komma das Dezimalzeichen ist,
+  wie im Deutschen, ist `1.234` eintausendzweihundertvierunddreißig und `12,50` zwölfeinhalb. Ein
+  Betrag, der sich auf zwei Arten lesen lässt, etwa `0.125`, wird abgelehnt statt geraten.
 - **Datumsformat**: **Standard** (29 Oct, mit dem Jahr nur für andere Jahre), 29 Oct 2026,
   29/10/2026 oder 2026-10-29 (so, wie das Vereinigte Königreich sie schreibt). Jede Wahl zeigt das heutige Datum
   auf diese Weise, in deiner Region. Kauf- und

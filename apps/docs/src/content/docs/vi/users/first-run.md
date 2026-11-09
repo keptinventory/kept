@@ -106,10 +106,15 @@ chứa tối đa 20 tài khoản như vậy.
 **Cài đặt → Tôi → Hiển thị** chứa các lựa chọn hiển thị của thiết bị, được áp dụng trước khi trang vẽ:
 
 - **Ngôn ngữ**: العربية, Deutsch, English, Español, Français, Italiano, Українська hoặc Tiếng Việt.
-  Mở danh sách, hoặc gõ để tìm: tên của chính nó, tên tiếng Anh hoặc tên trong ngôn ngữ bạn đang dùng, và lỗi đánh máy nhỏ không sao (`german`, `deutsch` và `francais` đều được). Tiếng Ả Rập bố cục toàn bộ ứng dụng từ phải sang trái. Trang đăng nhập có bộ chọn giống hệt. Email và lời nhắc theo ngôn ngữ bạn chọn gần đây nhất.
+  Mở danh sách, hoặc gõ để tìm: tên của chính nó, tên tiếng Anh hoặc tên trong ngôn ngữ bạn đang dùng, và lỗi đánh máy nhỏ không sao (`german`, `deutsch` và `francais` đều được). Tiếng Ả Rập bố cục toàn bộ ứng dụng từ phải sang trái. Trang đăng nhập có bộ chọn giống hệt. Cho đến khi bạn chọn, Kept theo ngôn ngữ của trình duyệt. Email và lời nhắc theo ngôn ngữ bạn chọn gần đây nhất.
 - **Chữ số trong tiếng Ả Rập**: Phương Tây (0123) hoặc Phương Đông (٠١٢٣), chỉ hiện khi ngôn ngữ là Ả Rập.
   ID ngắn và số seri luôn ở chữ số Phương Tây.
 - **Vùng**: **Hoa Kỳ** (Oct 29) hoặc **Vương quốc Anh** (29 Oct, 29/10/2026), chỉ hiện khi ngôn ngữ là Anh.
+  Với tiếng Tây Ban Nha, số và ngày theo vùng của trình duyệt: trình duyệt đặt vùng Mexico viết
+  `1,234,567.5`, còn vùng Tây Ban Nha viết `1.234.567,5`.
+- **Số tiền** được đọc theo cách ngôn ngữ của bạn viết. Ở nơi dấu phẩy là dấu thập phân, như tiếng
+  Việt, `1.234` là một nghìn hai trăm ba mươi tư và `12,50` là mười hai rưỡi. Số tiền có thể đọc theo
+  hai cách, như `0.125`, sẽ bị từ chối thay vì đoán.
 - **Định dạng ngày**: **Mặc định** (29 Oct, có năm chỉ cho năm khác), 29 Oct 2026,
   29/10/2026 hoặc 2026-10-29 (theo cách Vương quốc Anh viết). Mỗi lựa chọn hiển thị hôm nay viết theo cách đó, trong vùng của bạn. Ngày mua và
   bảo hành luôn hiển thị năm.

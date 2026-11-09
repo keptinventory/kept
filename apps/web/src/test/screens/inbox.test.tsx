@@ -187,7 +187,7 @@ describe('the inbox', () => {
     Object.assign(ace, { currency: code, total });
     await queryClient.invalidateQueries();
     await waitFor(() => expect(picker).toHaveValue(code));
-    expect(within(receipt).getByRole('textbox', { name: 'Total' })).toHaveValue(total);
+    expect(within(receipt).getByRole('textbox', { name: 'Total' })).toHaveValue('5800');
     expect(within(receipt).queryByText('Choose the currency.')).toBeNull();
   });
 

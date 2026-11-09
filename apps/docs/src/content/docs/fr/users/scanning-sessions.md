@@ -9,7 +9,7 @@ plusieurs à la fois, et comptée une fois. Utilisez-la pour :
 - **Compter** une pièce, une étagère, une boîte ou un lieu entier : ce que vous scannez est marqué comme vu, et le
   résumé indique ce qui manque et ce qui s'est retrouvé ailleurs.
 - **Remplir** des boîtes : tout ce que vous scannez va dans la boîte actuelle. Scannez la boîte suivante pour changer.
-- **Déplacer vers** un lieu ou une boîte : tout ce que vous scannez y est déplacé.
+- **Déplacer vers** un emplacement ou une boîte : tout ce que vous scannez y est déplacé.
 
 Une session prend en charge jusqu'à 5 000 étiquettes et fonctionne sans signal une fois que le téléphone a ouvert une session
 en ligne : l'écran est récupéré la première fois qu'il est utilisé, puis conservé sur le téléphone.
@@ -20,14 +20,14 @@ depuis **Scanner** une à la fois, par son court ID imprimé ([Scanner un code s
 ## Démarrer une session
 
 - **Scanner → Démarrer une session**, puis choisissez quoi faire et où.
-- Depuis la page d'un lieu : **Compter ici**.
+- Depuis la page d'un emplacement : **Compter ici**.
 - Depuis le menu d'une boîte : **Compter cette boîte** ou **Remplir cette boîte**.
 - Depuis la page d'un déplacement : **Remplir les boîtes**.
 - Depuis la carte d'une pièce sur la carte : **Compter cette pièce**.
 
 Là où ce n'est pas encore choisi, choisissez-le dans la liste ou touchez **Scanner son étiquette**.
 
-Pour le comptage d'un lieu, **Inclure les lieux qu'il contient** est activé par défaut. Activez **Une boîte que vous
+Pour le comptage d'un emplacement, **Inclure les emplacements qu'il contient** est activé par défaut. Activez **Une boîte que vous
 scannez compte ce qu'elle contient** quand vous comptez des boîtes sans les ouvrir.
 
 ## Pendant que vous scannez
@@ -36,10 +36,10 @@ scannez compte ce qu'elle contient** quand vous comptez des boîtes sans les ouv
 |---|---|---|
 | Un objet de la liste | Trouvé, vert, le compteur monte | Ajouté, vert |
 | La même étiquette à nouveau | Un léger bip, pas de comptage | Idem |
-| Un objet d'un autre lieu ici | Ambre : **Trouvés ailleurs**, avec l'endroit où il devrait être | Ajouté |
+| Un objet d'un autre emplacement ici | Ambre : **Trouvés ailleurs**, avec l'endroit où il devrait être | Ajouté |
 | Un objet d'un autre lieu | Ambre, avec le lieu | Ajouté si vous pouvez modifier les deux |
 | Un objet dans un lieu que vous ne faites que consulter | Gris : **Lecture seule ici** | Gris, non ajouté |
-| L'étiquette d'un lieu | Kept suggère de le compter depuis sa propre page | Refusé : une pièce ne peut pas être déplacée |
+| L'étiquette d'un emplacement | Kept suggère de le compter depuis sa propre page | Refusé : une pièce ne peut pas être déplacée |
 | Une étiquette vierge, ou un code sur plusieurs objets | Kept pour le résumé | Idem |
 | Un code-barres produit | Apparié à l'objet qui le porte | Idem |
 | Un numéro de série ou une étiquette d'inventaire (Data Matrix, Code 39…) | Apparié à l'objet qui le possède, en ligne | Idem |
@@ -50,7 +50,7 @@ l'étiquette : vert pour une nouvelle trouvaille, ambre pour ailleurs, gris pour
 
 - **Annuler la dernière lecture** revient en arrière sur la dernière.
 - **Pause** arrête l'appareil photo. Une minute sans lecture le met aussi en pause.
-- **Destination** (Remplir, Déplacer vers) : touchez-le, puis scannez la boîte ou le lieu suivant.
+- **Destination** (Remplir, Déplacer vers) : touchez-le, puis scannez la boîte ou l'emplacement suivant.
 - Les **scanners de codes-barres USB ou Bluetooth** fonctionnent sur le même écran : ce qu'ils saisissent est lu comme une
   étiquette.
 - **Lampe** apparaît sur les téléphones qui en ont une (Android).
@@ -67,10 +67,10 @@ la récupère.
 - **Sans étiquette** : les objets de la liste sans étiquette. Cochez ceux que vous avez vus.
 - **Trouvés ailleurs** et **Dans un autre lieu** : laissés tranquilles, ou **Déplacer ici**.
 - **Non appariés** : étiquettes vierges et codes qui correspondent à plusieurs objets. Chaque étiquette vierge a
-  **Attribuer** : une nouvelle boîte, un objet existant ou un lieu existant. Collez les vierges sur les étagères et les portes,
+  **Attribuer** : une nouvelle boîte, un objet existant ou un emplacement existant. Collez les vierges sur les étagères et les portes,
   scannez-les toutes en une seule marche, puis attribuez-les ici.
 
-Un comptage liste aussi ce qui est prêté ou en réparation (jamais manquant), et ce qui est dans un lieu à l'intérieur qu'aucun
+Un comptage liste aussi ce qui est prêté ou en réparation (jamais manquant), et ce qui est dans un emplacement à l'intérieur qu'aucun
 n'a compté (**Non comptés**, jusqu'à ce que vous touchiez **J'ai vérifié**). Un objet compté en nombre a **−** et **+** sur
 sa ligne. Chaque résultat est conservé : voir [Comptages et inventaires](/fr/users/counts/).
 

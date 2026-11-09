@@ -21,7 +21,7 @@ I nomi qui sotto sono gli interruttori in **Cosa monitorare**.
 
 | Modulo | Da | Cosa aggiunge |
 |---|---|---|
-| **Etichette e codici QR** | Essenziali | Etichette stampabili per oggetti e luoghi; scansionare un'etichetta apre quello su cui è attaccata. |
+| **Etichette e codici QR** | Essenziali | Etichette stampabili per oggetti e posti; scansionare un'etichetta apre quello su cui è attaccata. |
 | **Soldi e spese** | Famiglia | Prezzi, totali e **Statistiche**. Ogni valuta su una riga a parte, mai convertita. |
 | **Ricevute e garanzie** | Famiglia | Date di garanzia; una garanzia in scadenza appare come promemoria. |
 | **Promemoria** | Famiglia | Pianificazioni: cosa è in scadenza, per data o per lettura. |
