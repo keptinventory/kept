@@ -8,6 +8,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
 import { ChevronStartIcon, PlusIcon, XIcon } from '@/components/icons';
 import { CloseOnBack } from '@/components/ui/close-on-back';
+import { useOverlayOnVisibleBox } from '@/lib/visual-viewport';
 import { usePageContext } from './context';
 import { ContextChip } from './context-chip';
 import { Conversation } from './conversation';
@@ -24,6 +25,8 @@ export function AssistantSheet() {
   const page = usePageContext();
   const showChip = page && page.key !== ui.removedContext;
   const threads = ui.view === 'threads';
+  // The composer stays above a phone's on-screen keyboard (#487).
+  const overlayStyle = useOverlayOnVisibleBox(true);
   return (
     <ModalOverlay
       isOpen
@@ -32,8 +35,9 @@ export function AssistantSheet() {
         if (!open) closeAssistant();
       }}
       className="fixed inset-0 z-50 flex items-end bg-black/35"
+      {...(overlayStyle ? { style: overlayStyle } : {})}
     >
-      <Modal className="flex h-[90dvh] w-full flex-col rounded-t-2xl border border-line bg-surface text-ink shadow-[0_-10px_30px_rgba(0,0,0,.18)] outline-none">
+      <Modal className="flex h-[calc(var(--sheet-vh,100dvh)*0.9)] w-full flex-col rounded-t-2xl border border-line bg-surface text-ink shadow-[0_-10px_30px_rgba(0,0,0,.18)] outline-none">
         <CloseOnBack />
         <Dialog aria-label={t`Assistant`} className="flex min-h-0 flex-1 flex-col outline-none">
           <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line" />

@@ -26,6 +26,7 @@ import { pickUp } from '@/components/tray/use-tray';
 import { toastQueue } from '@/components/ui/toast';
 import { MemoryStore } from '@/offline/store';
 import { expectLogicalOnly, renderUI } from '@/test/render';
+import { fakeVisualViewport, overlayOf } from '@/test/visual-viewport';
 import { ScanScreen, type ScanScreenProps } from './scan-screen';
 
 const feed = vi.hoisted(() => ({ current: null as ((found: Detected[]) => void) | null }));
@@ -773,6 +774,21 @@ describe('"Type the code"', () => {
     );
   });
 
+  it('stays above the on-screen keyboard (#487)', async () => {
+    const phoneView = fakeVisualViewport(844);
+    try {
+      const { user } = await renderScan();
+      await user.click(await screen.findByRole('button', { name: 'Type the code' }));
+      const overlay = overlayOf(await screen.findByRole('dialog', { name: 'Type the code' }));
+      expect(overlay.style.height).toBe('844px');
+      phoneView.keyboard(430);
+      expect(overlay.style.height).toBe('430px');
+      expect(overlay.style.top).toBe('0px');
+    } finally {
+      phoneView.restore();
+    }
+  });
+
   it('says what a code looks like when it is not one', async () => {
     const { user } = await renderScan();
     await user.click(await screen.findByRole('button', { name: 'Type the code' }));
@@ -789,6 +805,21 @@ describe('"Type the code"', () => {
     await renderScan({ camera: { secure: false, media: null } });
     expect(await screen.findByText("Kept can't scan here")).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Type the code' })).toBeInTheDocument();
+  });
+
+  it('steps back when Try again brings the camera back (#486)', async () => {
+    const getUserMedia = vi
+      .fn()
+      .mockRejectedValueOnce(new DOMException('Could not start video source', 'NotReadableError'))
+      .mockResolvedValue({ getTracks: () => [] });
+    const { user } = await renderScan({ camera: { secure: true, media: { getUserMedia } } });
+    expect(await screen.findByText("Kept can't scan here")).toBeInTheDocument();
+    expect(screen.queryByText("Point at a Kept label, or a product's barcode.")).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(
+      await screen.findByText("Point at a Kept label, or a product's barcode."),
+    ).toBeInTheDocument();
+    expect(getUserMedia).toHaveBeenCalledTimes(2);
   });
 });
 

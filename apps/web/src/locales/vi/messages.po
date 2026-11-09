@@ -5839,8 +5839,8 @@ msgstr "hộp này"
 msgid "This browser can't open the camera here."
 msgstr "Trình duyệt này không mở được camera ở đây."
 
-msgid "This browser can't read codes with the camera."
-msgstr "Trình duyệt này không đọc được mã bằng camera."
+msgid "The scanner didn't start."
+msgstr "Máy quét không khởi động được."
 
 msgid "This browser may clear Kept's offline copy after weeks unused. Open Kept to sync soon."
 msgstr "Trình duyệt này có thể xóa bản sao ngoại tuyến của Kept sau vài tuần không dùng. Hãy mở Kept để đồng bộ sớm."

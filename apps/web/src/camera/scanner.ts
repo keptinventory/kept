@@ -138,7 +138,11 @@ const unsupported = (e: unknown) =>
 /**
  * A `Detect` that picks its decoder on the first call: the native one when it reads every
  * format, else the wasm. A decoder that can't start, or refuses as unsupported, throws
- * `ScannerUnavailable` from then on.
+ * `ScannerUnavailable` for that call and is forgotten, so the next call picks again (#486): one
+ * failed start used to last until the app was closed. A native detector whose service went away
+ * refuses every frame as `NotSupportedError`; a new one is made on the next start. The scan loop
+ * stops on the first `ScannerUnavailable`, so a decoder that really can't run isn't retried on
+ * every frame.
  */
 export function createDetect({
   native = nativeScanner,
@@ -148,23 +152,31 @@ export function createDetect({
   wasm?: () => Promise<Detect>;
 } = {}): Detect {
   let chosen: Promise<Detect> | null = null;
+  const forget = (which: Promise<Detect>) => {
+    if (chosen === which) chosen = null;
+  };
   const pick = () => {
-    chosen ??= (async () => {
+    if (chosen) return chosen;
+    const attempt = (async () => {
       try {
         return (await native()) ?? (await wasm());
       } catch (e) {
         throw new ScannerUnavailable(e);
       }
     })();
-    return chosen;
+    chosen = attempt;
+    attempt.catch(() => forget(attempt));
+    return attempt;
   };
   return async (source) => {
-    const detect = await pick();
+    const current = pick();
+    const detect = await current;
     try {
       return await detect(source);
     } catch (e) {
-      if (unsupported(e)) throw new ScannerUnavailable(e);
-      throw e;
+      if (!unsupported(e)) throw e;
+      forget(current);
+      throw new ScannerUnavailable(e);
     }
   };
 }

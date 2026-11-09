@@ -301,6 +301,7 @@ export function ScanScreen({
           paused={paused}
           onRead={(r) => void handle(r)}
           onProblem={() => setCantScan(true)}
+          onRetry={() => setCantScan(false)}
           {...(camera ? { camera } : {})}
         />
         {busy ? (

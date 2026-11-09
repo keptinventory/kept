@@ -12,7 +12,7 @@
  * and the page behind is inert. The close button sits at the inline end.
  */
 import { useLingui } from '@lingui/react/macro';
-import type { ComponentProps, ReactNode } from 'react';
+import { type ComponentProps, type ReactNode, useContext } from 'react';
 import {
   Button as ButtonPrimitive,
   Dialog as DialogPrimitive,
@@ -22,10 +22,12 @@ import {
   ModalOverlay,
   type ModalOverlayProps,
   Modal as ModalPrimitive,
+  OverlayTriggerStateContext,
 } from 'react-aria-components';
 import { XIcon } from '@/components/icons';
 import { CloseOnBack } from '@/components/ui/close-on-back';
 import { cn } from '@/lib/utils';
+import { useOverlayOnVisibleBox } from '@/lib/visual-viewport';
 
 export { DialogTrigger };
 
@@ -43,6 +45,9 @@ export function Modal({
   isDismissable = true,
   ...props
 }: ModalProps) {
+  // Above a phone's on-screen keyboard (#487). Open by its own state, or by a DialogTrigger's.
+  const trigger = useContext(OverlayTriggerStateContext);
+  const overlayStyle = useOverlayOnVisibleBox(props.isOpen ?? trigger?.isOpen ?? false);
   return (
     <ModalOverlay
       data-slot="modal-overlay"
@@ -51,6 +56,7 @@ export function Modal({
         'fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/35 p-4',
         overlayClassName,
       )}
+      {...(overlayStyle ? { style: overlayStyle } : {})}
       {...props}
     >
       <ModalPrimitive

@@ -8400,8 +8400,8 @@ msgid "This browser can't open the camera here."
 msgstr "Ce navigateur ne peut pas ouvrir la caméra ici."
 
 #: src/components/scan/scanner-view.tsx
-msgid "This browser can't read codes with the camera."
-msgstr "Ce navigateur ne peut pas lire les codes avec la caméra."
+msgid "The scanner didn't start."
+msgstr "Le scanner n'a pas démarré."
 
 #: src/components/sync-status.tsx
 msgid "This browser may clear Kept's offline copy after weeks unused. Open Kept to sync soon."

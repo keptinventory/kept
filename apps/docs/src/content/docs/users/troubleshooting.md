@@ -109,6 +109,9 @@ code ([Short IDs and labels](/users/short-ids/)). A label on narrow label-maker 
 hold **Scan** on its printed short ID, or type it
 ([scanning a code with no QR code](/users/short-ids/#scanning-a-code-with-no-qr-code)).
 
+If **Scan** says **Kept can't scan here** because the scanner didn't start, tap **Try again**: the
+camera and the scanner start afresh, with no need to close the app.
+
 ## AI
 
 ### "Waiting for an AI provider"
