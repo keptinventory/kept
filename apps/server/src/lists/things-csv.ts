@@ -2,7 +2,7 @@ import { CSV_BOM, CSV_EOL, type CsvValue, canonicalAmount, csvLine } from '@kept
 import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
 import { typeNameOf } from '../reports/gather.js';
-import { type ReportLocale, wordsFor } from '../reports/labels.js';
+import { type ReportLocale, reportLocaleOf, wordsFor } from '../reports/labels.js';
 import { gateFor } from '../serialize/gates.js';
 import { type ThingListFilter, thingListOrder, thingListWhere } from '../things/service.js';
 import type { ListQuery } from '../things/validate.js';
@@ -80,7 +80,7 @@ async function localeOf(client: pg.ClientBase): Promise<ReportLocale> {
   const { rows } = await client.query<{ locale: string | null }>(
     'SELECT locale FROM public.user_profiles WHERE user_id = kept.current_user_id()',
   );
-  return rows[0]?.locale?.startsWith('ar') ? 'ar' : 'en';
+  return reportLocaleOf(rows[0]?.locale);
 }
 
 async function readRows(

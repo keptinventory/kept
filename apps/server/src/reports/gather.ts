@@ -1,4 +1,4 @@
-import { builtinType, type Digits } from '@kept/shared';
+import { builtinTypeName, type Digits } from '@kept/shared';
 import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
 import { gateFor } from '../serialize/gates.js';
@@ -133,8 +133,7 @@ export function typeNameOf(
   locale: ReportLocale,
 ): string | null {
   if (name) return name;
-  const builtin = builtinKey ? builtinType(builtinKey) : undefined;
-  return builtin ? builtin.names[locale] : null;
+  return builtinKey ? (builtinTypeName(builtinKey, locale) ?? null) : null;
 }
 
 /** One page of a paged read (readThingsPage): the things after `after` (by id), at most `limit`. */

@@ -86,7 +86,7 @@
           if t.status != "" { h(2mm); text(size: 7.5pt, font: W(500), fill: c.danger, t.status) }
           let what = (t.brand, t.model).filter(x => x != "")
           if what.len() > 0 { linebreak(); text(size: 7.8pt, fill: c.ink2, what.join(d.sep)) }
-          if t.serial != "" { linebreak(); text(size: 7.5pt, fill: c.ink2, L.serial + ": ") + text(font: mono, size: 7.5pt, fill: c.ink3, dir: ltr, t.serial) }
+          if t.serial != "" { linebreak(); text(size: 7.5pt, fill: c.ink2, L.serial + d.colon) + text(font: mono, size: 7.5pt, fill: c.ink3, dir: ltr, t.serial) }
         },
         { text(size: 8pt, t.purchasedOn); if t.price != "" { linebreak(); text(size: 8.5pt, font: W(500), t.price) } },
         align(end, { text(size: 8.5pt, font: W(600), t.value); if t.valuedOn != "" { linebreak(); text(size: 7pt, fill: c.ink3, t.valuedOn) } }),

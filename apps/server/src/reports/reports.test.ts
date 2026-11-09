@@ -21,7 +21,7 @@ import { purgeExpiredReports, RATE_LIMIT } from './service.js';
 // Ann owns Home and Garage (Household: money on). In Home, Bob is a member and Vic a viewer
 // (viewers don't see money there). Nobody but Ann sees the Garage. Eve shares nothing with them.
 //
-// KEPT_REPORT_OUT=<dir> also writes the English and Arabic PDFs there, for a look by eye.
+// KEPT_REPORT_OUT=<dir> also writes the PDFs there, for a look by eye.
 
 let db: TestDb;
 let t: TestApp;
@@ -301,7 +301,7 @@ describe('POST /api/v1/reports/inventory', () => {
 
   it('refuses a malformed body', async () => {
     expect((await request(ann, { scope: {} })).statusCode).toBe(400);
-    expect((await request(ann, { scope: { locationId: home.id }, locale: 'fr' })).statusCode).toBe(
+    expect((await request(ann, { scope: { locationId: home.id }, locale: 'pt' })).statusCode).toBe(
       400,
     );
     expect(
@@ -455,6 +455,24 @@ describe('the report job and GET /api/v1/reports/:id', () => {
     expect(text).toMatch(/[٠-٩]/);
     expect((text.match(/[؀-ۿ]/g) ?? []).length).toBeGreaterThan(100);
     expect(pdfPages(pdf)).toBeGreaterThanOrEqual(3);
+  });
+
+  it('renders a Vietnamese reader’s report in Vietnamese, and an Italian one in Italian (#465)', async () => {
+    const vi = await report(ann, { scope: { locationId: home.id }, locale: 'vi' });
+    await out('report-vi.pdf', vi.pdf);
+    const it_ = await report(ann, { scope: { locationId: home.id }, locale: 'it' });
+    await out('report-it.pdf', it_.pdf);
+    if (!hasPoppler) return;
+    const viText = pdfText(vi.pdf);
+    for (const s of ['Báo cáo kiểm kê', 'Mục lục', 'Số sê-ri: SN-TV-0001', tvCode]) {
+      expect(viText, s).toContain(s);
+    }
+    const itText = pdfText(it_.pdf).replace(/\u00a0/g, ' ');
+    for (const s of ['Report dell’inventario', 'Indice', 'Numero di serie: SN-TV-0001']) {
+      expect(itText, s).toContain(s);
+    }
+    expect(itText).toContain('1.250,50 EGP');
+    expect(itText).not.toContain('Inventory report');
   });
 
   it('includes ended and trashed things only when asked', async () => {

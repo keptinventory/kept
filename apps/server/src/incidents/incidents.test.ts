@@ -607,7 +607,7 @@ describe('the insurance report', () => {
     expect((text.match(/[؀-ۿ]/g) ?? []).length).toBeGreaterThan(100);
   });
 
-  it('takes a Ukrainian reader’s report, and writes it in English', async () => {
+  it('takes a Ukrainian reader’s report, and writes it in Ukrainian (#465)', async () => {
     const res = await call(t, '/api/v1/reports/insurance', {
       as: ibrahim,
       body: { scope: { locationId: home.id }, locale: 'uk' },
@@ -618,10 +618,10 @@ describe('the insurance report', () => {
       'SELECT options FROM public.report_runs WHERE id = $1',
       [body.id],
     );
-    expect(row?.options.locale).toBe('en');
+    expect(row?.options.locale).toBe('uk');
   });
 
-  it('takes a Spanish reader’s report, and writes it in English', async () => {
+  it('takes a Spanish reader’s report, and writes it in Spanish (#465)', async () => {
     const res = await call(t, '/api/v1/reports/insurance', {
       as: ibrahim,
       body: { scope: { locationId: home.id }, locale: 'es' },
@@ -632,8 +632,26 @@ describe('the insurance report', () => {
       'SELECT options FROM public.report_runs WHERE id = $1',
       [body.id],
     );
-    expect(row?.options.locale).toBe('en');
+    expect(row?.options.locale).toBe('es');
   });
+
+  it.skipIf(!hasPoppler)(
+    'writes a German reader’s report in German, numbers and dates too (#465)',
+    async () => {
+      const { pdf } = await insurance(ibrahim, {
+        scope: { locationId: home.id },
+        asOf: '2026-09-30',
+        locale: 'de',
+      });
+      const text = pdfText(pdf).replace(/\u00a0/g, ' ');
+      for (const s of ['Versicherungsbericht', 'Stand: 30.09.2026', 'Eigentümer: Ibrahim']) {
+        expect(text, s).toContain(s);
+      }
+      expect(text).toContain('Seriennummer: SN-TV-0001');
+      expect(text).toContain('38.000,00 EGP');
+      expect(text).not.toContain('Insurance report');
+    },
+  );
 
   it('is refused to a viewer who cannot see money, and to a member for an incident', async () => {
     const viewer = await call(t, '/api/v1/reports/insurance', {
@@ -744,24 +762,24 @@ describe('claim packs', () => {
     expect(member.statusCode).toBe(403);
   });
 
-  it('takes a Ukrainian reader’s pack, its report in English', async () => {
+  it('takes a Ukrainian reader’s pack, its report in Ukrainian (#465)', async () => {
     sent.length = 0;
     const res = await call(t, '/api/v1/claim-packs', {
       as: ibrahim,
       body: { scope: { locationId: home.id, thingIds: [tv] }, locale: 'uk', acknowledged: true },
     });
     ok(res, 202);
-    expect(sent.findLast((s) => s.name === 'claim-pack')?.data).toMatchObject({ locale: 'en' });
+    expect(sent.findLast((s) => s.name === 'claim-pack')?.data).toMatchObject({ locale: 'uk' });
   });
 
-  it('takes a Spanish reader’s pack, its report in English', async () => {
+  it('takes a Spanish reader’s pack, its report in Spanish (#465)', async () => {
     sent.length = 0;
     const res = await call(t, '/api/v1/claim-packs', {
       as: ibrahim,
       body: { scope: { locationId: home.id, thingIds: [tv] }, locale: 'es', acknowledged: true },
     });
     ok(res, 202);
-    expect(sent.findLast((s) => s.name === 'claim-pack')?.data).toMatchObject({ locale: 'en' });
+    expect(sent.findLast((s) => s.name === 'claim-pack')?.data).toMatchObject({ locale: 'es' });
   });
 
   // catalogue: POST /api/v1/claim-packs
@@ -821,6 +839,23 @@ describe('claim packs', () => {
     for (const bytes of entries.values()) {
       expect(bytes.includes(Buffer.from('SECRET-SENTINEL'))).toBe(false);
     }
+  });
+
+  it.skipIf(!hasPoppler)('writes a French reader’s pack report in French (#465)', async () => {
+    sent.length = 0;
+    const id = await buildPack(ibrahim, {
+      scope: { locationId: home.id, thingIds: [tv] },
+      locale: 'fr',
+      acknowledged: true,
+    });
+    expect((await packOf(ibrahim, id)).status).toBe('done');
+    const { url } = await linkFor(ibrahim, id);
+    const entries = unzipStored((await download(url)).rawPayload);
+    const text = pdfText(entries.get('report.pdf') as Buffer).replace(/[\u00a0\u202f]/g, ' ');
+    expect(text).toContain('Rapport pour l’assurance');
+    expect(text).toContain('Numéro de série : SN-TV-0001');
+    expect(text).toContain('Propriétaire : Ibrahim');
+    expect(text).not.toContain('Insurance report');
   });
 
   // catalogue: POST /api/v1/claim-packs/:id/link

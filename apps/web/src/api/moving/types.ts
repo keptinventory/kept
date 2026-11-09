@@ -90,6 +90,6 @@ export type SheetsPrintedBody = { containerIds?: string[] };
 export type ContentsSheetsBody = {
   moveId: string;
   containerIds?: string[];
-  locale?: 'en' | 'ar';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
   digits?: 'western' | 'eastern';
 };

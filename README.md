@@ -110,7 +110,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   ntfy, Telegram and a calendar feed.
 - **Vehicles and machines.** Readings, services, fuel and running costs.
 - **The household.** Shared locations with roles and end dates, share links, stocktakes,
-  condition reports, an insurance report and insights.
+  condition reports, an insurance report and insights. PDFs in the reader's language.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them.
