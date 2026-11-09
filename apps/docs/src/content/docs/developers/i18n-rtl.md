@@ -103,11 +103,13 @@ t`Make ${isolate(label)} secret?`
 `bidi()` in the same file gives a `<bdi>` element for a name inside a `<Trans>` placeholder, and
 `plainText()` strips the marks for comparisons.
 
-**Separators come from the formatter.** Never write a literal `" · "` between a line's parts. Use
-`fmt.sep` (from `useFormat()`) or `sep()` from `apps/web/src/lib/format.ts`. In Arabic the
-separator is the Arabic comma `"، "`: the dot beside an Eastern digit reads as the zero ٠. A
-translated message's `" · "` is replaced at load time by `localiseSeparators`, so translators
-don't write it; `apps/web/src/lib/separator.test.ts` checks every Arabic message.
+**Separators come from the formatter.** Never write a separator between a line's parts by hand,
+and never the middle dot. Use `fmt.sep` (from `useFormat()`) or `sep()` from
+`apps/web/src/lib/format.ts`: a comma, and in Arabic the Arabic comma `"، "`. Or make the parts
+separate elements. A message whose source text still has a middle dot gets the language's comma
+in its place at load time (`localiseSeparators`), so translators don't write it.
+`apps/web/src/lib/separator.test.ts` checks every message in every language, and every line built
+in code outside a message.
 
 ```tsx title="apps/web/src/components/vehicles/recent-services.tsx"
 {i > 0 ? fmt.sep : null}

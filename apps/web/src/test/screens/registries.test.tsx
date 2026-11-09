@@ -83,9 +83,9 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     ).toBeInTheDocument();
     await user.click(within(tree).getByRole('link', { name: /TV \/ display/ }));
     const tv = await editor('TV / display');
-    expect(within(tv).getByText(/Built in · read-only until you customise it/)).toBeInTheDocument();
+    expect(within(tv).getByText(/Built in, read-only until you customise it/)).toBeInTheDocument();
     // The Device group, headed with who shares it, its fields inherited from the group.
-    const heading = within(tv).getByRole('heading', { name: /Device group · shared by/ });
+    const heading = within(tv).getByRole('heading', { name: /Device group, shared by/ });
     expect(heading.textContent).toMatch(/Phone/);
     expect(heading.textContent).toMatch(/TV \/ display/);
     expect(within(tv).getByText('MAC address')).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     // Read-only until customised: no field or save controls, and the group shown as built in.
     expect(within(tv).queryByRole('button', { name: 'Add a field' })).toBeNull();
     expect(
-      within(tv).getByText(/Built in · read-only · its fields are listed above/),
+      within(tv).getByText(/Built in, read-only, its fields are listed above/),
     ).toBeInTheDocument();
     expect(within(tv).getByRole('button', { name: 'Customise' })).toBeInTheDocument();
     // Inherited capabilities show on, from Electronics.
@@ -280,7 +280,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     await waitFor(() =>
       expect(mock.calls.some((c) => c.method === 'POST' && c.path.endsWith('/archive'))).toBe(true),
     );
-    expect(await screen.findByText(/Archived fields · values are kept/)).toBeInTheDocument();
+    expect(await screen.findByText(/Archived fields, values are kept/)).toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: 'Restore Players' }));
     expect(await screen.findByRole('button', { name: 'Archive Players' })).toBeInTheDocument();
   });
@@ -366,7 +366,7 @@ describe('the type tree and editor', { timeout: 20_000 }, () => {
     await findHeading('Car');
     const car = await editor('Car');
     expect(
-      within(car).getByRole('heading', { name: /From Vehicle · inherited/ }),
+      within(car).getByRole('heading', { name: /From Vehicle, inherited/ }),
     ).toBeInTheDocument();
     expect(within(car).getByText('VIN')).toBeInTheDocument();
   });

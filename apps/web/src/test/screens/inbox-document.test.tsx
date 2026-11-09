@@ -46,13 +46,13 @@ const card = async (name: string) =>
   );
 
 describe("a vehicle's card in the inbox", () => {
-  it('reads "Licence · expires …", and y then Accept makes the document', async () => {
+  it('reads "Licence, expires …", and y then Accept makes the document', async () => {
     const state = withCard();
     const before = state.household.documents.length;
     const { user, mock } = await renderApp('/inbox?f.kind=draft', { state, digits: 'western' });
     const driver = await card('Bosch impact driver, 18 V');
     const doc = within(driver).getByRole('group', { name: 'Suggested vehicle document' });
-    expect(doc.textContent).toMatch(/Licence · expires .*Nov 6, 2026/);
+    expect(doc.textContent).toMatch(/Licence, expires .*Nov 6, 2026/);
     expect(doc.textContent).not.toMatch(/Set this on the thing's page/);
     await user.keyboard('j');
     await waitFor(() => expect(driver).toHaveAttribute('aria-current', 'true'));

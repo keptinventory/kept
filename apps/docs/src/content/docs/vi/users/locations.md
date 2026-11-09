@@ -18,11 +18,11 @@ Mọi thứ nằm trong một cây: một địa điểm (Nhà, Nhà để xe, m
 - **Độ rộng của nó** (trên máy tính, từ 1280 px rộng): kéo đường dọc theo cạnh cây, hoặc focus vào nó và dùng phím mũi tên, Home và End. **Thu gọn vị trí**, nút ở đỉnh cây, gấp nó để để trang toàn chỗ; **Mở rộng vị trí** đưa nó lại. Thiết bị này nhớ cả hai.
 - Trên một địa điểm, **Sắp xếp chúng** đi qua Chưa có vị trí từng đồ vật một với bộ chọn vị trí.
 - Một hộp mở từ nhãn của nó hiện lưới ảnh của thứ bên trong.
-- **Bố cục:** trang của một địa điểm chuyển giữa **Danh sách**, **Lưới**, **Sơ đồ**, **Bảng** và **Bản đồ**, mỗi cái với biểu tượng của nó. **Sơ đồ** vẽ địa điểm thành đồ thị các tầng, phòng, hộp và đồ vật, trong 2D hoặc 3D ([Sơ đồ](/vi/users/graph/)). **Bảng** hiện đồ vật của nó như bảng tính, trên màn hình 1024 px rộng trở lên ([Dạng xem bảng tính](/vi/users/spreadsheet/)), nên điện thoại hiện Danh sách · Lưới · Sơ đồ · Bản đồ. **Bản đồ** hiện địa điểm trong 3D, theo tầng, với phòng, kệ và hộp của nó ([Bản đồ địa điểm](/vi/users/location-map/)). Menu **Hiển thị** của danh sách đưa ra lựa chọn tương tự. Trang riêng của một vị trí (không phải Chưa có vị trí) có công tắc đó nữa, không có Bảng. Kept nhớ bố cục cho mỗi địa điểm và mỗi vị trí trên thiết bị đó.
+- **Bố cục:** trang của một địa điểm chuyển giữa **Danh sách**, **Lưới**, **Sơ đồ**, **Bảng** và **Bản đồ**, mỗi cái với biểu tượng của nó. **Sơ đồ** vẽ địa điểm thành đồ thị các tầng, phòng, hộp và đồ vật, trong 2D hoặc 3D ([Sơ đồ](/vi/users/graph/)). **Bảng** hiện đồ vật của nó như bảng tính, trên màn hình 1024 px rộng trở lên ([Dạng xem bảng tính](/vi/users/spreadsheet/)), nên điện thoại hiện Danh sách, Lưới, Sơ đồ, Bản đồ. **Bản đồ** hiện địa điểm trong 3D, theo tầng, với phòng, kệ và hộp của nó ([Bản đồ địa điểm](/vi/users/location-map/)). Menu **Hiển thị** của danh sách đưa ra lựa chọn tương tự. Trang riêng của một vị trí (không phải Chưa có vị trí) có công tắc đó nữa, không có Bảng. Kept nhớ bố cục cho mỗi địa điểm và mỗi vị trí trên thiết bị đó.
 - **Lưới** hiện vị trí và đồ vật của một địa điểm hoặc phòng như ô vuông, dưới cùng các tiêu đề **Các vị trí** và Đồ vật như Danh sách; mỗi tiêu đề gấp đi. **Hiển thị → Kích thước** chọn ô **Nhỏ**, **Trung bình** hoặc **Lớn** (3, 2 hoặc 1 một hàng trên điện thoại), và Kept nhớ kích thước của bạn trên thiết bị đó.
 - Trên máy tính hoặc máy tính bảng, thanh bên đánh dấu địa điểm bạn đang ở: trên trang của nó, và trên phòng, đồ vật, hộp và cài đặt của nó.
 
-![Một địa điểm trong Lưới với ô Nhỏ: tiêu đề Các vị trí · 9 trên các phòng, sau đó tiêu đề Đồ vật · 20+ trên các đồ vật, sáu ô một hàng, mỗi ô chỉ có tên](../../../../assets/screens/grid-desktop-light.webp)
+![Một địa điểm trong Lưới với ô Nhỏ: tiêu đề Các vị trí, 9 trên các phòng, sau đó tiêu đề Đồ vật, 20+ trên các đồ vật, sáu ô một hàng, mỗi ô chỉ có tên](../../../../assets/screens/grid-desktop-light.webp)
 
 ![Cùng lưới đó trong giao diện tối](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -39,6 +39,7 @@ Một kệ ô vuông, một tủ sách hoặc một bộ ngăn kéo là một v�
 - **Hoàn tác:** **Hoàn tác** của toast bỏ đồ nội thất và các ngăn của nó vào Thùng rác và giải phóng mã của chúng, miễn là không có thứ gì được đặt vào hoặc thay đổi kể từ đó.
 - **Nhãn:** trên đồ nội thất mới, **Dán nhãn cho mọi thứ ở đây** in nhãn cho nó và cho mọi ngăn, theo thứ tự đếm.
 - **Trang của nó** hiện các ngăn như cách nó đứng, đánh số như nhãn của chúng. Chạm một cái để mở. **In nhãn của chúng** in tất cả lại, theo thứ tự đếm, với tên chúng có bây giờ.
+- **Di chuyển vào thùng rác:** các ngăn của nó đi cùng nó vào Thùng rác và quay lại cùng nó khi **Khôi phục**. Nếu có thứ gì trong nó hoặc trong bất kỳ ngăn nào, Kept chỉ hỏi về những thứ đó: **Di chuyển chúng đến** phòng nơi nó đứng (hoặc **Chọn một vị trí khác**), hoặc **Vứt chúng vào thùng rác luôn**. Một hộp được chuyển nguyên trạng, cùng với những gì bên trong. Một vị trí bạn tự thêm vào đồ nội thất được tính là thứ ở trong nó. **Hoàn tác** của toast đưa từng thứ về lại ngăn của nó.
 
 ### Xoay đồ nội thất
 

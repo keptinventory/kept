@@ -38,6 +38,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { useWarrantyKindLabels } from '@/components/warranties/labels';
+import { amountText } from '@/lib/amount';
 import { sep } from '@/lib/format';
 import { useClaimStatusLabels } from './labels';
 
@@ -241,8 +242,8 @@ function UpdateClaim({ claim: c, onClose }: { claim: Claim; onClose: () => void 
   );
   const [reference, setReference] = useState(c.reference ?? '');
   const [notes, setNotes] = useState(c.notes ?? '');
-  const [cost, setCost] = useState(shownCost?.amount ?? '');
-  const [covered, setCovered] = useState(shownCovered?.amount ?? '');
+  const [cost, setCost] = useState(() => amountText(shownCost?.amount));
+  const [covered, setCovered] = useState(() => amountText(shownCovered?.amount));
   const [currency, setCurrency] = useState<string | null>(
     shownCost?.currency ?? shownCovered?.currency ?? location.currency,
   );

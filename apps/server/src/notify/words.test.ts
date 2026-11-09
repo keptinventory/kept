@@ -104,10 +104,25 @@ describe('reminder wording', () => {
     expect(push.body.split('\n')).toHaveLength(2);
   });
 
+  it('separates a line with a comma, the Arabic comma in Arabic, never the middle dot (#459)', () => {
+    for (const locale of Object.keys(REMINDER_WORDS) as MailLocale[]) {
+      const w = REMINDER_WORDS[locale];
+      const comma = locale === 'ar' ? '، ' : ', ';
+      const f = facts(locale, {});
+      const n = NAMES[locale];
+      expect(w.where(f), locale).toBe(`${n.path}${comma}${n.location}`);
+      expect(shortTitle(w, f), locale).toBe(`${w.label(f)}${comma}${n.thing}`);
+      const push = digestPush(locale, [f, f], '2026-10-17');
+      expect(push.title, locale).toBe(`Kept${comma}${REMINDER_COUNT[locale](2)}`);
+      for (const text of [w.where(f), shortTitle(w, f), push.title, push.body])
+        expect(text, locale).not.toContain('\u00b7');
+    }
+  });
+
   it('writes a reading for a unit schedule, and a short title for the calendar and push', () => {
     const f = facts('en', { dueOn: null, dueValue: '60000', unit: 'km', title: 'Oil change' });
     expect(REMINDER_WORDS.en.headline(f)).toBe('Oil change for Drill is due at 60,000 km');
-    expect(shortTitle(REMINDER_WORDS.en, f)).toBe('Oil change · Drill');
+    expect(shortTitle(REMINDER_WORDS.en, f)).toBe('Oil change, Drill');
     expect(REMINDER_WORDS.en.headline(facts('en', { sourceType: 'loan', kind: 'overdue' }))).toBe(
       'Drill was due back on October 17, 2026',
     );

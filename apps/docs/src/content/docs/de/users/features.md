@@ -70,7 +70,7 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   einem Tailscale-Namen.
 - **Sprachen**: Arabisch (rechts nach links), Deutsch, Englisch, Französisch, Italienisch, Spanisch,
   Ukrainisch und Vietnamesisch; tippe, um deine in der Auswahlliste zu finden, und Datumsangaben im Stil deiner
-  Region oder wie du es wählst. Auch die Dokumentation für Nutzung, Verwaltung und Installation gibt es in jeder dieser Sprachen.
+  Region oder wie du es wählst. Beträge werden so gelesen, wie deine Sprache sie schreibt. Auch die Dokumentation für Nutzung, Verwaltung und Installation gibt es in jeder dieser Sprachen.
 
 ## Auf deinem Telefon
 

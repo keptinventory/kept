@@ -8,7 +8,7 @@
  *
  * The thing's id is chosen here, so its photo uploads right after the create, attached to it.
  */
-import { AmountError, can, effectiveModules, newId, parseAmount } from '@kept/shared';
+import { AmountError, can, effectiveModules, newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -34,6 +34,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { readAmount } from '@/lib/amount';
 import { sep } from '@/lib/format';
 import { typeOfKey } from '@/lib/type-list';
 import { parseNumber } from './form-model';
@@ -185,7 +186,7 @@ export function CreateThingSheet({
     let amount: string | null = null;
     if (showMoney && price.trim()) {
       try {
-        amount = parseAmount(price);
+        amount = readAmount(price);
       } catch (err) {
         if (!(err instanceof AmountError)) throw err;
         e.price = t`Enter an amount, like 1250 or 1250.50.`;

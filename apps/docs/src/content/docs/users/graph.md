@@ -4,7 +4,7 @@ description: See a location as a graph of its floors, rooms, boxes and things, i
 ---
 
 A location's page has five layouts: **List**, **Grid**, **Graph**, **Table** and **Map**. Table
-is on wide screens only, so a phone shows List · Grid · Graph · Map. **Graph** draws the location
+is on wide screens only, so a phone shows List, Grid, Graph, Map. **Graph** draws the location
 as nodes and links: the location, its floors, the rooms on them, the shelves, cupboards and boxes
 in the rooms, and the things in those. Kept remembers your choice for each location on each
 device. A floor's or a room's page has **Graph** too, opened on that place.
@@ -22,7 +22,7 @@ the first ring, and what is in those on the second, when there is room for it.
 - **Pick** a node to see its card. **Pick it again**, or **Go in** on the card, to put it in the
   middle.
 - The **path** above the graph (Home › Ground floor › Garage) goes back up.
-- **Rooms · Boxes · All** chooses how deep it draws: places only, places and boxes, or
+- **Rooms, Boxes, All** chooses how deep it draws: places only, places and boxes, or
   everything down to the things.
 
 Drag to move the graph, scroll or pinch to zoom, and the house button shows the whole location

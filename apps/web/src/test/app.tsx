@@ -19,8 +19,8 @@ import {
   type Locale,
   setDateFormat,
   setDigits,
-  setLocale,
   setRegion,
+  showLocale,
 } from '@/lib/prefs';
 import { routeTree } from '@/routeTree.gen';
 
@@ -42,7 +42,8 @@ export async function renderApp(
   setup?.(mock);
   vi.stubGlobal('fetch', mock.fetch);
   await activateLocale(locale, digits);
-  setLocale(locale);
+  // Shown as the browser's would be, not picked (#474): a picked language goes to the account.
+  showLocale(locale);
   setDigits(digits);
   // Device choices a test may change (#362): back to the defaults for the next one.
   setRegion('us');

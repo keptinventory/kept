@@ -69,7 +69,7 @@ placing things never interrupts someone arranging the map at the same time.
 
 Each photo is one AI read, and a capture of more than one photo adds one short text-only call
 that merges what the photos have in common. Before you send, the tray shows an upper bound, such
-as "About 3 photos · up to ~31,000 tokens · Groq": the photo, the instructions and the longest
+as "About 3 photos, up to ~31,000 tokens, Groq": the photo, the instructions and the longest
 answer Kept allows, for each photo; a shorter answer costs less. A model that thinks before it
 answers bills its thinking on top.
 

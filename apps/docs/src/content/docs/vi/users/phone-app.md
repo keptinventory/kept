@@ -36,7 +36,7 @@ Bản sao không bao giờ giữ giá trị bí mật hay chi tiết liên lạc
 
 Những gì bạn làm ngoại tuyến đi vào hàng đợi và được gửi khi điện thoại quay lại trực tuyến. Một dòng dưới tiêu đề chỉ xuất hiện khi có điều gì để nói:
 
-- **Ngoại tuyến · 12 đang chờ đồng bộ**, hoặc **Ngoại tuyến · tính theo lần đồng bộ cuối, 14:02**.
+- **Ngoại tuyến, 12 đang chờ đồng bộ**, hoặc **Ngoại tuyến, tính theo lần đồng bộ cuối, 14:02**.
 - Đồ vật mới hiển thị **ID đang chờ** cho đến khi máy chủ cấp cho chúng ID ngắn; nhãn cho chúng có thể in khi nó đến (Nhãn cung cấp **In nhãn đang chờ**).
 - **Trên iPhone, hàng đợi chỉ di chuyển khi Kept đang mở**: dòng nói **Mở để hoàn tất đồng bộ hóa (12)**. Giữ Kept mở trên màn hình một chút khi bạn quay lại trực tuyến.
 - **Cập nhật Kept để hoàn tất đồng bộ hóa** có nghĩa là máy chủ mới hơn ứng dụng: tải lại. Hàng đợi được giữ nguyên.

@@ -711,7 +711,7 @@ describe('the box check', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Cable box' })).toBeInTheDocument();
     expect(screen.getByText('0 of 3 ticked')).toBeInTheDocument();
-    expect(screen.getByText('Box inside · 1 thing, not opened')).toBeInTheDocument();
+    expect(screen.getByText('Box inside, 1 thing, not opened')).toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: 'HDMI cable' }));
     await user.click(screen.getByRole('checkbox', { name: 'Adapter pouch' }));
     expect(screen.getByText('2 of 3 ticked')).toBeInTheDocument();

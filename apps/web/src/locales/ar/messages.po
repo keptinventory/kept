@@ -28858,3 +28858,16 @@ msgstr "العنوان الرئيسي. يضيف <0/> المزيد."
 #: src/routes/_app/admin.status.tsx
 msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
 msgstr "العنوان الرئيسي، وعليه تبقى الروابط والبريد ومفاتيح المرور. وأيضًا، بتحديد <0/>:"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
+msgstr "{compartments, plural, zero {لا خانات له.} one {تذهب خانته الوحيدة معه إلى المهملات، وتعود معه عند الاستعادة.} two {تذهب خانتاه معه إلى المهملات، وتعودان معه عند الاستعادة.} few {تذهب خاناته الـ# معه إلى المهملات، وتعود معه عند الاستعادة.} many {تذهب خاناته الـ# معه إلى المهملات، وتعود معه عند الاستعادة.} other {تذهب خاناته الـ# معه إلى المهملات، وتعود معه عند الاستعادة.}}"
+
+#. placeholder {0}: place.name
+#: src/components/places/trash-contents-dialog.tsx
+msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
+msgstr "في <0>{0}</0> وخاناته {inside}. ماذا تريد أن يحدث لها؟"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "Only {placeName} and its compartments go to the trash."
+msgstr "لن يُنقل إلى المهملات إلا «{placeName}» وخاناته."

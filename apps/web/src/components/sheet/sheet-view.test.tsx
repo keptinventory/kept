@@ -121,7 +121,7 @@ describe('editing in place', () => {
     await user.keyboard('{ArrowUp}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}');
     await user.keyboard('W1{Tab}');
     const bar = screen.getByRole('region', { name: 'Changes' });
-    expect(bar).toHaveTextContent('2 changes · on 1 thing');
+    expect(bar).toHaveTextContent('2 changes, on 1 thing');
 
     await user.click(within(bar).getByRole('button', { name: 'Save 2 changes' }));
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Changes' })).toBeNull());
@@ -213,7 +213,7 @@ describe('bulk actions', () => {
     await user.keyboard('{Escape}');
     await user.click(within(dialog).getByRole('button', { name: 'Add tags' }));
     expect(screen.getByRole('region', { name: 'Changes' })).toHaveTextContent(
-      '3 changes · on 3 things',
+      '3 changes, on 3 things',
     );
     expect(cellOf(grid, 'Box 3', 'Tags')).toHaveTextContent('winter');
 

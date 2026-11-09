@@ -20907,3 +20907,16 @@ msgstr "Địa chỉ chính. <0/> thêm các địa chỉ khác."
 #: src/routes/_app/admin.status.tsx
 msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
 msgstr "Địa chỉ chính, nơi giữ liên kết, thư và khóa truy cập. Ngoài ra, do <0/> đặt:"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
+msgstr "{compartments, plural, one {# ngăn của nó sẽ đi cùng với nó vào thùng rác, và quay lại cùng với nó khi Khôi phục.} other {# ngăn của nó sẽ đi cùng với nó vào thùng rác, và quay lại cùng với nó khi Khôi phục.}}"
+
+#. placeholder {0}: place.name
+#: src/components/places/trash-contents-dialog.tsx
+msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
+msgstr "<0>{0}</0> và các ngăn của nó có {inside}. Nên làm gì với chúng?"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "Only {placeName} and its compartments go to the trash."
+msgstr "Chỉ {placeName} và các ngăn của nó được chuyển vào thùng rác."

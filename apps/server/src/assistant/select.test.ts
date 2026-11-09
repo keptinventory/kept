@@ -22,6 +22,9 @@ describe('Spanish stems stay on Spanish words', () => {
     ['How do I recuperate the cost?', 'return_thing'],
     ['Why did they devolve the power?', 'return_thing'],
     ['Devolved power in the proximity of it', 'upcoming'],
+    ['Let me revisit the garage list', 'log_service'],
+    ['Track the revisions to the floor plan', 'log_service'],
+    ['Rivedi le revisioni della lista', 'log_service'],
   ])('%s offers no %s', (question, tool) => {
     expect(offered(question)).not.toContain(tool);
   });
@@ -38,6 +41,9 @@ describe('Spanish stems stay on Spanish words', () => {
     ['¿Qué hay próximamente?', 'upcoming'],
     ['Las próximas tareas', 'upcoming'],
     ['El próximo mantenimiento', 'upcoming'],
+    ['La revisión del coche', 'log_service'],
+    ['Anota la revision de la moto', 'log_service'],
+    ['Las revisiones de la furgoneta', 'log_service'],
   ])('%s still offers %s', (question, tool) => {
     expect(offered(question)).toContain(tool);
   });

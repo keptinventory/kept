@@ -15,7 +15,7 @@ Un nouveau rapport nécessite :
 - **Entrée** ou **Sortie**.
 - Le jour de la **visite**.
 
-Il commence par les pièces du lieu (lieux de type Pièce). Ajoutez celles qui manquent, ou supprimez-en une.
+Il commence par les pièces du lieu (emplacements de type Pièce). Ajoutez celles qui manquent, ou supprimez-en une.
 
 ## Chaque pièce
 
@@ -37,7 +37,7 @@ changer ensuite, photos comprises.
 
 ## Comparer
 
-**Comparer avec** place l'entrée à côté de la sortie, pièce par pièce (la même pièce par son lieu
+**Comparer avec** place l'entrée à côté de la sortie, pièce par pièce (la même pièce par son emplacement
 ou par son nom), la plus ancienne d'abord.
 
 ## Créer le PDF

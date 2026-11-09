@@ -4,7 +4,7 @@
  * sits behind the money gate: where money is hidden from you it says "Hidden in this location"
  * and nothing else. Deleting a valuation is undoable; a new one isn't.
  */
-import { AmountError, parseAmount, VALUATION_SOURCES, type ValuationSource } from '@kept/shared';
+import { AmountError, VALUATION_SOURCES, type ValuationSource } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
@@ -32,6 +32,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { amountText, readAmount } from '@/lib/amount';
 import { sep, useFormat } from '@/lib/format';
 import { GatedAmount, isMoneyHidden, MoneyHiddenText } from './gated';
 
@@ -221,7 +222,7 @@ function ValuationSheet({
   const editing = valuation && valuation !== 'new' ? valuation : null;
   const shown = editing && !isMoneyHidden(editing.value) ? editing.value : null;
   const today = todayIn(location.timezone);
-  const [amount, setAmount] = useState(shown?.amount ?? '');
+  const [amount, setAmount] = useState(() => amountText(shown?.amount));
   const [currency, setCurrency] = useState<string | null>(shown?.currency ?? location.currency);
   const [on, setOn] = useState<string | null>(editing?.valuedOn ?? today);
   const [source, setSource] = useState<ValuationSource>(editing?.source ?? 'estimate');
@@ -232,7 +233,7 @@ function ValuationSheet({
   const save = async () => {
     let value: string;
     try {
-      value = parseAmount(amount);
+      value = readAmount(amount);
     } catch (e) {
       if (!(e instanceof AmountError)) throw e;
       setError(t`Enter an amount, like 1250 or 1250.50.`);

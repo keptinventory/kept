@@ -19,7 +19,7 @@ der Adresse, sodass eine gefilterte Liste als Lesezeichen gespeichert oder als A
 
 - **Gefunden X von Y**, wann, wie lange es dauerte, wer gezählt hat (alle, bei einer gemeinsamen Zählung) und wer
   sie beendet hat.
-- **Seit der letzten Zählung** desselben Orts oder derselben Box: "1 neu fehlend · 0 wieder gefunden · 2 neue
+- **Seit der letzten Zählung** desselben Orts oder derselben Box: "1 neu fehlend, 0 wieder gefunden, 2 neue
   Dinge", mit einem Link zur vorherigen.
 - Seine Listen, jede Zeile verlinkt das Ding mit dem, wo es sich jetzt befindet:
 

@@ -60,7 +60,7 @@ deleted.
   always run.
 - **Dependents go too.** Fuel needs Vehicles, and Moving house needs Labels and QR codes: switching
   off the one a module needs switches that module off as well. Its switch then reads
-  *Needs Vehicles · off in this location*.
+  *Needs Vehicles, off in this location*.
 - **The menu follows all your locations.** Under **Tracking**, an entry (Schedules, Lending,
   Paperwork, Consumables, Vehicles, Moving, Insights) shows once its module is on in any of your
   locations. Under **Tools**, **Labels** shows while Labels is on somewhere, and **Counts** is

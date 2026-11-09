@@ -142,7 +142,7 @@ Ogni persona può creare un link iCal privato di ciò che è in scadenza e di ci
 Notifiche → Feed del calendario → Crea un link**. Non c'è nulla da configurare sul server.
 
 - **Cosa contiene**: eventi per tutto il giorno da un mese prima a 13 mesi dopo, tra i luoghi della
-  persona: titoli, percorsi dei luoghi, nomi dei luoghi e un link a Kept. Mai denaro, segreti,
+  persona: titoli, percorsi dei posti, nomi dei luoghi e un link a Kept. Mai denaro, segreti,
   note o dettagli di contatto di chicchessia. Solo i tipi che la persona riceve su qualche canale, e nulla
   da una parte di Kept che un luogo ha disattivato. I luoghi che richiedono l'autenticazione a due fattori sono esclusi.
 - **Il link**: `https://kept.example.org/cal/<token>.ics`, mostrato una sola volta. Kept memorizza solo lo

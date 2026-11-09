@@ -28858,3 +28858,16 @@ msgstr "Die Hauptadresse. <0/> fügt weitere hinzu."
 #: src/routes/_app/admin.status.tsx
 msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
 msgstr "Die Hauptadresse, bei der Links, E-Mails und Passkeys bleiben. Außerdem, festgelegt durch <0/>:"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
+msgstr "{compartments, plural, one {Sein # Fach kommt mit in den Papierkorb und beim Wiederherstellen mit zurück.} other {Seine # Fächer kommen mit in den Papierkorb und beim Wiederherstellen mit zurück.}}"
+
+#. placeholder {0}: place.name
+#: src/components/places/trash-contents-dialog.tsx
+msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
+msgstr "<0>{0}</0> und seine Fächer enthalten {inside}. Was soll damit passieren?"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "Only {placeName} and its compartments go to the trash."
+msgstr "Nur {placeName} und seine Fächer kommen in den Papierkorb."

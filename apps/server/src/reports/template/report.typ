@@ -123,7 +123,7 @@
     }
     cells.push({
       text(size: 9.5pt, font: W(600), t.name)
-      let what = (t.type, t.brandModel).filter(x => x != "").join(" · ")
+      let what = (t.type, t.brandModel).filter(x => x != "").join(d.sep)
       if what != none and what != "" {
         linebreak()
         text(size: 7.8pt, fill: c.ink2, what)

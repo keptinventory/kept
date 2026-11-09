@@ -130,7 +130,7 @@ describe('search offline', () => {
     // Its code has no printed label: the name is enough.
     expect(within(drill).queryByRole('img', { name: '7KQ4MZ' })).toBeNull();
     expect(within(drill).getByText('Bosch').tagName).toBe('MARK');
-    expect(screen.getByText(/^On this phone · as of last sync, /)).toBeInTheDocument();
+    expect(screen.getByText(/^On this phone, as of last sync, /)).toBeInTheDocument();
     // Documents aren't on the phone.
     expect(screen.getByText('Documents need a connection')).toBeInTheDocument();
     expect(screen.queryByText('Loading')).toBeNull();

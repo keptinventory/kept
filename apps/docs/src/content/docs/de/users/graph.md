@@ -4,7 +4,7 @@ description: Sieh einen Standort als Graph seiner Etagen, Räume, Behälter und 
 ---
 
 Die Seite eines Standorts hat fünf Ansichten: **Liste**, **Raster**, **Graph**, **Tabelle** und **Karte**. Tabelle
-ist nur auf breiten Bildschirmen verfügbar, sodass ein Telefon Liste · Raster · Graph · Karte zeigt.
+ist nur auf breiten Bildschirmen verfügbar, sodass ein Telefon Liste, Raster, Graph, Karte zeigt.
 **Graph** zeichnet den Standort als Knoten und Verbindungen: den Standort, seine Etagen, die Räume darauf, die Regale, Schränke und Behälter in den Räumen sowie die Dinge darin.
 Kept merkt sich deine Wahl für jeden Standort auf jedem Gerät.
 Die Seite einer Etage oder eines Raums hat ebenfalls **Graph**, geöffnet auf diesem Ort.
@@ -19,7 +19,7 @@ Der 2D-Graph zeigt einen Ort in der Mitte und zwei Ebenen darum herum: Was direk
 - Ein Knoten dessen Inhalt nicht gezeichnet wird, zeigt ihre **Anzahl**.
 - **Wähle** einen Knoten, um seine Karte zu sehen. **Wähle ihn erneut**, oder **Hineingehen** auf der Karte, um ihn in die Mitte zu legen.
 - Der **Pfad** über dem Graphen (Home › Erdgeschoss › Garage) führt zurück nach oben.
-- **Räume · Behälter · Alle** legt fest, wie tief es zeichnet: nur Orte, Orte und Behälter oder alles bis hin zu den Dingen.
+- **Räume, Behälter, Alle** legt fest, wie tief es zeichnet: nur Orte, Orte und Behälter oder alles bis hin zu den Dingen.
 
 Ziehe, um den Graphen zu bewegen, scrolle oder zoome, und die Haus-Taste zeigt den gesamten Standort erneut.
 

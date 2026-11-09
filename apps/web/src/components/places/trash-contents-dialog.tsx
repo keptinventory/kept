@@ -4,6 +4,10 @@
  * unless you pick another), or trashed with it. Everything trashed together shares one batch, so
  * Restore brings it all back; the toast offers Undo for that.
  *
+ * Furniture's compartments (#445) go to the trash with it and come back with it, so they aren't
+ * asked about: what is in the furniture and in every compartment is, with any place added to it
+ * by hand. Empty furniture just asks.
+ *
  * The server is the judge: if contents arrived since the page loaded, its 409
  * `contents_choice_required` carries the counts and the dialog asks.
  */
@@ -24,6 +28,22 @@ import { type PickedPlace, PlacePicker } from './move-picker';
 import { Sheet } from './sheet';
 
 type Choice = 'move' | 'trash';
+type Counts = ContentsChoiceDetails['counts'];
+
+/** What the question is about, as the server counts it (places/service.ts contentsCounts): for
+ * furniture, what is directly in it and in each compartment, and the places in either that
+ * aren't compartments. The tree gives the places inside compartments once it has loaded. */
+function contentsOf(place: PlaceView, tree: readonly { id: string; parentId: string | null }[]) {
+  const compartments = place.furniture?.compartments ?? [];
+  if (compartments.length === 0) return place.counts;
+  const ids = new Set(compartments.map((c) => c.id));
+  const inCompartments = tree.filter((pl) => pl.parentId !== null && ids.has(pl.parentId)).length;
+  return {
+    places: place.counts.places - compartments.length + inCompartments,
+    things: place.counts.things + compartments.reduce((n, c) => n + c.things, 0),
+    compartments: compartments.length,
+  };
+}
 
 export function isContentsChoice(e: unknown): e is { details: ContentsChoiceDetails } {
   return (
@@ -74,15 +94,17 @@ function TrashForm({
   const nameOf = usePlaceName();
   const invalidate = useInvalidateBrowse();
   const tree = usePlaceTree(place.locationId);
-  const [counts, setCounts] = useState(place.counts);
+  const [told, setTold] = useState<Counts | null>(null);
   const [choice, setChoice] = useState<Choice>('move');
   const [picked, setPicked] = useState<PickedPlace | null>(null);
   const [picking, setPicking] = useState(false);
-  const hasContents = counts.places + counts.things > 0;
 
   // Where the contents go by default: the parent, or the Unplaced area at the top level. Child
   // places can't go into the Unplaced area, so at the top level they become top-level places.
   const places = tree.data?.places ?? [];
+  const counts: Counts = told ?? contentsOf(place, places);
+  const hasContents = counts.places + counts.things > 0;
+  const compartments = counts.compartments ?? 0;
   const parent = places.find((pl) => pl.id === place.parentId);
   const unplaced = places.find((pl) => pl.isUnplaced);
   const fallback = parent ?? unplaced;
@@ -117,7 +139,7 @@ function TrashForm({
       onTrashed(body);
     },
     onError: (e) => {
-      if (isContentsChoice(e) && e.details.counts) setCounts(e.details.counts);
+      if (isContentsChoice(e) && e.details.counts) setTold(e.details.counts);
     },
   });
 
@@ -140,14 +162,32 @@ function TrashForm({
   );
   const targetName = target?.name ?? '';
 
+  const placeName = place.name;
+
   return (
     <div className="grid gap-4">
+      {compartments > 0 ? (
+        <p className="m-0 text-ink-2">
+          <Plural
+            value={compartments}
+            one="Its # compartment goes to the trash with it, and comes back with it on Restore."
+            other="Its # compartments go to the trash with it, and come back with it on Restore."
+          />
+        </p>
+      ) : null}
       {hasContents ? (
         <>
           <p className="m-0 text-ink-2">
-            <Trans>
-              <bdi>{place.name}</bdi> has {inside} inside. What should happen to them?
-            </Trans>
+            {compartments > 0 ? (
+              <Trans>
+                <bdi>{place.name}</bdi> and its compartments hold {inside}. What should happen to
+                them?
+              </Trans>
+            ) : (
+              <Trans>
+                <bdi>{place.name}</bdi> has {inside} inside. What should happen to them?
+              </Trans>
+            )}
           </p>
           <RadioGroup
             aria-label={t`What happens to what's inside`}
@@ -164,7 +204,11 @@ function TrashForm({
                   </Trans>
                 </span>
                 <span className="text-small text-ink-2">
-                  <Trans>Only {place.name} goes to the trash.</Trans>
+                  {compartments > 0 ? (
+                    <Trans>Only {placeName} and its compartments go to the trash.</Trans>
+                  ) : (
+                    <Trans>Only {place.name} goes to the trash.</Trans>
+                  )}
                 </span>
               </span>
             </Radio>

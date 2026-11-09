@@ -46,6 +46,8 @@ export function shellMe(me: Me): Me {
       units: me.profile.units,
       theme: me.profile.theme,
       digits: me.profile.digits,
+      // Settings → Hide Personal reads it: without it, the switch reads off offline (#459).
+      ...(me.profile.hidePersonal ? { hidePersonal: true } : {}),
     },
     memberships: me.memberships.map((m) => ({
       locationId: m.locationId,

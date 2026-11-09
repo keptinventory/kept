@@ -60,19 +60,76 @@ export function decimalCommaAsPoint(s: string): string {
   return s.replace(COMMA_BEFORE_DECIMALS, '$1.$2').replace(COMMA_AFTER_ZERO, '$1.$2');
 }
 
+/** The decimal mark `locale` writes (`,` in German, `.` in English), `.` for a tag Intl refuses. */
+const decimalMarks = new Map<string, string>();
+function decimalMark(locale: string): string {
+  let mark = decimalMarks.get(locale);
+  if (mark === undefined) {
+    try {
+      const parts = new Intl.NumberFormat(locale).formatToParts(1.5);
+      mark = parts.find((p) => p.type === 'decimal')?.value ?? '.';
+    } catch {
+      mark = '.';
+    }
+    decimalMarks.set(locale, mark);
+  }
+  return mark;
+}
+
+const SPACE_GROUPED = /^\d{1,3}(?:\s\d{3})+(?:,\d*)?$/;
+const POINT_GROUPED = /^[1-9]\d{0,2}(?:\.\d{3})+(?:,\d*)?$/;
+const COMMA_DECIMAL = /^\d*(?:,\d*)?$/;
+const LONE_POINT = /^\d*\.(\d*)$/;
+
+/**
+ * A number typed where the language writes a decimal comma (German, Spanish, French, …), with a
+ * decimal point, or null when it can't be told apart (#474). The comma is the decimal mark; points
+ * or spaces grouping in threes before it are grouping, so `1.234` is one thousand two hundred and
+ * thirty-four. A lone point before anything but three digits is a decimal point (`12.50`).
+ * Refused: a point before three digits that doesn't group (`0.125`, `1234.567`), several commas
+ * (`1,234,567`) and points after commas (`1,234.50`).
+ */
+function commaDecimalAsPoint(typed: string): string | null {
+  let s = typed;
+  if (/\s/.test(s)) {
+    if (!SPACE_GROUPED.test(s)) return null;
+    s = s.replace(/\s/g, '');
+  }
+  if (COMMA_DECIMAL.test(s)) return s.replace(',', '.');
+  if (POINT_GROUPED.test(s)) return s.replaceAll('.', '').replace(',', '.');
+  const lone = LONE_POINT.exec(s);
+  return lone && (lone[1] ?? '').length !== 3 ? s : null;
+}
+
+export type ParseAmountOptions = {
+  /**
+   * The reader's language, as a BCP 47 tag, for what a person typed in the app. Where it writes a
+   * decimal comma, `1.234` is grouping (`commaDecimalAsPoint`). Leave it out for anything that
+   * isn't typed by a reader of a known language: the API reads amounts without one.
+   */
+  locale?: string;
+};
+
 /**
  * Parse what a person typed into a canonical amount string. Accepts Western, Eastern Arabic
  * (٠–٩) and Persian (۰–۹) digits, `.` or `٫` as the decimal separator, a comma as the decimal
  * mark where `decimalCommaAsPoint` says it is one, and `,` or `٬` grouping in threes (D172).
- * `1.234` is one and a bit: a point alone is always the decimal mark. Leading zeros and trailing
- * fractional zeros are dropped: `"١٬٢٠٠٫٥٠"` → `"1200.5"`.
+ * Without a `locale`, `1.234` is one and a bit: a point alone is always the decimal mark. With a
+ * locale that writes a decimal comma, the comma is always the decimal mark, and points or spaces
+ * group (#474). Leading zeros and trailing fractional zeros are dropped: `"١٬٢٠٠٫٥٠"` → `"1200.5"`.
  * Throws `AmountError` (`invalid_amount`) for anything else, including negatives, exponents,
  * more than 4 significant decimals or more than 12 integer digits.
  */
-export function parseAmount(input: string): string {
-  const s = decimalCommaAsPoint(
-    input.trim().replace(LOCAL_DIGIT, westernDigit).replace(/٫/g, '.'),
-  ).replace(/٬/g, ',');
+export function parseAmount(input: string, { locale }: ParseAmountOptions = {}): string {
+  const western = input.trim().replace(LOCAL_DIGIT, westernDigit);
+  let s: string;
+  if (locale && decimalMark(locale) === ',' && !/[٫٬]/.test(western)) {
+    const point = commaDecimalAsPoint(western);
+    if (point === null) throw new AmountError(input);
+    s = point;
+  } else {
+    s = decimalCommaAsPoint(western.replace(/٫/g, '.')).replace(/٬/g, ',');
+  }
   const m = GROUPED.exec(s);
   if (!m) throw new AmountError(input);
   const intRaw = (m[1] ?? '').replaceAll(',', '');
@@ -181,7 +238,8 @@ export function formatMoney(
 
 /**
  * The number alone, grouped and in the reader's digits, for amount inputs. Not rounded (up to 4
- * decimals, as stored) and not isolated; `parseAmount` reads it back unchanged.
+ * decimals, as stored) and not isolated; `parseAmount` with the same `locale` reads it back
+ * unchanged.
  */
 export function formatAmount(
   amount: string,

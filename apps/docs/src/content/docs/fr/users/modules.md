@@ -43,7 +43,7 @@ La capture par IA et l'assistant s'activent dans n'importe quel préréglage une
 Un module désactivé est masqué partout où il apparaîtrait (ses écrans, ses entrées de menu, ses filtres) et ses rappels se mettent en pause. Le réactiver fait tout revenir, car rien n'a été supprimé.
 
 - **Les rappels se mettent en pause avec leur module.** Les plannings et les objets qui expirent attendent avec **Rappels**, les dates de garantie et d'immatriculation avec **Reçus et garanties**, les dates de documents avec **Documents** (les documents d'un véhicule continuent aussi de fonctionner tant que **Véhicules** est activé), les prêts avec **Prêts**, le stock faible avec **Consommables**. Les rappels concernant les compteurs non relevés récemment fonctionnent toujours.
-- **Les dépendances disparaissent aussi.** Le carburant nécessite Véhicules, et le déménagement nécessite Étiquettes et codes QR : désactiver celui dont un module a besoin désactive aussi ce module. Son interrupteur indique alors *Nécessite Véhicules · désactivé dans ce lieu*.
+- **Les dépendances disparaissent aussi.** Le carburant nécessite Véhicules, et le déménagement nécessite Étiquettes et codes QR : désactiver celui dont un module a besoin désactive aussi ce module. Son interrupteur indique alors *Nécessite Véhicules, désactivé dans ce lieu*.
 - **Le menu suit tous vos lieux.** Sous **Suivi**, une entrée (Plannings, Prêts, Documents, Consommables, Véhicules, Déménagement, Statistiques) s'affiche dès que son module est activé dans l'un de vos lieux. Sous **Outils**, **Étiquettes** s'affiche tant que les étiquettes sont activées quelque part, et **Comptages** est toujours présent. Activité, Corbeille et Notifications sont toujours présents aussi.
 
 ## Changer plus tard
