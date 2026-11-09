@@ -27178,8 +27178,8 @@ msgid "This browser can't open the camera here."
 msgstr "Цей браузер не може відкрити камеру тут."
 
 #: src/components/scan/scanner-view.tsx
-msgid "This browser can't read codes with the camera."
-msgstr "Цей браузер не може зчитувати коди камерою."
+msgid "The scanner didn't start."
+msgstr "Сканер не запустився."
 
 #: src/components/notifications/settings/channels.tsx
 msgid "This browser can't receive notifications from Kept. Email still reaches you."

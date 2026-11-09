@@ -790,6 +790,21 @@ describe('"Type the code"', () => {
     expect(await screen.findByText("Kept can't scan here")).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Type the code' })).toBeInTheDocument();
   });
+
+  it('steps back when Try again brings the camera back (#486)', async () => {
+    const getUserMedia = vi
+      .fn()
+      .mockRejectedValueOnce(new DOMException('Could not start video source', 'NotReadableError'))
+      .mockResolvedValue({ getTracks: () => [] });
+    const { user } = await renderScan({ camera: { secure: true, media: { getUserMedia } } });
+    expect(await screen.findByText("Kept can't scan here")).toBeInTheDocument();
+    expect(screen.queryByText("Point at a Kept label, or a product's barcode.")).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(
+      await screen.findByText("Point at a Kept label, or a product's barcode."),
+    ).toBeInTheDocument();
+    expect(getUserMedia).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe('in Arabic', () => {

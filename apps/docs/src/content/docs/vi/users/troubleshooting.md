@@ -81,6 +81,8 @@ Những gì AI điền là một gợi ý. Mở đồ vật và sửa tên, thư
 
 Đảm bảo nhãn được đặt phẳng và ánh sáng đủ, và làm sạch kính máy ảnh. **Nhập mã** lấy sáu ký tự in dưới mã QR, có hoặc không có dấu gạch ngang. Một nhãn bị mòn được in lại với cùng một mã ([Mã ngắn và nhãn](/vi/users/short-ids/)). Một nhãn trên te dãn in nhãn hẹp không có mã QR: giữ nút **Quét** trên mã ngắn được in, hoặc nhập mã đó ([quét một mã không có mã QR](/vi/users/short-ids/#quét-mã-không-có-mã-qr)).
 
+Nếu **Quét** báo **Kept không thể quét tại đây** vì máy quét không khởi động được, hãy chạm **Thử lại**: camera và máy quét khởi động lại từ đầu, không cần đóng ứng dụng.
+
 ## AI
 
 ### "Đang chờ một nhà cung cấp AI"

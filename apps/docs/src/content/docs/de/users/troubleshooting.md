@@ -81,6 +81,8 @@ Was die KI ausfüllt, ist ein Vorschlag. Öffne das Objekt und korrigiere Name, 
 
 Stelle sicher, dass das Label flach und gut beleuchtet ist, und reinige die Kamera. **Code eingeben** nimmt die sechs Zeichen unter dem QR-Code, mit oder ohne Bindestrich. Ein abgenutztes Label wird mit dem gleichen Code neu gedruckt ([Kurz-IDs und Labels](/de/users/short-ids/)). Ein Label auf schmalem Etikettendrucker-Band hat keinen QR-Code: halte **Scannen** auf seiner gedruckten Kurz-ID, oder gib sie ein ([einen Code ohne QR-Code scannen](/de/users/short-ids/#scannen-eines-codes-ohne-qr-code)).
 
+Zeigt **Scannen** die Meldung **Kept kann hier nicht scannen**, weil der Scanner nicht gestartet ist, tippe auf **Erneut versuchen**: Kamera und Scanner starten neu, ohne dass du die App schließen musst.
+
 ## KI
 
 ### „Warten auf einen KI-Anbieter“

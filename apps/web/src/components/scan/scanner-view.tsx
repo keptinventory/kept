@@ -6,10 +6,13 @@
  * showing) nothing is decoded, and the camera stays open.
  *
  * When the camera can't open, or the decoder can't run on this device, it says why and hands over
- * to "Type the code" (WCAG: an alternative to the camera).
+ * to "Type the code" (WCAG: an alternative to the camera). When the decoder gives up it lets go of
+ * the camera, and where the trouble may pass (the decoder, a busy or failed camera) it offers
+ * "Try again", which opens the camera and the decoder afresh (#486).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from 'react-aria-components';
 import type { Detect, Detected } from '@/camera/label-recogniser';
 import { buzz, startScanLoop } from '@/camera/scanner';
 import { type CameraEnv, type CameraProblem, cameraEnv, openCamera } from '@/camera/session';
@@ -23,11 +26,19 @@ type Cam =
 /** How long the same code is ignored after it was read. */
 export const REPEAT_MS = 2500;
 
+/** Problems that may pass on their own: these offer "Try again". */
+const RETRYABLE: ReadonlySet<CameraProblem | 'no_scanner'> = new Set([
+  'no_scanner',
+  'busy',
+  'failed',
+]);
+
 export function ScannerView({
   detect,
   paused,
   onRead,
   onProblem,
+  onRetry,
   camera,
   now = () => Date.now(),
 }: {
@@ -36,28 +47,35 @@ export function ScannerView({
   onRead: (read: Read) => void;
   /** The camera or the decoder can't be used: the screen leads with "Type the code". */
   onProblem?: (problem: CameraProblem | 'no_scanner') => void;
+  /** "Try again" was pressed: the camera and the decoder are starting afresh. */
+  onRetry?: () => void;
   camera?: CameraEnv;
   now?: () => number;
 }) {
   const { t } = useLingui();
   const video = useRef<HTMLVideoElement>(null);
   const [cam, setCam] = useState<Cam>({ state: 'opening' });
+  const [attempt, setAttempt] = useState(0);
+  const stopRef = useRef<(() => void) | null>(null);
   const problemRef = useRef(onProblem);
   problemRef.current = onProblem;
+  const retryRef = useRef(onRetry);
+  retryRef.current = onRetry;
   const readRef = useRef(onRead);
   readRef.current = onRead;
   const last = useRef<{ text: string; at: number } | null>(null);
 
+  // `attempt` is "Try again": the camera is opened afresh.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: attempt reopens the camera on purpose
   useEffect(() => {
     let live = true;
-    let stop: (() => void) | null = null;
     void openCamera(camera ?? cameraEnv()).then((r) => {
       if (!live) {
         if (r.ok) r.stop();
         return;
       }
       if (r.ok) {
-        stop = r.stop;
+        stopRef.current = r.stop;
         setCam({ state: 'live', stream: r.stream });
       } else {
         setCam({ state: 'problem', problem: r.problem });
@@ -66,9 +84,10 @@ export function ScannerView({
     });
     return () => {
       live = false;
-      stop?.();
+      stopRef.current?.();
+      stopRef.current = null;
     };
-  }, [camera]);
+  }, [camera, attempt]);
 
   useEffect(() => {
     const v = video.current;
@@ -80,9 +99,16 @@ export function ScannerView({
   useEffect(() => {
     const v = video.current;
     if (!v || cam.state !== 'live' || paused) return;
-    if (!detect) {
+    // Nothing can be read: the camera is let go, not held behind the message.
+    const noScanner = (cause?: unknown) => {
+      if (cause !== undefined) console.warn('The code reader did not start.', cause);
+      stopRef.current?.();
+      stopRef.current = null;
       setCam({ state: 'problem', problem: 'no_scanner' });
       problemRef.current?.('no_scanner');
+    };
+    if (!detect) {
+      noScanner();
       return;
     }
     return startScanLoop(
@@ -102,12 +128,7 @@ export function ScannerView({
           ...(first.sure !== undefined ? { sure: first.sure } : {}),
         });
       },
-      {
-        onUnavailable: () => {
-          setCam({ state: 'problem', problem: 'no_scanner' });
-          problemRef.current?.('no_scanner');
-        },
-      },
+      { onUnavailable: (e) => noScanner(e?.cause ?? e) },
     );
   }, [cam, detect, paused, now]);
 
@@ -115,7 +136,7 @@ export function ScannerView({
     const p = cam.problem;
     const reason =
       p === 'no_scanner'
-        ? t`This browser can't read codes with the camera.`
+        ? t`The scanner didn't start.`
         : p === 'demo'
           ? t`The camera is off in this demo.`
           : p === 'insecure'
@@ -133,6 +154,18 @@ export function ScannerView({
           <Trans>Kept can't scan here</Trans>
         </p>
         <p className="m-0 text-[#BDB7AC] text-[14px]">{reason}</p>
+        {RETRYABLE.has(p) ? (
+          <Button
+            onPress={() => {
+              setCam({ state: 'opening' });
+              setAttempt((n) => n + 1);
+              retryRef.current?.();
+            }}
+            className="inline-flex min-h-11 cursor-pointer items-center justify-center justify-self-start rounded-[10px] border border-[#4A463F] px-3.5 font-semibold text-[14px] outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-[#F2EFE9]"
+          >
+            <Trans>Try again</Trans>
+          </Button>
+        ) : null}
         <p className="m-0 text-[#BDB7AC] text-[14px]">
           <Trans>Type the code printed under the QR code instead.</Trans>
         </p>
