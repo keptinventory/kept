@@ -54,9 +54,27 @@ bằng ngôn ngữ của bạn, để gửi cho họ tự mình.
 
 ## Khi nó trở về
 
-**Đánh dấu đã trả**: quay lại nơi nó ở, hoặc nơi khác, với tình trạng khi nó trở về. Một bàn giao
-được trả lại từng dòng: đã trở về, đã trở về bị hỏng, vẫn ở với họ, hoặc đã mất. Một đồ vật bị mất
-được đánh dấu là đã mất, không bao giờ được xóa. Mọi bước đều có thể hoàn tác.
+**Đánh dấu đã trả**: quay lại nơi nó ở, hoặc nơi khác, với tình trạng khi nó trở về và một ghi chú.
+
+- **Hư hỏng**, trong **Đã xảy ra chuyện gì**, nếu nó trở về bị hư hỏng. Tình trạng khi trở về là
+  **Kém** trừ khi bạn chọn khác, và tình trạng của chính đồ vật cũng theo đó. Tắt **Cập nhật tình
+  trạng của nó** để giữ nguyên tình trạng của đồ vật.
+- **Người nhận lại**: bạn, hoặc một thành viên khác của địa điểm đã nhận lại nó. Với đồ bạn mượn,
+  đó là **Người trả lại**.
+
+Một bàn giao được trả lại từng dòng: đã trả lại, hư hỏng, chưa trả lại, hoặc đã mất, và một thành
+viên nhận lại tất cả. Một đồ vật bị mất được đánh dấu là đã mất, không bao giờ được xóa. Mọi bước
+đều có thể hoàn tác.
+
+Trợ lý và các ứng dụng MCP trả lại đồ vật với cùng các lựa chọn: hư hỏng, ghi chú, và ai đã nhận lại.
+
+## Ai đã giữ
+
+Trên thẻ **Lượt mượn** của một đồ vật, **Ai đã giữ** liệt kê mọi lượt mượn của nó, mới nhất trước:
+ai đã giữ, từ khi nào đến khi nào, nó trở về ra sao (đã trả, trả muộn, trả lại bị hư hỏng, đã mất,
+tình trạng khi trở về) và ai đã nhận lại. Một lượt mượn vẫn còn sau khi trả, nên danh sách đi ngược
+đến lượt mượn đầu tiên của đồ vật. Người xem cũng thấy, không có các nút. Các lần trả ghi trước Kept
+1.14.7 không cho biết ai đã nhận lại.
 
 ## Cho gia đình hoặc bạn bè xem
 

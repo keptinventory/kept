@@ -30857,6 +30857,44 @@ msgstr "Усередині <0>{0}</0> та його відділень — {insi
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "До кошика потраплять лише {placeName} та його відділення."
 
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Повернулося пошкодженим"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Повернулося від {person} пошкодженим"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Хто повернув"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "повернув(-ла) <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Ще не повернуто"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "з {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Хто прийняв"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "прийняв(-ла) <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "У кого було"
+
 #: src/components/location-position.tsx
 #: src/components/history/labels.ts
 msgid "Position"

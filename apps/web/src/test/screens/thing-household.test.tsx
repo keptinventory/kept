@@ -184,6 +184,95 @@ describe('the Bosch drill (lent to Murdock, overdue)', () => {
   });
 });
 
+describe('the custody trail (#374)', () => {
+  /** The drill with an earlier loan: Louis had it, it came back damaged, Bruce took it back. */
+  function withTrail(patch?: (s: MockState) => void): MockState {
+    const s = ownerScenario();
+    s.members[IDS.garage] = structuredClone(s.members[IDS.home] as MockState['members'][string]);
+    const open = s.household.loans.find((l) => l.id === H.loan.drill);
+    if (!open) throw new Error('fixture');
+    s.household.loans.push({
+      ...structuredClone(open),
+      id: 'loan-drill-earlier',
+      personId: H.person.murdock,
+      startedAt: '2026-09-01T09:00:00Z',
+      dueOn: '2026-09-10',
+      returnedAt: '2026-09-08T09:00:00Z',
+      outcome: 'returned',
+      condition: { out: null, in: 'poor' },
+      returnNotes: 'Chipped chuck',
+      damaged: true,
+      takenBackBy: { id: 'u-bruce', displayName: 'Bruce' },
+    });
+    patch?.(s);
+    return s;
+  }
+
+  it('lists who had it, newest first, with how it came back and who took it back', async () => {
+    desktop();
+    await renderApp(`/t/${T.drill}?tab=loans`, { state: withTrail() });
+    await findHeading('Bosch drill, 18 V');
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    const rows = within(trail.closest('section') as HTMLElement).getAllByRole('listitem');
+    expect(rows).toHaveLength(2);
+    // The open loan first: overdue, nobody took it back yet.
+    expect(rows[0]).toHaveTextContent(/^Murdock, since .*Lent out, Overdue$/);
+    expect(rows[1]).toHaveTextContent(
+      /Murdock, .* – .*Came back damaged, came back poor, taken back by Bruce, Chipped chuck/,
+    );
+    expect(within(rows[1] as HTMLElement).getByText('Bruce').tagName).toBe('BDI');
+  });
+
+  it('a viewer reads the trail, with no actions', async () => {
+    desktop();
+    const state = withTrail((s) => {
+      const g = s.locations.find((l) => l.id === IDS.garage);
+      if (g) g.role = 'viewer';
+    });
+    await renderApp(`/t/${T.drill}?tab=loans`, { state });
+    await findHeading('Bosch drill, 18 V');
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    const section = trail.closest('section') as HTMLElement;
+    expect(within(section).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(section).queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mark returned' })).toBeNull();
+  });
+
+  it('marks it returned damaged, taken back by another member, with a note', async () => {
+    desktop();
+    const { user, mock } = await renderApp(`/t/${T.drill}?tab=loans`, { state: withTrail() });
+    await findHeading('Bosch drill, 18 V');
+    await user.click(await screen.findByRole('button', { name: 'Mark returned' }));
+    const dialog = await screen.findByRole('dialog', { name: /^Back from/ });
+    await user.click(within(dialog).getByRole('radio', { name: 'Damaged' }));
+    expect(within(dialog).getByRole('switch', { name: 'Update its condition' })).toBeChecked();
+    const taker = within(dialog).getByRole('combobox', { name: 'Taken back by' });
+    expect(taker).toHaveValue('Ibrahim');
+    await user.clear(taker);
+    await user.type(taker, 'Bru');
+    await user.click(await screen.findByRole('option', { name: 'Bruce' }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Note' }), 'Cracked casing');
+    await user.click(within(dialog).getByRole('button', { name: 'Mark returned' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', hp.loanReturn(H.loan.drill))?.body).toEqual({
+        damaged: true,
+        updateCondition: true,
+        conditionIn: 'poor',
+        takenBackBy: 'u-bruce',
+        to: 'previous',
+        notes: 'Cracked casing',
+      }),
+    );
+    // The trail now starts with it: damaged, taken back by Bruce.
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    await waitFor(() =>
+      expect(
+        within(trail.closest('section') as HTMLElement).getAllByRole('listitem')[0],
+      ).toHaveTextContent(/Came back damaged, came back poor, taken back by Bruce, Cracked casing/),
+    );
+  });
+});
+
 describe('lending part of a quantity', () => {
   it('lends 2 of the 3 HDMI cables to a new person, with a due date', async () => {
     const { user, mock } = await renderApp(`/t/${T.hdmiCable}?sheet=lend`);

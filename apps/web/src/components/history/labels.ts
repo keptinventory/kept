@@ -211,7 +211,11 @@ export function useSummary() {
     const person = p.person ? isolate(p.person) : '';
     const direction = p.direction ?? '';
     const condition = p.condition ? words('condition', p.condition).toLocaleLowerCase() : '';
-    return sentences({ name, service, count, expected, person, direction, condition })[key]();
+    // #374: it came back damaged.
+    const damaged = p.damaged === '1';
+    return sentences({ name, service, count, expected, person, direction, condition, damaged })[
+      key
+    ]();
   };
 
   /** Every key's sentence, built lazily: only the one asked for is translated. */
@@ -223,6 +227,7 @@ export function useSummary() {
     person,
     direction,
     condition,
+    damaged,
   }: Vars): Record<Exclude<SummaryKey, 'event' | 'thing.lifecycle'>, () => string> {
     return {
       'thing.create': () => t`Added ${name}`,
@@ -351,9 +356,11 @@ export function useSummary() {
       'loan.update': () => t`Loan changed`,
       'loan.return': () =>
         person
-          ? condition
-            ? t`Came back from ${person}, ${condition}`
-            : t`Came back from ${person}`
+          ? damaged
+            ? t`Came back damaged from ${person}`
+            : condition
+              ? t`Came back from ${person}, ${condition}`
+              : t`Came back from ${person}`
           : t`Loan returned`,
       'loan.lost': () => (person ? t`Lost by ${person}` : t`Marked lost`),
       'loan.delete': () => t`Loan deleted`,
@@ -615,6 +622,7 @@ type Vars = {
   person: string;
   direction: string;
   condition: string;
+  damaged: boolean;
 };
 
 const KEYS: ReadonlySet<string> = new Set(SUMMARY_KEYS);

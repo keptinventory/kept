@@ -44,7 +44,9 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 ## Haushalt
 
 - **[Verleihen und Ausleihen](/de/users/lending/)**: wer was hat und wann es zurück sein soll, mit
-  Erinnerungen und einer höflichen Nachricht zum Kopieren. Ausleiher brauchen kein Konto. Modul: Verleihen.
+  Erinnerungen und einer höflichen Nachricht zum Kopieren. Ausleiher brauchen kein Konto. Jeder
+  Gegenstand zeigt, wer ihn der Reihe nach hatte, wie er zurückkam und wer ihn zurückgenommen hat.
+  Modul: Verleihen.
 - **[Kits und Übergaben](/de/users/kits/)**: verleihe eine Box mit allem, was drin ist; jedes Ding kommt über
   seinen eigenen Eintrag zurück. Ein Kit merkt sich, was hineingehört.
 - **[Umzug](/de/users/moving/)**: nummerierte Boxen, ein Etikett und ein Inhaltsblatt für jede,

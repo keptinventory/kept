@@ -197,9 +197,11 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'loan.update': () => 'Loan changed',
   'loan.return': (p) =>
     p.person
-      ? p.condition
-        ? `Came back from ${p.person} (${p.condition})`
-        : `Came back from ${p.person}`
+      ? p.damaged
+        ? `Came back damaged from ${p.person}`
+        : p.condition
+          ? `Came back from ${p.person} (${p.condition})`
+          : `Came back from ${p.person}`
       : 'Loan returned',
   'loan.lost': (p) => (p.person ? `Lost by ${p.person}` : 'Marked lost'),
   'loan.delete': () => 'Loan deleted',
@@ -652,6 +654,8 @@ export function summarise(event: RenderedAuditEvent, ctx: SummaryContext): Summa
       if (typeof direction === 'string') params.direction = direction;
       const condition = afterOf(event, 'condition_in');
       if (key === 'loan.return' && typeof condition === 'string') params.condition = condition;
+      // #374: it came back damaged (a flag; the condition says how).
+      if (key === 'loan.return' && afterOf(event, 'damaged') === true) params.damaged = '1';
       if (key === 'handover.create') {
         const lines = afterOf(event, 'lines');
         params.count = String(Array.isArray(lines) ? lines.length : 1);

@@ -75,8 +75,9 @@ describe('the tools as the model sees them', () => {
     // allowance included.
     // 15,400 since 1.14.4: update_thing's `purchase` (#348, #215), its schema kept to plain
     // strings, took the one-location set from 14,972 to 15,286 characters, and create_place's
-    // room size (#372) to 15,347.
-    expect(sizeOf({ oneLocation: true })).toBeLessThan(15_400);
+    // room size (#372) to 15,347. 15,600 since 1.14.7: return_thing's damaged, note and
+    // taken_back_by (#374, the return dialog's fields, #215).
+    expect(sizeOf({ oneLocation: true })).toBeLessThan(15_600);
     expect(sizeOf()).toBeLessThan(20_000);
   });
 

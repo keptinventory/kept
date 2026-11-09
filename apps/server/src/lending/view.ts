@@ -64,6 +64,9 @@ export type Loan = {
   returnNotes: string | null;
   /** The hand-over's root, when this line went inside it or with it ("with Camera bag"). */
   with: { id: string; name: string | null } | null;
+  /** #374: it came back damaged, and the member who took it back (null before 1.14.7). */
+  damaged: boolean;
+  takenBackBy: { id: string; displayName: string } | null;
 };
 export type LoanRow = Loan & { thing: ThingRow };
 
@@ -96,6 +99,8 @@ export const LoanSchema = z.object({
   }),
   returnNotes: z.string().nullable(),
   with: z.object({ id: z.uuid(), name: z.string().nullable() }).nullable(),
+  damaged: z.boolean(),
+  takenBackBy: z.object({ id: z.uuid(), displayName: z.string() }).nullable(),
 });
 export const LoanRowSchema = LoanSchema.extend({ thing: ThingRowSchema });
 
@@ -124,13 +129,15 @@ export type LoanRecord = {
   condition_out: Condition | null;
   condition_in: Condition | null;
   return_notes: string | null;
+  damaged: boolean;
+  taken_back_by: string | null;
 };
 
 export const LOAN_COLUMNS = `o.id, o.location_id, o.thing_id, o.direction, o.person_id, o.started_at,
        o.due_on::text AS due_on, o.returned_at, o.return_place_id, o.return_container_id, o.previous_place_id,
        o.previous_container_id, o.split_from_thing_id, o.lead_days, o.notes, o.created_by,
        o.row_version, o.handover_id, o.path_at_lend, o.outcome, o.condition_out, o.condition_in,
-       o.return_notes`;
+       o.return_notes, o.damaged, o.taken_back_by`;
 
 /** A loan's audit image (snake_case): what a write changes and an undo puts back. */
 export const loanImage = (r: LoanRecord) => ({
@@ -153,6 +160,8 @@ export const loanImage = (r: LoanRecord) => ({
   condition_out: r.condition_out,
   condition_in: r.condition_in,
   return_notes: r.return_notes,
+  damaged: r.damaged,
+  taken_back_by: r.taken_back_by,
 });
 
 /** `FROM` a loan `o`, with what its view needs. The caller adds WHERE and ORDER BY. */
@@ -166,6 +175,7 @@ export const LOAN_FROM = `
   LEFT JOIN public.places pp ON pp.id = o.previous_place_id
   LEFT JOIN public.things pc ON pc.id = o.previous_container_id
   LEFT JOIN public.user_profiles up ON up.user_id = o.created_by
+  LEFT JOIN public.user_profiles tb ON tb.user_id = o.taken_back_by
   LEFT JOIN public.handovers ho ON ho.id = o.handover_id
   LEFT JOIN public.things hr ON hr.id = ho.root_thing_id AND hr.id <> o.thing_id`;
 
@@ -176,7 +186,7 @@ export const OVERDUE_SQL = `(o.returned_at IS NULL AND o.due_on IS NOT NULL
 export const LOAN_VIEW_COLUMNS = `${LOAN_COLUMNS},
        coalesce(pe.display_name, '') AS person_name, pe.member_user_id IS NOT NULL AS is_member,
        trim_scale(t.quantity)::text AS quantity, ${OVERDUE_SQL} AS overdue,
-       up.display_name AS created_by_name,
+       up.display_name AS created_by_name, tb.display_name AS taken_back_by_name,
        CASE WHEN rc.id IS NOT NULL THEN ${thingSubjectSql('rc')}
             WHEN rp.id IS NOT NULL THEN ${placeSubjectSql('rp')} END AS return_place,
        CASE WHEN pc.id IS NOT NULL THEN ${thingSubjectSql('pc')}
@@ -192,6 +202,7 @@ type LoanViewRecord = LoanRecord & {
   quantity: string;
   overdue: boolean;
   created_by_name: string | null;
+  taken_back_by_name: string | null;
   return_place: unknown;
   previous_place: unknown;
   row_thing_id: string;
@@ -244,6 +255,10 @@ export async function loansOf(
       condition: { out: o.condition_out, in: o.condition_in },
       returnNotes: o.return_notes,
       with: o.with_id ? { id: o.with_id, name: o.with_name } : null,
+      damaged: o.damaged,
+      takenBackBy: o.taken_back_by
+        ? { id: o.taken_back_by, displayName: o.taken_back_by_name ?? '' }
+        : null,
     };
   });
 }

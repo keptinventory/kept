@@ -382,6 +382,121 @@ describe('partial lends and returns', () => {
   });
 });
 
+describe('the custody trail (#374)', () => {
+  it('lists every loan of the thing, newest first, with who took it back and how it came back', async () => {
+    await setDisplayName(db, bruce, 'Bruce');
+    const saw = await createThing(t, ibrahim, home, { name: 'Jigsaw' });
+    const first = (await lend(louis, saw.id, { person: { id: murdock } })).loan as Json;
+    // Came back damaged, taken back by Bruce, with a note.
+    const back = await post(
+      louis,
+      `/api/v1/loans/${first.id}/return`,
+      { damaged: true, notes: 'Chipped blade', takenBackBy: bruce.userId },
+      1,
+    );
+    const returned = ok(back);
+    expect(returned.loan).toMatchObject({
+      outcome: 'returned',
+      damaged: true,
+      condition: { in: 'poor' },
+      returnNotes: 'Chipped blade',
+      takenBackBy: { id: bruce.userId, displayName: 'Bruce' },
+    });
+    // The thing's own condition takes it: where condition lives.
+    expect((await thingView(saw.id)).condition).toBe('poor');
+    const [event] = (await eventsOf(db, home.id, first.id)).filter(
+      (e) => e.action === 'loan.return',
+    );
+    expect(event?.diff).toMatchObject({
+      damaged: { after: true },
+      taken_back_by: { after: bruce.userId },
+      thing_condition: { after: 'poor' },
+    });
+
+    // A second loan, back fine: the caller took it back.
+    const second = (await lend(ibrahim, saw.id, { person: { memberUserId: louis.userId } }))
+      .loan as Json;
+    ok(await post(ibrahim, `/api/v1/loans/${second.id}/return`, {}, 1));
+    // A third, still out.
+    const third = (await lend(louis, saw.id, { person: { id: murdock } })).loan as Json;
+
+    // The trail: every loan, newest first, for a viewer too.
+    const trail = ok(await call(t, `/api/v1/things/${saw.id}/loans`, { as: talia }));
+    const items = trail.items as Json[];
+    expect(items.map((l) => l.id)).toEqual([third.id, second.id, first.id]);
+    expect(items[0]).toMatchObject({ returnedAt: null, damaged: false, takenBackBy: null });
+    expect(items[1]).toMatchObject({
+      person: { name: 'Louis', isMember: true },
+      outcome: 'returned',
+      damaged: false,
+      takenBackBy: { id: ibrahim.userId, displayName: 'Ibrahim' },
+    });
+    expect(items[2]).toMatchObject({ damaged: true, takenBackBy: { displayName: 'Bruce' } });
+  });
+
+  it('refuses a taker who is not a member, and damaged on something borrowed', async () => {
+    const level = await createThing(t, ibrahim, home, { name: 'Spirit level' });
+    const loan = (await lend(louis, level.id, { person: { id: murdock } })).loan as Json;
+    const outsider = await post(
+      louis,
+      `/api/v1/loans/${loan.id}/return`,
+      { takenBackBy: alfred.userId },
+      1,
+    );
+    expect(outsider.statusCode, outsider.body).toBe(400);
+    expect(outsider.body).toMatch(/takenBackBy/);
+    const borrowed = ok(
+      await post(louis, `/api/v1/locations/${home.id}/borrow`, {
+        name: 'Tile cutter',
+        target: { placeId: home.unplacedId },
+        person: { id: murdock },
+      }),
+      201,
+    ).loan as Json;
+    const damaged = await post(
+      louis,
+      `/api/v1/loans/${borrowed.id}/return`,
+      { damaged: true },
+      borrowed.rowVersion as number,
+    );
+    expect(damaged.statusCode, damaged.body).toBe(400);
+    expect(damaged.body).toMatch(/damaged/);
+  });
+
+  it('keeps the condition when told to, and undo clears damaged and who took it back', async () => {
+    const sander = await createThing(t, ibrahim, home, { name: 'Sander', condition: 'good' });
+    const loan = (await lend(louis, sander.id, { person: { id: murdock } })).loan as Json;
+    const back = await post(
+      louis,
+      `/api/v1/loans/${loan.id}/return`,
+      { damaged: true, conditionIn: 'broken', updateCondition: false },
+      1,
+    );
+    expect(ok(back).loan).toMatchObject({ damaged: true, condition: { in: 'broken' } });
+    expect((await thingView(sander.id)).condition).toBe('good');
+    ok(await undo(louis, back.headers['x-kept-audit-event'] as string));
+    const [row] = await own<{ damaged: boolean; taken_back_by: string | null }>(
+      db,
+      'SELECT damaged, taken_back_by FROM public.loans WHERE id = $1',
+      [loan.id],
+    );
+    expect(row).toEqual({ damaged: false, taken_back_by: null });
+
+    // Damaged with the thing's condition taken, then undone: the condition goes back too.
+    const reopened = ok(await call(t, `/api/v1/things/${sander.id}/loans`, { as: louis }));
+    const open = (reopened.items as Json[])[0] as Json;
+    const again = await post(
+      louis,
+      `/api/v1/loans/${loan.id}/return`,
+      { damaged: true },
+      open.rowVersion as number,
+    );
+    expect((await thingView(sander.id)).condition).toBe('poor');
+    ok(await undo(louis, again.headers['x-kept-audit-event'] as string));
+    expect((await thingView(sander.id)).condition).toBe('good');
+  });
+});
+
 describe('POST /api/v1/locations/:id/borrow', () => {
   // catalogue: POST /api/v1/locations/:id/borrow
   it('borrows a thing that belongs to the person; its return ends it and it leaves Home’s counts', async () => {
