@@ -8,10 +8,12 @@ import {
   capFactsOf,
   capitalise,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   tokens,
@@ -308,6 +310,24 @@ export const ES: CoreTable = {
     footnote: 'Si no fuiste tú, no tienes que hacer nada.',
   }),
   'security-notice': (m, ctx) => ES_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('es', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} en ${os}`);
+    return {
+      subject: 'Se usó un código de respaldo para iniciar sesión en tu cuenta de Kept',
+      paragraphs: [
+        device
+          ? `Se usó un código de respaldo para iniciar sesión en tu cuenta de Kept el ${when}, desde ${device}.`
+          : `Se usó un código de respaldo para iniciar sesión en tu cuenta de Kept el ${when}.`,
+        m.left === 0
+          ? 'Era tu último código de respaldo. Crea nuevos en Configuración → Iniciar sesión y seguridad → Nuevos códigos de respaldo.'
+          : `Te ${m.left === 1 ? 'queda' : 'quedan'} ${esCount(m.left, 'código de respaldo', 'códigos de respaldo')}.`,
+        'Si lo usaste porque ya no tienes tu app de autenticación, vuelve a configurar la autenticación de dos factores con una app nueva en Configuración → Iniciar sesión y seguridad → Configurar nuevamente. Así también obtienes códigos de respaldo nuevos.',
+      ],
+      footnote:
+        'Si no fuiste tú, restablece tu contraseña ahora desde la página de inicio de sesión. Después, crea códigos de respaldo nuevos en Configuración → Iniciar sesión y seguridad → Nuevos códigos de respaldo (los antiguos dejan de funcionar) y cierra sesión en los demás dispositivos en Configuración → Sesiones y dispositivos → Cerrar sesión en todos los demás dispositivos.',
+    };
+  },
   'admin-action': (m) => ({
     ...ES_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'Este es un aviso automático sobre tu cuenta.',

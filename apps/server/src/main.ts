@@ -313,6 +313,14 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
         enrolmentNeedsVerifiedEmail: mail.configured,
         ingress: env.KEPT_HA,
         revokeTokensOnClaim: (userId) => revokeTokensOnClaim(pools.system, userId),
+        // The backup-code mail gives the time in the person's own zone (#419).
+        timeZoneOf: async (userId) => {
+          const { rows } = await pools.system.query<{ timezone: string }>(
+            'SELECT timezone FROM public.user_profiles WHERE user_id = $1',
+            [userId],
+          );
+          return rows[0]?.timezone ?? null;
+        },
         onBackgroundError: (err, what) =>
           logger.error({ err, what }, 'auth background task failed'),
       });

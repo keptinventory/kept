@@ -42,6 +42,11 @@ const Currency = z
   .transform((c) => c.toUpperCase());
 const TimeZone = z.string().min(1).max(64);
 const Params = z.object({ id: z.uuid() });
+/** Where a location is (#375): WGS 84 degrees, as a phone's GPS gives them. */
+const Position = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
 const CreatableKind = z.enum(
   LOCATION_KINDS.filter((k) => k !== 'personal') as [string, ...string[]],
 );
@@ -69,6 +74,8 @@ const PatchBody = z
     longUnseenMonths: z.number().int().min(1).max(120),
     /** Room photos stay on their place after review (#194). */
     keepRoomPhotos: z.boolean(),
+    /** Where it is (#375), for Capture's "Suggest where I am"; null clears it. */
+    position: Position.nullable(),
     /** Owner only. Turning it on needs a second factor in this session. */
     require2fa: z.boolean(),
     /** Owner only (D165): a current member, or null to clear. */
@@ -245,6 +252,10 @@ export async function locationRoutes(
         if (settings.kind !== undefined && before.kind === 'personal') {
           throw conflict("A Personal location's kind can't be changed.");
         }
+        if (settings.position && before.kind === 'personal') {
+          // Personal goes wherever you do: a position would suggest it in one place only.
+          throw conflict('A Personal location has no position.');
+        }
         if (settings.timezone !== undefined) settings.timezone = requireZone(settings.timezone);
         if (settings.currency !== undefined) await requireCurrency(client, settings.currency);
         if (require2fa === true && !before.require2fa && !scope.mfa) {
@@ -264,7 +275,12 @@ export async function locationRoutes(
         };
         const sets: string[] = [];
         const values: unknown[] = [id];
-        for (const [key, value] of Object.entries(settings)) {
+        const { position, ...plain } = settings;
+        if (position !== undefined) {
+          values.push(position?.latitude ?? null, position?.longitude ?? null);
+          sets.push(`latitude = $${values.length - 1}`, `longitude = $${values.length}`);
+        }
+        for (const [key, value] of Object.entries(plain)) {
           const column = columns[key];
           if (!column || value === undefined) continue;
           values.push(value);

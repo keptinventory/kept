@@ -13,6 +13,8 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   dentro de lugares. Mover una caja y lo que contiene también se mueve. Un árbol de ubicaciones que puedes ampliar o colapsar.
 - **[Ocultar Personal](/es/users/locations/#ocultar-personal)**: quita tu ubicación Personal del
   menú, Inicio, listas y búsqueda, y muestra de nuevo cuando quieras.
+- **[La posición de una ubicación](/es/users/locations/#su-posición)**: desde el teléfono o
+  escrita, para que Capturar sugiera la ubicación en la que estás.
 - **[Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos)**: una estantería cúbica o
   una cómoda, cada compartimento su propio lugar. Ponlo de lado, fusiona o divide
   compartimentos; sus etiquetas siguen funcionando.

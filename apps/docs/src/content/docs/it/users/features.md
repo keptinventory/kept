@@ -13,6 +13,8 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   dentro altri posti. Sposta una scatola e ciò che contiene si sposta con essa. Un albero di posti che puoi allargare o ridurre.
 - **[Nascondi personale](/it/users/locations/#nascondi-personale)**: togli il tuo luogo personale dal
   menu, dalla Home, dagli elenchi e dalla ricerca, e mostralo di nuovo quando vuoi.
+- **[La posizione di un luogo](/it/users/locations/#la-sua-posizione)**: dal telefono o
+  scritta a mano, perché Acquisisci suggerisca il luogo in cui sei.
 - **[Mobili con scomparti](/it/users/locations/#mobili-con-vani)**: una scaffalatura a cubi o
   un cassettone, ogni scomparto è un posto a sé. Giralo di lato, unisci o dividi gli
   scomparti; le loro etichette continuano a funzionare.

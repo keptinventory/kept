@@ -20956,3 +20956,44 @@ msgstr "Home Assistant đã kết nối"
 #: src/components/connections/token-create.tsx
 msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
 msgstr "Home Assistant tự hoàn tất phần thiết lập. Token được liệt kê ở đây với tên Home Assistant."
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Vị trí"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Khi bật “Gợi ý vị trí của tôi”, Chụp sẽ chọn địa điểm này khi bạn ở đây. Vị trí điện thoại của bạn được so sánh ngay trên điện thoại và không bao giờ được gửi đi. Chỉ chủ sở hữu và quản trị viên thấy mục này."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Vĩ độ"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Kinh độ"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Nhập một số từ {from} đến {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Dùng vị trí hiện tại của tôi"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Không đọc được vị trí của bạn. Hãy thử lại hoặc tự nhập."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Mở trong bản đồ"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Xóa vị trí"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Đã xóa vị trí"

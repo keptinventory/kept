@@ -30892,3 +30892,44 @@ msgstr "Home Assistant під’єднано"
 #: src/components/connections/token-create.tsx
 msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
 msgstr "Home Assistant сам завершить налаштування. Токен показано тут як Home Assistant."
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Місцеположення"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Коли «Підказати, де я» увімкнено, додавання обирає цю локацію, коли ви тут. Місцеположення телефона порівнюється на самому телефоні й ніколи не надсилається. Це бачать лише власники й адміністратори."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Широта"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Довгота"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Введіть число від {from} до {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Використати, де я зараз"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Не вдалося визначити, де ви. Спробуйте ще раз або введіть вручну."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Відкрити на мапі"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Прибрати місцеположення"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Місцеположення прибрано"

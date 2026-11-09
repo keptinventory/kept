@@ -28907,3 +28907,44 @@ msgstr "Home Assistant está conectado"
 #: src/components/connections/token-create.tsx
 msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
 msgstr "Home Assistant termina la configuración por sí solo. El token aparece aquí como Home Assistant."
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Posición"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Con «Sugerir dónde estoy» activado, Capturar elige esta ubicación cuando estás aquí. La posición de tu teléfono se compara en el teléfono y nunca se envía. Solo los propietarios y los administradores ven esto."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Latitud"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Longitud"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Ingresa un número de {from} a {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Usar dónde estoy ahora"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "No se pudo saber dónde estás. Inténtalo de nuevo o escríbelo."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Abrir en mapas"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Quitar posición"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Posición quitada"

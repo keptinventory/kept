@@ -45,6 +45,18 @@ export type MailBody =
   | { kind: 'sign-up-existing'; to: string }
   /** A credential changed on the account (security review I3): if it wasn't them, they know. */
   | { kind: 'security-notice'; to: string; event: SecurityEvent }
+  /** #419: a backup code signed someone in. `at` (ISO) is shown in `timeZone`; `browser` and `os`
+   * are describeUserAgent()'s fixed labels (never the raw header); `left` the codes still unused.
+   * Never the code itself. */
+  | {
+      kind: 'backup-code-used';
+      to: string;
+      at: string;
+      timeZone: string;
+      browser: string | null;
+      os: string | null;
+      left: number;
+    }
   /** An instance admin (or the operator's `kept admin` CLI) acted on this person's account
    * (D180: instance-admin transparency). `locationName` for an ownership transfer. */
   | { kind: 'admin-action'; to: string; action: AdminAction; locationName?: string }
@@ -164,5 +176,7 @@ export function authMail(mailer: Mailer): AuthMail {
     sendPasswordReset: ({ email, url }) => mailer.send({ kind: 'password-reset', to: email, url }),
     sendSecurityNotice: ({ email, event }) =>
       mailer.send({ kind: 'security-notice', to: email, event }),
+    sendBackupCodeUsed: ({ email, ...facts }) =>
+      mailer.send({ kind: 'backup-code-used', to: email, ...facts }),
   };
 }
