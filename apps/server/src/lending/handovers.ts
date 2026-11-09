@@ -568,14 +568,15 @@ export type ReturnLine = {
 };
 
 /**
- * POST /api/v1/handovers/:id/return {returnedAt?, lines}: the checklist. Each listed open line
- * closes as it says (`loan.return` or `loan.lost`), "not returned" stays open, an unlisted line
- * is left as it is.
+ * POST /api/v1/handovers/:id/return {returnedAt?, takenBackBy?, lines}: the checklist. Each listed
+ * open line closes as it says (`loan.return` or `loan.lost`), "not returned" stays open, an
+ * unlisted line is left as it is. "Damaged" comes back damaged (#374); who took it back is one
+ * member for every line that came back.
  */
 export async function returnHandover(
   ctx: Ctx,
   id: string,
-  body: { returnedAt?: string | undefined; lines: ReturnLine[] },
+  body: { returnedAt?: string | undefined; takenBackBy?: string | undefined; lines: ReturnLine[] },
 ): Promise<Handover> {
   const first = await handoverRecord(ctx.client, id);
   await requireRole(ctx.client, first.location_id, 'things.edit');
@@ -607,6 +608,9 @@ export async function returnHandover(
       ...(l.conditionIn ? { conditionIn: l.conditionIn } : {}),
       ...(l.updateCondition ? { updateCondition: true } : {}),
       ...(l.quantityBack !== undefined ? { quantityBack: l.quantityBack } : {}),
+      ...(l.updateCondition === false ? { updateCondition: false } : {}),
+      ...(l.outcome === 'damaged' ? { damaged: true } : {}),
+      ...(body.takenBackBy ? { takenBackBy: body.takenBackBy } : {}),
     });
   }
   return handoverView(ctx, h.id);

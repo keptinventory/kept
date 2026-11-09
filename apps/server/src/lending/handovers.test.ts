@@ -246,6 +246,8 @@ describe('returning a hand-over', () => {
     ).toBe(403);
 
     const back = await post(louis, `/api/v1/handovers/${h.id}/return`, {
+      // #374: one member took it all back.
+      takenBackBy: ibrahim.userId,
       lines: [
         {
           loanId: lineOf(h, k.bag.id).id,
@@ -277,9 +279,14 @@ describe('returning a hand-over', () => {
       condition: { in: 'broken' },
       returnNotes: 'Cracked',
       notes: 'Lend note',
+      damaged: true,
+      takenBackBy: { id: ibrahim.userId, displayName: 'Ibrahim' },
     });
+    expect(lineOf(after, k.bag.id)).toMatchObject({ damaged: false });
+    expect(lineOf(after, k.strap.id)).toMatchObject({ damaged: false, takenBackBy: null });
     expect((await thing(k.bag.id))?.condition).toBe('fair');
-    expect((await thing(k.lens.id))?.condition).toBeNull();
+    // Damaged (#374): the thing's condition takes the one it came back in.
+    expect((await thing(k.lens.id))?.condition).toBe('broken');
     expect(lineOf(after, k.strap.id).outcome).toBe('lost');
     expect((await thing(k.strap.id))?.lifecycle).toBe('lost');
     expect((await thing(k.batteries.id))?.quantity).toBe('3');
@@ -301,6 +308,8 @@ describe('returning a hand-over', () => {
     expect((await thing(k.strap.id))?.lifecycle).toBe('in_use');
     expect((await thing(k.batteries.id))?.quantity).toBe('5');
     expect((await thing(k.bag.id))?.condition).toBeNull();
+    expect((await thing(k.lens.id))?.condition).toBeNull();
+    expect(lineOf(reopened, k.lens.id)).toMatchObject({ damaged: false, takenBackBy: null });
 
     // A line resolved later on its own: lost.
     const strap = lineOf(reopened, k.strap.id);

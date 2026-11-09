@@ -11,8 +11,16 @@
 // and `GET /addons/self/info`, which every app may call without extra permissions). The guess
 // assumes mDNS works on the network; the option is the fix when it doesn't.
 //
-//   node options.mjs [--options /data/options.json]
-import { readFile } from 'node:fs/promises';
+// It also tells Home Assistant that Kept is here (#376), the Supervisor's discovery
+// (POST /discovery, for the `kept` integration this app's config.yaml lists under `discovery`):
+// Kept's address on Home Assistant's internal network and the app's link secret, made once into
+// /data/config/home-assistant-link. Only Home Assistant Core reads a discovery message. The
+// secret lets the Kept integration ask to be linked; a person signed in to Kept approves it
+// (apps/server/src/homeassistant/link.ts). A failed send is said in the log, and Kept still starts.
+//
+//   node options.mjs [--options /data/options.json] [--link-secret /data/config/home-assistant-link]
+import { randomBytes } from 'node:crypto';
+import { readFile, rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'];
@@ -344,13 +352,65 @@ export function shellExports(env) {
   return out;
 }
 
+/** The integration's domain: what config.yaml's `discovery` lists and the message names. */
+export const DISCOVERY_SERVICE = 'kept';
+/** The port Kept listens on inside the container: Home Assistant reaches it there on its internal
+ * network, whatever host port (or none) the person mapped. */
+const INTERNAL_PORT = 8080;
+/** A link secret as this script writes it: 32 random bytes, base64url. */
+const LINK_SECRET = /^[A-Za-z0-9_-]{43}$/;
+
+/** The secret in `text` when it is one this script wrote, else null. */
+export function readLinkSecret(text) {
+  const value = typeof text === 'string' ? text.trim() : '';
+  return LINK_SECRET.test(value) ? value : null;
+}
+
+export const newLinkSecret = () => randomBytes(32).toString('base64url');
+
+/**
+ * The discovery message for the Kept integration, or null without the app's host name. `host` is
+ * the app's name on Home Assistant's internal network (`/addons/self/info`'s `hostname`), `ssl`
+ * whether Kept serves https on its port (the `ssl` option; the certificate names Kept's address,
+ * not this host name).
+ */
+export function discoveryMessage({ self, ssl, linkSecret }) {
+  const host = text(self?.hostname);
+  if (!host || !readLinkSecret(linkSecret)) return null;
+  return {
+    service: DISCOVERY_SERVICE,
+    config: { host, port: INTERNAL_PORT, ssl: ssl === true, link_secret: linkSecret },
+  };
+}
+
+/** The app's link secret, made on the first start and kept in `file` (root's until the start
+ * script hands /data/config to Kept's user). */
+async function linkSecretAt(file) {
+  try {
+    const kept = readLinkSecret(await readFile(file, 'utf8'));
+    if (kept) return kept;
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  const made = newLinkSecret();
+  await writeFile(`${file}.tmp`, `${made}\n`, { mode: 0o600 });
+  await rename(`${file}.tmp`, file);
+  return made;
+}
+
+/** POST a JSON body to a Supervisor endpoint; its `data`, or null on any failure. */
+async function supervisorPost(path, body) {
+  return supervisor(path, { method: 'POST', body: JSON.stringify(body) });
+}
+
 /** GET a Supervisor endpoint's `data`, or null (no token, no answer, an error). */
-async function supervisor(path) {
+async function supervisor(path, init = {}) {
   const token = process.env.SUPERVISOR_TOKEN;
   if (!token) return null;
   try {
     const res = await fetch(`http://supervisor${path}`, {
-      headers: { authorization: `Bearer ${token}` },
+      ...init,
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return null;
@@ -372,6 +432,18 @@ async function main() {
   }
   const [info, self] = await Promise.all([supervisor('/info'), supervisor('/addons/self/info')]);
   const { env, lines } = appEnv({ options, info, self });
+  const linkAt = process.argv.indexOf('--link-secret');
+  if (linkAt > 0) {
+    // A secret that can't be read or written turns linking off; Kept still starts.
+    const linkSecret = await linkSecretAt(process.argv[linkAt + 1]).catch(() => null);
+    const message = discoveryMessage({ self, ssl: Boolean(env.KEPT_TLS_CERT_FILE), linkSecret });
+    const sent = message ? await supervisorPost('/discovery', message) : null;
+    lines.push(
+      sent
+        ? 'Home Assistant knows Kept is here: add the Kept integration from Settings → Devices & services.'
+        : "Home Assistant couldn't be told Kept is here: set up the Kept integration with Kept's address and a token.",
+    );
+  }
   for (const line of lines) process.stderr.write(`app: ${line}\n`);
   process.stdout.write(shellExports(env));
 }

@@ -24,6 +24,7 @@ import { closePools, createPools, type Pools } from './db/pools.js';
 import { bootReleaseGuard } from './db/release-guard.js';
 import { withSystem } from './db/scope.js';
 import { mirrorEmbeddingsSource } from './embeddings/provider.js';
+import { HomeAssistantLinks } from './homeassistant/link.js';
 import { buildApp, type KeptApp } from './http/app.js';
 import type { BuildInfo } from './http/health.js';
 import { createLogger } from './http/logger.js';
@@ -312,6 +313,14 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
         enrolmentNeedsVerifiedEmail: mail.configured,
         ingress: env.KEPT_HA,
         revokeTokensOnClaim: (userId) => revokeTokensOnClaim(pools.system, userId),
+        // The backup-code mail gives the time in the person's own zone (#419).
+        timeZoneOf: async (userId) => {
+          const { rows } = await pools.system.query<{ timezone: string }>(
+            'SELECT timezone FROM public.user_profiles WHERE user_id = $1',
+            [userId],
+          );
+          return rows[0]?.timezone ?? null;
+        },
         onBackgroundError: (err, what) =>
           logger.error({ err, what }, 'auth background task failed'),
       });
@@ -335,11 +344,17 @@ export async function startKept(env: Env, opts: StartOptions = {}): Promise<Runn
               key: await readFile(env.KEPT_TLS_KEY_FILE),
             }
           : null;
+      // #376: the app's link secret, from its start script (homeassistant/link.ts); app mode only.
+      const linkSecret =
+        env.KEPT_HA && env.KEPT_HA_LINK_SECRET_FILE
+          ? (await readFile(env.KEPT_HA_LINK_SECRET_FILE, 'utf8')).trim()
+          : null;
       app = await buildApp({
         env,
         pools,
         logger,
         tls,
+        homeAssistantLinks: linkSecret ? new HomeAssistantLinks(linkSecret) : null,
         build: opts.build ?? { version: KEPT_VERSION, revision: process.env.KEPT_REVISION ?? null },
         web,
         auth,

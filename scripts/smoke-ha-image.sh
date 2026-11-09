@@ -10,7 +10,7 @@
 #   2. first start: /readyz answers 200; the log has exactly one `KEPT SETUP CODE` line and the
 #      `Kept is at …` line; GET /api/v1/setup says it is the Home Assistant app;
 #   3. Postgres listens on 127.0.0.1 only, runs as `postgres`; Kept runs as 10001 and holds no
-#      SUPERVISOR_TOKEN;
+#      SUPERVISOR_TOKEN; the link secret (#376) is Kept's own file, and a wrong one is refused;
 #   4. the third-party notices name the Postgres server and pgvector;
 #   5. backup_pre writes /data/backup/kept.pgdump (owned by postgres), and it stays; Kept's user
 #      can't read the owner login's password;
@@ -186,7 +186,16 @@ grep -q '^KEPT_TRUSTED_PROXIES=172.30.32.2$' /tmp/kept-ha-smoke-env.$$ || { rm -
 # No Supervisor here to say its version: setup without the code stays off, even though the
 # container was started with KEPT_HA_TRUST_GROUPS=1 (see start()).
 grep -q '^KEPT_HA_TRUST_GROUPS=0$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "KEPT_HA_TRUST_GROUPS isn't 0 without a Supervisor"; }
+# #376: the link secret is made on the first start, Kept's own and nobody else's, and Kept is told
+# where it is; with no Supervisor to send the discovery message to, the log says so.
+grep -q '^KEPT_HA_LINK_SECRET_FILE=/data/config/home-assistant-link$' /tmp/kept-ha-smoke-env.$$ || { rm -f /tmp/kept-ha-smoke-env.$$; fail "Kept has no KEPT_HA_LINK_SECRET_FILE"; }
 rm -f /tmp/kept-ha-smoke-env.$$
+link=$(docker exec "$app" stat -c '%U %a %s' /data/config/home-assistant-link)
+[[ $link == 'kept 600 44' ]] || fail "the link secret is '$link', expected Kept's own, 0600, 43 characters and a newline"
+grep -qF "app: Home Assistant couldn't be told Kept is here" <<<"$logs" || fail "no line about the discovery message"
+[[ $(curl -s -o /dev/null -w '%{http_code}' -H 'content-type: application/json' \
+  -d '{"linkSecret":"not-the-secret"}' "$base/api/v1/home-assistant/link-requests") == 403 ]] ||
+  fail "a link request with a wrong secret wasn't refused"
 # Kept is the start script's own child, and the start script is the init's (PID 1): TERM goes
 # init → script → Kept and Postgres, with no subshell in between to swallow it.
 chain=$(docker exec "$app" node -e '

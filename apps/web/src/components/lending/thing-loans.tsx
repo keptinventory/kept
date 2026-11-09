@@ -2,13 +2,18 @@
  * Loans on the thing page (D56, D57; frame "Bosch drill on the Loans tab"): the open
  * loan as a panel (who, since when, when it's due, who recorded it, the note, where it returns
  * to, the condition photos) with **Mark returned** and, in More on a phone (buttons from `md`),
- * Copy a polite reminder, Change the due date and Remove; then the earlier loans. Kept never
+ * Copy a polite reminder, Change the due date and Remove; then who had it. Kept never
  * messages the person: the reminder text is yours to send.
  *
  * 1.14 (#170): each loan is a line of a hand-over. The panel says what it went with ("with
  * Camera bag") and where it sat; a line of a hand-over with other things still out offers
  * "Mark everything returned" (the checklist). Earlier loans show how they ended (back, in what
  * condition, lost) and both notes. A box or kit lists its own hand-overs and what is still out.
+ *
+ * #374, the custody trail: "Who had it" lists every loan of the thing, newest first as the
+ * server sends them, the open one included: who, from and to, and how it came back (in time or
+ * late, damaged, in what condition, lost) and which member took it back. It has no actions and no
+ * money, so a viewer reads it as is.
  */
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -129,14 +134,14 @@ export function ThingLoansSection({
             onDone={done}
           />
           {earlier.length ? (
-            <section className="grid gap-2" aria-labelledby="thing-earlier-loans">
-              <h3 id="thing-earlier-loans" className="eyebrow m-0">
-                <Trans>Earlier loans</Trans>
+            <section className="grid gap-2" aria-labelledby="thing-loan-trail">
+              <h3 id="thing-loan-trail" className="eyebrow m-0">
+                <Trans>Who had it</Trans>
               </h3>
               <List>
-                {earlier.map((l) => (
+                {items.map((l) => (
                   <li key={l.id}>
-                    <EarlierLoan loan={l} />
+                    <TrailRow loan={l} />
                   </li>
                 ))}
               </List>
@@ -186,19 +191,27 @@ function HandoverRow({ handover: h, onReturn }: { handover: Handover; onReturn?:
   );
 }
 
-function EarlierLoan({ loan: l }: { loan: Loan }) {
+/** One loan of the trail: who, from and to, and how it came back and who took it back. */
+function TrailRow({ loan: l }: { loan: Loan }) {
   const fmt = useFormat();
   const conditions = useConditionLabels();
   const from = fmt.day(l.startedAt);
-  const back = fmt.day(l.returnedAt ?? l.startedAt);
+  const back = l.returnedAt ? fmt.day(l.returnedAt) : null;
   const late = !!l.dueOn && !!l.returnedAt && l.returnedAt.slice(0, 10) > l.dueOn;
+  const taker = l.takenBackBy?.displayName;
   return (
     <Row
       title={
         <>
           <bdi>{l.person.name}</bdi>
           {sep()}
-          {from} – {back}
+          {back ? (
+            <>
+              {from} – {back}
+            </>
+          ) : (
+            <Trans>since {from}</Trans>
+          )}
         </>
       }
       subtitle={
@@ -213,8 +226,16 @@ function EarlierLoan({ loan: l }: { loan: Loan }) {
             </>
           ) : null}
           {sep()}
-          {l.outcome === 'lost' ? (
+          {!l.returnedAt ? (
+            l.overdue ? (
+              <Trans>Overdue</Trans>
+            ) : (
+              <Trans>Not back yet</Trans>
+            )
+          ) : l.outcome === 'lost' ? (
             <Trans>Lost</Trans>
+          ) : l.damaged ? (
+            <Trans>Came back damaged</Trans>
           ) : late ? (
             <Trans>Returned late</Trans>
           ) : (
@@ -224,6 +245,20 @@ function EarlierLoan({ loan: l }: { loan: Loan }) {
             <>
               {sep()}
               <Trans>came back {conditions[l.condition.in].toLocaleLowerCase()}</Trans>
+            </>
+          ) : null}
+          {taker ? (
+            <>
+              {sep()}
+              {l.direction === 'in' ? (
+                <Trans>
+                  given back by <bdi>{taker}</bdi>
+                </Trans>
+              ) : (
+                <Trans>
+                  taken back by <bdi>{taker}</bdi>
+                </Trans>
+              )}
             </>
           ) : null}
           {l.notes ? (

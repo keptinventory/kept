@@ -28871,3 +28871,118 @@ msgstr "<0>{0}</0> y sus compartimentos tienen {inside} dentro. ¿Qué debe pasa
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Solo {placeName} y sus compartimentos van a la papelera."
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Esta solicitud ha terminado. Empieza de nuevo desde Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Rechazada. Home Assistant no recibe nada."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant pide conectarse"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Código <0>{code}</0>. Comprueba que Home Assistant muestre el mismo."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Rechazar"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Conectar Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant lee Kept como tú, en las ubicaciones que elijas, y obtiene su token por sí mismo: no hay nada que copiar. Revócalo aquí cuando quieras."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant está conectado"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant termina la configuración por sí solo. El token aparece aquí como Home Assistant."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Volvió dañado"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Regresó dañado de {person}"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Devuelto por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "devuelto por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Aún no ha vuelto"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "desde {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Recibido por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "recibido por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Quién lo tuvo"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Posición"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Con «Sugerir dónde estoy» activado, Capturar elige esta ubicación cuando estás aquí. La posición de tu teléfono se compara en el teléfono y nunca se envía. Solo los propietarios y los administradores ven esto."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Latitud"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Longitud"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Ingresa un número de {from} a {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Usar dónde estoy ahora"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "No se pudo saber dónde estás. Inténtalo de nuevo o escríbelo."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Abrir en mapas"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Quitar posición"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Posición quitada"

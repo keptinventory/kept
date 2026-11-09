@@ -13,6 +13,8 @@ a location turns them on in **Location settings → What to track**
   inside places. Move a box and what's in it moves too. A place tree you can widen or collapse.
 - **[Hide Personal](/users/locations/#hide-personal)**: take your Personal location out of the
   menu, Home, lists and search, and show it again any time.
+- **[A location's position](/users/locations/#its-position)**: set it from the phone or
+  typed, so Capture suggests the location you're at.
 - **[Furniture with compartments](/users/locations/#furniture-with-compartments)**: a cube shelf or
   a chest of drawers, each compartment its own place. Turn it on its side, merge or split
   compartments; their labels keep working.
@@ -44,7 +46,8 @@ a location turns them on in **Location settings → What to track**
 ## The household
 
 - **[Lending and borrowing](/users/lending/)**: who has what and when it's due back, with
-  reminders and a polite message to copy. Borrowers need no account. Module: Lending.
+  reminders and a polite message to copy. Borrowers need no account. Each thing shows who had it,
+  in order, how it came back and who took it back. Module: Lending.
 - **[Kits and hand-overs](/users/kits/)**: lend a box with everything in it; each thing comes back
   on its own record. A kit remembers what belongs in it.
 - **[Moving house](/users/moving/)**: numbered boxes, a label and a contents sheet for each,
@@ -94,7 +97,8 @@ a location turns them on in **Location settings → What to track**
 ## Works with
 
 - **[Home Assistant](/users/home-assistant/)**: Kept as a Home Assistant app, and an integration
-  for dashboards, automations and the calendar.
+  for dashboards, automations and the calendar. The app offers the integration in Home Assistant;
+  you allow it in Kept, with no token to copy.
 - **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them; the start of a
   word finds one in **Link from Paperless**. A [Homebox import](/users/import-export/) takes its
   links' titles from Paperless.

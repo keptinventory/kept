@@ -7,10 +7,12 @@ import {
   type CoreTable,
   capFactsOf,
   day,
+  deviceName,
   diskFacts,
   type Message,
   type MessageContext,
   mailDay,
+  mailTime,
   num,
   page,
   tokens,
@@ -306,6 +308,26 @@ export const IT: CoreTable = {
     footnote: 'Se non sei stato tu, non devi fare nulla.',
   }),
   'security-notice': (m, ctx) => IT_SECURITY[m.event](ctx),
+  'backup-code-used': (m) => {
+    const when = mailTime('it', m.at, m.timeZone);
+    const device = deviceName(m, (browser, os) => `${browser} su ${os}`);
+    return {
+      subject: 'È stato usato un codice di backup per accedere al tuo account Kept',
+      paragraphs: [
+        device
+          ? `In data ${when} è stato usato un codice di backup per accedere al tuo account Kept, da ${device}.`
+          : `In data ${when} è stato usato un codice di backup per accedere al tuo account Kept.`,
+        m.left === 0
+          ? 'Era il tuo ultimo codice di backup. Creane di nuovi da Impostazioni → Accesso e sicurezza → Nuovi codici di backup.'
+          : m.left === 1
+            ? 'Ti resta 1 codice di backup.'
+            : `Ti restano ${m.left} codici di backup.`,
+        'Se l’hai usato perché non hai più l’app di autenticazione, configura di nuovo la verifica in due passaggi con una nuova app da Impostazioni → Accesso e sicurezza → Configura di nuovo. Riceverai anche nuovi codici di backup.',
+      ],
+      footnote:
+        'Se non sei stato tu, reimposta subito la password dalla pagina di accesso. Poi crea nuovi codici di backup da Impostazioni → Accesso e sicurezza → Nuovi codici di backup (i vecchi smettono di funzionare) ed esci dagli altri dispositivi da Impostazioni → Sessioni e dispositivi → Esci da tutti gli altri dispositivi.',
+    };
+  },
   'admin-action': (m) => ({
     ...IT_ADMIN[m.action](m.locationName ?? ''),
     footnote: 'Questo è un avviso automatico sul tuo account.',

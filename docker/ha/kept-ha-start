@@ -3,7 +3,8 @@
 # everything that lasts under /data, which Home Assistant keeps across updates and backs up.
 #
 #   1. the options (/data/options.json), Kept's address and the Supervisor's version, as Kept's
-#      environment (options.mjs); then SUPERVISOR_TOKEN is dropped, before anything else starts;
+#      environment (options.mjs), which also sends Home Assistant the discovery message for the Kept
+#      integration (#376); then SUPERVISOR_TOKEN is dropped, before anything else starts;
 #   2. /data's folders re-owned on every start: a restored backup comes back owned by root;
 #   3. no database yet: restore from /data/backup/kept.pgdump when a backup brought one, else a new
 #      cluster (initdb). A restore is one transaction under a marker (.restore-pending): a start
@@ -44,7 +45,11 @@ psql_su() { "$PGBIN/psql" -h "$SOCKET" -U postgres -v ON_ERROR_STOP=1 -qAt "$@";
 
 # 1. The options and the address. The values go through a root-only file, never argv.
 install -d -m 0700 /run/kept-ha
-node /usr/local/lib/kept-ha/options.mjs --options "$DATA/options.json" >/run/kept-ha/env
+# The link secret (#376) lives in /data/config, which step 2 hands to Kept's user.
+install -d -m 0700 "$DATA/config"
+LINK_SECRET_FILE=$DATA/config/home-assistant-link
+node /usr/local/lib/kept-ha/options.mjs --options "$DATA/options.json" \
+  --link-secret "$LINK_SECRET_FILE" >/run/kept-ha/env
 # shellcheck source=/dev/null
 . /run/kept-ha/env
 rm -f /run/kept-ha/env
@@ -150,6 +155,9 @@ export KEPT_DB_APP_PASSWORD_FILE=$DATA/config/database/kept_app
 export KEPT_DB_AUTH_PASSWORD_FILE=$DATA/config/database/kept_auth
 export KEPT_DB_SYSTEM_PASSWORD_FILE=$DATA/config/database/kept_system
 export KEPT_TRUSTED_PROXIES=172.30.32.2
+# The secret Home Assistant's discovery message carries (#376): the integration asks with it, and a
+# person approves in Kept. Without the file (it couldn't be written), linking is off.
+if [[ -s $LINK_SECRET_FILE ]]; then export KEPT_HA_LINK_SECRET_FILE=$LINK_SECRET_FILE; fi
 export KEPT_LOG_FORMAT=pretty
 export KEPT_PORT=8080
 

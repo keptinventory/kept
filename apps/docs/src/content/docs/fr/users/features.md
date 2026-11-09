@@ -13,6 +13,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   dans des emplacements. Déplacez une boîte et son contenu suit. Un arbre d'emplacements que vous pouvez déplier ou replier.
 - **[Masquer Personnel](/fr/users/locations/#masquer-personnel)** : retirez votre lieu Personnel du
   menu, de l'accueil, des listes et de la recherche, et réaffichez-le à tout moment.
+- **[La position d’un lieu](/fr/users/locations/#sa-position)** : depuis le téléphone ou
+  saisie, pour que la capture propose le lieu où vous êtes.
 - **[Meubles avec compartiments](/fr/users/locations/#mobilier-à-compartiments)** : une étagère cube ou
   une commode, chaque compartiment est un emplacement à part. Tournez-le sur le côté, fusionnez ou scindez
   des compartiments ; leurs étiquettes restent fonctionnelles.
@@ -45,7 +47,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 ## Le foyer
 
 - **[Prêt et emprunt](/fr/users/lending/)** : qui a quoi et quand c'est à rendre, avec rappels et un
-  message poli à copier. Les emprunteurs n'ont pas besoin de compte. Module : Prêt.
+  message poli à copier. Les emprunteurs n'ont pas besoin de compte. Chaque objet montre qui l'a eu,
+  dans l'ordre, comment il est revenu et qui l'a repris. Module : Prêt.
 - **[Kits et remises](/fr/users/kits/)** : prêtez une boîte avec tout ce qu'elle contient ; chaque objet
   revient sur sa propre fiche. Un kit se souvient de ce qu'il doit contenir.
 - **[Déménagement](/fr/users/moving/)** : des boîtes numérotées, une étiquette et une fiche de contenu

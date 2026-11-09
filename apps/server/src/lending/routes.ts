@@ -40,15 +40,17 @@ import { LoanRowSchema, LoanSchema } from './view.js';
 //                                           409 already_on_loan, thing_in_repair; handover.create
 // GET    /api/v1/handovers/:id            → Handover (its lines)
 // PATCH  /api/v1/handovers/:id (If-Match) {dueOn?, leadDays?, notes?} → Handover  handover.update
-// POST   /api/v1/handovers/:id/return {returnedAt?, lines: [{loanId, outcome, conditionIn?, notes?,
-//                                       quantityBack?, updateCondition?}]} → Handover
+// POST   /api/v1/handovers/:id/return {returnedAt?, takenBackBy?, lines: [{loanId, outcome,
+//                                       conditionIn?, notes?, quantityBack?, updateCondition?}]}
+//                                         → Handover
 //                                         (loan.return / loan.lost per line, undoable)
 // POST   /api/v1/loans/:id/lost (If-Match) {notes?} → {loan}               loan.lost, undoable
 // GET    /api/v1/things/:id/handovers     → {items: Handover[]} (with this thing as the root)
 // POST   /api/v1/locations/:id/borrow {thingId?, loanId?, name, typeId?, target, person, dueOn?,
 //                                      notes?}  → 201 {loan, thing}
 // POST   /api/v1/loans/:id/return (If-Match) {returnedAt?, to?, mergeBack?, notes?, conditionIn?,
-//                                          updateCondition?, quantityBack?}
+//                                          updateCondition?, quantityBack?, damaged?,
+//                                          takenBackBy?}
 //                                         → {loan, thing, mergedInto?}      loan.return, undoable
 // PATCH  /api/v1/loans/:id (If-Match) {dueOn?, notes?, person?} → Loan     loan.update, undoable
 // DELETE /api/v1/loans/:id (If-Match)     → 204                            loan.delete, undoable
@@ -91,6 +93,7 @@ const LendBody = z.strictObject({
 });
 const HandoverReturnBody = z.strictObject({
   returnedAt: Iso.optional(),
+  takenBackBy: Id.optional(),
   lines: z
     .array(
       z.strictObject({
@@ -121,7 +124,8 @@ const BorrowBody = z.strictObject({
   dueOn: Day.optional(),
   notes: Notes.optional(),
 });
-const ReturnBody = z.strictObject({
+/** POST /loans/:id/return's body (exported for the tools' field parity, #215). */
+export const ReturnBody = z.strictObject({
   returnedAt: Iso.optional(),
   to: z.union([z.literal('previous'), Target]).optional(),
   mergeBack: z.boolean().optional(),
@@ -129,6 +133,10 @@ const ReturnBody = z.strictObject({
   conditionIn: Grade.optional(),
   updateCondition: z.boolean().optional(),
   quantityBack: Quantity.optional(),
+  /** #374: it came back damaged (lent out only). */
+  damaged: z.boolean().optional(),
+  /** #374: the member who took it back; the caller when left out. */
+  takenBackBy: Id.optional(),
 });
 const UpdateBody = z.strictObject({
   dueOn: Day.nullable().optional(),

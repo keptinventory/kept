@@ -143,6 +143,26 @@ A cube insert or a removed shelf makes two or more compartments one.
 - **AI apps** can do the same: `create_place` takes a `template`, and `update_place` a `turn`
   ([MCP clients](/users/mcp-clients/#the-tools)). Merging and splitting stay in the app.
 
+## Its position
+
+A location's position lets Capture's **Suggest where I am** pick it when you're there
+([Kept on your phone](/users/phone-app/#camera-gallery-and-scanning)).
+
+- **Set it:** **Location settings → General → Position**, for owners and admins. **Use where I am
+  now** reads the phone's position once (the browser asks first) and fills **Latitude** and
+  **Longitude**; or type them in degrees, such as 30.0444 and 31.2357. Then **Save**. **Remove
+  position** clears it. Personal has none: it goes wherever you do.
+- **Over plain HTTP** browsers refuse to give the position: type it instead.
+- **Open in maps** opens OpenStreetMap at the saved position in a new tab. Only then does the
+  position leave Kept.
+- **How near:** Capture suggests a location when the phone is within 150 m of its position, the
+  nearer one if two are. 150 m covers a house and its garden plus a phone's usual error indoors,
+  and still tells two streets apart.
+- **Who sees it:** owners and admins, on this page; and the phones of those who add things there,
+  for the suggestion. Viewers and share links never get it. The history says the position
+  changed, who changed it and when, never where. A location export carries it, and importing
+  that export brings it back.
+
 ## Hide Personal
 
 Everyone gets a **Personal** location. If you have no use for it, turn on **Hide Personal** in

@@ -26,8 +26,7 @@ Kept fonctionne de la même manière sans.
   votre propre serveur fonctionne de la même manière.
 - **L'intégration** intègre Kept dans Home Assistant : les capteurs, le calendrier et les actions.
   Seule une intégration peut ajouter des entités, l'application ne le peut pas.
-- **Utilisateurs de l'application, activez d'abord https :** l'option **https on Kept's port** de l'application.
-  Kept crée des jetons uniquement via https.
+- **Avec l'application, rien à copier :** Home Assistant trouve l'application Kept tout seul et demande à se connecter ; vous l'autorisez dans Kept. Pas de jeton, pas besoin de https.
 
 ## Avant de commencer
 
@@ -61,6 +60,17 @@ Chaque véhicule (un objet avec un compteur, sous **Véhicules**) est un apparei
 | **Prochain entretien à** | Le relevé auquel c'est prévu |
 
 Un lieu ou un véhicule ajouté plus tard dans Kept apparaît après le rechargement de l'intégration.
+
+## Configurer depuis l'application
+
+Avec l'[application Kept](/fr/install/home-assistant/) dans le même Home Assistant, il n'y a aucun jeton à créer ni à copier, et https n'est pas nécessaire.
+
+1. **Installez** l'intégration avec HACS (l'étape 2 de Configuration) et redémarrez Home Assistant.
+2. **Ajoutez-la.** **Paramètres → Appareils et services** montre Kept comme découvert. Ajoutez-le et confirmez.
+3. **Autorisez-le dans Kept.** Home Assistant affiche un code et attend. Ouvrez Kept (la barre latérale convient) à **Paramètres → Connexions** : **Home Assistant demande à se connecter** affiche le même code. **Autoriser**, cochez les lieux et choisissez ce qu'il peut faire, comme pour un jeton.
+4. **Terminé.** Home Assistant termine tout seul et indique la version de Kept et vos lieux.
+
+Ce que reçoit Home Assistant : un jeton personnel ordinaire nommé **Home Assistant**, créé par vous et agissant en votre nom, pour les lieux cochés. Il passe de Kept à Home Assistant par le réseau interne de Home Assistant et n'est jamais affiché sur une page. Révoquez-le dans **Paramètres → Connexions**. Une demande que personne n'autorise en 10 minutes prend fin : recommencez depuis Home Assistant.
 
 ## Configuration
 

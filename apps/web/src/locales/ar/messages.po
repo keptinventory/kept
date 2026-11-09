@@ -28871,3 +28871,118 @@ msgstr "في <0>{0}</0> وخاناته {inside}. ماذا تريد أن يحدث
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "لن يُنقل إلى المهملات إلا «{placeName}» وخاناته."
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "انتهى هذا الطلب. ابدأ من جديد في Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "رُفض الطلب. لن يحصل Home Assistant على شيء."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "يطلب Home Assistant الاتصال"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "رمز التحقق <0>{code}</0>. تأكد أن Home Assistant يعرض الرمز نفسه."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "رفض"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "ربط Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "يقرأ Home Assistant بيانات Kept باسمك، في المواقع التي تختارها، ويحصل على رمزه بنفسه: لا شيء لتنسخه. ألغِه من هنا متى شئت."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "تم ربط Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "يكمل Home Assistant الإعداد بنفسه. يظهر الرمز هنا باسم Home Assistant."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "عاد متضررًا"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "عاد من {person} متضررًا"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "أعاده"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "أعاده <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "لم يعد بعد"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "منذ {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "استلمه"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "استلمه <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "من كان معه"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "الموقع الجغرافي"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "عند تشغيل «اقترح مكاني» يختار الالتقاط هذا الموقع حين تكون هنا. يُقارَن موقع هاتفك على الهاتف نفسه ولا يُرسل أبدًا. لا يراه إلا المالكون والمشرفون."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "خط العرض"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "خط الطول"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "أدخل رقمًا من {from} إلى {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "استخدم مكاني الآن"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "تعذّر تحديد مكانك. حاول مرة أخرى، أو اكتبه."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "افتح في الخرائط"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "أزل الموقع الجغرافي"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "أُزيل الموقع الجغرافي"

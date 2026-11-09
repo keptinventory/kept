@@ -30856,3 +30856,118 @@ msgstr "Усередині <0>{0}</0> та його відділень — {insi
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "До кошика потраплять лише {placeName} та його відділення."
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Цей запит завершився. Почніть знову в Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Відхилено. Home Assistant нічого не отримає."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant просить під’єднатися"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Код <0>{code}</0>. Перевірте, що Home Assistant показує той самий."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Відхилити"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Під’єднати Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant читає Kept від вашого імені, у вибраних вами локаціях, і сам отримує свій токен: копіювати нічого не треба. Відкличте його тут будь-коли."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant під’єднано"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant сам завершить налаштування. Токен показано тут як Home Assistant."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Повернулося пошкодженим"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Повернулося від {person} пошкодженим"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Хто повернув"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "повернув(-ла) <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Ще не повернуто"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "з {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Хто прийняв"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "прийняв(-ла) <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "У кого було"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Місцеположення"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Коли «Підказати, де я» увімкнено, додавання обирає цю локацію, коли ви тут. Місцеположення телефона порівнюється на самому телефоні й ніколи не надсилається. Це бачать лише власники й адміністратори."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Широта"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Довгота"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Введіть число від {from} до {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Використати, де я зараз"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Не вдалося визначити, де ви. Спробуйте ще раз або введіть вручну."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Відкрити на мапі"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Прибрати місцеположення"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Місцеположення прибрано"

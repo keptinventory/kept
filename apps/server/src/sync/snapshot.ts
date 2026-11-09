@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import {
   type ChildOrder,
+  can,
   effectiveModules,
   type LoanDirection,
   MIN_PAYLOAD_VERSION,
@@ -115,6 +116,9 @@ async function visibleLocations(client: pg.ClientBase): Promise<SnapLocation[]> 
   }
   return rows.map((r) => {
     const enabled = switchedOn(r.preset, byLocation.get(r.id) ?? []);
+    // #375: the position is for Capture's "Suggest where I am", which only lists the locations
+    // the person can add things to; a viewer never gets it.
+    const located = can(r.role, 'things.edit');
     return {
       id: r.id,
       name: r.name,
@@ -128,8 +132,8 @@ async function visibleLocations(client: pg.ClientBase): Promise<SnapLocation[]> 
         ...effectiveModules(enabled, { providerResolved: r.provider_resolved === true }),
       ],
       unplacedPlaceId: r.unplaced_id ?? '',
-      ...(r.latitude !== null ? { latitude: r.latitude } : {}),
-      ...(r.longitude !== null ? { longitude: r.longitude } : {}),
+      ...(located && r.latitude !== null ? { latitude: r.latitude } : {}),
+      ...(located && r.longitude !== null ? { longitude: r.longitude } : {}),
       suggestRadiusM: r.suggest_radius_m,
       // #209: which account's tags its things can have, offline.
       ownerAccountId: r.owner_account_id,

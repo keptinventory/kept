@@ -24,7 +24,7 @@ Kept funciona igual sin él.
 
 - **La app** ejecuta Kept en Home Assistant OS ([instálala](/es/install/home-assistant/)). Kept en tu propio servidor funciona igual.
 - **La integración** lleva Kept a Home Assistant: los sensores, el calendario y las acciones. Solo una integración puede añadir entidades, así que la app no puede.
-- **Los usuarios de la app activan https primero:** la opción **https on Kept's port** de la app. Kept crea tokens solo por https.
+- **Con la app, nada que copiar:** Home Assistant encuentra la app de Kept por sí mismo y pide conectarse; tú lo permites en Kept. Sin token y sin https.
 
 ## Antes de empezar
 
@@ -58,6 +58,17 @@ Cada vehículo (un objeto con medidor, en **Vehículos**) es un dispositivo en s
 | **Próximo servicio en** | La lectura en la que vence |
 
 Una ubicación o vehículo añadido después en Kept aparece tras recargar la integración.
+
+## Configurar desde la app
+
+Con la [app de Kept](/es/install/home-assistant/) en el mismo Home Assistant, no hay token que crear ni copiar, y no hace falta https.
+
+1. **Instala** la integración con HACS (el paso 2 de Configuración) y reinicia Home Assistant.
+2. **Añádela.** **Configuración → Dispositivos y servicios** muestra Kept como descubierto. Añádelo y confirma.
+3. **Permítelo en Kept.** Home Assistant muestra un código y espera. Abre Kept (sirve la barra lateral) en **Configuración → Conexiones**: **Home Assistant pide conectarse** muestra el mismo código. **Permitir**, marca las ubicaciones y elige lo que puede hacer, como con un token.
+4. **Listo.** Home Assistant termina por sí solo y nombra la versión de Kept y tus ubicaciones.
+
+Lo que recibe Home Assistant: un token personal normal llamado **Home Assistant**, creado por ti y que actúa como tú, para las ubicaciones que marcaste. Va de Kept a Home Assistant por la red interna de Home Assistant y nunca se muestra en una página. Revócalo en **Configuración → Conexiones**. Una solicitud que nadie permite en 10 minutos termina: empieza de nuevo desde Home Assistant.
 
 ## Configuración
 

@@ -341,3 +341,30 @@ describe('update_thing rows', () => {
     ]);
   });
 });
+
+describe('return_thing rows', () => {
+  it('shows how it came back and who took it back, as the return dialog does (#374)', () => {
+    const [row] = rowsOf({
+      ...proposal(
+        {
+          thing_id: CAR,
+          quantity: 2,
+          condition: 'broken',
+          damaged: true,
+          note: 'Chipped blade',
+          taken_back_by: 'Bruce',
+        },
+        { [CAR]: { kind: 'thing', name: 'Jigsaw', path: [] } },
+      ),
+      tool: 'return_thing',
+    });
+    expect(row?.verb).toBe('return');
+    expect(row?.count).toEqual({ n: 2 });
+    expect(row?.fields).toEqual([
+      { key: 'damaged', after: { t: 'yes', v: true } },
+      { key: 'condition', after: { t: 'condition', v: 'broken' } },
+      { key: 'notes', after: { t: 'text', v: 'Chipped blade' } },
+      { key: 'takenBackBy', after: { t: 'text', v: 'Bruce' } },
+    ]);
+  });
+});

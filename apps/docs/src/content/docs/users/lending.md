@@ -54,9 +54,28 @@ to send them yourself.
 
 ## When it comes back
 
-**Mark returned**: back to where it was, or somewhere else, with the condition it came back in.
-A hand-over is returned line by line: came back, came back damaged, still with them, or lost. A
-lost thing is marked lost, never deleted. Every step can be undone.
+**Mark returned**: back to where it was, or somewhere else, with the condition it came back in
+and a note.
+
+- **Damaged**, under **What happened**, if it came back damaged. The condition it came back in is
+  **Poor** unless you choose another, and the thing's own condition takes it. Switch off **Update
+  its condition** to leave the thing's condition as it was.
+- **Taken back by**: you, or another member of the location who took it back. For something you
+  borrowed, it's **Given back by**.
+
+A hand-over is returned line by line: came back, damaged, not returned, or lost, and one member
+took it all back. A lost thing is marked lost, never deleted. Every step can be undone.
+
+The assistant and MCP clients return a thing with the same choices: damaged, a note, and who took
+it back.
+
+## Who had it
+
+On a thing's **Loans** tab, **Who had it** lists every loan of it, newest first: who had it, from
+when to when, how it came back (returned, returned late, came back damaged, lost, the condition it
+came back in) and who took it back. A loan stays when it comes back, so the list goes back to the
+thing's first loan. Viewers see it too, without the buttons. Returns recorded before Kept 1.14.7
+don't say who took them back.
 
 ## Letting family or friends look
 

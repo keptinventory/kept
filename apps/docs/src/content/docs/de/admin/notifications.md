@@ -44,7 +44,7 @@ oder ein Server-Log niemals einen verwendbaren enthält.
   E-Mail-Adresse und eine Nachricht an die alte, eine Nachricht, wenn jemand versucht, sich mit einer Adresse
   anzumelden, die bereits ein Konto hat, und eine Benachrichtigung, wenn sich ein Zugangsdaten ändert: das Passwort, ein
   Passkey hinzugefügt oder entfernt, eine externe Anmeldung getrennt, Zwei-Faktor-Authentifizierung eingeschaltet, erneut eingerichtet oder deaktiviert,
-  und neue Backup-Codes.
+  neue Backup-Codes und eine Anmeldung mit einem Backup-Code (mit Uhrzeit, Gerät und den übrigen Codes).
 - **Personen und Orte**: E-Mail-Einladungen; an den Besitzer eines Standorts,
   jedes neue Mitglied oder verwaltetes Konto und jede Mitgliedschaft, die ihr Enddatum erreicht.
 - **Transparenz**: wenn ein Instanz-Administrator (oder `kept admin`) irgendjemandes Konto

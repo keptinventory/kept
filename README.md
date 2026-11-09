@@ -100,8 +100,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
   box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
 - **Lending and borrowing.** Who has what and when it's due back; borrowers need no account.
-  Reminders before and after the due date, and one list of everything out
-  ([lending](https://keptinventory.info/users/lending/)).
+  Reminders before and after the due date, one list of everything out, and each thing's trail of
+  who had it and how it came back ([lending](https://keptinventory.info/users/lending/)).
 - **Kits and hand-overs.** Lend a box with everything in it; each thing comes back on its own
   record ([kits](https://keptinventory.info/users/kits/)).
 - **Moving house.** Numbered boxes, a label and a contents sheet for each, tracked in the van,
@@ -113,11 +113,13 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   condition reports, an insurance report and insights.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
-  Ollama) suggests the details and you confirm them. Without one, you type them.
+  Ollama) suggests the details and you confirm them. Without one, you type them. Give a location
+  its position and Capture suggests it when you are there.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
-  dashboards and automations ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
+  dashboards and automations, and the app offers to set it up: no token to copy
+  ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
 - **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
   Homebox import takes its links' titles from Paperless
   ([Paperless](https://keptinventory.info/users/paperless/)).
@@ -183,8 +185,8 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
 
 - **Home Assistant:** the [kept-homeassistant](https://github.com/keptinventory/kept-homeassistant)
   integration, a HACS custom repository ([setup](https://keptinventory.info/users/home-assistant/)).
-  The app runs Kept; the integration brings it into Home Assistant. App users turn on the app's
-  **https on Kept's port** option first ([the app and the integration](https://keptinventory.info/users/home-assistant/#the-app-and-the-integration)).
+  The app runs Kept; the integration brings it into Home Assistant. With the app, Home Assistant
+  finds Kept and you allow it in Kept: no token, no https ([set up from the app](https://keptinventory.info/users/home-assistant/#set-up-from-the-app)).
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/diagrams/home-assistant-dark.svg">

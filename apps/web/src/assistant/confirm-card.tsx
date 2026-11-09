@@ -224,6 +224,10 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Size on the map`;
       case 'places':
         return t`Places`;
+      case 'damaged':
+        return t`Came back damaged`;
+      case 'takenBackBy':
+        return t`Taken back by`;
     }
   };
 }

@@ -90,7 +90,8 @@ Port 8080 auszuschalten (Konfiguration → Netzwerk) lässt nur die Seitenleiste
 | | Plain http | https |
 |---|---|---|
 | Dinge, Orte, Suche, Labels, Fotos aus einer Datei | ja | ja |
-| Persönliche Token (die Integration), Secrets anzeigen, Exporte | nein | ja |
+| Die Kept-Integration, aus der App eingerichtet | ja | ja |
+| Persönliche Token (Skripte), Secrets anzeigen, Exporte | nein | ja |
 | Passkeys, die Kamera, Installation der Handy-App, Push | nein | ja |
 
 In Home Assistant gilt Kept nur als https, wenn Home Assistant selbst über https ausgeliefert wird.
@@ -117,9 +118,6 @@ plain http. Passkeys gehören zur eigenen Adresse von Kept: melde dich dort mit 
 
 ## Die Integration
 
-Diese App betreibt Kept; eine separate Integration bringt es in Home Assistant. Aktiviere **https auf dem Port
-von Kept** vor dem Verbinden ([die App und die Integration](/de/users/home-assistant/#die-app-und-die-integration)).
+Diese App betreibt Kept; eine separate Integration bringt es in Home Assistant ([die App und die Integration](/de/users/home-assistant/#die-app-und-die-integration)).
 
-[Die Kept-Integration](/de/users/home-assistant/) bringt Fälliges in Home Assistant. Gib ihr
-die Adresse von Kept und einen persönlichen Token, erstellt über https. Das Einrichten ohne Token, direkt aus
-der App, kommt in einer späteren Version.
+Installiere [die Kept-Integration](/de/users/home-assistant/) mit HACS und starte Home Assistant neu: Kept erscheint unter **Einstellungen → Geräte & Dienste** als gefunden. Füge es hinzu und erlaube es dann in Kept (**Einstellungen → Verbindungen**). Kein Token zu kopieren, kein HTTPS nötig: Kept und Home Assistant sprechen über das interne Netzwerk von Home Assistant.
