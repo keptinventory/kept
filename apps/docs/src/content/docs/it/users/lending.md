@@ -36,7 +36,18 @@ Due giorni prima della scadenza, e quando un prestito è scaduto, tramite ogni c
 
 ## Quando viene restituito
 
-**Segna come restituito**: di nuovo dov'era o da qualche altra parte, con la condizione in cui è tornato. Una consegna viene restituita riga per riga: tornato, tornato danneggiato, ancora da loro o perso. Un oggetto perso viene segnato come perso, mai cancellato. Ogni passaggio può essere annullato.
+**Segna come restituito**: di nuovo dov'era o da qualche altra parte, con la condizione in cui è tornato e una nota.
+
+- **Danneggiato**, sotto **Cosa è successo**, se è tornato danneggiato. La condizione in cui è tornato è **Scarso** a meno che tu ne scelga un'altra, e l'oggetto la prende. Disattiva **Aggiorna la sua condizione** per lasciare la condizione dell'oggetto com'era.
+- **Ripreso da**: tu, o un altro membro del luogo che l'ha ripreso. Per qualcosa preso in prestito è **Restituito da**.
+
+Una consegna viene restituita riga per riga: tornato, danneggiato, non restituito o perso, e un solo membro ha ripreso tutto. Un oggetto perso viene segnato come perso, mai cancellato. Ogni passaggio può essere annullato.
+
+L'assistente e i client MCP restituiscono un oggetto con le stesse scelte: danneggiato, una nota e chi l'ha ripreso.
+
+## Chi l’ha avuto
+
+Nella scheda **Prestiti** di un oggetto, **Chi l’ha avuto** elenca ogni suo prestito, dal più recente: chi l'ha avuto, da quando a quando, come è tornato (restituito, restituito in ritardo, tornato danneggiato, perso, la condizione in cui è tornato) e chi l'ha ripreso. Un prestito resta dopo il ritorno, quindi l'elenco risale al primo prestito dell'oggetto. Anche i visualizzatori lo vedono, senza i pulsanti. I ritorni registrati prima di Kept 1.14.7 non dicono chi li ha ripresi.
 
 ## Far guardare a familiari o amici
 

@@ -28872,6 +28872,44 @@ msgstr "في <0>{0}</0> وخاناته {inside}. ماذا تريد أن يحدث
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "لن يُنقل إلى المهملات إلا «{placeName}» وخاناته."
 
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "عاد متضررًا"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "عاد من {person} متضررًا"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "أعاده"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "أعاده <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "لم يعد بعد"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "منذ {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "استلمه"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "استلمه <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "من كان معه"
+
 #: src/components/location-position.tsx
 #: src/components/history/labels.ts
 msgid "Position"

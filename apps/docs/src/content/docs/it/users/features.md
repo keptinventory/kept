@@ -46,7 +46,8 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 ## La casa
 
 - **[Prestare e prendere in prestito](/it/users/lending/)**: chi ha cosa e quando va restituito, con
-  promemoria e un messaggio gentile da copiare. Chi prende in prestito non ha bisogno di un account. Modulo: Prestiti.
+  promemoria e un messaggio gentile da copiare. Chi prende in prestito non ha bisogno di un account.
+  Ogni oggetto mostra chi l'ha avuto, in ordine, come è tornato e chi l'ha ripreso. Modulo: Prestiti.
 - **[Kit e passaggi di consegna](/it/users/kits/)**: presta una scatola con tutto ciò che contiene; ogni oggetto torna
   sul proprio record. Un kit ricorda cosa gli appartiene.
 - **[Trasloco](/it/users/moving/)**: scatole numerate, un'etichetta e un foglio dei contenuti per ognuna,

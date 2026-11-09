@@ -28872,6 +28872,44 @@ msgstr "<0>{0}</0> und seine Fächer enthalten {inside}. Was soll damit passiere
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Nur {placeName} und seine Fächer kommen in den Papierkorb."
 
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Beschädigt zurück"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Von {person} beschädigt zurück"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Zurückgegeben von"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "zurückgegeben von <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Noch nicht zurück"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "seit {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Zurückgenommen von"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "zurückgenommen von <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Wer es hatte"
+
 #: src/components/location-position.tsx
 #: src/components/history/labels.ts
 msgid "Position"

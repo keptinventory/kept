@@ -26,6 +26,12 @@ import { anyRowsOf, type Loan, loanImage, loanView } from './view.js';
 // note stays), the condition it came back in and, chosen, the thing's condition with it. Part of
 // a quantity back (`quantityBack`): the rest is split off first and stays out on its own open
 // line of the same hand-over; undo puts it back together. `loseLoan` closes a line as lost.
+//
+// #374, the custody trail: a thing lent out can come back damaged. The loan says so (`damaged`),
+// the condition it came back in is `condition_in` (poor when none is given, or the thing's own
+// when that is already poor or broken), and the thing's condition takes it unless
+// `updateCondition` is false. The loan also records the member who took it back
+// (`taken_back_by`): the one named, a member of the location, else the caller.
 
 export type ReturnInput = {
   returnedAt?: string | undefined;
@@ -38,7 +44,27 @@ export type ReturnInput = {
   updateCondition?: boolean | undefined;
   /** Part of a quantity came back: the rest stays out on its own line. */
   quantityBack?: string | undefined;
+  /** #374: it came back damaged (lent out only). */
+  damaged?: boolean | undefined;
+  /** #374: the member (a user id) who took it back; the caller when left out. */
+  takenBackBy?: string | undefined;
 };
+
+/** The member who took a loan back: a member of the location (400 otherwise). */
+export async function takenBackByOf(
+  client: pg.ClientBase,
+  locationId: string,
+  userId: string | undefined,
+): Promise<string | null> {
+  if (userId === undefined) return null;
+  const { rowCount } = await client.query(
+    `SELECT 1 FROM public.memberships
+      WHERE location_id = $1 AND user_id = $2 AND (expires_at IS NULL OR expires_at > now())`,
+    [locationId, userId.toLowerCase()],
+  );
+  if (!rowCount) throw invalid('Check body.takenBackBy: a member of this location.');
+  return userId.toLowerCase();
+}
 
 type ThingState = {
   id: string;
@@ -155,6 +181,10 @@ export async function returnLoan(
   if (returnedAt.getTime() > Date.now() + 60_000) {
     throw invalid('Check body.returnedAt: not in the future.');
   }
+  if (body.damaged && loan.direction !== 'out') {
+    throw invalid('Check body.damaged: only something lent out comes back damaged.');
+  }
+  const takenBackBy = await takenBackByOf(client, loan.location_id, body.takenBackBy);
   await client.query('SELECT 1 FROM public.things WHERE id = $1 FOR UPDATE', [loan.thing_id]);
   let before = (await thingState(client, loan.thing_id)) as ThingState;
   // Part of a quantity back: the rest is split off and stays out on a line of its own.
@@ -241,17 +271,28 @@ export async function returnLoan(
     );
   }
 
-  if (body.updateCondition && body.conditionIn) {
+  // Damaged (#374): a condition it came back in, and the thing takes it unless told not to.
+  const damaged = body.damaged === true;
+  const conditionIn =
+    body.conditionIn ??
+    (damaged
+      ? before.condition === 'poor' || before.condition === 'broken'
+        ? before.condition
+        : 'poor'
+      : undefined);
+  const updateCondition = body.updateCondition ?? damaged;
+  if (updateCondition && conditionIn) {
     await client.query('UPDATE public.things SET condition = $2 WHERE id = $1', [
       loan.thing_id,
-      body.conditionIn,
+      conditionIn,
     ]);
   }
   await client.query(
     `UPDATE public.loans
         SET returned_at = $2, return_place_id = $3, return_container_id = $6,
             return_notes = CASE WHEN $4 THEN $5 ELSE return_notes END, outcome = 'returned',
-            condition_in = coalesce($7, condition_in)
+            condition_in = coalesce($7, condition_in), damaged = $8,
+            taken_back_by = coalesce($9::uuid, kept.current_user_id())
       WHERE id = $1`,
     [
       id,
@@ -260,7 +301,9 @@ export async function returnLoan(
       body.notes !== undefined,
       body.notes ?? null,
       returnContainerId,
-      body.conditionIn ?? null,
+      conditionIn ?? null,
+      damaged,
+      takenBackBy,
     ],
   );
   const after = await loanRecord(client, id);

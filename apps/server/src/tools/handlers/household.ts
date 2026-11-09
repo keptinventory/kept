@@ -15,7 +15,7 @@ import { viewOf } from '../../things/view.js';
 import { createClaim, updateClaim } from '../../warranties/claims.js';
 import { createWarranty, defaultsFor } from '../../warranties/service.js';
 import { decodeToolCursor, encodeToolCursor, thingRefOf } from '../output.js';
-import { locationOfRef, personOf, targetIn, thingIn } from '../resolve.js';
+import { locationOfRef, memberOf, personOf, targetIn, thingIn } from '../resolve.js';
 import type { Handler, Op } from '../types.js';
 
 // Step 4's tools (D124): lending, schedules, warranties and claims, and `upcoming` over the
@@ -196,6 +196,11 @@ export const returnThing: Handler<'return_thing'> = {
     if (input.quantity !== undefined && Number(input.quantity) > Number(loan.quantity)) {
       throw invalid(`Only ${loan.quantity} of it is out.`);
     }
+    // #374: who took it back, a member of the location (the caller when left out).
+    const takenBackBy = input.taken_back_by
+      ? await memberOf(op.client, loc.id, input.taken_back_by)
+      : undefined;
+    if (takenBackBy === null) throw invalid('Check taken_back_by: a member of this location.');
     // A box or a kit that went as a hand-over brings back what is still out with it.
     const { rows: lines } = await op.client.query<{ id: string }>(
       `SELECT o.id FROM public.loans o JOIN public.handovers h ON h.id = o.handover_id
@@ -203,10 +208,12 @@ export const returnThing: Handler<'return_thing'> = {
           AND o.handover_id = (SELECT handover_id FROM public.loans WHERE id = $2)`,
       [id, loan.id],
     );
+    // The thing named is the one that came back damaged, with the note; the rest came back.
     const back = (loanId: string) => ({
       loanId,
-      outcome: 'back' as const,
+      outcome: loanId === loan.id && input.damaged ? ('damaged' as const) : ('back' as const),
       ...(input.condition ? { conditionIn: input.condition } : {}),
+      ...(loanId === loan.id && input.note !== undefined ? { notes: input.note } : {}),
     });
     let thingId = id;
     if (lines.length > 0) {
@@ -217,6 +224,7 @@ export const returnThing: Handler<'return_thing'> = {
         )
       ).rows[0]?.handover_id as string;
       await returnHandover(op, handoverId, {
+        ...(takenBackBy ? { takenBackBy } : {}),
         lines: [...lines.map((l) => back(l.id)), back(loan.id)],
       });
     } else {
@@ -225,6 +233,9 @@ export const returnThing: Handler<'return_thing'> = {
           ? { quantityBack: String(input.quantity) }
           : {}),
         ...(input.condition ? { conditionIn: input.condition } : {}),
+        ...(input.damaged ? { damaged: true } : {}),
+        ...(input.note !== undefined ? { notes: input.note } : {}),
+        ...(takenBackBy ? { takenBackBy } : {}),
       });
       thingId = res.thing.id;
     }
