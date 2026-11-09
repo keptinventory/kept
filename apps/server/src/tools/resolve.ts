@@ -169,6 +169,27 @@ export async function personOf(
   return rows[0] ? { id: rows[0].id } : { name: raw };
 }
 
+/**
+ * A member of the location, by user id or by the name they go by (#374: who took a loan back);
+ * null when no current member is that.
+ */
+export async function memberOf(
+  client: pg.ClientBase,
+  locationId: string,
+  raw: string,
+): Promise<string | null> {
+  const ref = parseRef(raw);
+  const { rows } = await client.query<{ user_id: string }>(
+    `SELECT m.user_id FROM public.memberships m
+       LEFT JOIN public.user_profiles up ON up.user_id = m.user_id
+      WHERE m.location_id = $1 AND (m.expires_at IS NULL OR m.expires_at > now())
+        AND (m.user_id = $2::uuid OR kept.normalize(up.display_name) = kept.normalize($3))
+      ORDER BY m.created_at, m.id LIMIT 1`,
+    [locationId, ref?.kind === 'id' ? ref.id : null, raw],
+  );
+  return rows[0]?.user_id ?? null;
+}
+
 export async function brandNamed(
   client: pg.ClientBase,
   locationId: string,

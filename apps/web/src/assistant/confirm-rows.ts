@@ -94,7 +94,9 @@ export type FieldKey =
   | 'step'
   | 'turn'
   | 'size'
-  | 'places';
+  | 'places'
+  | 'damaged'
+  | 'takenBackBy';
 
 export type Field = { key: FieldKey; before?: Val; after: Val };
 
@@ -440,8 +442,25 @@ export function rowsOf(p: Proposal): CardRow[] {
           fields,
         },
       ];
-    case 'return_thing':
-      return [{ ...base, verb: 'return', target: target(a.thing_id), fields }];
+    case 'return_thing': {
+      // #374: how it came back and who took it back, the return dialog's fields.
+      if (a.damaged === true) push('damaged', { t: 'yes', v: true });
+      const condition = str(a.condition);
+      if (condition && CONDITION_VALUES.includes(condition)) {
+        push('condition', { t: 'condition', v: condition as Condition });
+      }
+      push('notes', text(a.note));
+      push('takenBackBy', text(a.taken_back_by));
+      return [
+        {
+          ...base,
+          verb: 'return',
+          target: target(a.thing_id),
+          ...(num(a.quantity) ? { count: { n: num(a.quantity) as number } } : {}),
+          fields,
+        },
+      ];
+    }
     case 'borrow_thing':
       push('person', text(a.person));
       push('place', pathOf(a.place_id));

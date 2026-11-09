@@ -1205,6 +1205,20 @@
       "when": 1793838539045,
       "tag": "0171_hide_personal_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 172,
+      "version": "7",
+      "when": 1794099980615,
+      "tag": "0172_loan_damaged_taken_back_by",
+      "breakpoints": true
+    },
+    {
+      "idx": 173,
+      "version": "7",
+      "when": 1794099983188,
+      "tag": "0173_loan_return_trail",
+      "breakpoints": true
     }
   ]
 }

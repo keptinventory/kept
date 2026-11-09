@@ -255,6 +255,8 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   // 1.14 (0152): a hand-over's person, and the one-line hand-over of a loan written without one.
   'kept.guard_handover_person()': OWNER_ONLY,
   'kept.loan_handover()': OWNER_ONLY,
+  // 1.14.7 (0173, #374): reopening a loan clears damaged and who took it back.
+  'kept.loan_reopen_clears_return()': OWNER_ONLY,
   'kept.module_enabled(uuid,text)': APP_AND_SYSTEM,
   'kept.module_on(uuid,text)': APP_AND_SYSTEM,
   'kept.schedule_point(integer,numeric,date,date,numeric,date,numeric,boolean,integer,numeric,date,numeric)':

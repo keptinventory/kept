@@ -289,6 +289,9 @@ export type Loan = {
   returnNotes?: string | null;
   /** What it went with: the hand-over's box or kit ("with Camera bag"). */
   with?: { id: string; name: string | null } | null;
+  /** #374: it came back damaged, and the member who took it back (null before 1.14.7). */
+  damaged?: boolean;
+  takenBackBy?: { id: string; displayName: string } | null;
 };
 export type LoanRow = Loan & { thing: ThingRow };
 
@@ -328,7 +331,12 @@ export type HandoverReturnLine = {
   quantityBack?: string;
   updateCondition?: boolean;
 };
-export type HandoverReturnBody = { returnedAt?: string; lines: HandoverReturnLine[] };
+export type HandoverReturnBody = {
+  returnedAt?: string;
+  /** #374: the member who took it back (a user id); the caller when left out. */
+  takenBackBy?: string;
+  lines: HandoverReturnLine[];
+};
 
 /** A kit (1.14, #170): a container with a parts list, each part where it is now. */
 export type KitPartStatus = 'in_kit' | 'elsewhere' | 'missing' | 'with_someone' | 'trashed';
@@ -399,6 +407,10 @@ export type ReturnBody = {
   conditionIn?: Condition;
   updateCondition?: boolean;
   quantityBack?: string;
+  /** #374: it came back damaged (lent out only); the thing takes the condition unless told not. */
+  damaged?: boolean;
+  /** #374: the member who took it back (a user id); the caller when left out. */
+  takenBackBy?: string;
 };
 export type ReturnResult = { loan: Loan; thing: ThingRow; mergedInto?: ThingRow };
 

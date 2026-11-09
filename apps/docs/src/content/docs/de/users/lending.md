@@ -37,7 +37,18 @@ Zwei Tage vor dem Fälligkeitsdatum und wenn eine Leihgabe überfällig ist, üb
 
 ## Wenn es zurückkommt
 
-**Als zurückgegeben markieren**: zurück an den ursprünglichen Ort oder an einen anderen, mit dem Zustand bei der Rückgabe. Eine Übergabe wird Zeile für Zeile zurückgegeben: zurückgekommen, beschädigt zurückgekommen, noch bei ihnen oder verloren. Ein verlorener Gegenstand wird als verloren markiert, nie gelöscht. Jeder Schritt kann rückgängig gemacht werden.
+**Als zurückgegeben markieren**: zurück an den ursprünglichen Ort oder an einen anderen, mit dem Zustand bei der Rückgabe und einer Notiz.
+
+- **Beschädigt**, unter **Was geschah**, wenn es beschädigt zurückkam. Der Zustand bei der Rückgabe ist **Schlecht**, wenn du keinen anderen wählst, und der Gegenstand selbst übernimmt ihn. Schalte **Seinen Zustand aktualisieren** aus, damit sein Zustand bleibt, wie er war.
+- **Zurückgenommen von**: du oder ein anderes Mitglied des Standorts, das es zurückgenommen hat. Bei etwas Geliehenem heißt es **Zurückgegeben von**.
+
+Eine Übergabe wird Zeile für Zeile zurückgegeben: zurück, beschädigt, nicht zurückgegeben oder verloren, und ein Mitglied hat alles zurückgenommen. Ein verlorener Gegenstand wird als verloren markiert, nie gelöscht. Jeder Schritt kann rückgängig gemacht werden.
+
+Der Assistent und MCP-Clients geben einen Gegenstand mit denselben Angaben zurück: beschädigt, eine Notiz und wer ihn zurückgenommen hat.
+
+## Wer es hatte
+
+Auf dem Tab **Leihen** eines Gegenstands listet **Wer es hatte** jede Ausleihe, die neueste zuerst: wer ihn hatte, von wann bis wann, wie er zurückkam (zurückgegeben, verspätet zurückgegeben, beschädigt zurück, verloren, der Zustand bei der Rückgabe) und wer ihn zurückgenommen hat. Eine Ausleihe bleibt nach der Rückgabe erhalten, also reicht die Liste bis zur ersten Ausleihe zurück. Betrachter sehen sie auch, ohne die Schaltflächen. Rückgaben vor Kept 1.14.7 sagen nicht, wer sie zurückgenommen hat.
 
 ## Familie oder Freunden Einsicht geben
 

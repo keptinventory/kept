@@ -28908,6 +28908,44 @@ msgstr "Home Assistant está conectado"
 msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
 msgstr "Home Assistant termina la configuración por sí solo. El token aparece aquí como Home Assistant."
 
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Volvió dañado"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Regresó dañado de {person}"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Devuelto por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "devuelto por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Aún no ha vuelto"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "desde {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Recibido por"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "recibido por <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Quién lo tuvo"
+
 #: src/components/location-position.tsx
 #: src/components/history/labels.ts
 msgid "Position"

@@ -46,7 +46,8 @@ a location turns them on in **Location settings → What to track**
 ## The household
 
 - **[Lending and borrowing](/users/lending/)**: who has what and when it's due back, with
-  reminders and a polite message to copy. Borrowers need no account. Module: Lending.
+  reminders and a polite message to copy. Borrowers need no account. Each thing shows who had it,
+  in order, how it came back and who took it back. Module: Lending.
 - **[Kits and hand-overs](/users/kits/)**: lend a box with everything in it; each thing comes back
   on its own record. A kit remembers what belongs in it.
 - **[Moving house](/users/moving/)**: numbered boxes, a label and a contents sheet for each,

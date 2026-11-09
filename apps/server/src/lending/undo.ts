@@ -21,6 +21,7 @@ import { type LoanRecord, loanImage } from './view.js';
 //   insert policy, 0051): they made the change, or they are an owner or admin there.
 // - loan.return: the loan reopens, the thing goes back where it was when it was returned (and, a
 //   borrowed one, back in use); a part that merged back is taken out of the row it joined again.
+//   Damaged and who took it back (#374) are cleared, the thing's condition put back.
 
 type Diff = UndoArgs['event']['diff'];
 const beforeOf = (diff: Diff): Record<string, unknown> =>
@@ -245,7 +246,8 @@ async function undoLoanReturn(args: UndoArgs): Promise<void> {
   }
   await client.query(
     `UPDATE public.loans SET returned_at = NULL, return_place_id = NULL, return_container_id = NULL,
-                             return_notes = $2, condition_in = $3
+                             return_notes = $2, condition_in = $3, damaged = false,
+                             taken_back_by = NULL
       WHERE id = $1`,
     [
       id,

@@ -1,5 +1,6 @@
 import { addThingItem, TOOL_DEFS } from '@kept/mcp';
 import { describe, expect, it } from 'vitest';
+import { ReturnBody } from '../lending/routes.js';
 import { UpdatePlaceBody } from '../places/service.js';
 import { CreateBody, UpdateFields } from '../things/validate.js';
 
@@ -95,5 +96,34 @@ describe('update_place takes every field the app’s place page sets', () => {
 
   it('a step up or down is its own input', () => {
     expect(keysOf(TOOL_DEFS.update_place.input.shape)).toContain('move');
+  });
+});
+
+// #374, #215: returning a loan. POST /loans/:id/return's body is what the return dialog sends.
+const RETURN_AS_TOOL: Record<string, string> = {
+  quantityBack: 'quantity',
+  conditionIn: 'condition',
+  notes: 'note',
+  damaged: 'damaged',
+  takenBackBy: 'taken_back_by',
+};
+
+const RETURN_NOT_A_TOOL_FIELD: Record<string, string> = {
+  // A tool records a return as it is told, now.
+  returnedAt: 'returned now',
+  // A tool puts it back where it was; somewhere else is a move_thing afterwards.
+  to: 'back where it was',
+  // A part merges back into the row it came from, the dialog's default.
+  mergeBack: 'the default',
+  // Damaged sets the thing's condition (the dialog's default); a condition alone is the loan's.
+  updateCondition: 'follows damaged',
+};
+
+describe('return_thing takes every field the return dialog sets', () => {
+  const returnKeys = keysOf(TOOL_DEFS.return_thing.input.shape);
+  it.each(keysOf(ReturnBody.shape))('return: %s', (key) => {
+    if (key in RETURN_NOT_A_TOOL_FIELD) return;
+    expect(RETURN_AS_TOOL[key], `${key} has no tool field`).toBeDefined();
+    expect(returnKeys).toContain(RETURN_AS_TOOL[key]);
   });
 });
