@@ -30,6 +30,8 @@ export const DATE_FORMATS: readonly DateFormatPref[] = ['auto', 'medium', 'numer
 
 export const THEME_KEY = 'kept.theme';
 export const LOCALE_KEY = 'kept.locale';
+/** #474: the chosen language this device last put on the account, so it is sent only once. */
+export const LOCALE_SENT_KEY = 'kept.localeSent';
 export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
 export const REGION_KEY = 'kept.region';
@@ -100,8 +102,24 @@ export function storedDateFormat(): DateFormatPref {
 }
 
 /**
- * The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system, and in
- * English its region (`en-GB`, #362). The region defaults to the one chosen on this device.
+ * #474: Spanish as the browser's region writes it (`es-MX`, `es-419`: 1,234,567.5; `es-ES`:
+ * 1.234.567,5), for a browser in Spanish; Spain's otherwise. Only the region is taken.
+ */
+function spanishTag(): string {
+  const nav = typeof navigator !== 'undefined' ? navigator.language : undefined;
+  if (!nav || localeOfTag(nav) !== 'es') return 'es';
+  try {
+    const region = new Intl.Locale(nav.replace('_', '-')).region;
+    return region ? `es-${region}` : 'es';
+  } catch {
+    return 'es';
+  }
+}
+
+/**
+ * The BCP 47 tag for Intl formatting: the locale plus, in Arabic, its numbering system, in
+ * English its region (`en-GB`, #362), the one chosen on this device by default, and in Spanish the
+ * browser's region (#474). The catalogue is the language's alone.
  */
 export function formatLocale(
   locale: Locale,
@@ -109,8 +127,14 @@ export function formatLocale(
   region: EnglishRegion = state.region,
 ): string {
   if (locale === 'en') return region === 'gb' ? 'en-GB' : 'en';
+  if (locale === 'es') return spanishTag();
   if (locale !== 'ar') return locale;
   return digits === 'eastern' ? 'ar-u-nu-arab' : 'ar-u-nu-latn';
+}
+
+/** The `formatLocale` tag for this device's choices now, outside React (amount fields, #474). */
+export function currentFormatLocale(): string {
+  return formatLocale(state.locale, state.digits);
 }
 
 export function directionOf(locale: Locale): 'ltr' | 'rtl' {
@@ -254,9 +278,41 @@ export function setThemePref(theme: ThemePref): void {
   set({ theme, resolvedTheme: resolve(theme) });
 }
 
+/** A language the person chose: kept on this device, and the one `chosenLocale` answers. */
 export function setLocale(locale: Locale): void {
   write(LOCALE_KEY, locale);
   set({ locale });
+}
+
+/**
+ * The language this page starts in, stored nowhere (#474): a browser's language is followed again
+ * when it changes or when Kept learns it, until the person picks one. Earlier versions stored the
+ * language on every start, so a language stored by them can't be told from a default.
+ */
+export function showLocale(locale: Locale): void {
+  set({ locale });
+}
+
+/** The language picked on this device, or null where it follows the browser. */
+export function chosenLocale(): Locale | null {
+  const v = read(LOCALE_KEY);
+  return isLocale(v) ? v : null;
+}
+
+/**
+ * The chosen language to put on the account whose language is `accountLocale`, once (#474): null
+ * when nothing was chosen here, when the account already has it, or when it was sent before.
+ * Another device's later choice stays the account's.
+ */
+export function localeToSend(accountLocale: string): Locale | null {
+  const chosen = chosenLocale();
+  if (!chosen || chosen === accountLocale || read(LOCALE_SENT_KEY) === chosen) return null;
+  return chosen;
+}
+
+/** The account has `locale` from this device. */
+export function markLocaleSent(locale: Locale): void {
+  write(LOCALE_SENT_KEY, locale);
 }
 
 export function setDigits(digits: Digits): void {

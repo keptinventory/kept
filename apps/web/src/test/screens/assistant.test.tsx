@@ -268,7 +268,7 @@ describe('the confirmation card', () => {
     await assistantButton();
     act(() => showThread(A.thread.found));
     const s = await sheet();
-    expect(await within(s).findByText('Expired · ask again')).toBeInTheDocument();
+    expect(await within(s).findByText('Expired, ask again')).toBeInTheDocument();
     expect(within(s).getByText('Changed since you asked')).toBeInTheDocument();
     expect(within(s).getByText(/Bruce/)).toBeInTheDocument();
     expect(within(s).getAllByRole('button', { name: 'Ask again' })).toHaveLength(2);
@@ -419,7 +419,7 @@ describe('the confirmation card', () => {
     vi.useFakeTimers({ toFake: ['Date'], now: expiry + 1_000 });
     try {
       expect(
-        await within(s).findByText('Expired · ask again', {}, { timeout: 5000 }),
+        await within(s).findByText('Expired, ask again', {}, { timeout: 5000 }),
       ).toBeInTheDocument();
     } finally {
       vi.useRealTimers();

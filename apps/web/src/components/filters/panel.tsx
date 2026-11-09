@@ -15,13 +15,7 @@
  */
 
 import { type CalendarDate, parseDate } from '@internationalized/date';
-import {
-  AmountError,
-  DATE_PRESETS,
-  type DatePreset,
-  parseAmount,
-  parseDateRange,
-} from '@kept/shared';
+import { AmountError, DATE_PRESETS, type DatePreset, parseDateRange } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type ReactNode, useId, useMemo, useState } from 'react';
 import {
@@ -42,6 +36,7 @@ import { CurrencyPicker } from '@/components/things/pickers';
 import { Button } from '@/components/ui/button';
 import { Segmented } from '@/components/ui/segmented';
 import { TextField } from '@/components/ui/text-field';
+import { amountText, readAmount } from '@/lib/amount';
 import { useFormat } from '@/lib/format';
 import { formatLocale, usePrefs } from '@/lib/prefs';
 import type { ListState } from '@/lib/url-state';
@@ -523,8 +518,8 @@ function DateEditor({ def, list, commit, onDone }: EditorProps) {
 function RangeEditor({ def, list, commit, onDone }: EditorProps) {
   const { t } = useLingui();
   const keys = def.range ?? { min: `${def.key}Min`, max: `${def.key}Max` };
-  const [lo, setLo] = useState(list.filters[keys.min]?.[0] ?? '');
-  const [hi, setHi] = useState(list.filters[keys.max]?.[0] ?? '');
+  const [lo, setLo] = useState(() => amountText(list.filters[keys.min]?.[0]));
+  const [hi, setHi] = useState(() => amountText(list.filters[keys.max]?.[0]));
   const [cur, setCur] = useState<string | null>(
     keys.currency ? (list.filters[keys.currency]?.[0] ?? null) : null,
   );
@@ -532,7 +527,7 @@ function RangeEditor({ def, list, commit, onDone }: EditorProps) {
   const read = (v: string): string | null | undefined => {
     if (!v.trim()) return null;
     try {
-      return parseAmount(v);
+      return readAmount(v);
     } catch (e) {
       if (e instanceof AmountError) return undefined;
       throw e;

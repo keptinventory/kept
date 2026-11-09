@@ -3,7 +3,7 @@ title: Il grafo
 description: Guarda un luogo come un grafo dei suoi piani, stanze, scatole e oggetti, in 2D o 3D, con ciò che richiede attenzione e i tuoi tag.
 ---
 
-La pagina di un luogo ha cinque layout: **Elenco**, **Griglia**, **Grafo**, **Tabella** e **Mappa**. La **Tabella** è disponibile solo su schermi larghi, quindi un telefono mostra Elenco · Griglia · Grafo · Mappa. Il **Grafo** disegna il luogo come nodi e collegamenti: il luogo, i suoi piani, le stanze su di essi, gli scaffali, gli armadi e le scatole nelle stanze, e gli oggetti in quelli. Kept ricorda la tua scelta per ogni luogo su ogni dispositivo. La pagina di un piano o di una stanza ha anche **Grafo**, aperto su quel posto.
+La pagina di un luogo ha cinque layout: **Elenco**, **Griglia**, **Grafo**, **Tabella** e **Mappa**. La **Tabella** è disponibile solo su schermi larghi, quindi un telefono mostra Elenco, Griglia, Grafo, Mappa. Il **Grafo** disegna il luogo come nodi e collegamenti: il luogo, i suoi piani, le stanze su di essi, gli scaffali, gli armadi e le scatole nelle stanze, e gli oggetti in quelli. Kept ricorda la tua scelta per ogni luogo su ogni dispositivo. La pagina di un piano o di una stanza ha anche **Grafo**, aperto su quel posto.
 
 ## 2D
 
@@ -13,7 +13,7 @@ Il grafo 2D mostra un posto al centro e due livelli attorno: ciò che è diretta
 - Un nodo il cui contenuto non è disegnato mostra il loro **numero**.
 - **Scegli** un nodo per vedere la sua scheda. **Sceglilo di nuovo**, oppure **Entra** nella scheda, per metterlo al centro.
 - Il **percorso** sopra il grafo (Casa › Piano terra › Garage) torna indietro.
-- **Stanze · Scatole · Tutti** sceglie quanto approfondire il disegno: solo posti, posti e scatole, o tutto fino agli oggetti.
+- **Stanze, Scatole, Tutti** sceglie quanto approfondire il disegno: solo posti, posti e scatole, o tutto fino agli oggetti.
 
 Trascina per spostare il grafo, scorri o fai un pinch per fare lo zoom, e il pulsante della casa mostra nuovamente l'intero luogo.
 

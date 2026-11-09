@@ -7,7 +7,13 @@ import { withSystem } from '../db/scope.js';
 import type { MailLocale } from '../mail/messages.js';
 import { guardedLookup, isPrivateAddress, PrivateAddressError } from '../net/ssrf.js';
 import type { VapidDetails } from './vapid.js';
-import { REMINDER_COUNT, REMINDER_WORDS, type ReminderFacts, shortTitle } from './words.js';
+import {
+  REMINDER_COUNT,
+  REMINDER_WORDS,
+  type ReminderFacts,
+  separator,
+  shortTitle,
+} from './words.js';
 
 // Web push (D139), over web-push 3.6.7's sendNotification() with the
 // VAPID details passed per call (no global setVapidDetails, so a key change needs no restart).
@@ -226,7 +232,7 @@ export function digestPush(locale: MailLocale, items: ReminderFacts[], day: stri
   const lines = items.slice(0, DIGEST_LINES).map((f) => w.headline(f));
   if (items.length > DIGEST_LINES) lines.push('…');
   return {
-    title: `Kept · ${REMINDER_COUNT[locale](items.length)}`,
+    title: `Kept${separator(w.tag)}${REMINDER_COUNT[locale](items.length)}`,
     body: lines.join('\n'),
     url: '/',
     tag: `digest-${day}`,

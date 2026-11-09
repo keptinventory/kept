@@ -59,7 +59,7 @@ Une capture est d'abord enregistrée sur le téléphone et envoyée lors de la s
   terminer la synchronisation** avec un compteur : laissez Kept à l'écran un moment en étant en ligne.
 - **Sans nom**, une capture attend dans la **Réception**. **Photos à vérifier** sur l'accueil les affiche.
 
-### La recherche affiche « Sur ce téléphone · selon la dernière synchronisation »
+### La recherche affiche « Sur ce téléphone, selon la dernière synchronisation »
 
 La réponse vient de la copie propre du téléphone, parce que vous êtes hors ligne. Reconnectez-vous, puis tirez vers le bas pour actualiser.
 

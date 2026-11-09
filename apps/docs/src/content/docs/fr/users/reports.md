@@ -9,7 +9,7 @@ voir [Utilisation quotidienne](/fr/users/everyday-use/#états-des-lieux-location
 
 ## Imprimer l’inventaire
 
-**Imprimer l’inventaire** sur un lieu produit un PDF de ses objets regroupés par endroit, avec photos et
+**Imprimer l’inventaire** sur un lieu produit un PDF de ses objets regroupés par emplacement, avec photos et
 identifiants courts, et, en option, codes QR, objets terminés et la Corbeille. Les prix n'apparaissent que pour les personnes qui
 peuvent voir l'argent. Quiconque peut voir le lieu peut en faire un.
 
@@ -23,7 +23,7 @@ peuvent voir l'argent. Quiconque peut voir le lieu peut en faire un.
 ## Rapport pour l’assurance
 
 Le **Rapport pour l’assurance** (là où l'on peut voir l'argent) recense chaque objet avec sa photo, sa marque,
-son modèle, son numéro de série, sa date d'achat, son prix, sa valeur actuelle et ses justificatifs, avec des totaux par endroit et par
+son modèle, son numéro de série, sa date d'achat, son prix, sa valeur actuelle et ses justificatifs, avec des totaux par emplacement et par
 devise, sous forme de PDF et de CSV.
 
 **Totaliser également en** ajoute un total converti lorsque vos taux de change couvrent toutes les devises.

@@ -260,8 +260,21 @@ export function placesRoutes(state: MockState): MockRoute[] {
           'The Unplaced area stays.',
         );
       const b = (body ?? {}) as TrashBody;
-      const childPlaces = inv().places.filter((c) => c.parentId === pl.id && !c.deletedAt);
-      const childThings = inv().things.filter((t) => t.placeId === pl.id && !t.deletedAt);
+      // Furniture's compartments go with it (#445): what is in them is asked about instead.
+      const compartments = pl.layout
+        ? inv().places.filter((c) => c.parentId === pl.id && !c.deletedAt && c.cell)
+        : [];
+      const holders = new Set([pl.id, ...compartments.map((c) => c.id)]);
+      const childPlaces = inv().places.filter(
+        (c) =>
+          c.parentId !== null &&
+          holders.has(c.parentId) &&
+          !c.deletedAt &&
+          !compartments.includes(c),
+      );
+      const childThings = inv().things.filter(
+        (t) => t.placeId !== null && holders.has(t.placeId) && !t.deletedAt,
+      );
       if ((childPlaces.length || childThings.length) && !b.contents)
         return err(
           409,
@@ -269,7 +282,11 @@ export function placesRoutes(state: MockState): MockRoute[] {
           'Choose what happens to what is inside.',
           undefined,
           {
-            counts: { places: childPlaces.length, things: childThings.length },
+            counts: {
+              places: childPlaces.length,
+              things: childThings.length,
+              ...(compartments.length ? { compartments: compartments.length } : {}),
+            },
           },
         );
       const batch = newId();
@@ -277,6 +294,10 @@ export function placesRoutes(state: MockState): MockRoute[] {
       const moved: string[] = [];
       const stamp = { deletedAt: now(), trashBatchId: batch, deletedBy: state.me.user.displayName };
       Object.assign(pl, stamp);
+      for (const c of compartments) {
+        Object.assign(c, stamp);
+        trashed.push(c.id);
+      }
       if (b.contents === 'trash') {
         for (const row of [...childPlaces, ...childThings]) {
           Object.assign(row, stamp);

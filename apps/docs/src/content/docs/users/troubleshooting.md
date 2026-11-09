@@ -63,7 +63,7 @@ A capture is saved on the phone first and sent when the phone syncs.
   finish syncing** with a count: leave Kept on screen for a moment while online.
 - **Without a name**, a capture waits in the **Inbox**. **Photos to review** on Home shows them.
 
-### Search says "On this phone · as of last sync"
+### Search says "On this phone, as of last sync"
 
 The answer came from the phone's own copy, because you're offline. Reconnect, then pull down to
 refresh.

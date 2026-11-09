@@ -72,6 +72,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { amountText } from '@/lib/amount';
 import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { useMeterUnit, useTypedNumber } from '@/lib/units';
@@ -215,7 +216,7 @@ function LogServiceForm({
   /** A read line into the form, its numbers in the reader's digits. */
   const lineFrom = (l: SuggestedLine): Line => {
     const x = lineOf(l);
-    return { ...x, quantity: asTyped(x.quantity), cost: asTyped(x.cost) };
+    return { ...x, quantity: asTyped(x.quantity), cost: amountText(x.cost) };
   };
   const access = useLocationAccess()(locationId);
   const accountId = useLocationAccountId(access.location);
@@ -272,16 +273,14 @@ function LogServiceForm({
       kind: l.kind,
       description: l.description,
       quantity: l.quantity ? asTyped(l.quantity) : '',
-      cost: amountIn(l.unitCost) ? asTyped(amountIn(l.unitCost)) : '',
+      cost: amountText(amountIn(l.unitCost)),
       consumableThingId: l.consumable?.id ?? null,
     })),
   );
   const [linesAtStart] = useState(() => linesKey(lines));
   /** Hidden prices on the record's lines: replacing the lines would drop them, so they stay. */
   const linesLocked = !!edit && !access.money && edit.lines.some((l) => l.unitCost !== null);
-  const [total, setTotal] = useState(() =>
-    edit && amountIn(edit.total) ? asTyped(amountIn(edit.total)) : '',
-  );
+  const [total, setTotal] = useState(() => (edit ? amountText(amountIn(edit.total)) : ''));
   const [currency, setCurrency] = useState<string | null>(
     (edit?.total && 'currency' in edit.total ? edit.total.currency : null) ??
       access.location?.currency ??
@@ -351,7 +350,7 @@ function LogServiceForm({
     const typed = lines.filter((l) => l.description.trim() || l.cost.trim());
     setLines([...typed, ...pending.map((i) => lineFrom(read.lines[i] as SuggestedLine))]);
     setTaken(new Set(read.lines.map((_, i) => i)));
-    if (read.total && !total.trim()) setTotal(asTyped(read.total));
+    if (read.total && !total.trim()) setTotal(amountText(read.total));
     if (read.currency) setCurrency(read.currency);
     if (read.vendor && !vendor.id && !vendor.text.trim())
       setVendor({ id: null, text: read.vendor });

@@ -45,7 +45,7 @@ Một ảnh chụp được lưu trên điện thoại trước và được g�
 - **Trên iPhone, hàng đợi chỉ di chuyển khi Kept mở.** Dòng dưới tiêu đề nói **Mở để hoàn tất đồng bộ** kèm số lượng: để Kept hiển thị trên màn hình trong một lát khi đang kết nối.
 - **Không có tên**, một ảnh chụp chờ trong **Hộp thư đến**. **Ảnh cần xem lại** trên Trang chủ hiển thị chúng.
 
-### Tìm kiếm nói "Trên điện thoại này · đến lần đồng bộ cuối cùng"
+### Tìm kiếm nói "Trên điện thoại này, đến lần đồng bộ cuối cùng"
 
 Câu trả lời đến từ bản sao của chính điện thoại, vì bạn đang ngoại tuyến. Kết nối lại, sau đó kéo xuống để làm mới.
 

@@ -30843,3 +30843,16 @@ msgstr "Основна адреса, до якої прив’язані пос�
 #: src/components/languages.tsx
 msgid "Find a language"
 msgstr "Знайти мову"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
+msgstr "{compartments, plural, one {Його # відділення потрапить до кошика разом із ним і повернеться разом із ним під час відновлення.} few {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} many {Його # відділень потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} other {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.}}"
+
+#. placeholder {0}: place.name
+#: src/components/places/trash-contents-dialog.tsx
+msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
+msgstr "Усередині <0>{0}</0> та його відділень — {inside}. Що з ними зробити?"
+
+#: src/components/places/trash-contents-dialog.tsx
+msgid "Only {placeName} and its compartments go to the trash."
+msgstr "До кошика потраплять лише {placeName} та його відділення."

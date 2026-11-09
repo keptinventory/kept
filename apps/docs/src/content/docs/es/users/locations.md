@@ -55,7 +55,7 @@ lugares** ("sala o lugar" es la palabra de Kept para cualquier sitio), que conti
   **Mapa**, cada uno con su icono. **Grafo** dibuja la ubicación como un grafo de sus pisos, salas, cajas
   y objetos, en 2D o 3D ([El grafo](/es/users/graph/)). **Tabla** muestra sus objetos como una hoja de cálculo,
   en una pantalla de 1024 px de ancho o más ([La hoja de cálculo](/es/users/spreadsheet/)), así que un teléfono muestra
-  Lista · Cuadrícula · Grafo · Mapa. **Mapa** muestra la ubicación en 3D, piso por piso, con sus salas,
+  Lista, Cuadrícula, Grafo, Mapa. **Mapa** muestra la ubicación en 3D, piso por piso, con sus salas,
   estantes y cajas ([El mapa de la ubicación](/es/users/location-map/)). El menú **Visualización** de la lista ofrece
   la misma opción. La página de un lugar (no Sin ubicar) también tiene el interruptor, sin Tabla. Kept
   recuerda el diseño para cada ubicación y cada lugar en ese dispositivo.
@@ -65,7 +65,7 @@ lugares** ("sala o lugar" es la palabra de Kept para cualquier sitio), que conti
 - En una computadora o tableta, la barra lateral marca la ubicación en la que estás: en su página, y en sus
   salas, objetos, cajas y configuración.
 
-![Una ubicación en Cuadrícula con fichas Pequeñas: el encabezado Lugares · 9 sobre las salas, luego el encabezado Objetos · 20+ sobre los objetos, seis fichas por fila, cada una solo con su nombre](../../../../assets/screens/grid-desktop-light.webp)
+![Una ubicación en Cuadrícula con fichas Pequeñas: el encabezado Lugares, 9 sobre las salas, luego el encabezado Objetos, 20+ sobre los objetos, seis fichas por fila, cada una solo con su nombre](../../../../assets/screens/grid-desktop-light.webp)
 
 ![La misma cuadrícula en el tema oscuro](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -98,6 +98,11 @@ lugar dentro de él, con su propio nombre, etiqueta y, si quieres, su propio có
   compartimento, en orden de conteo.
 - **Su página** muestra los compartimentos como se coloca, numerados como están sus etiquetas. Toca uno para abrirlo.
   **Imprimir sus etiquetas** imprime todos de nuevo, en orden de conteo, con los nombres que tienen ahora.
+- **Mover a la papelera:** sus compartimentos van a la papelera con él y vuelven con él al
+  **Restaurar**. Si hay algo en él o en algún compartimento, Kept pregunta solo por eso:
+  **Moverlos a** la habitación donde está (o **Elige otro lugar**), o **Tíralos también**. Una caja
+  se mueve tal cual, con lo que tiene dentro. Un lugar que agregaste tú al mueble cuenta como algo
+  que hay en él. El **Deshacer** del aviso devuelve cada cosa a su compartimento.
 
 ### Girar el mueble
 

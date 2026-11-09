@@ -119,11 +119,16 @@ contient au plus 20 comptes gérés.
 - **Langue** : العربية, Deutsch, English, Español, Français, Italiano, Українська ou Tiếng Việt.
   Ouvrez la liste, ou saisissez pour en trouver une : son nom, son nom en anglais ou dans la langue que vous
   utilisez, et les petites fautes de frappe passent (`german`, `deutsch` et `francais` fonctionnent tous). L’arabe présente toute l’application de droite
-  à gauche. Les pages de connexion ont le même sélecteur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
+  à gauche. Les pages de connexion ont le même sélecteur. Tant que vous n’en choisissez pas une, Kept suit la langue du navigateur. Les e-mails et les rappels suivent la dernière langue que vous avez choisie.
 - **Chiffres arabes orientaux** : Occidentaux (0123) ou Orientaux (٠١٢٣), affichés uniquement quand la langue est l’arabe.
   Les identifiants courts et les numéros de série restent toujours en chiffres occidentaux.
 - **Région** : **États-Unis** (Oct 29) ou **Royaume-Uni** (29 Oct, 29/10/2026), affichée uniquement
   quand la langue est l’anglais.
+  En espagnol, les nombres et les dates suivent la région du navigateur : un navigateur réglé sur le
+  Mexique écrit `1,234,567.5`, un navigateur réglé sur l’Espagne `1.234.567,5`.
+- **Les montants** sont lus comme votre langue les écrit. Là où la virgule est le séparateur
+  décimal, comme en français, `1.234` vaut mille deux cent trente-quatre et `12,50` douze et demi.
+  Un montant qui peut se lire de deux façons, comme `0.125`, est refusé plutôt que deviné.
 - **Format de date** : **Par défaut** (29 Oct, avec l’année seulement pour les autres années), 29 Oct 2026,
   29/10/2026 ou 2026-10-29 (comme l’écrit le Royaume-Uni). Chaque choix affiche la date du jour
   écrite ainsi, dans votre région. Les dates d’achat et de
@@ -140,7 +145,7 @@ pas chacun :
 |---|---|
 | Basics | Accueil, vos lieux, Scanner, Rechercher, et où se trouve tout le reste. |
 | Things & places | ajouter à un lieu, ce qu’il contient, et la page d’un objet et ses onglets. |
-| Graphe & carte 3D | le commutateur Liste · Grille · Graphe · Tableau · Carte (Tableau sur un ordinateur), le graphe en 2D ou 3D, en 3D ou en plan, les épingles, les étages et Ranger, où une pièce se déplace avec ce qu’elle contient. |
+| Graphe & carte 3D | le commutateur Liste, Grille, Graphe, Tableau, Carte (Tableau sur un ordinateur), le graphe en 2D ou 3D, en 3D ou en plan, les épingles, les étages et Ranger, où une pièce se déplace avec ce qu’elle contient. |
 | Capture & Inbox | choisir ce que vous capturez, le déclencheur, et relire ce que Kept a lu. |
 | Scanning | une session de scan : compter, emballer ou déplacer, où, et ce que Terminer change. |
 | Search & labels | le champ de recherche, les vues enregistrées, Sélectionner (déplacer, imprimer des étiquettes, Mettre à la corbeille), l’impression d’étiquettes et Scanner, qui peut poser une étiquette vierge sur un emplacement que vous avez. |
@@ -158,7 +163,7 @@ pas chacun :
   ce chapitre. Les chapitres terminés se replient sous **Terminé (N)** ; ouvrez-le pour en rejouer un.
 - La visite démarre depuis Aide. La barre du haut d’une page garde les outils propres à cette page ; le **Démarrer une session** d’une session de scan
   comporte un petit **Montre-moi** pour son chapitre.
-- La bulle indique où vous êtes : "Chapitre 3 sur 12 · étape 2 sur 5".
+- La bulle indique où vous êtes : "Chapitre 3 sur 12, étape 2 sur 5".
 - **Suivant** passe à la suite, **Retour** revient en arrière dans le chapitre, les flèches font les deux, et **Échap**
   ou **×** le ferme.
 - La dernière étape d’un chapitre nomme le suivant : **Continuer** y va directement, **Arrêter ici**

@@ -26,6 +26,7 @@ import { useMoney } from '@/components/things/values';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TextField } from '@/components/ui/text-field';
+import { amountText, readAmount } from '@/lib/amount';
 import { sep, useFormat } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useInboxRun } from './actions';
@@ -34,7 +35,14 @@ import { type Blocked, BlockedReason, batchTarget, ItemShell, Thumb, useItemKeys
 import { SuggestedMark } from './suggested-field';
 
 type LineChoice = { action: ReceiptLineAction; thingId?: string };
-const AMOUNT = /^\d+(\.\d{1,4})?$/;
+/** A typed amount, canonical, read by the reader's language (#474); null when it isn't one. */
+function amountIn(typed: string): string | null {
+  try {
+    return readAmount(typed);
+  } catch {
+    return null;
+  }
+}
 
 export function ReceiptReview({ item, location, current, blocked }: ItemProps) {
   const { t } = useLingui();
@@ -58,15 +66,15 @@ export function ReceiptReview({ item, location, current, blocked }: ItemProps) {
   const chosenVendor = vendorId ?? (mode === 'existing' ? (known?.id ?? null) : null);
   const [purchasedOn, setPurchasedOn] = useState<string | null>(r?.purchasedOn ?? null);
   const [currency, setCurrency] = useState<string | null>(r?.currency ?? null);
-  const [total, setTotal] = useState(r?.total ?? '');
-  const [tax, setTax] = useState(r?.tax ?? '');
+  const [total, setTotal] = useState(() => amountText(r?.total));
+  const [tax, setTax] = useState(() => amountText(r?.tax));
   const [lines, setLines] = useState<Record<number, LineChoice>>({});
   const linesRef = useRef<HTMLDivElement>(null);
   // Answered in its "Needs a currency" item (D189): the purchase now has the currency, and the
   // amounts that waited for it. Fill what the person hasn't set here; never overwrite it.
   const answeredCurrency = r?.currency ?? null;
-  const answeredTotal = r?.total ?? '';
-  const answeredTax = r?.tax ?? '';
+  const answeredTotal = amountText(r?.total);
+  const answeredTax = amountText(r?.tax);
   useEffect(() => {
     if (answeredCurrency) setCurrency((c) => c ?? answeredCurrency);
   }, [answeredCurrency]);
@@ -108,11 +116,13 @@ export function ReceiptReview({ item, location, current, blocked }: ItemProps) {
           ? t`Choose the date on the receipt.`
           : !currency
             ? t`Choose the currency.`
-            : !hidden && total && !AMOUNT.test(total)
+            : !hidden && total && amountIn(total) === null
               ? t`The total is a number, like 5800.00.`
-              : Object.values(lines).some((l) => l.action === 'link' && !l.thingId)
-                ? t`Choose the thing each linked line is.`
-                : undefined);
+              : !hidden && tax && amountIn(tax) === null
+                ? t`A number, like 5800.00.`
+                : Object.values(lines).some((l) => l.action === 'link' && !l.thingId)
+                  ? t`Choose the thing each linked line is.`
+                  : undefined);
 
   const accept = () => {
     if (blockedReason || !r || !purchasedOn || !currency) return;
@@ -122,8 +132,8 @@ export function ReceiptReview({ item, location, current, blocked }: ItemProps) {
         mode === 'existing' && chosenVendor ? { id: chosenVendor } : { name: newVendor.trim() },
       purchasedOn,
       currency,
-      ...(!hidden && total ? { total } : {}),
-      ...(!hidden && tax ? { tax } : {}),
+      ...(!hidden && total ? { total: amountIn(total) ?? total } : {}),
+      ...(!hidden && tax ? { tax: amountIn(tax) ?? tax } : {}),
       lines: r.lines.map((l) => {
         const c = lines[l.index] ?? { action: 'new_thing' as const };
         const { unitPrice, ...rest } = l;
@@ -286,11 +296,19 @@ export function ReceiptReview({ item, location, current, blocked }: ItemProps) {
               value={total}
               onChange={setTotal}
               inputMode="decimal"
-              {...(total && !AMOUNT.test(total)
+              {...(total && amountIn(total) === null
                 ? { errorMessage: t`A number, like 5800.00.` }
                 : {})}
             />
-            <TextField label={t`Tax`} value={tax} onChange={setTax} inputMode="decimal" />
+            <TextField
+              label={t`Tax`}
+              value={tax}
+              onChange={setTax}
+              inputMode="decimal"
+              {...(tax && amountIn(tax) === null
+                ? { errorMessage: t`A number, like 5800.00.` }
+                : {})}
+            />
           </div>
         )}
       </div>

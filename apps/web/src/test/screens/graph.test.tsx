@@ -72,7 +72,7 @@ function withFloors(): MockState {
 }
 
 describe('the layout switch', () => {
-  it('reads List · Grid · Graph · Map on a phone, each with its icon', async () => {
+  it('reads List, Grid, Graph, Map on a phone, each with its icon', async () => {
     await renderApp(`/loc/${IDS.home}`);
     const layouts = await screen.findByRole('radiogroup', { name: 'Layout' });
     const labels = within(layouts)
@@ -195,7 +195,7 @@ describe('the 2D graph', () => {
     await waitFor(() => expect(current()).toBe('Kitchen'));
   });
 
-  it('leaves Escape to the Rooms · Boxes · All switch', async () => {
+  it('leaves Escape to the Rooms, Boxes, All switch', async () => {
     const { user } = await renderApp(`/p/${P.office}?view=graph`);
     await waitFor(() => expect(current()).toBe('Office'));
     const rooms = screen.getByRole('radio', { name: 'Rooms' });

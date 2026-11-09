@@ -66,10 +66,13 @@ export function reading(tag: string, value: string | null, unit: string | null):
   return unit ? `${shown} ${unit}` : shown;
 }
 
-const where = (f: ReminderFacts) =>
+/** Between a line's parts: a comma, the Arabic comma in Arabic; never the middle dot (#459). */
+export const separator = (tag: string): string => (tag.startsWith('ar') ? '، ' : ', ');
+
+const where = (tag: string) => (f: ReminderFacts) =>
   f.subject.type === 'location'
     ? f.locationName
-    : [f.subject.path, f.locationName].filter((p): p is string => !!p).join(' · ');
+    : [f.subject.path, f.locationName].filter((p): p is string => !!p).join(separator(tag));
 
 type Phrase = (name: string, when: string, f: ReminderFacts) => string;
 
@@ -90,7 +93,7 @@ function words(
       return (table[f.kind] ?? table.any)(f.subject.name, when(f), f);
     },
     label: (f) => labels[f.sourceType](f),
-    where,
+    where: where(tag),
   };
 }
 
@@ -581,9 +584,9 @@ export const REMINDER_WORDS: Record<MailLocale, ReminderWords> = {
   vi: VI,
 };
 
-/** The calendar event's title and a push notification's: "Boiler service · Kitchen". */
+/** The calendar event's title and a push notification's: "Boiler service, Kitchen". */
 export function shortTitle(w: ReminderWords, f: ReminderFacts): string {
-  return `${w.label(f)} · ${f.subject.name}`;
+  return `${w.label(f)}${separator(w.tag)}${f.subject.name}`;
 }
 
 /** "3 reminders", in each language (Arabic and Ukrainian with their plural forms, Western digits). */

@@ -45,7 +45,7 @@ Eine Aufnahme wird zuerst auf dem Telefon gespeichert und gesendet, wenn das Tel
 - **Auf dem iPhone bewegt sich die Warteschlange nur, solange Kept geöffnet ist.** Die Zeile unter dem Header sagt **Öffnen, um die Synchronisierung abzuschließen** mit einer Zahl: Lass Kept einen Moment auf dem Bildschirm, während du online bist.
 - **Ohne Namen** wartet eine Aufnahme im **Eingang**. **Fotos zum Prüfen** auf der Startseite zeigt sie.
 
-### Die Suche sagt „Auf diesem Telefon · Stand letzter Synchronisierung“
+### Die Suche sagt „Auf diesem Telefon, Stand letzter Synchronisierung“
 
 Die Antwort kam aus der eigenen Kopie des Telefons, weil du offline bist. Verbinde dich neu und ziehe dann zum Aktualisieren nach unten.
 

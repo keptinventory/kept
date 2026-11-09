@@ -33,7 +33,7 @@ La Posta in arrivo mostra una scheda **Stanza** all'inizio del lotto di acquisiz
 
 - **Nuovi oggetti**: ogni bozza nella stanza, con la propria immagine, nome, marca, modello, colore e tipo compilati dove la foto li mostrava. Accetta, modifica o scarta queste bozze come qualsiasi altra bozza, oppure **Accetta i nomi** per l'intero lotto. Una bozza che sembra un oggetto che già possiedi è segnalata come probabile duplicato.
 - **Mobili contenitori** (scaffali, librerie, armadi, guardaroba, cassettiere):
-  **Aggiungi come luogo** ne fa un posto all'interno della stanza, così gli oggetti possono entrarvi. Altri mobili (un divano, un letto, un tavolo) sono bozze come qualsiasi altro oggetto.
+  **Aggiungi come posto** ne fa un posto all'interno della stanza, così gli oggetti possono entrarvi. Altri mobili (un divano, un letto, un tavolo) sono bozze come qualsiasi altro oggetto.
 - **Già in Kept**: oggetti che le foto hanno mostrato che la stanza già possiede, per la stessa etichetta, stessa marca e modello, o stesso nome. Seleziona questi oggetti e **Segna come visto**. Un oggetto la cui etichetta è stata letta inizia selezionato.
 - Ogni foto indica cosa ha fornito. «Impossibile leggere la foto 3» significa che quella foto ha fallito e le altre vengono comunque conteggiate; «Questa foto ne mostra di più; scatta una più ravvicinata» indica che mostra più oggetti di quanto una singola foto possa elencare (60 oggetti).
 
@@ -48,7 +48,7 @@ Quando la stanza viene disegnata sulla [mappa del luogo](/it/users/location-map/
 
 ## Quanto costa
 
-Ogni foto corrisponde a una lettura AI, e un'acquisizione di più di una foto aggiunge una breve chiamata solo testo che unisce ciò che le foto hanno in comune. Prima di inviare, la vaschetta mostra un limite superiore, ad esempio «Circa 3 foto · fino a ~31.000 token · Groq»: la foto, le istruzioni e la risposta più lunga consentita da Kept per ogni foto; una risposta più breve costa meno. Un modello che pensa prima di rispondere addebita anche il tempo di pensiero.
+Ogni foto corrisponde a una lettura AI, e un'acquisizione di più di una foto aggiunge una breve chiamata solo testo che unisce ciò che le foto hanno in comune. Prima di inviare, la vaschetta mostra un limite superiore, ad esempio «Circa 3 foto, fino a ~31.000 token, Groq»: la foto, le istruzioni e la risposta più lunga consentita da Kept per ogni foto; una risposta più breve costa meno. Un modello che pensa prima di rispondere addebita anche il tempo di pensiero.
 
 La lettura della stanza conta dagli stessi budget e limiti delle altre letture di foto. Quando viene raggiunto un limite, la scheda mostra «In attesa del budget AI», e le foto vengono lette quando l'AI riprende. Ogni chiamata viene visualizzata in **Utilizzo dell’IA** come **Foto di stanza** o **Unione delle foto della stanza**.
 

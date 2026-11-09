@@ -36,6 +36,7 @@ import { toast } from '@/components/ui/toast';
 import { sep } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
+import { useChosenAtOpen } from '@/lib/personal-name';
 import { useMeterUnit, useTypedNumber } from '@/lib/units';
 import { accessOf, useInvalidateHousehold, useLocationAccess } from './access';
 
@@ -379,11 +380,12 @@ function SubjectPicker({
   const { t } = useLingui();
   const locationName = useLocationName();
   const locations = useAllLocations();
-  // A hidden Personal only for a subject already in it.
+  const atOpen = useChosenAtOpen([locationId]);
+  // A hidden Personal only for a subject already in it, even once another is chosen (#459).
   const usable = (locations.data ?? []).filter((l) => {
     const a = accessOf(l);
     return (
-      (!l.hidden || l.id === locationId) &&
+      (!l.hidden || l.id === locationId || atOpen.includes(l.id)) &&
       a.moduleOn('schedules') &&
       a.can('schedules-claims.manage')
     );

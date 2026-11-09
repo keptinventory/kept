@@ -18,7 +18,7 @@ On a computer, ⌘K or Ctrl+K opens search from anywhere.
 
 ## Offline search
 
-On a phone, Search also works offline from the phone's copy, labelled **On this phone · as of
+On a phone, Search also works offline from the phone's copy, labelled **On this phone, as of
 last sync**. Results come from the local copy, and what you change syncs when you're back online.
 
 ## Semantic search

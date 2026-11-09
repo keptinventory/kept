@@ -12,6 +12,7 @@ import { requireCan, requireMembership } from '../locations/access.js';
 import { lockLayout, placeNewRoom, RoomSize } from '../map/service.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { gateFor } from '../serialize/gates.js';
+import { compartmentIdsOf } from '../templates/furniture-view.js';
 import {
   auditPlaceRelocations,
   auditRelocations,
@@ -417,18 +418,29 @@ async function thingsUnder(
   return rows;
 }
 
-async function directCounts(
+type ContentsCounts = { places: number; things: number; compartments?: number };
+
+/**
+ * What the contents choice is about: the places and things directly in the place. Furniture's
+ * compartments go with it (#445), so they aren't asked about: what is directly in each of them
+ * counts instead (a box once, as it moves whole), and so does a place added to the furniture by
+ * hand. `compartments` says how many go with it.
+ */
+async function contentsCounts(
   client: pg.ClientBase,
   placeId: string,
-): Promise<{ places: number; things: number }> {
+  compartments: readonly string[],
+): Promise<ContentsCounts> {
   const { rows } = await client.query<{ places: number; things: number }>(
     `SELECT (SELECT count(*) FROM public.places c
-              WHERE c.parent_id = $1 AND c.deleted_at IS NULL)::int AS places,
+              WHERE c.parent_id = ANY ($1::uuid[]) AND c.deleted_at IS NULL
+                AND NOT (c.id = ANY ($2::uuid[])))::int AS places,
             (SELECT count(*) FROM public.things t
-              WHERE t.place_id = $1 AND t.deleted_at IS NULL)::int AS things`,
-    [placeId],
+              WHERE t.place_id = ANY ($1::uuid[]) AND t.deleted_at IS NULL)::int AS things`,
+    [[placeId, ...compartments], compartments],
   );
-  return rows[0] ?? { places: 0, things: 0 };
+  const counts = rows[0] ?? { places: 0, things: 0 };
+  return compartments.length > 0 ? { ...counts, compartments: compartments.length } : counts;
 }
 
 const OUTSIDE = 'Choose a place outside the one you are trashing.';
@@ -447,7 +459,12 @@ export async function trashPlace(
   const place = await requirePlace(c.client, id, { lock: true });
   if (expected !== null) checkVersion(place, expected, [], await lastChangedBy(c.client, id));
 
-  const counts = await directCounts(c.client, id);
+  // Furniture's compartments (#445) go to the trash with it, in its batch, whatever is chosen
+  // for what is in them.
+  const compartments = await compartmentIdsOf(c.client, id);
+  const isCompartment = new Set(compartments);
+  const holders = [id, ...compartments];
+  const counts = await contentsCounts(c.client, id, compartments);
   const hasContents = counts.places + counts.things > 0;
   if (hasContents && !body?.contents) {
     throw new AppError(
@@ -469,6 +486,8 @@ export async function trashPlace(
     moved_thing_ids: string[];
     moved_place_ids: string[];
     moved_to: { place_id: string | null; container_id: string | null; parent_id: string | null };
+    /** What came out of a compartment rather than the place itself: id → the compartment. */
+    moved_from?: Record<string, string>;
   } | null = null;
   const movedPlaces: PlaceRelocation[] = [];
 
@@ -517,24 +536,43 @@ export async function trashPlace(
       thingPlace = null;
       thingContainer = containerId;
     }
-    const { rows: things } = await c.client.query<{ id: string }>(
-      `UPDATE public.things SET place_id = $2::uuid, container_id = $3::uuid
-        WHERE place_id = $1 AND deleted_at IS NULL RETURNING id`,
-      [id, thingPlace, thingContainer],
+    // What is directly in the place or in one of its compartments: a box moves whole, with what
+    // is inside it, and a place with what is under it. The compartments themselves stay.
+    const { rows: things } = await c.client.query<{ id: string; was: string }>(
+      `UPDATE public.things t SET place_id = $2::uuid, container_id = $3::uuid
+        WHERE t.place_id = ANY ($1::uuid[]) AND t.deleted_at IS NULL
+        RETURNING t.id, old.place_id AS was`,
+      [holders, thingPlace, thingContainer],
     );
-    const { rows: places } = await c.client.query<{ id: string }>(
-      `UPDATE public.places SET parent_id = $2::uuid
-        WHERE parent_id = $1 AND deleted_at IS NULL RETURNING id`,
-      [id, childParent],
+    const { rows: places } = await c.client.query<{ id: string; was: string }>(
+      `UPDATE public.places p SET parent_id = $2::uuid
+        WHERE p.parent_id = ANY ($1::uuid[]) AND p.deleted_at IS NULL
+          AND NOT (p.id = ANY ($3::uuid[]))
+        RETURNING p.id, old.parent_id AS was`,
+      [holders, childParent, compartments],
     );
     moved.push(...things.map((r) => r.id), ...places.map((r) => r.id));
     subjects.push(...things.map((r) => r.id));
-    movedPlaces.push(...places.map((r) => ({ id: r.id, before: id, after: childParent })));
+    movedPlaces.push(...places.map((r) => ({ id: r.id, before: r.was, after: childParent })));
+    const from = Object.fromEntries(
+      [...things, ...places].filter((r) => r.was !== id).map((r) => [r.id, r.was]),
+    );
     movedOut = {
       moved_thing_ids: things.map((r) => r.id),
       moved_place_ids: places.map((r) => r.id),
       moved_to: { place_id: thingPlace, container_id: thingContainer, parent_id: childParent },
+      ...(Object.keys(from).length > 0 ? { moved_from: from } : {}),
     };
+  }
+
+  if (compartments.length > 0) {
+    // Emptied, or trashed with what is in them already ("Trash them too").
+    const { rows } = await c.client.query<{ id: string }>(
+      `UPDATE public.places SET deleted_at = now(), trash_batch_id = $2
+        WHERE id = ANY ($1::uuid[]) AND deleted_at IS NULL RETURNING id`,
+      [compartments, batch],
+    );
+    trashed.push(...rows.map((r) => r.id));
   }
 
   await c.client.query(
@@ -551,7 +589,9 @@ export async function trashPlace(
       deleted_at: new Date(),
       trash_batch_id: batch,
       contents: hasContents ? (body?.contents ?? null) : null,
-      trashed: trashed.length,
+      // The history line says "with N inside": the compartments are part of the furniture.
+      trashed: trashed.filter((x) => !isCompartment.has(x)).length,
+      ...(compartments.length > 0 ? { compartments: compartments.length } : {}),
       moved: moved.length,
       ...(movedOut ?? {}),
     },
@@ -559,7 +599,8 @@ export async function trashPlace(
     requestId: c.requestId,
     undoableUntil: undoableUntil(),
   });
-  // Each child place moved out gets its own line; the trash's Undo is what reverses them (#441).
+  // Each child place moved out gets its own line, from where it was (the place, or one of its
+  // compartments); the trash's Undo is what reverses them (#441).
   await auditPlaceRelocations(
     c.tx,
     { locationId: loc, actor: actor(c.scope), requestId: c.requestId },

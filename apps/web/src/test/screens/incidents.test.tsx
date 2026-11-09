@@ -90,7 +90,7 @@ describe('incidents', () => {
     await renderApp('/incidents', { setup: (m) => void withBurglary(m.state) });
     await findHeading('Incidents');
     const row = await screen.findByRole('article', { name: /^Burglary on/ });
-    expect(within(row).getByText(/1 thing · 0 claims/)).toBeInTheDocument();
+    expect(within(row).getByText(/1 thing, 0 claims/)).toBeInTheDocument();
     expect(within(row).getByText('CR-2026-4471')).toBeInTheDocument();
   });
 

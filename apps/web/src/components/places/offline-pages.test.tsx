@@ -91,11 +91,11 @@ describe('a thing page offline', () => {
     expect(
       await screen.findByRole('heading', { name: 'Bosch drill' }, { timeout: 3000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/^On this phone · as of last sync, /)).toBeInTheDocument();
+    expect(screen.getByText(/^On this phone, as of last sync, /)).toBeInTheDocument();
     expect(screen.getByText('Details need a connection.')).toBeInTheDocument();
     // The person's name is isolated in the line (UI step-4 review L9).
     const loanLine = screen.getByText(
-      (_, el) => el?.tagName === 'P' && /^With Murdock · due /.test(el.textContent ?? ''),
+      (_, el) => el?.tagName === 'P' && /^With Murdock, due /.test(el.textContent ?? ''),
     );
     expect(loanLine.querySelector('bdi')).toHaveTextContent('Murdock');
     expect(screen.getByText('Lent out')).toBeInTheDocument();

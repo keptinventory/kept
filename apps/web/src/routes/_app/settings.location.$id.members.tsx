@@ -60,7 +60,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
-import { dayOf, endOfDay } from '@/lib/day-end';
+import { dayOf, endOfDay, tomorrowIn } from '@/lib/day-end';
 import { sep, useFormat } from '@/lib/format';
 import { useRoleLabels } from '@/lib/labels';
 import { grantableRoles } from '@/lib/roles';
@@ -492,7 +492,7 @@ function EditMember({
   const cap = location.membershipExpiresAt
     ? dayOf(location.membershipExpiresAt, location.timezone)
     : null;
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+  const tomorrow = tomorrowIn(location.timezone);
   const capText = cap ? f.day(cap) : null;
 
   const save = useMutation({

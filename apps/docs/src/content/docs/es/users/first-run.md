@@ -121,11 +121,16 @@ tiene como máximo 20 de ellas.
 - **Idioma**: العربية, Deutsch, English, Español, Français, Italiano, Українська o Tiếng Việt.
   Abre la lista, o escribe para encontrar uno: su propio nombre, su nombre en inglés o en el idioma que estés
   usando, y los pequeños errores tipográficos están bien (`german`, `deutsch` y `francais` funcionan todos). El árabe diseña toda la aplicación
-  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
+  de derecha a izquierda. Las páginas de inicio de sesión tienen el mismo selector. Hasta que elijas uno, Kept sigue el idioma del navegador. Los correos y los recordatorios siguen el idioma que elegiste por última vez.
 - **Dígitos en árabe**: Occidentales (0123) u orientales (٠١٢٣), mostrados solo mientras el idioma es árabe.
   Los ID cortos y los números de serie siempre se mantienen en dígitos occidentales.
 - **Región**: **Estados Unidos** (29 oct) o **Reino Unido** (29 oct, 29/10/2026), mostrado solo
   mientras el idioma es inglés.
+  En español, los números y las fechas siguen la región del navegador: un navegador configurado
+  para México escribe `1,234,567.5` y uno para España `1.234.567,5`.
+- **Los importes** se leen como los escribe tu idioma. Donde la coma es el separador decimal, como en
+  España, `1.234` es mil doscientos treinta y cuatro y `12,50` es doce y medio. Un importe que se
+  puede leer de dos maneras, como `0.125`, se rechaza en lugar de adivinarse.
 - **Formato de fecha**: **Predeterminado** (29 oct, con el año solo para otros años), 29 oct 2026,
   29/10/2026 o 2026-10-29 (como los escribe el Reino Unido). Cada opción muestra la fecha de hoy
   escrita así, en tu región. Las fechas de compra y
@@ -142,7 +147,7 @@ pasos cada uno:
 |---|---|
 | Aspectos básicos | Inicio, tus ubicaciones, Escanear, Buscar, y dónde está todo lo demás |
 | Objetos y lugares | añadir a una ubicación, qué contiene, y la página de un objeto y sus pestañas |
-| Gráfico y mapa 3D | el conmutador Lista · Cuadrícula · Gráfico · Tabla · Mapa (Tabla en una computadora), el gráfico en 2D o 3D, 3D o planta, pines, pisos y Organizar, donde una sala se mueve con lo que contiene |
+| Gráfico y mapa 3D | el conmutador Lista, Cuadrícula, Gráfico, Tabla, Mapa (Tabla en una computadora), el gráfico en 2D o 3D, 3D o planta, pines, pisos y Organizar, donde una sala se mueve con lo que contiene |
 | Capturar y Bandeja de entrada | elegir qué capturar, el obturador, y revisar lo que Kept leyó |
 | Escaneo | una sesión de escaneo: contar, empacar o mover, dónde, y qué cambia Finalizar |
 | Búsqueda y etiquetas | el campo de búsqueda, vistas guardadas, Seleccionar (mover, imprimir etiquetas, Mover a la papelera), imprimir etiquetas y Escanear, que puede poner una etiqueta en blanco en un lugar que tengas |
@@ -163,7 +168,7 @@ ubicaciones, y un espectador no recibe pasos que cambien nada.
   ese capítulo. Los capítulos terminados se pliegan bajo **Listo (N)**; ábrelo para reproducir uno de nuevo.
 - El tour comienza desde Ayuda. La barra superior de una página se mantiene con las herramientas propias de esa página; una sesión
   de escaneo tiene **Iniciar una sesión** con un pequeño **Enséñame** para su capítulo.
-- El emergente muestra dónde estás: «Capítulo 3 de 12 · paso 2 de 5».
+- El emergente muestra dónde estás: «Capítulo 3 de 12, paso 2 de 5».
 - **Siguiente** avanza, **Atrás** retrocede dentro del capítulo, las teclas de flecha hacen ambas cosas, y **Esc**
   o **×** lo cierran.
 - El último paso de un capítulo nombra al siguiente: **Continuar** entra directamente en él, **Detén aquí**

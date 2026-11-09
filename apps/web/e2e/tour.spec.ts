@@ -212,7 +212,7 @@ async function fromHelp(page: Page, id: string) {
   await expect(popover(page)).toBeVisible();
 }
 
-/** The popover's progress line: "Chapter 3 of 12 · step 2 of 5". */
+/** The popover's progress line: "Chapter 3 of 12, step 2 of 5". */
 const progressOf = (page: Page) => popover(page).locator('.driver-popover-progress-text');
 
 /** The chapter's last step is on screen ("step 5 of 5"). */
@@ -252,7 +252,7 @@ test('Basics walks every step, each pointing at its control, and then says Done'
   for (const [k, leg] of walk.entries()) {
     await expect(popover(page).locator('.driver-popover-title')).toHaveText(leg.title);
     await expect(progressOf(page)).toHaveText(
-      `Chapter 1 of ${chapters.length} · step ${k + 1} of ${walk.length}`,
+      `Chapter 1 of ${chapters.length}, step ${k + 1} of ${walk.length}`,
     );
     await expect(page).toHaveURL(leg.path);
     // Let driver.js and the sheet's scroll settle before measuring.
@@ -320,7 +320,7 @@ test('a middle chapter starts from its row, and Continue at its end goes into th
   expect(after, chapters.join()).toBeTruthy();
   await fromHelp(page, 'search');
   await expect(progressOf(page)).toContainText(
-    `Chapter ${at + 1} of ${chapters.length} · step 1 of`,
+    `Chapter ${at + 1} of ${chapters.length}, step 1 of`,
   );
   // Back is a tap on its own button, not on Next's touch area beside it (a phone's sheet).
   await nextStep(page);
@@ -331,7 +331,7 @@ test('a middle chapter starts from its row, and Continue at its end goes into th
   await expect(popover(page)).toContainText(`Next: ${TITLES[after ?? '']}`);
   await popover(page).getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(progressOf(page)).toContainText(
-    `Chapter ${at + 2} of ${chapters.length} · step 1 of`,
+    `Chapter ${at + 2} of ${chapters.length}, step 1 of`,
   );
   // The first step of a chapter has nothing before it in the chapter.
   await expect(popover(page).getByRole('button', { name: 'Back' })).toHaveCount(0);
@@ -353,7 +353,7 @@ test('Stop here, then Continue the tour picks up at the first chapter not done',
   expect(chapters[1]).toBe('things');
   await page.getByRole('button', { name: 'Continue the tour', exact: true }).click();
   await expect(popover(page).locator('.driver-popover-title')).toHaveText('Add here');
-  await expect(progressOf(page)).toContainText(`Chapter 2 of ${chapters.length} · step 1 of`);
+  await expect(progressOf(page)).toContainText(`Chapter 2 of ${chapters.length}, step 1 of`);
   await toChapterEnd(page);
   await expect(popover(page)).toContainText(`Next: ${TITLES[chapters[2] ?? '']}`);
   await next(page, true);
@@ -362,7 +362,7 @@ test('Stop here, then Continue the tour picks up at the first chapter not done',
   await expect(await rowOnHelp(page, 'things')).toContainText('Done');
   await page.getByRole('button', { name: 'Continue the tour', exact: true }).click();
   await expect(popover(page).locator('.driver-popover-title')).toHaveText(/^List, Grid, Graph/);
-  await expect(progressOf(page)).toContainText(`Chapter 3 of ${chapters.length} · step 1 of`);
+  await expect(progressOf(page)).toContainText(`Chapter 3 of ${chapters.length}, step 1 of`);
   await page.keyboard.press('Escape');
   await expect(popover(page)).toHaveCount(0);
   await context.close();

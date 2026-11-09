@@ -28,7 +28,7 @@ describe('the schedules list', () => {
     );
     expect(row.getByText('Every 12 months', { exact: false })).toBeInTheDocument();
     expect(row.getByText('In 10 days')).toBeInTheDocument();
-    expect(screen.getByText('0 overdue · 1 due')).toBeInTheDocument();
+    expect(screen.getByText('0 overdue, 1 due')).toBeInTheDocument();
   });
 
   it('completes it from its sheet, with Undo', async () => {
@@ -194,7 +194,7 @@ describe('the variants', () => {
     expect(await screen.findByRole('menuitem', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Snooze' })).toBeNull();
     // Counted nowhere: Home's boiler is still the only one due.
-    expect(screen.getByText('0 overdue · 1 due')).toBeInTheDocument();
+    expect(screen.getByText('0 overdue, 1 due')).toBeInTheDocument();
   });
 
   it('says so when Schedules is off everywhere', async () => {

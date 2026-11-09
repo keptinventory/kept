@@ -48,8 +48,8 @@ export function WhatUsesAi({
 const withImage = (task: LedgerTask) => task.startsWith('extract_');
 
 /**
- * Its separators keep to the part before them (`sep({ keep: true })`), so a wrapped line ends on
- * "·" and never starts with one ("…image included ·" / "≈ USD 0.0030"; the phone pass).
+ * Its separators bind to the part before them (`sep()`, a comma), so a wrapped line ends on one
+ * and never starts with one ("…image included," / "≈ USD 0.0030"; the phone pass).
  */
 
 function ExplainBody({ explain, whatIsSentId }: { explain: AiExplain; whatIsSentId?: string }) {
@@ -73,7 +73,7 @@ function ExplainBody({ explain, whatIsSentId }: { explain: AiExplain; whatIsSent
               ) : (
                 <Plural value={a.callsPerAction} one="# AI call" other="# AI calls" />
               )}
-              {sep({ keep: true })}
+              {sep()}
               {a.tokensTypical > 0 && !withImage(a.task) ? (
                 <Trans>~{tokens(a.tokensTypical)} tokens</Trans>
               ) : a.tokensTypical > 0 ? (
@@ -83,7 +83,7 @@ function ExplainBody({ explain, whatIsSentId }: { explain: AiExplain; whatIsSent
               ) : (
                 <Trans>tokens vary</Trans>
               )}
-              {sep({ keep: true })}
+              {sep()}
               {a.costTypical ? (
                 approx(a.costTypical.amount, a.costTypical.currency)
               ) : a.tokensTypical > 0 ? (
