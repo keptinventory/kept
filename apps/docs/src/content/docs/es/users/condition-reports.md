@@ -41,8 +41,8 @@ o por su nombre), la anterior primero.
 
 ## Generar el PDF
 
-**Generar el PDF** produce el informe, o ambos lado a lado cuando comparas, en inglés o árabe,
-con o sin fotos. Un informe no terminado lo indica en el PDF.
+**Generar el PDF** produce el informe, o ambos lado a lado cuando comparas, en cualquier idioma de Kept
+(al principio, el tuyo), con o sin fotos. Un informe no terminado lo indica en el PDF.
 
 ## Exportar e importar
 

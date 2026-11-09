@@ -41,8 +41,8 @@ oder nach seinem Namen), zuerst das frühere.
 
 ## PDF erstellen
 
-**PDF erstellen** erstellt den Bericht, oder beide nebeneinander, wenn du vergleichst, auf Englisch oder Arabisch,
-mit oder ohne Fotos. Ein Bericht, der nicht abgeschlossen ist, sagt das im PDF.
+**PDF erstellen** erstellt den Bericht, oder beide nebeneinander, wenn du vergleichst, in jeder Sprache, die Kept
+spricht (anfangs deiner), mit oder ohne Fotos. Ein Bericht, der nicht abgeschlossen ist, sagt das im PDF.
 
 ## Export und Import
 

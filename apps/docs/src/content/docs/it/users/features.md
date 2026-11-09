@@ -74,7 +74,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   LAN e un nome Tailscale.
 - **Lingue**: Arabo (da destra a sinistra), francese, inglese, italiano, spagnolo, tedesco,
   ucraino e vietnamita; scrivi per trovare la tua nel selettore, e le date nello stile della tua
-  regione, o come preferisci. Gli importi si leggono come li scrive la tua lingua. Anche la documentazione per utenti, amministrazione e installazione è in tutte queste lingue.
+  regione, o come preferisci. Gli importi si leggono come li scrive la tua lingua. I PDF, i pacchetti per il risarcimento e la copia leggibile escono nella tua lingua. Anche la documentazione per utenti, amministrazione e installazione è in tutte queste lingue.
 
 ## Sul telefono
 

@@ -41,8 +41,8 @@ or by its name), the earlier one first.
 
 ## Make the PDF
 
-**Make the PDF** produces the report, or both side by side when you compare, in English or Arabic,
-with or without photos. A report that isn't finished says so in the PDF.
+**Make the PDF** produces the report, or both side by side when you compare, in any language Kept speaks
+(the one you pick, yours to start with), with or without photos. A report that isn't finished says so in the PDF.
 
 ## Export and import
 
