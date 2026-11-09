@@ -55,6 +55,22 @@ const REMINDER: ReminderFacts = {
   link: '/p/0192f0c3-7c55-7000-8000-000000000001',
 };
 
+/** A backup-code notice (#419): Safari on an iPhone, in Cairo, nine codes left. */
+function backupCodeUsed(
+  facts: Partial<Extract<MailBody, { kind: 'backup-code-used' }>> = {},
+): MailBody {
+  return {
+    kind: 'backup-code-used',
+    to: 'a@x.test',
+    at: '2031-01-15T14:05:00.000Z',
+    timeZone: 'Africa/Cairo',
+    browser: 'Safari',
+    os: 'iPhone',
+    left: 9,
+    ...facts,
+  };
+}
+
 /** One of every mail there is. */
 const EVERY_MAIL: MailBody[] = [
   { kind: 'magic-link', to: 'a@x.test', url: `${PUBLIC_URL}/auth/confirm#token=t` },
@@ -83,6 +99,10 @@ const EVERY_MAIL: MailBody[] = [
   ),
   { kind: 'sign-up-existing', to: 'a@x.test' },
   ...SECURITY.map((event): MailBody => ({ kind: 'security-notice', to: 'a@x.test', event })),
+  // #419: each way the codes left are said, and a device named in full, in part or not at all.
+  ...[0, 1, 2, 3, 9, 11, 21, 100].map((left): MailBody => backupCodeUsed({ left })),
+  backupCodeUsed({ browser: 'Firefox', os: null }),
+  backupCodeUsed({ browser: null, os: null, timeZone: 'Not/A_Zone' }),
   ...ADMIN.map(
     (action): MailBody => ({ kind: 'admin-action', to: 'a@x.test', action, locationName: 'Home' }),
   ),
@@ -325,6 +345,7 @@ describe('the message table', () => {
         'admin-alert',
         'ai-cap',
         'ai-summary',
+        'backup-code-used',
         'channel-failing',
         'channel-test',
         'membership-ended',
@@ -393,6 +414,53 @@ describe('the message table', () => {
     expect(messageFor({ kind: 'sign-up-existing', to: 'a@x.test' }, 'en', ctx).action?.url).toBe(
       `${PUBLIC_URL}/signin`,
     );
+  });
+});
+
+describe('the backup-code notice (#419)', () => {
+  it('says when, on what, how many codes are left, and what to do', () => {
+    const m = messageFor(backupCodeUsed(), 'en', ctx);
+    expect(m).toEqual({
+      subject: 'A backup code was used to sign in to your Kept account',
+      paragraphs: [
+        'A backup code was used to sign in to your Kept account on 15 January 2031 at 16:05 EET, from Safari on iPhone.',
+        'You have 9 backup codes left.',
+        'If you used it because your authenticator app is gone, set two-factor up again with a new app in Settings → Sign-in and security → Set up again. That gives you new backup codes too.',
+      ],
+      footnote:
+        'If this wasn’t you, reset your password now from the sign-in page. Then make new backup codes in Settings → Sign-in and security → New backup codes (the old ones stop working), and sign out everywhere else in Settings → Sessions and devices → Sign out of all other devices.',
+    });
+    expect(messageFor(backupCodeUsed({ left: 1 }), 'en', ctx).paragraphs[1]).toBe(
+      'You have 1 backup code left.',
+    );
+    expect(messageFor(backupCodeUsed({ left: 0 }), 'en', ctx).paragraphs[1]).toMatch(
+      /^That was your last backup code\./,
+    );
+    // No device known, and a zone that doesn't exist: the time in UTC, and no "from".
+    expect(
+      messageFor(backupCodeUsed({ browser: null, os: null, timeZone: 'Not/A_Zone' }), 'en', ctx)
+        .paragraphs[0],
+    ).toBe(
+      'A backup code was used to sign in to your Kept account on 15 January 2031 at 14:05 UTC.',
+    );
+    expect(messageFor(backupCodeUsed({ os: null }), 'en', ctx).paragraphs[0]).toContain(
+      'from Safari.',
+    );
+  });
+
+  it('says the codes left in Arabic with its plural forms, and in Ukrainian with its own', () => {
+    const ar = (left: number) => messageFor(backupCodeUsed({ left }), 'ar', ctx).paragraphs[1];
+    expect(ar(1)).toBe('يتبقى لديك رمز احتياطي واحد.');
+    expect(ar(2)).toBe('يتبقى لديك رمزان احتياطيان.');
+    expect(ar(3)).toBe('يتبقى لديك 3 رموز احتياطية.');
+    expect(ar(11)).toBe('يتبقى لديك 11 رمزًا احتياطيًا.');
+    expect(ar(100)).toBe('يتبقى لديك 100 رمز احتياطي.');
+    expect(ar(0)).toMatch(/^كان هذا آخر رمز احتياطي لديك\./);
+    const uk = (left: number) => messageFor(backupCodeUsed({ left }), 'uk', ctx).paragraphs[1];
+    expect(uk(1)).toBe('Залишився 1 резервний код.');
+    expect(uk(3)).toBe('Залишилося 3 резервні коди.');
+    expect(uk(9)).toBe('Залишилося 9 резервних кодів.');
+    expect(uk(21)).toBe('Залишився 21 резервний код.');
   });
 });
 

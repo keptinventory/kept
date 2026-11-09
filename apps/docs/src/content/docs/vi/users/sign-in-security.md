@@ -18,7 +18,7 @@ Bật hoặc tắt hai yếu tố không tính là đăng nhập lại.
 
 Hủy liên kết Google hoặc đăng nhập OIDC của bạn trong **Phương thức đăng nhập** cũng hỏi theo cách tương tự.
 
-Mỗi thay đổi đăng xuất mọi thiết bị khác, ngoại trừ việc đổi tên khóa truy cập. Kept gửi email cho bạn khi một khóa truy cập được thêm hoặc xóa, khi một đăng nhập bên ngoài bị hủy liên kết, khi hai yếu tố được bật, thiết lập lại hoặc tắt, và khi các mã dự phòng mới được tạo. Tài khoản được quản lý (một tên người dùng, không có email) không nhận email.
+Mỗi thay đổi đăng xuất mọi thiết bị khác, ngoại trừ việc đổi tên khóa truy cập. Kept gửi email cho bạn khi một khóa truy cập được thêm hoặc xóa, khi một đăng nhập bên ngoài bị hủy liên kết, khi hai yếu tố được bật, thiết lập lại hoặc tắt, và khi các mã dự phòng mới được tạo. Kept cũng gửi email mỗi khi một mã dự phòng được dùng để đăng nhập, kèm thời gian, thiết bị, số mã còn lại và việc cần làm nếu đó không phải là bạn. Tài khoản được quản lý (một tên người dùng, không có email) không nhận email.
 
 ## Khóa truy cập
 
