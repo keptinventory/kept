@@ -1,6 +1,6 @@
 /**
- * Settings → Connections (D58, D63, D124, D179): personal tokens and
- * connected apps (OAuth) on one list with a location filter, New token (shown once, with the
+ * Settings → Connections (D58, D63, D124, D179): requests from Home Assistant to connect (#376,
+ * the Home Assistant app only), personal tokens and connected apps (OAuth) on one list with a location filter, New token (shown once, with the
  * client configs), each location's webhooks for those who manage it, and recent changes by
  * connections with undo. Its chunk loads on demand from assets/household/ (vite.config.ts).
  */
@@ -8,8 +8,10 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute, type ErrorComponentProps } from '@tanstack/react-router';
 import { useState } from 'react';
 import * as z from 'zod/mini';
+import type { HomeAssistantLinkRequest } from '@/api/connections/types';
 import { useLocations } from '@/api/queries';
 import { CONNECTION_FILTERS } from '@/components/connections/filters';
+import { HomeAssistantRequests } from '@/components/connections/home-assistant';
 import { RecentChanges } from '@/components/connections/recent-changes';
 import { TokenCreateSheet } from '@/components/connections/token-create';
 import { ConnectionsList } from '@/components/connections/tokens';
@@ -32,6 +34,8 @@ function ConnectionsPage() {
   const { t } = useLingui();
   const online = useOnline();
   const [creating, setCreating] = useState(false);
+  // #376: a request from Home Assistant being approved, in the same sheet.
+  const [linking, setLinking] = useState<HomeAssistantLinkRequest | null>(null);
   return (
     <Page title={t`Connections`}>
       <SettingsTabs />
@@ -42,6 +46,7 @@ function ConnectionsPage() {
           below with undo.
         </Trans>
       </p>
+      <HomeAssistantRequests onConnect={setLinking} />
       <Section title={<Trans>Tokens and connected apps</Trans>}>
         <ConnectionsList
           action={
@@ -58,6 +63,13 @@ function ConnectionsPage() {
         ) : null}
       </Section>
       <TokenCreateSheet isOpen={creating} onOpenChange={setCreating} />
+      <TokenCreateSheet
+        isOpen={linking !== null}
+        onOpenChange={(open) => {
+          if (!open) setLinking(null);
+        }}
+        link={linking}
+      />
       <WebhooksLinks />
       <RecentChanges />
     </Page>

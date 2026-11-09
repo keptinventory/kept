@@ -111,6 +111,9 @@ i sei caratteri stampati sotto il codice QR, con o senza il trattino. Un'etichet
 **Scansiona** sul suo ID breve stampato, oppure digitalo
 ([scansione di un codice senza codice QR](/it/users/short-ids/#scansione-di-un-codice-senza-qr-code)).
 
+Se **Scansiona** dice **Kept non può scansionare qui** perché lo scanner non si è avviato, tocca **Riprova**: la
+fotocamera e lo scanner ripartono da capo, senza chiudere l'app.
+
 ## IA
 
 ### "In attesa di un fornitore di IA"

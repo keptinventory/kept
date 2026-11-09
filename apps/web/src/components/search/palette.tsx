@@ -46,6 +46,7 @@ import { sep } from '@/lib/format';
 import { useKeyHints } from '@/lib/key-hints';
 import { useLocationName } from '@/lib/labels';
 import { cn } from '@/lib/utils';
+import { useOverlayOnVisibleBox } from '@/lib/visual-viewport';
 import { usePaletteSearch } from './api';
 import { Marked, queryForms } from './results';
 
@@ -78,6 +79,8 @@ export default function Palette({
   onAddThing?: (locationId: string) => void;
 }) {
   const { t } = useLingui();
+  // The results stay above a phone's on-screen keyboard (#487).
+  const overlayStyle = useOverlayOnVisibleBox(true);
   // The "esc" and ↑↓ ↵ hints only where there are keys (lib/key-hints.ts).
   const keyHints = useKeyHints();
   const placeName = usePlaceName();
@@ -314,6 +317,7 @@ export default function Palette({
       isDismissable
       onOpenChange={(o) => !o && onClose()}
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/35 px-3 pt-[10dvh] md:px-4"
+      {...(overlayStyle ? { style: overlayStyle } : {})}
     >
       <Modal className="w-full max-w-2xl overflow-hidden rounded-xl border border-line bg-surface text-ink shadow-[0_18px_50px_rgba(0,0,0,.28)] outline-none">
         <CloseOnBack />
@@ -351,7 +355,7 @@ export default function Palette({
             id={listId}
             role="listbox"
             aria-label={t`Results`}
-            className="max-h-[60dvh] overflow-y-auto p-1.5"
+            className="max-h-[calc(var(--sheet-vh,100dvh)*0.6)] overflow-y-auto p-1.5"
           >
             {thingEntries.length
               ? group(

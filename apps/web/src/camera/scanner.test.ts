@@ -93,6 +93,34 @@ describe('the decoder', () => {
     });
     await expect(refused(canvas)).rejects.toBeInstanceOf(ScannerUnavailable);
   });
+
+  it('tries again after a decoder that could not start, instead of failing for the session (#486)', async () => {
+    const wasmDetect = vi.fn<Detect>(async () => [qr]);
+    const wasm = vi
+      .fn<() => Promise<Detect>>()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch dynamically imported module'))
+      .mockResolvedValue(wasmDetect);
+    const detect = createDetect({ native: async () => null, wasm });
+    await expect(detect(canvas)).rejects.toBeInstanceOf(ScannerUnavailable);
+    expect(await detect(canvas)).toEqual([qr]);
+    expect(wasm).toHaveBeenCalledTimes(2);
+  });
+
+  it('drops a decoder that refuses as unsupported, and picks afresh on the next start (#486)', async () => {
+    const gone = vi.fn<Detect>(async () => {
+      throw new DOMException('Barcode detection service unavailable.', 'NotSupportedError');
+    });
+    const fresh = vi.fn<Detect>(async () => [qr]);
+    const native = vi
+      .fn<() => Promise<Detect | null>>()
+      .mockResolvedValueOnce(gone)
+      .mockResolvedValue(fresh);
+    const detect = createDetect({ native, wasm: vi.fn() });
+    await expect(detect(canvas)).rejects.toBeInstanceOf(ScannerUnavailable);
+    expect(await detect(canvas)).toEqual([qr]);
+    expect(native).toHaveBeenCalledTimes(2);
+    expect(gone).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('the wasm reader’s formats, frame by frame', () => {

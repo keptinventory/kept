@@ -26,8 +26,9 @@ Kept works the same without it.
   your own server works the same.
 - **The integration** brings Kept into Home Assistant: the sensors, the calendar and the actions.
   Only an integration can add entities, so the app can't.
-- **App users turn on https first:** the app's **https on Kept's port** option. Kept makes tokens
-  only over https.
+- **On the app, nothing to copy:** Home Assistant finds the Kept app by itself and asks to
+  connect; you allow it in Kept. No token to make, and no https needed
+  ([Set up from the app](#set-up-from-the-app)).
 
 ## Before you start
 
@@ -61,6 +62,23 @@ Each vehicle (a thing with a meter, under **Vehicles**) is a device in its locat
 | **Next service at** | The reading it's due at |
 
 A location or vehicle added in Kept later shows up after you reload the integration.
+
+## Set up from the app
+
+With the [Kept app](/install/home-assistant/) in the same Home Assistant, there is no token to make
+or copy, and no https needed.
+
+1. **Install** the integration with HACS (step 2 of [Set up](#set-up)) and restart Home Assistant.
+2. **Add it.** **Settings → Devices & services** shows Kept as discovered. Add it and confirm.
+3. **Allow it in Kept.** Home Assistant shows a code and waits. Open Kept (the sidebar works) at
+   **Settings → Connections**: **Home Assistant asks to connect** shows the same code. **Allow**,
+   tick the locations and choose what it can do, as for a token.
+4. **Done.** Home Assistant finishes on its own and names your Kept's version and locations.
+
+What Home Assistant gets: an ordinary personal token named **Home Assistant**, made by you and
+acting as you, for the locations you ticked. It goes from Kept to Home Assistant over Home
+Assistant's internal network and is never shown on a page. Revoke it in **Settings → Connections**.
+A request nobody allows within 10 minutes ends: start again from Home Assistant.
 
 ## Set up
 

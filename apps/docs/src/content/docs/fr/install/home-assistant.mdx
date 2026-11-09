@@ -79,7 +79,8 @@ Désactiver le port 8080 (Configuration → Réseau) ne laisse que la barre lat�
 | | http simple | https |
 |---|---|---|
 | Objets, emplacements, recherche, étiquettes, photos depuis un fichier | oui | oui |
-| Jetons personnels (l’intégration), affichage des secrets, exports | non | oui |
+| L’intégration Kept, configurée depuis l’application | oui | oui |
+| Jetons personnels (scripts), affichage des secrets, exports | non | oui |
 | Clés d’accès, la caméra, installation de l’application téléphone, push | non | oui |
 
 Dans Home Assistant, Kept compte comme https seulement si Home Assistant lui-même est servi en https. Un proxy devant Home Assistant qui termine le TLS doit envoyer `X-Forwarded-Proto: https`, sinon Kept voit du http simple. Les clés d’accès appartiennent à l’adresse propre de Kept : connectez-vous avec l’une là-bas. En savoir plus sur [le réseau domestique](/fr/install/home-network/).
@@ -94,6 +95,6 @@ Dans Home Assistant, Kept compte comme https seulement si Home Assistant lui-mê
 
 ## L’intégration
 
-Cette application exécute Kept ; une intégration distincte l’intègre dans Home Assistant. Activez **https sur le port de Kept** avant de la connecter ([l’application et l’intégration](/fr/users/home-assistant/#lapplication-et-lintégration)).
+Cette application exécute Kept ; une intégration distincte l’intègre dans Home Assistant ([l’application et l’intégration](/fr/users/home-assistant/#lapplication-et-lintégration)).
 
-[L’intégration Kept](/fr/users/home-assistant/) fait entrer dans Home Assistant ce qui est dû. Donnez-lui l’adresse de Kept et un jeton personnel créé en https. La configuration sans jeton, directement depuis l’application, arrivera dans une version ultérieure.
+Installez [l’intégration Kept](/fr/users/home-assistant/) avec HACS et redémarrez Home Assistant : Kept apparaît comme découvert dans **Paramètres → Appareils et services**. Ajoutez-le, puis autorisez-le dans Kept (**Paramètres → Connexions**). Aucun jeton à copier, pas besoin de https : Kept et Home Assistant échangent par le réseau interne de Home Assistant.

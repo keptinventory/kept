@@ -10,12 +10,15 @@ import { qs } from '../inventory/paths';
 import { nextCursor } from '../inventory/queries';
 import { connectionsPaths as p } from './paths';
 import type {
+  ApproveLinkBody,
+  ApproveLinkResult,
   ConnectionChangesPage,
   ConnectionChangesParams,
   CreatedWebhook,
   CreateTokenBody,
   CreateTokenResult,
   CreateWebhookBody,
+  HomeAssistantLinks,
   OAuthConsent,
   OAuthConsentBody,
   OAuthConsentResult,
@@ -35,6 +38,7 @@ export const connectionsKeys = {
   tokens: ['connections', 'tokens'] as const,
   changes: (tokenId?: string) => ['connections', 'changes', tokenId ?? ''] as const,
   consent: (query: string) => ['connections', 'consent', query] as const,
+  homeAssistant: ['connections', 'home-assistant'] as const,
   webhooks: (locationId: string) => ['connections', 'webhooks', locationId] as const,
   deliveries: (webhookId: string) => ['connections', 'deliveries', webhookId] as const,
 };
@@ -55,6 +59,11 @@ export const connectionsApi = {
   consent: (query: string) => api.get<OAuthConsent>(withQuery(p.oauthConsent, query)),
   answerConsent: (query: string, body: OAuthConsentBody) =>
     api.post<OAuthConsentResult>(withQuery(p.oauthConsent, query), body),
+
+  homeAssistantLinks: () => api.get<HomeAssistantLinks>(p.homeAssistantLinks),
+  approveLink: (id: string, body: ApproveLinkBody) =>
+    api.post<ApproveLinkResult>(p.homeAssistantApprove(id), body),
+  declineLink: (id: string) => api.post<void>(p.homeAssistantDecline(id)),
 
   webhooks: (locationId: string) => api.get<WebhooksResponse>(p.locationWebhooks(locationId)),
   createWebhook: (locationId: string, body: CreateWebhookBody) =>
@@ -94,6 +103,16 @@ export function useOAuthConsent(query: string) {
   return useQuery({
     queryKey: connectionsKeys.consent(query),
     queryFn: () => connectionsApi.consent(query),
+  });
+}
+
+/** Requests from Home Assistant waiting for a person (#376). Asked again every few seconds while
+ * the page is open in the Home Assistant app, so one started there shows up here on its own. */
+export function useHomeAssistantLinks() {
+  return useQuery({
+    queryKey: connectionsKeys.homeAssistant,
+    queryFn: connectionsApi.homeAssistantLinks,
+    refetchInterval: (q) => (q.state.data?.available ? 5000 : false),
   });
 }
 

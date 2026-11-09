@@ -445,6 +445,14 @@ const schema = z.object({
     .describe(
       "`1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code",
     ),
+  // #376: the app's link secret, which its start script makes once and sends Home Assistant in the
+  // discovery message (homeassistant/link.ts). Read only in app mode (KEPT_HA=1).
+  KEPT_HA_LINK_SECRET_FILE: z
+    .string()
+    .optional()
+    .describe(
+      "optional; set only by the Home Assistant app's start script: a file with the secret Home Assistant's discovery message carries, so the Kept integration can ask to be linked and a person approves it in Settings → Connections",
+    ),
   // https served by Kept itself, e.g. with Home Assistant's own certificate from /ssl. Both or
   // neither; a renewed certificate is read at the next start.
   KEPT_TLS_CERT_FILE: z

@@ -27178,8 +27178,8 @@ msgid "This browser can't open the camera here."
 msgstr "Цей браузер не може відкрити камеру тут."
 
 #: src/components/scan/scanner-view.tsx
-msgid "This browser can't read codes with the camera."
-msgstr "Цей браузер не може зчитувати коди камерою."
+msgid "The scanner didn't start."
+msgstr "Сканер не запустився."
 
 #: src/components/notifications/settings/channels.tsx
 msgid "This browser can't receive notifications from Kept. Email still reaches you."
@@ -30856,6 +30856,42 @@ msgstr "Усередині <0>{0}</0> та його відділень — {insi
 #: src/components/places/trash-contents-dialog.tsx
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "До кошика потраплять лише {placeName} та його відділення."
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Цей запит завершився. Почніть знову в Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Відхилено. Home Assistant нічого не отримає."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant просить під’єднатися"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Код <0>{code}</0>. Перевірте, що Home Assistant показує той самий."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Відхилити"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Під’єднати Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant читає Kept від вашого імені, у вибраних вами локаціях, і сам отримує свій токен: копіювати нічого не треба. Відкличте його тут будь-коли."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant під’єднано"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant сам завершить налаштування. Токен показано тут як Home Assistant."
 
 #: src/assistant/confirm-card.tsx
 #: src/components/lending/thing-loans.tsx

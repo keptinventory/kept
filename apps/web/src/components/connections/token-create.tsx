@@ -12,6 +12,10 @@
  * Scope follows the role (roles.ts `tokens.manage-own`): a viewer's token reads only, a member's
  * is up to their own role, so "Read and change" is off while any picked location is one where
  * you're a viewer.
+ *
+ * With `link` (#376), the same choices approve a request from the Kept integration in Home
+ * Assistant: no name or expiry (the server names it "Home Assistant"), and no secret on this page,
+ * ever. Home Assistant collects the token itself.
  */
 import type { TokenScope } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -19,10 +23,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useMemo, useState } from 'react';
 import { isApiError } from '@/api/client';
 import { connectionsApi, connectionsKeys } from '@/api/connections/queries';
-import {
-  type CreatedToken,
-  type CreateTokenBody,
-  isCrossLocationWarning,
+import type {
+  ApproveLinkResult,
+  CreatedToken,
+  CreateTokenBody,
+  CreateTokenResult,
+  HomeAssistantLinkRequest,
 } from '@/api/connections/types';
 import { useLocations } from '@/api/queries';
 import type { LocationDetail } from '@/api/types';
@@ -42,21 +48,29 @@ import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
 import { ClientConfigs } from './client-configs';
+import { useLinkEndedText } from './home-assistant';
 import { useNameList, useScopeMeaning, useScopeWords } from './words';
 
 const NAME_MAX = 80;
 
-type Step = { kind: 'form' } | { kind: 'warning' } | { kind: 'created'; created: CreatedToken };
+type Step =
+  | { kind: 'form' }
+  | { kind: 'warning' }
+  | { kind: 'created'; created: CreatedToken }
+  | { kind: 'linked' };
 
 export function TokenCreateSheet({
   isOpen,
   onOpenChange,
   defaultLocationId,
+  link,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   /** The location to start with (one pre-selected, D179). Default: the first one you manage. */
   defaultLocationId?: string;
+  /** #376: approve this request from Home Assistant instead of showing a token. */
+  link?: HomeAssistantLinkRequest | null;
 }) {
   const { t } = useLingui();
   const [step, setStep] = useState<Step>({ kind: 'form' });
@@ -64,22 +78,26 @@ export function TokenCreateSheet({
     if (!open) setStep({ kind: 'form' });
     onOpenChange(open);
   };
+  const title = link
+    ? t`Connect Home Assistant`
+    : step.kind === 'created'
+      ? t`Your new token`
+      : t`New token`;
   return (
-    <Sheet
-      isOpen={isOpen}
-      onOpenChange={close}
-      title={step.kind === 'created' ? t`Your new token` : t`New token`}
-      wide
-    >
+    <Sheet isOpen={isOpen} onOpenChange={close} title={title} wide>
       {step.kind === 'created' ? (
         <CreatedView created={step.created} onDone={() => close(false)} />
+      ) : step.kind === 'linked' ? (
+        <LinkedView onDone={() => close(false)} />
       ) : (
         <CreateForm
           {...(defaultLocationId ? { defaultLocationId } : {})}
+          link={link ?? null}
           warning={step.kind === 'warning'}
           onWarning={() => setStep({ kind: 'warning' })}
           onBack={() => setStep({ kind: 'form' })}
           onCreated={(created) => setStep({ kind: 'created', created })}
+          onLinked={() => setStep({ kind: 'linked' })}
           onCancel={() => close(false)}
         />
       )}
@@ -105,23 +123,28 @@ function tomorrow(): string {
 
 function CreateForm({
   defaultLocationId,
+  link,
   warning,
   onWarning,
   onBack,
   onCreated,
+  onLinked,
   onCancel,
 }: {
   defaultLocationId?: string;
+  link: HomeAssistantLinkRequest | null;
   warning: boolean;
   onWarning: () => void;
   onBack: () => void;
   onCreated: (created: CreatedToken) => void;
+  onLinked: () => void;
   onCancel: () => void;
 }) {
   const { t } = useLingui();
   const qc = useQueryClient();
   const online = useOnline();
   const errorText = useErrorText();
+  const ended = useLinkEndedText();
   const scopeWords = useScopeWords();
   const scopeMeaning = useScopeMeaning();
   const nameOf = useLocationName();
@@ -152,21 +175,36 @@ function CreateForm({
   });
 
   const create = useMutation({
-    mutationFn: (confirm: boolean) => connectionsApi.createToken(body(confirm)),
+    mutationFn: (confirm: boolean): Promise<CreateTokenResult | ApproveLinkResult> => {
+      if (!link) return connectionsApi.createToken(body(confirm));
+      const { scope: s, locationIds, confirmCrossLocation } = body(confirm);
+      return connectionsApi.approveLink(link.id, {
+        scope: s,
+        locationIds,
+        ...(confirmCrossLocation ? { confirmCrossLocation } : {}),
+      });
+    },
     onSuccess: async (r) => {
-      if (isCrossLocationWarning(r)) {
+      if ('warning' in r) {
         onWarning();
         return;
       }
       await qc.invalidateQueries({ queryKey: connectionsKeys.tokens });
-      onCreated(r);
+      if (link) {
+        await qc.invalidateQueries({ queryKey: connectionsKeys.homeAssistant });
+        onLinked();
+        return;
+      }
+      if ('secret' in r) onCreated(r);
     },
     onError: (e) =>
       setFailed(
-        isApiError(e) && e.code === 'https_required'
-          ? // Over plain HTTP the app makes no token; the server's command line can.
-            `${errorText(e)} ${t`On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create.`}`
-          : errorText(e),
+        link && isApiError(e) && e.code === 'not_found'
+          ? ended
+          : isApiError(e) && e.code === 'https_required'
+            ? // Over plain HTTP the app makes no token; the server's command line can.
+              `${errorText(e)} ${t`On a home network without HTTPS, the person who runs this Kept can make one on the server: kept admin token create.`}`
+            : errorText(e),
       ),
   });
 
@@ -174,8 +212,8 @@ function CreateForm({
     e.preventDefault();
     setFailed(null);
     const next = {
-      ...(name.trim() ? {} : { name: t`Name it after where you'll use it.` }),
-      ...(name.trim().length > NAME_MAX ? { name: t`At most 80 characters.` } : {}),
+      ...(link || name.trim() ? {} : { name: t`Name it after where you'll use it.` }),
+      ...(!link && name.trim().length > NAME_MAX ? { name: t`At most 80 characters.` } : {}),
       ...(chosen.length ? {} : { locations: t`Pick at least one location.` }),
     };
     setErrors(next);
@@ -216,18 +254,27 @@ function CreateForm({
 
   return (
     <form className="grid gap-4" onSubmit={submit}>
-      <TextField
-        label={t`Name`}
-        description={t`Where you'll use it: "Claude Desktop, my laptop", "Shortcuts on my iPhone".`}
-        value={name}
-        onChange={(v) => {
-          setName(v);
-          setErrors((x) => ({ ...x, name: undefined }));
-        }}
-        isInvalid={!!errors.name}
-        errorMessage={errors.name}
-        autoFocus
-      />
+      {link ? (
+        <p className="m-0 text-ink-2">
+          <Trans>
+            Home Assistant reads Kept as you, in the locations you pick, and gets its token by
+            itself: there is nothing to copy. Revoke it here any time.
+          </Trans>
+        </p>
+      ) : (
+        <TextField
+          label={t`Name`}
+          description={t`Where you'll use it: "Claude Desktop, my laptop", "Shortcuts on my iPhone".`}
+          value={name}
+          onChange={(v) => {
+            setName(v);
+            setErrors((x) => ({ ...x, name: undefined }));
+          }}
+          isInvalid={!!errors.name}
+          errorMessage={errors.name}
+          autoFocus
+        />
+      )}
       <div className="grid gap-1">
         <Label id="token-locations">
           <Trans>Locations</Trans>
@@ -275,20 +322,22 @@ function CreateForm({
           )
         }
       />
-      <DatePicker
-        label={t`Expires`}
-        description={t`Leave empty to keep it until you revoke it.`}
-        value={expiresOn}
-        onChange={setExpiresOn}
-        minValue={tomorrow()}
-      />
+      {link ? null : (
+        <DatePicker
+          label={t`Expires`}
+          description={t`Leave empty to keep it until you revoke it.`}
+          value={expiresOn}
+          onChange={setExpiresOn}
+          minValue={tomorrow()}
+        />
+      )}
       {failed ? <Notice tone="danger">{failed}</Notice> : null}
       <DialogFooter>
         <Button variant="secondary" onPress={onCancel}>
           <Trans>Cancel</Trans>
         </Button>
         <Button type="submit" isPending={create.isPending} isDisabled={!online}>
-          <Trans>Make token</Trans>
+          {link ? <Trans>Allow</Trans> : <Trans>Make token</Trans>}
         </Button>
       </DialogFooter>
       {!online ? (
@@ -297,6 +346,24 @@ function CreateForm({
         </p>
       ) : null}
     </form>
+  );
+}
+
+/** #376: approved; Home Assistant collects the token and finishes on its own. */
+function LinkedView({ onDone }: { onDone: () => void }) {
+  return (
+    <div className="grid gap-4">
+      <Notice tone="ok" title={<Trans>Home Assistant is connected</Trans>}>
+        <Trans>
+          Home Assistant finishes setting up on its own. The token is listed here as Home Assistant.
+        </Trans>
+      </Notice>
+      <DialogFooter>
+        <Button onPress={onDone}>
+          <Trans>Done</Trans>
+        </Button>
+      </DialogFooter>
+    </div>
   );
 }
 
