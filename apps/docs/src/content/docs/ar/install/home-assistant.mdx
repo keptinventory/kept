@@ -76,7 +76,8 @@ import HomeAssistantButton from '../../../../components/HomeAssistantButton.astr
 | | http عادي | https |
 |---|---|---|
 | الأشياء، الأماكن، البحث، التسميات، الصور من ملف | نعم | نعم |
-| رموز شخصية (التكامل)، إظهار الأسرار، عمليات التصدير | لا | نعم |
+| تكامل Kept، مُعدًّا من التطبيق | نعم | نعم |
+| رموز شخصية (السكربتات)، إظهار الأسرار، عمليات التصدير | لا | نعم |
 | مفاتيح المرور، الكاميرا، تثبيت تطبيق الهاتف، الإشعارات الفورية | لا | نعم |
 
 داخل Home Assistant، يُحسب Kept على أنه https فقط عندما يُخدم Home Assistant نفسه عبر https. يجب أن يرسل وكيل أمام Home Assistant ينهي TLS `X-Forwarded-Proto: https`، أو يرى Kept http عاديًا. مفاتيح المرور تابعة لعنوان Kept الخاص: سجّل الدخول بواحدة هناك. مزيد على [الشبكة المنزلية](/ar/install/home-network/).
@@ -91,6 +92,6 @@ import HomeAssistantButton from '../../../../components/HomeAssistantButton.astr
 
 ## التكامل
 
-هذا التطبيق يشغّل Kept؛ التكامل منفصل يجلبه إلى Home Assistant. شغّل **https على منفذ Kept** قبل توصيله ([التطبيق والتكامل](/ar/users/home-assistant/#التطبيق-والتكامل)).
+هذا التطبيق يشغّل Kept؛ التكامل منفصل يجلبه إلى Home Assistant ([التطبيق والتكامل](/ar/users/home-assistant/#التطبيق-والتكامل)).
 
-[التكامل الخاص بـ Kept](/ar/users/home-assistant/) يجلب الاستحقاقات إلى Home Assistant. أعطه عنوان Kept ورمزًا شخصيًا أُنشئ عبر https. إعداده دون رمز، مباشرة من التطبيق، يأتي في إصدار لاحق.
+ثبّت [التكامل الخاص بـ Kept](/ar/users/home-assistant/) عبر HACS وأعد تشغيل Home Assistant: يظهر Kept مكتشفًا في **الإعدادات → الأجهزة والخدمات**. أضفه، ثم اسمح له في Kept (**الإعدادات → الربط**). لا رمز لتنسخه ولا حاجة إلى https: يتواصل Kept وHome Assistant عبر الشبكة الداخلية لـ Home Assistant.

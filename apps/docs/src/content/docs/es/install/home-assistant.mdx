@@ -80,7 +80,8 @@ Desactivar el puerto 8080 (Configuración → Red) deja solo la barra lateral: l
 | | Http plano | https |
 |---|---|---|
 | Cosas, lugares, búsqueda, etiquetas, fotos desde un archivo | sí | sí |
-| Tokens personales (la integración), mostrar secretos, exportaciones | no | sí |
+| La integración de Kept, configurada desde la app | sí | sí |
+| Tokens personales (scripts), mostrar secretos, exportaciones | no | sí |
 | Llaves de acceso, la cámara, instalar la app del teléfono, push | no | sí |
 
 Dentro de Home Assistant, Kept cuenta como https solo cuando Home Assistant mismo se sirve sobre https. Un proxy frente a Home Assistant que termina TLS debe enviar `X-Forwarded-Proto: https`, o Kept ve http plano. Las llaves de acceso pertenecen a la propia dirección de Kept: inicia sesión con una allí. Más en [la red del hogar](/es/install/home-network/).
@@ -95,6 +96,6 @@ Dentro de Home Assistant, Kept cuenta como https solo cuando Home Assistant mism
 
 ## La integración
 
-Esta app ejecuta Kept; una integración aparte la trae a Home Assistant. Activa **https en el puerto de Kept** antes de conectarla ([la app y la integración](/es/users/home-assistant/#la-app-y-la-integración)).
+Esta app ejecuta Kept; una integración aparte la trae a Home Assistant ([la app y la integración](/es/users/home-assistant/#la-app-y-la-integración)).
 
-[La integración de Kept](/es/users/home-assistant/) trae a Home Assistant lo que está por vencer. Proporciónale la dirección de Kept y un token personal creado sobre https. Configurarla sin token, directamente desde la app, llega en una versión posterior.
+Instala [la integración de Kept](/es/users/home-assistant/) con HACS y reinicia Home Assistant: Kept aparece como descubierto en **Configuración → Dispositivos y servicios**. Añádelo y luego permítelo en Kept (**Configuración → Conexiones**). Sin token que copiar y sin https: Kept y Home Assistant hablan por la red interna de Home Assistant.

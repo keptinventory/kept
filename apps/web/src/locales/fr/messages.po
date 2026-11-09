@@ -28872,6 +28872,42 @@ msgstr "<0>{0}</0> et ses compartiments contiennent {inside}. Que faut-il en fai
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Seuls {placeName} et ses compartiments sont mis à la corbeille."
 
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Cette demande est terminée. Recommencez depuis Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Refusée. Home Assistant ne reçoit rien."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant demande à se connecter"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Code <0>{code}</0>. Vérifiez que Home Assistant affiche le même."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Refuser"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Connecter Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant lit Kept en votre nom, dans les lieux que vous choisissez, et obtient son jeton tout seul : il n’y a rien à copier. Révoquez-le ici à tout moment."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant est connecté"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant termine la configuration tout seul. Le jeton figure ici sous le nom Home Assistant."
+
 #: src/assistant/confirm-card.tsx
 #: src/components/lending/thing-loans.tsx
 msgid "Came back damaged"

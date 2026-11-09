@@ -20,7 +20,7 @@ Optional: nur, wenn du [Home Assistant](https://www.home-assistant.io/installati
 
 - **Die App** betreibt Kept auf Home Assistant OS ([installieren](/de/install/home-assistant/)). Kept auf deinem eigenen Server funktioniert genauso.
 - **Die Integration** bringt Kept in Home Assistant: die Sensoren, den Kalender und die Aktionen. Nur eine Integration kann Entities hinzufügen, deshalb kann die App das nicht.
-- **App-Nutzer schalten zuerst HTTPS ein:** die Option **https on Kept's port** der App. Kept erstellt Token nur über HTTPS.
+- **Mit der App gibt es nichts zu kopieren:** Home Assistant findet die Kept-App selbst und fragt, ob es sich verbinden darf; du erlaubst es in Kept. Kein Token, kein HTTPS nötig.
 
 ## Bevor du startest
 
@@ -54,6 +54,17 @@ Jedes Fahrzeug (ein Gegenstand mit Zähler, unter **Fahrzeuge**) ist ein Gerät 
 | **Nächster Service bei** | Der Zählerstand, bei dem es fällig ist |
 
 Ein später in Kept hinzugefügter Ort oder ein Fahrzeug erscheint, nachdem du die Integration neu lädst.
+
+## Aus der App einrichten
+
+Mit der [Kept-App](/de/install/home-assistant/) im selben Home Assistant gibt es kein Token zu erstellen oder zu kopieren, und kein HTTPS ist nötig.
+
+1. **Installiere** die Integration mit HACS (Schritt 2 unter Einrichten) und starte Home Assistant neu.
+2. **Hinzufügen.** **Einstellungen → Geräte & Dienste** zeigt Kept als gefunden. Füge es hinzu und bestätige.
+3. **In Kept erlauben.** Home Assistant zeigt einen Code und wartet. Öffne Kept (die Seitenleiste geht) unter **Einstellungen → Verbindungen**: **Home Assistant möchte sich verbinden** zeigt denselben Code. **Erlauben**, kreuze die Orte an und wähle, was es darf, wie bei einem Token.
+4. **Fertig.** Home Assistant richtet den Rest selbst ein und nennt die Version von Kept und deine Orte.
+
+Was Home Assistant bekommt: ein normales persönliches Token namens **Home Assistant**, von dir erstellt und in deinem Namen, für die angekreuzten Orte. Es geht über das interne Netzwerk von Home Assistant von Kept zu Home Assistant und wird auf keiner Seite gezeigt. Widerrufe es unter **Einstellungen → Verbindungen**. Eine Anfrage, die niemand in 10 Minuten erlaubt, endet: Starte in Home Assistant neu.
 
 ## Einrichten
 

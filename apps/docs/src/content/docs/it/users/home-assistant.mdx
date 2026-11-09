@@ -26,8 +26,7 @@ Kept funziona allo stesso modo senza.
   tuo server funziona allo stesso modo.
 - **L'integrazione** porta Kept in Home Assistant: i sensori, il calendario e le azioni.
   Solo un'integrazione può aggiungere entità, quindi l'app non può.
-- **Gli utenti dell'app attivano prima https:** l'opzione **https on Kept's port** dell'app. Kept crea token
-  solo tramite https.
+- **Con l'app, niente da copiare:** Home Assistant trova da solo l'app Kept e chiede di connettersi; tu lo consenti in Kept. Nessun token, nessun https.
 
 ## Prima di iniziare
 
@@ -61,6 +60,17 @@ Ogni veicolo (un oggetto con un contatore, sotto **Veicoli**) è un dispositivo 
 | **Prossimo servizio a** | La lettura a cui scade |
 
 Un luogo o un veicolo aggiunto in Kept più tardi compare dopo che ricarichi l'integrazione.
+
+## Configurare dall'app
+
+Con l'[app Kept](/it/install/home-assistant/) nello stesso Home Assistant, non c'è nessun token da creare o copiare, e https non serve.
+
+1. **Installa** l'integrazione con HACS (il passo 2 di Configurazione) e riavvia Home Assistant.
+2. **Aggiungila.** **Impostazioni → Dispositivi e servizi** mostra Kept come rilevato. Aggiungilo e conferma.
+3. **Consentilo in Kept.** Home Assistant mostra un codice e attende. Apri Kept (va bene la barra laterale) in **Impostazioni → Connessioni**: **Home Assistant chiede di connettersi** mostra lo stesso codice. **Consenti**, seleziona i luoghi e scegli cosa può fare, come per un token.
+4. **Fatto.** Home Assistant completa da solo e indica la versione di Kept e i tuoi luoghi.
+
+Cosa riceve Home Assistant: un normale token personale chiamato **Home Assistant**, creato da te e che agisce come te, per i luoghi selezionati. Passa da Kept a Home Assistant sulla rete interna di Home Assistant e non viene mai mostrato in una pagina. Revocalo in **Impostazioni → Connessioni**. Una richiesta che nessuno consente entro 10 minuti termina: ricomincia da Home Assistant.
 
 ## Configurazione
 

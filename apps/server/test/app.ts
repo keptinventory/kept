@@ -61,6 +61,8 @@ export type TestAppOptions = {
   appMode?: boolean;
   /** KEPT_HA_TRUST_GROUPS=1: the Supervisor sets X-Remote-User-Groups itself (≥ 2026.10.4). */
   haTrustGroups?: boolean;
+  /** #376: the open requests to link the Kept integration (used with appMode only). */
+  homeAssistantLinks?: Parameters<typeof buildApp>[0]['homeAssistantLinks'];
   /** KEPT_TRUSTED_PROXIES; default none. */
   trustedProxies?: readonly string[];
   /** KEPT_HTTP_SIGN_IN_DAYS; default unset. */
@@ -117,6 +119,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.notify ? { notify: opts.notify } : {}),
     ...(opts.tokenKey ? { tokenKey: opts.tokenKey } : {}),
     ...(opts.web ? { web: opts.web } : {}),
+    ...(opts.homeAssistantLinks ? { homeAssistantLinks: opts.homeAssistantLinks } : {}),
   });
   await opts.routes?.(app);
   await app.ready();

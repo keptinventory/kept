@@ -83,6 +83,31 @@ export function isCrossLocationWarning(r: CreateTokenResult): r is CrossLocation
 /** `PATCH /tokens/:id` (If-Match). */
 export type UpdateTokenBody = { name: string };
 
+// ----- linking Home Assistant (#376; apps/server/src/homeassistant/routes.ts) --------------------
+
+/** A request from the Kept integration in Home Assistant, waiting for a person. `code` is shown in
+ * Home Assistant too, so the person approves the request they started. */
+export type HomeAssistantLinkRequest = {
+  id: string;
+  code: string;
+  createdAt: string;
+  expiresAt: string;
+};
+
+/** `GET /home-assistant/link-requests`: `available` only in the Home Assistant app. */
+export type HomeAssistantLinks = { available: boolean; items: HomeAssistantLinkRequest[] };
+
+/** `POST /home-assistant/link-requests/:id/approve`: New token's choices; the name is the server's
+ * ("Home Assistant") and there is no expiry. */
+export type ApproveLinkBody = Pick<
+  CreateTokenBody,
+  'scope' | 'locationIds' | 'confirmCrossLocation'
+>;
+
+/** 201: the token made for Home Assistant, never its secret (Home Assistant collects that). */
+export type ApprovedLink = { token: TokenRow };
+export type ApproveLinkResult = ApprovedLink | CrossLocationWarning;
+
 /** `GET /connections/changes?cursor&tokenId`: audit events made by the caller's tokens (D58). */
 export type ConnectionChange = HistoryEvent & {
   token: { id: string; name: string; kind: TokenKind };

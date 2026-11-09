@@ -91,7 +91,8 @@ then don't open.
 | | Plain http | https |
 |---|---|---|
 | Things, places, search, labels, photos from a file | yes | yes |
-| Personal tokens (the integration), showing secrets, exports | no | yes |
+| The Kept integration, set up from the app | yes | yes |
+| Personal tokens (scripts), showing secrets, exports | no | yes |
 | Passkeys, the camera, installing the phone app, push | no | yes |
 
 Inside Home Assistant, Kept counts as https only when Home Assistant itself is served over https.
@@ -116,9 +117,10 @@ plain http. Passkeys belong to Kept's own address: sign in with one there. More 
 
 ## The integration
 
-This app runs Kept; a separate integration brings it into Home Assistant. Turn on **https on
-Kept's port** before connecting it ([the app and the integration](/users/home-assistant/#the-app-and-the-integration)).
+This app runs Kept; a separate integration brings it into Home Assistant
+([the app and the integration](/users/home-assistant/#the-app-and-the-integration)).
 
-[The Kept integration](/users/home-assistant/) brings what's due into Home Assistant. Give it
-Kept's address and a personal token made over https. Setting it up without a token, straight from
-the app, comes in a later release.
+Install [the Kept integration](/users/home-assistant/) with HACS and restart Home Assistant: Kept
+shows as discovered in **Settings → Devices & services**. Add it, then allow it in Kept
+(**Settings → Connections**). No token to copy, and no https needed: Kept and Home Assistant talk
+over Home Assistant's internal network ([Set up from the app](/users/home-assistant/#set-up-from-the-app)).
