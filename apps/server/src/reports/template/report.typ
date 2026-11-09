@@ -130,11 +130,11 @@
       }
       if t.serial != "" {
         linebreak()
-        text(size: 7.5pt, fill: c.ink2, L.serial + ": ") + text(font: mono, size: 7.5pt, fill: c.ink3, dir: ltr, t.serial)
+        text(size: 7.5pt, fill: c.ink2, L.serial + d.colon) + text(font: mono, size: 7.5pt, fill: c.ink3, dir: ltr, t.serial)
       }
       if t.purchased != "" {
         linebreak()
-        text(size: 7.5pt, fill: c.ink2, L.bought + ": " + t.purchased)
+        text(size: 7.5pt, fill: c.ink2, L.bought + d.colon + t.purchased)
       }
       let pills = ()
       if t.condition != "" { pills.push(pill(t.condition)) }

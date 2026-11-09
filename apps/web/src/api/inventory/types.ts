@@ -1637,7 +1637,7 @@ export type UpdateHintBody = { seen?: boolean; dismissed?: boolean };
 export type ReportScope = { locationId: string } | { accountId: string };
 
 /** POST /api/v1/reports/inventory. Money follows the server's gates; `locale` and `digits`
- * default to the requester's own settings (English unless they read Arabic). */
+ * default to the requester's own settings. */
 export type InventoryReportBody = {
   scope: ReportScope;
   filters?: {
@@ -1650,7 +1650,7 @@ export type InventoryReportBody = {
     includeTrashed?: boolean;
   };
   include?: { photos?: boolean; qr?: boolean; money?: boolean };
-  locale?: 'en' | 'ar';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
   digits?: 'western' | 'eastern';
   /** 1.3 (D228): also mail the PDF to me when it's done. */
   email?: boolean;

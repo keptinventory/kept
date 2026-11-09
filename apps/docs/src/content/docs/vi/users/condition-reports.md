@@ -41,8 +41,8 @@ hoặc theo tên của nó), cái trước đứng trước.
 
 ## Tạo PDF
 
-**Tạo PDF** xuất báo cáo, hoặc cả hai cạnh nhau khi bạn so sánh, bằng tiếng Anh hoặc tiếng Ả Rập,
-có ảnh hoặc không ảnh. Báo cáo chưa hoàn thành sẽ nói vậy trong PDF.
+**Tạo PDF** xuất báo cáo, hoặc cả hai cạnh nhau khi bạn so sánh, bằng bất kỳ ngôn ngữ nào của Kept
+(mặc định là ngôn ngữ của bạn), có ảnh hoặc không ảnh. Báo cáo chưa hoàn thành sẽ nói vậy trong PDF.
 
 ## Xuất và nhập
 

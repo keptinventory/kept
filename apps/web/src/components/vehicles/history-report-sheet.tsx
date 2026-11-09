@@ -18,6 +18,7 @@ import { isApiError } from '@/api/client';
 import { vehiclesApi } from '@/api/vehicles/queries';
 import type { VehicleHistoryReportBody } from '@/api/vehicles/types';
 import { DocumentIcon } from '@/components/icons';
+import { LanguageSelect } from '@/components/languages';
 import { Notice, useErrorText } from '@/components/page';
 import { ReportProgress, reportFilenameOf } from '@/components/reports/progress';
 import { accessOf } from '@/components/schedules/access';
@@ -29,7 +30,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { useOnline } from '@/lib/online';
-import { usePrefs } from '@/lib/prefs';
+import { type Locale, usePrefs } from '@/lib/prefs';
 
 /** The shared PDF's name (inferred: the server's `filenameOf` names only the inventory and
  * insurance kinds so far; T15 decides the vehicle one). */
@@ -81,7 +82,7 @@ function ReportForm({ onClose }: { onClose: () => void }) {
   const [photos, setPhotos] = useState(true);
   const [fuel, setFuel] = useState(fuelOn);
   const [documents, setDocuments] = useState(true);
-  const [locale, setLocale] = useState<'en' | 'ar'>(prefs.locale === 'ar' ? 'ar' : 'en');
+  const [locale, setLocale] = useState<Locale>(prefs.locale);
   const [error, setError] = useState<string | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
 
@@ -210,15 +211,7 @@ function ReportForm({ onClose }: { onClose: () => void }) {
           )}
         </p>
       </fieldset>
-      <Segmented<'en' | 'ar'>
-        label={t`Language`}
-        value={locale}
-        onChange={setLocale}
-        options={[
-          { id: 'en', label: 'English' },
-          { id: 'ar', label: <span lang="ar">العربية</span> },
-        ]}
-      />
+      <LanguageSelect label={t`Language`} value={locale} onChange={setLocale} />
       {start.error ? <Notice tone="danger">{startError(start.error)}</Notice> : null}
       {online ? null : (
         <p className="m-0 text-small text-ink-2">

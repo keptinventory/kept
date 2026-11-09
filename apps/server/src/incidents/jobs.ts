@@ -2,6 +2,7 @@ import { sweepExportScratch } from '../exports/purge.js';
 import { defineJob, type JobDefinition } from '../jobs/boss.js';
 import { JOB_POLICIES } from '../jobs/policies.js';
 import type { SystemJobDeps } from '../jobs/system.js';
+import { reportLocaleOf } from '../reports/locale.js';
 import { buildClaimPack, type ClaimPackJobData, purgeExpiredExports } from './claim-pack.js';
 
 // Claim packs' jobs (D158, D201), aggregated by jobs/household.ts:
@@ -24,7 +25,7 @@ export function claimPackData(data: unknown): ClaimPackJobData | null {
   return {
     runId: d.runId,
     asOf: d.asOf,
-    locale: d.locale === 'ar' ? 'ar' : 'en',
+    locale: reportLocaleOf(d.locale),
     digits: d.digits === 'eastern' ? 'eastern' : 'western',
   };
 }

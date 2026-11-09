@@ -11,15 +11,15 @@ import { useState } from 'react';
 import { isApiError } from '@/api/client';
 import { conditionApi } from '@/api/condition/queries';
 import type { ConditionPdfBody, ConditionReport } from '@/api/condition/types';
+import { LanguageSelect } from '@/components/languages';
 import { Notice, useErrorText } from '@/components/page';
 import { ReportProgress, reportFilenameOf } from '@/components/reports/progress';
 import { Sheet } from '@/components/things/sheet';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
-import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { useOnline } from '@/lib/online';
-import { usePrefs } from '@/lib/prefs';
+import { type Locale, usePrefs } from '@/lib/prefs';
 
 const filename = reportFilenameOf('condition-report');
 
@@ -56,7 +56,7 @@ function PdfForm({
   const online = useOnline();
   const errorText = useErrorText();
   const [photos, setPhotos] = useState(true);
-  const [locale, setLocale] = useState<'en' | 'ar'>(prefs.locale === 'ar' ? 'ar' : 'en');
+  const [locale, setLocale] = useState<Locale>(prefs.locale);
   const [runId, setRunId] = useState<string | null>(null);
   const body = (): ConditionPdfBody => ({
     reportId: report.id,
@@ -124,15 +124,7 @@ function PdfForm({
       <Switch isSelected={photos} onChange={setPhotos}>
         <Trans>Photos</Trans>
       </Switch>
-      <Segmented<'en' | 'ar'>
-        label={t`Language`}
-        value={locale}
-        onChange={setLocale}
-        options={[
-          { id: 'en', label: 'English' },
-          { id: 'ar', label: <span lang="ar">العربية</span> },
-        ]}
-      />
+      <LanguageSelect label={t`Language`} value={locale} onChange={setLocale} />
       {start.error ? <Notice tone="danger">{startError(start.error)}</Notice> : null}
       {online ? null : (
         <p className="m-0 text-small text-ink-2">
