@@ -26,6 +26,7 @@ import { pickUp } from '@/components/tray/use-tray';
 import { toastQueue } from '@/components/ui/toast';
 import { MemoryStore } from '@/offline/store';
 import { expectLogicalOnly, renderUI } from '@/test/render';
+import { fakeVisualViewport, overlayOf } from '@/test/visual-viewport';
 import { ScanScreen, type ScanScreenProps } from './scan-screen';
 
 const feed = vi.hoisted(() => ({ current: null as ((found: Detected[]) => void) | null }));
@@ -771,6 +772,21 @@ describe('"Type the code"', () => {
     await waitFor(() =>
       expect(onOpen).toHaveBeenCalledWith({ kind: 'thing', id: DRILL, locationId: HOME }),
     );
+  });
+
+  it('stays above the on-screen keyboard (#487)', async () => {
+    const phoneView = fakeVisualViewport(844);
+    try {
+      const { user } = await renderScan();
+      await user.click(await screen.findByRole('button', { name: 'Type the code' }));
+      const overlay = overlayOf(await screen.findByRole('dialog', { name: 'Type the code' }));
+      expect(overlay.style.height).toBe('844px');
+      phoneView.keyboard(430);
+      expect(overlay.style.height).toBe('430px');
+      expect(overlay.style.top).toBe('0px');
+    } finally {
+      phoneView.restore();
+    }
   });
 
   it('says what a code looks like when it is not one', async () => {
