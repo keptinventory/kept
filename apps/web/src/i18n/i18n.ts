@@ -4,7 +4,14 @@
  */
 import { i18n, type Messages } from '@lingui/core';
 import { localiseSeparators } from '@/lib/format';
-import { type Digits, formatLocale, type Locale } from '@/lib/prefs';
+import {
+  type Digits,
+  formatLocale,
+  initialLocale,
+  type Locale,
+  showLocale,
+  storedDigits,
+} from '@/lib/prefs';
 
 const loaders: Record<Locale, () => Promise<{ messages: Messages }>> = {
   ar: () => import('../locales/ar/messages.po'),
@@ -28,6 +35,20 @@ export async function activateLocale(locale: Locale, digits: Digits = 'eastern')
     locales: [formatLocale(locale, digits)],
     messages: localiseSeparators(messages, locale),
   });
+}
+
+/**
+ * The language a page starts in: the one picked on this device, else the browser's, shown and not
+ * stored (#474): only a language the person picks is kept. Offline, a catalogue never loaded online
+ * isn't cached (sw.ts): English, then no catalogue, so the shell still renders.
+ */
+export async function startLocale(): Promise<Locale> {
+  const locale = initialLocale();
+  await activateLocale(locale, storedDigits()).catch(() =>
+    activateLocale('en').catch(() => i18n.loadAndActivate({ locale: 'en', messages: {} })),
+  );
+  showLocale(locale);
+  return locale;
 }
 
 export { i18n };

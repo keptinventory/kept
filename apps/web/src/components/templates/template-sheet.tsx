@@ -26,6 +26,7 @@ import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { useLocationName } from '@/lib/labels';
+import { useChosenAtOpen } from '@/lib/personal-name';
 
 /** Field kinds the sheet can hold as a template value (D177: never money or secrets). */
 const TEMPLATE_KINDS = new Set(['text', 'number', 'url', 'select', 'boolean']);
@@ -107,16 +108,17 @@ function TemplateForm({
   const locationName = useLocationName();
   const locations = useAllLocations();
   const [d, setD] = useState<Draft>(() => draftOf(template));
+  const atOpen = useChosenAtOpen(d.locationIds);
   const [errors, setErrors] = useState<{ name?: string; locations?: string }>({});
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
   // Shared only with locations of this account you administer (the policy).
-  // A hidden Personal only while it's already chosen, so saving can't quietly unshare it.
+  // A hidden Personal only when it was chosen, so saving can't quietly unshare it.
   const shareable = (locations.data ?? []).filter(
     (l) =>
       l.ownerAccountId === accountId &&
       (l.role === 'owner' || l.role === 'admin') &&
-      (!l.hidden || d.locationIds.includes(l.id)),
+      (!l.hidden || d.locationIds.includes(l.id) || atOpen.includes(l.id)),
   );
   const type = useQuery({
     queryKey: inventoryKeys.types.detail(d.typeId ?? ''),
@@ -323,13 +325,14 @@ export function SaveAsTemplateSheet({
   const locations = useAllLocations();
   const [name, setName] = useState(thingName);
   const [locationIds, setLocationIds] = useState<string[]>([locationId]);
+  const atOpen = useChosenAtOpen(locationIds);
   const [error, setError] = useState<string | null>(null);
   const shareable = (locations.data ?? [])
     .filter(
       (l) =>
         l.ownerAccountId === accountId &&
         (l.role === 'owner' || l.role === 'admin') &&
-        (!l.hidden || locationIds.includes(l.id)),
+        (!l.hidden || locationIds.includes(l.id) || atOpen.includes(l.id)),
     )
     .map((l) => ({ id: l.id, name: locationName(l) }));
   const save = useMutation({

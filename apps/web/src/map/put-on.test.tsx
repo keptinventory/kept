@@ -225,7 +225,7 @@ describe('Add on it (#137)', () => {
         .map((o) => o.textContent),
     ).toEqual([
       'Echo DotSmart speaker',
-      `HD webcamWebcam · ${printedCode('WEB123')}`,
+      `HD webcamWebcam, ${printedCode('WEB123')}`,
       'KeyboardKeyboard',
       'MonitorMonitor',
     ]);
@@ -477,7 +477,7 @@ describe('Add on it with things not on the map yet (#152)', () => {
       within(off)
         .getAllByRole('option')
         .map((o) => o.textContent),
-    ).toEqual([`Desk lampTable lamp · ${printedCode('LMP456')}`, 'Spare webcamWebcam']);
+    ).toEqual([`Desk lampTable lamp, ${printedCode('LMP456')}`, 'Spare webcamWebcam']);
     await user.click(within(off).getByRole('option', { name: 'Spare webcam' }));
     await user.click(screen.getByRole('option', { name: 'Keyboard' }));
     await user.click(screen.getByRole('button', { name: 'Put 2 on it' }));

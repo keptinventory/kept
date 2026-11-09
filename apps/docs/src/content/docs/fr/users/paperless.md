@@ -1,6 +1,6 @@
 ---
 title: Paperless-ngx
-description: Liez un objet ou un lieu à ses reçus, manuels et cartes de garantie dans Paperless-ngx. Kept stocke le lien et un titre, pas le fichier, sauf si vous le copiez dans Kept.
+description: Liez un objet ou un emplacement à ses reçus, manuels et cartes de garantie dans Paperless-ngx. Kept stocke le lien et un titre, pas le fichier, sauf si vous le copiez dans Kept.
 ---
 
 Si vous conservez vos documents dans [Paperless-ngx](https://docs.paperless-ngx.com/), Kept peut lier un objet à ses documents là-bas au lieu de les téléverser deux fois. La perceuse affiche son reçu et son manuel ; la cuisine montre la facture du réfrigérateur.
@@ -28,7 +28,7 @@ Une fois connecté, la page affiche la version de Paperless et le nombre de docu
 
 ## Lier des documents
 
-Sur la page d'un objet, sous **Documents**, **Lier depuis Paperless** se trouve à côté de **Ajouter un fichier** (sur la page d'un lieu, à côté de **Ajouter un document**). Cela ouvre une recherche dans votre Paperless : des mots du titre ou du texte, un correspondant, un type ou une étiquette. Le début d'un mot suffit : `Camel` trouve « Camelot ». La syntaxe de recherche propre à Paperless passe telle quelle à mesure que vous tapez, par exemple `title:manual` ou `*amel*` pour le milieu d'un mot. Cochez-en un ou plusieurs et **Lier**.
+Sur la page d'un objet, sous **Documents**, **Lier depuis Paperless** se trouve à côté de **Ajouter un fichier** (sur la page d'un emplacement, à côté de **Ajouter un document**). Cela ouvre une recherche dans votre Paperless : des mots du titre ou du texte, un correspondant, un type ou une étiquette. Le début d'un mot suffit : `Camel` trouve « Camelot ». La syntaxe de recherche propre à Paperless passe telle quelle à mesure que vous tapez, par exemple `title:manual` ou `*amel*` pour le milieu d'un mot. Cochez-en un ou plusieurs et **Lier**.
 
 Les documents liés figurent dans la même liste Documents que les fichiers. Chacun affiche sa vignette, son titre, le type et le correspondant de Paperless, ainsi que sa date, avec :
 
@@ -40,7 +40,7 @@ Les documents liés figurent dans la même liste Documents que les fichiers. Cha
 
 Le type provient du type Paperless du document, puis de ses étiquettes : *Reçu*, *Facture*, *Manuel* et *Garantie* (et les mêmes mots dans les autres langues de Kept) sont reconnus, tout le reste est un document. Ensuite, vous pouvez modifier le type, et **Copier dans Kept** copie le document avec ce type. Le filtre **Type** dans Documents filtre à la fois les fichiers et les documents liés.
 
-**Depuis un [import Homebox](/fr/users/import-export/#un-export-homebox) :** un lien Homebox vers l'un de vos documents Paperless (`…/documents/123`, ou de l'API `…/api/documents/123/download/`) à l'adresse à laquelle ce lieu est connecté arrive en tant que document lié sur l'objet ou le lieu. Son titre provient de Paperless, et son type, du type de pièce jointe Homebox. Connectez Paperless avant d'importer ; tout autre lien reste un lien simple.
+**Depuis un [import Homebox](/fr/users/import-export/#un-export-homebox) :** un lien Homebox vers l'un de vos documents Paperless (`…/documents/123`, ou de l'API `…/api/documents/123/download/`) à l'adresse à laquelle ce lieu est connecté arrive en tant que document lié sur l'objet ou l'emplacement. Son titre provient de Paperless, et son type, du type de pièce jointe Homebox. Connectez Paperless avant d'importer ; tout autre lien reste un lien simple.
 
 Kept demande les titres à Paperless lorsque l'import s'exécute, et non lorsqu'il vérifie l'export. Si Paperless est inaccessible, ne possède pas le document ou ne le montre pas à son utilisateur, l'import se termine quand même et ce lien conserve le titre de Homebox, ou son adresse si Homebox n'en a aucune. Le rapport d'import indique combien. Pour obtenir le titre de Paperless plus tard, **Dissocier** le document et utilisez **Lier depuis Paperless**, ou **Copier dans Kept**.
 
@@ -66,7 +66,7 @@ Kept demande les titres à Paperless lorsque l'import s'exécute, et non lorsqu'
 
 Les reçus et les factures sont de l'argent : là où l'argent est caché pour vous dans un lieu, les reçus et factures liés le sont également, et vous ne pouvez pas masquer un document lié.
 
-Un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel) lit les liens d'un objet ou d'un lieu (`GET /api/v1/paperless-links?thingId=…`), jamais la connexion, une recherche, une vignette ou un document. L'outil MCP `get_thing` liste les documents liés d'un objet par titre.
+Un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel) lit les liens d'un objet ou d'un emplacement (`GET /api/v1/paperless-links?thingId=…`), jamais la connexion, une recherche, une vignette ou un document. L'outil MCP `get_thing` liste les documents liés d'un objet par titre.
 
 ## Confidentialité
 

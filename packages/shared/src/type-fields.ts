@@ -100,7 +100,10 @@ function singleValue(field: FieldShape): z.ZodType {
     case 'money':
       return z.strictObject({
         // Canonical once valid (`"12.00"` → `"12"`), so stored values and the wire agree.
-        amount: z.string().regex(AMOUNT_STRING).transform(parseAmount),
+        amount: z
+          .string()
+          .regex(AMOUNT_STRING)
+          .transform((a) => parseAmount(a)),
         currency: z.string().regex(CURRENCY_CODE),
       });
     case 'person':

@@ -82,7 +82,7 @@ describe('the batch builder', () => {
     expect(screen.getByRole('img', { name: 'B0X3AA' })).toBeInTheDocument();
     expect(screen.getByText('1 thing was left out: its ID is still pending.')).toBeInTheDocument();
 
-    expect(screen.getByRole('radio', { name: /A4 sheet · 24 labels/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /A4 sheet, 24 labels/ })).toBeChecked();
     await user.click(screen.getByRole('radio', { name: 'Label 20, row 7, column 2' }));
     expect(
       screen.getByText('Start at label 20 (row 7, column 2). Tap any cell to start there.'),
@@ -142,7 +142,7 @@ describe('the batch builder', () => {
       screen.getByText('Each label: QR code, name, where it is and short ID'),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole('radio', { name: /A4 sheet · 65 labels/ }));
+    await user.click(screen.getByRole('radio', { name: /A4 sheet, 65 labels/ }));
     const compact = screen.getByRole('radio', { name: 'Label 1, row 1, column 1: 7KQ4MZ' });
     const small = compact.closest('[data-slot="preview-cell"]') as HTMLElement;
     expect(small.querySelector('[data-slot="label-qr"] path')).not.toBeNull();
@@ -169,7 +169,7 @@ describe('label-maker tape', () => {
     await user.click(await screen.findByRole('radio', { name: /12 mm tape/ }));
     expect(
       screen.getByRole('radio', { name: /12 mm tape/ }).closest('label')?.textContent,
-    ).toContain('Label maker · short ID large, and the name');
+    ).toContain('Label maker, short ID large, and the name');
     expect(screen.queryByRole('radio', { name: /^Label 1,/ })).toBeNull();
     expect(screen.getByText('Label preview')).toBeInTheDocument();
     const label = document.querySelector('div[data-slot="label"]') as HTMLElement;
@@ -190,7 +190,7 @@ describe('label-maker tape', () => {
     await user.click(await screen.findByRole('radio', { name: /24 mm tape/ }));
     expect(
       screen.getByRole('radio', { name: /24 mm tape/ }).closest('label')?.textContent,
-    ).toContain('Label maker · QR code, short ID and name');
+    ).toContain('Label maker, QR code, short ID and name');
     const label = document.querySelector('div[data-slot="label"]') as HTMLElement;
     await waitFor(() => expect(label.querySelector('[data-slot="label-qr"] path')).not.toBeNull());
   });
@@ -298,7 +298,7 @@ describe('names too long for the label', () => {
       within(warn).getByRole('link', { name: `Rename ${FSI}${box.name}${PDI}` }),
     ).toHaveAttribute('href', `/t/${T.box3}`);
     // On the A4 sheet the same name fits.
-    await user.click(screen.getByRole('radio', { name: /A4 sheet · 24 labels/ }));
+    await user.click(screen.getByRole('radio', { name: /A4 sheet, 24 labels/ }));
     await waitFor(() =>
       expect(screen.queryByRole('region', { name: /too long for this label/ })).toBeNull(),
     );
@@ -352,7 +352,7 @@ describe('recent batches', () => {
       within(newest).getByText(`2 labels: ${FSI}HDMI cable, 2 m${PDI} and ${FSI}Box 3${PDI}`),
     ).toBeInTheDocument();
     expect(newest).toHaveTextContent('Home');
-    expect(newest).toHaveTextContent('A4 sheet · 24 labels');
+    expect(newest).toHaveTextContent('A4 sheet, 24 labels');
     expect(newest).toHaveTextContent(/\d{2}:\d{2}/);
     expect(within(newest).getByText('Not confirmed')).toBeInTheDocument();
     expect(blank).toHaveTextContent(/\d+ blank labels/);

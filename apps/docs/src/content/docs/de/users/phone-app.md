@@ -36,7 +36,7 @@ Die Kopie enthält niemals geheime Werte oder Kontaktangaben von Personen. Geldb
 
 Was du offline tust, landet in einer Warteschlange und wird gesendet, sobald das Telefon wieder online ist. Eine Zeile unter dem Kopfbereich erscheint nur, wenn etwas mitzuteilen ist:
 
-- **Offline · 12 warten auf Sync**, oder **Offline · zum Stand des letzten Syncs, 14:02**.
+- **Offline, 12 warten auf Sync**, oder **Offline, zum Stand des letzten Syncs, 14:02**.
 - Neue Dinge zeigen **ID ausstehend**, bis der Server ihnen ihre Kurz-ID gibt; ihre Labels können gedruckt werden, sobald sie angekommen ist (Labels bietet **Ausstehende Labels drucken**).
 - **Auf dem iPhone bewegt sich die Warteschlange nur, solange Kept geöffnet ist**: die Zeile zeigt **Öffnen, um Synchronisierung abzuschließen (12)**. Lass Kept einen Moment geöffnet auf dem Bildschirm, wenn du wieder online bist.
 - **Kept aktualisieren, um Synchronisierung abzuschließen** bedeutet, dass der Server neuer ist als die App: neu laden. Die Warteschlange bleibt erhalten.

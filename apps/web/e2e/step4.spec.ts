@@ -702,7 +702,7 @@ test('warranties: the TV\'s two warranties with their coverage bars; its claim i
 
   await page.goto(`/t/${tv.id}?tab=paperwork`);
   await expect(page.getByRole('heading', { name: TV, level: 1 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Warranties · 2' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Warranties, 2' })).toBeVisible();
   await expect(
     page.getByRole('img', { name: /(^Bought .+, c|^C)overed from .+ of the way$/ }),
   ).toHaveCount(2);
@@ -912,7 +912,7 @@ test("Talia, a viewer: the TV's warranties and claims, and Catan's loan, with no
   await page.goto(`/t/${tv.id}?tab=paperwork`);
   await expect(page.getByRole('heading', { name: TV, level: 1 })).toBeVisible();
   await expect(page.getByText("You're a viewer here", { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /^Warranties · / })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Warranties, / })).toBeVisible();
   await expect(page.getByRole('img', { name: /overed from / }).first()).toBeVisible();
   await noActions(['More actions', 'Edit', 'Move', 'Add']);
   await axe(page, 'TV as a viewer, warranties');
@@ -1090,7 +1090,7 @@ test('email and push: Louis turns on warranties by email, the digest reaches Mai
       new Date(`${ends}T00:00:00Z`),
     );
     expect(text).toContain(`The warranty on Smoke alarm from ${provider} ends on ${longDay}`);
-    expect(text).toContain('Hallway · Home');
+    expect(text).toContain('Hallway, Home');
     expect(text).toContain(`/t/${alarm.id}`);
   } finally {
     const all = await api(page).get<{ items: Warranty[] }>(`/api/v1/things/${alarm.id}/warranties`);

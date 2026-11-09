@@ -44,7 +44,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 - **[Chia sẻ một địa điểm](/vi/users/sharing/)**: mời mọi người với vai trò (quản trị, thành viên, người xem) và ngày kết thúc tùy chọn; tài khoản được quản lý cho người không có email; liên kết chỉ đọc cho người không có tài khoản.
 - **[Đăng nhập và bảo mật](/vi/users/sign-in-security/)**: khóa truy cập và xác thực hai yếu tố; trên mạng nhà qua http thường, [đăng nhập miễn là quản trị viên đặt](/vi/install/home-network/#giữ-trong-mạng-của-bạn); một Kept trên [nhiều hơn một địa chỉ](/vi/install/home-network/#hơn-một-địa-chỉ), như tên LAN và tên Tailscale.
-- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
+- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Số tiền được đọc theo cách ngôn ngữ của bạn viết. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
 
 ## Trên điện thoại của bạn
 

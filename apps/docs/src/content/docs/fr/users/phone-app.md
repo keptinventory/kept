@@ -36,7 +36,7 @@ La copie ne contient jamais de valeurs secrètes ni les coordonnées des personn
 
 Ce que vous faites hors ligne entre dans une file d’attente et est envoyé quand le téléphone est de nouveau en ligne. Une ligne sous l’en-tête n’apparaît que s’il y a quelque chose à dire :
 
-- **Hors ligne · 12 en attente de synchronisation**, ou **Hors ligne · d’après la dernière synchronisation, 14:02**.
+- **Hors ligne, 12 en attente de synchronisation**, ou **Hors ligne, d’après la dernière synchronisation, 14:02**.
 - Les nouveaux objets affichent **ID en attente** jusqu’à ce que le serveur leur attribue leur identifiant court ; leurs étiquettes peuvent être imprimées une fois celui-ci reçu (Étiquettes propose **Imprimer les étiquettes en attente**).
 - **Sur iPhone, la file n’avance que si Kept est ouvert** : la ligne indique **Ouvrir pour terminer la synchronisation (12)**. Laissez Kept ouvert à l’écran un instant quand vous êtes de nouveau en ligne.
 - **Mettez à jour Kept pour terminer la synchronisation** signifie que le serveur est plus récent que l’application : rechargez. La file est conservée.

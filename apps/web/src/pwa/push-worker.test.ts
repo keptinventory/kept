@@ -27,14 +27,14 @@ describe('readPushPayload', () => {
       readPushPayload(
         json({
           title: 'Boiler service',
-          body: 'Home › Kitchen · due 21 Oct',
+          body: 'Home › Kitchen, due 21 Oct',
           url: '/t/2HX9RB',
           tag: 'r1',
         }),
       ),
     ).toEqual({
       title: 'Boiler service',
-      body: 'Home › Kitchen · due 21 Oct',
+      body: 'Home › Kitchen, due 21 Oct',
       url: '/t/2HX9RB',
       tag: 'r1',
     });

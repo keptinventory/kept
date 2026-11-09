@@ -3,13 +3,14 @@
  * refused at entry, said with the neighbour it collides with (D112, as the meters section says
  * it); a decimal typed in either digits; and an amount with its currency (the Purchase rule).
  */
-import { AmountError, parseAmount } from '@kept/shared';
+import { AmountError } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { isApiError } from '@/api/client';
 import type { ReadingConflictDetails } from '@/api/inventory/types';
 import { westernNumber } from '@/components/things/form-model';
 import { CurrencyPicker } from '@/components/things/pickers';
 import { TextField } from '@/components/ui/text-field';
+import { readAmount } from '@/lib/amount';
 import { useFormat } from '@/lib/format';
 import { useMeterUnit } from '@/lib/units';
 
@@ -42,11 +43,12 @@ export function decimalOf(s: string): string | null {
   return /^\d+(\.\d+)?$/.test(w) ? w : null;
 }
 
-/** An amount, or `''` for none, or null when it isn't one (the Purchase rule). */
+/** An amount, or `''` for none, or null when it isn't one (the Purchase rule): read by the
+ * reader's language (#474). */
 export function amountOf(s: string): string | null {
   if (!s.trim()) return '';
   try {
-    return parseAmount(westernNumber(s));
+    return readAmount(s);
   } catch (e) {
     if (e instanceof AmountError) return null;
     throw e;

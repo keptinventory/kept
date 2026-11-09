@@ -56,7 +56,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   **Map**, each with its icon. **Graph** draws the location as a graph of its floors, rooms, boxes
   and things, in 2D or 3D ([The graph](/users/graph/)). **Table** shows its things as a spreadsheet,
   on a screen 1024 px wide or more ([The spreadsheet view](/users/spreadsheet/)), so a phone shows
-  List · Grid · Graph · Map. **Map** shows the location in 3D, floor by floor, with its rooms,
+  List, Grid, Graph, Map. **Map** shows the location in 3D, floor by floor, with its rooms,
   shelves and boxes ([The location map](/users/location-map/)). The list's **Display** menu offers
   the same choice. A place's own page (not Unplaced) has the switch too, without Table. Kept
   remembers the layout for each location and each place on that device.
@@ -67,7 +67,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
 - On a computer or tablet, the sidebar marks the location you're in: on its page, and on its
   rooms, things, boxes and settings.
 
-![A location in Grid with Small tiles: the Places · 9 heading over the rooms, then the Things · 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
+![A location in Grid with Small tiles: the Places, 9 heading over the rooms, then the Things, 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
 
 ![The same grid in the dark theme](../../../assets/screens/grid-desktop-dark.webp)
 

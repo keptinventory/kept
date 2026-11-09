@@ -75,7 +75,7 @@ describe('the tour popover labels', () => {
   }
 
   for (const [locale, line, chapter, next] of [
-    ['en', 'Chapter 3 of 12 · step 2 of 5', 'Graph & 3D map', 'Next: Graph & 3D map'],
+    ['en', 'Chapter 3 of 12, step 2 of 5', 'Graph & 3D map', 'Next: Graph & 3D map'],
     [
       'ar',
       'الفصل ٣ من ١٢، الخطوة ٢ من ٥',
@@ -407,7 +407,7 @@ describe('useTour', () => {
       for (const [k, id] of BASICS.entries()) {
         const dialog = await stepDialog(copy, `basics.${id}`);
         expect(dialog).toHaveTextContent(
-          `Chapter 1 of ${CHAPTERS} · step ${k + 1} of ${BASICS.length}`,
+          `Chapter 1 of ${CHAPTERS}, step ${k + 1} of ${BASICS.length}`,
         );
         expect(pathOf(router)).toBe(BASICS_PATHS[k]);
         const last = k === BASICS.length - 1;
@@ -438,7 +438,7 @@ describe('useTour', () => {
       const end = await stepDialog(copy, 'basics.tours');
       await user.click(within(end).getByRole('button', { name: 'Continue' }));
       const first = await stepDialog(copy, 'things.add');
-      expect(first).toHaveTextContent(`Chapter 2 of ${CHAPTERS} · step 1 of 6`);
+      expect(first).toHaveTextContent(`Chapter 2 of ${CHAPTERS}, step 1 of 6`);
       expect(pathOf(router)).toMatch(/^\/loc\/[^/]+$/);
       // The first step of a chapter has nothing before it in the chapter: no Back.
       expect(within(first).queryByRole('button', { name: 'Back' })).toBeNull();
@@ -465,7 +465,7 @@ describe('useTour', () => {
       const ids = ['notifications', 'locations', 'invite', 'track'];
       for (const [k, id] of ids.entries()) {
         const d = await stepDialog(copy, `settings.${id}`);
-        expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS} · step ${k + 1} of 4`);
+        expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS}, step ${k + 1} of 4`);
         if (k < ids.length - 1) {
           await user.click(within(d).getByRole('button', { name: 'Next' }));
           continue;
@@ -495,7 +495,7 @@ describe('useTour', () => {
       await user.click(within(tabs).getByRole('button', { name: 'Continue' }));
       // No Keep/Discard between chapters: the run goes on, the sample still in its ledger.
       expect(await stepDialog(copy, 'map.layout')).toHaveTextContent(
-        `Chapter 3 of ${CHAPTERS} · step 1 of 6`,
+        `Chapter 3 of ${CHAPTERS}, step 1 of 6`,
       );
       expect(screen.queryByRole('dialog', { name: 'Keep what you added?' })).toBeNull();
       expect(tourLedger.list()).toEqual([{ kind: 'thing', id: 't-new' }]);
@@ -765,7 +765,7 @@ describe('useTour', () => {
       });
       expect(await startTour('basics')).toBe(true);
       expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
-        `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+        `Chapter 1 of ${CHAPTERS}, step 1 of ${BASICS.length}`,
       );
       expect(calls.filter((c) => c.method === 'GET' && /\/locations\?/.test(c.url))).toHaveLength(
         1,
@@ -785,7 +785,7 @@ describe('useTour', () => {
       );
       expect([first, second]).toEqual([false, true]);
       const d = await stepDialog(copy, 'settings.notifications');
-      expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS} · step 1 of`);
+      expect(d).toHaveTextContent(`Chapter ${CHAPTERS} of ${CHAPTERS}, step 1 of`);
       // Both waited on one fetch of the list; the first is not left running beside the second,
       // whose own navigation doesn't end it.
       await user.click(within(d).getByRole('button', { name: 'Next' }));
@@ -835,7 +835,7 @@ describe('useTour', () => {
       expect(await startTour('basics')).toBe(true);
       expect(performance.now() - t0).toBeLessThan(FRESH_LIST_MS + 2_000);
       expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
-        `Chapter 1 of ${availableTours(cached).length} · step 1 of`,
+        `Chapter 1 of ${availableTours(cached).length}, step 1 of`,
       );
       expect(availableTours(cached).length).toBe(CHAPTERS + 1);
     },
@@ -850,7 +850,7 @@ describe('useTour', () => {
       try {
         expect(await startTour('basics')).toBe(true);
         expect(await stepDialog(copy, 'basics.needs')).toHaveTextContent(
-          `Chapter 1 of ${CHAPTERS} · step 1 of ${BASICS.length}`,
+          `Chapter 1 of ${CHAPTERS}, step 1 of ${BASICS.length}`,
         );
         expect(calls.some((c) => /\/locations\?/.test(c.url))).toBe(false);
       } finally {

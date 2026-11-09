@@ -673,8 +673,8 @@ export function MapCard(p: CardProps) {
                       {i.labelPrinted && i.shortCode ? <IdChip code={i.shortCode} /> : ''}
                       {host ? (
                         <>
-                          {' '}
-                          · <Trans>on {host}</Trans>
+                          {i.labelPrinted && i.shortCode ? f.sep : null}
+                          <Trans>on {host}</Trans>
                         </>
                       ) : null}
                     </small>
@@ -877,7 +877,7 @@ export function MapCard(p: CardProps) {
             {models[baseModel(it.model)]}
             {n !== null ? (
               <>
-                {' · '}
+                {f.sep}
                 <Plural value={n} one="# thing inside" other="# things inside" />
               </>
             ) : null}

@@ -58,7 +58,7 @@ auch **Ohne Ort** für Gegenstände, die noch keinen Platz haben.
   **Karte**, jedes mit seinem Symbol. **Graph** zeichnet den Standort als Graph seiner Stockwerke, Räume, Kisten
   und Gegenstände in 2D oder 3D ([Der Graph](/de/users/graph/)). **Tabelle** zeigt seine Gegenstände in Tabellenform
   auf einem Bildschirm 1024 px breit oder mehr ([Die Tabellenansicht](/de/users/spreadsheet/)), sodass ein Telefon
-  Liste · Raster · Graph · Karte zeigt. **Karte** zeigt den Standort in 3D, Stockwerk für Stockwerk, mit seinen Räumen,
+  Liste, Raster, Graph, Karte zeigt. **Karte** zeigt den Standort in 3D, Stockwerk für Stockwerk, mit seinen Räumen,
   Regalböden und Kisten ([Die Standortkarte](/de/users/location-map/)). Das **Anzeige**-Menü der Liste bietet
   dieselbe Auswahl. Die eigene Seite eines Ortes (nicht Ohne Ort) hat den Schalter auch, ohne Tabelle. Kept
   merkt sich das Layout für jeden Standort und jeden Ort auf diesem Gerät.
@@ -69,7 +69,7 @@ auch **Ohne Ort** für Gegenstände, die noch keinen Platz haben.
 - Auf Computer oder Tablet markiert die Seitenleiste den Standort, in dem du bist: auf seiner Seite und auf
   seinen Räumen, Gegenständen, Kisten und Einstellungen.
 
-![Ein Standort im Raster mit kleinen Kacheln: die Überschrift Orte · 9 über den Räumen, dann Gegenstände · 20+ über den Gegenständen, sechs Kacheln pro Zeile, jede nur mit ihrem Namen](../../../../assets/screens/grid-desktop-light.webp)
+![Ein Standort im Raster mit kleinen Kacheln: die Überschrift Orte, 9 über den Räumen, dann Gegenstände, 20+ über den Gegenständen, sechs Kacheln pro Zeile, jede nur mit ihrem Namen](../../../../assets/screens/grid-desktop-light.webp)
 
 ![Dasselbe Raster im dunklen Design](../../../../assets/screens/grid-desktop-dark.webp)
 

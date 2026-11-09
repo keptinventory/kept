@@ -3,14 +3,14 @@ import { createHashHistory, createRouter, RouterProvider } from '@tanstack/react
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createQueryClient } from '@/api/queries';
-import { activateLocale, i18n } from '@/i18n/i18n';
+import { startLocale } from '@/i18n/i18n';
 import {
   ingressBase,
   installIngressPrefixing,
   routerBasepath,
   underIngress,
 } from '@/lib/base-path';
-import { initialLocale, setLocale, storedDigits, watchSystemTheme } from '@/lib/prefs';
+import { watchSystemTheme } from '@/lib/prefs';
 import { captureInstallPrompt } from '@/pwa/install';
 import { registerServiceWorker } from '@/pwa/register';
 import { TRY } from '@/try/flag';
@@ -76,13 +76,7 @@ async function start() {
   if (import.meta.env.PROD && !TRY && !ingress && !window.location.pathname.startsWith('/s/'))
     registerServiceWorker();
   if (ingress) void dropIngressWorkers().catch(() => undefined);
-  const locale = initialLocale();
-  // Offline, a catalogue that was never loaded online isn't cached (sw.ts): fall back to English,
-  // then to no catalogue, so the shell still renders.
-  await activateLocale(locale, storedDigits()).catch(() =>
-    activateLocale('en').catch(() => i18n.loadAndActivate({ locale: 'en', messages: {} })),
-  );
-  setLocale(locale);
+  await startLocale();
   watchSystemTheme();
   const root = document.getElementById('root');
   if (!root) throw new Error('#root is missing from index.html');

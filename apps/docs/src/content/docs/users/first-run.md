@@ -124,11 +124,16 @@ holds at most 20 of them.
 - **Language**: العربية, Deutsch, English, Español, Français, Italiano, Українська or Tiếng Việt.
   Open the list, or type to find one: its own name, its name in English or in the language you're
   using, and small typos are fine (`german`, `deutsch` and `francais` all work). Arabic lays the whole app out
-  right to left. The sign-in pages have the same picker. Emails and reminders follow the language you last chose.
+  right to left. The sign-in pages have the same picker. Until you pick one, Kept follows the browser's language. Emails and reminders follow the language you last chose.
 - **Digits in Arabic**: Western (0123) or Eastern (٠١٢٣), shown only while the language is Arabic.
   Short IDs and serial numbers always stay in Western digits.
 - **Region**: **United States** (Oct 29) or **United Kingdom** (29 Oct, 29/10/2026), shown only
   while the language is English.
+  Spanish has no choice to make: its numbers and dates follow the browser's region, so a browser
+  set to Mexico writes `1,234,567.5` and one set to Spain `1.234.567,5`.
+- **Amounts** are read the way your language writes them. Where the comma is the decimal mark, as
+  in German, `1.234` is one thousand two hundred and thirty-four and `12,50` is twelve and a half.
+  An amount that could be read either way, like `0.125`, is refused rather than guessed.
 - **Date format**: **Default** (29 Oct, with the year only for other years), 29 Oct 2026,
   29/10/2026 or 2026-10-29 (as the United Kingdom writes them). Each choice shows today's date
   written that way, in your region. Purchase and
@@ -145,7 +150,7 @@ steps each:
 |---|---|
 | Basics | Home, your locations, Scan, Search, and where everything else is |
 | Things & places | adding to a location, what's in it, and a thing's page and its tabs |
-| Graph & 3D map | the List · Grid · Graph · Table · Map switch (Table on a computer), the graph in 2D or 3D, 3D or plan, pins, floors and Arrange, where a room moves with what's in it |
+| Graph & 3D map | the List, Grid, Graph, Table, Map switch (Table on a computer), the graph in 2D or 3D, 3D or plan, pins, floors and Arrange, where a room moves with what's in it |
 | Capture & Inbox | picking what you capture, the shutter, and reviewing what Kept read |
 | Scanning | a scan session: count, pack or move, where, and what Finish changes |
 | Search & labels | the search field, saved views, Select (move, print labels, Move to Trash), printing labels and Scan, which can put a blank label on a place you have |
@@ -166,7 +171,7 @@ locations, and a viewer gets no steps that change anything.
   that chapter. Finished chapters fold away under **Done (N)**; open it to replay one.
 - The tour starts from Help. The top bar of a page keeps to that page's own tools; a scan
   session's **Start a session** has a small **Show me** for its chapter.
-- The popover shows where you are: "Chapter 3 of 12 · step 2 of 5".
+- The popover shows where you are: "Chapter 3 of 12, step 2 of 5".
 - **Next** moves on, **Back** goes back within the chapter, the arrow keys do both, and **Esc**
   or **×** closes it.
 - A chapter's last step names the next one: **Continue** goes straight into it, **Stop here**

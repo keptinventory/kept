@@ -17,7 +17,7 @@ Sur un ordinateur, ⌘K ou Ctrl+K ouvre la recherche depuis n'importe où.
 
 ## Recherche hors ligne
 
-Sur un téléphone, la recherche fonctionne aussi hors ligne à partir de la copie du téléphone, étiquetée **Sur ce téléphone · à la dernière synchronisation**. Les résultats proviennent de la copie locale, et vos modifications se synchronisent lorsque vous êtes de nouveau en ligne.
+Sur un téléphone, la recherche fonctionne aussi hors ligne à partir de la copie du téléphone, étiquetée **Sur ce téléphone, à la dernière synchronisation**. Les résultats proviennent de la copie locale, et vos modifications se synchronisent lorsque vous êtes de nouveau en ligne.
 
 ## Recherche sémantique
 

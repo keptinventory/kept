@@ -9,14 +9,14 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 
 ## Inventario
 
-- **[Luoghi, stanze e scatole](/it/users/locations/)**: case, garage, unità di deposito; luoghi
-  dentro altri luoghi. Sposta una scatola e ciò che contiene si sposta con essa. Un albero di luoghi che puoi allargare o ridurre.
+- **[Luoghi, stanze e scatole](/it/users/locations/)**: case, garage, unità di deposito; posti
+  dentro altri posti. Sposta una scatola e ciò che contiene si sposta con essa. Un albero di posti che puoi allargare o ridurre.
 - **[Nascondi personale](/it/users/locations/#nascondi-personale)**: togli il tuo luogo personale dal
   menu, dalla Home, dagli elenchi e dalla ricerca, e mostralo di nuovo quando vuoi.
 - **[La posizione di un luogo](/it/users/locations/#la-sua-posizione)**: dal telefono o
   scritta a mano, perché Acquisisci suggerisca il luogo in cui sei.
 - **[Mobili con scomparti](/it/users/locations/#mobili-con-vani)**: una scaffalatura a cubi o
-  un cassettone, ogni scomparto è un luogo a sé. Giralo di lato, unisci o dividi gli
+  un cassettone, ogni scomparto è un posto a sé. Giralo di lato, unisci o dividi gli
   scomparti; le loro etichette continuano a funzionare.
 - **[Oggetti](/it/users/things/)**: tipi, campi personalizzati, quantità, condizione, un archivio e un
   cestino da cui ripristinare.
@@ -28,19 +28,19 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   ciò che c'è dentro come bozze da confermare. Serve un fornitore di IA.
 - **[La vista foglio di calcolo](/it/users/spreadsheet/)**: molti oggetti insieme, modificati in una tabella.
 - **[Ricerca](/it/users/search/)**: parte di un nome, un numero di serie, il testo di una ricevuta; dove si trova ogni corrispondenza.
-- **[Tag](/it/users/tags/)**: tra luoghi e tipi.
+- **[Tag](/it/users/tags/)**: tra posti e tipi.
 
 ## Trovare gli oggetti
 
 - **[La mappa del luogo](/it/users/location-map/)**: ogni luogo in 3D, con piani, stanze alle loro
   dimensioni reali (da 50 cm), mobili e i loro scomparti, e ciò che c'è dentro. Parte da una
   pianta se ne hai una.
-- **[Il grafo](/it/users/graph/)**: i luoghi, le scatole e gli oggetti di un luogo in 2D o 3D.
+- **[Il grafo](/it/users/graph/)**: i posti, le scatole e gli oggetti di un luogo in 2D o 3D.
 - **[ID brevi ed etichette](/it/users/short-ids/)**: un ID breve e un codice QR su ogni scatola; scansionane uno per
   aprirla. Rotoli per etichettatrice o fogli da ufficio. Modulo: Etichette e codici QR.
 - **[Sessioni di scansione](/it/users/scanning-sessions/)**: conta una mensola, impacchetta una scatola, sposta una pila, una
   scansione dopo l'altra.
-- **[Conteggi e inventari](/it/users/counts/)**: conta un luogo, vedi cosa manca, confronta con il
+- **[Conteggi e inventari](/it/users/counts/)**: conta un posto, vedi cosa manca, confronta con il
   conteggio precedente.
 
 ## La casa
@@ -62,7 +62,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   foto.
 - **[Report, assicurazione e sinistri](/it/users/reports/)**: l'inventario come PDF, un rapporto
   assicurativo, un dossier per il sinistro.
-- **[Approfondimenti](/it/users/insights/)**: spesa per anno e valore per luogo, ogni valuta a sé.
+- **[Approfondimenti](/it/users/insights/)**: spesa per anno e valore per posto, ogni valuta a sé.
   Modulo: Denaro e spese.
 
 ## Persone
@@ -76,7 +76,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   LAN e un nome Tailscale.
 - **Lingue**: Arabo (da destra a sinistra), francese, inglese, italiano, spagnolo, tedesco,
   ucraino e vietnamita; scrivi per trovare la tua nel selettore, e le date nello stile della tua
-  regione, o come preferisci. Anche la documentazione per utenti, amministrazione e installazione è in tutte queste lingue.
+  regione, o come preferisci. Gli importi si leggono come li scrive la tua lingua. Anche la documentazione per utenti, amministrazione e installazione è in tutte queste lingue.
 
 ## Sul telefono
 

@@ -142,7 +142,7 @@ async function openBuilder(page: Page, home: string, shelf: string, count: numbe
   await page.goto(`/labels?loc=${home}&unprinted=1&place=${shelf}`);
   await page
     .getByRole('radiogroup', { name: 'Label stock' })
-    .getByRole('radio', { name: /^A4 sheet · 24 labels/ })
+    .getByRole('radio', { name: /^A4 sheet, 24 labels/ })
     .check({ force: true });
   await expect(page.getByRole('button', { name: `Print ${count} labels` })).toBeEnabled();
   await page.evaluate(() => document.fonts.ready);
@@ -516,7 +516,7 @@ test('"Label everything here" in a room, as places: the sheet lists the room and
   await expect(page).toHaveURL(/kind=places/);
   await page
     .getByRole('radiogroup', { name: 'Label stock' })
-    .getByRole('radio', { name: /^A4 sheet · 24 labels/ })
+    .getByRole('radio', { name: /^A4 sheet, 24 labels/ })
     .check({ force: true });
   const list = page.getByRole('heading', { name: 'Printing 3' }).locator('xpath=..');
   for (const name of ['Bottom shelf', `Study ${tag}`, 'Top shelf']) {

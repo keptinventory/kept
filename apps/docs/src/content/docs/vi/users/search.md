@@ -17,7 +17,7 @@ Trên máy tính, ⌘K hoặc Ctrl+K mở tìm kiếm từ mọi nơi.
 
 ## Tìm kiếm ngoại tuyến
 
-Trên điện thoại, Tìm kiếm cũng hoạt động ngoại tuyến từ bản sao của điện thoại, có nhãn **Trên điện thoại này · từ lần đồng bộ cuối**. Kết quả đến từ bản sao cục bộ, và những gì bạn thay đổi đồng bộ khi bạn kết nối lại internet.
+Trên điện thoại, Tìm kiếm cũng hoạt động ngoại tuyến từ bản sao của điện thoại, có nhãn **Trên điện thoại này, từ lần đồng bộ cuối**. Kết quả đến từ bản sao cục bộ, và những gì bạn thay đổi đồng bộ khi bạn kết nối lại internet.
 
 ## Tìm kiếm ngữ nghĩa
 

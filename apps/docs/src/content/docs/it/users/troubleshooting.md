@@ -64,7 +64,7 @@ Un'acquisizione viene prima salvata sul telefono e inviata quando il telefono si
   sincronizzazione** con un conteggio: lascia Kept sullo schermo per un momento mentre sei online.
 - **Senza nome**, un'acquisizione aspetta in **In arrivo**. **Foto da controllare** nella Home le mostra.
 
-### La ricerca dice "Su questo telefono · all'ultima sincronizzazione"
+### La ricerca dice "Su questo telefono, all'ultima sincronizzazione"
 
 La risposta è arrivata dalla copia del telefono, perché sei offline. Riconnettiti, poi trascina verso il basso per
 aggiornare.

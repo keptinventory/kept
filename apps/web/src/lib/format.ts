@@ -7,31 +7,29 @@ import { useMemo } from 'react';
 import { type DateFormatPref, formatLocale, usePrefs } from './prefs';
 
 /**
- * The separator between the parts of a line ("Warranties · 2", "Samsung TV · Home"). In Arabic it
- * is the Arabic comma, as the designs' own Arabic uses it ("مثقاب بوش، ١٨ فولت"): the kit's
- * "·" beside an Eastern digit reads as the zero "٠" ("· ٢" as ٢٠; UI step-4 review L1). The comma
- * binds to the part before it, so a line never starts with it. `keep`: the part before keeps the
- * separator in the other languages too (a no-break space before the dot).
+ * The separator between the parts of a line ("Warranties, 2", "Samsung TV, Home"): a comma, and in
+ * Arabic the Arabic comma, as the designs' own Arabic uses it ("مثقاب بوش، ١٨ فولت"). Never the
+ * middle dot (#459): the owner's rule, and in Arabic "·" beside an Eastern digit reads as the zero
+ * "٠" ("· ٢" as ٢٠; UI step-4 review L1). The comma binds to the part before it, so a wrapped line
+ * never starts with it.
  */
-export function separatorFor(locale: string, { keep = false }: { keep?: boolean } = {}): string {
-  if (locale.startsWith('ar')) return '، ';
-  return keep ? '\u00a0· ' : ' · ';
+export function separatorFor(locale: string): string {
+  return locale.startsWith('ar') ? '، ' : ', ';
 }
 
 /** The separator in the language being read (Lingui's active locale): for a line built in JSX or
  * a string. A translated message gets it from its catalogue (`localiseSeparators`). */
-export const sep = (options?: { keep?: boolean }): string =>
-  separatorFor(i18n.locale ?? 'en', options);
+export const sep = (): string => separatorFor(i18n.locale ?? 'en');
 
 /**
- * The catalogue's messages with the language's separator (`separatorFor`) in place of " · ", so
- * every translated line follows it without a translator writing it (Lingui's compiled messages:
- * strings, or tokens whose plural and select choices are messages too).
+ * The catalogue's messages with the language's separator (`separatorFor`) in place of the " · "
+ * their source text still writes, in every language, so no translated line shows a middle dot and
+ * no translator writes the separator (Lingui's compiled messages: strings, or tokens whose plural
+ * and select choices are messages too).
  */
 export function localiseSeparators(messages: Messages, locale: string): Messages {
   const to = separatorFor(locale);
-  if (to === ' · ') return messages;
-  const text = (s: string) => s.replace(/[ \u00a0]*·[ \u00a0]*/g, to);
+  const text = (s: string) => s.replace(/[ \u00a0]*\u00b7[ \u00a0]*/g, to);
   const walk = (m: unknown): unknown => {
     if (typeof m === 'string') return text(m);
     if (Array.isArray(m)) return m.map(walk);

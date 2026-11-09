@@ -9,14 +9,14 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 
 ## Inventaire
 
-- **[Lieux, pièces et boîtes](/fr/users/locations/)** : maisons, garages, unités de stockage ; des lieux
-  dans des lieux. Déplacez une boîte et son contenu suit. Un arbre de lieux que vous pouvez déplier ou replier.
+- **[Lieux, pièces et boîtes](/fr/users/locations/)** : maisons, garages, unités de stockage ; des emplacements
+  dans des emplacements. Déplacez une boîte et son contenu suit. Un arbre d'emplacements que vous pouvez déplier ou replier.
 - **[Masquer Personnel](/fr/users/locations/#masquer-personnel)** : retirez votre lieu Personnel du
   menu, de l'accueil, des listes et de la recherche, et réaffichez-le à tout moment.
 - **[La position d’un lieu](/fr/users/locations/#sa-position)** : depuis le téléphone ou
   saisie, pour que la capture propose le lieu où vous êtes.
 - **[Meubles avec compartiments](/fr/users/locations/#mobilier-à-compartiments)** : une étagère cube ou
-  une commode, chaque compartiment est un lieu à part. Tournez-le sur le côté, fusionnez ou scindez
+  une commode, chaque compartiment est un emplacement à part. Tournez-le sur le côté, fusionnez ou scindez
   des compartiments ; leurs étiquettes restent fonctionnelles.
 - **[Objets](/fr/users/things/)** : types, champs personnalisés, quantités, état, une archive et une
   corbeille dont vous restaurez.
@@ -29,19 +29,19 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 - **[La vue tableur](/fr/users/spreadsheet/)** : beaucoup d'objets à la fois, modifiés dans un tableau.
 - **[Recherche](/fr/users/search/)** : un bout de nom, un numéro de série, un texte de reçu ; où se trouve
   chaque résultat.
-- **[Étiquettes](/fr/users/tags/)** : à travers les lieux et les types.
+- **[Étiquettes](/fr/users/tags/)** : à travers les emplacements et les types.
 
 ## Trouver des objets
 
 - **[La carte du lieu](/fr/users/location-map/)** : chaque lieu en 3D, avec les étages, les pièces à leur
   taille réelle (dès 50 cm), les meubles et leurs compartiments, et ce qu'ils contiennent. Part d'un
   plan si vous en avez un.
-- **[Le graphe](/fr/users/graph/)** : les lieux, boîtes et objets d'un lieu, en 2D ou en 3D.
+- **[Le graphe](/fr/users/graph/)** : les emplacements, boîtes et objets d'un lieu, en 2D ou en 3D.
 - **[Identifiants courts et étiquettes](/fr/users/short-ids/)** : un identifiant court et un QR code sur
   chaque boîte ; scannez-en un pour l'ouvrir. Rouleaux pour étiqueteuse ou feuilles de bureau. Module : Étiquettes et QR codes.
 - **[Sessions de scan](/fr/users/scanning-sessions/)** : comptez une étagère, emballez une boîte,
   déplacez un tas, un scan après l'autre.
-- **[Comptages et inventaires](/fr/users/counts/)** : comptez un lieu, voyez ce qui manque, comparez au
+- **[Comptages et inventaires](/fr/users/counts/)** : comptez un emplacement, voyez ce qui manque, comparez au
   dernier comptage.
 
 ## Le foyer
@@ -63,7 +63,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 - **[Rapports d'état](/fr/users/condition-reports/)** : entrée et sortie, pièce par pièce, avec photos.
 - **[Rapports, assurance et sinistres](/fr/users/reports/)** : l'inventaire en PDF, un rapport d'assurance,
   un dossier de sinistre.
-- **[Analyses](/fr/users/insights/)** : dépenses par année et valeur par lieu, chaque devise séparément.
+- **[Analyses](/fr/users/insights/)** : dépenses par année et valeur par emplacement, chaque devise séparément.
   Module : Argent et dépenses.
 
 ## Personnes
@@ -77,7 +77,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   réseau local et un nom Tailscale.
 - **Langues** : allemand, anglais, arabe (de droite à gauche), espagnol, français, italien,
   ukrainien et vietnamien ; tapez pour trouver le vôtre dans le sélecteur, et des dates au style de
-  votre région, ou à votre choix. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
+  votre région, ou à votre choix. Les montants sont lus comme votre langue les écrit. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
 
 ## Sur votre téléphone
 

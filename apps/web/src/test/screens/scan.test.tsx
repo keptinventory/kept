@@ -50,6 +50,6 @@ describe('scan entry points', () => {
     await user.click(screen.getByRole('button', { name: 'Actions' }));
     await user.click(await screen.findByRole('menuitem', { name: 'Box check' }));
     await waitFor(() => expect(pathOf(router)).toBe(`/box-check/${T.cableBox}`));
-    expect(await screen.findByText('Box check · in progress')).toBeInTheDocument();
+    expect(await screen.findByText('Box check, in progress')).toBeInTheDocument();
   });
 });

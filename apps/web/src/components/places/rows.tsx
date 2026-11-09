@@ -147,9 +147,9 @@ export function TypeText({
   return (
     <span data-thing-type="" className="text-small text-ink-2 [overflow-wrap:break-word]">
       <bdi>{name}</bdi>
-      {/* Followed by the path ("Cable · Office › Desk drawer"): the language's separator, kept on
+      {/* Followed by the path ("Cable, Office › Desk drawer"): the language's separator, kept on
           the type's line. */}
-      {before ? <span aria-hidden="true">{sep({ keep: true }).trimEnd()}</span> : null}
+      {before ? <span aria-hidden="true">{sep().trimEnd()}</span> : null}
     </span>
   );
 }

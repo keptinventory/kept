@@ -20,6 +20,7 @@ import {
   type EnglishRegion,
   formatLocale,
   type Locale,
+  markLocaleSent,
   setDateFormat,
   setDigits,
   setLocale,
@@ -76,7 +77,10 @@ export function DisplayPrefs({ signedIn = false }: { signedIn?: boolean }) {
     if (!(await change(next)) || !signedIn) return;
     // This device has its language either way; a failure here only leaves mail as it was.
     void setAccountLocale(next)
-      .then(() => qc.invalidateQueries({ queryKey: keys.me }))
+      .then(() => {
+        markLocaleSent(next);
+        return qc.invalidateQueries({ queryKey: keys.me });
+      })
       .catch(() => undefined);
   };
   // Each format shown as today's date written that way (#362).
