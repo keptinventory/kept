@@ -588,10 +588,9 @@ test('the history report of the Corolla downloads as a PDF in English and in Ara
     await page.getByRole('menuitem', { name: 'History report' }).click();
     const sheet = page.getByRole('dialog', { name: 'History report' });
     await expect(sheet).toBeVisible();
-    await sheet
-      .getByRole('radiogroup', { name: 'Language' })
-      .getByText(language, { exact: true })
-      .click();
+    // A list of every language Kept speaks (#465), not two radio buttons.
+    await sheet.getByRole('combobox', { name: 'Language' }).click();
+    await page.getByRole('option', { name: language }).click();
     await axe(page, `History report sheet (${language})`);
     await sheet.getByRole('button', { name: 'Make the PDF' }).click();
     await expect(sheet.getByText('Your PDF is ready')).toBeVisible({ timeout: 120_000 });
