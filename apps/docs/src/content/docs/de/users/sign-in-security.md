@@ -22,7 +22,9 @@ Google oder deine OIDC-Anmeldung in **Anmeldemethoden** zu trennen fragt auf die
 
 Jede Änderung meldet alle anderen Geräte ab, außer beim Umbenennen eines Passkeys. Kept schreibt dir eine E-Mail, wenn ein Passkey
 hinzugefügt oder entfernt wird, wenn eine externe Anmeldung getrennt wird, wenn Zwei-Faktor eingeschaltet, neu eingerichtet
-oder ausgeschaltet wird, und wenn neue Backup-Codes erstellt werden. Verwaltete Konten (Benutzername, keine E-Mail) erhalten keine E-Mail.
+oder ausgeschaltet wird, und wenn neue Backup-Codes erstellt werden. Auch jede Anmeldung mit einem Backup-Code meldet Kept dir
+per E-Mail, mit Uhrzeit, Gerät, der Zahl der übrigen Codes und was zu tun ist, falls du es nicht warst.
+Verwaltete Konten (Benutzername, keine E-Mail) erhalten keine E-Mail.
 
 ## Passkeys
 

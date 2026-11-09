@@ -61,7 +61,9 @@ export type SecurityEvent =
   | 'unverified-account-link';
 
 /** Better Auth endpoints whose success is a SecurityEvent. A password reset is reported through
- * Better Auth's `onPasswordReset` callback instead (auth.ts): it has no session to read. */
+ * Better Auth's `onPasswordReset` callback instead (auth.ts): it has no session to read. A backup
+ * code used to sign in has its own notice, with the time, the device and the codes left
+ * (`backupCodeUsed`, #419). */
 export const SECURITY_NOTICE_PATHS: ReadonlyMap<string, SecurityEvent> = new Map([
   ['/passkey/verify-registration', 'passkey-added'],
   ['/passkey/delete-passkey', 'passkey-removed'],
@@ -80,6 +82,7 @@ export const EMAIL_OTP_PATHS = ['/two-factor/send-otp', '/two-factor/verify-otp'
 export const PASSKEY_VERIFY_PATH = '/passkey/verify-authentication';
 const PASSKEY_REGISTER_PATH = '/passkey/verify-registration';
 const VERIFY_TOTP_PATH = '/two-factor/verify-totp';
+const VERIFY_BACKUP_CODE_PATH = '/two-factor/verify-backup-code';
 /** Better Auth's sign-in challenge cookie (two-factor plugin's TWO_FACTOR_COOKIE_NAME). */
 const TWO_FACTOR_COOKIE = 'two_factor';
 /** The longest passkey name Kept stores (the rename route allows the same). */
@@ -317,6 +320,12 @@ export type KeptSecurityOptions = {
   getSession: SessionLookup;
   /** Tells the account's owner about a credential change (never awaited by the request). */
   notify?: (user: { id: string; email: string }, event: SecurityEvent) => void;
+  /** #419: tells the account's owner a backup code was accepted, when, and from what user agent
+   * (never awaited by the request, and never given the code). */
+  backupCodeUsed?: (
+    user: { id: string; email: string },
+    used: { at: Date; userAgent: string | null },
+  ) => void;
   /** D197: once mail is delivered (KEPT_SMTP_URL), an account whose address isn't verified may
    * not enrol a passkey or TOTP. An email-bound invite verifies the address when accepted. */
   enrolmentNeedsVerifiedEmail?: boolean;
@@ -727,6 +736,34 @@ export function keptSecurity(opts: KeptSecurityOptions): BetterAuthPlugin {
               ctx.context.newSession ?? (ctx.context.session as SessionLike | null | undefined);
             const user = current?.user as { id: string; email?: string | null } | undefined;
             if (user?.email) opts.notify({ id: user.id, email: user.email }, event);
+          }),
+        },
+        {
+          // #419: a backup code was accepted. Someone reaches for one when the authenticator app
+          // is gone, or because they hold the printed codes; either way the owner hears of it. A
+          // refused code is an APIError and mails nothing. Whose code it was: the new session's
+          // user at sign-in, the pending session's in one, else the user Better Auth answers with
+          // (`disableSession`). Nothing here is awaited: the lookups and the send run in the
+          // background (auth.ts), so they can't delay or fail the sign-in.
+          matcher: (ctx) => ctx.path === VERIFY_BACKUP_CODE_PATH,
+          handler: createAuthMiddleware(async (ctx) => {
+            if (!opts.backupCodeUsed || isAPIError(ctx.context.returned)) return;
+            const existing = ctx.context.session as SessionLike | null | undefined;
+            const answered = (ctx.context.returned as { user?: unknown } | null | undefined)?.user;
+            const user = (ctx.context.newSession?.user ?? existing?.user ?? answered) as
+              | { id?: unknown; email?: unknown }
+              | undefined;
+            if (typeof user?.id !== 'string' || typeof user.email !== 'string' || !user.email) {
+              return;
+            }
+            try {
+              opts.backupCodeUsed(
+                { id: user.id, email: user.email },
+                { at: new Date(), userAgent: ctx.headers?.get('user-agent') ?? null },
+              );
+            } catch {
+              // The sign-in stands whatever the notice does.
+            }
           }),
         },
         {

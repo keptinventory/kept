@@ -137,6 +137,27 @@ Un inserto de cubo o un estante retirado une dos o más compartimentos en uno.
 - **Las apps de IA** pueden hacer lo mismo: `create_place` toma una `template`, y `update_place` un `turn`
   ([clientes MCP](/es/users/mcp-clients/#las-herramientas)). Combinar y dividir se quedan en la app.
 
+## Su posición
+
+La posición de una ubicación permite que **Sugerir dónde estoy** de Capturar la elija cuando estás
+allí ([Kept en tu teléfono](/es/users/phone-app/)).
+
+- **Configurarla:** **Configuración de ubicación → General → Posición**, para propietarios y
+  administradores. **Usar dónde estoy ahora** lee la posición del teléfono una vez (el navegador
+  pregunta antes) y rellena **Latitud** y **Longitud**; o escríbelas en grados, como 30.0444 y
+  31.2357. Luego **Guardar**. **Quitar posición** la borra. Personal no tiene: va contigo a donde
+  vayas.
+- **Con HTTP simple** los navegadores se niegan a dar la posición: escríbela tú.
+- **Abrir en mapas** abre OpenStreetMap en la posición guardada, en una pestaña nueva. Solo entonces
+  la posición sale de Kept.
+- **A qué distancia:** Capturar sugiere una ubicación cuando el teléfono está a 150 m o menos de su
+  posición, la más cercana si hay dos. 150 m abarcan una casa y su jardín más el error habitual de
+  un teléfono en interiores, y aun así distinguen dos calles.
+- **Quién la ve:** propietarios y administradores, en esta página; y los teléfonos de quienes añaden
+  cosas allí, para la sugerencia. Los espectadores y los enlaces compartidos nunca la reciben. El
+  historial dice que la posición cambió, quién la cambió y cuándo, nunca dónde. Una exportación de
+  la ubicación la incluye, e importar esa exportación la recupera.
+
 ## Ocultar Personal
 
 Todos obtienen una ubicación **Personal**. Si no te sirve, activa **Ocultar Personal** en

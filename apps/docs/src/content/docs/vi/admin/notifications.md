@@ -24,7 +24,7 @@ Khi thư đã được cấu hình, một tài khoản có địa chỉ chưa đ
 
 Mỗi thư được gửi dưới dạng văn bản và HTML bằng ngôn ngữ của người nhận (Tiếng Anh khi Kept không biết nó). Các liên kết mang mã thông báo của chúng sau `#`, nên một bộ quét thư hoặc nhật ký máy chủ không bao giờ giữ một cái có thể dùng được.
 
-- **Đăng nhập và tài khoản**: liên kết đăng nhập, đặt lại mật khẩu, xác nhận và xác minh địa chỉ email mới và một ghi chú đến địa chỉ cũ, một ghi chú khi người nào đó cố đăng ký bằng địa chỉ đã có tài khoản, và một thông báo khi thông tin xác thực thay đổi: mật khẩu, khóa truy cập được thêm hoặc xoá, đăng nhập bên ngoài bị hủy liên kết, hai yếu tố được bật, thiết lập lại hoặc tắt, và mã sao lưu mới.
+- **Đăng nhập và tài khoản**: liên kết đăng nhập, đặt lại mật khẩu, xác nhận và xác minh địa chỉ email mới và một ghi chú đến địa chỉ cũ, một ghi chú khi người nào đó cố đăng ký bằng địa chỉ đã có tài khoản, và một thông báo khi thông tin xác thực thay đổi: mật khẩu, khóa truy cập được thêm hoặc xoá, đăng nhập bên ngoài bị hủy liên kết, hai yếu tố được bật, thiết lập lại hoặc tắt, mã sao lưu mới, và một lần đăng nhập bằng mã sao lưu (kèm thời gian, thiết bị và số mã còn lại).
 - **Con người và địa điểm**: lời mời email; đến chủ sở hữu của một địa điểm, mỗi thành viên mới hoặc tài khoản được quản lý và mỗi đăng ký thành viên đến ngày kết thúc.
 - **Trong sáng**: khi quản trị viên phiên (hoặc `kept admin`) tác động vào tài khoản của ai đó; và đến mọi người dùng hoạt động khi đăng nhập OIDC của phiên, thư đi của nó hoặc nhà cung cấp AI mặc định thay đổi.
 - **Lời nhắc**: một đồ vật quá hạn ngay lập tức, bản tóm tắt hàng ngày, một kiểm tra kênh, và một ghi chú khi webhook của chính người đó vẫn thất bại.

@@ -55,8 +55,12 @@ Lo que haces sin conexión entra en una cola y se envía cuando el teléfono vue
 - **Compartir en Kept**: en Android y en Chrome de escritorio, la aplicación instalada aparece en la hoja de compartir, por lo que un recibo o PDF de otra aplicación llega a Capturar. iPhone no permite que las aplicaciones web aparezcan en la hoja Compartir: guarda el archivo y luego usa **Galería** en Capturar.
 - **Escanear** lee las etiquetas de Kept y los códigos de barras de productos, también sin conexión, desde la copia del teléfono, y los códigos Data Matrix, Code 39, Code 93, ITF, Codabar, PDF417 y Aztec; un número de serie o una etiqueta de activo abre su objeto cuando estás en línea. La lista completa:
   [IDs cortos y etiquetas](/es/users/everyday-use/#ids-cortos-y-etiquetas).
-- **Sugerir dónde estoy**, un interruptor en el selector de lugar de Capturar, compara tu posición con las posiciones de tus ubicaciones en el propio teléfono y sugiere la cercana. Tu posición nunca se envía ni se conserva. Una ubicación tiene posición solo si vino con una en una
-  [exportación de Kept](/es/users/import-export/#una-exportación-de-kept): configurarla en la aplicación está por llegar, y hasta entonces una ubicación sin posición nunca se sugiere.
+- **Sugerir dónde estoy**, un interruptor en el selector de lugar de Capturar, compara tu posición
+  con las posiciones de tus ubicaciones en el propio teléfono y sugiere aquella en la que estás: a
+  150 m o menos de su posición, la más cercana si hay dos. Tu posición nunca se envía ni se guarda.
+  Un propietario o administrador configura la posición de una ubicación en **Configuración de
+  ubicación → General → Posición** ([Su posición](/es/users/locations/#su-posición)); una ubicación
+  sin posición nunca se sugiere.
 - **Dictar** rellena el nombre por voz donde el navegador lo admite.
 - **Configuración → Diagnóstico** comprueba la cámara, el soporte sin conexión y el almacenamiento, y copia un informe de lo que encontró.
 

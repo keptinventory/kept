@@ -50,6 +50,7 @@ export * from './sync.js';
 export * from './tags.js';
 export * from './tokens.js';
 export * from './type-fields.js';
+export * from './user-agent.js';
 export * from './vehicles.js';
 export * from './vin.js';
 export * from './webhooks.js';

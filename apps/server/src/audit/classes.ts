@@ -39,6 +39,10 @@ export const FIELD_CLASSES: Readonly<Record<string, FieldClass>> = Object.freeze
   // every member and read token. Only admins see hooks (webhooks.manage), so the log says
   // "changed".
   'webhook.url': 'secret',
+  // #375: where a home is. The location's history is every member's, viewer's and read token's,
+  // but its position is shown to owners and admins only (locations/views.ts): the log says
+  // "changed".
+  'location.position': 'secret',
 });
 
 /** Cache columns (D183): recomputed by triggers, never audited. */
