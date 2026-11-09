@@ -18,7 +18,7 @@ Su un computer, ⌘K o Ctrl+K apre la ricerca da ovunque.
 
 ## Ricerca offline
 
-Su un telefono, la ricerca funziona anche offline dalla copia del telefono, etichettata **Su questo telefono · all'ultimo sync**. I risultati provengono dalla copia locale, e ciò che cambi si sincronizza quando torni online.
+Su un telefono, la ricerca funziona anche offline dalla copia del telefono, etichettata **Su questo telefono, all'ultimo sync**. I risultati provengono dalla copia locale, e ciò che cambi si sincronizza quando torni online.
 
 ## Ricerca semantica
 

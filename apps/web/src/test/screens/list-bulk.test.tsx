@@ -79,7 +79,7 @@ describe('Set a field on a List (#366)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Set' }));
 
     const changes = await screen.findByRole('region', { name: 'Changes' });
-    expect(changes).toHaveTextContent('2 changes · on 2 things');
+    expect(changes).toHaveTextContent('2 changes, on 2 things');
     // Read as sheet rows, by id, to stage them with their versions.
     expect(
       mock.calls.some((c) => c.method === 'GET' && c.path === inventoryPaths.thingsSheet),

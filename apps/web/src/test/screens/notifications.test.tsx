@@ -15,7 +15,7 @@ import { findHeading, renderApp } from '../app';
 
 const H = HOUSEHOLD_IDS;
 const DRILL = '\u2068Bosch drill, 18 V\u2069';
-const BOILER = 'Boiler service · \u2068Kitchen\u2069';
+const BOILER = 'Boiler service, \u2068Kitchen\u2069';
 
 const row = (name: string) => screen.findByRole('article', { name }, { timeout: 3000 });
 const centre = () => screen.findByRole('list', { name: 'Notifications' }, { timeout: 3000 });
@@ -48,7 +48,7 @@ describe('the notification centre', () => {
       BOILER,
       DRILL,
       'Home insurance',
-      'Warranty · \u2068Samsung TV, 55″\u2069',
+      'Warranty, \u2068Samsung TV, 55″\u2069',
       'Louis joined Home',
       'Talia no longer has access to Garage',
       "AI used 80% of this month's cap",

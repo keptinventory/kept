@@ -48,6 +48,7 @@ import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
+import { useChosenAtOpen } from '@/lib/personal-name';
 import { useListState } from '@/lib/url-state';
 
 const placeTemplatesApi = {
@@ -262,6 +263,7 @@ function PlaceTemplateForm({
   const locations = useAllLocations();
   const kinds = usePlaceKinds(accountId);
   const [d, setD] = useState<Draft>(() => draftOf(template));
+  const atOpen = useChosenAtOpen(d.locationIds);
   const [errors, setErrors] = useState<
     Partial<Record<'name' | 'size' | 'names' | 'codes' | 'locations', string>>
   >({});
@@ -269,12 +271,12 @@ function PlaceTemplateForm({
     setD((prev) => ({ ...prev, ...patch }));
     setErrors({});
   };
-  // A hidden Personal only while it's already chosen, so saving can't quietly unshare it.
+  // A hidden Personal only when it was chosen, so saving can't quietly unshare it.
   const shareable = (locations.data ?? []).filter(
     (l) =>
       l.ownerAccountId === accountId &&
       (l.role === 'owner' || l.role === 'admin') &&
-      (!l.hidden || d.locationIds.includes(l.id)),
+      (!l.hidden || d.locationIds.includes(l.id) || atOpen.includes(l.id)),
   );
   const locationItems = shareable.map((l) => ({ id: l.id, name: locationName(l) }));
   const kindItems = (kinds.data?.placeKinds ?? [])

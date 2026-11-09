@@ -62,7 +62,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
   it('lists the warranties longest first, each with its coverage bar', async () => {
     await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    expect(await screen.findByRole('heading', { name: 'Warranties · 2' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Warranties, 2' })).toBeInTheDocument();
     const cards = screen
       .getAllByRole('article')
       .filter((a) => /warranty/i.test(a.textContent ?? ''));
@@ -76,7 +76,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
   it('adds a warranty from the brand default, labelled as such, with the card', async () => {
     const { user, mock } = await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    const heading = await screen.findByRole('heading', { name: 'Warranties · 2' });
+    const heading = await screen.findByRole('heading', { name: 'Warranties, 2' });
     const block = heading.closest('section') as HTMLElement;
     await user.click(within(block).getByRole('button', { name: 'Add' }));
     const dialog = await screen.findByRole('dialog', { name: 'Add a warranty' });
@@ -106,7 +106,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
       'step',
     );
     // "In repair" once as the pill and once as the step, not in the eyebrow too.
-    expect(within(card).getByText('Claim · open')).toBeInTheDocument();
+    expect(within(card).getByText('Claim, open')).toBeInTheDocument();
     expect(within(card).getAllByText('In repair')).toHaveLength(2);
     await user.click(within(card).getByRole('button', { name: 'Update' }));
     const dialog = await screen.findByRole('dialog', { name: 'Update the claim' });
@@ -138,18 +138,18 @@ describe('the Samsung TV (in repair, two warranties)', () => {
 });
 
 describe('the Bosch drill (lent to Murdock, overdue)', () => {
-  it('reads "With Murdock since … · due … · overdue" and marks it returned, with Undo', async () => {
+  it('reads "With Murdock since …, due …, overdue" and marks it returned, with Undo', async () => {
     desktop();
     const { user, mock } = await renderApp(`/t/${T.drill}?tab=loans`);
     await findHeading('Bosch drill, 18 V');
     // The person's name is isolated in the line (UI step-4 review L9).
     const line = screen.getByText(
       (_, el) =>
-        /^With Murdock since .* · due .* · overdue$/.test(el?.textContent ?? '') &&
+        /^With Murdock since .*, due .*, overdue$/.test(el?.textContent ?? '') &&
         ![...(el?.children ?? [])].some((c) => /^With Murdock/.test(c.textContent ?? '')),
     );
     expect(line.querySelector('bdi')).toHaveTextContent(/^Murdock$/);
-    expect(screen.getByRole('tab', { name: 'Loans · 1 open' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Loans, 1 open' })).toHaveAttribute(
       'aria-selected',
       'true',
     );
@@ -303,7 +303,7 @@ describe('variants', () => {
     });
     await renderApp(`/t/${T.tv}?tab=paperwork`, { state: s });
     await findHeading('Samsung TV, 55″');
-    expect(await screen.findByRole('heading', { name: 'Warranties · 2' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Warranties, 2' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
     const { user } = await import('@testing-library/user-event').then((m) => ({
@@ -380,7 +380,7 @@ describe('variants', () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    const heading = await screen.findByRole('heading', { name: 'Warranties · 2' });
+    const heading = await screen.findByRole('heading', { name: 'Warranties, 2' });
     const block = heading.closest('section') as HTMLElement;
     expect(within(block).getByRole('button', { name: 'Add' })).toBeDisabled();
     expect(within(block).getByText('Needs a connection')).toBeInTheDocument();

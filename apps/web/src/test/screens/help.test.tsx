@@ -104,7 +104,7 @@ describe('Help', () => {
     await findHeading('Help');
     await user.click(await screen.findByRole('button', { name: 'Lending' }));
     const first = await screen.findByRole('dialog', { name: 'Loans' });
-    expect(first).toHaveTextContent('Chapter 7 of 12 · step 1 of');
+    expect(first).toHaveTextContent('Chapter 7 of 12, step 1 of');
     expect(pathOf(router)).toBe('/lending');
   }, 60000);
 
@@ -153,7 +153,7 @@ describe('Help', () => {
     expect(screen.getByRole('button', { name: 'Basics' })).toHaveAccessibleDescription('Done');
     await user.click(screen.getByRole('button', { name: 'Continue the tour' }));
     const first = await screen.findByRole('dialog', { name: /^List, Grid, Graph/ });
-    expect(first).toHaveTextContent('Chapter 3 of 12 · step 1 of');
+    expect(first).toHaveTextContent('Chapter 3 of 12, step 1 of');
     expect(pathOf(router)).toMatch(/^\/loc\//);
   }, 60000);
 
@@ -186,7 +186,7 @@ describe('Help', () => {
     ];
     for (const [k, leg] of legs.entries()) {
       const dialog = await screen.findByRole('dialog', { name: leg.name });
-      expect(dialog).toHaveTextContent(`Chapter 1 of 12 · step ${k + 1} of ${legs.length}`);
+      expect(dialog).toHaveTextContent(`Chapter 1 of 12, step ${k + 1} of ${legs.length}`);
       expect(pathOf(router)).toBe(leg.path);
       if (k < legs.length - 1)
         await user.click(within(dialog).getByRole('button', { name: 'Next' }));
@@ -220,7 +220,7 @@ describe('Help', () => {
     await findHeading('Help');
     await user.click(await screen.findByRole('button', { name: 'Lending' }));
     const first = await screen.findByRole('dialog', { name: 'Loans' });
-    expect(first).toHaveTextContent('Chapter 7 of 12 · step 1 of');
+    expect(first).toHaveTextContent('Chapter 7 of 12, step 1 of');
     expect(pathOf(router)).toBe('/lending');
     // Next through the chapter: its last step has Continue in place of Next.
     for (let k = 1; k <= 5; k++) {
@@ -233,7 +233,7 @@ describe('Help', () => {
     expect(dialog).toHaveTextContent('Next: Schedules & reminders');
     await user.click(within(dialog).getByRole('button', { name: 'Continue' }));
     expect(await screen.findByRole('dialog', { name: 'New schedule' })).toHaveTextContent(
-      'Chapter 8 of 12 · step 1 of',
+      'Chapter 8 of 12, step 1 of',
     );
   }, 60000);
 

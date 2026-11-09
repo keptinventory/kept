@@ -95,7 +95,7 @@ test('a room photo: sent from Capture, listed in the Inbox under one Room card, 
   await shutter.click();
   const tray = page.getByRole('list', { name: 'Photos of this room' });
   await expect(tray.getByRole('listitem')).toHaveCount(1);
-  await expect(page.getByText(/^About 1 photo · up to ~[\d,]+ tokens · Groq$/)).toBeVisible();
+  await expect(page.getByText(/^About 1 photo, up to ~[\d,]+ tokens, Groq$/)).toBeVisible();
   await axe(page, 'Capture (Room)');
   await page.getByRole('button', { name: 'Send 1 photo' }).click();
   await expect(page.getByText('1 captured', { exact: true })).toBeVisible();

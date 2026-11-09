@@ -18,7 +18,7 @@
  * With money hidden (the Money module off, or a viewer where viewers don't see money) prices,
  * totals and receipts aren't offered and never sent; the rest still changes, as the server allows.
  */
-import { AmountError, can as canDo, parseAmount } from '@kept/shared';
+import { AmountError, can as canDo, canonicalAmount } from '@kept/shared';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -37,6 +37,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { amountText, readAmount } from '@/lib/amount';
 import { isolate } from '@/lib/bidi';
 import { useThingCtx } from './context';
 import { useRoleLabels } from './labels';
@@ -84,11 +85,12 @@ export function PurchaseSheet({ isOpen, onClose }: { isOpen: boolean; onClose: (
   );
 }
 
-/** An amount as typed, canonical; null when empty; `false` when it isn't one. */
+/** An amount as typed, read by the reader's language (#474), canonical; null when empty; `false`
+ * when it isn't one. */
 function amountOf(raw: string): string | null | false {
   if (!raw.trim()) return null;
   try {
-    return parseAmount(raw);
+    return readAmount(raw);
   } catch (err) {
     if (err instanceof AmountError) return false;
     throw err;
@@ -122,14 +124,14 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
   const [boughtOn, setBoughtOn] = useState<string | null>(p?.purchasedOn ?? today);
   const [vendorId, setVendorId] = useState<string | null>(p?.vendor?.id ?? null);
   const [line, setLine] = useState(p?.lineDescription ?? thing.name ?? '');
-  const [price, setPrice] = useState(p?.unitPrice ?? '');
+  const [price, setPrice] = useState(() => amountText(p?.unitPrice));
   const [currency, setCurrency] = useState<string | null>(p?.currency ?? location.currency);
   // The receipt's total, tax and notes: the purchase's until they are typed (null: untouched).
   const [total, setTotal] = useState<string | null>(null);
   const [tax, setTax] = useState<string | null>(null);
   const [notes, setNotes] = useState<string | null>(null);
-  const totalText = total ?? view?.total ?? '';
-  const taxText = tax ?? view?.tax ?? '';
+  const totalText = total ?? amountText(view?.total);
+  const taxText = tax ?? amountText(view?.tax);
   const notesText = notes ?? view?.notes ?? '';
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
@@ -191,7 +193,7 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
           const changeLine: { description?: string; unitPrice?: string | null } = {};
           if (description !== mine.description) changeLine.description = description;
           // Compared canonically: "28999.00" is the 28999 it was.
-          const was = mine.unitPrice ? amountOf(mine.unitPrice) || mine.unitPrice : null;
+          const was = mine.unitPrice ? canonicalAmount(mine.unitPrice) : null;
           if (showMoney && amount !== was) changeLine.unitPrice = amount;
           if (Object.keys(changeLine).length) {
             // Every line goes back by id: a PATCH drops the lines it leaves out.
@@ -204,7 +206,7 @@ function PurchaseForm({ onClose }: { onClose: () => void }) {
             body.total = amount ? lineTotal(amount, mine.quantity) : null;
         }
         if (showMoney) {
-          const canon = (x: string | undefined) => (x ? amountOf(x) || x : null);
+          const canon = (x: string | undefined) => (x ? canonicalAmount(x) : null);
           if (total !== null && totalIn !== canon(v.total)) body.total = totalIn;
           if (tax !== null && taxIn !== canon(v.tax)) body.tax = taxIn;
           const amounts =

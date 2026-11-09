@@ -90,7 +90,7 @@ describe('a thing’s purchase', () => {
     await user.click(within(section).getByRole('button', { name: 'Edit the purchase' }));
     const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const price = within(sheet).getByLabelText('Price of one');
-    await waitFor(() => expect(price).toHaveValue('28999.00'));
+    await waitFor(() => expect(price).toHaveValue('28999'));
     await user.clear(price);
     await user.type(price, '27500');
     await user.click(within(sheet).getByRole('button', { name: 'Save' }));
@@ -154,6 +154,30 @@ describe('a thing’s purchase', () => {
     await renderApp(`/t/${T.phone}`, { state: viewer() });
     await findHeading('Galaxy S23');
     expect(screen.queryByRole('heading', { name: 'Purchase', level: 2 })).toBeNull();
+  });
+
+  it('reads a German price by German rules: a point groups, and what can’t be told apart is refused (#474)', async () => {
+    const { user, mock } = await renderApp(`/t/${T.tv}`, { locale: 'de' });
+    const section = (
+      await screen.findByRole('heading', { name: 'Kauf', level: 2 }, { timeout: 3000 })
+    ).closest('section') as HTMLElement;
+    await user.click(within(section).getByRole('button', { name: 'Kauf bearbeiten' }));
+    const sheet = await screen.findByRole('dialog', { name: /^Kauf von/ });
+    const price = within(sheet).getByLabelText('Stückpreis');
+    await waitFor(() => expect(price).toHaveValue('28999'));
+    await user.clear(price);
+    await user.type(price, '0.125');
+    await user.click(within(sheet).getByRole('button', { name: 'Speichern' }));
+    expect(
+      await within(sheet).findByText('Gib einen Betrag ein, z. B. 1250 oder 1250.50.'),
+    ).toBeInTheDocument();
+    expect(mock.lastCall('PATCH', TV_PURCHASE)).toBeUndefined();
+    await user.clear(price);
+    await user.type(price, '27.500');
+    await user.click(within(sheet).getByRole('button', { name: 'Speichern' }));
+    await waitFor(() => expect(mock.lastCall('PATCH', TV_PURCHASE)).toBeDefined());
+    const body = mock.lastCall('PATCH', TV_PURCHASE)?.body as UpdatePurchaseBody;
+    expect(body.lines).toEqual([{ id: expect.any(String), unitPrice: '27500' }]);
   });
 
   it('reads right to left in Arabic, with logical CSS only', async () => {
@@ -338,7 +362,7 @@ describe('the purchase editor, from the 1.14.4 review', () => {
     await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
     const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const price = within(sheet).getByLabelText('Price of one');
-    await waitFor(() => expect(price).toHaveValue('28999.00'));
+    await waitFor(() => expect(price).toHaveValue('28999'));
     await user.clear(price);
     await user.type(price, '27500');
     const receipts = await within(sheet).findByRole('group', { name: 'Receipts' });
@@ -364,7 +388,7 @@ describe('the purchase editor, from the 1.14.4 review', () => {
     await user.click(within(await purchase()).getByRole('button', { name: 'Edit the purchase' }));
     const sheet = await screen.findByRole('dialog', { name: TV_SHEET });
     const price = within(sheet).getByLabelText('Price of one');
-    await waitFor(() => expect(price).toHaveValue('28999.00'));
+    await waitFor(() => expect(price).toHaveValue('28999'));
     // Alfred saves the purchase while mine is open.
     const theirs = mock.state.inventory.purchases.find((x) => p.purchase(x.id) === TV_PURCHASE);
     if (!theirs) throw new Error('fixture');

@@ -336,7 +336,13 @@ function Recent({ recent }: { recent: RecentMail[] }) {
                   <Pill tone={o.tone}>{o.label}</Pill>
                 </div>
                 <span className="text-small text-ink-3 break-words">
-                  <bdi>{r.from ?? ''}</bdi> · {fmt.relative(r.at)}
+                  {r.from ? (
+                    <>
+                      <bdi>{r.from}</bdi>
+                      {fmt.sep}
+                    </>
+                  ) : null}
+                  {fmt.relative(r.at)}
                 </span>
               </li>
             );

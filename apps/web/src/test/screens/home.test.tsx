@@ -258,7 +258,7 @@ describe('Home', () => {
     expect(home).toHaveTextContent('12 things need a place');
     await waitFor(() => expect(home).toHaveTextContent(/places/));
     // The mock's Insights: Home holds EGP and USD values, each its own, never converted.
-    expect(home).toHaveTextContent(/EGP\s?122,800\.00 · \$150\.00 value/);
+    expect(home).toHaveTextContent(/EGP\s?122,800\.00, \$150\.00 value/);
     expect(home).toHaveTextContent('1 low');
     expect(home.querySelector('svg circle[data-pin]')).not.toBeNull();
     expect(within(cards).getByRole('link', { name: /Garage/ })).toHaveTextContent(
@@ -347,7 +347,7 @@ describe('Home: Get started', () => {
       'Install on your phone',
       'Done',
     ]);
-    expect(items[4]).toHaveTextContent('Created Home · Added 3 things · Invited someone');
+    expect(items[4]).toHaveTextContent('Created Home, Added 3 things, Invited someone');
     expect(within(started).getByRole('button', { name: /^Get started/ })).toHaveAttribute(
       'aria-expanded',
       'true',
@@ -627,7 +627,7 @@ describe('Home: Needs you', () => {
 });
 
 describe('Home: the household counts', () => {
-  it('overdue · due · expiring · lent out, then borrowed in, with their links', async () => {
+  it('overdue, due, expiring, lent out, then borrowed in, with their links', async () => {
     await renderApp('/');
     const panel = await section('Needs you');
     await waitFor(() => expect(tiles(panel)).toContain('Borrowed in'));

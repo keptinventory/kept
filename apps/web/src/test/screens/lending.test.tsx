@@ -35,7 +35,7 @@ describe('the lending list', () => {
     expect(within(drill).getByText(/Lent to/)).toBeInTheDocument();
     const ladder = screen.getByRole('article', { name: LADDER });
     expect(within(ladder).getByText(/Borrowed from/)).toBeInTheDocument();
-    expect(screen.getByText('1 lent out · 1 borrowed · 1 overdue')).toBeInTheDocument();
+    expect(screen.getByText('1 lent out, 1 borrowed, 1 overdue')).toBeInTheDocument();
   });
 
   it('marks the drill returned in one tap, with Undo', async () => {

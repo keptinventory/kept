@@ -159,8 +159,8 @@ describe('GET /cal/:token.ics', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR\r\n')).toBe(true);
     expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(1);
     const unfolded = ics.replace(/\r\n /g, '');
-    expect(unfolded).toContain('SUMMARY:Expires · Drill');
-    expect(unfolded).toContain('DESCRIPTION:Garage Drill · Home');
+    expect(unfolded).toContain('SUMMARY:Expires\\, Drill');
+    expect(unfolded).toContain('DESCRIPTION:Garage Drill\\, Home');
     expect(unfolded).toContain(`URL:http://localhost:5173/t/${drill}`);
     expect(unfolded).toMatch(
       new RegExp(`UID:thing_expiry-${drill}-date:\\d{4}-\\d{2}-\\d{2}@localhost:5173`),
@@ -226,7 +226,7 @@ describe('GET /cal/:token.ics', () => {
     ]);
     const made = await createFeed(bruce);
     expect((await fetchFeed(made.path)).body.replace(/\r\n /g, '')).toContain(
-      'SUMMARY:انتهاء الصلاحية · Drill',
+      'SUMMARY:انتهاء الصلاحية، Drill',
     );
   });
 

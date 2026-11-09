@@ -106,10 +106,15 @@ chứa tối đa 20 tài khoản như vậy.
 **Cài đặt → Tôi → Hiển thị** chứa các lựa chọn hiển thị của thiết bị, được áp dụng trước khi trang vẽ:
 
 - **Ngôn ngữ**: العربية, Deutsch, English, Español, Français, Italiano, Українська hoặc Tiếng Việt.
-  Mở danh sách, hoặc gõ để tìm: tên của chính nó, tên tiếng Anh hoặc tên trong ngôn ngữ bạn đang dùng, và lỗi đánh máy nhỏ không sao (`german`, `deutsch` và `francais` đều được). Tiếng Ả Rập bố cục toàn bộ ứng dụng từ phải sang trái. Trang đăng nhập có bộ chọn giống hệt. Email và lời nhắc theo ngôn ngữ bạn chọn gần đây nhất.
+  Mở danh sách, hoặc gõ để tìm: tên của chính nó, tên tiếng Anh hoặc tên trong ngôn ngữ bạn đang dùng, và lỗi đánh máy nhỏ không sao (`german`, `deutsch` và `francais` đều được). Tiếng Ả Rập bố cục toàn bộ ứng dụng từ phải sang trái. Trang đăng nhập có bộ chọn giống hệt. Cho đến khi bạn chọn, Kept theo ngôn ngữ của trình duyệt. Email và lời nhắc theo ngôn ngữ bạn chọn gần đây nhất.
 - **Chữ số trong tiếng Ả Rập**: Phương Tây (0123) hoặc Phương Đông (٠١٢٣), chỉ hiện khi ngôn ngữ là Ả Rập.
   ID ngắn và số seri luôn ở chữ số Phương Tây.
 - **Vùng**: **Hoa Kỳ** (Oct 29) hoặc **Vương quốc Anh** (29 Oct, 29/10/2026), chỉ hiện khi ngôn ngữ là Anh.
+  Với tiếng Tây Ban Nha, số và ngày theo vùng của trình duyệt: trình duyệt đặt vùng Mexico viết
+  `1,234,567.5`, còn vùng Tây Ban Nha viết `1.234.567,5`.
+- **Số tiền** được đọc theo cách ngôn ngữ của bạn viết. Ở nơi dấu phẩy là dấu thập phân, như tiếng
+  Việt, `1.234` là một nghìn hai trăm ba mươi tư và `12,50` là mười hai rưỡi. Số tiền có thể đọc theo
+  hai cách, như `0.125`, sẽ bị từ chối thay vì đoán.
 - **Định dạng ngày**: **Mặc định** (29 Oct, có năm chỉ cho năm khác), 29 Oct 2026,
   29/10/2026 hoặc 2026-10-29 (theo cách Vương quốc Anh viết). Mỗi lựa chọn hiển thị hôm nay viết theo cách đó, trong vùng của bạn. Ngày mua và
   bảo hành luôn hiển thị năm.
@@ -124,7 +129,7 @@ chứa tối đa 20 tài khoản như vậy.
 |---|---|
 | Cơ bản | Trang chủ, các địa điểm của bạn, Quét, Tìm kiếm, và nơi mọi thứ khác ở |
 | Đồ vật & vị trí | thêm vào địa điểm, những gì có trong đó, và trang của một đồ vật cùng các thẻ |
-| Đồ thị & bản đồ 3D | công tắc Danh sách · Lưới · Đồ thị · Bảng · Bản đồ (Bảng trên máy tính), đồ thị 2D hoặc 3D, 3D hoặc mặt bằng, ghim, tầng và Sắp xếp, nơi phòng di chuyển cùng những gì bên trong |
+| Đồ thị & bản đồ 3D | công tắc Danh sách, Lưới, Đồ thị, Bảng, Bản đồ (Bảng trên máy tính), đồ thị 2D hoặc 3D, 3D hoặc mặt bằng, ghim, tầng và Sắp xếp, nơi phòng di chuyển cùng những gì bên trong |
 | Chụp & Hộp thư đến | chọn gì để chụp, nút chụp, và xem lại Kept đọc được gì |
 | Quét | một phiên quét: đếm, đóng gói hoặc di chuyển, đâu, và điều Finish thay đổi gì |
 | Tìm kiếm & nhãn | ô tìm kiếm, khung nhìn đã lưu, Chọn (di chuyển, in nhãn, Di chuyển đến Rác), in nhãn và Quét, có thể dán nhãn trống lên vị trí bạn có |
@@ -141,7 +146,7 @@ Chỉ liệt kê các chương bạn có: chương của một mô-đun hiện k
 - Phía trên: bao nhiêu chương đã xong, với một thanh mỏng, và **Xem hướng dẫn**. Khi một số đã xong nó đọc **Tiếp tục hướng dẫn** và tiếp tục ở chương đầu tiên bạn chưa xong.
 - Phía dưới, một hàng ngắn mỗi chương: số thứ tự và các bước. Chạm vào hàng để bắt đầu hướng dẫn tại chương đó. Chương xong gập lại dưới **Xong (N)**; mở để chơi lại.
 - Hướng dẫn bắt đầu từ Trợ giúp. Thanh trên cùng của trang giữ công cụ của trang đó; **Bắt đầu phiên** của phiên quét có **Cho tôi xem** nhỏ cho chương của nó.
-- Cửa sổ bật lên chỉ vị trí bạn đang ở: "Chương 3 của 12 · bước 2 của 5".
+- Cửa sổ bật lên chỉ vị trí bạn đang ở: "Chương 3 của 12, bước 2 của 5".
 - **Tiếp theo** chuyển tiếp, **Quay lại** lùi trong chương, phím mũi tên làm cả hai, và **Esc**
   hoặc **×** đóng lại.
 - Bước cuối của chương gọi tên chương sau: **Tiếp tục** đi thẳng vào nó, **Dừng tại đây**
