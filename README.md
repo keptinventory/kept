@@ -200,11 +200,11 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
 ## What's next
 
 - **Next:** [compartments on the 3D map](https://github.com/keptinventory/kept/issues/238)
-- **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
-  [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
+- **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169),
+  [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197),
   [storage furniture templates](https://github.com/keptinventory/kept/issues/238)
 
-[Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
+[Full roadmap →](https://github.com/orgs/keptinventory/projects/1): 👍 the themes you want most.
 
 ## Links
 
@@ -240,4 +240,4 @@ of everything inside it, served at `/notices.txt`.
   </a>
 </p>
 
-Created by [Ibrahim Roshdy](https://github.com/ibrahimroshdy) · AGPL-3.0
+Created by [Ibrahim Roshdy](https://github.com/ibrahimroshdy), AGPL-3.0

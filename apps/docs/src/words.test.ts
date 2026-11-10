@@ -6,7 +6,7 @@ import { sidebarLabels } from './sidebar-labels.mjs';
 import * as words from './words';
 
 const OTHERS = LANGS.filter((lang) => lang !== 'en' && lang !== 'ar');
-// The characters that were added for the new languages must not include the middle dot.
+// No middle dot in any language (#478): a comma, a colon or separate items instead.
 const MIDDLE_DOT = '·';
 
 function strings(value: unknown): string[] {
@@ -30,13 +30,18 @@ describe('the components’ words', () => {
         const t = (table as Record<string, unknown>)[lang];
         const texts = typeof t === 'function' ? [(t as (c: string) => string)('0')] : strings(t);
         expect(texts.length, lang).toBeGreaterThan(0);
-        for (const text of texts) {
-          expect(text.trim(), lang).not.toBe('');
-          expect(text, lang).not.toContain(MIDDLE_DOT);
-        }
+        for (const text of texts) expect(text.trim(), lang).not.toBe('');
       }
     },
   );
+
+  it.each(tables)('%s has no middle dot in any language', (_name, table) => {
+    for (const lang of LANGS) {
+      const t = (table as Record<string, unknown>)[lang];
+      const texts = typeof t === 'function' ? [(t as (c: string) => string)('0')] : strings(t);
+      for (const text of texts) expect(text, lang).not.toContain(MIDDLE_DOT);
+    }
+  });
 
   it('keeps the hero’s three facts and the integrations link’s number in every language', () => {
     for (const lang of LANGS) {
