@@ -174,8 +174,9 @@ For scripts and Shortcuts: `Authorization: Bearer kpt_<lookup>_<secret>`
   tokens, the assistant, AI settings, secrets, exports, admin, members, invites and webhooks are
   never open to one.
 - Of the account's registries, a token lists, reads and adds brands, vendors and tags, so a script
-  can name a thing's make, shop and tags. Adding a brand needs an owner or admin, a vendor or tag
-  a member, as in the app. Editing, merging and deleting them stay with the app.
+  can name a thing's make, shop and tags. A member adds a brand by name for a thing, a vendor or a
+  tag; adding to the account's brand list needs an owner or admin. Editing, merging and deleting
+  them stay with the app.
 - 120 reads and 30 writes a minute per token, counted in Postgres (`kept.token_rate_hit()`); a
   429 says when to retry.
 - Its writes are audited as actor `token`, and it can undo only its own changes.
