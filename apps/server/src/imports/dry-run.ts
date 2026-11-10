@@ -100,7 +100,13 @@ export type PlannedThing = {
   manualUrl: string | null;
   custom: Record<string, unknown>;
   target: PlannedTarget;
-  purchase: { purchasedOn: string; currency: string; price: string; vendor: Ref | null } | null;
+  /** A one-line purchase: a date, and a price with its currency when the row has one. */
+  purchase: {
+    purchasedOn: string;
+    currency: string | null;
+    price: string | null;
+    vendor: Ref | null;
+  } | null;
   legacyCodes: string[];
   /** Own codes (D208), each checked against the location's format rule. */
   ownCodes: string[];
@@ -887,7 +893,12 @@ export async function planRow(
       );
     }
     const dateOk = !!date && date <= lookups.today;
-    if (price && cur && dateOk) {
+    // A purchase needs a date. Its price is optional (a gift, a bundle's part, a price nobody
+    // kept), as on POST /purchases; but a price cell that doesn't read keeps the whole purchase
+    // as text, since a price was meant. The Homebox preset still needs a price, as the Homebox
+    // archive import does (homebox/plan.ts).
+    const priced = !!price && !!cur;
+    if (dateOk && (priced || (!priceCell && !hb))) {
       let vendor: Ref | null = null;
       if (vendorCell) {
         if (vendorCell.value.length > REGISTRY_NAME_MAX.vendor) {
@@ -901,14 +912,21 @@ export async function planRow(
           );
         } else vendor = refOf(lookups.vendors, vendorCell.value);
       }
-      purchase = { purchasedOn: date, currency: cur, price, vendor };
+      purchase = {
+        purchasedOn: date,
+        currency: priced ? cur : null,
+        price: priced ? price : null,
+        vendor,
+      };
     } else {
-      // A purchase needs a price, a currency and a date: whatever is here stays as text.
-      const [code, why]: [ImportIssueCode, string] = !priceCell
-        ? ['needs_price', 'A purchase needs a price.']
-        : !dateCell
-          ? ['needs_date', 'A price needs a purchase date.']
-          : ['purchase_incomplete', 'The purchase is incomplete; kept as text.'];
+      // No date, or a price that doesn't read (or none, under the Homebox preset): whatever is
+      // here stays as text.
+      const [code, why]: [ImportIssueCode, string] =
+        hb && !priceCell
+          ? ['needs_price', 'A purchase needs a price.']
+          : !dateCell
+            ? ['needs_date', 'A purchase needs a date.']
+            : ['purchase_incomplete', 'The purchase is incomplete; kept as text.'];
       for (const c of [priceCell, dateCell, vendorCell]) {
         if (c && !ctx.text.some((x) => x.column === c.column)) {
           asText(ctx, c.column, c.value, code, why);

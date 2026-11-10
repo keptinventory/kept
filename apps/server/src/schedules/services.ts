@@ -265,6 +265,7 @@ export async function vendorFor(
       tx: ctx.tx,
       client: ctx.client,
       userId: ctx.scope.userId,
+      tokenId: ctx.scope.tokenId ?? null,
       requestId: ctx.requestId,
       jobs: ctx.jobs,
     },
