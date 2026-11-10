@@ -30915,6 +30915,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, one {Стійка 19 дюймів, #U} few {Стійка 19 дюймів, #U} many {Стійка 19 дюймів, #U} other {Стійка 19 дюймів, #U}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "Юніти"
 

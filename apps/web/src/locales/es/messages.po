@@ -28932,6 +28932,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, one {Bastidor de 19 pulgadas, #U} other {Bastidor de 19 pulgadas, #U}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "Unidades"
 
