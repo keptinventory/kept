@@ -1,0 +1,283 @@
+---
+title: تثبيت Kept
+description: اختر كيف تشغّل Kept، باستخدام Docker Compose أو Kubernetes أو من المصدر أو كتطبيق لـ Home Assistant، ثم اتبع خطوات تلك الطريقة، مع تحقّق بعد كل خطوة.
+sidebar:
+  order: 0
+  label: ابدأ هنا
+---
+
+import { Aside, Code, Steps } from '@astrojs/starlight/components';
+import HomeAssistantButton from '../../../../components/HomeAssistantButton.astro';
+import InstallPath from '../../../../components/install/InstallPath.astro';
+import InstallPicker from '../../../../components/install/InstallPicker.astro';
+import Need from '../../../../components/install/Need.astro';
+import See from '../../../../components/install/See.astro';
+import { commands, printed } from '../../../../components/install/commands';
+
+اختر كيف تشغّل Kept، ثم اتبع خطواته. لكل طريقة دليل كامل في هذا القسم، ورابطه في آخر خطواتها.
+
+<InstallPicker>
+<InstallPath id="compose">
+
+<Need>
+‏Docker مع إضافة Compose، وطرفية. جُرِّب على ذاكرة ١ غيغابايت ونواة معالجة واحدة، يستخدم Kept
+وقاعدة بياناته منها نحو ٢٠٠–٤٠٠ ميغابايت ([ما جُرِّب عليه](/ar/install/hardware/)).
+</Need>
+
+<Steps>
+
+1. **نزّل `compose.yaml`** في مجلد خاص به: Kept وقاعدة بياناته في ملف واحد، بلا نسخة من المستودع
+   وبلا كلمات مرور تصنعها بنفسك.
+
+   <Code code={commands.compose.download} lang="sh" />
+
+2. **اكتب ملف `.env`.** يسألك `init` عن العنوان الذي ستفتح Kept عليه، مثل
+   `http://kept.home.arpa:8080`. استخدم اسمًا لا عنوان IP: الملصقات المطبوعة تحمله.
+
+   <Code code={commands.compose.init} lang="sh" />
+
+   <See>
+   <Code code={printed.init} lang="text" />
+   </See>
+
+3. **شغّله.** تبدأ قاعدة البيانات، وتنشئ خدمتان تعملان مرة واحدة حسابات الدخول إليها وتطبّقان
+   الترحيلات، ثم يبدأ Kept على المنفذ `8080`.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   على العنوان، صفحة **أدخل رمز الإعداد** في Kept.
+   </See>
+
+4. **أكمل الإعداد.** أدخل الرمز الذي عرضه `init` وأنشئ الحساب الأول: يصبح مدير النسخة.
+
+5. **احفظ المفاتيح.** اطبع حقيبة الاسترداد واحفظها في مكان غير هذا الخادم، كمدير كلمات مرور. لا
+   تستعيد النسخة الاحتياطية القيم السرية إلا بهذه المفاتيح.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   نص يبدأ بـ `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+<Aside title="Windows">
+في PowerShell، اكتب `curl.exe` حيث تقول الخطوات `curl`، وشغّل `mkdir kept` و`cd kept` كلًّا على
+حدة. أو شغّل كل الخطوات في WSL.
+</Aside>
+
+كل خطوة بالتفصيل، مع Caddy من أجل HTTPS وOllama للذكاء الاصطناعي المحلي:
+[التثبيت باستخدام Docker Compose](/ar/install/compose/).
+
+</InstallPath>
+<InstallPath id="kubernetes">
+
+<Aside type="caution" title="لم يُختبر بعد على عنقود حقيقي">
+يُرسَم المخطط ويُتحقق من صحته في كل فحص، ويُنشر مع الصورة في كل إصدار، لكنه لم يُثبَّت بعد على
+عنقود حقيقي. تعامل مع التثبيت الأول على أنه اختبار.
+</Aside>
+
+<Need>
+عنقود Kubernetes مثل k3s، و`kubectl` و`helm`، وطرفية. يطلب المخطط ٣٨٤ ميبيبايت من الذاكرة لـ Kept
+(وبحد أقصى ١ جيبيبايت) و٢٥٦ ميبيبايت لـ Postgres المرفق به (وبحد أقصى ٥١٢ ميبيبايت).
+</Need>
+
+<Steps>
+
+1. **أنشئ الأسرار.** لا يكتب المخطط أي سر أبدًا: تأخذ حسابات الدخول إلى قاعدة البيانات والمستخدم
+   الأعلى لـ Postgres المرفق كلمات مرورها من أسرار تنشئها أنت أولًا.
+
+   <Code code={commands.kubernetes.secrets} lang="sh" />
+
+2. **ثبّت المخطط**، مع ضبط `publicUrl` على العنوان الذي سيفتحه الناس. لا تضف `--wait` إلى هذا
+   التثبيت الأول: تعمل الترحيلات بعده.
+
+   <Code code={commands.kubernetes.install} lang="sh" />
+
+   <See>
+   السطر الأول من الملاحظات التي يطبعها Helm:
+
+   <Code code={printed.helmInstalled} lang="text" />
+   </See>
+
+3. **اعثر على رمز الإعداد.** يطبعه Kept مرة واحدة، عند أول تشغيل.
+
+   <Code code={commands.kubernetes.setupCode} lang="sh" />
+
+   <See>
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+   افتح العنوان وأدخل الرمز وأنشئ الحساب الأول: يصبح مدير النسخة.
+
+4. **احفظ المفاتيح.** احفظ حقيبة الاسترداد خارج العنقود.
+
+   <Code code={commands.kubernetes.recoveryKit} lang="sh" />
+
+   <See>
+   الملف `kept-recovery-kit.txt`، يبدأ بـ `KEPT RECOVERY KIT`.
+   </See>
+
+5. **تحقّق منه.** يسأل `helm test` نسخة Kept العاملة عن `/readyz` و`/version`.
+
+   <Code code={commands.kubernetes.test} lang="sh" />
+
+</Steps>
+
+على Windows، شغّل هذه الأوامر في WSL. القيم والأسرار الاختيارية وما يشغّله المخطط:
+[تثبيت على كوبيرنيتس باستخدام هيلم](/ar/install/kubernetes/).
+
+</InstallPath>
+<InstallPath id="source">
+
+<Need>
+‏Git، وDocker مع إضافة Compose، وطرفية. يعمل Kept كما مع Docker Compose، على صورتك أنت.
+</Need>
+
+<Steps>
+
+1. **احصل على الشيفرة.**
+
+   <Code code={commands.source.clone} lang="sh" />
+
+2. **ابنِ الصورة** بالوسم `kept:local`.
+
+   <Code code={commands.source.build} lang="sh" />
+
+3. **اكتب ملف `.env`.** وجّه `compose.yaml` إلى صورتك، ثم شغّل `init`. يجد ملف `.env` ويسأل إن
+   كان يحدّثه (أجب بـ `Y`)، ثم يسأل عن العنوان الذي ستفتح Kept عليه.
+
+   <Code code={commands.source.init} lang="sh" />
+
+   <See>
+   <Code code={printed.initUpdated} lang="text" />
+   </See>
+
+4. **شغّله** وافتح العنوان.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   صفحة **أدخل رمز الإعداد** في Kept. أدخل الرمز الذي عرضه `init` وأنشئ الحساب الأول: يصبح مدير
+   النسخة.
+   </See>
+
+5. **احفظ المفاتيح.** اطبع حقيبة الاسترداد واحفظها في مكان غير هذا الخادم.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   نص يبدأ بـ `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+على Windows، شغّل هذه الأوامر في WSL. ملف `compose.yaml` نفسه الذي يأتي مع كل إصدار، مشروحًا
+بالتفصيل: [التثبيت باستخدام Docker Compose](/ar/install/compose/).
+
+</InstallPath>
+<InstallPath id="home-assistant">
+
+<Need>
+‏Home Assistant OS مع المشرف 2026.10.4 أو أحدث: تحتاج التطبيقات إلى المشرف، فلا يصلح Home
+Assistant Container ولا Core. جهاز `aarch64` أو `amd64`، مثل راسبيري باي ٤ أو ٥ على ٦٤ بت أو
+كمبيوتر مصغّر. ٤ غيغابايت من الذاكرة، ويكفي ٢ غيغابايت مع تطبيقات قليلة أخرى. لا حاجة إلى طرفية.
+</Need>
+
+<Steps>
+
+1. **أضف مستودع Kept.** يفتح الزر Home Assistant لديك والمستودع مكتوب فيه. أو اذهب إلى
+   **الإعدادات → التطبيقات → تثبيت تطبيق → ⋮ → المستودعات** وأضف
+   `https://github.com/keptinventory/kept`.
+
+   <HomeAssistantButton />
+
+2. **ثبّت ثم ابدأ.** ابحث عن **Kept** في متجر التطبيقات، ثم **تثبيت**، ثم **ابدأ**.
+
+   <See>
+   في علامة تبويب **السجل** للتطبيق، عنوان Kept الخاص ورمز الإعداد:
+
+   <Code code={printed.homeAssistant} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **افتح واجهة الويب.** يفتح Kept داخل Home Assistant، وفي الشريط الجانبي أيضًا.
+
+   <See>
+   لمسؤول Home Assistant، صفحة **أنشئ الحساب الأول** بلا رمز. أما غيره فيرى **أدخل رمز الإعداد**
+   ويكتب الرمز من علامة تبويب **السجل**.
+   </See>
+
+</Steps>
+
+عنوان Kept وhttps والنسخ الاحتياطية:
+[تثبيت كتطبيق لـ Home Assistant](/ar/install/home-assistant/).
+
+</InstallPath>
+</InstallPicker>
+
+## شيء لا يعمل؟
+
+- **الحاوية تعيد التشغيل مرة بعد مرة.** اقرأ سجلها: `docker compose logs kept`. يفحص Kept
+  إعداداته قبل أن يبدأ، ويتوقف بسطر واحد يسمّي أول مشكلة، مثل
+  `kept: invalid environment: KEPT_PUBLIC_URL` (شغّل `docker compose run --rm init`). وإن توقف
+  `docker compose up -d` عند `bootstrap`، يقول `docker compose logs bootstrap` السبب. ومع ذاكرة
+  أقل من ١ غيغابايت قد تنفد الذاكرة أثناء نسخة احتياطية فيعيد Docker تشغيل Kept
+  ([ما يحتاجه](/ar/install/hardware/)).
+  [المزيد](/ar/admin/troubleshooting/#kept-يخرج-عند-البدء-مع-kept-invalid-environment--أو-سطر-kept-آخر)
+- **المنفذ مستخدَم.** يأخذ Kept المنفذ `8080` على الجهاز. شغّل `docker compose run --rm init` مرة
+  أخرى بعنوان `http://` على منفذ متاح: يكتب العنوان والمنفذ (`KEPT_HTTP_PORT`) في `.env`. ثم
+  `docker compose up -d`. وفي تطبيق Home Assistant، غيّر المنفذ من **التكوين → الشبكة** واضبط
+  **عنوان Kept** ليطابقه.
+  [المزيد](/ar/install/compose/#١-اكتب-ملف-env)
+- **رُفض الإذن.** يعمل Kept بالمستخدم `10001` على نظام ملفات للقراءة فقط، فأي مجلد تربطه به، كمجلد
+  النسخ الاحتياطية، يجب أن يملكه uid ‏`10001`. ويكتب `init` ملف `.env` في المجلد الذي تشغّله منه:
+  شغّله في مجلد تملكه.
+  [المزيد](/ar/admin/troubleshooting/#النسخ-الاحتياطية-لا-تشغّل-أو-تنبيه-backup-stale-يُطلق)
+- **الأجهزة الأخرى لا تفتحه.** لا يُفتح `localhost` إلا على هذا الجهاز. استخدم اسمًا تجده الأجهزة
+  الأخرى، تضبطه في DNS الراوتر أو في ملف hosts على كل جهاز، وشغّل `init` مرة أخرى به. وإن قال
+  Kept «‏Kept هذا مُعدّ للعنوان *العنوان*. افتحه هناك.»، فافتحه على ذلك العنوان تمامًا، أو أضف
+  العنوان الآخر إلى `KEPT_EXTRA_ADDRESSES`
+  ([أكثر من عنوان واحد](/ar/install/home-network/#أكثر-من-عنوان-واحد)).
+  [المزيد](/ar/admin/troubleshooting/#this-kept-is-set-up-for--أو-the-request-did-not-come-from-this-site)
+- **خطأ 502 من الوكيل العكسي.** يتحدث Kept بـ HTTP العادي على المنفذ `8080`: وجّه الوكيل إلى
+  `http://` لا `https://` على ذلك المنفذ ([خلف وكيل عكسي](/ar/install/reverse-proxy/)). ولا يبدأ
+  Kept إلا بعد أن ينتهي `migrate`، وإن فشل يقول `docker compose logs migrate` السبب.
+  [المزيد](/ar/admin/troubleshooting/#kept-لا-يبدأ-بعد-ترقية-و-migrate-خرج-بخطأ)
+
+كل ما عدا ذلك: [استكشاف الأخطاء وإصلاحها](/ar/admin/troubleshooting/).
+
+## أبعد من ذلك
+
+- **‏HTTPS:** تحتاجه الكاميرا وتثبيت التطبيق والإشعارات الفورية والموقع.
+  [وضع Kept على HTTPS](/ar/install/https/)، أو [Kept على شبكة منزلية](/ar/install/home-network/)
+  لما يعمل من دونه.
+- **المساعد:** اسأل بكلمات بسيطة، بمزوّد ذكاء اصطناعي من اختيارك، ويعمل Kept من دونه.
+  [مزوّدو الذكاء الاصطناعي](/ar/users/ai-providers/)، و[اربط عميل ذكاء اصطناعي (MCP)](/ar/users/mcp-clients/).
+- **النسخ الاحتياطي:** كل ليلة ومشفّرًا، إلى مجلد أو S3 أو SFTP.
+  [النسخ الاحتياطي](/ar/admin/backups/).
+- **البريد:** إعادة تعيين كلمات المرور والدعوات والتذكيرات بالبريد، مع `KEPT_SMTP_URL`
+  و`KEPT_SMTP_FROM`. [البريد والإشعارات الفورية وموجز التقويم](/ar/admin/notifications/).
+- **‏Home Assistant:** يجلب التكامل ما حان موعده إلى لوحات المعلومات والأتمتة.
+  [Home Assistant](/ar/users/home-assistant/).
+
+## التحديثات
+
+- **‏Docker Compose:** اضبط `KEPT_IMAGE` في `.env` على الإصدار الجديد، ثم:
+
+  <Code code={commands.compose.update} lang="sh" />
+
+  الإصدار الذي يغيّر `compose.yaml` يقول ذلك في ملاحظاته: نزّل ملفه فوق ملفك.
+- **من المصدر:**
+
+  <Code code={commands.source.update} lang="sh" />
+
+- **‏Kubernetes:** ينشر كل إصدار مخططًا بالإصدار نفسه، وتعمل ترحيلاته في Job قبل أن يبدأ الإصدار
+  الجديد بالخدمة.
+- **‏Home Assistant:** يعرض Home Assistant التحديث. شغّل
+  **احتفظ بنسخة احتياطية من الإصدار الأخير** في مربع حوار التحديث.
+
+مع وجهة نسخ احتياطي مضبوطة، يأخذ Kept لقطة قبل الترحيل.
+[الترقيات والتراجع](/ar/admin/upgrades/).

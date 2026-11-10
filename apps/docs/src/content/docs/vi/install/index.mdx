@@ -1,0 +1,290 @@
+---
+title: Cài đặt Kept
+description: Chọn cách bạn chạy Kept, với Docker Compose, Kubernetes, từ mã nguồn hoặc dưới dạng ứng dụng Home Assistant, rồi làm theo các bước của cách đó, với một bước kiểm tra sau mỗi bước.
+sidebar:
+  order: 0
+  label: Bắt đầu tại đây
+---
+
+import { Aside, Code, Steps } from '@astrojs/starlight/components';
+import HomeAssistantButton from '../../../../components/HomeAssistantButton.astro';
+import InstallPath from '../../../../components/install/InstallPath.astro';
+import InstallPicker from '../../../../components/install/InstallPicker.astro';
+import Need from '../../../../components/install/Need.astro';
+import See from '../../../../components/install/See.astro';
+import { commands, printed } from '../../../../components/install/commands';
+
+Chọn cách bạn chạy Kept, rồi làm theo các bước của nó. Mỗi cách có một hướng dẫn đầy đủ trong mục
+này; liên kết nằm ở cuối các bước.
+
+<InstallPicker>
+<InstallPath id="compose">
+
+<Need>
+Docker với plugin Compose, và một terminal. Đã kiểm tra trên 1 GB RAM và một nhân CPU; Kept và cơ
+sở dữ liệu của nó dùng khoảng 200–400 MB trong đó ([đã kiểm tra gì](/vi/install/hardware/)).
+</Need>
+
+<Steps>
+
+1. **Tải `compose.yaml`** vào một thư mục riêng: Kept và cơ sở dữ liệu của nó trong một tệp, không
+   cần bản sao kho mã và không có mật khẩu nào phải tự tạo.
+
+   <Code code={commands.compose.download} lang="sh" />
+
+2. **Viết `.env`.** `init` hỏi địa chỉ bạn sẽ mở Kept, chẳng hạn `http://kept.home.arpa:8080`.
+   Hãy dùng một tên thay vì địa chỉ IP: nhãn in ra mang địa chỉ đó.
+
+   <Code code={commands.compose.init} lang="sh" />
+
+   <See>
+   <Code code={printed.init} lang="text" />
+   </See>
+
+3. **Khởi động nó.** Cơ sở dữ liệu khởi động, hai dịch vụ chạy một lần tạo các đăng nhập của nó và
+   áp dụng các bản di chuyển dữ liệu, rồi Kept khởi động trên cổng 8080.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   Tại địa chỉ đó, trang **Nhập mã thiết lập** của Kept.
+   </See>
+
+4. **Thiết lập.** Nhập mã mà `init` đã hiển thị và tạo tài khoản đầu tiên: nó trở thành quản trị
+   viên thực thể.
+
+5. **Giữ khóa.** In bộ khôi phục và cất nó ở nơi khác ngoài máy chủ này, chẳng hạn một trình quản
+   lý mật khẩu. Một bản sao lưu chỉ mang lại các giá trị bí mật khi có các khóa này.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   Văn bản bắt đầu bằng `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+<Aside title="Windows">
+Trong PowerShell, gõ `curl.exe` ở chỗ các bước ghi `curl`, và chạy `mkdir kept` và `cd kept` từng
+lệnh một. Hoặc chạy mọi bước trong WSL.
+</Aside>
+
+Từng bước đầy đủ, với Caddy cho HTTPS và Ollama cho AI cục bộ:
+[Cài đặt với Docker Compose](/vi/install/compose/).
+
+</InstallPath>
+<InstallPath id="kubernetes">
+
+<Aside type="caution" title="Chưa được kiểm tra trên cụm thật">
+Chart được render và kiểm tra hợp lệ ở mỗi lần kiểm tra, và mỗi bản phát hành xuất bản nó cùng với
+image, nhưng nó chưa được cài trên một cụm thật. Hãy coi lần cài đầu tiên là một lần thử.
+</Aside>
+
+<Need>
+Một cụm Kubernetes như k3s, `kubectl` và `helm`, và một terminal. Chart yêu cầu 384 MiB bộ nhớ cho
+Kept (tối đa 1 GiB) và 256 MiB cho Postgres đi kèm (tối đa 512 MiB).
+</Need>
+
+<Steps>
+
+1. **Tạo các secret.** Chart không bao giờ ghi một secret: các đăng nhập cơ sở dữ liệu và
+   superuser của Postgres đi kèm lấy mật khẩu từ các secret bạn tạo trước.
+
+   <Code code={commands.kubernetes.secrets} lang="sh" />
+
+2. **Cài chart**, với `publicUrl` là địa chỉ mọi người sẽ mở. Đừng thêm `--wait` vào lần cài đầu
+   tiên này: các bản di chuyển dữ liệu chạy sau đó.
+
+   <Code code={commands.kubernetes.install} lang="sh" />
+
+   <See>
+   Dòng đầu tiên của ghi chú mà Helm in ra:
+
+   <Code code={printed.helmInstalled} lang="text" />
+   </See>
+
+3. **Tìm mã thiết lập.** Kept in nó một lần, khi khởi động lần đầu.
+
+   <Code code={commands.kubernetes.setupCode} lang="sh" />
+
+   <See>
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+   Mở địa chỉ, nhập mã và tạo tài khoản đầu tiên: nó trở thành quản trị viên thực thể.
+
+4. **Giữ khóa.** Lưu bộ khôi phục và cất nó bên ngoài cụm.
+
+   <Code code={commands.kubernetes.recoveryKit} lang="sh" />
+
+   <See>
+   `kept-recovery-kit.txt`, bắt đầu bằng `KEPT RECOVERY KIT`.
+   </See>
+
+5. **Kiểm tra.** `helm test` hỏi Kept đang chạy `/readyz` và `/version`.
+
+   <Code code={commands.kubernetes.test} lang="sh" />
+
+</Steps>
+
+Trên Windows, chạy các lệnh này trong WSL. Các giá trị, các secret tùy chọn và những gì chart chạy:
+[Cài đặt trên Kubernetes với Helm](/vi/install/kubernetes/).
+
+</InstallPath>
+<InstallPath id="source">
+
+<Need>
+Git, Docker với plugin Compose, và một terminal. Kept chạy như với Docker Compose, trên image của
+riêng bạn.
+</Need>
+
+<Steps>
+
+1. **Lấy mã nguồn.**
+
+   <Code code={commands.source.clone} lang="sh" />
+
+2. **Build image**, gắn tag `kept:local`.
+
+   <Code code={commands.source.build} lang="sh" />
+
+3. **Viết `.env`.** Trỏ `compose.yaml` tới image của bạn, rồi chạy `init`. Nó tìm thấy `.env`, hỏi
+   có cập nhật không (trả lời `Y`), rồi hỏi địa chỉ bạn sẽ mở Kept.
+
+   <Code code={commands.source.init} lang="sh" />
+
+   <See>
+   <Code code={printed.initUpdated} lang="text" />
+   </See>
+
+4. **Khởi động nó**, rồi mở địa chỉ.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   Trang **Nhập mã thiết lập** của Kept. Nhập mã mà `init` đã hiển thị và tạo tài khoản đầu tiên:
+   nó trở thành quản trị viên thực thể.
+   </See>
+
+5. **Giữ khóa.** In bộ khôi phục và cất nó ở nơi khác ngoài máy chủ này.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   Văn bản bắt đầu bằng `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+Trên Windows, chạy các lệnh này trong WSL. Cùng `compose.yaml` như một bản phát hành, giải thích
+đầy đủ: [Cài đặt với Docker Compose](/vi/install/compose/).
+
+</InstallPath>
+<InstallPath id="home-assistant">
+
+<Need>
+Home Assistant OS với Supervisor 2026.10.4 hoặc mới hơn: ứng dụng cần Supervisor, nên không phải
+Home Assistant Container hay Core. Một máy `aarch64` hoặc `amd64`, như Raspberry Pi 4 hoặc 5 chạy
+64-bit hoặc một máy tính nhỏ. 4 GB bộ nhớ; 2 GB chạy được với ít ứng dụng khác. Không cần
+terminal.
+</Need>
+
+<Steps>
+
+1. **Thêm kho của Kept.** Nút này mở Home Assistant của bạn với kho đã được điền sẵn. Hoặc vào
+   **Cài đặt → Ứng dụng → Cài đặt ứng dụng → ⋮ → Kho lưu trữ** và thêm
+   `https://github.com/keptinventory/kept`.
+
+   <HomeAssistantButton />
+
+2. **Cài đặt, rồi Bắt đầu.** Tìm **Kept** trong cửa hàng ứng dụng, sau đó **Cài đặt**, sau đó
+   **Bắt đầu**.
+
+   <See>
+   Trên tab **Nhật ký** của ứng dụng, địa chỉ riêng của Kept và mã thiết lập:
+
+   <Code code={printed.homeAssistant} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Mở Web UI.** Kept mở bên trong Home Assistant, cũng trong thanh bên.
+
+   <See>
+   Với quản trị viên Home Assistant, **Tạo tài khoản đầu tiên**, không cần mã. Bất kỳ ai khác thấy
+   **Nhập mã thiết lập** và gõ mã từ tab **Nhật ký**.
+   </See>
+
+</Steps>
+
+Địa chỉ của Kept, https và sao lưu:
+[Cài đặt dưới dạng ứng dụng Home Assistant](/vi/install/home-assistant/).
+
+</InstallPath>
+</InstallPicker>
+
+## Có gì đó không chạy?
+
+- **Container cứ khởi động lại.** Đọc nhật ký của nó: `docker compose logs kept`. Kept kiểm tra
+  cài đặt trước khi khởi động và dừng lại với một dòng nêu vấn đề đầu tiên, như
+  `kept: invalid environment: KEPT_PUBLIC_URL` (chạy `docker compose run --rm init`). Nếu
+  `docker compose up -d` dừng ở `bootstrap`, `docker compose logs bootstrap` cho biết lý do. Với ít
+  hơn 1 GB bộ nhớ, một lần sao lưu có thể hết bộ nhớ và Docker khởi động lại Kept
+  ([cần gì](/vi/install/hardware/)).
+  [Thêm](/vi/admin/troubleshooting/#kept-thoát-khi-khởi-động-với-kept-invalid-environment--hoặc-dòng-kept-khác)
+- **Cổng đã bị dùng.** Kept dùng cổng 8080 trên máy chủ. Chạy lại `docker compose run --rm init`
+  với một địa chỉ `http://` trên một cổng trống: nó ghi địa chỉ và cổng (`KEPT_HTTP_PORT`) vào
+  `.env`. Rồi `docker compose up -d`. Trong ứng dụng Home Assistant, đổi cổng ở
+  **Cấu hình → Mạng** và đặt **Địa chỉ của Kept** cho khớp.
+  [Thêm](/vi/install/compose/#1-viết-env)
+- **Bị từ chối quyền truy cập.** Kept chạy với người dùng 10001 trên một hệ thống tệp chỉ đọc, nên
+  một thư mục bạn gắn vào nó, như thư mục sao lưu, phải thuộc uid 10001. `init` ghi `.env` vào thư
+  mục bạn chạy nó: hãy chạy nó trong một thư mục của bạn.
+  [Thêm](/vi/admin/troubleshooting/#sao-lưu-không-chạy-hoặc-cảnh-báo-sao-lưu-cũ-kích-hoạt)
+- **Thiết bị khác không mở được.** `localhost` chỉ mở được trên chính máy này. Dùng một tên mà các
+  thiết bị khác tìm được, đặt trong DNS của router hoặc tệp hosts của từng thiết bị, rồi chạy lại
+  `init` với tên đó. Nếu Kept báo "Kept này được thiết lập cho *địa chỉ*. Hãy mở nó ở đó.", hãy mở
+  đúng địa chỉ đó, hoặc thêm địa chỉ kia vào `KEPT_EXTRA_ADDRESSES`
+  ([hơn một địa chỉ](/vi/install/home-network/#hơn-một-địa-chỉ)).
+  [Thêm](/vi/admin/troubleshooting/#kept-này-được-thiết-lập-cho--hoặc-yêu-cầu-không-đến-từ-trang-web-này)
+- **Lỗi 502 từ reverse proxy.** Kept dùng HTTP thường trên cổng 8080: trỏ proxy tới `http://`,
+  không phải `https://`, trên cổng đó
+  ([đứng sau một reverse proxy](/vi/install/reverse-proxy/)). Kept chỉ khởi động khi `migrate` đã
+  xong; nếu nó thất bại, `docker compose logs migrate` cho biết lý do.
+  [Thêm](/vi/admin/troubleshooting/#kept-không-khởi-động-sau-nâng-cấp-và-migrate-thoát-với-lỗi)
+
+Mọi thứ khác: [Khắc phục sự cố](/vi/admin/troubleshooting/).
+
+## Đi xa hơn
+
+- **HTTPS:** camera, cài đặt ứng dụng, thông báo đẩy và vị trí cần nó.
+  [Đặt Kept chạy qua HTTPS](/vi/install/https/), hoặc
+  [Kept trên mạng gia đình](/vi/install/home-network/) cho những gì chạy được khi không có nó.
+- **Trợ lý:** hỏi bằng lời thường, với nhà cung cấp AI của riêng bạn; Kept vẫn chạy khi không có.
+  [Nhà cung cấp AI](/vi/users/ai-providers/), và
+  [Kết nối một ứng dụng AI (MCP)](/vi/users/mcp-clients/).
+- **Sao lưu:** hằng đêm và được mã hóa, tới một thư mục, S3 hoặc SFTP. [Sao lưu](/vi/admin/backups/).
+- **Thư:** đặt lại mật khẩu, lời mời và lời nhắc qua thư, với `KEPT_SMTP_URL` và `KEPT_SMTP_FROM`.
+  [Thư, đẩy và feeds lịch](/vi/admin/notifications/).
+- **Home Assistant:** tích hợp đưa những gì đến hạn vào bảng điều khiển và tự động hóa.
+  [Home Assistant](/vi/users/home-assistant/).
+
+## Cập nhật
+
+- **Docker Compose:** đặt bản phát hành mới vào `KEPT_IMAGE` trong `.env`, rồi:
+
+  <Code code={commands.compose.update} lang="sh" />
+
+  Một bản phát hành thay đổi `compose.yaml` sẽ nói trong ghi chú của nó: tải tệp của nó đè lên
+  tệp của bạn.
+- **Từ mã nguồn:**
+
+  <Code code={commands.source.update} lang="sh" />
+
+- **Kubernetes:** mỗi bản phát hành xuất bản một chart cùng phiên bản, và các bản di chuyển dữ
+  liệu của nó chạy trong một Job trước khi phiên bản mới phục vụ.
+- **Home Assistant:** Home Assistant đề xuất bản cập nhật. Bật
+  **Giữ bản sao lưu của phiên bản cuối** trong hộp thoại cập nhật của nó.
+
+Khi đã đặt một đích sao lưu, Kept chụp một bản trước khi di chuyển dữ liệu.
+[Nâng cấp và khôi phục](/vi/admin/upgrades/).

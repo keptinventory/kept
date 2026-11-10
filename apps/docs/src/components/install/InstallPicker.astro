@@ -1,0 +1,226 @@
+---
+/**
+ * The install page's picker (#492): one link per way to run Kept, grouped as paths.ts says, and
+ * the paths themselves (InstallPath.astro) in the slot. One path shows at a time.
+ *
+ * The choice is the address's hash: `/install/#kubernetes` opens Kubernetes, and so does a link
+ * to anything inside that path. Without JavaScript it all still works: each link is a plain
+ * `#path` link, CSS shows the path the hash names (`:target`) or the default one, and the page
+ * without CSS is every path one after the other, each under its own heading. The script adds the
+ * rest: no jump down the page on a click, the address kept in step, and `aria-current` on the
+ * link of the path on show.
+ */
+import { langOf, pick } from '../../i18n';
+import { install } from '../../words';
+import { DEFAULT_PATH, GROUPS, hashOf, INSTALL_PATHS } from './paths';
+
+const t = pick(install, langOf(Astro.locals.starlightRoute.lang));
+const groups = GROUPS.map((group) => ({
+  group,
+  label: t.groups[group],
+  paths: INSTALL_PATHS.filter((path) => path.group === group).map(({ id }) => ({
+    id,
+    ...t.paths[id],
+  })),
+}));
+
+// Without JavaScript, the link of the path the hash opens is marked by CSS alone.
+const hashed = (id: string) => `#${id}:target, [data-install-path="${id}"] :target`;
+const noScript = [
+  '.kd-install:not([data-js]):has([data-install-path]:target, [data-install-path] :target) .kd-chip[aria-current] { --kd-chip-line: var(--line); --kd-chip-bg: var(--surface); }',
+  ...INSTALL_PATHS.map(
+    ({ id }) =>
+      `.kd-install:not([data-js]):has(${hashed(id)}) .kd-chip[data-path="${id}"] { --kd-chip-line: var(--amber); --kd-chip-bg: var(--kd-amber-soft); }`,
+  ),
+].join('\n');
+---
+
+<div class="kd-install" data-install>
+  <nav class="kd-picker not-content" aria-label={t.picker}>
+    {
+      groups.map(({ group, label, paths }) => (
+        <div class="kd-picker-group">
+          <p class="kd-picker-label" id={`kd-install-${group}`}>
+            {label}
+          </p>
+          <ul aria-labelledby={`kd-install-${group}`}>
+            {paths.map(({ id, name, hint }) => (
+              <li>
+                <a
+                  class="kd-chip"
+                  href={hashOf(id)}
+                  data-path={id}
+                  aria-controls={id}
+                  aria-current={id === DEFAULT_PATH ? 'true' : undefined}
+                >
+                  <span class="kd-chip-name">{name}</span>
+                  <span class="kd-chip-hint">{hint}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </nav>
+  <div class="kd-paths">
+    <slot />
+  </div>
+</div>
+
+<Fragment set:html={`<style>${noScript}</style>`} />
+
+<script>
+  import { DEFAULT_PATH, hashOf, isPathId, type PathId, pathFromHash } from './paths';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-install]')) {
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-install-path]')];
+    const chips = [...root.querySelectorAll<HTMLAnchorElement>('.kd-chip[data-path]')];
+    // The path whose section holds the element an id names, for a link into a step.
+    const owner = (id: string) =>
+      document.getElementById(id)?.closest<HTMLElement>('[data-install-path]')?.dataset
+        .installPath;
+
+    const show = (id: PathId) => {
+      for (const panel of panels) panel.hidden = panel.dataset.installPath !== id;
+      for (const chip of chips) {
+        if (chip.dataset.path === id) chip.setAttribute('aria-current', 'true');
+        else chip.removeAttribute('aria-current');
+      }
+    };
+
+    root.dataset.js = '';
+    show(pathFromHash(location.hash, owner) ?? DEFAULT_PATH);
+
+    for (const chip of chips) {
+      chip.addEventListener('click', (event) => {
+        const id = chip.dataset.path ?? '';
+        // A new tab or window keeps the browser's own behaviour.
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+          return;
+        if (!isPathId(id)) return;
+        event.preventDefault();
+        history.replaceState(history.state, '', hashOf(id));
+        show(id);
+      });
+    }
+
+    // A link elsewhere on the page to another path, or the address edited by hand.
+    window.addEventListener('hashchange', () => {
+      const id = pathFromHash(location.hash, owner);
+      if (id) show(id);
+    });
+  }
+</script>
+
+<style is:global>
+  .kd-install {
+    margin-block: 1.5rem 0;
+  }
+  .kd-picker {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .kd-picker-group {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+  .kd-picker-label {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .kd-picker ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .kd-chip {
+    --kd-chip-line: var(--line);
+    --kd-chip-bg: var(--surface);
+    display: grid;
+    align-content: start;
+    gap: 0.125rem;
+    block-size: 100%;
+    min-block-size: 3.25rem;
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--kd-chip-line);
+    border-radius: 10px;
+    background: var(--kd-chip-bg);
+    color: var(--ink);
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .kd-chip[aria-current='true'] {
+    --kd-chip-line: var(--amber);
+    --kd-chip-bg: var(--kd-amber-soft);
+  }
+  .kd-chip:hover {
+    border-color: var(--amber);
+    color: var(--ink);
+  }
+  .kd-chip:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  .kd-chip-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+  }
+  .kd-chip-hint {
+    color: var(--ink-2);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  @media (max-width: 50em) {
+    .kd-picker {
+      padding: 0.75rem;
+    }
+    .kd-picker ul {
+      grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    }
+  }
+
+  /* Commands read left to right. In Arabic a code block otherwise opens scrolled to the end of
+     its longest line, hiding the start of each command; this page is mostly commands, so it
+     sets them left to right here (the other pages' blocks are not changed by this). */
+  :root[dir='rtl'] .sl-markdown-content .expressive-code pre {
+    direction: ltr;
+  }
+
+  /* One path at a time. Without JavaScript: the one the hash names, or else the default. */
+  .kd-path {
+    scroll-margin-block-start: calc(var(--sl-nav-height, 4rem) + 1rem);
+  }
+  .kd-install:not([data-js]) .kd-path:not([data-default]) {
+    display: none;
+  }
+  .kd-install:not([data-js]):has([data-install-path]:target, [data-install-path] :target) .kd-path {
+    display: none;
+  }
+  .kd-install:not([data-js]) .kd-paths > .kd-path[data-install-path]:is(:target, :has(:target)) {
+    display: block;
+  }
+  .kd-install[data-js] .kd-path[hidden] {
+    display: none;
+  }
+  @media print {
+    .kd-picker {
+      display: none;
+    }
+    .kd-install .kd-path {
+      display: block !important;
+    }
+  }
+</style>
