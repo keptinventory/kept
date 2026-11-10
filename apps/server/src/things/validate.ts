@@ -84,6 +84,8 @@ export const CreateBody = z
     manualUrl: Url.optional(),
     expiresOn: IsoDate.optional(),
     expiryLeadDays: z.number().int().min(0).max(3650).optional(),
+    /** Where it came from (a gift, work), as PATCH's `acquiredFrom` sets it. */
+    acquiredFrom: Text(200).optional(),
     custom: Custom.optional(),
     /** Quick add: the template's payload is the base, and the fields sent here win. */
     templateId: z.uuid().optional(),

@@ -179,9 +179,9 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 app, each in its own field rather than in the notes: name, how many, type (by name, in English or
 Arabic, or by id), brand (made if new), model, serial number, barcode, colour, condition, notes,
 other names, tags (a new name makes the tag, for members and up), whose it is (a person, made if new), the manual's link,
-expiry and how many days before to remind, a consumable's minimum, and the type's own fields by
-key. `add_thing` also takes where it goes and the purchase (date, price of one with its currency,
-and the shop); `update_thing` also takes where it came from, and its purchase: the date, the shop,
+expiry and how many days before to remind, a consumable's minimum, where it came from (a gift,
+work) and the type's own fields by key. `add_thing` also takes where it goes and the purchase
+(date, price of one with its currency, and the shop); `update_thing` also takes its purchase: the date, the shop,
 its line on the receipt, the price of one with its currency and the notes, changing the purchase
 it has or recording one, as the thing page does. Gear in a rack takes `rack_units` (its height, 0 beside
 the rails) and `rack_at` (the lowest unit number it takes in the rack's own numbering, as `get_thing` gives it, its face and full depth or not),

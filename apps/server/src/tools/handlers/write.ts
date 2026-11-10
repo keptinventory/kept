@@ -232,6 +232,7 @@ export const addThing: Handler<'add_thing'> = {
           ...(item.manual_url ? { manualUrl: item.manual_url } : {}),
           ...(item.expires_on ? { expiresOn: item.expires_on } : {}),
           ...(item.expiry_lead_days !== undefined ? { expiryLeadDays: item.expiry_lead_days } : {}),
+          ...(item.acquired_from?.trim() ? { acquiredFrom: item.acquired_from.trim() } : {}),
           ...(item.custom ? { custom: item.custom } : {}),
           ...(p
             ? {

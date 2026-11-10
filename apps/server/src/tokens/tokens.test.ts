@@ -355,6 +355,30 @@ describe('tokens', () => {
     expect(events).toEqual([{ actor_type: 'token', actor_id: token.id }]);
   });
 
+  it('says where a thing came from in the create itself, no edit after', async () => {
+    const { secret } = await makeToken(louis, {
+      name: 'Gifts',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    const thing = ok(
+      await bearer(secret, '/api/v1/things', {
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Drill',
+          acquiredFrom: 'A gift from Dad',
+        },
+      }),
+      201,
+    );
+    expect(thing.acquiredFrom).toBe('A gift from Dad');
+    expect(thing.rowVersion).toBe(1);
+    expect(ok(await bearer(secret, `/api/v1/things/${thing.id}`)).acquiredFrom).toBe(
+      'A gift from Dad',
+    );
+  });
+
   it('names a thing’s brand: lists and creates brands, never edits or deletes them', async () => {
     // Creating a brand is an owner's or admin's (registries), so an admin's token can (Bruce
     // admins Home); a member's write token is refused, as its creator would be.

@@ -294,6 +294,34 @@ describe('POST /api/v1/things', () => {
     expect(odd.statusCode).toBe(400);
   });
 
+  it('records where it came from at the create, audited, within the edit’s limits', async () => {
+    const res = await call(t, '/api/v1/things', {
+      as: mo,
+      body: {
+        locationId: home.id,
+        placeId: home.unplacedId,
+        name: 'Work laptop',
+        acquiredFrom: '  Issued by work  ',
+      },
+    });
+    const view = ok(res, 201);
+    expect(view.acquiredFrom).toBe('Issued by work');
+    expect((await thingOf(mo, view.id as string)).acquiredFrom).toBe('Issued by work');
+    const events = await eventsOf(db, home.id, view.id as string);
+    expect(events[0]?.diff.acquired_from).toEqual({
+      before: null,
+      after: 'Issued by work',
+      class: 'plain',
+    });
+    const base = { locationId: home.id, placeId: home.unplacedId, name: 'Gift' };
+    for (const acquiredFrom of ['x'.repeat(201), '', '   ']) {
+      const bad = await call(t, '/api/v1/things', { as: mo, body: { ...base, acquiredFrom } });
+      expect(bad.statusCode, JSON.stringify(acquiredFrom)).toBe(400);
+    }
+    const none = ok(await call(t, '/api/v1/things', { as: mo, body: base }), 201);
+    expect(none.acquiredFrom).toBeNull();
+  });
+
   it("answers 404 for another tenant's location, place, type or tag, and 403 for a viewer", async () => {
     const base = { locationId: home.id, placeId: home.unplacedId, name: 'X' };
     expect((await call(t, '/api/v1/things', { as: bob, body: base })).statusCode).toBe(404);

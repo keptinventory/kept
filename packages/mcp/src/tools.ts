@@ -354,6 +354,7 @@ export const addThingItem = z
         shop: shortText(200).optional(),
       })
       .optional(),
+    acquired_from: z.string().max(200).optional().describe('Where it came from'),
   })
   .extend(z.object(thingFields).partial().shape);
 
