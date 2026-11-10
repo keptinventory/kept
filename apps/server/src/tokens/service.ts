@@ -288,13 +288,18 @@ export type CreateResult =
   | { kind: 'created'; body: CreatedToken }
   | { kind: 'warning'; body: { warning: 'cross_location_write' } };
 
-/** POST /api/v1/tokens. */
-export async function createToken(
-  ctx: Ctx,
+export type TokenCheck =
+  | { kind: 'ok'; locationIds: string[]; expiresAt: Date | null }
+  | { kind: 'warning'; body: { warning: 'cross_location_write' } };
+
+/** New token's checks, as the caller, without making anything: each location's
+ * `tokens.manage-own`, a viewer's token only reads, a future expiry, and D179's warning. Throws
+ * when the caller may not make it. */
+export async function checkNewToken(
+  client: pg.ClientBase,
   body: CreateTokenBody,
-  opts: { key: Buffer; publicUrl: string; names: ClientNames; now?: Date },
-): Promise<CreateResult> {
-  const { tx, client, scope } = ctx;
+  now: Date = new Date(),
+): Promise<TokenCheck> {
   const locationIds = [...new Set(body.locationIds.map((id) => id.toLowerCase()))];
   for (const id of locationIds) {
     const { role } = await requireMembership(client, id);
@@ -304,7 +309,6 @@ export async function createToken(
       throw forbidden('A viewer’s token can only read; choose read access.');
     }
   }
-  const now = opts.now ?? new Date();
   const expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
   if (expiresAt && expiresAt.getTime() <= now.getTime()) {
     throw invalid('Pick an expiry date in the future.');
@@ -317,6 +321,19 @@ export async function createToken(
   ) {
     return { kind: 'warning', body: { warning: 'cross_location_write' } };
   }
+  return { kind: 'ok', locationIds, expiresAt };
+}
+
+/** POST /api/v1/tokens. */
+export async function createToken(
+  ctx: Ctx,
+  body: CreateTokenBody,
+  opts: { key: Buffer; publicUrl: string; names: ClientNames; now?: Date },
+): Promise<CreateResult> {
+  const { tx, client, scope } = ctx;
+  const checked = await checkNewToken(client, body, opts.now);
+  if (checked.kind === 'warning') return checked;
+  const { locationIds, expiresAt } = checked;
 
   const parts = newTokenParts();
   const { rows } = await client.query<DbRow>(

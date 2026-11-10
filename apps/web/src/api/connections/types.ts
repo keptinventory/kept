@@ -104,8 +104,9 @@ export type ApproveLinkBody = Pick<
   'scope' | 'locationIds' | 'confirmCrossLocation'
 >;
 
-/** 201: the token made for Home Assistant, never its secret (Home Assistant collects that). */
-export type ApprovedLink = { token: TokenRow };
+/** 202: approved. Kept makes the token when Home Assistant collects it, so it appears in the list
+ * then; its secret goes only to Home Assistant. */
+export type ApprovedLink = { state: 'approved' };
 export type ApproveLinkResult = ApprovedLink | CrossLocationWarning;
 
 /** `GET /connections/changes?cursor&tokenId`: audit events made by the caller's tokens (D58). */

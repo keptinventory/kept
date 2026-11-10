@@ -106,24 +106,9 @@ describe('Connections', () => {
           available: true,
           items: waiting,
         }));
-        m.on('POST', connectionsPaths.homeAssistantApprove(':id'), ({ body }) => {
+        m.on('POST', connectionsPaths.homeAssistantApprove(':id'), () => {
           waiting = [];
-          const b = body as { scope: 'read' | 'write'; locationIds: string[] };
-          return reply(201, {
-            token: {
-              id: '01926f00-0000-7000-8000-0000000b0002',
-              kind: 'personal',
-              name: 'Home Assistant',
-              scope: b.scope,
-              locations: b.locationIds.map((id) => ({ id, name: 'Home' })),
-              createdAt: new Date().toISOString(),
-              expiresAt: null,
-              lastUsedAt: null,
-              revokedAt: null,
-              revokedReason: null,
-              rowVersion: 1,
-            },
-          });
+          return reply(202, { state: 'approved' });
         });
       },
     });

@@ -8,25 +8,32 @@ import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from 
 // Supervisor's GET /discovery is Core's alone), so a request that carries the link secret came
 // from that Home Assistant. The secret only lets it *ask*: nothing is handed out until a person
 // signed in to Kept approves the request in Settings → Connections, as themselves, with the
-// locations and access they choose. The approval makes an ordinary personal token (the same kind,
-// scope and checks as New token); its secret is never shown to the browser, only held here, in
-// this process's memory, until Home Assistant collects it with the claim key that only the
-// asking request was given. Nothing of a request is stored in the database: a restart forgets
-// every open request, and Home Assistant asks again.
+// locations and access they choose. The approval is held here, in this process's memory, as a way
+// to make the token; Kept makes it (an ordinary personal token, the same kind, scope and checks as
+// New token, acting as that person) only when Home Assistant collects it with the claim key that
+// only the asking request was given, and its secret goes straight into that answer, never to a
+// browser. An approval nobody collects (the request ended, or Kept restarted) therefore leaves no
+// token behind (#489): there is nothing to revoke. Nothing of a request is stored in the
+// database: a restart forgets every open request, and Home Assistant asks again.
 
 /** How long Home Assistant has to get a request approved and collect the token. */
 export const LINK_REQUEST_MS = 10 * 60 * 1000;
-/** After an approval, at least this long to collect the token. */
+/** After an approval, at least this long to collect the token (and so have it made). */
 export const LINK_CLAIM_MS = 2 * 60 * 1000;
 /** Open requests at a time; a new one past this drops the oldest still waiting. */
 export const LINK_REQUESTS_OPEN = 3;
-/** The name of the token an approval makes. */
+/** The name of the token a collected approval makes. */
 export const LINK_TOKEN_NAME = 'Home Assistant';
 
 /** Letters and digits a person can't confuse (no 0/O, 1/I/L, 5/S, 8/B, 2/Z, U/V). */
 const CODE_ALPHABET = 'ACDEFGHJKMNPQRTWXY34679';
 
 export type LinkState = 'pending' | 'approved' | 'declined';
+
+/** Makes the approved token, as the person who approved, and returns its secret; `requestId` is
+ * the collecting request's, for the audit row. It rejects when the person can no longer make it
+ * (an AppError) or the database fails. */
+export type IssueToken = (requestId: string) => Promise<string>;
 
 type LinkRequest = {
   id: string;
@@ -37,8 +44,8 @@ type LinkRequest = {
   createdAt: number;
   expiresAt: number;
   state: LinkState;
-  /** The approved token's secret, until Home Assistant collects it. */
-  secret: string | null;
+  /** How to make the approved token, until Home Assistant collects it: no token exists before. */
+  issue: IssueToken | null;
 };
 
 export type PendingLink = { id: string; code: string; createdAt: string; expiresAt: string };
@@ -46,7 +53,7 @@ export type PendingLink = { id: string; code: string; createdAt: string; expires
 export type ClaimResult =
   | { state: 'pending' }
   | { state: 'declined' }
-  | { state: 'approved'; token: string };
+  | { state: 'approved'; issue: IssueToken };
 
 const sha256 = (value: string) => createHash('sha256').update(value, 'utf8').digest();
 
@@ -95,7 +102,7 @@ export class HomeAssistantLinks {
       createdAt: now,
       expiresAt: now + LINK_REQUEST_MS,
       state: 'pending',
-      secret: null,
+      issue: null,
     };
     this.#requests.set(request.id, request);
     return {
@@ -125,14 +132,15 @@ export class HomeAssistantLinks {
     return this.#requests.get(id)?.state === 'pending';
   }
 
-  /** Hands the approved token's secret to the request; false when it is gone or already decided
-   * (the token is then never collected, and the caller revokes it). */
-  approve(id: string, secret: string): boolean {
+  /** Records a person's approval: `issue` makes the token when Home Assistant collects it. False
+   * when the request is gone or already decided. An approval that expires uncollected, or that a
+   * restart forgets, is simply dropped: nothing was made. */
+  approve(id: string, issue: IssueToken): boolean {
     this.#sweep();
     const r = this.#requests.get(id);
     if (r?.state !== 'pending') return false;
     r.state = 'approved';
-    r.secret = secret;
+    r.issue = issue;
     r.expiresAt = Math.max(r.expiresAt, this.#now() + LINK_CLAIM_MS);
     return true;
   }
@@ -143,19 +151,20 @@ export class HomeAssistantLinks {
     const r = this.#requests.get(id);
     if (r?.state !== 'pending') return false;
     r.state = 'declined';
-    r.secret = null;
+    r.issue = null;
     return true;
   }
 
   /** The request's state for the holder of its claim key, or null (unknown, expired or the wrong
-   * key: the three look the same). An approved token is handed out once, and the request goes. */
+   * key: the three look the same). An approval is handed out once, as the way to make its token,
+   * and the request goes first, so two claims at once can't make two tokens. */
   claim(id: string, claimKey: string): ClaimResult | null {
     this.#sweep();
     const r = this.#requests.get(id);
     if (!r || !timingSafeEqual(sha256(claimKey), r.claimHash)) return null;
     if (r.state === 'pending') return { state: 'pending' };
     this.#requests.delete(id);
-    if (r.state === 'declined' || !r.secret) return { state: 'declined' };
-    return { state: 'approved', token: r.secret };
+    if (r.state === 'declined' || !r.issue) return { state: 'declined' };
+    return { state: 'approved', issue: r.issue };
   }
 }
