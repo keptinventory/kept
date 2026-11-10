@@ -21,7 +21,9 @@ import { type Ctx, type MeterRow, type MeterView, meterView, writableMeter } fro
 //   for review), the replacement offsets (the meter's and each event's), the daily limit, and the
 //   schedules that count on the meter (every N, the lead, the base and a snooze's value) are
 //   converted, rounded to the column's thousandth. Each schedule's anchor follows by the 0175
-//   trigger, so an anchor taken from a service's reading is the converted reading.
+//   trigger, so an anchor taken from a service's reading is the converted reading, and the same
+//   trigger carries a reminder already raised to the converted due point (0176), so it isn't
+//   sent again.
 // - An odometer counts in km or mi; an hours meter or a custom one is relabelled only.
 // - The preview (POST …/unit/preview) answers what a change would do and changes nothing.
 // - One audited event, `meter.unit`, on the meter and its vehicle's history, undoable for 7 days.
