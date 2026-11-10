@@ -5,11 +5,7 @@
  * consumption yet (`whyNone`). Only the derived figure follows the reader's units; a fill's own
  * litres, kWh or gallons are shown as stored (D76).
  */
-import {
-  type ConsumptionWhyNone,
-  displayConsumption,
-  type FuelUnit,
-} from '@kept/shared';
+import { type ConsumptionWhyNone, displayConsumption, type FuelUnit } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { type SVGProps, useMemo } from 'react';
 import { formatLocale, usePrefs } from '@/lib/prefs';
