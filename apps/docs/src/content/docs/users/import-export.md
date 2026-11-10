@@ -50,7 +50,8 @@ label's code, your own code, a row ID (so a re-import skips the row), and your t
 Headers in any of Kept's languages are matched for you. Tags and other names are separated by
 commas, a price is a number without the currency sign, and dates are written one way through the
 whole file. A purchase date makes a purchase, with its shop and its price when the row has them; a
-price or a shop with no date stays in the notes.
+price or a shop with no date stays in the notes. Where Money is off, the date and the shop still
+make the purchase, and the price and the currency stay in the notes.
 
 #### Homebox's spreadsheet
 
@@ -68,7 +69,8 @@ import would drop:
 | `HB.warranty_expires`, `HB.lifetime_warranty` | A warranty from the purchase date, where Warranties is on |
 | `HB.warranty_details`, `HB.insured` | Lines in the notes |
 
-A price of 0 is read as no price (Homebox writes 0 when none was set). The location rows a
+A price of 0 is read as no price (Homebox writes 0 when none was set). Where Money is off, the
+whole purchase stays in the notes, as with the export ZIP. The location rows a
 v0.26 or later spreadsheet lists are left out; places come from each item's location path. A
 spreadsheet can't carry photos, files, maintenance or items inside items, and custom fields
 are only imported if you match them to a type's field. For all of that, use the export ZIP.

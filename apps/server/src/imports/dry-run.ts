@@ -45,7 +45,7 @@ import {
 // A row is
 // - `ok`: every mapped cell lands in its field;
 // - `text`: something couldn't (a date that doesn't read in the chosen format, a type that
-//   doesn't exist, money where the money module is off, …), and is kept in the notes as
+//   doesn't exist, a price where the money module is off, …), and is kept in the notes as
 //   "<column>: <value>", with an issue saying why;
 // - `skipped`: no name, or already imported (its source id is taken, by an earlier run or an
 //   earlier row of the same file).
@@ -846,17 +846,23 @@ export async function planRow(
     }
   }
 
-  // Money: one purchase line per row (D115), when the money module shows.
+  // The purchase: one purchase line per row (D115). Purchases are core (purchases/routes.ts): where
+  // the importer's gate hides money, the date and the shop still make the purchase, as POST
+  // /purchases records them, and the price and its currency stay in the notes. The Homebox preset
+  // keeps the whole purchase as text there, as the Homebox archive import does (homebox/plan.ts).
   let purchase: PlannedThing['purchase'] = null;
   const priceFirst = first('price');
   const pricedAt = priceFirst ? parsePrice(priceFirst.value) : null;
   // Homebox writes 0 for a price that was never set.
-  const priceCell = hb && pricedAt !== null && Number(pricedAt) === 0 ? undefined : priceFirst;
+  const givenPrice = hb && pricedAt !== null && Number(pricedAt) === 0 ? undefined : priceFirst;
   const dateCell = first('purchased_on');
   const vendorCell = first('vendor');
   const currencyCell = first('currency');
   if (!lookups.showMoney) {
-    for (const c of [priceCell, dateCell, vendorCell, currencyCell]) {
+    const money = hb
+      ? [givenPrice, dateCell, vendorCell, currencyCell]
+      : [givenPrice, currencyCell];
+    for (const c of money) {
       if (c) {
         asText(
           ctx,
@@ -867,7 +873,10 @@ export async function planRow(
         );
       }
     }
-  } else if (priceCell || dateCell || vendorCell) {
+  }
+  // With money hidden the price isn't read at all: nothing of it is stored.
+  const priceCell = lookups.showMoney ? givenPrice : undefined;
+  if ((lookups.showMoney || !hb) && (priceCell || dateCell || vendorCell)) {
     const price = priceCell ? parsePrice(priceCell.value) : null;
     const date = dateCell ? parseDate(dateCell.value, run.choices.dateFormat) : null;
     const cur = priceCell ? currency() : null;
