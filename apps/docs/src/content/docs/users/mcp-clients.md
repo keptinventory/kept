@@ -181,7 +181,8 @@ Arabic, or by id), brand (made if new), model, serial number, barcode, colour, c
 other names, tags (a new name makes the tag, for members and up), whose it is (a person, made if new), the manual's link,
 expiry and how many days before to remind, a consumable's minimum, and the type's own fields by
 key. `add_thing` also takes where it goes and the purchase (date, price of one with its currency,
-and the shop); `update_thing` also takes where it came from, and its purchase: the date, the shop,
+and the shop; a price comes with its currency or not at all, so a purchase can be only a date
+and a shop); `update_thing` also takes where it came from, and its purchase: the date, the shop,
 its line on the receipt, the price of one with its currency and the notes, changing the purchase
 it has or recording one, as the thing page does. Gear in a rack takes `rack_units` (its height, 0 beside
 the rails) and `rack_at` (the lowest unit number it takes in the rack's own numbering, as `get_thing` gives it, its face and full depth or not),
