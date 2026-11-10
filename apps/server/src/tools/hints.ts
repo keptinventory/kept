@@ -25,6 +25,7 @@ export const TOOL_FIELDS: Partial<Record<ToolName, Readonly<Record<string, strin
   return_thing: { quantityBack: 'quantity', conditionIn: 'condition', notes: 'note' },
   complete_schedule: { servicedOn: 'done_on', anchorOn: 'done_on', reading: 'value' },
   log_fuel: { cost: 'cost.amount', currency: 'cost.currency' },
+  change_lifecycle: { endedPrice: 'ended_price.amount', endedCurrency: 'ended_price.currency' },
   log_service: {
     total: 'total.amount',
     currency: 'total.currency',
