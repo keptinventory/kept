@@ -1,0 +1,37 @@
+---
+/**
+ * A path's "What you need" on the install page (#492): what to have installed, the memory, and
+ * whether it takes a terminal. The label is the page's language; the text is the page's own.
+ */
+import { langOf, pick } from '../../i18n';
+import { install } from '../../words';
+
+const t = pick(install, langOf(Astro.locals.starlightRoute.lang));
+---
+
+<div class="kd-need">
+  <p class="kd-need-label">{t.need}</p>
+  <slot />
+</div>
+
+<style is:global>
+  .kd-need {
+    margin-block: 1rem 1.5rem;
+    padding-block: 0.75rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  .kd-need > * {
+    margin-block: 0;
+  }
+  .kd-need > * + * {
+    margin-block-start: 0.25rem;
+  }
+  .kd-need-label {
+    color: var(--ink-2);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+</style>
