@@ -34,6 +34,9 @@ export type VehicleView = {
     | 'moreInvoices'
     | 'perDistance'
     | 'per100'
+    | 'mpg'
+    | 'miPerKwh'
+    | 'perHour'
   > & { cover: VehicleWords['cover'] };
   vehicle: {
     name: string;
@@ -142,12 +145,12 @@ export function buildVehicleView(
       case 'kWh/100 km':
         return w.per100(`${v} ${fuelUnit(fuel === 'kWh' ? 'kWh' : 'L')}`, distance('km'));
       case 'mpg':
-        return `${v} ${distance('mi')}/${fuelUnit('gal')}`;
+        return w.mpg(v);
       case 'mi/kWh':
-        return `${v} ${distance('mi')}/${fuelUnit('kWh')}`;
+        return w.miPerKwh(v);
       default:
         return d.unit === `${fuel}/h`
-          ? `${v} ${fuelUnit(fuel)}/${distance('h')}`
+          ? w.perHour(v, fuelUnit(fuel))
           : w.per100(`${v} ${fuelUnit(fuel)}`, distance(meterUnit));
     }
   };

@@ -240,6 +240,9 @@ const vehicle: PdfWords['vehicle'] = {
   moreInvoices: (n) => `+${n}`,
   moneyHidden: 'Costs are left out: they are hidden for you in this location.',
   per100: (fuel, distance) => `${fuel}/100 ${distance}`,
+  mpg: (v) => `${v} mpg`,
+  miPerKwh: (v) => `${v} mi/kWh`,
+  perHour: (v, fuel) => `${v} ${fuel} an hour`,
 };
 
 export const EN: PdfWords = { inventory, readable, insurance, condition, move, vehicle };

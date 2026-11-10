@@ -175,6 +175,38 @@ describe('lending', () => {
     expect(again).toEqual({ taken_back_by: louis.userId, damaged: false });
   });
 
+  it('refuses a taken_back_by name two members go by, and takes their id', async () => {
+    const [before] = await own<{ name: string | null }>(
+      db,
+      'SELECT display_name AS name FROM public.user_profiles WHERE user_id = $1',
+      [talia.userId],
+    );
+    await setDisplayName(db, ibrahim, 'Bruce');
+    await setDisplayName(db, talia, 'Bruce');
+    try {
+      const plane = await createThing(t, ibrahim, home, { name: 'Hand plane' });
+      await data(louis, 'lend_thing', { thing_id: plane.id, person: 'Murdock' });
+      const refused = await tool(louis, 'return_thing', {
+        thing_id: plane.id,
+        taken_back_by: 'Bruce',
+      });
+      expect(refused).toEqual({
+        error: 'validation',
+        hint: 'Check taken_back_by: two members go by that name; use their id.',
+      });
+      await data(louis, 'return_thing', { thing_id: plane.id, taken_back_by: talia.userId });
+      const [loan] = await own<{ taken_back_by: string | null }>(
+        db,
+        'SELECT taken_back_by FROM public.loans WHERE thing_id = $1',
+        [plane.id],
+      );
+      expect(loan?.taken_back_by).toBe(talia.userId);
+    } finally {
+      await setDisplayName(db, ibrahim, 'Ibrahim');
+      await setDisplayName(db, talia, before?.name ?? 'Talia');
+    }
+  });
+
   it('borrows a thing in as the lender’s, in the Unplaced area when no place is named', async () => {
     const d = await data(louis, 'borrow_thing', {
       location_id: home.id,

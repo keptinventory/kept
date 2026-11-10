@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import { join, type Person, peopleApp, person } from '../../test/people.js';
-import { createLocation, createThing, type Loc, place } from '../../test/things.js';
+import { createLocation, createThing, type Loc, own, place } from '../../test/things.js';
 import { runTool } from './context.js';
 import type { ToolContext } from './types.js';
 
@@ -97,20 +97,20 @@ describe('racks through the tools', () => {
     const pc = (await createThing(t, ibrahim, home, { name: 'Mini PC', placeId: rack })) as {
       id: string;
     };
+    // Both tools speak the rack's numbering (#499): U2 from the top is U11 from the bottom.
     await data(louis, 'update_thing', {
       location_id: home.id,
       thing_id: sw.id,
-      fields: { rack_units: 1, rack_at: { u: 11, face: 'front', full: true } },
+      fields: { rack_units: 1, rack_at: { u: 2, face: 'front', full: true } },
     });
     const taken = await tool(louis, 'update_thing', {
       location_id: home.id,
       thing_id: pc.id,
-      fields: { rack_units: 2, rack_at: { u: 10, face: 'front', full: true } },
+      fields: { rack_units: 2, rack_at: { u: 2, face: 'front', full: true } },
     });
     expect(isToolError(taken)).toBe(true);
 
     const got = await data(louis, 'get_thing', { location_id: home.id, thing_id: sw.id });
-    // From the top, the rack's U11 counted from the bottom is its U2.
     expect(got.thing.rack).toEqual({
       place_id: rack,
       units: 1,
@@ -118,5 +118,93 @@ describe('racks through the tools', () => {
       face: 'front',
       full: true,
     });
+    const [stored] = await own<{ u: number }>(
+      db,
+      `SELECT (rack_at->>'u')::float8 AS u FROM public.things WHERE id = $1`,
+      [sw.id],
+    );
+    expect(stored?.u).toBe(11);
+  });
+
+  it('refuses a height outside 0 to 60 with a sentence that says so', async () => {
+    const office = await place(db, home, 'Cupboard');
+    const made = await data(louis, 'create_place', {
+      location_id: home.id,
+      parent_id: office,
+      name: 'Rack 3',
+      template: 'rack_19_wall_6',
+    });
+    const ups = (await createThing(t, ibrahim, home, {
+      name: 'UPS',
+      placeId: made.place.id as string,
+    })) as { id: string };
+    for (const fields of [
+      { rack_units: 61 },
+      { rack_units: -1 },
+      { rack_units: -1, rack_at: { u: 1, face: 'front', full: true } },
+    ]) {
+      const env = await tool(louis, 'update_thing', {
+        location_id: home.id,
+        thing_id: ups.id,
+        fields,
+      });
+      expect(isToolError(env), JSON.stringify(fields)).toBe(true);
+      if (!isToolError(env)) continue;
+      expect(env.error).toBe('validation');
+      expect(env.hint).toMatch(/^Check rack_units: .*0 to 60/);
+    }
+    const at = await tool(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: ups.id,
+      fields: { rack_units: 1, rack_at: { u: 0, face: 'front', full: true } },
+    });
+    expect(isToolError(at) && at.hint).toBe('Check rack_at.u: a unit from 1 to 60.');
+  });
+
+  it('takes back the unit get_thing gave, unchanged, on a rack numbered from the top (#499)', async () => {
+    const office = await place(db, home, 'Server room');
+    const made = await data(louis, 'create_place', {
+      location_id: home.id,
+      parent_id: office,
+      name: 'Rack 2',
+      template: 'rack_19_24',
+      units: 12,
+      numbering: 'top',
+    });
+    const rack = made.place.id as string;
+    const nas = (await createThing(t, ibrahim, home, { name: 'NAS', placeId: rack })) as {
+      id: string;
+    };
+    const shelf = (await createThing(t, ibrahim, home, { name: 'Shelf', placeId: rack })) as {
+      id: string;
+    };
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: nas.id,
+      fields: { rack_units: 2, rack_at: { u: 5, face: 'front', full: true } },
+    });
+    // A half-unit start stays exact: 1U starting halfway down U8.
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: shelf.id,
+      fields: { rack_units: 1, rack_at: { u: 8.5, face: 'rear', full: false } },
+    });
+    for (const [id, u] of [
+      [nas.id, 5],
+      [shelf.id, 8.5],
+    ] as const) {
+      const first = (await data(louis, 'get_thing', { location_id: home.id, thing_id: id })).thing
+        .rack;
+      expect(first.u).toBe(u);
+      const { place_id: _, units: __, ...rackAt } = first;
+      await data(louis, 'update_thing', {
+        location_id: home.id,
+        thing_id: id,
+        fields: { rack_at: rackAt },
+      });
+      const again = (await data(louis, 'get_thing', { location_id: home.id, thing_id: id })).thing
+        .rack;
+      expect(again).toEqual(first);
+    }
   });
 });

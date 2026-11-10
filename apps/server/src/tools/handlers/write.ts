@@ -6,6 +6,10 @@ import {
   type ModuleId,
   normalize,
   parseAmount,
+  RACK_LIMITS,
+  type RackPosition,
+  startFromShown,
+  unitsOf,
 } from '@kept/shared';
 import { undoableEventIds } from '../../audit/audited.js';
 import { undoableUntil } from '../../audit/undo.js';
@@ -20,9 +24,10 @@ import { lineRows, type PatchBody } from '../../purchases/view.js';
 import { todayIn } from '../../schedules/service.js';
 import { vendorFor } from '../../schedules/services.js';
 import { createFromTemplate, FromTemplateBody } from '../../templates/place-templates.js';
+import { thingRackOf } from '../../templates/rack-view.js';
 import { moveThings } from '../../things/move.js';
 import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
-import type { UpdateBody } from '../../things/validate.js';
+import { RackPositionBody, RackUnitsBody, type UpdateBody } from '../../things/validate.js';
 import { viewOf } from '../../things/view.js';
 import { placePath, placeRefOf, thingPath, thingRefOf } from '../output.js';
 import {
@@ -293,6 +298,34 @@ function aliasesByLanguage(locale: string, aliases: readonly string[]): Record<s
   return out;
 }
 
+/**
+ * `rack_at` as stored, from the rack's own numbering the tools speak (#499): get_thing's `rack.u`
+ * sent back leaves the gear where it is. The height is the one this update gives, else the
+ * thing's own. Not in a rack: as given, for the route's own refusal.
+ */
+async function rackAtStored(
+  op: Op,
+  id: string,
+  at: RackPosition,
+  rackUnits: number | null | undefined,
+): Promise<RackPosition> {
+  const { rows } = await op.client.query<{
+    place_id: string | null;
+    container_id: string | null;
+    rack_at: unknown;
+    units: number | null;
+  }>(
+    `SELECT place_id, container_id, rack_at, rack_units::float8 AS units
+       FROM public.things WHERE id = $1`,
+    [id],
+  );
+  const thing = rows[0];
+  const rack = thing ? await thingRackOf(op.client, thing) : null;
+  if (!rack) return at;
+  const units = unitsOf({ units: rackUnits !== undefined ? rackUnits : (thing?.units ?? null) });
+  return { ...at, u: startFromShown(rack, at.u, units) };
+}
+
 export const updateThingTool: Handler<'update_thing'> = {
   action: 'things.edit',
   subjectLocation: (client, input) => locationOfRef(client, input.thing_id),
@@ -316,8 +349,23 @@ export const updateThingTool: Handler<'update_thing'> = {
     if (f.provenance_notes !== undefined) body.provenanceNotes = f.provenance_notes;
     if (f.custom !== undefined) body.custom = f.custom;
     // #373: gear in a rack, checked as the app's position sheet is.
-    if (f.rack_units !== undefined) body.rackUnits = f.rack_units;
-    if (f.rack_at !== undefined) body.rackAt = f.rack_at;
+    // The tool's schema leaves the ranges out (the assistant's tools have a size budget): the
+    // route's own schemas check them here, so a height past them is a sentence, not the
+    // database's refusal.
+    if (f.rack_units !== undefined) {
+      if (f.rack_units !== null && !RackUnitsBody.safeParse(f.rack_units).success) {
+        throw invalid(
+          `Check body.rackUnits: a height of 0 to ${RACK_LIMITS.gear} units, like 1, 1.5 or 2.`,
+        );
+      }
+      body.rackUnits = f.rack_units;
+    }
+    if (f.rack_at && !RackPositionBody.safeParse(f.rack_at).success) {
+      throw invalid(`Check body.rackAt.u: a unit from 1 to ${RACK_LIMITS.units}.`);
+    }
+    if (f.rack_at !== undefined) {
+      body.rackAt = f.rack_at === null ? null : await rackAtStored(op, id, f.rack_at, f.rack_units);
+    }
     if (f.type_id !== undefined) body.typeId = f.type_id;
     else if (f.type !== undefined) {
       const typeId = f.type === null ? null : await typeNamed(op.client, loc.id, f.type);

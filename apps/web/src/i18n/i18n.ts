@@ -9,6 +9,7 @@ import {
   formatLocale,
   initialLocale,
   type Locale,
+  settleStoredLocale,
   showLocale,
   storedDigits,
 } from '@/lib/prefs';
@@ -43,6 +44,7 @@ export async function activateLocale(locale: Locale, digits: Digits = 'eastern')
  * isn't cached (sw.ts): English, then no catalogue, so the shell still renders.
  */
 export async function startLocale(): Promise<Locale> {
+  settleStoredLocale();
   const locale = initialLocale();
   await activateLocale(locale, storedDigits()).catch(() =>
     activateLocale('en').catch(() => i18n.loadAndActivate({ locale: 'en', messages: {} })),

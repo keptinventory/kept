@@ -22,7 +22,7 @@ const region = () => screen.getByRole('region', { name: 'Notifications' });
 const said = (sentence: string) => (content: string) => plainText(content) === sentence;
 
 /** A 12U wall rack in the office: a switch at U11, a mini PC in it but not placed yet. */
-function withRack() {
+function withRack(numbering: 'bottom' | 'top' = 'bottom') {
   const state = ownerScenario();
   const office = state.inventory.places.find((x) => x.id === INV_IDS.place.office) as StoredPlace;
   state.inventory.places.push({
@@ -42,7 +42,7 @@ function withRack() {
     deletedAt: null,
     trashBatchId: null,
     deletedBy: null,
-    rackLayout: { kind: 'rack', units: 12, width: 19, numbering: 'bottom', mount: 'wall' },
+    rackLayout: { kind: 'rack', units: 12, width: 19, numbering, mount: 'wall' },
   });
   const base = state.inventory.things.find((x) => x.id === INV_IDS.thing.tv) as StoredThing;
   const gear = (over: Partial<StoredThing>): StoredThing => ({
@@ -172,6 +172,26 @@ describe('a rack', () => {
     ).toBeVisible();
   });
 
+  it('names gear the page has not seen in the server’s refusal', async () => {
+    const state = withRack();
+    const { user, mock } = await renderApp(`/p/${RACK}`, { state, digits: 'western' });
+    await findHeading('Wall rack');
+    await user.click(await screen.findByRole('button', { name: 'Place it' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    // Someone else moves a NAS into the rack, at U1, before this sheet saves.
+    const sw = mock.state.inventory.things.find((x) => x.id === SWITCH) as StoredThing;
+    mock.state.inventory.things.push({
+      ...sw,
+      id: '01970000-0000-7000-8000-00000000a103',
+      name: 'NAS',
+      rackAt: { rackId: RACK, u: 1, face: 'front', full: true },
+    });
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(
+      await within(sheet).findByText((t) => plainText(t) === 'U1 is taken by NAS at the front.'),
+    ).toBeVisible();
+  });
+
   it('says on the thing page where a piece sits', async () => {
     await renderApp(`/t/${SWITCH}`, { state: withRack(), digits: 'western' });
     await findHeading('Switch');
@@ -179,5 +199,77 @@ describe('a rack', () => {
     expect(screen.getByText('U11')).toBeVisible();
     expect(screen.getByText('Full depth')).toBeVisible();
     expect(screen.getAllByRole('link', { name: 'Wall rack' }).length).toBeGreaterThan(0);
+  });
+});
+
+describe('a rack numbered from the top', () => {
+  /** The top-numbered wall rack with the mini PC placed at `u` (counted from the bottom). */
+  function placed(units: number, u: number) {
+    const state = withRack('top');
+    const pc = state.inventory.things.find((x) => x.id === MINI_PC) as StoredThing;
+    pc.rackUnits = units;
+    pc.rackAt = { rackId: RACK, u, face: 'front', full: true };
+    return state;
+  }
+
+  async function saveUnchanged(units: number, u: number) {
+    const { user, mock } = await renderApp(`/p/${RACK}`, {
+      state: placed(units, u),
+      digits: 'western',
+    });
+    await findHeading('Wall rack');
+    const row = within(screen.getByRole('list', { name: 'Rack' }))
+      .getAllByRole('listitem')
+      .find((li) => li.textContent?.includes('Mini PC')) as HTMLElement;
+    await user.click(within(row).getByRole('button', { name: 'Change' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    expect(within(sheet).getByRole('textbox', { name: 'Starts at' })).toHaveValue('11');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(await within(region()).findByText(said('Placed Mini PC'))).toBeVisible();
+    return mock.lastCall('PATCH', p.thing(MINI_PC))?.body as { rackAt: { u: number } };
+  }
+
+  it('saving a 1.5U piece at U1 unchanged keeps it at U1', async () => {
+    expect((await saveUnchanged(1.5, 1)).rackAt.u).toBe(1);
+  });
+
+  it('saving a 1U piece at 1.5 unchanged keeps it at 1.5', async () => {
+    expect((await saveUnchanged(1, 1.5)).rackAt.u).toBe(1.5);
+  });
+
+  it('names a taken unit as the rails print it', async () => {
+    const { user } = await renderApp(`/p/${RACK}`, { state: withRack('top'), digits: 'western' });
+    await findHeading('Wall rack');
+    await user.click(await screen.findByRole('button', { name: 'Place it' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    const start = within(sheet).getByRole('textbox', { name: 'Starts at' });
+    // The switch is at unit 11 from the bottom: U2 from the top.
+    await user.clear(start);
+    await user.type(start, '2');
+    expect(
+      within(sheet).getByText((t) => plainText(t) === 'U2 is taken by Switch at the front.'),
+    ).toBeVisible();
+  });
+
+  it('a new top unit keeps the piece’s half-unit offset', async () => {
+    const { user, mock } = await renderApp(`/p/${RACK}`, {
+      state: placed(1.5, 1),
+      digits: 'western',
+    });
+    await findHeading('Wall rack');
+    const row = within(screen.getByRole('list', { name: 'Rack' }))
+      .getAllByRole('listitem')
+      .find((li) => li.textContent?.includes('Mini PC')) as HTMLElement;
+    await user.click(within(row).getByRole('button', { name: 'Change' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    const start = within(sheet).getByRole('textbox', { name: 'Starts at' });
+    // U7 from the top is unit 6 from the bottom: the piece covers 5 to 6.5.
+    await user.clear(start);
+    await user.type(start, '7');
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(await within(region()).findByText(said('Placed Mini PC'))).toBeVisible();
+    expect(mock.lastCall('PATCH', p.thing(MINI_PC))?.body).toMatchObject({
+      rackAt: { u: 5 },
+    });
   });
 });

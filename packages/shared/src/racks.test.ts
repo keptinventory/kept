@@ -9,7 +9,9 @@ import {
   parseRackPosition,
   rackProblem,
   shownRange,
+  shownStart,
   shownUnit,
+  startFromShown,
 } from './racks.js';
 
 const rack12 = { units: 12, numbering: 'bottom' as const };
@@ -124,6 +126,28 @@ describe('numbering', () => {
     expect(shownRange(rack12, 12.5, 1)).toEqual({ from: 12.5, to: 13 });
     expect(shownRange({ units: 12, numbering: 'top' }, 11, 2)).toEqual({ from: 1, to: 2 });
     expect(shownRange({ units: 12, numbering: 'top' }, 1, 1)).toEqual({ from: 12, to: 12 });
+  });
+
+  it('gives a position as the rack numbers it, half units exact, and takes it back (#499)', () => {
+    const top = { units: 12, numbering: 'top' as const };
+    expect(shownStart(rack12, 11, 2)).toBe(11);
+    expect(shownStart(rack12, 3.5, 1)).toBe(3.5);
+    expect(shownStart(top, 11, 2)).toBe(1);
+    expect(shownStart(top, 1, 1)).toBe(12);
+    // 1U from 3.5 (the upper half of U3 and the lower half of U4 from the bottom) starts halfway
+    // down U9 from the top.
+    expect(shownStart(top, 3.5, 1)).toBe(9.5);
+    for (const rack of [rack12, top]) {
+      for (const [u, units] of [
+        [1, 1],
+        [3.5, 1],
+        [5, 2],
+        [7.5, 0.5],
+        [10, 3],
+      ] as const) {
+        expect(startFromShown(rack, shownStart(rack, u, units), units)).toBe(u);
+      }
+    }
   });
 });
 

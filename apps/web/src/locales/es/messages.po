@@ -12086,7 +12086,7 @@ msgstr "Impresora de etiquetas · una etiqueta por objeto"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{width} mm tape"
-msgstr "{width} mm cinta"
+msgstr "Cinta de {width} mm"
 
 #: src/components/labels/stock-picker.tsx
 msgid "Label maker · QR code, short ID and name"
@@ -28932,6 +28932,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, one {Bastidor de 19 pulgadas, #U} other {Bastidor de 19 pulgadas, #U}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "Unidades"
 
@@ -29278,7 +29279,7 @@ msgstr "{a} × {b} in"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{width} in tape"
-msgstr "{width} in cinta"
+msgstr "Cinta de {width} in"
 
 #: src/components/inbox/reading-review.tsx
 msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."

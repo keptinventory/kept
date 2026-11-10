@@ -4,7 +4,7 @@ import {
   type DerivedState,
   LIFECYCLES,
   type Lifecycle,
-  shownRange,
+  shownStart,
 } from '@kept/shared';
 import { z } from 'zod';
 import { listAttachments } from '../../files/attachments.js';
@@ -392,13 +392,13 @@ export const getThing: Handler<'get_thing'> = {
                 },
               }
             : {}),
-          // #373: gear in a rack, in the rack's numbering.
+          // #373: gear in a rack, in the rack's numbering, as update_thing's rack_at takes it (#499).
           ...(v.rack
             ? {
                 rack: {
                   place_id: v.rack.id,
                   units: v.rackUnits,
-                  u: v.rack.at ? shownRange(v.rack, v.rack.at.u, v.rackUnits ?? 1).from : null,
+                  u: v.rack.at ? shownStart(v.rack, v.rack.at.u, v.rackUnits ?? 1) : null,
                   face: v.rack.at?.face ?? null,
                   full: v.rack.at?.full ?? null,
                 },

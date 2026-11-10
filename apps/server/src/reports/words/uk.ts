@@ -250,7 +250,7 @@ const vehicle: PdfWords['vehicle'] = {
   },
   docStates: { current: 'Чинний', expired: 'Прострочено', renewed: 'Поновлено' },
   units: { L: 'л', kWh: 'кВт-год', gal: 'гал' },
-  distance: { km: 'км', h: 'год' },
+  distance: { km: 'км', mi: 'миль', h: 'год' },
   generated: (who, when) => `Створено: ${who}, ${when}`,
   asOf: (day) => `Станом на ${day}`,
   range: (from, to) => `З ${from} по ${to}`,
@@ -258,6 +258,9 @@ const vehicle: PdfWords['vehicle'] = {
   moreInvoices: (n) => `+${n}`,
   moneyHidden: 'Витрати не додано: у цій локації їх від вас приховано.',
   per100: (fuel, distance) => `${fuel}/100 ${distance}`,
+  mpg: (v) => `${v} миль на галон`,
+  miPerKwh: (v) => `${v} миль/кВт-год`,
+  perHour: (v, fuel) => `${v} ${fuel} на годину`,
 };
 
 export const UK: PdfWords = {

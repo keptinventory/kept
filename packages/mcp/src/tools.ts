@@ -374,7 +374,7 @@ const updateFields = z
     rack_at: z
       .object({ u: z.number(), face: z.enum(RACK_FACES), full: z.boolean() })
       .nullable()
-      .describe('u: lowest unit from the bottom'),
+      .describe('u: lowest unit, as the rack numbers them'),
     // #348, #215: the purchase as the thing page edits it; changes it or records one.
     // Plain strings in the schema the model reads (the service checks the date, the amount and
     // the currency, as the purchase routes do): the assistant's tools have a size budget.
