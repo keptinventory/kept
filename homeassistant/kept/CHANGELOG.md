@@ -3,6 +3,13 @@
 The app's version is Kept's. Newest first; Kept's full notes:
 <https://github.com/keptinventory/kept/blob/main/CHANGELOG.md>.
 
+## 1.14.7
+
+- Home Assistant in one click. Home Assistant finds Kept and asks; someone in Kept allows it with a code. No token to copy (#376).
+- Racks in rack units. 19-inch and 10-inch racks, seen from the front or the rear, with gear placed at its unit (#373).
+- Metric or imperial. Choose once in Settings: map and furniture sizes, label sizes and fuel use follow it. Odometers count in km or mi, and Change unit relabels or converts the readings, with Undo (#385).
+- PDFs in your language. Reports, condition, vehicle and contents sheets, the readable copy and insurance claim packs, in each reader's language (#465). Claim pack wording reads differently from insurer to insurer: corrections are welcome in an issue.
+
 ## 1.14.6
 
 - Kept in Spanish. The app, emails, reminders and the docs (#460).

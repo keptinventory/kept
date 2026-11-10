@@ -30,9 +30,9 @@ KEPT_PUBLIC_URL=https://kept.example.org
 Caddy lit le fichier `docker/caddy/Caddyfile` situé à côté du fichier Compose. Un extraction du dépôt possède les deux fichiers ; une installation sans celui-ci le télécharge une fois :
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/compose.full.yaml
 mkdir -p docker/caddy
-curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/docker/caddy/Caddyfile
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
 
