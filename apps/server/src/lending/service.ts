@@ -139,6 +139,7 @@ export async function personFor(ctx: Ctx, locationId: string, input: PersonInput
     tx: ctx.tx,
     client,
     userId: ctx.scope.userId,
+    tokenId: ctx.scope.tokenId ?? null,
     requestId: ctx.requestId,
     jobs: ctx.jobs,
   };
