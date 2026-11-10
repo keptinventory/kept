@@ -184,7 +184,7 @@ su línea en el recibo, el precio de uno con su moneda y las notas, cambiando la
 o registrando una, como hace la página del objeto. Un precio necesita Dinero activado y un rol que
 vea dinero, como en la app; un mínimo necesita **Objetos que se te acaban**. Un tipo que Kept no conoce
 se omite y la respuesta `not_set` lo dice; la tarjeta del asistente
-lo muestra como "no fijado" con un selector. Un equipo en un bastidor acepta `rack_units` (su altura, 0 junto a los rieles) y `rack_at` (su unidad más baja contando desde abajo, su cara y si es de fondo completo), rechazado como en la app si la unidad está ocupada.
+lo muestra como "no establecido" con un selector. Un equipo en un bastidor acepta `rack_units` (su altura, 0 junto a los rieles) y `rack_at` (su unidad más baja contando desde abajo, su cara y si es de fondo completo), rechazado como en la app si la unidad está ocupada.
 
 Las herramientas de mudanza son solo para apps conectadas; el asistente en Kept no las usa.
 
