@@ -928,8 +928,8 @@ export type CreateThingBody = {
   expiresOn?: string;
   expiryLeadDays?: number;
   custom?: Record<string, unknown>;
-  /** Makes a one-line purchase. */
-  purchase?: { purchasedOn: string; vendorId?: string; currency: string; price: string };
+  /** Makes a one-line purchase; a price comes with its currency, or neither is sent. */
+  purchase?: { purchasedOn: string; vendorId?: string; currency?: string; price?: string };
   /** Quick add: the template's payload is the base, and the fields sent here win. */
   templateId?: string;
 };
