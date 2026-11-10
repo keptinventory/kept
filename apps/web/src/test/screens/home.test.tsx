@@ -876,7 +876,12 @@ describe('the frame', () => {
     await renderApp('/');
     const links = await screen.findAllByRole('link', { name: 'Source code' });
     expect(links[0]).toHaveAttribute('href', 'https://github.com/keptinventory/kept/tree/3f9ed1d');
-    expect(screen.getAllByText(`v${KEPT_VERSION}`).length).toBeGreaterThan(0);
+    // The comma follows the version with no space before it (a flex gap around a separate comma
+    // read "v1.14.7 , Source code").
+    const versionItem = (_: string, el: Element | null) =>
+      (el?.parentElement?.getAttribute('class') ?? '').includes('flex-wrap') &&
+      el?.textContent === `v${KEPT_VERSION},`;
+    expect(screen.getAllByText(versionItem).length).toBeGreaterThan(0);
   });
 
   it('keeps the image’s third-party notices out of the footer, even when the server serves them', async () => {

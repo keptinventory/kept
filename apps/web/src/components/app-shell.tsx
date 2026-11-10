@@ -92,10 +92,14 @@ export function VersionFooter({ className }: { className?: string }) {
   if (!data) return <div className={cn('min-h-5', className)} />;
   return (
     <div className={cn('flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-3', className)}>
-      <span className="ltr">v{data.version}</span>
+      {/* The comma follows the version with no space before it: a separate item would get the
+          flex gap on both sides ("v1.14.7 , Source code"). */}
+      <span>
+        <span className="ltr">v{data.version}</span>
+        {data.source ? <span aria-hidden="true">{sep().trim()}</span> : null}
+      </span>
       {data.source ? (
         <>
-          <span aria-hidden="true">{sep().trim()}</span>
           <a href={data.source} target="_blank" rel="noreferrer" className={footerLink}>
             <Trans>Source code</Trans>
           </a>
