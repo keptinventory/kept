@@ -49,7 +49,8 @@ condition, notes, tags, other names, purchase date, price, currency, shop, manua
 label's code, your own code, a row ID (so a re-import skips the row), and your types' own fields.
 Headers in any of Kept's languages are matched for you. Tags and other names are separated by
 commas, a price is a number without the currency sign, and dates are written one way through the
-whole file.
+whole file. A purchase date makes a purchase, with its shop and its price when the row has them; a
+price or a shop with no date stays in the notes.
 
 #### Homebox's spreadsheet
 

@@ -105,22 +105,25 @@ export function mockDryRun(
     let purchase = false;
     const price = cellsOf(row, 'price')[0];
     const date = cellsOf(row, 'purchased_on')[0];
-    if (date && !parseCsvDate(date.value, choices.dateFormat)) {
+    const dateOk = !!date && !!parseCsvDate(date.value, choices.dateFormat);
+    if (date && !dateOk) {
       text(date.column, 'not_date', `Not a date as ${choices.dateFormat}.`, {
         format: choices.dateFormat,
       });
     }
+    // A purchase needs a date; its price is optional, but a price that doesn't read keeps the
+    // purchase as text (the server's planRow).
+    let priceOk = true;
     if (price) {
-      let ok = true;
       try {
         parseAmount(price.value.replace(/\s/g, ''));
       } catch {
-        ok = false;
+        priceOk = false;
         text(price.column, 'not_price', 'Not a price.');
       }
-      if (ok && !date) text(price.column, 'needs_date', 'A price needs a purchase date.');
-      purchase = ok && !!date && !!parseCsvDate(date.value, choices.dateFormat);
+      if (priceOk && !date) text(price.column, 'needs_date', 'A purchase needs a date.');
     }
+    purchase = dateOk && priceOk;
     const path = cellsOf(row, 'place_path')[0];
     if (path) {
       const names = splitPlacePath(path.value, choices.placeSeparator);

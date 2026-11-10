@@ -363,12 +363,15 @@ export async function insertThing(
     if (p.purchasedOn > (await todayIn(client, locationId))) {
       throw invalid('body.purchase.purchasedOn is in the future.');
     }
-    await requireCurrencies(client, [p.currency], 'body.purchase.currency');
+    if (p.currency) await requireCurrencies(client, [p.currency], 'body.purchase.currency');
     const purchaseId = newId();
     const lineId = newId();
     const lineQuantity = quantity > 0 ? quantity : 1;
     // `price` is the price of one (the line's unit price); the purchase's total is the line's.
-    const { rows } = await client.query<{ total: string }>(
+    // With no price, the purchase has no amount and no currency (purchases_money_chk), as one
+    // made on POST /purchases with only a date and a shop.
+    const price = p.price ?? null;
+    const { rows } = await client.query<{ total: string | null }>(
       `INSERT INTO public.purchases (id, location_id, vendor_id, purchased_on, currency, total)
        VALUES ($1, $2, $3, $4, $5, round($6::numeric * $7::numeric, 4))
        RETURNING total::text AS total`,
@@ -377,8 +380,8 @@ export async function insertThing(
         locationId,
         p.vendorId ?? null,
         p.purchasedOn,
-        p.currency,
-        p.price,
+        price === null ? null : (p.currency ?? null),
+        price,
         lineQuantity,
       ],
     );
@@ -386,7 +389,7 @@ export async function insertThing(
       `INSERT INTO public.purchase_lines (id, location_id, purchase_id, description, quantity,
                                           unit_price)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      [lineId, locationId, purchaseId, body.name, lineQuantity, p.price],
+      [lineId, locationId, purchaseId, body.name, lineQuantity, price],
     );
     purchaseLineId = lineId;
     purchaseEvents.push(
@@ -398,7 +401,7 @@ export async function insertThing(
         after: {
           vendor_id: p.vendorId ?? null,
           purchased_on: p.purchasedOn,
-          currency: p.currency,
+          currency: price === null ? null : (p.currency ?? null),
           total: canonicalAmount(rows[0]?.total),
         },
         rootThingId: id,
@@ -413,7 +416,7 @@ export async function insertThing(
           purchase_id: purchaseId,
           description: body.name,
           quantity: String(lineQuantity),
-          unit_price: p.price,
+          unit_price: price,
         },
         rootThingId: id,
         requestId: ctx.requestId,

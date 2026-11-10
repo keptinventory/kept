@@ -192,8 +192,9 @@ async function applyRow(c: ChunkCtx, runId: string, planned: PlannedRow): Promis
         ? {
             purchase: {
               purchasedOn: t.purchase.purchasedOn,
-              currency: t.purchase.currency,
-              price: t.purchase.price,
+              ...(t.purchase.price !== null && t.purchase.currency !== null
+                ? { currency: t.purchase.currency, price: t.purchase.price }
+                : {}),
               ...(vendorId ? { vendorId } : {}),
             },
           }
