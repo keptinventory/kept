@@ -61,6 +61,19 @@ Un insert de cube ou une étagère retirée fusionne deux ou plusieurs compartim
 - **Vos propres modèles :** **Paramètres → Compte → Modèles → Meubles** contient les modèles d'emplacement personnels du compte : cubes alignés et empilés (debout), étagères ou tiroirs, les types, les noms et le motif de code, partagés avec les lieux que vous sélectionnez. Les propriétaires et administrateurs les créent ; toute personne pouvant ajouter des emplacements les utilise.
 - Les **applications IA** peuvent faire de même : `create_place` prend un `template`, et `update_place` un `turn` ([clients MCP](/fr/users/mcp-clients/#les-outils)). La fusion et la division restent dans l'application.
 
+### Baies
+
+Une baie de 19 ou de 10 pouces est un meuble mesuré en unités de rack (U). Un équipement est un objet dedans : combien d'unités il occupe, et à quelle unité il commence.
+
+- **Ajouter ici → Pièce ou endroit → Meuble à compartiments…**, puis un modèle de baie : **Baie 19 pouces, 42U**, **Baie 19 pouces, 24U**, **Coffret mural, 12U**, **Coffret mural, 6U** ou **Baie 10 pouces, 8U**. Changez ses **Unités** (de 1 à 60) et si elles sont **Numérotées depuis** **Le bas** (U1 en bas, l'usage courant) ou **Le haut**. Une baie n'a pas de compartiments ; **Son propre code (facultatif)** reste possible.
+- **Sa page** montre la baie (**Vue de** **Devant** ou **Arrière**) de haut en bas : chaque équipement à ses unités (`U11`, `U5–U6`) et les unités libres entre eux, **Vide**. Les unités s'écrivent comme les rails les impriment, dans toutes les langues.
+- **Mettre un équipement :** déplacez un objet dans la baie comme dans n'importe quel emplacement. Il apparaît sous **Pas encore placé**, et **Le placer** demande **Commence à** (son unité du bas, ou celle du haut dans une baie numérotée depuis le haut), la **Hauteur** en unités de rack (demi-unités aussi, comme 1,5), la **Face** (**Devant** ou **Arrière**) et la **Profondeur**. **Pleine profondeur** occupe l'unité des deux côtés, **Demi-profondeur** seulement du sien : un switch devant et une tablette derrière peuvent partager une unité.
+- **Refusé :** deux équipements dans la même unité du même côté, ou un équipement qui dépasse le haut de la baie. Kept nomme l'équipement déjà là et n'enregistre rien.
+- **Hauteur 0** désigne un équipement à côté des rails, comme une multiprise : il n'occupe aucune unité et figure sous **À côté des rails (0U)**.
+- **La page de l'objet** affiche **Dans la baie** : la baie, les unités et la profondeur, avec **Modifier**. **Le retirer de son unité** libère l'unité et laisse l'objet dans la baie.
+- **Sortir un équipement** de la baie libère son unité ; s'il y revient, il est de nouveau **Pas encore placé**. **Annuler** rétablit une position, sauf si quelqu'un a pris cette unité entre-temps.
+- Les **applications IA** peuvent faire de même : `create_place` prend un modèle de baie avec `units` et `numbering`, et `update_thing` prend `rack_units` et `rack_at`.
+
 ## Sa position
 
 La position d’un lieu permet à **Suggérer où je suis** de la capture de le choisir quand vous y

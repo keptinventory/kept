@@ -11,6 +11,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 - **[Ẩn Cá nhân](/vi/users/locations/#ẩn-cá-nhân)**: lấy vị trí Cá nhân ra khỏi menu, Trang chủ, danh sách và tìm kiếm, và hiện lại bất cứ khi nào.
 - **[Vị trí của địa điểm](/vi/users/locations/#vị-trí-của-nó)**: đặt từ điện thoại hoặc tự nhập, để Chụp gợi ý địa điểm bạn đang ở.
 - **[Đồ gia dụng có ngăn](/vi/users/locations/#đồ-nội-thất-có-ngăn)**: kệ khối hoặc bàn có ngăn kéo, mỗi ngăn là một vị trí riêng. Xoay nó ngang, gộp hoặc tách ngăn; nhãn của chúng vẫn hoạt động.
+- **[Tủ rack](/vi/users/locations/#tủ-rack)**: tủ máy chủ theo đơn vị rack (U), với thứ ở mỗi đơn vị, trên trang của nó và trên bản đồ. Hai thiết bị cùng một đơn vị, hoặc vượt quá đỉnh, bị từ chối.
 - **[Đồ vật](/vi/users/things/)**: loại, trường tùy chỉnh, số lượng, tình trạng, kho lưu trữ, và thùng rác để khôi phục.
 - **[Ảnh, hóa đơn, sách hướng dẫn và bảo hành](/vi/users/photos-paperwork/)**: trên mỗi đồ vật, với thư viện giấy tờ; tệp giữ tên bạn chọn. Mô-đun: Hóa đơn và bảo hành, Giấy tờ.
 - **[Mua sắm](/vi/users/things/)**: khi và nơi đồ vật được mua, giá, tổng và thuế trên hóa đơn, và các hóa đơn, chỉnh sửa từ trang của đồ vật.

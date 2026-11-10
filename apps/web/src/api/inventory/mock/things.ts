@@ -2,7 +2,7 @@
  * Mock handlers for things, moves, meters, purchases and secrets (tasks 12, 14, 15, 16, 19).
  * Task 26 extends these as its screens need.
  */
-import { naturalCompare } from '@kept/shared';
+import { naturalCompare, rackProblem, shownUnit } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
 import {
   err,
@@ -25,6 +25,7 @@ import type {
   MovePreviewBody,
   MoveTarget,
   PurchaseView,
+  RackAt,
   Reading,
   RetypeBody,
   SetSecretBody,
@@ -38,11 +39,14 @@ import {
   contentsOf,
   derivedStateOf,
   fold,
+  type InventoryState,
+  livePlace,
   liveThing,
   matches,
   newId,
   now,
   paginate,
+  rackAtOf,
   recordEvent,
   rowOf,
   type StoredThing,
@@ -361,7 +365,17 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       const b = body as UpdateThingBody;
       const stale = versionError(headers, t, Object.keys(b));
       if (stale) return reply(stale.status, stale.body);
-      const { custom, tagIds, brandId, typeId: _typeId, belongsToPersonId: _p, ...plain } = b;
+      // #373: gear in a rack, checked as the server checks it.
+      const { rackAt, ...rest } = b;
+      if (rackAt !== undefined || b.rackUnits !== undefined) {
+        const refused = rackRefusal(inv(), t, b.rackUnits, rackAt);
+        if (refused) return refused;
+      }
+      const { custom, tagIds, brandId, typeId: _typeId, belongsToPersonId: _p, ...plain } = rest;
+      if (rackAt !== undefined) {
+        (plain as Record<string, unknown>).rackAt =
+          rackAt && t.placeId ? { rackId: t.placeId, ...rackAt } : null;
+      }
       // What undo puts back (D150): the fields this edit touches, as they were.
       const before = structuredClone({
         ...Object.fromEntries(Object.keys(plain).map((k) => [k, t[k as keyof typeof t]])),
@@ -902,4 +916,38 @@ export function thingsRoutes(state: MockState): MockRoute[] {
       return reply(204);
     }),
   ];
+}
+
+/** #373: why a position can't be given (the server's 400 or 409 body), or null. */
+function rackRefusal(
+  inv: InventoryState,
+  t: StoredThing,
+  units: number | null | undefined,
+  at: RackAt | null | undefined,
+) {
+  const place = t.placeId && !t.containerId ? livePlace(inv, t.placeId) : undefined;
+  const rack = place?.rackLayout;
+  const position = at === undefined ? rackAtOf(t) : at;
+  if (!position) return null;
+  if (!rack || !place) return err(400, 'validation', 'The request is not valid.');
+  const height = units !== undefined ? units : (t.rackUnits ?? null);
+  const others = inv.things
+    .filter((x) => x.placeId === place.id && !x.containerId && !x.deletedAt)
+    .map((x) => ({ id: x.id, units: x.rackUnits ?? null, at: rackAtOf(x) }));
+  const problem = rackProblem(rack, { id: t.id, units: height, at: position }, others);
+  if (!problem) return null;
+  if (problem.reason === 'taken') {
+    const by = inv.things.find((x) => x.id === problem.by);
+    return err(409, 'conflict', 'This changed since you loaded it.', undefined, {
+      rack: {
+        reason: 'taken',
+        u: shownUnit(rack, problem.u),
+        face: problem.face,
+        by: { id: problem.by, name: by?.name ?? '' },
+      },
+    });
+  }
+  return err(400, 'validation', 'The request is not valid.', undefined, {
+    rack: problem.reason === 'outside' ? { reason: 'outside', top: rack.units } : problem,
+  });
 }

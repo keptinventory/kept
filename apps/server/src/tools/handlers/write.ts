@@ -2,6 +2,7 @@ import type { PlaceRef, ThingRef, ToolInput, ToolOutput } from '@kept/mcp';
 import {
   AmountError,
   BUILTIN_PLACE_TEMPLATE_KEYS,
+  BUILTIN_RACK_TEMPLATE_KEYS,
   type ModuleId,
   normalize,
   parseAmount,
@@ -314,6 +315,9 @@ export const updateThingTool: Handler<'update_thing'> = {
     if (f.acquired_from !== undefined) body.acquiredFrom = f.acquired_from;
     if (f.provenance_notes !== undefined) body.provenanceNotes = f.provenance_notes;
     if (f.custom !== undefined) body.custom = f.custom;
+    // #373: gear in a rack, checked as the app's position sheet is.
+    if (f.rack_units !== undefined) body.rackUnits = f.rack_units;
+    if (f.rack_at !== undefined) body.rackAt = f.rack_at;
     if (f.type_id !== undefined) body.typeId = f.type_id;
     else if (f.type !== undefined) {
       const typeId = f.type === null ? null : await typeNamed(op.client, loc.id, f.type);
@@ -564,12 +568,14 @@ export const createPlaceTool: Handler<'create_place'> = {
         parentId,
         ...(input.orientation ? { orientation: input.orientation } : {}),
         ...(input.count !== undefined ? { count: input.count } : {}),
+        ...(input.units !== undefined ? { units: input.units } : {}),
+        ...(input.numbering !== undefined ? { numbering: input.numbering } : {}),
         ...(input.code !== undefined ? { code: input.code } : {}),
         ...(input.code_pattern !== undefined ? { codePattern: input.code_pattern } : {}),
       });
       if (!body.success) {
         throw invalid(
-          `Check template: one of ${BUILTIN_PLACE_TEMPLATE_KEYS.join(', ')}, or a template id; and code_pattern's placeholders.`,
+          `Check template: one of ${[...BUILTIN_PLACE_TEMPLATE_KEYS, ...BUILTIN_RACK_TEMPLATE_KEYS].join(', ')}, or a template id; and code_pattern's placeholders.`,
         );
       }
       const made = await createFromTemplate(op, loc.id, body.data);

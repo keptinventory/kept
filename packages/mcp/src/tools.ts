@@ -30,6 +30,7 @@ import {
   BOX_STATES,
   BUILTIN_PLACE_KINDS,
   BUILTIN_PLACE_TEMPLATE_KEYS,
+  BUILTIN_RACK_TEMPLATE_KEYS,
   CHILD_ORDERS,
   CLAIM_STATUSES,
   CONDITIONS,
@@ -45,6 +46,8 @@ import {
   normaliseInputCode,
   PLACE_LAYOUT_LIMITS,
   PLACE_ORIENTATIONS,
+  RACK_FACES,
+  RACK_NUMBERINGS,
   ROLES,
   SEMANTIC_STATES,
   TURN_DIRECTIONS,
@@ -365,6 +368,13 @@ const updateFields = z
     ...nullable(clearable),
     acquired_from: z.string().max(200).nullable().describe('Where it came from'),
     provenance_notes: z.string().max(2000).nullable(),
+    // #373: gear in a rack, as the thing page's position sheet sets it (the service checks the
+    // ranges: the assistant's tools have a size budget).
+    rack_units: z.number().nullable().describe('Height in U; 0: beside the rails'),
+    rack_at: z
+      .object({ u: z.number(), face: z.enum(RACK_FACES), full: z.boolean() })
+      .nullable()
+      .describe('u: lowest unit from the bottom'),
     // #348, #215: the purchase as the thing page edits it; changes it or records one.
     // Plain strings in the schema the model reads (the service checks the date, the amount and
     // the currency, as the purchase routes do): the assistant's tools have a size budget.
@@ -531,6 +541,16 @@ export const TOOL_DEFS = Object.freeze({
           })
           .optional()
           .describe('A kit: its parts and where each is'),
+        // #373: gear in a rack.
+        rack: z
+          .object({
+            place_id: uuid,
+            units: z.number().nullable(),
+            u: z.number().nullable().describe('Lowest unit, as the rack numbers them'),
+            face: z.enum(RACK_FACES).nullable(),
+            full: z.boolean().nullable(),
+          })
+          .optional(),
         url: z.string().describe('The thing’s page in Kept'),
       }),
     }),
@@ -798,8 +818,13 @@ export const TOOL_DEFS = Object.freeze({
         .string()
         .max(80)
         .optional()
-        .describe(`${BUILTIN_PLACE_TEMPLATE_KEYS.join(', ')} or a template id`),
+        .describe(
+          `${[...BUILTIN_PLACE_TEMPLATE_KEYS, ...BUILTIN_RACK_TEMPLATE_KEYS].join(', ')} or a template id`,
+        ),
       orientation: z.enum(PLACE_ORIENTATIONS).optional(),
+      // #373: a rack's height in units, and where U1 is.
+      units: z.number().int().optional(),
+      numbering: z.enum(RACK_NUMBERINGS).optional(),
       count: z.number().int().min(1).max(PLACE_LAYOUT_LIMITS.count).optional(),
       code: z.string().max(100).optional(),
       code_pattern: z.string().max(100).nullable().optional(),

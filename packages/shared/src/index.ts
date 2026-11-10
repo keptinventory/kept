@@ -39,6 +39,7 @@ export * from './ops.js';
 export * from './order.js';
 export * from './place-templates.js';
 export * from './portability.js';
+export * from './racks.js';
 export * from './reminders.js';
 export * from './roles.js';
 export * from './room.js';

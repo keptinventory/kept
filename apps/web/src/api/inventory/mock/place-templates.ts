@@ -5,12 +5,15 @@
  */
 import {
   builtinPlaceTemplate,
+  builtinRackTemplate,
   canTurn,
   cellsOf,
   DEFAULT_COMPARTMENT_NAMES,
+  FURNITURE_KIND,
   fillPattern,
   layoutProblem,
   type PlaceLayout,
+  rackUnitsProblem,
   withCount,
 } from '@kept/shared';
 import type { MockState } from '../../mock/fixtures';
@@ -125,6 +128,46 @@ export function placeTemplatesRoutes(state: MockState): MockRoute[] {
       if (!access().visible(locationId)) return notFound();
       if (!access().canWrite(locationId)) return forbidden();
       const b = body as FromTemplateBody;
+      // #373: a rack, with no compartments.
+      const rack = 'builtin' in b.template ? builtinRackTemplate(b.template.builtin) : undefined;
+      if (rack) {
+        const units = b.units ?? rack.layout.units;
+        if (rackUnitsProblem(units)) return err(400, 'validation', 'The request is not valid.');
+        const parentId = b.parentId ?? null;
+        if (parentId && livePlace(inv(), parentId)?.locationId !== locationId) return notFound();
+        const made: StoredPlace = {
+          id: b.id ?? newId(),
+          locationId,
+          parentId,
+          name: b.name.trim(),
+          kindKey: FURNITURE_KIND,
+          icon: null,
+          isUnplaced: false,
+          shortCode: null,
+          fields: [],
+          custom: {},
+          secrets: [],
+          rowVersion: 1,
+          sort: 0,
+          deletedAt: null,
+          trashBatchId: null,
+          deletedBy: null,
+          rackLayout: { ...rack.layout, units, numbering: b.numbering ?? rack.layout.numbering },
+          ...(b.code ? { ownCodes: [b.code.toUpperCase()] } : {}),
+        };
+        inv().places.push(made);
+        recordEvent(inv(), me(), {
+          action: 'place.create',
+          entity: { type: 'place', id: made.id },
+          locationId,
+          name: made.name,
+          undo: () => {
+            made.deletedAt = new Date().toISOString();
+          },
+        });
+        const result: FromTemplateResult = { place: placeViewOf(inv(), made), compartments: [] };
+        return reply(201, result);
+      }
       const own =
         'id' in b.template
           ? usableIn(locationId).find((x) => x.id === (b.template as { id: string }).id)

@@ -146,7 +146,7 @@ hoạt động với cả hai loại truy cập; công cụ **thay đổi** cầ
 | `update_thing` | change | | Thay đổi bất kỳ trường nào của đồ vật mà biểu mẫu sửa của ứng dụng thay đổi (xem bên dưới); `null` xóa một cái. |
 | `move_thing` | change | | Di chuyển đồ vật, hoặc một phần số lượng, đến vị trí hoặc chứa đựng khác. |
 | `mark_seen` | change | | Tôi vừa thấy đồ vật này ở nơi Kept nói nó là. |
-| `create_place` | change | | Thêm vị trí dưới vị trí khác, hoặc ở đỉnh vị trí. Với `template`, thêm nội thất và một vị trí cho mỗi ngăn của nó trong một bước, như [Nội thất với ngăn](/vi/users/locations/#đồ-nội-thất-có-ngăn) làm; một Hoàn tác lấy tất cả lại. Phòng lấy kích thước thực, `width_cm` và `length_cm` (50 cm đến 100 m), và lên [bản đồ](/vi/users/location-map/) với nó. |
+| `create_place` | change | | Thêm vị trí dưới vị trí khác, hoặc ở đỉnh vị trí. Với `template`, thêm nội thất và một vị trí cho mỗi ngăn của nó trong một bước, như [Nội thất với ngăn](/vi/users/locations/#đồ-nội-thất-có-ngăn) làm; một Hoàn tác lấy tất cả lại. Phòng lấy kích thước thực, `width_cm` và `length_cm` (50 cm đến 100 m), và lên [bản đồ](/vi/users/location-map/) với nó. Mẫu tủ rack nhận `units` và `numbering` ([Tủ rack](/vi/users/locations/#tủ-rack)). |
 | `update_place` | change | | Thay đổi vị trí như trang của nó làm: đổi tên, đổi loại, di chuyển vào vị trí khác hoặc lên đỉnh, đặt các trường, và thứ tự các vị trí trong nó (A đến Z hoặc Thứ tự tùy chỉnh, sau đó Di chuyển lên hoặc Di chuyển xuống). `turn` (`right` hoặc `left`, nơi đỉnh của nó đi) quay [nội thất với ngăn](/vi/users/locations/#xoay-đồ-nội-thất) sang bên hoặc ngửa, với `renumber` true hoặc false. Hoàn tác trong 7 ngày, trừ di chuyển lên hoặc xuống: di chuyển ngược lại hoàn tác nó. |
 | `turn_into_boxes` | change | | Chuyển tối đa 50 vị trí thành hộp, như **Chuyển vị trí thành hộp** làm. Mỗi cái giữ ID, nhãn và thứ trong nó; cái có vị trí bên trong vẫn là vị trí, và cái ở đỉnh vị trí cũng vậy (chuyển cái đó trong Kept). Một Hoàn tác chuyển tất cả lại. |
 | `attach_link` | change | | Một liên kết mở trang chụp của Kept để thêm ảnh, hóa đơn hoặc tài liệu. |
@@ -177,7 +177,7 @@ hoạt động với cả hai loại truy cập; công cụ **thay đổi** cầ
 hoặc tiếng Ả Rập, hoặc theo id), thương hiệu (tạo nếu mới), mẫu, số seri, mã vạch, màu, tình trạng, ghi chú,
 tên khác, thẻ (tên mới tạo thẻ, cho thành viên trở lên), của ai nó là (một người, tạo nếu mới), liên kết sổ hướng dẫn,
 hết hạn và bao nhiêu ngày trước để nhắc, tối thiểu của tiêu hao, và các trường riêng của loại theo khóa. `add_thing` cũng lấy nó đi đâu và mua (ngày, giá một cái với tiền tệ, và cửa hàng); `update_thing` cũng lấy nó từ đâu, và mua của nó: ngày, cửa hàng, dòng của nó trên hóa đơn, giá một cái với tiền tệ và ghi chú, thay đổi mua nó có hoặc ghi một cái, như trang đồ vật làm. Giá cần Bật tiền và vai trò thấy tiền, như trong ứng dụng; tối thiểu cần **Đồ vật bạn dùng hết**. Loại Kept không biết bị bỏ qua và `not_set` trong câu trả lời nói vậy; thẻ của trợ lý
-hiện nó như "chưa đặt" với bộ chọn.
+hiện nó như "chưa đặt" với bộ chọn. Thiết bị trong tủ rack nhận `rack_units` (chiều cao, 0 là cạnh thanh ray) và `rack_at` (đơn vị thấp nhất tính từ dưới lên, mặt của nó và có hết chiều sâu không), bị từ chối như trong ứng dụng nếu đơn vị đã có thiết bị.
 
 Các công cụ chuyển nhà chỉ dành cho ứng dụng đã kết nối; trợ lý trong Kept không dùng chúng.
 

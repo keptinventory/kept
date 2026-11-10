@@ -147,7 +147,7 @@ superior. La parte de Kept que necesita una herramienta es el nombre bajo **Qué
 | `update_thing` | cambio | | Cambia cualquiera de los campos de un objeto que cambia el formulario de edición de la app (ver abajo); `null` borra uno. |
 | `move_thing` | cambio | | Mueve un objeto, o parte de una cantidad, a otro lugar o contenedor. |
 | `mark_seen` | cambio | | Acabo de ver este objeto donde Kept dice que está. |
-| `create_place` | cambio | | Añade un lugar bajo otro lugar, o en la cima de la ubicación. Con `template`, añade muebles y un lugar para cada uno de sus compartimentos en un paso, como hace [Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos); un Deshacer lo quita todo. Una habitación toma su tamaño real, `width_cm` y `length_cm` (50 cm a 100 m), y va en el [mapa](/es/users/location-map/) con él. |
+| `create_place` | cambio | | Añade un lugar bajo otro lugar, o en la cima de la ubicación. Con `template`, añade muebles y un lugar para cada uno de sus compartimentos en un paso, como hace [Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos); un Deshacer lo quita todo. Una habitación toma su tamaño real, `width_cm` y `length_cm` (50 cm a 100 m), y va en el [mapa](/es/users/location-map/) con él. Una plantilla de bastidor acepta `units` y `numbering` ([Bastidores](/es/users/locations/#bastidores)). |
 | `update_place` | cambio | | Cambia un lugar como hace su página: cámbiale el nombre, cambia su tipo, muévelo a otro lugar o a la cima, fija sus campos, y el orden de los lugares en él (A a Z u Orden personalizado, luego Subir o Bajar). `turn` (`right` o `left`, a dónde fue su parte de arriba) gira [muebles con compartimentos](/es/users/locations/#girar-el-mueble) de lado o boca arriba, con `renumber` true o false. Deshacer durante 7 días, salvo subir o bajar: el movimiento opuesto lo deshace. |
 | `turn_into_boxes` | cambio | | Convierte hasta 50 lugares en cajas, como hace **Convierte lugares en cajas**. Cada una conserva su ID, etiqueta y lo que tiene dentro; una con lugares dentro se queda lugar, y también la que está en la cima de la ubicación (conviértela en Kept). Un Deshacer las vuelve a todas. |
 | `attach_link` | cambio | | Un enlace que abre la hoja de captura de Kept para añadir una foto, recibo o documento. |
@@ -184,7 +184,7 @@ su línea en el recibo, el precio de uno con su moneda y las notas, cambiando la
 o registrando una, como hace la página del objeto. Un precio necesita Dinero activado y un rol que
 vea dinero, como en la app; un mínimo necesita **Objetos que se te acaban**. Un tipo que Kept no conoce
 se omite y la respuesta `not_set` lo dice; la tarjeta del asistente
-lo muestra como "no fijado" con un selector.
+lo muestra como "no fijado" con un selector. Un equipo en un bastidor acepta `rack_units` (su altura, 0 junto a los rieles) y `rack_at` (su unidad más baja contando desde abajo, su cara y si es de fondo completo), rechazado como en la app si la unidad está ocupada.
 
 Las herramientas de mudanza son solo para apps conectadas; el asistente en Kept no las usa.
 

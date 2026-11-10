@@ -1,5 +1,11 @@
 import { pageSize, type ToolOutput } from '@kept/mcp';
-import { DERIVED_STATES, type DerivedState, LIFECYCLES, type Lifecycle } from '@kept/shared';
+import {
+  DERIVED_STATES,
+  type DerivedState,
+  LIFECYCLES,
+  type Lifecycle,
+  shownRange,
+} from '@kept/shared';
 import { z } from 'zod';
 import { listAttachments } from '../../files/attachments.js';
 import { thingHistory } from '../../history/service.js';
@@ -383,6 +389,18 @@ export const getThing: Handler<'get_thing'> = {
                     status: p.status,
                     untrusted: { name: p.thing.name },
                   })),
+                },
+              }
+            : {}),
+          // #373: gear in a rack, in the rack's numbering.
+          ...(v.rack
+            ? {
+                rack: {
+                  place_id: v.rack.id,
+                  units: v.rackUnits,
+                  u: v.rack.at ? shownRange(v.rack, v.rack.at.u, v.rackUnits ?? 1).from : null,
+                  face: v.rack.at?.face ?? null,
+                  full: v.rack.at?.full ?? null,
                 },
               }
             : {}),

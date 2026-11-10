@@ -149,7 +149,7 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `update_thing` | change | | Change any of a thing's fields the app's edit form changes (see below); `null` clears one. |
 | `move_thing` | change | | Move a thing, or some of a quantity, to another place or container. |
 | `mark_seen` | change | | I just saw this thing where Kept says it is. |
-| `create_place` | change | | Add a place under another place, or at the top of the location. With `template`, add furniture and a place for each of its compartments in one step, as [Furniture with compartments](/users/locations/#furniture-with-compartments) does; one Undo takes it all back. A room takes its real size, `width_cm` and `length_cm` (50 cm to 100 m), and goes on the [map](/users/location-map/) with it. |
+| `create_place` | change | | Add a place under another place, or at the top of the location. With `template`, add furniture and a place for each of its compartments in one step, as [Furniture with compartments](/users/locations/#furniture-with-compartments) does; one Undo takes it all back. A rack template takes `units` and `numbering` ([Racks](/users/locations/#racks)). A room takes its real size, `width_cm` and `length_cm` (50 cm to 100 m), and goes on the [map](/users/location-map/) with it. |
 | `update_place` | change | | Change a place as its page does: rename it, change its kind, move it into another place or to the top, set its fields, and the order of the places in it (A to Z or Custom order, then Move up or Move down). `turn` (`right` or `left`, where its top went) turns [furniture with compartments](/users/locations/#turning-furniture) onto its side or back, with `renumber` true or false. Undo for 7 days, except a move up or down: the opposite move undoes it. |
 | `turn_into_boxes` | change | | Turn up to 50 places into boxes, as **Turn places into boxes** does. Each keeps its ID, label and what's in it; one with places inside stays a place, and so does one at the top of the location (turn that one in Kept). One Undo turns them all back. |
 | `attach_link` | change | | A link that opens Kept's capture sheet to add a photo, receipt or document. |
@@ -183,7 +183,9 @@ expiry and how many days before to remind, a consumable's minimum, and the type'
 key. `add_thing` also takes where it goes and the purchase (date, price of one with its currency,
 and the shop); `update_thing` also takes where it came from, and its purchase: the date, the shop,
 its line on the receipt, the price of one with its currency and the notes, changing the purchase
-it has or recording one, as the thing page does. A price needs Money on and a role that
+it has or recording one, as the thing page does. Gear in a rack takes `rack_units` (its height, 0 beside
+the rails) and `rack_at` (its lowest unit counted from the bottom, its face and full depth or not),
+refused as the app refuses a taken unit. A price needs Money on and a role that
 sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know is
 left out and the answer's `not_set` says so; the assistant's card
 shows it as "not set" with a picker.

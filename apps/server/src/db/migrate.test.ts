@@ -146,6 +146,8 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.thing_search_doc(things)': APP_ONLY,
   'kept.touch_row()': APP_AND_SYSTEM,
   'kept.touch_thing_meters()': OWNER_ONLY,
+  // Migration 0174: a thing that moves leaves its rack position behind (#373).
+  'kept.clear_rack_position()': OWNER_ONLY,
   'kept.type_capabilities(uuid)': APP_AND_SYSTEM,
   'kept.type_chain(uuid)': APP_ONLY,
   'kept.type_impact(uuid)': APP_ONLY,
