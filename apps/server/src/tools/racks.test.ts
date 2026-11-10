@@ -126,6 +126,41 @@ describe('racks through the tools', () => {
     expect(stored?.u).toBe(11);
   });
 
+  it('refuses a height outside 0 to 60 with a sentence that says so', async () => {
+    const office = await place(db, home, 'Cupboard');
+    const made = await data(louis, 'create_place', {
+      location_id: home.id,
+      parent_id: office,
+      name: 'Rack 3',
+      template: 'rack_19_wall_6',
+    });
+    const ups = (await createThing(t, ibrahim, home, {
+      name: 'UPS',
+      placeId: made.place.id as string,
+    })) as { id: string };
+    for (const fields of [
+      { rack_units: 61 },
+      { rack_units: -1 },
+      { rack_units: -1, rack_at: { u: 1, face: 'front', full: true } },
+    ]) {
+      const env = await tool(louis, 'update_thing', {
+        location_id: home.id,
+        thing_id: ups.id,
+        fields,
+      });
+      expect(isToolError(env), JSON.stringify(fields)).toBe(true);
+      if (!isToolError(env)) continue;
+      expect(env.error).toBe('validation');
+      expect(env.hint).toMatch(/^Check rack_units: .*0 to 60/);
+    }
+    const at = await tool(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: ups.id,
+      fields: { rack_units: 1, rack_at: { u: 0, face: 'front', full: true } },
+    });
+    expect(isToolError(at) && at.hint).toBe('Check rack_at.u: a unit from 1 to 60.');
+  });
+
   it('takes back the unit get_thing gave, unchanged, on a rack numbered from the top (#499)', async () => {
     const office = await place(db, home, 'Server room');
     const made = await data(louis, 'create_place', {

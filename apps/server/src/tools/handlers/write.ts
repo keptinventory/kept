@@ -6,6 +6,7 @@ import {
   type ModuleId,
   normalize,
   parseAmount,
+  RACK_LIMITS,
   type RackPosition,
   startFromShown,
   unitsOf,
@@ -26,7 +27,7 @@ import { createFromTemplate, FromTemplateBody } from '../../templates/place-temp
 import { thingRackOf } from '../../templates/rack-view.js';
 import { moveThings } from '../../things/move.js';
 import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
-import type { UpdateBody } from '../../things/validate.js';
+import { RackPositionBody, RackUnitsBody, type UpdateBody } from '../../things/validate.js';
 import { viewOf } from '../../things/view.js';
 import { placePath, placeRefOf, thingPath, thingRefOf } from '../output.js';
 import {
@@ -348,7 +349,20 @@ export const updateThingTool: Handler<'update_thing'> = {
     if (f.provenance_notes !== undefined) body.provenanceNotes = f.provenance_notes;
     if (f.custom !== undefined) body.custom = f.custom;
     // #373: gear in a rack, checked as the app's position sheet is.
-    if (f.rack_units !== undefined) body.rackUnits = f.rack_units;
+    // The tool's schema leaves the ranges out (the assistant's tools have a size budget): the
+    // route's own schemas check them here, so a height past them is a sentence, not the
+    // database's refusal.
+    if (f.rack_units !== undefined) {
+      if (f.rack_units !== null && !RackUnitsBody.safeParse(f.rack_units).success) {
+        throw invalid(
+          `Check body.rackUnits: a height of 0 to ${RACK_LIMITS.gear} units, like 1, 1.5 or 2.`,
+        );
+      }
+      body.rackUnits = f.rack_units;
+    }
+    if (f.rack_at && !RackPositionBody.safeParse(f.rack_at).success) {
+      throw invalid(`Check body.rackAt.u: a unit from 1 to ${RACK_LIMITS.units}.`);
+    }
     if (f.rack_at !== undefined) {
       body.rackAt = f.rack_at === null ? null : await rackAtStored(op, id, f.rack_at, f.rack_units);
     }
