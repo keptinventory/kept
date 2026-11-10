@@ -32,9 +32,9 @@ KEPT_PUBLIC_URL=https://kept.example.org
 يقرأ Caddy ملف `docker/caddy/Caddyfile` بجوار ملف Compose. تحتوي نسخة مستخرجة من المستودع على الملفين؛ والتثبيت بدون أحدهما يحملهما مرة واحدة:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/compose.full.yaml
 mkdir -p docker/caddy
-curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/docker/caddy/Caddyfile
+curl -fsSLo docker/caddy/Caddyfile https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/docker/caddy/Caddyfile
 docker compose --profile https up -d
 ```
 
