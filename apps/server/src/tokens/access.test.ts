@@ -52,4 +52,18 @@ describe('token access', () => {
       else expect(access, route).toBe('write');
     }
   });
+
+  it('opens the account registries a script names things with: list, read and create only', () => {
+    for (const kind of ['brands', 'vendors', 'tags']) {
+      expect(tokenAccessOf('GET', `/api/v1/accounts/:accountId/${kind}`), kind).toBe('read');
+      expect(tokenAccessOf('GET', `/api/v1/${kind}/:id`), kind).toBe('read');
+      expect(tokenAccessOf('POST', `/api/v1/accounts/:accountId/${kind}`), kind).toBe('write');
+    }
+    // Nothing edits, merges or deletes a registry row with a token (D58, D124).
+    for (const kind of ['brands', 'vendors', 'people', 'tags']) {
+      expect(tokenAccessOf('PATCH', `/api/v1/${kind}/:id`), kind).toBe('none');
+      expect(tokenAccessOf('DELETE', `/api/v1/${kind}/:id`), kind).toBe('none');
+      expect(tokenAccessOf('POST', `/api/v1/${kind}/:id/merge-into`), kind).toBe('none');
+    }
+  });
 });
