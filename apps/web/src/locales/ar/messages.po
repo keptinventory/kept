@@ -28932,6 +28932,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, zero {خزانة ١٩ بوصة بلا وحدات} one {خزانة ١٩ بوصة، وحدة واحدة} two {خزانة ١٩ بوصة، وحدتان} few {خزانة ١٩ بوصة، # وحدات} many {خزانة ١٩ بوصة، # وحدة} other {خزانة ١٩ بوصة، # وحدة}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "الوحدات"
 

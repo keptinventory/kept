@@ -92,14 +92,15 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 
 - **Inventory.** Locations, places, boxes and things, with photos, documents, purchases, tags,
   custom fields, quantities, saved views, search, an archive for what you no longer use and a trash
-  you can restore from. Furniture with compartments you can turn, merge and split; server racks in
-  rack units. A place tree you can widen or collapse. Hide your Personal location if you don't use
-  it.
+  you can restore from. Furniture with compartments you can turn, merge and split;
+  [server racks](https://keptinventory.info/users/locations/#racks) in rack units. A place tree
+  you can widen or collapse. Hide your Personal location if you don't use it.
 - **3D map and graph.** Each location in 3D, rooms at their real size, started from a floor plan
   if you have one; its places and things as a graph
   ([the map](https://keptinventory.info/users/location-map/)).
 - **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
-  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
+  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go. If the scanner
+  doesn't start, Try again starts it afresh; on a phone, sheets stay above the keyboard.
 - **Lending and borrowing.** Who has what and when it's due back; borrowers need no account.
   Reminders before and after the due date, one list of everything out, and each thing's trail of
   who had it and how it came back ([lending](https://keptinventory.info/users/lending/)).
@@ -109,13 +110,16 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   unpacked by scanning ([moving](https://keptinventory.info/users/moving/)).
 - **Reminders.** Warranties, services, documents, loans and low stock: in the app, by mail, push,
   ntfy, Telegram and a calendar feed.
-- **Vehicles and machines.** Readings, services, fuel and running costs, metric or imperial.
+- **Vehicles and machines.** Readings, services, fuel and running costs,
+  [metric or imperial](https://keptinventory.info/users/vehicles/#units).
 - **The household.** Shared locations with roles and end dates, share links, stocktakes,
-  condition reports, an insurance report and insights. PDFs in the reader's language.
+  condition reports, an insurance report and insights.
+  [PDFs](https://keptinventory.info/users/reports/) in the reader's language.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them. Give a location
-  its position and Capture suggests it when you are there.
+  [its position](https://keptinventory.info/users/locations/#its-position) and Capture suggests it
+  when you are there.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
@@ -124,6 +128,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
   Homebox import takes its links' titles from Paperless
   ([Paperless](https://keptinventory.info/users/paperless/)).
+- **Install.** Pick how you run Kept (Docker Compose, Kubernetes, from source or Home Assistant)
+  and follow its steps on one page ([install](https://keptinventory.info/install/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
@@ -200,11 +206,11 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
 ## What's next
 
 - **Next:** [compartments on the 3D map](https://github.com/keptinventory/kept/issues/238)
-- **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169) ·
-  [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197) ·
+- **Later:** [mobile and desktop apps](https://github.com/keptinventory/kept/issues/169),
+  [scan a room into the 3D map](https://github.com/keptinventory/kept/issues/197),
   [storage furniture templates](https://github.com/keptinventory/kept/issues/238)
 
-[Full roadmap →](https://github.com/orgs/keptinventory/projects/1) · 👍 the themes you want most.
+[Full roadmap →](https://github.com/orgs/keptinventory/projects/1): 👍 the themes you want most.
 
 ## Links
 
@@ -240,4 +246,4 @@ of everything inside it, served at `/notices.txt`.
   </a>
 </p>
 
-Created by [Ibrahim Roshdy](https://github.com/ibrahimroshdy) · AGPL-3.0
+Created by [Ibrahim Roshdy](https://github.com/ibrahimroshdy), AGPL-3.0

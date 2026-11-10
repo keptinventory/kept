@@ -360,7 +360,7 @@ export function FurnitureForm({ locationId, parentId, onDone }: FurnitureFormPro
       {rack && rackLayout ? (
         <>
           <TextField
-            label={t`Units`}
+            label={t({ message: 'Units', context: 'rack' })}
             description={t`How many rack units (U) high.`}
             value={unitsText ?? String(rack.units)}
             onChange={(v) => {

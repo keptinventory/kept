@@ -29,15 +29,15 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_SECRET_KEY_VERSION` |  | the version of `KEPT_SECRET_KEY`: `1` when unset; `kept admin rotate-key` says what to set (§7.3) |
 | `KEPT_SECRET_KEYS_RETIRED` |  | earlier `KEPT_SECRET_KEY` versions, still needed to open values and backups sealed before a rotation: comma-separated `version:key` pairs; never logged |
 | `KEPT_PUBLIC_URL` |  | required; source of truth for links and QR codes |
-| `KEPT_ROLE` | `all` | `all` · `web` · `worker` |
-| `KEPT_STORAGE` | `local` | `local` · `s3` (+ `KEPT_S3_*`) |
+| `KEPT_ROLE` | `all` | `all`, `web`, `worker` |
+| `KEPT_STORAGE` | `local` | `local`, `s3` (+ `KEPT_S3_*`) |
 | `KEPT_SMTP_URL` |  | optional; `smtp://` or `smtps://`, with credentials if needed; unset, mail is only logged as due |
 | `KEPT_SMTP_FROM` |  | the From of every mail; default `Kept <no-reply@<KEPT_PUBLIC_URL host>>` |
 | `KEPT_LOG_LEVEL` | `info` | pino log level |
 | `KEPT_LOG_FORMAT` | `json` | `pretty` for `docker logs` |
 | `KEPT_SOURCE_URL` |  | the image's OCI `source` + `revision` labels; forks override it (D147) |
 | `KEPT_SETUP_CODE` |  | generated; app stores may preset it (D107); 6 Crockford base32 characters |
-| `KEPT_SIGNUP_OPEN` |  | `true` · `false`; when set, locks sign-up open or closed and the admin setting shows as locked |
+| `KEPT_SIGNUP_OPEN` |  | `true`, `false`; when set, locks sign-up open or closed and the admin setting shows as locked |
 | `KEPT_CONFIG_DIR` | `/config` | config volume; holds only the generated secret keys |
 | `KEPT_DATA_DIR` | `/data` | data volume; local file storage |
 | `KEPT_MAX_FILE_MB` | `25` | largest file one upload may be, in MB (§3.4) |
@@ -50,14 +50,14 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_S3_SECRET_ACCESS_KEY` |  | S3 secret access key (required with `KEPT_STORAGE=s3`); never logged |
 | `KEPT_S3_FORCE_PATH_STYLE` |  | `true` for path-style URLs (RustFS, MinIO, most self-hosted S3) |
 | `KEPT_TRUSTED_PROXIES` |  | comma-separated IPs/CIDRs of reverse proxies whose `X-Forwarded-For` is believed; empty: the socket address is the client |
-| `KEPT_HSTS` | `on` | `on` · `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent |
+| `KEPT_HSTS` | `on` | `on`, `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent |
 | `KEPT_HTTP_SIGN_IN_DAYS` |  | whole days, 1 to 30: how long a sign-in lasts over plain http, renewed as it is used; unset: 12 hours, not renewed. No effect over https (30 days). Anyone who can see the traffic can copy a sign-in cookie, and a copied one then keeps working for as long as it is used ([Staying on your network](/install/home-network/#staying-on-your-network)) |
 | `KEPT_EXTRA_ADDRESSES` |  | comma-separated exact addresses (scheme, host, port) this Kept also answers on, like `http://192.0.2.20:8080`; no wildcards, and the same `http` or `https` as `KEPT_PUBLIC_URL`, or Kept stops at startup. Each signs in separately; links, mail, passkeys and AI apps stay on `KEPT_PUBLIC_URL` ([Staying on your network](/install/home-network/#staying-on-your-network)) |
 | `KEPT_METRICS_TOKEN` |  | optional bearer token required to read `/metrics` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` |  | optional; your OpenTelemetry collector (OTLP over HTTP): traces requests and queries there, with the image's `--import` preload; the other `OTEL_*` variables apply; unset, nothing is loaded or sent (D84) |
 | `KEPT_ERROR_DSN` |  | optional; a Sentry-compatible DSN: a request that fails with a 5xx is reported with its request id, route and stack, never a body, header, message or user; unset, nothing is sent (D84) |
 | `KEPT_AI_MOCK` |  | `1`: every AI call answers from the mock provider (tests, dev); refused in production |
-| `KEPT_BARCODE_LOOKUP` |  | `true` · `false`; when set, locks barcode lookup (Open*Facts) on or off and the admin setting shows as locked |
+| `KEPT_BARCODE_LOOKUP` |  | `true`, `false`; when set, locks barcode lookup (Open*Facts) on or off and the admin setting shows as locked |
 | `KEPT_BARCODE_CONTACT` |  | an email for the barcode lookup's User-Agent, as Open*Facts asks (D104) |
 | `KEPT_EVAL_DIR` |  | the extraction evaluation only (`pnpm eval:extraction`): the folder of labelled photos |
 | `KEPT_BACKUP_DIR` |  | nightly backup to this directory: an absolute path outside `KEPT_DATA_DIR`, ideally another disk; the worker also needs `KEPT_OWNER_DATABASE_URL` |
@@ -79,7 +79,7 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_BACKUP_KEEP_MONTHLY` |  | retention: the newest backup of each of the last N months; default 6 (D66); set, it locks the field |
 | `KEPT_RESTIC_BIN` |  | the restic binary; default the image's pinned one, else `restic` on `PATH` |
 | `KEPT_RESTIC_CACHE_DIR` |  | restic's cache, never backed up; default `<KEPT_DATA_DIR>/.cache/restic` |
-| `KEPT_UPDATE_CHECK` |  | `true` · `false`; when set, locks "Check for new versions" (GitHub releases, off by default, D65) on or off |
+| `KEPT_UPDATE_CHECK` |  | `true`, `false`; when set, locks "Check for new versions" (GitHub releases, off by default, D65) on or off |
 | `KEPT_PORT` | `8080` | the port the server listens on |
 | `KEPT_HA` |  | `1` only in the Home Assistant app's image: Kept trusts Home Assistant's ingress (from the Supervisor's address only) and says it runs as an app; Kept's own backups and the pre-upgrade snapshot are off |
 | `KEPT_HA_TRUST_GROUPS` |  | `1` only from the Home Assistant app's start script, on a Supervisor that sets the user's groups itself: a Home Assistant administrator sets Kept up through ingress without the code |
@@ -87,11 +87,11 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_TLS_CERT_FILE` |  | optional; a PEM certificate (chain) file: Kept serves https itself on `KEPT_PORT`; with `KEPT_TLS_KEY_FILE` |
 | `KEPT_TLS_KEY_FILE` |  | optional; the certificate's PEM private key file; with `KEPT_TLS_CERT_FILE` |
 | `KEPT_ALLOW_DOWNGRADE` |  | `1`: start on a database more than one release ahead of this image, audited; for a restore runbook only (plan Q9) |
-| `KEPT_UPGRADE_SNAPSHOT` | `auto` | `auto` · `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8) |
+| `KEPT_UPGRADE_SNAPSHOT` | `auto` | `auto`, `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8) |
 | `KEPT_VAPID_PUBLIC_KEY` |  | web push: overrides the generated key pair; set both or neither |
 | `KEPT_VAPID_PRIVATE_KEY` |  | web push: the private half of `KEPT_VAPID_PUBLIC_KEY`; never logged |
 | `KEPT_VAPID_SUBJECT` |  | web push: who push services contact, an `https:` URL or `mailto:` address; default `KEPT_PUBLIC_URL` when https, else `mailto:` the `KEPT_SMTP_FROM` address, else push is unavailable |
-| `KEPT_EMBEDDINGS` | `provider` | `provider` · `local` · `off`: where search's embeddings come from; `local` is refused unless the local model's runtime is installed (D207) |
+| `KEPT_EMBEDDINGS` | `provider` | `provider`, `local`, `off`: where search's embeddings come from; `local` is refused unless the local model's runtime is installed (D207) |
 | `KEPT_EMBEDDINGS_DIR` |  | the local embedding model's files, only read when `KEPT_EMBEDDINGS=local`; default `<KEPT_DATA_DIR>/models` |
 | `KEPT_OIDC_ISSUER` |  | OIDC sign-in: the issuer URL exactly as its discovery document states it; set, OIDC is on (needs `KEPT_OIDC_CLIENT_ID`) |
 | `KEPT_OIDC_CLIENT_ID` |  | OIDC sign-in: the client id |

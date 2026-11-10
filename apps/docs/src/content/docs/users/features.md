@@ -81,13 +81,16 @@ a location turns them on in **Location settings → What to track**
   name and a Tailscale name.
 - **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
   and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
-  Amounts are read as your language writes them. PDFs, claim packs and the readable copy
+  Amounts are read as your language writes them. [PDFs](/users/reports/), claim packs and the readable copy
   come out in your language. The user, admin and install docs are in every language too.
 
 ## On your phone
 
 - **[Kept on your phone](/users/phone-app/)**: installs from the browser; capture, scan and search
   with no signal, synced later.
+- **[A scanner that starts again](/users/troubleshooting/#a-label-wont-scan)**: if it doesn't
+  start, **Try again** restarts the camera and the scanner, with no need to close the app. Sheets
+  stay above the phone's keyboard.
 
 ## AI, optional
 
@@ -113,6 +116,8 @@ a location turns them on in **Location settings → What to track**
 
 ## Running it
 
+- **[Install Kept](/install/)**: pick how you run it (Docker Compose, Kubernetes, from source or
+  Home Assistant) and follow its steps on one page.
 - **[Backups](/admin/backups/)**: nightly, encrypted, to a directory, S3 or SFTP, each with a copy
   that [opens without Kept](/admin/read-with-restic/).
 - **[What it needs](/install/hardware/)**: one container and Postgres; tested on 1 GB of RAM and

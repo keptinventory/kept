@@ -45,11 +45,12 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 - **[Chia sẻ một địa điểm](/vi/users/sharing/)**: mời mọi người với vai trò (quản trị, thành viên, người xem) và ngày kết thúc tùy chọn; tài khoản được quản lý cho người không có email; liên kết chỉ đọc cho người không có tài khoản.
 - **[Đăng nhập và bảo mật](/vi/users/sign-in-security/)**: khóa truy cập và xác thực hai yếu tố; trên mạng nhà qua http thường, [đăng nhập miễn là quản trị viên đặt](/vi/install/home-network/#giữ-trong-mạng-của-bạn); một Kept trên [nhiều hơn một địa chỉ](/vi/install/home-network/#hơn-một-địa-chỉ), như tên LAN và tên Tailscale.
-- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Số tiền được đọc theo cách ngôn ngữ của bạn viết. PDF, gói yêu cầu bồi thường và bản sao đọc được đều xuất ra bằng ngôn ngữ của bạn. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
+- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Số tiền được đọc theo cách ngôn ngữ của bạn viết. [PDF](/vi/users/reports/), gói yêu cầu bồi thường và bản sao đọc được đều xuất ra bằng ngôn ngữ của bạn. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
 
 ## Trên điện thoại của bạn
 
 - **[Kept trên điện thoại của bạn](/vi/users/phone-app/)**: cài đặt từ trình duyệt; chụp, quét và tìm kiếm không cần sóng, đồng bộ sau.
+- **[Khi máy quét không khởi động](/vi/users/troubleshooting/#một-nhãn-không-quét-được)**: **Thử lại** khởi động lại camera và máy quét, không cần đóng ứng dụng. Các cửa sổ luôn nằm phía trên bàn phím điện thoại.
 
 ## AI, tùy chọn
 
@@ -66,6 +67,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 ## Chạy nó
 
+- **[Cài đặt Kept](/vi/install/)**: chọn cách bạn chạy Kept (Docker Compose, Kubernetes, từ mã nguồn hoặc Home Assistant) và làm theo các bước trên một trang.
 - **[Sao lưu](/vi/admin/backups/)**: hàng đêm, được mã hóa, đến thư mục, S3 hoặc SFTP, mỗi cái với một bản sao [mở không cần Kept](/vi/admin/read-with-restic/).
 - **[Những gì nó cần](/vi/install/hardware/)**: một container và Postgres; thử nghiệm trên 1 GB RAM và một nhân CPU.
 - **[Mô hình bảo mật](/vi/admin/security-model/)**: không có telemetry; không có gì rời máy chủ trừ khi bạn bật nó.

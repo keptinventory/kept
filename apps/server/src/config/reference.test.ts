@@ -18,4 +18,9 @@ describe('renderEnvReference', () => {
     expect(lines).toContainEqual(expect.stringMatching(/^\| `KEPT_CONFIG_DIR` \| `\/config` \| /));
     expect(lines).toContainEqual(expect.stringMatching(/^\| `KEPT_DATABASE_URL` \| {2}\| /));
   });
+
+  it('lists values with commas, never a middle dot (#478)', () => {
+    expect(renderEnvReference()).not.toContain('·');
+    expect(renderEnvReference()).toContain('`all`, `web`, `worker`');
+  });
 });

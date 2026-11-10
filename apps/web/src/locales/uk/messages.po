@@ -2469,7 +2469,7 @@ msgstr "Досягнуто місячного ліміту токенів {who}"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{width} mm tape"
-msgstr "{width} мм стрічка"
+msgstr "Стрічка {width} мм"
 
 #: src/components/import/homebox-choices.tsx
 msgid "{zeroItems, plural, one {# item has quantity 0.} other {# items have quantity 0.}}"
@@ -30915,6 +30915,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, one {Стійка 19 дюймів, #U} few {Стійка 19 дюймів, #U} many {Стійка 19 дюймів, #U} other {Стійка 19 дюймів, #U}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "Юніти"
 
@@ -31261,7 +31262,7 @@ msgstr "{a} × {b} дюйма"
 
 #: src/components/labels/stock-picker.tsx
 msgid "{width} in tape"
-msgstr "{width} дюйма стрічка"
+msgstr "Стрічка {width} дюйма"
 
 #: src/components/inbox/reading-review.tsx
 msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."

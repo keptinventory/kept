@@ -183,7 +183,7 @@ la riga sulla ricevuta, il prezzo di uno con la sua valuta e le note, modificand
 che ha o registrandone uno, come fa la pagina dell'oggetto. Un prezzo richiede che Money sia attivo e un ruolo che
 veda il denaro, come nell'app; un minimo richiede **Oggetti che si esauriscono**. Un tipo che Kept non conosce viene
 lasciato fuori e l'`not_set` della risposta lo dice; la scheda dell'assistente
-lo mostra come "not set" con un selettore. Un apparato in un armadio rack prende `rack_units` (la sua altezza, 0 accanto ai montanti) e `rack_at` (il numero di unità più basso che occupa, secondo la numerazione dell’armadio, come lo dà `get_thing`, il lato e se è a profondità piena), rifiutato come nell’app se l’unità è occupata.
+lo mostra come "non impostato" con un selettore. Un apparato in un armadio rack prende `rack_units` (la sua altezza, 0 accanto ai montanti) e `rack_at` (il numero di unità più basso che occupa, secondo la numerazione dell’armadio, come lo dà `get_thing`, il lato e se è a profondità piena), rifiutato come nell’app se l’unità è occupata.
 
 Gli strumenti per il trasloco sono solo per le app collegate; l'assistente in Kept non li usa.
 

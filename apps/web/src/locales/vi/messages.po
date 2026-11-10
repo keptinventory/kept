@@ -20981,6 +20981,7 @@ msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
 msgstr "{units, plural, one {Tủ rack 19 inch, #U} other {Tủ rack 19 inch, #U}}"
 
 #: src/components/places/furniture.tsx
+msgctxt "rack"
 msgid "Units"
 msgstr "Số đơn vị"
 
