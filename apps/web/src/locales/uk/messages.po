@@ -3235,8 +3235,8 @@ msgid "A price needs a currency."
 msgstr "Ціні потрібна валюта."
 
 #: src/components/import/labels.ts
-msgid "A price needs a purchase date; kept in the notes."
-msgstr "Ціні потрібна дата покупки; збережено в нотатках."
+msgid "A purchase needs a date; kept in the notes."
+msgstr "Покупці потрібна дата; збережено в нотатках."
 
 #: src/components/notifications/settings/calendar.tsx
 msgid "A private link your calendar app subscribes to: what's due and what runs out, as all-day events, from a month back to 13 months ahead. Titles and dates only, never money."

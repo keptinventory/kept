@@ -7779,8 +7779,8 @@ msgstr "Một vài lựa chọn"
 msgid "A place name is longer than {max} characters; kept in the notes."
 msgstr "Tên vị trí dài hơn {max} ký tự; được giữ trong ghi chú."
 
-msgid "A price needs a purchase date; kept in the notes."
-msgstr "Giá cần có ngày mua; được giữ trong ghi chú."
+msgid "A purchase needs a date; kept in the notes."
+msgstr "Lần mua cần có ngày; được giữ trong ghi chú."
 
 msgid "A purchase needs a price; kept in the notes."
 msgstr "Lần mua cần có giá; được giữ trong ghi chú."

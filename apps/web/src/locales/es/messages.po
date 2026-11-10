@@ -11212,8 +11212,8 @@ msgid "A place name is longer than {max} characters; kept in the notes."
 msgstr "Un nombre de lugar es más largo que {max} caracteres; se guardó en las notas."
 
 #: src/components/import/labels.ts
-msgid "A price needs a purchase date; kept in the notes."
-msgstr "Un precio necesita una fecha de compra; se guardó en las notas."
+msgid "A purchase needs a date; kept in the notes."
+msgstr "Una compra necesita una fecha; se guardó en las notas."
 
 #: src/components/import/labels.ts
 msgid "A purchase needs a price; kept in the notes."
