@@ -2298,7 +2298,7 @@ msgstr "{v} {u} на годину"
 
 #: src/components/fuel/labels.tsx
 msgid "{v} kWh/100 km"
-msgstr "{v} кВт·год/100 км"
+msgstr "{v} кВт-год/100 км"
 
 #: src/components/fuel/labels.tsx
 msgid "{v} L/100 km"
@@ -2306,7 +2306,7 @@ msgstr "{v} л/100 км"
 
 #: src/components/fuel/labels.tsx
 msgid "{v} mi/kWh"
-msgstr "{v} миль/кВт·год"
+msgstr "{v} миль/кВт-год"
 
 #: src/components/fuel/labels.tsx
 msgid "{v} mpg"
@@ -14113,7 +14113,7 @@ msgstr "Kubernetes"
 
 #: src/components/fuel/labels.tsx
 msgid "kWh"
-msgstr "кВт·год"
+msgstr "кВт-год"
 
 #: src/components/fuel/labels.tsx
 msgid "L"

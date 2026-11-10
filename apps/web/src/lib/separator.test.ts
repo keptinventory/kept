@@ -57,6 +57,19 @@ describe('the separator', () => {
     await activateLocale(locale);
     expect(JSON.stringify(Object.values(i18n.messages))).not.toContain(DOT);
   });
+
+  // The dot is swapped for a comma wherever it is, so a dot inside a word or a unit would split
+  // it: Ukrainian "кВт·год" showed as "кВт, год". A unit takes a hyphen ("кВт-год", as the PDFs).
+  it.each(LOCALES)('is never between two letters in the %s catalogue', (locale) => {
+    const po = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), `../locales/${locale}/messages.po`),
+      'utf8',
+    );
+    const glued = po
+      .split('\n')
+      .filter((line) => line.startsWith('msgstr') && /\p{L}·\p{L}/u.test(line));
+    expect(glued).toEqual([]);
+  });
 });
 
 /**
