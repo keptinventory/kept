@@ -70,7 +70,7 @@ Avec l'[application Kept](/fr/install/home-assistant/) dans le même Home Assist
 3. **Autorisez-le dans Kept.** Home Assistant affiche un code et attend. Ouvrez Kept (la barre latérale convient) à **Paramètres → Connexions** : **Home Assistant demande à se connecter** affiche le même code. **Autoriser**, cochez les lieux et choisissez ce qu'il peut faire, comme pour un jeton.
 4. **Terminé.** Home Assistant termine tout seul et indique la version de Kept et vos lieux.
 
-Ce que reçoit Home Assistant : un jeton personnel ordinaire nommé **Home Assistant**, créé par vous et agissant en votre nom, pour les lieux cochés. Il passe de Kept à Home Assistant par le réseau interne de Home Assistant et n'est jamais affiché sur une page. Révoquez-le dans **Paramètres → Connexions**. Une demande que personne n'autorise en 10 minutes prend fin : recommencez depuis Home Assistant.
+Ce que reçoit Home Assistant : un jeton personnel ordinaire nommé **Home Assistant**, créé par vous et agissant en votre nom, pour les lieux cochés. Il passe de Kept à Home Assistant par le réseau interne de Home Assistant et n'est jamais affiché sur une page. Révoquez-le dans **Paramètres → Connexions**. Une demande que personne n'autorise en 10 minutes prend fin : recommencez depuis Home Assistant. Kept ne crée le jeton qu'au moment où Home Assistant le récupère : si Home Assistant cesse d'attendre avant, ou si Kept redémarre, aucun jeton n'est créé.
 
 ## Configuration
 
