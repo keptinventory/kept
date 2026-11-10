@@ -1,0 +1,29 @@
+---
+/**
+ * One way to run Kept on the install page (#492), inside InstallPicker.astro: a section whose id
+ * is the path's (`#compose`), under a heading with the path's name in the page's language. Its
+ * steps are the page's own Markdown.
+ */
+import { langOf, pick } from '../../i18n';
+import { install } from '../../words';
+import { DEFAULT_PATH, isPathId, type PathId } from './paths';
+
+interface Props {
+  id: PathId;
+}
+
+const { id } = Astro.props;
+if (!isPathId(id)) throw new Error(`The install page has no path "${id}" (paths.ts)`);
+const t = pick(install, langOf(Astro.locals.starlightRoute.lang));
+---
+
+<section
+  class="kd-path"
+  id={id}
+  data-install-path={id}
+  data-default={id === DEFAULT_PATH ? '' : undefined}
+  aria-labelledby={`${id}-name`}
+>
+  <h2 id={`${id}-name`}>{t.paths[id].name}</h2>
+  <slot />
+</section>

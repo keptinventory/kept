@@ -211,7 +211,7 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
 | | |
 |---|---|
 | Documentation | [keptinventory.info](https://keptinventory.info/) |
-| Install | [Docker Compose](https://keptinventory.info/install/compose/), [HTTPS](https://keptinventory.info/install/https/), [Kubernetes](https://keptinventory.info/install/kubernetes/) (Helm chart in [`charts/kept`](charts/kept/)), [configuration](https://keptinventory.info/reference/configuration/) |
+| Install | [Start here](https://keptinventory.info/install/): pick how you run Kept; [Docker Compose](https://keptinventory.info/install/compose/), [HTTPS](https://keptinventory.info/install/https/), [Kubernetes](https://keptinventory.info/install/kubernetes/) (Helm chart in [`charts/kept`](charts/kept/)), [configuration](https://keptinventory.info/reference/configuration/) |
 | API | [HTTP API reference](https://keptinventory.info/api/), generated from the OpenAPI document |
 | MCP | [Connect an AI client](https://keptinventory.info/users/mcp-clients/) |
 | Roadmap | [Now, next and later](https://github.com/orgs/keptinventory/projects/1) |

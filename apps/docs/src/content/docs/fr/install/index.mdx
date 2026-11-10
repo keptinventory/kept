@@ -1,0 +1,300 @@
+---
+title: Installer Kept
+description: Choisissez comment vous faites tourner Kept, avec Docker Compose, Kubernetes, depuis les sources ou comme application Home Assistant, puis suivez les étapes de ce chemin, avec une vérification après chacune.
+sidebar:
+  order: 0
+  label: Commencer ici
+---
+
+import { Aside, Code, Steps } from '@astrojs/starlight/components';
+import HomeAssistantButton from '../../../../components/HomeAssistantButton.astro';
+import InstallPath from '../../../../components/install/InstallPath.astro';
+import InstallPicker from '../../../../components/install/InstallPicker.astro';
+import Need from '../../../../components/install/Need.astro';
+import See from '../../../../components/install/See.astro';
+import { commands, printed } from '../../../../components/install/commands';
+
+Choisissez comment vous faites tourner Kept, puis suivez ses étapes. Chaque chemin a un guide
+complet dans cette section ; le lien se trouve à la fin de ses étapes.
+
+<InstallPicker>
+<InstallPath id="compose">
+
+<Need>
+Docker avec le plugin Compose, et un terminal. Testé avec 1 Go de RAM et un cœur de CPU ; Kept et
+sa base de données en utilisent environ 200–400 Mo ([ce qui a été testé](/fr/install/hardware/)).
+</Need>
+
+<Steps>
+
+1. **Téléchargez `compose.yaml`** dans un dossier à lui : Kept et sa base de données dans un seul
+   fichier, sans copie du dépôt et sans mot de passe à créer.
+
+   <Code code={commands.compose.download} lang="sh" />
+
+2. **Écrivez `.env`.** `init` demande l’adresse à laquelle vous ouvrirez Kept, comme
+   `http://kept.home.arpa:8080`. Préférez un nom à une adresse IP : les étiquettes imprimées la
+   portent.
+
+   <Code code={commands.compose.init} lang="sh" />
+
+   <See>
+   <Code code={printed.init} lang="text" />
+   </See>
+
+3. **Démarrez-le.** La base de données démarre, deux services à exécution unique créent ses
+   identifiants et appliquent les migrations, puis Kept démarre sur le port 8080.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   À l’adresse, la page **Saisissez le code de configuration** de Kept.
+   </See>
+
+4. **Configurez-le.** Saisissez le code qu’`init` a affiché et créez le premier compte : il devient
+   l’administrateur de l’instance.
+
+5. **Gardez les clés.** Imprimez le kit de récupération et gardez-le ailleurs que sur ce serveur,
+   par exemple dans un gestionnaire de mots de passe. Une sauvegarde ne restaure les valeurs
+   secrètes qu’avec ces clés.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   Un texte qui commence par `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+<Aside title="Windows">
+Dans PowerShell, tapez `curl.exe` là où les étapes disent `curl`, et lancez `mkdir kept` et
+`cd kept` l’un après l’autre. Ou lancez toutes les étapes dans WSL.
+</Aside>
+
+Chaque étape en détail, avec Caddy pour HTTPS et Ollama pour l’IA locale :
+[Installer avec Docker Compose](/fr/install/compose/).
+
+</InstallPath>
+<InstallPath id="kubernetes">
+
+<Aside type="caution" title="Pas encore testé sur un vrai cluster">
+Le chart se génère et se valide à chaque vérification, et chaque version le publie avec l’image,
+mais il n’a pas encore été installé sur un vrai cluster. Traitez une première installation comme
+un test.
+</Aside>
+
+<Need>
+Un cluster Kubernetes comme k3s, `kubectl` et `helm`, et un terminal. Le chart demande 384 Mio de
+mémoire pour Kept (au plus 1 Gio) et 256 Mio pour son Postgres inclus (au plus 512 Mio).
+</Need>
+
+<Steps>
+
+1. **Créez les secrets.** Le chart n’écrit jamais de secret : les identifiants de la base de
+   données et le superutilisateur du Postgres inclus prennent leurs mots de passe dans des secrets
+   que vous créez d’abord.
+
+   <Code code={commands.kubernetes.secrets} lang="sh" />
+
+2. **Installez le chart**, avec `publicUrl` à l’adresse que les gens ouvriront. N’ajoutez pas
+   `--wait` à cette première installation : les migrations s’exécutent après.
+
+   <Code code={commands.kubernetes.install} lang="sh" />
+
+   <See>
+   La première ligne des notes qu’affiche Helm :
+
+   <Code code={printed.helmInstalled} lang="text" />
+   </See>
+
+3. **Trouvez le code de configuration.** Kept l’affiche une fois, à son premier démarrage.
+
+   <Code code={commands.kubernetes.setupCode} lang="sh" />
+
+   <See>
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+   Ouvrez l’adresse, saisissez le code et créez le premier compte : il devient l’administrateur de
+   l’instance.
+
+4. **Gardez les clés.** Enregistrez le kit de récupération et gardez-le hors du cluster.
+
+   <Code code={commands.kubernetes.recoveryKit} lang="sh" />
+
+   <See>
+   `kept-recovery-kit.txt`, qui commence par `KEPT RECOVERY KIT`.
+   </See>
+
+5. **Vérifiez-le.** `helm test` demande `/readyz` et `/version` au Kept en cours d’exécution.
+
+   <Code code={commands.kubernetes.test} lang="sh" />
+
+</Steps>
+
+Sous Windows, lancez ces commandes dans WSL. Les valeurs, les secrets facultatifs et ce que le chart
+exécute : [Installation sur Kubernetes avec Helm](/fr/install/kubernetes/).
+
+</InstallPath>
+<InstallPath id="source">
+
+<Need>
+Git, Docker avec le plugin Compose, et un terminal. Kept tourne comme avec Docker Compose, sur
+votre propre image.
+</Need>
+
+<Steps>
+
+1. **Récupérez le code.**
+
+   <Code code={commands.source.clone} lang="sh" />
+
+2. **Construisez l’image**, étiquetée `kept:local`.
+
+   <Code code={commands.source.build} lang="sh" />
+
+3. **Écrivez `.env`.** Faites pointer `compose.yaml` vers votre image, puis lancez `init`. Il
+   trouve le `.env`, demande s’il doit le mettre à jour (répondez `Y`), puis demande l’adresse à
+   laquelle vous ouvrirez Kept.
+
+   <Code code={commands.source.init} lang="sh" />
+
+   <See>
+   <Code code={printed.initUpdated} lang="text" />
+   </See>
+
+4. **Démarrez-le**, et ouvrez l’adresse.
+
+   <Code code={commands.compose.start} lang="sh" />
+
+   <See>
+   La page **Saisissez le code de configuration** de Kept. Saisissez le code qu’`init` a affiché et
+   créez le premier compte : il devient l’administrateur de l’instance.
+   </See>
+
+5. **Gardez les clés.** Imprimez le kit de récupération et gardez-le ailleurs que sur ce serveur.
+
+   <Code code={commands.compose.recoveryKit} lang="sh" />
+
+   <See>
+   Un texte qui commence par `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+Sous Windows, lancez ces commandes dans WSL. Le même `compose.yaml` que pour une version publiée,
+expliqué en détail : [Installer avec Docker Compose](/fr/install/compose/).
+
+</InstallPath>
+<InstallPath id="home-assistant">
+
+<Need>
+Home Assistant OS avec Supervisor 2026.10.4 ou ultérieur : les applications ont besoin du
+Supervisor, donc pas Home Assistant Container ni Core. Une machine `aarch64` ou `amd64`, comme un
+Raspberry Pi 4 ou 5 en 64 bits ou un mini-PC. 4 Go de mémoire ; 2 Go suffisent avec peu d’autres
+applications. Pas de terminal.
+</Need>
+
+<Steps>
+
+1. **Ajoutez le dépôt de Kept.** Le bouton ouvre votre Home Assistant avec le dépôt déjà rempli. Ou
+   allez dans **Paramètres → Applications → Installer l’application → ⋮ → Dépôts** et ajoutez
+   `https://github.com/keptinventory/kept`.
+
+   <HomeAssistantButton />
+
+2. **Installer, puis Commencer.** Trouvez **Kept** dans la boutique d’applications, puis
+   **Installer**, puis **Commencer**.
+
+   <See>
+   Dans l’onglet **Journal** de l’application, l’adresse propre de Kept et le code de
+   configuration :
+
+   <Code code={printed.homeAssistant} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Ouvrir l’interface Web.** Kept s’ouvre dans Home Assistant, et aussi dans la barre latérale.
+
+   <See>
+   Pour un administrateur de Home Assistant, **Créer le premier compte**, sans code. Toute autre
+   personne voit **Saisissez le code de configuration** et tape le code de l’onglet **Journal**.
+   </See>
+
+</Steps>
+
+L’adresse de Kept, HTTPS et les sauvegardes :
+[Installer Kept comme application Home Assistant](/fr/install/home-assistant/).
+
+</InstallPath>
+</InstallPicker>
+
+## Quelque chose ne marche pas ?
+
+- **Le conteneur redémarre sans cesse.** Lisez son journal : `docker compose logs kept`. Kept
+  vérifie ses réglages avant de démarrer et s’arrête sur une ligne qui nomme le premier problème,
+  comme `kept: invalid environment: KEPT_PUBLIC_URL` (lancez `docker compose run --rm init`). Si
+  `docker compose up -d` s’arrête à `bootstrap`, `docker compose logs bootstrap` dit pourquoi. Avec
+  moins de 1 Go de mémoire, une sauvegarde peut en manquer et Docker redémarre Kept
+  ([ce dont il a besoin](/fr/install/hardware/)).
+  [Plus](/fr/admin/troubleshooting/#kept-sarrête-au-démarrage-avec-kept-invalid-environment--ou-une-autre-ligne-kept)
+- **Le port est déjà pris.** Kept utilise le port 8080 de l’hôte. Relancez
+  `docker compose run --rm init` avec une adresse `http://` sur un port libre : il écrit l’adresse
+  et le port (`KEPT_HTTP_PORT`) dans `.env`. Puis `docker compose up -d`. Dans l’application Home
+  Assistant, changez le port sous **Configuration → Réseau** et réglez **L’adresse de Kept** en
+  conséquence.
+  [Plus](/fr/install/compose/#1-écrire-env)
+- **Permission refusée.** Kept tourne avec l’utilisateur 10001 sur un système de fichiers en
+  lecture seule, donc un dossier que vous y montez, comme un répertoire de sauvegarde, doit
+  appartenir à l’uid 10001. `init` écrit `.env` dans le dossier d’où vous le lancez : lancez-le
+  dans un dossier qui vous appartient.
+  [Plus](/fr/admin/troubleshooting/#les-sauvegardes-ne-sexécutent-pas-ou-lalerte--sauvegarde-périmée--se-déclenche)
+- **Les autres appareils ne l’ouvrent pas.** `localhost` ne s’ouvre que sur cette machine. Utilisez
+  un nom que les autres appareils trouvent, défini dans le DNS de votre routeur ou dans le fichier
+  hosts de chaque appareil, et relancez `init` avec lui. Si Kept dit « Ce Kept est configuré pour
+  *adresse*. Ouvrez-le à cette adresse. », ouvrez-le exactement à cette adresse, ou ajoutez l’autre
+  dans `KEPT_EXTRA_ADDRESSES` ([plusieurs adresses](/fr/install/home-network/#plusieurs-adresses)).
+  [Plus](/fr/admin/troubleshooting/#-ce-kept-est-configuré-pour---ou--la-requête-ne-provient-pas-de-ce-site-)
+- **Une erreur 502 du proxy inverse.** Kept parle en HTTP simple sur le port 8080 : faites pointer
+  le proxy vers `http://`, pas `https://`, sur ce port
+  ([derrière un proxy inverse](/fr/install/reverse-proxy/)). Kept ne démarre qu’une fois `migrate`
+  terminé ; en cas d’échec, `docker compose logs migrate` dit pourquoi.
+  [Plus](/fr/admin/troubleshooting/#kept-ne-démarre-pas-après-une-mise-à-niveau-et-migrate-sest-terminé-avec-une-erreur)
+
+Tout le reste : [Dépannage](/fr/admin/troubleshooting/).
+
+## Aller plus loin
+
+- **HTTPS :** la caméra, l’installation de l’application, les notifications push et la position en
+  ont besoin. [Activez le protocole HTTPS pour Kept](/fr/install/https/), ou
+  [Kept sur un réseau domestique](/fr/install/home-network/) pour ce qui marche sans.
+- **L’assistant :** posez vos questions en langage courant, avec votre propre fournisseur d’IA ;
+  Kept fonctionne sans. [Fournisseurs d’IA](/fr/users/ai-providers/), et
+  [Connecter un client IA (MCP)](/fr/users/mcp-clients/).
+- **Sauvegardes :** chaque nuit et chiffrées, vers un répertoire, S3 ou SFTP.
+  [Sauvegardes](/fr/admin/backups/).
+- **Courriel :** réinitialisations de mot de passe, invitations et rappels par courriel, avec
+  `KEPT_SMTP_URL` et `KEPT_SMTP_FROM`. [Courriel, push et le flux calendrier](/fr/admin/notifications/).
+- **Home Assistant :** l’intégration amène ce qui arrive à échéance dans les tableaux de bord et
+  les automatisations. [Home Assistant](/fr/users/home-assistant/).
+
+## Mises à jour
+
+- **Docker Compose :** mettez la nouvelle version dans `KEPT_IMAGE` de `.env`, puis :
+
+  <Code code={commands.compose.update} lang="sh" />
+
+  Une version qui change `compose.yaml` le dit dans ses notes : téléchargez son fichier par-dessus
+  le vôtre.
+- **Depuis les sources :**
+
+  <Code code={commands.source.update} lang="sh" />
+
+- **Kubernetes :** chaque version publie un chart de la même version, et ses migrations
+  s’exécutent dans un Job avant que la nouvelle version ne serve.
+- **Home Assistant :** Home Assistant propose la mise à jour. Activez
+  **Conserver une sauvegarde de la dernière version** dans sa boîte de dialogue de mise à jour.
+
+Avec une destination de sauvegarde définie, Kept prend un instantané avant de migrer.
+[Mises à niveau et retour en arrière](/fr/admin/upgrades/).
