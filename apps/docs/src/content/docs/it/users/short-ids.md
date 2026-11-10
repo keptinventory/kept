@@ -15,7 +15,7 @@ Liste, risultati della ricerca e la tavolozza ⌘K mostrano un oggetto per nome.
 **Etichetta tutto ciò che non ha un'etichetta stampata** in un luogo o posto, oppure un **Foglio bianco**), scegli il **Tipo di etichetta**, indica da dove iniziare su un foglio già parcialmente usato, e stampa dal browser. L'**Anteprima foglio** è la stampa stessa, ridotta: gli stessi
 codici QR, nomi e posti, interrotti sulle stesse righe. Un nome non viene mai troncato: uno lungo va a capo e il suo tipo diventa più piccolo, e uno che comunque non entra viene elencato prima della stampa, con un link per rinominarlo. La pagina è impostata sul formato del foglio senza margini, quindi le impostazioni predefinite della finestra di stampa (scala 100 %) mettono ogni etichetta nella sua cella.
 
-I tipi di etichetta:
+I tipi di etichetta (con **Unità** su **Imperiale** in Impostazioni → Profilo → Aspetto, il selettore mostra queste misure in pollici, con due decimali: le etichette del foglio Letter sono 2,63 × 1 in; la stampa è la stessa in ogni caso):
 
 | Tipo | Dimensione | Ogni etichetta |
 |---|---|---|

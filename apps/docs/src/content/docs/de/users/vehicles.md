@@ -56,9 +56,15 @@ Bei der Vollausstattung-Voreinstellung registriert der **Tanken**-Tab jede Tankf
 
 ## Einheiten
 
-- **Kilometerzähler**: der Kilometerstand eines neuen Fahrzeugs zählt in **km**; der Zähler eines Generators zählt Stunden. Die Einheit eines Zählers kann nach seiner Erstellung bisher nicht geändert werden.
-- **Ablesungen und Kraftstoffmengen** werden genau wie eingegeben beibehalten und nie umgerechnet.
-- **Kraftstoffverbrauch** wird als L/100 km angezeigt, oder kWh/100 km bei einer Ladung; pro Stunde bei einem Stundenmesser.
+- **Kilometerzähler**: der Kilometerzähler eines neuen Fahrzeugs zählt in **km**, oder in **mi**, wenn deine Einstellung **Einheiten** (Einstellungen → Profil → Anzeige) auf **Imperial** steht. Der Zähler eines Generators zählt Stunden.
+- **Einheit ändern**: Besitzer und Admins finden es auf der Kilometerzähler-Karte der Übersicht und an einem Zähler auf der Seite eines Dings. Ein Kilometerzähler wechselt auf eine von zwei Arten zwischen km und mi:
+  - **Nur umbenennen**: die Ablesungen waren immer schon in der neuen Einheit. Jeder Wert bleibt, wie er ist.
+  - **Zählerstände umrechnen**: jede Ablesung (auch die, die auf Prüfung warten), der Versatz nach einem Tausch, das Tageslimit und die Zeitpläne, die am Kilometerzähler laufen (alle so viele km, die Vorwarnung davor, die Ablesung, ab der er zählt, und ein Aufschieben bis zu einer Ablesung), werden mit 1 mi = 1,609344 km umgerechnet, auf das Tausendstel.
+
+  Bevor du speicherst, zeigt Kept, wie viele Ablesungen sich ändern, und die letzte davor und danach. Die Änderung steht im Verlauf des Fahrzeugs als **Zählereinheit geändert**, und die Meldung danach bietet **Rückgängig machen** an, das jeden Wert genau zurücksetzt. Rückgängig machen wird abgelehnt, mit Begründung, sobald sich seitdem etwas am Zähler geändert hat: eine Ablesung erfasst, behalten oder bearbeitet, oder ein Zeitplan geändert. Ein Stundenmesser oder ein eigener Zähler kann nur umbenannt werden.
+- **Ablesungen und Kraftstoffmengen** werden wie eingegeben beibehalten. Nur **Zählerstände umrechnen** ändert eine Ablesung, und das lässt sich rückgängig machen. Kraftstoffmengen (Liter, Gallonen, kWh) werden nie umgerechnet.
+- **Kraftstoffverbrauch** folgt deiner Einstellung **Einheiten**, egal in welcher Einheit der Kilometerzähler zählt: **L/100 km**, oder **kWh/100 km** bei einer Ladung, im metrischen System; **mpg** (US-Gallonen) oder **mi/kWh** im imperialen. Bei einem Stundenmesser ist er pro Stunde, in der eingegebenen Einheit. Das PDF des Verlaufsberichts folgt der Einstellung der Person, die ihn erstellt.
+- **Ein Dashboard-Foto in der anderen Einheit**: wenn das Foto Meilen zeigt und der Kilometerzähler km zählt, oder umgekehrt, wartet die Ablesung im **Eingang**, wie jede Foto-Ablesung. Ihre Karte sagt, was das Foto zeigte, und gibt den Wert in der Einheit des Kilometerzählers an, mit einer Schaltfläche, um ihn zu übernehmen. Nichts wird umgerechnet, bevor du wählst.
 
 ## Kosten
 

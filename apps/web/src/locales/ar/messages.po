@@ -29143,3 +29143,155 @@ msgstr "أزل الموقع الجغرافي"
 #: src/components/location-position.tsx
 msgid "Position removed"
 msgstr "أُزيل الموقع الجغرافي"
+
+#: src/assistant/confirm-card.tsx
+msgid "{w} × {d}"
+msgstr "{w} × {d}"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} up"
+msgstr "على الحائط، على ارتفاع {hangs}"
+
+#: src/components/places/room-size.tsx
+msgid "Enter feet and inches, like {example}."
+msgstr "أدخل القيمة بالأقدام والبوصات، مثل {example}."
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d}"
+msgstr "<0>{room}</0>، من المخطط، لم تُضف، {w} في {d}"
+
+#: src/map/size.tsx
+msgid "Enter inches, like {example}."
+msgstr "أدخل القيمة بالبوصات، مثل {example}."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as {door} wide: check one room"
+msgstr "المقياس من الأبواب، بعرض {door} لكلٍّ منها: راجع غرفة واحدة"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under {smallest}: too small for the map."
+msgstr "أقل من {smallest}: أصغر من أن تظهر على الخريطة."
+
+#: src/components/display-prefs.tsx
+msgid "Couldn't change the units"
+msgstr "تعذّر تغيير الوحدات"
+
+#: src/components/display-prefs.tsx
+msgid "Units"
+msgstr "الوحدات"
+
+#: src/components/display-prefs.tsx
+msgid "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
+msgstr "المقاسات على الخريطة، ومقاسات الملصقات، واستهلاك الوقود، وعدّاد المسافة لأي مركبة جديدة. ما حفظته يبقى كما هو."
+
+#: src/components/display-prefs.tsx
+msgid "Metric"
+msgstr "متري"
+
+#: src/components/display-prefs.tsx
+msgid "Imperial"
+msgstr "إمبراطوري"
+
+#: src/components/things/meters-section.tsx
+msgid "Change unit"
+msgstr "تغيير الوحدة"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Unit changed to {toLabel}"
+msgstr "تغيّرت الوحدة إلى {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{n, plural, one {# reading converted} other {# readings converted}}"
+msgstr "{n, plural, zero {لم تُحوَّل أي قراءة} one {حُوّلت قراءة واحدة} two {حُوّلت قراءتان} few {حُوّلت # قراءات} many {حُوّلت # قراءةً} other {حُوّلت # قراءة}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Couldn't change the unit"
+msgstr "تعذّر تغيير الوحدة"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "From {fromLabel} to {toLabel}"
+msgstr "من {fromLabel} إلى {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "What to change"
+msgstr "ما الذي يتغيّر"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Convert the readings"
+msgstr "تحويل القراءات"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
+msgstr "تتحوّل كل قراءة، وإزاحة الاستبدال، والحد اليومي، والمواعيد المرتبطة بهذا العدّاد إلى {toLabel}."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Relabel only"
+msgstr "تغيير اسم الوحدة فقط"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "The readings were always in {toLabel}. Every value stays as it is."
+msgstr "كانت القراءات دائمًا بوحدة {toLabel}. تبقى كل قيمة كما هي."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "New unit"
+msgstr "الوحدة الجديدة"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Only the unit's name changes. The readings stay as they are."
+msgstr "يتغيّر اسم الوحدة فقط. تبقى القراءات كما هي."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
+msgstr "آخر قراءة: {0} {fromLabel} تصبح {1} {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# reading changes} other {# readings change}}"
+msgstr "{0, plural, zero {لا تتغيّر أي قراءة} one {تتغيّر قراءة واحدة} two {تتغيّر قراءتان} few {تتغيّر # قراءات} many {تتغيّر # قراءةً} other {تتغيّر # قراءة}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Replacement offset: {0} becomes {1}"
+msgstr "إزاحة الاستبدال: {0} تصبح {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Daily limit: {0} becomes {1}"
+msgstr "الحد اليومي: {0} يصبح {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
+msgstr "{0, plural, zero {لا يتغيّر أي موعد مرتبط به} one {يتغيّر موعد واحد مرتبط به} two {يتغيّر موعدان مرتبطان به} few {تتغيّر # مواعيد مرتبطة به} many {يتغيّر # موعدًا مرتبطًا به} other {يتغيّر # موعد مرتبط به}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "It goes in the history, and you can undo it."
+msgstr "يُسجَّل التغيير في السجل، ويمكنك التراجع عنه."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} across."
+msgstr "لا يقل ضلع الغرفة عن {min}."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} across."
+msgstr "لا يزيد ضلع الغرفة عن {max}."
+
+#: src/components/labels/stock-picker.tsx
+msgid "{a} × {b} in"
+msgstr "{a} × {b} بوصة"
+
+#: src/components/labels/stock-picker.tsx
+msgid "{width} in tape"
+msgstr "شريط {width} بوصة"
+
+#: src/components/inbox/reading-review.tsx
+msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
+msgstr "تُظهر الصورة {seenUnit}، وهذا العدّاد يعدّ بـ{unit}. {0} {seenUnit} تساوي {1} {unit}."
+
+#: src/components/inbox/reading-review.tsx
+msgid "Use {0} {unit}"
+msgstr "استخدم {0} {unit}"
+
+#: src/components/history/labels.ts
+msgid "Readings converted"
+msgstr "القراءات المحوّلة"
+
+#: src/components/history/labels.ts
+msgid "Meter unit changed"
+msgstr "تغيّرت وحدة العدّاد"

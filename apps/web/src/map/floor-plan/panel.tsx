@@ -7,11 +7,21 @@
  * - One group per plan floor, with the floor it goes to (the app's Select, never a native one).
  * - One row per proposed room: Add (a Switch), its name, its size, its kind, and one note.
  */
-import { MAP_LIMITS, MAP_ROOM_KINDS, type MapRoomKind } from '@kept/shared';
+import {
+  cmToInches,
+  formatFeetInches,
+  inchesToCm,
+  MAP_LIMITS,
+  MAP_ROOM_KINDS,
+  type MapRoomKind,
+  readSpan,
+} from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Button as AriaButton,
+  FieldError as AriaFieldError,
+  TextField as AriaTextField,
   Group,
   I18nProvider,
   Input,
@@ -26,8 +36,10 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { TextField } from '@/components/ui/text-field';
 import { TickBox } from '@/components/ui/tick-box';
+import { useTypedNumber } from '@/components/ui/typed-number';
 import { useFormat } from '@/lib/format';
 import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 import { cn } from '@/lib/utils';
 import type { Level } from '../layout';
 import { isNewLevel, newLevelKey, type Proposal, type Review } from './review';
@@ -66,6 +78,100 @@ function MetreField({
   );
 }
 
+/**
+ * A plan room's side in feet and inches (#385, imperial): typed as 12'6", 12 ft 6 in or 3.8 m, an
+ * inch a step, kept in metres like the metric field (to the centimetre rather than the 10 cm).
+ */
+function FeetField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const { t } = useLingui();
+  const { tag, span } = useLengths();
+  const [wrong, setWrong] = useState(false);
+  const min = MAP_LIMITS.minRoom / 100;
+  const max = MAP_LIMITS.maxRoom / 100;
+  const clamp = (m: number) => Math.min(max, Math.max(min, m));
+  const field = useTypedNumber({
+    value,
+    show: (v) => formatFeetInches(v * 100, tag),
+    read: (text) => {
+      const cm = readSpan(text, tag, 'imperial');
+      return cm === null || cm === false ? cm : Math.round(cm) / 100;
+    },
+    onCommit: (v) => {
+      setWrong(v === false);
+      if (typeof v === 'number') onChange(clamp(v));
+    },
+    step: (from, dir) => {
+      if (from === null) return min;
+      const next = clamp(inchesToCm(cmToInches(from * 100) + dir) / 100);
+      return next === from ? null : next;
+    },
+  });
+  const example = span(381);
+  return (
+    <AriaTextField
+      className="kmap-height"
+      value={field.text}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      onKeyDown={field.onKeyDown}
+      isInvalid={wrong}
+      autoComplete="off"
+    >
+      <Label>{label}</Label>
+      <Group className="kmap-height-row">
+        <AriaButton
+          aria-label={t`Decrease ${label}`}
+          excludeFromTabOrder
+          preventFocusOnPress
+          isDisabled={!field.canStep(-1)}
+          onPress={() => field.stepBy(-1)}
+        >
+          −
+        </AriaButton>
+        <Input className="kmap-input" inputMode="text" spellCheck={false} />
+        <AriaButton
+          aria-label={t`Increase ${label}`}
+          excludeFromTabOrder
+          preventFocusOnPress
+          isDisabled={!field.canStep(1)}
+          onPress={() => field.stepBy(1)}
+        >
+          +
+        </AriaButton>
+      </Group>
+      <AriaFieldError className="kmap-height-help kmap-error">
+        {t`Enter feet and inches, like ${example}.`}
+      </AriaFieldError>
+    </AriaTextField>
+  );
+}
+
+/** A plan room's width or depth: metres to the 10 cm, or feet and inches in imperial (#385). */
+function SideField({
+  label,
+  value,
+  onChange,
+}: {
+  label: { metric: string; imperial: string };
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const { imperial } = useLengths();
+  return imperial ? (
+    <FeetField label={label.imperial} value={value} onChange={onChange} />
+  ) : (
+    <MetreField label={label.metric} value={value} onChange={onChange} />
+  );
+}
+
 /** "Set a room's size": one room's real size rescales the whole plan (spec §6). */
 export function SizeDialog({
   proposal,
@@ -99,8 +205,16 @@ export function SizeDialog({
           <div className="grid gap-4">
             <I18nProvider locale={formatLocale(locale, digits)}>
               <div className="kmap-size">
-                <MetreField label={t`Width (m)`} value={w} onChange={setW} />
-                <MetreField label={t`Depth (m)`} value={d} onChange={setD} />
+                <SideField
+                  label={{ metric: t`Width (m)`, imperial: t`Width` }}
+                  value={w}
+                  onChange={setW}
+                />
+                <SideField
+                  label={{ metric: t`Depth (m)`, imperial: t`Depth` }}
+                  value={d}
+                  onChange={setD}
+                />
               </div>
             </I18nProvider>
             <DialogFooter>
@@ -144,6 +258,8 @@ export function PlanPanel(props: PanelProps) {
   const { review, selected, location } = props;
   const { t } = useLingui();
   const f = useFormat();
+  const lengths = useLengths();
+  const door = lengths.span(80, 'cm');
   const [sizing, setSizing] = useState<Proposal | null>(null);
   const scale = review.drafts.scale;
   const room = review.proposals.find((p) => p.key === scale.typedKey)?.name ?? '';
@@ -157,7 +273,9 @@ export function PlanPanel(props: PanelProps) {
         : scale.from === 'scale_bar'
           ? t`Scale from the plan’s scale bar`
           : scale.from === 'doors'
-            ? t`Scale from the doors, taken as 80 cm wide: check one room`
+            ? lengths.imperial
+              ? t`Scale from the doors, taken as ${door} wide: check one room`
+              : t`Scale from the doors, taken as 80 cm wide: check one room`
             : t`No sizes on the plan: these are a guess`;
   const target =
     review.proposals.find((p) => p.key === selected && !p.skip) ??
@@ -257,6 +375,7 @@ function ProposalRow(props: PanelProps & { p: Proposal }) {
   const { t } = useLingui();
   const f = useFormat();
   const { locale, digits } = usePrefs();
+  const lengths = useLengths();
   const [sizeOpen, setSizeOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
   const isSelected = selected === p.key;
@@ -274,12 +393,17 @@ function ProposalRow(props: PanelProps & { p: Proposal }) {
   const printed = p.printed;
   const existing = p.useName ?? '';
   const size = printed?.text ?? '';
-  const w = one(p.w);
-  const d = one(p.d);
+  const w = lengths.imperial ? lengths.span(Math.round(p.w * 100)) : one(p.w);
+  const d = lengths.imperial ? lengths.span(Math.round(p.d * 100)) : one(p.d);
+  const smallest = lengths.span(MAP_LIMITS.minRoom);
   // At most one note, the one that matters most.
   const note: ReactNode = p.skip ? (
     <span className="kplan-note warn">
-      <Trans>Under 50 cm: too small for the map.</Trans>
+      {lengths.imperial ? (
+        <Trans>Under {smallest}: too small for the map.</Trans>
+      ) : (
+        <Trans>Under 50 cm: too small for the map.</Trans>
+      )}
     </span>
   ) : p.arranged ? (
     <span className="kplan-note">
@@ -352,21 +476,27 @@ function ProposalRow(props: PanelProps & { p: Proposal }) {
           disabled={p.skip}
           onClick={() => setSizeOpen((x) => !x)}
         >
-          <Trans>
-            {w} × {d} m
-          </Trans>
+          {lengths.imperial ? (
+            <Trans>
+              {w} × {d}
+            </Trans>
+          ) : (
+            <Trans>
+              {w} × {d} m
+            </Trans>
+          )}
         </button>
       </div>
       {sizeOpen && !p.skip ? (
         <I18nProvider locale={formatLocale(locale, digits)}>
           <div className="kmap-size">
-            <MetreField
-              label={t`Width (m)`}
+            <SideField
+              label={{ metric: t`Width (m)`, imperial: t`Width` }}
               value={p.w}
               onChange={(w) => props.onEdit(p.key, { w })}
             />
-            <MetreField
-              label={t`Depth (m)`}
+            <SideField
+              label={{ metric: t`Depth (m)`, imperial: t`Depth` }}
               value={p.d}
               onChange={(d) => props.onEdit(p.key, { d })}
             />

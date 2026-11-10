@@ -6,16 +6,20 @@
  * typed read by @kept/shared's `readLength`, digits only (Western and Eastern Arabic both; what
  * isn't a whole number said so, never another size). Each change is a new model for the shape
  * (sizedKey), so the map draws it at its new size and saves it with the arrangement. Digits follow
- * the person's setting (D143).
+ * the person's setting (D143). In imperial (#385) the sizes are whole inches, an inch a step, kept
+ * as whole centimetres as before; feet and inches or centimetres typed with their unit read too.
  */
 import {
   BOOKCASE,
   bookcaseMaxLevels,
   CUBE_GRID,
+  cmToInches,
   cubeRunCm,
   formatLength,
+  inchesToCm,
   type MapShapeKey,
   readLength,
+  readSpan,
   type SizedShape,
   sizedKey,
   sizedOf,
@@ -24,7 +28,7 @@ import { useLingui } from '@lingui/react/macro';
 import { type ReactNode, useState } from 'react';
 import { Button, FieldError, Group, Input, Label, TextField } from 'react-aria-components';
 import { useTypedNumber } from '@/components/ui/typed-number';
-import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 
 function Field({
   label,
@@ -33,6 +37,7 @@ function Field({
   max,
   cm,
   tag,
+  inches,
   onChange,
 }: {
   label: string;
@@ -43,28 +48,42 @@ function Field({
   cm?: boolean;
   /** The person's locale, digits included (formatLocale). */
   tag: string;
+  /** A size in whole inches rather than centimetres (#385). */
+  inches?: boolean;
   onChange: (v: number) => void;
 }) {
   const { t } = useLingui();
   const [notANumber, setNotANumber] = useState(false);
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v)));
+  const imperial = cm && inches;
   const field = useTypedNumber({
     value,
     show: (v) =>
-      cm
-        ? formatLength(v, tag, 'centimeter', { max: 0 })
-        : new Intl.NumberFormat(tag, { maximumFractionDigits: 0, useGrouping: false }).format(v),
-    // Digits only: a whole number has no decimal mark to type.
-    read: (text) => readLength(text, tag, cm ? 'centimeter' : null, { whole: true }),
+      imperial
+        ? formatLength(cmToInches(v), tag, 'inch', { max: 0 })
+        : cm
+          ? formatLength(v, tag, 'centimeter', { max: 0 })
+          : new Intl.NumberFormat(tag, { maximumFractionDigits: 0, useGrouping: false }).format(v),
+    // Digits only: a whole number has no decimal mark to type. Inches read feet too (2'6").
+    read: (text) =>
+      imperial
+        ? readSpan(text, tag, 'imperial', 'in')
+        : readLength(text, tag, cm ? 'centimeter' : null, { whole: true }),
     onCommit: (v) => {
       setNotANumber(v === false);
       if (typeof v === 'number') onChange(clamp(v));
     },
     step: (from, dir) => {
-      const next = from === null ? (dir > 0 ? min : max) : clamp(from + dir);
+      const next =
+        from === null
+          ? dir > 0
+            ? min
+            : max
+          : clamp(imperial ? inchesToCm(cmToInches(from) + dir) : from + dir);
       return next === from ? null : next;
     },
   });
+  const example = formatLength(30, tag, 'inch', { max: 0 });
   return (
     <TextField
       className="kmap-height"
@@ -86,7 +105,11 @@ function Field({
         >
           −
         </Button>
-        <Input className="kmap-input" inputMode="numeric" spellCheck={false} />
+        <Input
+          className="kmap-input"
+          inputMode={imperial ? 'text' : 'numeric'}
+          spellCheck={false}
+        />
         <Button
           aria-label={t`Increase ${label}`}
           excludeFromTabOrder
@@ -97,7 +120,9 @@ function Field({
           +
         </Button>
       </Group>
-      <FieldError className="kmap-height-help kmap-error">{t`Enter a whole number.`}</FieldError>
+      <FieldError className="kmap-height-help kmap-error">
+        {imperial ? t`Enter inches, like ${example}.` : t`Enter a whole number.`}
+      </FieldError>
     </TextField>
   );
 }
@@ -110,16 +135,19 @@ export function SizeFields({
   onModel: (model: MapShapeKey) => void;
 }) {
   const { t } = useLingui();
-  const { locale, digits } = usePrefs();
+  const { tag, imperial } = useLengths();
   const s = sizedOf(model);
   if (!s) return null;
-  const tag = formatLocale(locale, digits);
   const set = (next: SizedShape) => onModel(sizedKey(next));
   let body: ReactNode;
   if (s.base === 'cube_grid') {
     const n = new Intl.NumberFormat(tag);
-    const cm = new Intl.NumberFormat(tag, { style: 'unit', unit: 'centimeter' });
-    const outside = `${n.format(cubeRunCm(s.across))} × ${n.format(CUBE_GRID.depth)} × ${cm.format(cubeRunCm(s.up))}`;
+    const unit = new Intl.NumberFormat(tag, {
+      style: 'unit',
+      unit: imperial ? 'inch' : 'centimeter',
+    });
+    const size = (cm: number) => (imperial ? cmToInches(cm) : cm);
+    const outside = `${n.format(size(cubeRunCm(s.across)))} × ${n.format(size(CUBE_GRID.depth))} × ${unit.format(size(cubeRunCm(s.up)))}`;
     body = (
       <>
         <Field
@@ -157,6 +185,7 @@ export function SizeFields({
           tag={tag}
           label={t`Width`}
           cm
+          inches={imperial}
           value={s.w}
           min={BOOKCASE.w[0]}
           max={BOOKCASE.w[1]}
@@ -166,6 +195,7 @@ export function SizeFields({
           tag={tag}
           label={t`Depth`}
           cm
+          inches={imperial}
           value={s.d}
           min={BOOKCASE.d[0]}
           max={BOOKCASE.d[1]}
@@ -175,6 +205,7 @@ export function SizeFields({
           tag={tag}
           label={t`Height`}
           cm
+          inches={imperial}
           value={s.h}
           min={BOOKCASE.h[0]}
           max={BOOKCASE.h[1]}

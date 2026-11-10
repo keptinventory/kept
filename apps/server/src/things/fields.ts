@@ -98,7 +98,8 @@ export async function typeCapabilities(
 }
 
 /** The meter a new thing of `typeId` starts with: the nearest `default_meter` along its chain
- * (JSON null cancels an inherited one), or null. */
+ * (JSON null cancels an inherited one), or null. An odometer counts in the unit of the person
+ * who adds the thing (#385): miles when their Units setting is imperial, else as the type says. */
 export async function defaultMeterOf(
   client: pg.ClientBase,
   typeId: string | null,
@@ -113,5 +114,11 @@ export async function defaultMeterOf(
   );
   const m = rows[0]?.m;
   if (!m || typeof m.kind !== 'string' || typeof m.unit !== 'string') return null;
+  if (m.kind === 'distance' && m.unit === 'km') {
+    const { rows: me } = await client.query<{ units: string }>(
+      'SELECT units FROM public.user_profiles WHERE user_id = kept.current_user_id()',
+    );
+    if (me[0]?.units === 'imperial') return { kind: m.kind, unit: 'mi' };
+  }
   return { kind: m.kind, unit: m.unit };
 }

@@ -22,6 +22,7 @@ import {
   updateReading,
 } from './service.js';
 import { registerReadingUndo } from './undo.js';
+import { changeUnit, previewUnitChange, registerUnitUndo } from './units.js';
 
 // Meters and readings, core (T16; D26, D52, D112, D113), in the shapes of the web contract
 // (apps/web/src/api/inventory/{types,paths}.ts):
@@ -29,6 +30,11 @@ import { registerReadingUndo } from './undo.js';
 // POST   /api/v1/things/:id/meters {kind, unit, label?, maxPerDay?}   → 201 MeterView
 // PATCH  /api/v1/meters/:id (If-Match) {label?, maxPerDay?, nudgeDays?} → MeterView; 412 per D156
 // POST   /api/v1/meters/:id/replaced {at, offset} (If-Match optional) → 201 {event, meter}
+// POST   /api/v1/meters/:id/unit/preview {unit, convert}               → UnitPreview (read-only)
+// POST   /api/v1/meters/:id/unit {unit, convert} (If-Match optional)
+//                                             → {meter, changed, undo}  meter.unit, undoable
+//          (#385, units.ts: an odometer relabelled or converted between km and mi; an hours or
+//          custom meter relabelled only)
 // GET    /api/v1/meters/:id/readings?f.when&f.source*&f.state*&not*&sort&dir&cursor&limit
 //                                                                    → {items: Reading[], next_cursor}
 // POST   /api/v1/meters/:id/readings {id?, value, takenAt, note?, confirmJump?, proofFileId?,
@@ -67,6 +73,10 @@ const UpdateMeterBody = z.strictObject({
   label: Label.nullable().optional(),
   maxPerDay: PerDay.nullable().optional(),
   nudgeDays: z.number().int().min(7).max(365).nullable().optional(),
+});
+const UnitBody = z.strictObject({
+  unit: z.string().trim().min(1).max(12),
+  convert: z.boolean(),
 });
 const ReplacedBody = z.strictObject({
   at: Iso,
@@ -147,6 +157,23 @@ const CreateReadingResult = z.object({
   undo: z.object({ eventId: z.uuid(), until: z.string() }).optional(),
 });
 const ProofPage = z.object({ items: z.array(ProofItemSchema), next_cursor: z.string().nullable() });
+const Change = z.object({ before: z.string(), after: z.string() });
+const UnitPreviewSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  convert: z.boolean(),
+  readings: z.number(),
+  example: Change.nullable(),
+  offset: Change.nullable(),
+  maxPerDay: Change.nullable(),
+  replacements: z.number(),
+  schedules: z.number(),
+});
+const UnitResult = z.object({
+  meter: MeterSchema,
+  changed: z.object({ readings: z.number(), replacements: z.number(), schedules: z.number() }),
+  undo: z.object({ eventId: z.uuid(), until: z.string() }),
+});
 const ReplacedResult = z.object({
   event: z.object({ id: z.uuid(), at: z.string(), offset: z.string() }),
   meter: MeterSchema,
@@ -160,6 +187,7 @@ function optionalIfMatch(req: FastifyRequest): number | null {
 export async function meterRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;
   registerReadingUndo();
+  registerUnitUndo();
 
   const write = <B>(
     req: FastifyRequest,
@@ -197,6 +225,30 @@ export async function meterRoutes(app: KeptApp, deps: InventoryDeps): Promise<vo
       const expected = optionalIfMatch(req);
       return write(req, reply, 201, (ctx) =>
         recordReplacement(ctx, req.params.id.toLowerCase(), req.body, expected),
+      );
+    },
+  );
+
+  app.post(
+    '/api/v1/meters/:id/unit/preview',
+    { schema: { params: Params, body: UnitBody, response: { 200: UnitPreviewSchema } } },
+    (req) =>
+      scopedRead(pools, req, (tx, client, scope) =>
+        previewUnitChange(
+          { tx, client, scope, requestId: req.id },
+          req.params.id.toLowerCase(),
+          req.body,
+        ),
+      ),
+  );
+
+  app.post(
+    '/api/v1/meters/:id/unit',
+    { schema: { params: Params, body: UnitBody, response: { 200: UnitResult } } },
+    (req, reply) => {
+      const expected = optionalIfMatch(req);
+      return write(req, reply, 200, (ctx) =>
+        changeUnit(ctx, req.params.id.toLowerCase(), req.body, expected),
       );
     },
   );

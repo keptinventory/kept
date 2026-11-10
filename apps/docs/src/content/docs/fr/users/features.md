@@ -38,7 +38,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 
 - **[La carte du lieu](/fr/users/location-map/)** : chaque lieu en 3D, avec les étages, les pièces à leur
   taille réelle (dès 50 cm), les meubles et leurs compartiments, et ce qu'ils contiennent. Part d'un
-  plan si vous en avez un.
+  plan si vous en avez un. Tailles en mètres ou en pieds et pouces.
 - **[Le graphe](/fr/users/graph/)** : les emplacements, boîtes et objets d'un lieu, en 2D ou en 3D.
 - **[Identifiants courts et étiquettes](/fr/users/short-ids/)** : un identifiant court et un QR code sur
   chaque boîte ; scannez-en un pour l'ouvrir. Rouleaux pour étiqueteuse ou feuilles de bureau. Module : Étiquettes et QR codes.
@@ -61,7 +61,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 - **Consommables** : un minimum par objet ; vous êtes prévenu quand le stock est bas. Module :
   Consommables.
 - **[Véhicules et machines](/fr/users/vehicles/)** : relevés, entretiens, carburant et coûts
-  d'utilisation. Module : Véhicules, Carburant.
+  d'utilisation. Compteurs kilométriques en km ou mi, avec Changer d’unité pour changer le nom ou
+  convertir les relevés. Module : Véhicules, Carburant.
 - **Mots de passe et codes** : des champs secrets, masqués jusqu'à ce qu'une personne autorisée en
   révèle un, et journalisés. Module : Mots de passe et codes.
 - **[Rapports d'état](/fr/users/condition-reports/)** : entrée et sortie, pièce par pièce, avec photos.

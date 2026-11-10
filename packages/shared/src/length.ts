@@ -1,7 +1,11 @@
+import type { UnitSystem } from './fuel.js';
+
 /**
- * A room's sides as a person types and reads them (#372): metres to the centimetre, stored as
- * whole centimetres (map_nodes `w_cm`, `d_cm`). The size fields and labels go through these
- * alone, so imperial (#385) changes this file, not the screens.
+ * Lengths as a person types and reads them: a room's sides (#372), furniture sizes, a wall
+ * height, in metric or imperial (#385, Settings → Units). Stored as whole centimetres (map_nodes
+ * `w_cm`, `d_cm`) either way: only what is shown and typed changes, and every screen goes through
+ * this file for it. Metric is metres to the centimetre (or whole centimetres); imperial is feet and
+ * inches to the nearest inch (or whole inches), at 2.54 cm an inch.
  *
  * Typing is read here (`readLength`), not by the field: "." or "," as the decimal mark in every
  * language (a phone's decimal keypad offers only its region's mark, so an English UI on a
@@ -20,7 +24,66 @@
  * on demand). */
 export const ROOM_SIDE_CM = Object.freeze({ min: 50, max: 10_000 });
 
-/** The unit the fields show. Metric only for now; #385 adds feet and inches. */
+/** An inch, exactly (the international inch). */
+export const CM_PER_INCH = 2.54;
+
+/** Whole inches to whole centimetres (stored lengths are whole centimetres). */
+export function inchesToCm(inches: number): number {
+  return Math.round(inches * CM_PER_INCH);
+}
+
+/** Centimetres to the nearest whole inch. An inch is more than a centimetre, so a whole inch
+ * value survives the trip through whole centimetres unchanged. */
+export function cmToInches(cm: number): number {
+  return Math.round(cm / CM_PER_INCH);
+}
+
+/** A length as feet and inches, to the nearest inch (11.6 in over is the next foot, never
+ * "11 ft 12 in"). */
+export function feetAndInches(cm: number): { feet: number; inches: number } {
+  const total = cmToInches(cm);
+  return { feet: Math.floor(total / 12), inches: total % 12 };
+}
+
+/** "12 ft 6 in", "12 ft", "6 in": feet and inches in `locale`'s digits and unit words, a zero
+ * part left out. */
+export function formatFeetInches(cm: number, locale: string): string {
+  const { feet, inches } = feetAndInches(cm);
+  const parts: string[] = [];
+  if (feet > 0) parts.push(formatLength(feet, locale, 'foot', { max: 0 }));
+  if (inches > 0 || feet === 0) parts.push(formatLength(inches, locale, 'inch', { max: 0 }));
+  return parts.join(' ');
+}
+
+/**
+ * A length with its unit, for reading or a field: metric in metres to the centimetre (3.58 m), or
+ * in whole centimetres when `metric` is 'cm' (80 cm, a bookcase); imperial in feet and inches
+ * (11 ft 9 in), or in whole inches when `metric` is 'cm' (31 in).
+ */
+export function formatSpan(
+  cm: number,
+  locale: string,
+  system: UnitSystem,
+  metric: 'm' | 'cm' = 'm',
+): string {
+  if (system === 'imperial') {
+    return metric === 'cm'
+      ? formatLength(cmToInches(cm), locale, 'inch', { max: 0 })
+      : formatFeetInches(cm, locale);
+  }
+  return metric === 'cm'
+    ? formatLength(Math.round(cm), locale, 'centimeter', { max: 0 })
+    : formatLength(Math.round(cm) / 100, locale, 'meter', { max: 2 });
+}
+
+/** A label stock's side (stored in millimetres, label-stocks.ts) as the person reads it: whole
+ * millimetres in metric, inches to two decimals in imperial. */
+export function labelSize(mm: number, system: UnitSystem): number {
+  if (system === 'imperial') return Math.round((mm / 25.4) * 100) / 100;
+  return Math.round(mm);
+}
+
+/** The unit a metric room side's field shows. Imperial shows feet and inches (#385). */
 export type LengthUnit = 'm';
 
 /** A room side's field: its unit and the step of its − and + buttons and arrow keys. */
@@ -85,13 +148,33 @@ function unitPattern(locale: string, unit: string): [string, string] {
   return pattern;
 }
 
-/** A room side's field: metres with two decimals (0.80 m, "٠٫٨٠ متر"), never grouped. */
+/** A room side's field: metres with two decimals (0.80 m, "٠٫٨٠ متر"), never grouped; in
+ * imperial, feet and inches (11 ft 9 in). */
 export function formatRoomSideField(
   cm: number,
   locale: string,
-  _unit: LengthUnit = ROOM_SIDE.unit,
+  system: UnitSystem = 'metric',
 ): string {
+  if (system === 'imperial') return formatFeetInches(cm, locale);
   return formatLength(roomSideFromCm(cm), locale, 'meter', { min: 2, max: 2 });
+}
+
+/** What was typed into a room side's field, as whole centimetres: null when nothing, false when
+ * it isn't a length (readSpan). */
+export function readRoomSide(
+  text: string,
+  locale: string,
+  system: UnitSystem = 'metric',
+): number | null | false {
+  const cm = readSpan(text, locale, system);
+  return cm === null || cm === false ? cm : Math.round(cm);
+}
+
+/** A room side one step up (1) or down (-1) from `cm`: a centimetre in metric; in imperial, to the
+ * next whole inch from the one shown. */
+export function roomSideStep(cm: number, dir: 1 | -1, system: UnitSystem = 'metric'): number {
+  if (system === 'imperial') return inchesToCm(cmToInches(cm) + dir);
+  return cm + dir;
 }
 
 /** A side typed in `unit` as whole centimetres; null when nothing (or no number) was typed. */
@@ -216,4 +299,98 @@ export function readLength(
   }
   if (!/^(\d+\.?\d*|\.\d+)$/.test(plain)) return false;
   return Number(plain);
+}
+
+/** A unit a length can be typed in. */
+type SpanUnit = 'ft' | 'in' | 'm' | 'cm';
+
+const CM_OF: Record<SpanUnit, number> = { ft: 12 * CM_PER_INCH, in: CM_PER_INCH, m: 100, cm: 1 };
+const INTL_OF: Record<SpanUnit, string> = {
+  ft: 'foot',
+  in: 'inch',
+  m: 'meter',
+  cm: 'centimeter',
+};
+/** What people type for each unit besides its Intl words: primes and quotes (a phone's smart
+ * punctuation turns ' into ’ and " into ”), and the long English words. */
+const TYPED: Record<SpanUnit, string[]> = {
+  ft: ["'", '′', '’', 'ft', 'foot', 'feet'],
+  in: ['"', '″', '”', "''", '’’', 'in', 'inch', 'inches'],
+  m: ['m', 'metre', 'metres', 'meter', 'meters'],
+  cm: ['cm'],
+};
+
+const spanWordsOf = new Map<string, [string, SpanUnit][]>();
+
+/** Every word for a unit in `locale` and English, lower-case, longest first ("inches" before
+ * "in", "см" before "м"). */
+function spanWords(locale: string): [string, SpanUnit][] {
+  const known = spanWordsOf.get(locale);
+  if (known) return known;
+  const all = new Map<string, SpanUnit>();
+  for (const unit of Object.keys(CM_OF) as SpanUnit[]) {
+    for (const w of [...TYPED[unit], ...unitWords(locale, INTL_OF[unit])]) {
+      const word = w.toLowerCase();
+      if (!all.has(word)) all.set(word, unit);
+    }
+  }
+  const sorted = [...all].sort((a, b) => b[0].length - a[0].length);
+  spanWordsOf.set(locale, sorted);
+  return sorted;
+}
+
+/**
+ * A length as a person typed it, in centimetres (not rounded): null when nothing is typed, false
+ * when it isn't a length. Read: feet and inches written any usual way (12'6", 12′ 6″, 12 ft 6 in,
+ * 12'6, 12 feet 6 inches), metres and centimetres with their unit (3.8 m, 80 cm, 3 m 20 cm) in
+ * either system, and a bare number in `bare` (feet in imperial, metres in metric, unless the field
+ * says otherwise). Digits and decimal marks as readLength reads them. Not read, and so false: a
+ * sign, an exponent, two bare numbers ("12 6"), inches before feet, or anything else.
+ */
+export function readSpan(
+  text: string,
+  locale: string,
+  system: UnitSystem,
+  bare: SpanUnit = system === 'imperial' ? 'ft' : 'm',
+): number | null | false {
+  const s = text.replace(MARKS, '').trim().toLowerCase();
+  if (!s) return null;
+  const words = spanWords(locale);
+  const parts: { value: number; unit: SpanUnit | null }[] = [];
+  let i = 0;
+  while (i < s.length) {
+    while (i < s.length && /\s/.test(s[i] as string)) i++;
+    if (i >= s.length) break;
+    let plain = '';
+    while (i < s.length) {
+      const ch = s[i] as string;
+      const d = westernDigit(ch);
+      if (d !== null) plain += d;
+      else if (DECIMAL_MARKS.has(ch)) plain += '.';
+      else break;
+      i++;
+    }
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(plain)) return false;
+    while (i < s.length && /\s/.test(s[i] as string)) i++;
+    let unit: SpanUnit | null = null;
+    for (const [word, u] of words) {
+      if (s.startsWith(word, i)) {
+        unit = u;
+        i += word.length;
+        break;
+      }
+    }
+    parts.push({ value: Number(plain), unit });
+  }
+  const [a, b] = parts;
+  if (!a || parts.length > 2) return false;
+  if (!b) return a.value * CM_OF[a.unit ?? bare];
+  // Feet then inches (the inches' unit may be left off: 12'6), or metres then centimetres.
+  if (a.unit === 'ft' && (b.unit === 'in' || b.unit === null)) {
+    return a.value * CM_OF.ft + b.value * CM_OF.in;
+  }
+  if (a.unit === 'm' && (b.unit === 'cm' || b.unit === null)) {
+    return a.value * CM_OF.m + b.value * CM_OF.cm;
+  }
+  return false;
 }

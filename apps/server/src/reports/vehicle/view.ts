@@ -1,4 +1,4 @@
-import { formatMoney, printedCode } from '@kept/shared';
+import { displayConsumption, type FuelUnit, formatMoney, printedCode } from '@kept/shared';
 import { type ReportLocale, wordsFor } from '../labels.js';
 import { colonOf, dirOf, intlLocaleOf, numberingOf, sepOf } from '../locale.js';
 import { PDF_WORDS, type VehicleWords } from '../words/index.js';
@@ -131,6 +131,26 @@ export function buildVehicleView(
   const value = (v: string | null) =>
     v === null ? '' : `${nf.format(Number(v))}${unit ? ` ${unit}` : ''}`;
   const fuelUnit = (u: string) => w.units[u] ?? u;
+  const distance = (u: string) => w.distance[u] ?? u;
+  /** Fuel use in the requester's units (#385), as the app shows it: L or kWh per 100 km, or
+   * miles per gallon or per kWh; per hour on an hours meter. */
+  const consumption = (perHundred: string, fuel: FuelUnit, meterUnit: string) => {
+    const d = displayConsumption(perHundred, fuel, meterUnit, g.requesterUnits);
+    const v = n1.format(Number(d.value));
+    switch (d.unit) {
+      case 'L/100 km':
+      case 'kWh/100 km':
+        return w.per100(`${v} ${fuelUnit(fuel === 'kWh' ? 'kWh' : 'L')}`, distance('km'));
+      case 'mpg':
+        return `${v} ${distance('mi')}/${fuelUnit('gal')}`;
+      case 'mi/kWh':
+        return `${v} ${distance('mi')}/${fuelUnit('kWh')}`;
+      default:
+        return d.unit === `${fuel}/h`
+          ? `${v} ${fuelUnit(fuel)}/${distance('h')}`
+          : w.per100(`${v} ${fuelUnit(fuel)}`, distance(meterUnit));
+    }
+  };
 
   const counts: [string, string][] = [
     [nf.format(g.readingCount), w.readingsCount],
@@ -147,8 +167,8 @@ export function buildVehicleView(
     for (const u of s.byUnit) {
       summary.push([
         w.consumption,
-        u.consumption
-          ? w.per100(`${n1.format(Number(u.consumption.perHundred))} ${fuelUnit(u.unit)}`, unit)
+        u.consumption && g.meter
+          ? consumption(u.consumption.perHundred, u.unit as FuelUnit, g.meter.unit)
           : w.noConsumption,
       ]);
     }

@@ -42,6 +42,7 @@ import { QrCode } from '@/components/ui/qr-code';
 import { publicOrigin } from '@/lib/base-path';
 import { useFormat } from '@/lib/format';
 import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 import { HeightField } from './height';
 import { useModelNames, useRoomKindNames, useSurfaceNames } from './labels';
 import {
@@ -413,6 +414,7 @@ export function MapCard(p: CardProps) {
   const f = useFormat();
   const { locale, digits } = usePrefs();
   const tag = formatLocale(locale, digits);
+  const lengths = useLengths();
   const models = useModelNames();
   const kinds = useRoomKindNames();
   const surfaces = useSurfaceNames();
@@ -539,9 +541,9 @@ export function MapCard(p: CardProps) {
     const addable = offMapIn(plan, view, r.id)
       .filter((x) => matches(adding, x.name, x.shortCode))
       .slice(0, 30);
-    // #372: to the centimetre, as typed (0.8 × 3.58 m).
-    const w = formatRoomSide(mToCm(r.w), tag);
-    const d = formatRoomSide(mToCm(r.d), tag);
+    // #372: to the centimetre, as typed (0.8 × 3.58 m); in feet and inches in imperial (#385).
+    const w = lengths.imperial ? lengths.span(mToCm(r.w)) : formatRoomSide(mToCm(r.w), tag);
+    const d = lengths.imperial ? lengths.span(mToCm(r.d)) : formatRoomSide(mToCm(r.d), tag);
     return (
       <aside data-map-obstacle className={`kmap-panel${full ? ' full' : ''}`} aria-live="polite">
         <Head
@@ -551,9 +553,15 @@ export function MapCard(p: CardProps) {
               <span>{kinds[r.kind]}</span>
               {p.level ? <span>{p.level.name}</span> : null}
               <span>
-                <Trans>
-                  {w} × {d} m
-                </Trans>
+                {lengths.imperial ? (
+                  <Trans>
+                    {w} × {d}
+                  </Trans>
+                ) : (
+                  <Trans>
+                    {w} × {d} m
+                  </Trans>
+                )}
               </span>
               <span>
                 <ThingCount n={things} />
@@ -855,7 +863,8 @@ export function MapCard(p: CardProps) {
       )}
     </>
   ) : null;
-  const hangs = it.hang === undefined ? null : f.num(it.hang);
+  const hangs =
+    it.hang === undefined ? null : lengths.imperial ? lengths.span(it.hang * 100) : f.num(it.hang);
   const cells = it.rack ? (
     <RackList it={it} part={p.part ?? null} onPick={(id) => p.setInner(id)} />
   ) : (
@@ -889,7 +898,11 @@ export function MapCard(p: CardProps) {
             ) : null}
           </span>
           <span className="[overflow-wrap:anywhere]">{meta}</span>
-          {hangs === null ? null : <span>{t`On the wall, ${hangs} m up`}</span>}
+          {hangs === null ? null : (
+            <span>
+              {lengths.imperial ? t`On the wall, ${hangs} up` : t`On the wall, ${hangs} m up`}
+            </span>
+          )}
           {it.subject === 'place' ? <PlaceKind id={it.id} /> : null}
         </div>
       </div>

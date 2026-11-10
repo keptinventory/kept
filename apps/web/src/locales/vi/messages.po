@@ -21192,3 +21192,155 @@ msgstr "Xóa vị trí"
 #: src/components/location-position.tsx
 msgid "Position removed"
 msgstr "Đã xóa vị trí"
+
+#: src/assistant/confirm-card.tsx
+msgid "{w} × {d}"
+msgstr "{w} × {d}"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} up"
+msgstr "Trên tường, cao {hangs}"
+
+#: src/components/places/room-size.tsx
+msgid "Enter feet and inches, like {example}."
+msgstr "Nhập feet và inch, ví dụ {example}."
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d}"
+msgstr "<0>{room}</0>, từ sơ đồ, chưa thêm, {w} x {d}"
+
+#: src/map/size.tsx
+msgid "Enter inches, like {example}."
+msgstr "Nhập inch, ví dụ {example}."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as {door} wide: check one room"
+msgstr "Tỉ lệ theo cửa ra vào, tính là rộng {door}: hãy kiểm tra một phòng"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under {smallest}: too small for the map."
+msgstr "Dưới {smallest}: quá nhỏ cho bản đồ."
+
+#: src/components/display-prefs.tsx
+msgid "Couldn't change the units"
+msgstr "Không thể đổi đơn vị"
+
+#: src/components/display-prefs.tsx
+msgid "Units"
+msgstr "Đơn vị đo"
+
+#: src/components/display-prefs.tsx
+msgid "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
+msgstr "Kích thước trên bản đồ, cỡ nhãn, mức tiêu thụ nhiên liệu và đồng hồ công-tơ-mét của xe mới. Những gì bạn đã lưu vẫn giữ nguyên."
+
+#: src/components/display-prefs.tsx
+msgid "Metric"
+msgstr "Hệ mét"
+
+#: src/components/display-prefs.tsx
+msgid "Imperial"
+msgstr "Hệ Anh"
+
+#: src/components/things/meters-section.tsx
+msgid "Change unit"
+msgstr "Đổi đơn vị"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Unit changed to {toLabel}"
+msgstr "Đã đổi đơn vị sang {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{n, plural, one {# reading converted} other {# readings converted}}"
+msgstr "{n, plural, one {Đã quy đổi # chỉ số} other {Đã quy đổi # chỉ số}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Couldn't change the unit"
+msgstr "Không thể đổi đơn vị"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "From {fromLabel} to {toLabel}"
+msgstr "Từ {fromLabel} sang {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "What to change"
+msgstr "Thay đổi gì"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Convert the readings"
+msgstr "Quy đổi các chỉ số"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
+msgstr "Mọi chỉ số, độ lệch khi thay, giới hạn mỗi ngày và các lịch trình trên đồng hồ này đổi sang {toLabel}."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Relabel only"
+msgstr "Chỉ đổi tên"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "The readings were always in {toLabel}. Every value stays as it is."
+msgstr "Các chỉ số vốn đã tính bằng {toLabel}. Mọi giá trị giữ nguyên."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "New unit"
+msgstr "Đơn vị mới"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Only the unit's name changes. The readings stay as they are."
+msgstr "Chỉ tên đơn vị thay đổi. Các chỉ số giữ nguyên."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
+msgstr "Chỉ số mới nhất: {0} {fromLabel} thành {1} {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# reading changes} other {# readings change}}"
+msgstr "{0, plural, one {# chỉ số thay đổi} other {# chỉ số thay đổi}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Replacement offset: {0} becomes {1}"
+msgstr "Độ lệch khi thay: {0} thành {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Daily limit: {0} becomes {1}"
+msgstr "Giới hạn mỗi ngày: {0} thành {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
+msgstr "{0, plural, one {# lịch trình trên đồng hồ này thay đổi} other {# lịch trình trên đồng hồ này thay đổi}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "It goes in the history, and you can undo it."
+msgstr "Thay đổi được ghi vào lịch sử và bạn có thể hoàn tác."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} across."
+msgstr "Mỗi cạnh của phòng phải từ {min} trở lên."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} across."
+msgstr "Mỗi cạnh của phòng tối đa {max}."
+
+#: src/components/labels/stock-picker.tsx
+msgid "{a} × {b} in"
+msgstr "{a} × {b} inch"
+
+#: src/components/labels/stock-picker.tsx
+msgid "{width} in tape"
+msgstr "Băng {width} inch"
+
+#: src/components/inbox/reading-review.tsx
+msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
+msgstr "Ảnh hiển thị {seenUnit}, còn đồng hồ này tính bằng {unit}. {0} {seenUnit} là {1} {unit}."
+
+#: src/components/inbox/reading-review.tsx
+msgid "Use {0} {unit}"
+msgstr "Dùng {0} {unit}"
+
+#: src/components/history/labels.ts
+msgid "Readings converted"
+msgstr "Chỉ số đã quy đổi"
+
+#: src/components/history/labels.ts
+msgid "Meter unit changed"
+msgstr "Đã đổi đơn vị đồng hồ đo"

@@ -109,6 +109,10 @@ export const inventoryPaths = {
   meter: (id: string) => `${V1}/meters/${seg(id)}`,
   meterReadings: (id: string) => `${V1}/meters/${seg(id)}/readings`,
   meterReplaced: (id: string) => `${V1}/meters/${seg(id)}/replaced`,
+  /** POST `{unit, convert}` (#385): relabel a meter, or convert an odometer's readings. */
+  meterUnit: (id: string) => `${V1}/meters/${seg(id)}/unit`,
+  /** POST `{unit, convert}`: what Change unit would do; changes nothing. */
+  meterUnitPreview: (id: string) => `${V1}/meters/${seg(id)}/unit/preview`,
   reading: (id: string) => `${V1}/readings/${seg(id)}`,
   readingAccept: (id: string) => `${V1}/readings/${seg(id)}/accept`,
 
@@ -243,6 +247,8 @@ export const METHODS: Record<keyof typeof inventoryPaths, readonly Method[]> = {
   meter: ['PATCH'],
   meterReadings: ['GET', 'POST'],
   meterReplaced: ['POST'],
+  meterUnit: ['POST'],
+  meterUnitPreview: ['POST'],
   reading: ['PATCH', 'DELETE'],
   readingAccept: ['POST'],
   file: ['PUT', 'DELETE'],

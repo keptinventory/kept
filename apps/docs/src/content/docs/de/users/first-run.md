@@ -138,6 +138,12 @@ nimmt höchstens 20 davon auf.
   auf diese Weise, in deiner Region. Kauf- und
   Garantiedaten zeigen immer das Jahr.
 - **Design**: **System** (folgt der hellen oder dunklen Einstellung des Geräts), **Hell** oder **Dunkel**.
+- **Einheiten**: **Metrisch** oder **Imperial**, gespeichert in deinem Konto statt auf dem Gerät, sodass jedes
+  Gerät ihr folgt. Imperial zeigt Raumgrößen, Möbelgrößen, die Höhe eines Dings an einer Wand und
+  die Größen des Etikettenmaterials in Fuß und Zoll, den Kraftstoffverbrauch in mpg oder mi/kWh, und ein
+  Fahrzeug, das du hinzufügst, bekommt einen Kilometerzähler in Meilen. Was du gespeichert hast, ändert sich nie:
+  Größen bleiben in Zentimetern und Ablesungen so, wie du sie eingegeben hast. Ein Kilometerzähler hat seine
+  eigene Einheit: siehe [Fahrzeuge](/de/users/vehicles/#einheiten).
 - **Inhaltsbreite**: **Zentriert** oder **Volle Breite**, auf Bildschirmen 768 px und breiter.
 
 ## 7. Eine Tour machen

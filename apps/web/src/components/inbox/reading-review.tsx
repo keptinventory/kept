@@ -3,6 +3,10 @@
  * 12 Oct", checked against its neighbours and sent here rather than rejected. Keep it (`a`), Edit
  * (`e`) the value, Discard (`d`), or record that the meter was replaced, with the old meter's last
  * reading as the offset, so the later readings are valid.
+ *
+ * #385: when AI read the photo's unit and it isn't the odometer's (a dashboard in miles on an
+ * odometer in km, or the other way round), the card says so, with the value in the odometer's unit
+ * and a button to use it. Nothing is converted until the person chooses.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
@@ -49,6 +53,16 @@ export function ReadingReview({ item, current, blocked }: ItemProps) {
 
   const unit = unitOf(r.meter.unit);
   const num = (v: string) => fmt.num(Number(v));
+  // #385: the photo's unit, when it is the other distance unit.
+  const meterUnit = r.meter.unit.trim().toLowerCase();
+  const seen =
+    (r.unitSeen === 'km' || r.unitSeen === 'mi') &&
+    (meterUnit === 'km' || meterUnit === 'mi') &&
+    r.unitSeen !== meterUnit
+      ? r.unitSeen
+      : null;
+  const converted = seen ? inUnit(r.value, meterUnit) : null;
+  const seenUnit = seen ? unitOf(seen) : '';
   const thingName = item.thing?.name ?? r.meter.label ?? t`Meter`;
   const meterName = r.meter.label ?? t`reading`;
   const before = r.neighbours.before;
@@ -108,6 +122,30 @@ export function ReadingReview({ item, current, blocked }: ItemProps) {
         ) : null
       }
     >
+      {seen && converted ? (
+        <div className="grid gap-2 rounded-[10px] border border-warn p-3" role="note">
+          <p className="m-0 text-[15px] text-ink">
+            <Trans>
+              The photo shows {seenUnit}, and this odometer counts {unit}. {num(r.value)} {seenUnit}{' '}
+              is {num(converted)} {unit}.
+            </Trans>
+          </p>
+          {mode === 'view' ? (
+            <div>
+              <Button
+                size="small"
+                isDisabled={!!blocked}
+                isPending={busy}
+                onPress={() => send({ action: 'edit', value: converted }, t`Fixed the reading`)}
+              >
+                <Trans>
+                  Use {num(converted)} {unit}
+                </Trans>
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <p className="m-0 text-[15px] text-ink">{summary}</p>
       <ol aria-label={t`Readings around it`} className="m-0 grid list-none grid-cols-3 gap-2 p-0">
         {[
@@ -195,4 +233,12 @@ export function ReadingReview({ item, current, blocked }: ItemProps) {
       ) : null}
     </ItemShell>
   );
+}
+
+/** A distance read in the other unit, in `to` (km or mi), to the thousandth, as the server
+ * converts (1 mi = 1.609344 km); a plain decimal string the reading's Edit takes. */
+function inUnit(value: string, to: string): string {
+  const v = Number(value);
+  const out = to === 'km' ? v * 1.609344 : v / 1.609344;
+  return String(Math.round(out * 1000) / 1000);
 }

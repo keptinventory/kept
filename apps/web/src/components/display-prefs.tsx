@@ -2,12 +2,14 @@
  * Language, theme, digits, region, date format and content width: device preferences kept in
  * localStorage (lib/prefs.ts), applied before first paint by index.html (region and date format
  * when React draws dates, #362). Used on Settings → Me → Display (D203, D204), the sign-in pages
- * (language only) and the gallery.
+ * (language only) and the gallery. Signed in, Units too (#385): metric or imperial, kept on the
+ * account rather than the device, so every device and the PDFs follow it.
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useQueryClient } from '@tanstack/react-query';
-import { setAccountLocale } from '@/api/account';
-import { keys } from '@/api/queries';
+import { setAccountLocale, setUnits } from '@/api/account';
+import { keys, useMe } from '@/api/queries';
+import type { Me } from '@/api/types';
 import { LANGUAGE_NAMES, LanguageSelect } from '@/components/languages';
 import { Segmented } from '@/components/ui/segmented';
 import { toast } from '@/components/ui/toast';
@@ -143,6 +145,7 @@ export function DisplayPrefs({ signedIn = false }: { signedIn?: boolean }) {
           label: f === 'auto' ? t({ message: 'Default', context: 'date format' }) : sample(f),
         }))}
       />
+      {signedIn ? <UnitsChoice /> : null}
       <Segmented<ThemePref>
         label={t`Theme`}
         value={theme}
@@ -174,5 +177,45 @@ export function DisplayPrefs({ signedIn = false }: { signedIn?: boolean }) {
         ]}
       />
     </div>
+  );
+}
+
+type Units = Me['profile']['units'];
+
+/** Metric or imperial (#385), on the account: shown at once, put back if it can't be saved. */
+function UnitsChoice() {
+  const { t } = useLingui();
+  const qc = useQueryClient();
+  const me = useMe();
+  const units = me.data?.profile.units ?? 'metric';
+  const put = (next: Units) =>
+    qc.setQueryData<Me>(keys.me, (m) => (m ? { ...m, profile: { ...m.profile, units: next } } : m));
+  const choose = (next: Units) => {
+    if (next === units) return;
+    const was = units;
+    put(next);
+    void setUnits(next)
+      .then(() => qc.invalidateQueries({ queryKey: keys.me }))
+      .catch(() => {
+        put(was);
+        toast({ title: t`Couldn't change the units`, tone: 'danger' });
+      });
+  };
+  return (
+    <Segmented<Units>
+      label={t`Units`}
+      value={units}
+      onChange={choose}
+      description={
+        <Trans>
+          Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved
+          stays as it is.
+        </Trans>
+      }
+      options={[
+        { id: 'metric', label: t`Metric` },
+        { id: 'imperial', label: t`Imperial` },
+      ]}
+    />
   );
 }

@@ -27,7 +27,7 @@ taille d’écriture diminue, et s’il ne tient toujours pas, il est listé ava
 La page est réglée sur le papier de la feuille sans marges, donc les réglages par défaut de la boîte de dialogue d’impression
 (échelle 100 %) placent chaque étiquette dans sa cellule.
 
-Les supports d’étiquettes :
+Les supports d’étiquettes (avec **Unités** sur **Impérial** dans Paramètres → Moi → Affichage, le sélecteur affiche ces tailles en pouces, à deux décimales : les étiquettes de la feuille Letter font 2,63 × 1 po ; l’impression est la même dans les deux cas) :
 
 | Support | Taille | Chaque étiquette |
 |---|---|---|

@@ -95,6 +95,31 @@ export type Estimate = {
 /** GET /api/v1/things/:id: each `meters[]` entry gains its estimate and nudge interval. */
 export type ThingMeterV5 = ThingMeter & { estimate: Estimate; nudgeDays: number | null };
 
+/** POST /api/v1/meters/:id/unit and …/unit/preview (#385, `meters.manage`): relabel a meter, or
+ * convert an odometer's readings between km and mi. */
+export type MeterUnitBody = { unit: string; convert: boolean };
+
+/** What Change unit would do (…/unit/preview). Values are decimal strings. */
+export type MeterUnitPreview = {
+  from: string;
+  to: string;
+  convert: boolean;
+  /** Readings that change (all of them when converting, else 0). */
+  readings: number;
+  /** The latest accepted reading before and after; null without one. */
+  example: { before: string; after: string } | null;
+  offset: { before: string; after: string } | null;
+  maxPerDay: { before: string; after: string } | null;
+  replacements: number;
+  schedules: number;
+};
+
+export type MeterUnitResult = {
+  meter: ThingMeterV5;
+  changed: { readings: number; replacements: number; schedules: number };
+  undo: { eventId: string; until: string };
+};
+
 /** PATCH /api/v1/meters/:id (If-Match): gains the stale-reading nudge (`meters.manage`). */
 export type UpdateMeterBodyV5 = UpdateMeterBody & {
   /** 7–365 days, or null for no nudge. */

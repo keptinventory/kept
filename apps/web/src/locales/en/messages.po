@@ -29143,3 +29143,155 @@ msgstr "Remove position"
 #: src/components/location-position.tsx
 msgid "Position removed"
 msgstr "Position removed"
+
+#: src/assistant/confirm-card.tsx
+msgid "{w} × {d}"
+msgstr "{w} × {d}"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} up"
+msgstr "On the wall, {hangs} up"
+
+#: src/components/places/room-size.tsx
+msgid "Enter feet and inches, like {example}."
+msgstr "Enter feet and inches, like {example}."
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d}"
+msgstr "<0>{room}</0>, from the plan, not added, {w} by {d}"
+
+#: src/map/size.tsx
+msgid "Enter inches, like {example}."
+msgstr "Enter inches, like {example}."
+
+#: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as {door} wide: check one room"
+msgstr "Scale from the doors, taken as {door} wide: check one room"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under {smallest}: too small for the map."
+msgstr "Under {smallest}: too small for the map."
+
+#: src/components/display-prefs.tsx
+msgid "Couldn't change the units"
+msgstr "Couldn't change the units"
+
+#: src/components/display-prefs.tsx
+msgid "Units"
+msgstr "Units"
+
+#: src/components/display-prefs.tsx
+msgid "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
+msgstr "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
+
+#: src/components/display-prefs.tsx
+msgid "Metric"
+msgstr "Metric"
+
+#: src/components/display-prefs.tsx
+msgid "Imperial"
+msgstr "Imperial"
+
+#: src/components/things/meters-section.tsx
+msgid "Change unit"
+msgstr "Change unit"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Unit changed to {toLabel}"
+msgstr "Unit changed to {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{n, plural, one {# reading converted} other {# readings converted}}"
+msgstr "{n, plural, one {# reading converted} other {# readings converted}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Couldn't change the unit"
+msgstr "Couldn't change the unit"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "From {fromLabel} to {toLabel}"
+msgstr "From {fromLabel} to {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "What to change"
+msgstr "What to change"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Convert the readings"
+msgstr "Convert the readings"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
+msgstr "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Relabel only"
+msgstr "Relabel only"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "The readings were always in {toLabel}. Every value stays as it is."
+msgstr "The readings were always in {toLabel}. Every value stays as it is."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "New unit"
+msgstr "New unit"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Only the unit's name changes. The readings stay as they are."
+msgstr "Only the unit's name changes. The readings stay as they are."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
+msgstr "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# reading changes} other {# readings change}}"
+msgstr "{0, plural, one {# reading changes} other {# readings change}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Replacement offset: {0} becomes {1}"
+msgstr "Replacement offset: {0} becomes {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Daily limit: {0} becomes {1}"
+msgstr "Daily limit: {0} becomes {1}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
+msgstr "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "It goes in the history, and you can undo it."
+msgstr "It goes in the history, and you can undo it."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at least {min} across."
+msgstr "A room is at least {min} across."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} across."
+msgstr "A room is at most {max} across."
+
+#: src/components/labels/stock-picker.tsx
+msgid "{a} × {b} in"
+msgstr "{a} × {b} in"
+
+#: src/components/labels/stock-picker.tsx
+msgid "{width} in tape"
+msgstr "{width} in tape"
+
+#: src/components/inbox/reading-review.tsx
+msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
+msgstr "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
+
+#: src/components/inbox/reading-review.tsx
+msgid "Use {0} {unit}"
+msgstr "Use {0} {unit}"
+
+#: src/components/history/labels.ts
+msgid "Readings converted"
+msgstr "Readings converted"
+
+#: src/components/history/labels.ts
+msgid "Meter unit changed"
+msgstr "Meter unit changed"

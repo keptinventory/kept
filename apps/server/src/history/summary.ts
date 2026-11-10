@@ -154,6 +154,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'meter.create': () => 'Meter added',
   'meter.update': () => 'Meter changed',
   'meter.replaced': () => 'Meter replaced',
+  'meter.unit': () => 'Meter unit changed',
   'reading.create': () => 'Reading logged',
   'reading.update': () => 'Reading changed',
   'reading.accept': () => 'Reading kept',

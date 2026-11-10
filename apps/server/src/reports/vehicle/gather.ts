@@ -1,4 +1,4 @@
-import { type Digits, milli, milliOut } from '@kept/shared';
+import { type Digits, milli, milliOut, type UnitSystem } from '@kept/shared';
 import type pg from 'pg';
 import type { Scope, Tx } from '../../db/scope.js';
 import { type FuelSummary, fillsOf, fuelSummary } from '../../fuel/summary.js';
@@ -96,6 +96,8 @@ export type GatheredVehicle = {
   locationTimezone: string;
   requesterName: string;
   requesterTimezone: string;
+  /** Metric or imperial (#385): the fuel use is shown in these. */
+  requesterUnits: UnitSystem;
   meter: VehicleMeter | null;
   latest: { value: string; day: string } | null;
   /** Accepted readings in the range, before the bound (the cover counts them). */
@@ -169,8 +171,13 @@ export async function gatherVehicle(
   const t = await readThing(client, options.thingId);
   const gate = await gateFor(tx, t.location_id, scope);
   const showMoney = options.include.costs && gate.showMoney;
-  const { rows: me } = await client.query<{ display_name: string; timezone: string }>(
-    'SELECT display_name, timezone FROM public.user_profiles WHERE user_id = kept.current_user_id()',
+  const { rows: me } = await client.query<{
+    display_name: string;
+    timezone: string;
+    units: UnitSystem;
+  }>(
+    `SELECT display_name, timezone, units FROM public.user_profiles
+      WHERE user_id = kept.current_user_id()`,
   );
   const meter = await odometerOf(client, t.id);
   const range = [options.from, options.to];
@@ -370,6 +377,7 @@ export async function gatherVehicle(
     locationTimezone: t.timezone,
     requesterName: me[0]?.display_name ?? '',
     requesterTimezone: me[0]?.timezone ?? 'UTC',
+    requesterUnits: me[0]?.units ?? 'metric',
     meter,
     latest,
     readingCount: readings.length,

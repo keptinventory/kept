@@ -139,6 +139,11 @@ holds at most 20 of them.
   written that way, in your region. Purchase and
   warranty dates always show the year.
 - **Theme**: **System** (follows the device's light or dark setting), **Light** or **Dark**.
+- **Units**: **Metric** or **Imperial**, kept on your account rather than the device, so every
+  device follows it. Imperial shows room sizes, furniture sizes, the height of a thing on a wall
+  and label stock sizes in feet and inches, fuel use in mpg or mi/kWh, and a vehicle you add gets
+  an odometer in miles. What you've saved never changes: sizes stay in centimetres and readings as
+  you entered them. An odometer has its own unit: see [Vehicles](/users/vehicles/#units).
 - **Content width**: **Centered** or **Full width**, on screens 768 px and wider.
 
 ## 7. Take a tour

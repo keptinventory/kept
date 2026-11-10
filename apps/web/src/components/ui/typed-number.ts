@@ -32,6 +32,13 @@ export function useTypedNumber({ value, show, read, onCommit, step }: TypedNumbe
 
   const commit = () => {
     if (draft === null) return;
+    // Left as shown: the value as it was. Feet and inches show to the nearest inch, so reading
+    // them back could move a size kept in centimetres by up to 1.27 cm (#385).
+    if (known !== null && draft.trim() === show(known)) {
+      setDraft(null);
+      onCommit(known);
+      return;
+    }
     const v = read(draft);
     // What isn't a number stays as typed, for the caller to say what is wrong with it.
     if (v !== false) setDraft(null);

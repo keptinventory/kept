@@ -119,6 +119,7 @@ chứa tối đa 20 tài khoản như vậy.
   29/10/2026 hoặc 2026-10-29 (theo cách Vương quốc Anh viết). Mỗi lựa chọn hiển thị hôm nay viết theo cách đó, trong vùng của bạn. Ngày mua và
   bảo hành luôn hiển thị năm.
 - **Chủ đề**: **Hệ thống** (theo chế độ sáng hoặc tối của thiết bị), **Sáng** hoặc **Tối**.
+- **Đơn vị đo**: **Hệ mét** hoặc **Hệ Anh**, được lưu trong tài khoản của bạn thay vì trên thiết bị, nên mọi thiết bị đều theo nó. Hệ Anh hiển thị kích thước phòng, kích thước đồ nội thất, độ cao của một đồ vật trên tường và kích thước loại giấy nhãn bằng feet và inch, tiêu thụ nhiên liệu bằng mpg hoặc mi/kWh, và một phương tiện bạn thêm sẽ có đồng hồ công-tơ-mét bằng dặm. Những gì bạn đã lưu không bao giờ thay đổi: kích thước vẫn ở centimet và chỉ số như bạn đã nhập. Đồng hồ công-tơ-mét có đơn vị riêng: xem [Phương tiện](/vi/users/vehicles/#đơn-vị).
 - **Chiều rộng nội dung**: **Căn giữa** hoặc **Chiều rộng đầy đủ**, trên màn hình từ 768 px trở lên.
 
 ## 7. Xem hướng dẫn

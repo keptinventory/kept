@@ -1,9 +1,10 @@
 /**
  * A room's width and length (#372): two fields in metres to the centimetre (0.80 × 3.58), kept
- * as whole centimetres, the map's own units. Typing, arrow keys and the − and + buttons (a
- * centimetre a step) work, and "." or "," is the decimal mark in any language (a phone's decimal
- * keypad offers only its region's). What a side is read and shown as comes from @kept/shared's
- * length.ts alone (imperial, #385, changes it there): Western and Eastern Arabic digits both, and
+ * as whole centimetres, the map's own units; in feet and inches when the person's Units setting is
+ * imperial (#385: 11 ft 9 in, typed as 11'9", 11 ft 9 in or 3.58 m). Typing, arrow keys and the −
+ * and + buttons (a centimetre a step, or an inch) work, and "." or "," is the decimal mark in any
+ * language (a phone's decimal keypad offers only its region's). What a side is read and shown as
+ * comes from @kept/shared's length.ts alone: Western and Eastern Arabic digits both, and
  * what isn't a number ("1e3", "-2", "3 58") is NaN for the caller to say so, never a different
  * size (the 1.14.4 review; React Aria's NumberField dropped what it couldn't read).
  * Width runs across the map, left to right in the plan view; length runs back to front. Digits
@@ -15,11 +16,11 @@
 import {
   formatRoomSide,
   formatRoomSideField,
-  ROOM_SIDE,
   ROOM_SIDE_CM,
-  readLength,
+  readRoomSide,
   roomSideProblem,
-  roomSideToCm,
+  roomSideStep,
+  type UnitSystem,
 } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
@@ -33,7 +34,7 @@ import {
 } from 'react-aria-components';
 import { FieldError, inputClass, Label } from '@/components/ui/field';
 import { useTypedNumber } from '@/components/ui/typed-number';
-import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 import { cn } from '@/lib/utils';
 
 /** A room's sides in whole centimetres; null where nothing is typed, NaN where what is typed
@@ -47,10 +48,24 @@ export type RoomSideErrors = { w?: string; d?: string };
  * wrong). */
 export function useRoomSideProblem(): (cm: number | null) => string | undefined {
   const { t } = useLingui();
-  const { locale, digits } = usePrefs();
-  const tag = formatLocale(locale, digits);
+  const { tag, imperial, span } = useLengths();
   return (cm) => {
     const problem = roomSideProblem(cm);
+    if (imperial) {
+      if (problem === 'not_a_number') {
+        const example = span(358);
+        return t`Enter feet and inches, like ${example}.`;
+      }
+      if (problem === 'too_small') {
+        const min = span(ROOM_SIDE_CM.min);
+        return t`A room is at least ${min} across.`;
+      }
+      if (problem === 'too_large') {
+        const max = span(ROOM_SIDE_CM.max);
+        return t`A room is at most ${max} across.`;
+      }
+      return undefined;
+    }
     if (problem === 'not_a_number') {
       const example = formatRoomSide(358, tag);
       return t`Enter metres, like ${example}.`;
@@ -70,15 +85,13 @@ export function useRoomSideProblem(): (cm: number | null) => string | undefined 
 const formStep =
   'grid size-11 shrink-0 cursor-pointer place-items-center rounded-[10px] border border-line bg-surface text-[20px] text-ink outline-none data-disabled:cursor-default data-disabled:text-ink-3 data-focus-visible:outline-2 data-focus-visible:outline-info data-hovered:bg-sunken';
 
-/** A centimetre a step. */
-const STEP_CM = roomSideToCm(ROOM_SIDE.step) ?? 1;
-
 function Side({
   label,
   cm,
   error,
   variant,
   tag,
+  system,
   onChange,
 }: {
   label: string;
@@ -87,22 +100,21 @@ function Side({
   variant: 'form' | 'map';
   /** The person's locale, digits included (formatLocale). */
   tag: string;
+  /** Metric or imperial (#385). */
+  system: UnitSystem;
   onChange: (cm: number | null) => void;
 }) {
   const { t } = useLingui();
   const map = variant === 'map';
   const field = useTypedNumber({
     value: cm,
-    show: (v) => formatRoomSideField(v, tag),
-    read: (text) => {
-      const m = readLength(text, tag);
-      return m === null || m === false ? m : roomSideToCm(m);
-    },
+    show: (v) => formatRoomSideField(v, tag, system),
+    read: (text) => readRoomSide(text, tag, system),
     onCommit: (v) => onChange(v === false ? Number.NaN : v),
     // From nothing, a step starts at the smallest room; it never goes under nothing.
     step: (from, dir) => {
       if (from === null) return ROOM_SIDE_CM.min;
-      const next = from + dir * STEP_CM;
+      const next = roomSideStep(from, dir, system);
       return next < 0 ? null : next;
     },
   });
@@ -131,7 +143,8 @@ function Side({
         <Input
           className={map ? 'kmap-input' : cn(inputClass, 'text-center tabular-nums')}
           dir="ltr"
-          inputMode="decimal"
+          // Feet and inches are typed with ' and ", which a decimal keypad doesn't have.
+          inputMode={system === 'imperial' ? 'text' : 'decimal'}
           spellCheck={false}
         />
         <Button
@@ -170,8 +183,7 @@ export function RoomSizeFields({
   children?: ReactNode;
 }) {
   const { t } = useLingui();
-  const { locale, digits } = usePrefs();
-  const tag = formatLocale(locale, digits);
+  const { tag, system } = useLengths();
   return (
     <div className={variant === 'map' ? 'kmap-size' : 'grid gap-3 sm:grid-cols-2'} data-room-size>
       <Side
@@ -180,6 +192,7 @@ export function RoomSizeFields({
         error={errors.w}
         variant={variant}
         tag={tag}
+        system={system}
         onChange={(w) => onChange({ ...value, w })}
       />
       <Side
@@ -188,6 +201,7 @@ export function RoomSizeFields({
         error={errors.d}
         variant={variant}
         tag={tag}
+        system={system}
         onChange={(d) => onChange({ ...value, d })}
       />
       {children}

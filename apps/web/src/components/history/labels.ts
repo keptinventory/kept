@@ -103,6 +103,8 @@ export function useFieldLabel() {
     options: t`Choices`,
     required: t`Required`,
     max_per_day: t`Most per day`,
+    // #385: Change unit on a meter, how many readings it converted.
+    converted: t`Readings converted`,
     offset: t`Offset`,
     shared: t`Shared`,
     query: t`Search`,
@@ -313,6 +315,7 @@ export function useSummary() {
       'meter.create': () => t`Meter added`,
       'meter.update': () => t`Meter changed`,
       'meter.replaced': () => t`Meter replaced`,
+      'meter.unit': () => t`Meter unit changed`,
       'reading.create': () => t`Reading logged`,
       'reading.update': () => t`Reading changed`,
       'reading.accept': () => t`Reading kept`,

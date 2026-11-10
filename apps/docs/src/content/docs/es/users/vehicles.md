@@ -56,9 +56,15 @@ En la preconfiguración Complete, la pestaña **Combustible** registra cada llen
 
 ## Unidades
 
-- **Odómetro**: el odómetro de un vehículo nuevo cuenta en **km**; el medidor de un generador cuenta horas. La unidad de un medidor no se puede cambiar aún una vez creado.
-- **Lecturas y cantidades de combustible** se guardan exactamente como se introdujeron y nunca se convierten.
-- **Uso de combustible** se muestra como L/100 km, o kWh/100 km para una carga; por hora en un medidor de horas.
+- **Odómetro**: el odómetro de un vehículo nuevo cuenta en **km**, o en **mi** cuando tu ajuste **Unidades** (Configuración → Yo → Visualización) es **Imperial**. El medidor de un generador cuenta horas.
+- **Cambiar unidad**: los propietarios y administradores lo encuentran en la tarjeta del odómetro del Resumen, y en un medidor en la página de un objeto. Un odómetro pasa entre km y mi de una de dos maneras:
+  - **Solo cambiar el nombre**: las lecturas siempre estuvieron en la nueva unidad. Cada valor se queda como está.
+  - **Convertir las lecturas**: cada lectura (también las que esperan revisión), el desplazamiento por reemplazo, el límite diario y los horarios que funcionan con el odómetro (cada tantos km, el aviso previo, la lectura desde la que cuenta y un aplazamiento hasta una lectura) se convierten a 1 mi = 1,609344 km, a la milésima.
+
+  Antes de guardar, Kept muestra cuántas lecturas cambian y la última antes y después. El cambio queda en el historial del vehículo como **Unidad del medidor cambiada**, y el aviso que sigue ofrece **Deshacer**, que devuelve cada valor exactamente. Deshacer se rechaza, y dice por qué, si algo del medidor cambió desde entonces: una lectura registrada, conservada o editada, o un horario cambiado. Un medidor de horas o uno personalizado solo puede cambiar de nombre.
+- **Lecturas y cantidades de combustible** se guardan como se introdujeron. Solo **Convertir las lecturas** cambia una lectura, y se puede deshacer. Las cantidades de combustible (litros, galones, kWh) nunca se convierten.
+- **Uso de combustible** sigue tu ajuste **Unidades**, sea cual sea la unidad en que cuenta el odómetro: **L/100 km**, o **kWh/100 km** para una carga, en métrico; **mpg** (galones de EE. UU.) o **mi/kWh** en imperial. En un medidor de horas es por hora, en la unidad que introdujiste. El PDF del informe de historial sigue el ajuste de la persona que lo hace.
+- **Una foto del tablero en la otra unidad**: cuando la foto muestra millas y el odómetro cuenta km, o al revés, la lectura espera en la **Bandeja de entrada** como toda lectura por foto. Su tarjeta dice lo que mostraba la foto y da el valor en la unidad del odómetro, con un botón para usarlo. Nada se convierte hasta que eliges.
 
 ## Costos
 

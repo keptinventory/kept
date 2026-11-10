@@ -83,6 +83,13 @@ function offsetAt(state: MockState, meterId: string, at: string): number {
   return found ? Number(found.offset) : 0;
 }
 
+/** A value in km as mi, or in mi as km, to the thousandth (the server's `round(…, 3)`). */
+function convertTo(value: string, to: string): string {
+  const v = Number(value);
+  const out = to === 'mi' ? v / 1.609344 : v * 1.609344;
+  return String(Math.round(out * 1000) / 1000);
+}
+
 export function seriesRoutes(state: MockState): MockRoute[] {
   const step2 = thingsRoutes(state);
   const postReading = original(step2, 'POST', inventoryPaths.meterReadings(':id'));
@@ -91,6 +98,34 @@ export function seriesRoutes(state: MockState): MockRoute[] {
   const visibleMeter = (id: string | undefined) => {
     const t = thingOfMeter(state, id ?? '');
     return t && accessOf(state).visible(t.locationId) ? t : null;
+  };
+  /** What a unit change would touch, or why it can't be made. */
+  const unitPlan = (id: string | undefined, body: unknown) => {
+    const thing = visibleMeter(id);
+    const meter = thing?.meters.find((m) => m.id === id);
+    if (!thing || !meter) return notFound();
+    if (!accessOf(state).isAdmin(thing.locationId))
+      return err(403, 'forbidden', "You don't have permission.");
+    const b = body as { unit?: string; convert?: boolean };
+    const odometer = meter.kind === 'distance';
+    const to = odometer ? (b.unit ?? '').trim().toLowerCase() : (b.unit ?? '').trim();
+    if (
+      !to ||
+      to === meter.unit ||
+      typeof b.convert !== 'boolean' ||
+      (odometer && to !== 'km' && to !== 'mi') ||
+      (b.convert && !(odometer && ['km', 'mi'].includes(meter.unit.toLowerCase())))
+    )
+      return err(400, 'validation', 'The request is not valid.');
+    return {
+      thing,
+      meter,
+      to,
+      convert: b.convert,
+      list: state.inventory.readings[meter.id] ?? [],
+      events: replacementsOf(state, meter.id),
+      schedules: hh(state).schedules.filter((x) => x.meterId === meter.id),
+    };
   };
   const refuseOwned = (readingId: string | undefined) => {
     const owner = vehiclesOf(state).owners.get(readingId ?? '');
@@ -136,6 +171,85 @@ export function seriesRoutes(state: MockState): MockRoute[] {
         event: { id: newId(), at: b.at, offset: b.offset },
         meter: { id: params.id },
       });
+    }),
+
+    // #385: Change unit, as the server's meters/units.ts: an odometer between km and mi,
+    // relabelled or converted (readings, offsets and the schedules on it); anything else
+    // relabelled. Undoable, with every value put back.
+    route('POST', inventoryPaths.meterUnitPreview(':id'), ({ params, body }) => {
+      const plan = unitPlan(params.id, body);
+      if (plan instanceof MockReply) return plan;
+      const { meter, to, convert, list, events, schedules } = plan;
+      const latest = list
+        .filter((r) => r.state === 'accepted')
+        .sort((x, y) => y.takenAt.localeCompare(x.takenAt))[0];
+      const conv = (v: string) => (convert ? convertTo(v, to) : String(Number(v)));
+      const offset = events.at(-1)?.offset ?? '0';
+      return {
+        from: meter.unit,
+        to,
+        convert,
+        readings: convert ? list.length : 0,
+        example: latest
+          ? { before: String(Number(latest.value)), after: conv(latest.value) }
+          : null,
+        offset: convert && Number(offset) !== 0 ? { before: offset, after: conv(offset) } : null,
+        maxPerDay: null,
+        replacements: convert ? events.length : 0,
+        schedules: convert ? schedules.length : 0,
+      };
+    }),
+
+    route('POST', inventoryPaths.meterUnit(':id'), ({ params, body }) => {
+      const plan = unitPlan(params.id, body);
+      if (plan instanceof MockReply) return plan;
+      const { thing, meter, to, convert, list, events, schedules } = plan;
+      const from = meter.unit;
+      const before = {
+        readings: list.map((r) => r.value),
+        events: events.map((e) => e.offset),
+        schedules: schedules.map((x) => x.everyUnits),
+        latest: meter.latest,
+      };
+      if (convert) {
+        if (meter.latest)
+          meter.latest = { ...meter.latest, value: convertTo(meter.latest.value, to) };
+        for (const r of list) r.value = convertTo(r.value, to);
+        for (const e of events) e.offset = convertTo(e.offset, to);
+        for (const x of schedules) if (x.everyUnits) x.everyUnits = convertTo(x.everyUnits, to);
+      }
+      meter.unit = to;
+      meter.rowVersion += 1;
+      const eventId = recordHouseholdEvent(state, {
+        action: 'meter.unit',
+        entity: { type: 'meter', id: meter.id },
+        locationId: thing.locationId,
+        rootThingId: thing.id,
+        name: thing.name ?? '',
+        undo: () => {
+          list.forEach((r, i) => {
+            r.value = before.readings[i] ?? r.value;
+          });
+          events.forEach((e, i) => {
+            e.offset = before.events[i] ?? e.offset;
+          });
+          schedules.forEach((x, i) => {
+            x.everyUnits = before.schedules[i] ?? x.everyUnits;
+          });
+          meter.latest = before.latest;
+          meter.unit = from;
+          meter.rowVersion += 1;
+        },
+      });
+      return {
+        meter: { ...meter },
+        changed: {
+          readings: convert ? list.length : 0,
+          replacements: convert ? events.length : 0,
+          schedules: convert ? schedules.length : 0,
+        },
+        undo: { eventId, until: new Date(Date.now() + 7 * 86_400_000).toISOString() },
+      };
     }),
 
     route('POST', inventoryPaths.meterReadings(':id'), async (req) => {

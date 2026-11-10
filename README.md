@@ -109,7 +109,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   unpacked by scanning ([moving](https://keptinventory.info/users/moving/)).
 - **Reminders.** Warranties, services, documents, loans and low stock: in the app, by mail, push,
   ntfy, Telegram and a calendar feed.
-- **Vehicles and machines.** Readings, services, fuel and running costs.
+- **Vehicles and machines.** Readings, services, fuel and running costs, metric or imperial.
 - **The household.** Shared locations with roles and end dates, share links, stocktakes,
   condition reports, an insurance report and insights. PDFs in the reader's language.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI

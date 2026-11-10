@@ -99,6 +99,11 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
   29/10/2026 o 2026-10-29 (come li scrive il Regno Unito). Ogni scelta mostra la data odierna scritta in quel modo, nella tua regione. Le date di acquisto e
   di garanzia mostrano sempre l'anno.
 - **Tema**: **Sistema** (segue l'impostazione chiara/scura del dispositivo), **Chiaro** o **Scuro**.
+- **Unità**: **Metrico** o **Imperiale**, salvato nel tuo account e non sul dispositivo, così ogni dispositivo lo segue.
+  Imperiale mostra le misure delle stanze, le misure dei mobili, l'altezza di un oggetto su una parete e le misure dei
+  tipi di etichetta in piedi e pollici, il consumo di carburante in mpg o mi/kWh, e un veicolo che aggiungi riceve un
+  contachilometri in miglia. Ciò che hai salvato non cambia mai: le misure restano in centimetri e le letture come le
+  hai inserite. Un contachilometri ha la sua unità: vedi [Veicoli](/it/users/vehicles/#unità).
 - **Larghezza del contenuto**: **Centrato** o **Tutta larghezza**, su schermi di almeno 768 px.
 
 ## 7. Fai il tour

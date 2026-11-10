@@ -49,6 +49,7 @@ import { toast } from '@/components/ui/toast';
 import { isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 import { type CardSel, MapCard } from './card';
 import {
   type EngineState,
@@ -215,6 +216,7 @@ function MapBody({
   const { t } = useLingui();
   const { locale, digits } = usePrefs();
   const f = useFormat();
+  const lengths = useLengths();
   const qc = useQueryClient();
   const confirm = useConfirm();
   const errorText = useErrorText();
@@ -309,15 +311,21 @@ function MapBody({
       openFloor: t`click to open`,
       changeFloor: t`click to change floor`,
       sep: f.sep,
-      // #372: under a room's name in the plan view, to the centimetre.
+      // #372: under a room's name in the plan view, to the centimetre; in feet and inches in
+      // imperial (#385).
       roomSize: (wm: number, dm: number) => {
+        if (lengths.imperial) {
+          const w = lengths.span(mToCm(wm));
+          const d = lengths.span(mToCm(dm));
+          return t`${w} × ${d}`;
+        }
         const tag = formatLocale(locale, digits);
         const w = formatRoomSide(mToCm(wm), tag);
         const d = formatRoomSide(mToCm(dm), tag);
         return t`${w} × ${d} m`;
       },
     }),
-    [t, locale, digits, f.sep],
+    [t, locale, digits, f.sep, lengths],
   );
 
   // The map fills the screen below where it starts, down to the tab bar (and its raised Capture
@@ -1550,8 +1558,12 @@ function MapBody({
           })}
           {proposalsHere.map((p) => {
             const room = p.name;
-            const w = f.num(Math.round(p.w * 10) / 10);
-            const d = f.num(Math.round(p.d * 10) / 10);
+            const w = lengths.imperial
+              ? lengths.span(mToCm(p.w))
+              : f.num(Math.round(p.w * 10) / 10);
+            const d = lengths.imperial
+              ? lengths.span(mToCm(p.d))
+              : f.num(Math.round(p.d * 10) / 10);
             return (
               <li key={p.key}>
                 <button
@@ -1559,9 +1571,15 @@ function MapBody({
                   className="kmap-nm"
                   onClick={() => engine?.select({ type: 'room', id: p.key })}
                 >
-                  <Trans>
-                    <bdi>{room}</bdi>, from the plan, not added, {w} by {d} metres
-                  </Trans>
+                  {lengths.imperial ? (
+                    <Trans>
+                      <bdi>{room}</bdi>, from the plan, not added, {w} by {d}
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      <bdi>{room}</bdi>, from the plan, not added, {w} by {d} metres
+                    </Trans>
+                  )}
                 </button>
               </li>
             );

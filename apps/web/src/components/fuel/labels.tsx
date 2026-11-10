@@ -5,16 +5,11 @@
  * consumption yet (`whyNone`). Only the derived figure follows the reader's units; a fill's own
  * litres, kWh or gallons are shown as stored (D76).
  */
-import {
-  type ConsumptionWhyNone,
-  displayConsumption,
-  type FuelUnit,
-  type UnitSystem,
-} from '@kept/shared';
+import { type ConsumptionWhyNone, displayConsumption, type FuelUnit } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
 import { type SVGProps, useMemo } from 'react';
-import { useMe } from '@/api/queries';
 import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useUnitSystem } from '@/lib/units';
 
 /** A fuel pump, in the icon set's style (24-unit box, 1.8 stroke; the designs' `a5-fuel`). */
 export function FuelIcon(props: SVGProps<SVGSVGElement>) {
@@ -76,11 +71,8 @@ export function useFuelAmount() {
   return (amount: string, unit: FuelUnit) => `${decimal(amount, 1)} ${short[unit]}`;
 }
 
-/** The reader's unit system (Settings → Units); metric until the profile has loaded. */
-export function useUnitSystem(): UnitSystem {
-  const me = useMe();
-  return me.data?.profile.units ?? 'metric';
-}
+/** The reader's unit system (Settings → Units, lib/units.ts). */
+export { useUnitSystem };
 
 /**
  * A consumption ("7.3 L/100 km", "32.2 mpg", "1.6 L/h") from the summary's `perHundred`, in the

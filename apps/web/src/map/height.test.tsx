@@ -1,5 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { keys } from '@/api/queries';
+import type { Me } from '@/api/types';
 import { setDigits, setLocale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { HeightField } from './height';
@@ -149,5 +153,40 @@ describe('HeightField', () => {
     expect(document.documentElement.dir).toBe('rtl');
     expect(screen.getByRole('button', { name: /^أعلى/ })).toBeTruthy();
     expectLogicalOnly();
+  });
+});
+
+// #385: in imperial, feet and inches, an inch a step, typed any usual way.
+describe('HeightField in imperial (#385)', () => {
+  const inImperial = (ui: ReactElement) => {
+    const qc = new QueryClient();
+    qc.setQueryData(keys.me, { profile: { units: 'imperial' } } as Me);
+    return <QueryClientProvider client={qc}>{ui}</QueryClientProvider>;
+  };
+
+  it('shows feet and inches, steps an inch and reads 4\'6"', async () => {
+    const onHeight = vi.fn();
+    const { user } = await renderUI(inImperial(<HeightField item={tv} onHeight={onHeight} />));
+    const field = screen.getByRole('textbox', { name: 'Height' });
+    expect((field as HTMLInputElement).value).toBe('3 ft 11 in');
+    await user.click(field);
+    await user.keyboard('{ArrowUp}');
+    expect(onHeight).toHaveBeenLastCalledWith(1.22);
+    await user.clear(field);
+    await user.type(field, `4'6"{Enter}`);
+    expect(onHeight).toHaveBeenLastCalledWith(1.37);
+    await user.clear(field);
+    await user.type(field, 'high{Enter}');
+    expect(screen.getByText('Enter feet and inches, like 3 ft 11 in.')).toBeTruthy();
+  });
+
+  it('keeps the height it has when what is shown is typed back', async () => {
+    const onHeight = vi.fn();
+    const { user } = await renderUI(inImperial(<HeightField item={tv} onHeight={onHeight} />));
+    const field = screen.getByRole('textbox', { name: 'Height' });
+    await user.clear(field);
+    await user.type(field, '3 ft 11 in{Enter}');
+    // 3 ft 11 in read back would be 1.19 m, and snapped to the inch 1.22 m: it stays 1.2 m.
+    expect(onHeight).toHaveBeenLastCalledWith(1.2);
   });
 });

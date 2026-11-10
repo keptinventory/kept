@@ -171,6 +171,7 @@ export const AUDIT_ACTIONS = [
   'meter.create',
   'meter.delete',
   'meter.replaced',
+  'meter.unit',
   'meter.update',
   'move.create',
   'move.delete',
