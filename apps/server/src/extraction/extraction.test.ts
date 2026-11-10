@@ -935,6 +935,62 @@ describe('READING', () => {
   });
 });
 
+// #385: a dashboard photo read in miles on an odometer in kilometres (or the other way round)
+// still waits for review, and the Inbox says which unit the photo showed, so the person can see
+// it and convert it rather than keep a number in the wrong unit.
+describe('READING: the unit the photo showed', () => {
+  it.each([
+    ['km', 'mi'],
+    ['mi', 'km'],
+    ['km', 'km'],
+    ['mi', 'mi'],
+  ])('a %s odometer read in %s says so in the Inbox', async (meterUnit, seen) => {
+    const carId = newId();
+    const meterId = newId();
+    await own(
+      db,
+      `INSERT INTO public.things (id, location_id, place_id, name) VALUES ($1, $2, $3, 'Car')`,
+      [carId, home.id, home.unplacedId],
+    );
+    await own(
+      db,
+      `INSERT INTO public.meters (id, location_id, thing_id, kind, unit)
+       VALUES ($1, $2, $3, 'distance', $4)`,
+      [meterId, home.id, carId, meterUnit],
+    );
+    const fileId = await up(louis);
+    const out = await capture(louis, {
+      mode: 'reading',
+      attachToThingId: carId,
+      files: [{ fileId, role: 'proof' }],
+    });
+    const { key } = await keyOf(fileId, 'reading');
+    answers[key] = { output: { value: c(31000, 0.98), unit: c(seen, 0.95), display: 'digital' } };
+    expect((await run(louis, out.extraction.id)).status).toBe('succeeded');
+    const [r] = await own<{ id: string; value: string; state: string }>(
+      db,
+      `SELECT id, trim_scale(value)::text AS value, state FROM public.meter_readings
+        WHERE meter_id = $1`,
+      [meterId],
+    );
+    // Never applied or converted: the value as read, waiting for review.
+    expect(r).toMatchObject({ value: '31000', state: 'needs_review' });
+    const list = ok(
+      await call(t, `/api/v1/inbox?locationId=${home.id}&kind=reading&mine=0`, { as: ibrahim }),
+    );
+    const item = (list.items as Json[]).find(
+      (i) =>
+        (i.reading as Json | undefined)?.meter &&
+        ((i.reading as Json).meter as Json).id === meterId,
+    );
+    expect(item?.reading).toMatchObject({
+      meter: { id: meterId, unit: meterUnit },
+      value: '31000',
+      unitSeen: seen,
+    });
+  });
+});
+
 describe('pauses, retries and failures', () => {
   async function queued(as: Person = louis) {
     const fileId = await up(as);

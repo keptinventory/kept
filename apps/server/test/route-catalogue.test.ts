@@ -37,6 +37,8 @@ const ALLOWLIST: Record<string, string> = {
     'read-only: answers what a type change would touch (kept.type_impact) and changes nothing; the PATCH it previews is audited (type.update)',
   'POST /api/v1/type-fields/:id/convert/preview':
     'read-only: counts per location what converting a field would convert and send to the notes (kept.field_conversion_preview, never a value) and changes nothing; the conversion itself is audited (type.field_convert)',
+  'POST /api/v1/meters/:id/unit/preview':
+    "read-only: answers what changing a meter's unit would convert (readings, offsets, the daily limit, schedules) and changes nothing; the change itself is audited (meter.unit)",
   'POST /api/v1/things/move/preview':
     'read-only: answers what a move would copy and who would lose sight of the things, counting the copies inside a savepoint it always rolls back; the move itself is audited (thing.move)',
   'POST /api/v1/files/:id/url':

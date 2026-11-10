@@ -132,7 +132,7 @@ const METER_SELECT = `SELECT m.id, m.location_id, m.thing_id, m.kind, m.unit, m.
   FROM public.meters m
   JOIN public.things t ON t.id = m.thing_id AND t.deleted_at IS NULL`;
 
-async function meterView(client: pg.ClientBase, id: string): Promise<MeterView> {
+export async function meterView(client: pg.ClientBase, id: string): Promise<MeterView> {
   const m = await liveMeter(client, id);
   const { rows } = await client.query<{
     value: string | null;
@@ -229,7 +229,7 @@ async function lockMeter(client: pg.ClientBase, id: string): Promise<MeterRow> {
   return liveMeter(client, id);
 }
 
-async function writableMeter(
+export async function writableMeter(
   client: pg.ClientBase,
   id: string,
   action: Action,

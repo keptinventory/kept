@@ -161,7 +161,12 @@ describe('GET /api/v1/me', () => {
     const me = await person(t, db, 'lang');
     const set = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale: 'es' } });
     expect(set.statusCode, set.body).toBe(200);
-    expect(set.json()).toEqual({ suggestLocation: false, hidePersonal: false, locale: 'es' });
+    expect(set.json()).toEqual({
+      suggestLocation: false,
+      hidePersonal: false,
+      locale: 'es',
+      units: 'metric',
+    });
     expect((await call(t, '/api/v1/me', { as: me })).json().profile.locale).toBe('es');
     const mailLanguage = await ownerTx(db, (c) =>
       c.query<{ locale: string }>('SELECT kept.mail_locale($1) AS locale', [me.email]),
@@ -242,6 +247,43 @@ describe('GET /api/v1/me', () => {
     ).toBe(1);
     const bad = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { theme: 'dark' } });
     expect(bad.statusCode).toBe(400);
+  });
+
+  // #385: metric or imperial, chosen once in Settings and kept on the profile.
+  it('PATCH keeps metric or imperial on the person, across devices, and audits it', async () => {
+    const me = await person(t, db, 'units');
+    expect((await call(t, '/api/v1/me', { as: me })).json().profile.units).toBe('metric');
+    const set = await call(t, '/api/v1/me', {
+      as: me,
+      method: 'PATCH',
+      body: { units: 'imperial' },
+    });
+    expect(set.statusCode, set.body).toBe(200);
+    expect(set.json()).toMatchObject({ units: 'imperial' });
+    expect((await call(t, '/api/v1/me', { as: me })).json().profile.units).toBe('imperial');
+    const events = await ownerTx(
+      db,
+      async (c) =>
+        (
+          await c.query<{ diff: unknown }>(
+            `SELECT diff FROM public.audit_events WHERE actor_id = $1 AND action = 'me.preferences'`,
+            [me.userId],
+          )
+        ).rows,
+    );
+    expect(events).toEqual([
+      { diff: { units: { before: 'metric', after: 'imperial', class: 'plain' } } },
+    ]);
+    for (const units of ['US', 'Imperial', '', 1]) {
+      const bad = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { units } });
+      expect(bad.statusCode, String(units)).toBe(400);
+    }
+    const back = await call(t, '/api/v1/me', {
+      as: me,
+      method: 'PATCH',
+      body: { units: 'metric' },
+    });
+    expect(back.json()).toMatchObject({ units: 'metric' });
   });
 
   it('needs a session', async () => {

@@ -370,6 +370,8 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   // (0149) A planned count done by counting its place: kept up by triggers, nobody calls them.
   'kept.schedule_counted_on(uuid)': { roles: NOBODY, definer: true },
   'kept.scan_session_schedule_changed()': { roles: NOBODY, definer: true },
+  // (0175, #385) A meter's unit changed: its schedules re-anchor. A trigger; nobody calls it.
+  'kept.meter_unit_changed()': { roles: NOBODY, definer: true },
   'kept.scan_session_undone()': { roles: NOBODY, definer: true },
   // (0151) A loan written without a hand-over gets its one-line hand-over: a trigger's.
   'kept.loan_handover()': { roles: NOBODY, definer: true },

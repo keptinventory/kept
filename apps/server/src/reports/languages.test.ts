@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import type { UnitSystem } from '@kept/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   buildInsuranceView,
@@ -419,7 +420,7 @@ function move(l: ReportLocale) {
   );
 }
 
-function vehicle(l: ReportLocale) {
+function vehicle(l: ReportLocale, requesterUnits: UnitSystem = 'metric') {
   const g: GatheredVehicle = {
     thing: {
       id: id(7),
@@ -436,6 +437,7 @@ function vehicle(l: ReportLocale) {
     locationTimezone: 'Africa/Cairo',
     requesterName: 'Alfred',
     requesterTimezone: 'Africa/Cairo',
+    requesterUnits,
     meter: { id: 'm', kind: 'distance', unit: 'km' },
     latest: { value: '84250', day: '2026-09-20' },
     readingCount: 3,
@@ -572,6 +574,15 @@ describe('the views', () => {
     expect(a.digits).toBe('arab');
     expect(a.pathSeparator).toBe('‹');
     expect(a.labels.title).toBe('تقرير الجرد');
+  });
+
+  // #385: fuel use in the units of the person who asked for the report; stored fills never change.
+  it('write fuel use in the requester’s units', () => {
+    const use = (v: ReturnType<typeof vehicle>) => v.fuel?.summary[0]?.[1];
+    expect(use(vehicle('en'))).toBe('6.8 L/100 km');
+    expect(use(vehicle('en', 'imperial'))).toBe('34.6 mi/gal');
+    expect(use(vehicle('ar', 'imperial'))).toContain('ميل/جالون');
+    expect(use(vehicle('de', 'imperial'))).toBe('34,6 mi/gal');
   });
 
   it('never put the middle dot between a line’s parts', () => {

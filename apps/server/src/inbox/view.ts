@@ -149,6 +149,9 @@ export const InboxItemSchema = z.object({
         after: z.object({ value: z.string(), takenAt: z.string() }).optional(),
       }),
       proofThumbUrl: z.string().nullable(),
+      /** The unit the photo showed, when AI read one (#385): km, mi or h. The value is never
+       * converted; the web says when it isn't the meter's unit. */
+      unitSeen: z.enum(['km', 'mi', 'h']).nullable(),
     })
     .optional(),
   duplicate: z
@@ -846,6 +849,7 @@ export async function itemsOf(
           reason: str(i.payload.reason) ?? r?.review_reason ?? 'ai_read',
           neighbours: { ...(before ? { before } : {}), ...(afterN ? { after: afterN } : {}) },
           proofThumbUrl: proofs.get(str(i.payload.attachmentId) ?? '') ?? null,
+          unitSeen: unitSeenOf(i.payload.unitSeen),
         };
       }
     }
@@ -896,4 +900,9 @@ function unitPriceRead(line: Record<string, unknown> | undefined): string | unde
   const q = obj(line.quantity).value;
   if (typeof total !== 'number') return undefined;
   return readAmount(total / (typeof q === 'number' && q > 0 ? q : 1));
+}
+
+/** A reading's `unitSeen` as the extraction stored it (extraction/apply.ts), or null. */
+function unitSeenOf(v: unknown): 'km' | 'mi' | 'h' | null {
+  return v === 'km' || v === 'mi' || v === 'h' ? v : null;
 }

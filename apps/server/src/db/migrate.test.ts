@@ -383,6 +383,8 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.field_convert_mode(type_fields,jsonb,boolean)': OWNER_ONLY,
   'kept.field_values(type_fields)': OWNER_ONLY,
   'kept.field_value_converts(jsonb,jsonb)': OWNER_ONLY,
+  // Migration 0175 (#385): a meter's unit change re-anchors its schedules.
+  'kept.meter_unit_changed()': OWNER_ONLY,
 };
 
 let dbName: string;
