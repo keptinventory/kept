@@ -85,26 +85,31 @@ export const Logo = BrandLockup;
 const footerLink =
   'underline-offset-2 outline-none hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-info';
 
-/** "v0.1.0 · Source code" (D147). Shown in the sidebar, on More, and on the sign-in pages. The
- * image's third-party notices (D151) stay in the image and at /notices.txt, not in the footer. */
+/** The version, "v0.1.0", as the link to the source code (D147: Kept is AGPL, so it offers its
+ * source to everyone using it). Only the version shows; "Source code" is the link's accessible
+ * name and tooltip. Shown in the sidebar, on More, and on the sign-in pages. The image's
+ * third-party notices (D151) stay in the image and at /notices.txt, not in the footer. */
 export function VersionFooter({ className }: { className?: string }) {
+  const { t } = useLingui();
   const { data } = useVersion();
   if (!data) return <div className={cn('min-h-5', className)} />;
+  const version = <span className="ltr">v{data.version}</span>;
   return (
-    <div className={cn('flex flex-wrap items-center gap-x-1.5 text-[12px] text-ink-3', className)}>
-      {/* The comma follows the version with no space before it: a separate item would get the
-          flex gap on both sides ("v1.14.7 , Source code"). */}
-      <span>
-        <span className="ltr">v{data.version}</span>
-        {data.source ? <span aria-hidden="true">{sep().trim()}</span> : null}
-      </span>
+    <div className={cn('flex items-center text-[12px] text-ink-3', className)}>
       {data.source ? (
-        <>
-          <a href={data.source} target="_blank" rel="noreferrer" className={footerLink}>
-            <Trans>Source code</Trans>
-          </a>
-        </>
-      ) : null}
+        <a
+          href={data.source}
+          target="_blank"
+          rel="noreferrer"
+          className={footerLink}
+          aria-label={`${t`Source code`}${sep()}v${data.version}`}
+          title={t`Source code`}
+        >
+          {version}
+        </a>
+      ) : (
+        version
+      )}
     </div>
   );
 }
@@ -702,7 +707,8 @@ function Sidebar({ locations, counts }: { locations: LocationSummary[]; counts: 
   );
 }
 
-/** The rail has no room for "v0.1.0 · Source code" (D147): an icon link, the version in its tooltip. */
+/** The rail has no room for the version (D147): an icon link to the source code, the version in its
+ * tooltip. */
 function RailSourceLink({ tips }: { tips: boolean }) {
   const { t } = useLingui();
   const { data } = useVersion();
