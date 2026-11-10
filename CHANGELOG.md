@@ -3,6 +3,48 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.7 (2026-11-10)
+
+### Highlights
+
+- **Home Assistant in one click.** Home Assistant finds Kept and asks; someone in Kept allows it with a code. No token to copy (#376).
+- **Racks in rack units.** 19-inch and 10-inch racks, seen from the front or the rear, with gear placed at its unit (#373).
+  <!-- whats-new ![places](rack.mp4) -->
+- **Metric or imperial.** Choose once in Settings: map and furniture sizes, label sizes and fuel use follow it. Odometers count in km or mi, and Change unit relabels or converts the readings, with Undo (#385).
+  <!-- whats-new ![settings](units.mp4) -->
+- **PDFs in your language.** Reports, condition, vehicle and contents sheets, the readable copy and insurance claim packs, in each reader's language (#465). Claim pack wording reads differently from insurer to insurer: corrections are welcome in an issue.
+
+### Other
+
+- Home Assistant link: make the token when Home Assistant collects it (#512) (c405fdb)
+- The footer shows only the version, linked to the source code (#514) (dc0a2f2)
+- The version line has no space before its comma (#513) (ad10fad)
+- Fixes from the 1.14.7 final review (#511) (209e975)
+- Metric or imperial: one setting for sizes and fuel, and odometers in km or mi (#510, closes #385) (44a8ed0)
+- Ukrainian: kWh reads кВт-год, not кВт, год (#509) (2bf31ce)
+- Racks in rack units, and gear at its unit (#499, closes #373) (55c988e)
+- Install pages in every language download the current release (#498) (267986b)
+- Install page: pick how you run Kept, then follow its steps (#497, closes #492) (cc9feb6)
+- PDF reports and claim packs in every language (#491, closes #465) (2d136ec)
+- Scanner tries again after a failed start, and sheets stay above the keyboard (#490, closes #486, #487, reported by @strausmann) (a38d97d)
+- Home Assistant: set up the integration from the app, no token to copy (#489) (0cb4faa)
+- Lending: who had it, damaged on return, and who took it back (#483, closes #374) (ef0dbfb)
+- Set a location's position, so Capture can suggest where you are (#481, closes #375) (ba66aab)
+- Mail the owner when a backup code is used to sign in (#480, closes #419, reported by @strausmann) (e2cd8db)
+- Sign-in from an extra address keeps where you were going and your invite (#479) (2276f6c)
+- Money read by the reader's language, and the other language leftovers (#482, closes #474) (57d3b8e)
+- Small fixes from the last review, and no middle dots in Kept's text (#478) (1770238)
+- Trashing furniture takes its compartments with it (#477, closes #445, reported by @strausmann) (a4325a4)
+- Docs site: choose a language on a phone from the home page (#476, closes #475) (fec7d7b)
+
+### Documentation
+
+- **release:** the 1.14.6 record (#473) (71669aa)
+
+### Contributors
+
+@ibrahimroshdy
+
 ## 1.14.6 (2026-11-07)
 
 ### Highlights
