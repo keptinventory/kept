@@ -37,7 +37,10 @@ same way.
   again.
 - **Warranties** (Household and Complete) show a coverage bar from purchase to the end date. A
   **claim** records a repair or replacement, and a claim that cost nothing shows "Warranty saved
-  you".
+  you". A [personal token](/users/mcp-clients/#make-a-personal-token) reads a thing's warranties
+  (`GET /api/v1/things/{id}/warranties`), lifetime and ended ones included, with each document's
+  details but never a link to its file. One that can change things adds a warranty (`POST` to the
+  same address). Editing, deleting and claims stay in the app.
 - **Paperwork** in the menu is the location's own documents (the lease, the home insurance), and
   **Expiring** lists things, documents and warranties by date. Text in PDFs is searchable.
 

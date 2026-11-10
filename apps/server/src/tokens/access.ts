@@ -51,6 +51,12 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'GET /api/v1/brands/:id': 'read',
   'POST /api/v1/accounts/:accountId/brands': 'write',
   'POST /api/v1/locations/:id/brands': 'write',
+  // Warranties: a thing's list (lifetime and ended ones too, which the agenda leaves out) and
+  // adding one, as the MCP tool `add_warranty` already does. A document comes back as metadata,
+  // never a signed link, as on the attachments routes. Editing, deleting, the defaults and claims
+  // stay with the app.
+  'GET /api/v1/things/:id/warranties': 'read',
+  'POST /api/v1/things/:id/warranties': 'write',
   // Search, codes and the activity feed.
   'GET /api/v1/search': 'read',
   'GET /api/v1/codes/:code': 'read',

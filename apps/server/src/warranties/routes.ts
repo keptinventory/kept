@@ -75,7 +75,14 @@ export async function warrantyRoutes(app: KeptApp, deps: InventoryDeps): Promise
     { config: onThing, schema: { params: Id, response: { 200: WarrantiesSchema } } },
     (req) =>
       scopedRead(pools, req, (tx, client, scope) =>
-        listWarranties(tx, client, scope, files, req.params.id.toLowerCase()),
+        listWarranties(
+          tx,
+          client,
+          scope,
+          // A personal token reads its documents' metadata only: never a signed link to the bytes.
+          req.token ? null : files,
+          req.params.id.toLowerCase(),
+        ),
       ),
   );
 
