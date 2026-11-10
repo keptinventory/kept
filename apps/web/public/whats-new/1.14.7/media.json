@@ -1,0 +1,14 @@
+{
+  "rack.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "rack.webp",
+    "webm": "rack.webm"
+  },
+  "units.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "units.webp",
+    "webm": "units.webm"
+  }
+}

@@ -151,7 +151,7 @@ included; Kept and its database use about 200–400 MB
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
