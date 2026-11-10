@@ -62,6 +62,19 @@ Một khay ô vuông hoặc một kệ gỡ ra làm hai hoặc nhiều ngăn th�
 - **Mẫu của riêng bạn:** **Cài đặt → Tài khoản → Mẫu → Nội thất** có mẫu vị trí của tài khoản: ô vuông ngang và dọc (thẳng đứng), kệ hoặc ngăn kéo, các loại, tên và mẫu mã, chia sẻ với địa điểm bạn chọn. Chủ sở hữu và quản trị viên tạo chúng; bất kỳ ai có thể thêm vị trí dùng chúng.
 - **Ứng dụng AI** có thể làm tương tự: `create_place` lấy một `template`, và `update_place` một `turn` ([MCP clients](/vi/users/mcp-clients/#các-công-cụ)). Gộp và tách ở trong ứng dụng.
 
+### Tủ rack
+
+Tủ rack 19 hoặc 10 inch là đồ nội thất đo bằng đơn vị rack (U). Thiết bị là đồ vật bên trong: chiếm bao nhiêu đơn vị và bắt đầu từ đơn vị nào.
+
+- **Thêm tại đây → Phòng hoặc vị trí → Đồ nội thất có ngăn…**, rồi chọn mẫu tủ: **Tủ rack 19 inch, 42U**, **Tủ rack 19 inch, 24U**, **Tủ rack treo tường, 12U**, **Tủ rack treo tường, 6U** hoặc **Tủ rack 10 inch, 8U**. Đổi **Số đơn vị** (1 đến 60) và **Đánh số từ** **Dưới cùng** (U1 ở dưới, như thường lệ) hoặc **Trên cùng**. Tủ rack không có ngăn; vẫn có thể đặt **Mã riêng (không bắt buộc)**.
+- **Trang của nó** hiện tủ (**Nhìn từ** **Mặt trước** hoặc **Mặt sau**) từ trên xuống: mỗi thiết bị ở các đơn vị của nó (`U11`, `U5–U6`) và các đơn vị trống ở giữa là **Trống**. Đơn vị được viết như in trên thanh ray, ở mọi ngôn ngữ.
+- **Lắp thiết bị:** chuyển đồ vật vào tủ như vào bất kỳ vị trí nào. Nó hiện trong **Chưa đặt vị trí**, và **Đặt vị trí** hỏi **Bắt đầu tại** (đơn vị thấp nhất, hoặc cao nhất trong tủ đánh số từ trên), **Chiều cao** theo đơn vị rack (được phép nửa đơn vị, như 1,5), **Mặt** (**Mặt trước** hoặc **Mặt sau**) và **Chiều sâu**. **Hết chiều sâu** chiếm đơn vị ở cả hai mặt, **Nửa chiều sâu** chỉ ở mặt của nó, nên một switch mặt trước và một khay mặt sau có thể dùng chung đơn vị.
+- **Bị từ chối:** hai thiết bị cùng đơn vị cùng mặt, hoặc thiết bị vượt quá đỉnh tủ. Kept nêu tên thiết bị đang ở đó và không lưu gì.
+- **Chiều cao 0** là thiết bị cạnh thanh ray, như ổ cắm điện: không chiếm đơn vị và nằm trong **Cạnh thanh ray (0U)**.
+- **Trang của đồ vật** hiện **Trong tủ rack**: tủ, các đơn vị và chiều sâu, với **Thay đổi**. **Gỡ khỏi vị trí** giải phóng đơn vị và để đồ vật lại trong tủ.
+- **Chuyển thiết bị ra** khỏi tủ giải phóng đơn vị của nó; chuyển lại vào thì lại là **Chưa đặt vị trí**. **Hoàn tác** đặt lại vị trí, trừ khi ai đó đã chiếm đơn vị đó.
+- **Ứng dụng AI** có thể làm tương tự: `create_place` nhận mẫu tủ với `units` và `numbering`, `update_thing` nhận `rack_units` và `rack_at`.
+
 ## Vị trí của nó
 
 Vị trí của một địa điểm giúp **Gợi ý vị trí của tôi** trong Chụp chọn địa điểm đó khi bạn ở đó

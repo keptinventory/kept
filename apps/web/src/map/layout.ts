@@ -56,6 +56,7 @@ import type {
   MapAttentionKind,
   MapCompartment,
   MapNodeView,
+  MapRack,
   MapThingView,
   MapView,
 } from '@/api/map/types';
@@ -122,9 +123,51 @@ export type Item = {
   placedByKept?: boolean;
   /** Furniture made from a place template (#238): its grid as it stands and its compartments,
    * drawn inside its shape and picked on the map. */
-  grid?: NonNullable<MapNodeView['grid']>;
+  grid?: MapGrid;
   compartments?: MapCompartment[];
+  /** A rack (#373): its units and gear. Its gear on the front (or full depth) is also its
+   * `compartments`, half a unit to a row of `grid`, so the engine outlines and picks it. */
+  rack?: MapRack;
 };
+
+/** Furniture's grid as it stands (#238), or a rack's half units (#373). */
+export type MapGrid = NonNullable<MapNodeView['grid']> | { columns: 1; rows: number; kind: 'rack' };
+
+/**
+ * #373: a rack's gear as compartments of its front, half a unit to a row, the top row first, so
+ * the map outlines each piece where it is mounted and a tap picks it. Gear mounted on the rear
+ * only isn't on the front (the card lists it).
+ */
+export function rackParts(rack: MapRack): { grid: MapGrid; compartments: MapCompartment[] } {
+  const rows = rack.units * 2;
+  const compartments: MapCompartment[] = [];
+  for (const g of rack.gear) {
+    if (!g.full && g.face !== 'front') continue;
+    const first = Math.round((g.u - 1) * 2);
+    const span = Math.round(g.units * 2);
+    const row = rows - (first + span) + 1;
+    if (span < 1 || row < 1) continue;
+    compartments.push({
+      id: g.id,
+      name: g.name,
+      shortCode: null,
+      labelPrinted: false,
+      n: g.u,
+      row,
+      col: 1,
+      rows: span,
+      cols: 1,
+    });
+  }
+  return { grid: { columns: 1, rows, kind: 'rack' }, compartments };
+}
+
+/** #373: the catalogue's rack a rack is drawn as when nobody picked a shape: on a wall 6U or
+ * 12U, on the floor 24U or 42U, whichever is nearest above its units. */
+export function rackModel(rack: Pick<MapRack, 'units' | 'mount'>): MapShapeKey {
+  if (rack.mount === 'wall') return rack.units <= 6 ? 'rack_wall_6u' : 'rack_wall_12u';
+  return rack.units <= 24 ? 'rack_24u' : 'rack_42u';
+}
 
 export type Plan = { levels: Level[]; rooms: Room[]; items: Item[] };
 
@@ -133,7 +176,8 @@ export type Plan = { levels: Level[]; rooms: Room[]; items: Item[] };
  * shelf drawn from its grid as it stands, a bookcase from its levels, a chest of drawers. Null
  * for a grid too big to draw, which then keeps its guess.
  */
-export function furnitureModel(grid: NonNullable<MapNodeView['grid']>): MapShapeKey | null {
+export function furnitureModel(grid: MapGrid): MapShapeKey | null {
+  if (grid.kind === 'rack') return null;
   if (grid.kind === 'grid') {
     if (grid.columns > CUBE_GRID.max || grid.rows > CUBE_GRID.max) return null;
     return sizedKey({ base: 'cube_grid', across: grid.columns, up: grid.rows });
@@ -157,7 +201,8 @@ export function fp(item: Pick<Item, 'model' | 'rot'>): { w: number; d: number } 
 const modelOf = (n: MapNodeView): MapShapeKey =>
   n.layout?.model && isMapModel(n.layout.model)
     ? n.layout.model
-    : ((n.grid ? furnitureModel(n.grid) : null) ??
+    : ((n.rack ? rackModel(n.rack) : null) ??
+      (n.grid ? furnitureModel(n.grid) : null) ??
       guessModel({
         name: n.name,
         subject: n.subject,
@@ -371,6 +416,7 @@ function itemOf(n: MapNodeView, model: MapShapeKey, x: number, z: number): Item 
     auto: n.parentId === n.roomId && (n.subject === 'place' || n.isContainer),
     ...(n.layout?.placedByKept ? { placedByKept: true } : {}),
     ...(n.grid && n.compartments?.length ? { grid: n.grid, compartments: n.compartments } : {}),
+    ...(n.rack ? { rack: n.rack, ...rackParts(n.rack) } : {}),
   };
 }
 

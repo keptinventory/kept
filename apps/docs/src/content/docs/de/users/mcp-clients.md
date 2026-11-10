@@ -152,7 +152,7 @@ eine Rolle ab Mitglied. Der Teil von Kept, den ein Werkzeug braucht, ist der Nam
 | `update_thing` | ändern | | Ändere beliebige Felder eines Gegenstands, die das Bearbeitungsformular der App ändert (siehe unten); `null` leert eines. |
 | `move_thing` | ändern | | Verschiebe einen Gegenstand oder einen Teil einer Menge an einen anderen Ort oder in einen anderen Container. |
 | `mark_seen` | ändern | | Ich habe diesen Gegenstand gerade dort gesehen, wo Kept ihn verortet. |
-| `create_place` | ändern | | Füge einen Ort unter einem anderen Ort hinzu oder an der Spitze des Standorts. Mit `template` fügst du Möbel und einen Ort für jedes seiner Fächer in einem Schritt hinzu, wie [Möbel mit Fächern](/de/users/locations/#möbel-mit-fächern) es tut; ein Rückgängig nimmt alles zurück. Ein Zimmer nimmt seine echte Größe, `width_cm` und `length_cm` (50 cm bis 100 m), und erscheint damit auf der [Karte](/de/users/location-map/). |
+| `create_place` | ändern | | Füge einen Ort unter einem anderen Ort hinzu oder an der Spitze des Standorts. Mit `template` fügst du Möbel und einen Ort für jedes seiner Fächer in einem Schritt hinzu, wie [Möbel mit Fächern](/de/users/locations/#möbel-mit-fächern) es tut; ein Rückgängig nimmt alles zurück. Ein Zimmer nimmt seine echte Größe, `width_cm` und `length_cm` (50 cm bis 100 m), und erscheint damit auf der [Karte](/de/users/location-map/). Eine Schrankvorlage nimmt `units` und `numbering` ([Serverschränke](/de/users/locations/#serverschränke)). |
 | `update_place` | ändern | | Ändere einen Ort, wie es seine Seite tut: benenne ihn um, ändere seine Art, verschiebe ihn in einen anderen Ort oder an die Spitze, setze seine Felder und die Reihenfolge der Orte in ihm (A bis Z oder Benutzerdefinierte Reihenfolge, dann Nach oben oder Nach unten). `turn` (`right` oder `left`, wohin seine Oberseite ging) dreht [Möbel mit Fächern](/de/users/locations/#möbel-drehen) auf die Seite oder den Rücken, mit `renumber` wahr oder falsch. 7 Tage rückgängig machbar, außer bei einem Verschieben nach oben oder unten: die umgekehrte Verschiebung macht es rückgängig. |
 | `turn_into_boxes` | ändern | | Wandle bis zu 50 Orte in Kisten um, wie **Orte in Kisten umwandeln** das tut. Jeder behält seine ID, sein Label und was in ihm ist; einer mit Orten darin bleibt ein Ort, ebenso einer an der Spitze des Standorts (wandle diesen in Kept um). Ein Rückgängig wandelt alle zurück. |
 | `attach_link` | ändern | | Ein Link, der Kepts Erfassungsblatt öffnet, um ein Foto, eine Quittung oder ein Dokument hinzuzufügen. |
@@ -191,7 +191,7 @@ Zeile auf der Quittung, den Preis für eine mit Währung und die Notizen, wobei 
 Kauf geändert oder ein neuer erfasst wird, wie es die Gegenstand-Seite tut. Ein Preis braucht Geld
 aktiviert und eine Rolle, die Geld sehen kann, wie in der App; ein Minimum braucht **Was zur Neige
 geht**. Ein Typ, den Kept nicht kennt, wird ausgelassen, und die Antwort sagt das mit `not_set`;
-die Karte des Assistenten zeigt ihn als "not set" mit einem Auswahlfeld.
+die Karte des Assistenten zeigt ihn als "not set" mit einem Auswahlfeld. Ein Gerät in einem Serverschrank nimmt `rack_units` (seine Höhe, 0 neben den Schienen) und `rack_at` (seine unterste Einheit von unten gezählt, seine Seite und ob volle Tiefe), abgelehnt wie in der App, wenn die Einheit belegt ist.
 
 Jedes Werkzeug, das eine ID nimmt, nimmt auch eine 6-stellige Kurz-ID wie `K7D2QX`. Die
 vollständigen Verträge sind in

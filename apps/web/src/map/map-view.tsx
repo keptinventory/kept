@@ -413,9 +413,14 @@ function MapBody({
               }
             },
             onDrawRoom: (rect, levelKey) => void drawRoom(rect, levelKey),
-            onPart: (_itemId, partId) => {
-              setInner(null);
+            onPart: (itemId, partId) => {
               setPart(partId);
+              // #373: a piece of gear in a rack opens as the thing it is.
+              const rack = made.plan.items.find((i) => i.id === itemId)?.rack;
+              if (rack && partId) {
+                setInner(partId);
+                setDetail(true);
+              } else setInner(null);
             },
             onHint: setHint,
             ...(debug ? { onStats: setStats } : {}),

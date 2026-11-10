@@ -28,6 +28,7 @@ import { thumbKeysOf, thumbUrlOf } from '../search/service.js';
 import { customForView, type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { FurnitureViewSchema, furnitureViewOf } from '../templates/furniture-view.js';
+import { RackViewSchema, rackViewOf } from '../templates/rack-view.js';
 import {
   isAll,
   ThingTagSchema,
@@ -165,6 +166,8 @@ export const PlaceViewSchema = z.object({
   /** Furniture made from a place template (#238): its grid as it stands and its compartments;
    * null for any other place. */
   furniture: FurnitureViewSchema.nullable(),
+  /** A rack (#373): its units and the gear in it, or null. */
+  rack: RackViewSchema.nullable(),
   rowVersion: z.number().int(),
 });
 export type PlaceView = z.infer<typeof PlaceViewSchema>;
@@ -593,6 +596,7 @@ export async function placeView(
     counts: { places: rows[0]?.places ?? 0, things: rows[0]?.things ?? 0 },
     attachments: await attachmentsOf(client, files, place.id),
     furniture: await furnitureViewOf(client, place.id),
+    rack: await rackViewOf(client, place.id),
     rowVersion: place.rowVersion,
   };
 }

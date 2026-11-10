@@ -329,6 +329,11 @@ starlight-lang-select select {
 .expressive-code pre {
   border-color: var(--line);
 }
+/* Commands read left to right. On a right-to-left page a code block otherwise opens scrolled to the
+   end of its longest line, hiding the start of each command. */
+:root[dir="rtl"] .expressive-code pre {
+  direction: ltr;
+}
 
 /* ---------------------------------------------------------------- Starlight cards and buttons */
 

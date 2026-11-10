@@ -576,7 +576,40 @@ export type PlaceView = {
   /** Furniture made from a place template (#238): its grid and compartments; null (or missing,
    * from a server before 1.14.4) for any other place. */
   furniture?: FurnitureView | null;
+  /** A rack (#373): its units and the gear in it; null (or missing, from a server before
+   * 1.14.7) for any other place. */
+  rack?: RackView | null;
   rowVersion: number;
+};
+
+/** Where a piece of gear is mounted in a rack (#373; packages/shared racks.ts): its lowest unit
+ * counted from the bottom, the face it is on, and whether it is full depth (on both faces). */
+export type RackAt = { u: number; face: 'front' | 'rear'; full: boolean };
+
+/** A rack's page (#373; apps/server/src/templates/rack-view.ts). */
+export type RackView = {
+  units: number;
+  width: 19 | 10;
+  numbering: 'bottom' | 'top';
+  mount: 'floor' | 'wall';
+  /** The things directly in it, each with its height in units and where it is mounted. */
+  gear: {
+    id: string;
+    name: string;
+    shortCode: string | null;
+    units: number | null;
+    at: RackAt | null;
+    rowVersion: number;
+  }[];
+};
+
+/** The rack a thing is directly in (#373), and its position there. */
+export type ThingRack = {
+  id: string;
+  name: string;
+  units: number;
+  numbering: 'bottom' | 'top';
+  at: RackAt | null;
 };
 
 /** A furniture place's compartments, on its grid as it stands (#238; apps/server/src/templates/
@@ -809,6 +842,11 @@ export type ThingView = ThingRow & {
    * contact detail, so nothing else about them is here.
    */
   loanLine?: ThingLoanLine | null;
+  /** #373: how many rack units it takes (null: not given, counted as 1U); missing from a server
+   * before 1.14.7. */
+  rackUnits?: number | null;
+  /** #373: the rack it is directly in, with its position there (null: not in a rack). */
+  rack?: ThingRack | null;
   rowVersion: number;
   createdAt: string;
   updatedAt: string;
@@ -920,6 +958,9 @@ export type UpdateThingBody = {
   acquiredFrom?: string | null;
   provenanceNotes?: string | null;
   custom?: Record<string, unknown | null>;
+  /** #373: gear in a rack. */
+  rackUnits?: number | null;
+  rackAt?: RackAt | null;
 };
 
 /**
@@ -1749,6 +1790,9 @@ export type FromTemplateBody = {
   compartmentName?: string;
   code?: string;
   codePattern?: string | null;
+  /** A rack (#373): how many units high, and where U1 is. */
+  units?: number;
+  numbering?: 'bottom' | 'top';
 };
 
 export type FromTemplateResult = {

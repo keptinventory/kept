@@ -62,6 +62,19 @@ Un inserto a cubi o un ripiano rimosso rende un unico vano da due o più vani.
 - **I tuoi modelli:** **Impostazioni → Account → Modelli → Mobili** ha i modelli di posto dell'account: cubi in orizzontale e in verticale (in piedi), ripiani o cassetti, i tipi, i nomi e il modello di codice, condivisi con i luoghi che scegli. Proprietari e amministratori li creano; chiunque possa aggiungere posti li usa.
 - Le app AI possono fare lo stesso: `create_place` prende un `template`, e `update_place` un `turn` ([client MCP](/it/users/mcp-clients/#gli-strumenti)). Unire e dividere restano nell'app.
 
+### Armadi rack
+
+Un armadio rack da 19 o da 10 pollici è un mobile misurato in unità rack (U). Un apparato è un oggetto al suo interno: quante unità occupa e da quale unità parte.
+
+- **Aggiungi qui → Stanza o punto → Mobile con vani…**, poi un modello di armadio: **Armadio rack da 19 pollici, 42U**, **Armadio rack da 19 pollici, 24U**, **Armadio rack a muro, 12U**, **Armadio rack a muro, 6U** o **Armadio rack da 10 pollici, 8U**. Cambia le **Unità** (da 1 a 60) e se sono **Numerate da** **In basso** (U1 in basso, il solito) o **In alto**. Un armadio non ha vani; **Il suo codice (facoltativo)** resta possibile.
+- **La sua pagina** mostra l'armadio (**Vista da** **Davanti** o **Dietro**) dall'alto in basso: ogni apparato alle sue unità (`U11`, `U5–U6`) e le unità libere in mezzo come **Vuoto**. Le unità si scrivono come le stampano i montanti, in ogni lingua.
+- **Mettere un apparato:** sposta un oggetto nell'armadio come in qualsiasi luogo. Compare sotto **Non ancora posizionato**, e **Posizionalo** chiede **Inizia da** (la sua unità più bassa, o la più alta in un armadio numerato dall'alto), **Altezza** in unità rack (anche mezze, come 1,5), **Lato** (**Davanti** o **Dietro**) e **Profondità**. **Profondità piena** occupa l'unità su entrambi i lati, **Mezza profondità** solo sul suo, così uno switch davanti e un ripiano dietro possono condividere un'unità.
+- **Rifiutato:** due apparati nella stessa unità sullo stesso lato, o un apparato oltre la cima dell'armadio. Kept nomina l'apparato che c'è già e non salva nulla.
+- **Altezza 0** è un apparato accanto ai montanti, come una ciabatta: non occupa unità ed è elencato sotto **Accanto ai montanti (0U)**.
+- **La pagina dell'oggetto** mostra **Nell'armadio rack**: l'armadio, le unità e la profondità, con **Cambia**. **Toglilo dalla sua unità** libera l'unità e lascia l'oggetto nell'armadio.
+- **Togliere un apparato** dall'armadio libera la sua unità; se torna, è di nuovo **Non ancora posizionato**. **Annulla** rimette una posizione, a meno che qualcuno abbia preso quell'unità nel frattempo.
+- Le **app AI** possono fare lo stesso: `create_place` prende un modello di armadio con `units` e `numbering`, e `update_thing` prende `rack_units` e `rack_at`.
+
 ## La sua posizione
 
 La posizione di un luogo permette a **Suggerisci dove sono** di **Acquisisci** di sceglierlo quando

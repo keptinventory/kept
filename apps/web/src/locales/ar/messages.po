@@ -28872,6 +28872,163 @@ msgstr "في <0>{0}</0> وخاناته {inside}. ماذا تريد أن يحدث
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "لن يُنقل إلى المهملات إلا «{placeName}» وخاناته."
 
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "خزانة السيرفر"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "الخلف"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "In the rack"
+msgstr "في الخزانة"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Full depth"
+msgstr "بكامل العمق"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Rear, half depth"
+msgstr "في الخلف، بنصف العمق"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Front, half depth"
+msgstr "في المقدمة، بنصف العمق"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "بجانب القضبان (0U)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Not placed yet"
+msgstr "لم يُثبَّت في وحدة بعد"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "ثبّته"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, zero {خزانة حائط بلا وحدات} one {خزانة حائط، وحدة واحدة} two {خزانة حائط، وحدتان} few {خزانة حائط، # وحدات} many {خزانة حائط، # وحدة} other {خزانة حائط، # وحدة}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, zero {خزانة ١٠ بوصات بلا وحدات} one {خزانة ١٠ بوصات، وحدة واحدة} two {خزانة ١٠ بوصات، وحدتان} few {خزانة ١٠ بوصات، # وحدات} many {خزانة ١٠ بوصات، # وحدة} other {خزانة ١٠ بوصات، # وحدة}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, zero {خزانة ١٩ بوصة بلا وحدات} one {خزانة ١٩ بوصة، وحدة واحدة} two {خزانة ١٩ بوصة، وحدتان} few {خزانة ١٩ بوصة، # وحدات} many {خزانة ١٩ بوصة، # وحدة} other {خزانة ١٩ بوصة، # وحدة}}"
+
+#: src/components/places/furniture.tsx
+msgid "Units"
+msgstr "الوحدات"
+
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "ارتفاعها بوحدات الخزانة (U)."
+
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "الترقيم يبدأ من"
+
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "الأسفل"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "الأعلى"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, zero {بلا وحدات، تبدأ U1 من الأعلى} one {وحدة واحدة، تبدأ U1 من الأعلى} two {وحدتان، تبدأ U1 من الأعلى} few {# وحدات، تبدأ U1 من الأعلى} many {# وحدة، تبدأ U1 من الأعلى} other {# وحدة، تبدأ U1 من الأعلى}}"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, zero {بلا وحدات، تبدأ U1 من الأسفل} one {وحدة واحدة، تبدأ U1 من الأسفل} two {وحدتان، تبدأ U1 من الأسفل} few {# وحدات، تبدأ U1 من الأسفل} many {# وحدة، تبدأ U1 من الأسفل} other {# وحدة، تبدأ U1 من الأسفل}}"
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "الوحدة {u} يشغلها {name} من الخلف."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "الوحدة {u} يشغلها {name} من الأمام."
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, zero {لا تتسع لها الخزانة: لا وحدات فيها.} one {لا تتسع لها الخزانة: ارتفاعها وحدة واحدة.} two {لا تتسع لها الخزانة: ارتفاعها وحدتان.} few {لا تتسع لها الخزانة: ارتفاعها # وحدات.} many {لا تتسع لها الخزانة: ارتفاعها # وحدة.} other {لا تتسع لها الخزانة: ارتفاعها # وحدة.}}"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "الجهاز بلا ارتفاع يوضع بجانب القضبان."
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "أنصاف الوحدات فقط، مثل ١ أو ١٫٥ أو ٢."
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "منظر من"
+
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "بنصف العمق"
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "ثُبِّت {name}"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "أُزيل {name} من وحدته"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} في {rackName}"
+
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "يبدأ من"
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "أعلى وحدة يشغلها، بترقيم الخزانة."
+
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "أدنى وحدة يشغلها، بترقيم الخزانة."
+
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "بوحدات الخزانة، والأنصاف مسموحة. الصفر يعني بجانب القضبان."
+
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "الواجهة"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "أزِله من وحدته"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "وحدات الخزانة"
+
 #: src/components/connections/home-assistant.tsx
 msgid "This request has ended. Start again from Home Assistant."
 msgstr "انتهى هذا الطلب. ابدأ من جديد في Home Assistant."

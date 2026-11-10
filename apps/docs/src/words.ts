@@ -1,10 +1,11 @@
 /**
  * The small interface words of the site's components, per language: the title's "Docs", the
  * landing page's eyebrow, facts and picture description, the gallery's buttons, the integrations
- * link, and the Try pages' notes. English and Arabic are as they have always been; a language
- * without an entry shows English (see i18n.ts). Terms follow the app's own catalogue
- * (apps/web/src/locales/<language>/messages.po).
+ * link, the Try pages' notes and the install page's picker. English and Arabic are as they have
+ * always been; a language without an entry shows English (see i18n.ts). Terms follow the app's
+ * own catalogue (apps/web/src/locales/<language>/messages.po).
  */
+import type { PathGroup, PathId } from './components/install/paths';
 import type { Words } from './i18n';
 
 export const siteSub: Words<string> = {
@@ -361,5 +362,117 @@ export const tryMap: Words<TryMapWords> = {
       'Đồ nội thất, cây cảnh, dụng cụ và dàn nóng điều hòa là các mô hình miễn phí từ ',
       ' (CC0), đã thu nhỏ cho điện thoại. Tắt “Mô hình chi tiết” để không tải mô hình nào.',
     ],
+  },
+};
+
+export interface InstallWords {
+  /** The picker's name, for screen readers. */
+  picker: string;
+  /** The picker's two groups. */
+  groups: Record<PathGroup, string>;
+  /** Each path's name (its chip and its section's heading) and a few words under the name. */
+  paths: Record<PathId, { name: string; hint: string }>;
+  /** The line before a path's requirements. */
+  need: string;
+  /** The label of the check after a step. */
+  see: string;
+}
+
+export const install: Words<InstallWords> = {
+  ar: {
+    picker: 'كيف تشغّل Kept',
+    groups: { terminal: 'في الطرفية', oneClick: 'بنقرة واحدة' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'جهاز واحد' },
+      kubernetes: { name: 'Kubernetes', hint: 'باستخدام Helm' },
+      source: { name: 'من المصدر', hint: 'صورة تبنيها بنفسك' },
+      'home-assistant': { name: 'Home Assistant', hint: 'كتطبيق' },
+    },
+    need: 'ما تحتاجه',
+    see: 'ستظهر لك',
+  },
+  de: {
+    picker: 'Wie du Kept betreibst',
+    groups: { terminal: 'Im Terminal', oneClick: 'Mit einem Klick' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Ein Rechner' },
+      kubernetes: { name: 'Kubernetes', hint: 'Mit Helm' },
+      source: { name: 'Aus dem Quellcode', hint: 'Dein eigenes Image' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Als App' },
+    },
+    need: 'Was du brauchst',
+    see: 'Du solltest sehen',
+  },
+  en: {
+    picker: 'How you run Kept',
+    groups: { terminal: 'In a terminal', oneClick: 'One click' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'One machine' },
+      kubernetes: { name: 'Kubernetes', hint: 'With Helm' },
+      source: { name: 'From source', hint: 'Your own image' },
+      'home-assistant': { name: 'Home Assistant', hint: 'As an app' },
+    },
+    need: 'What you need',
+    see: 'You should see',
+  },
+  es: {
+    picker: 'Cómo ejecutas Kept',
+    groups: { terminal: 'En una terminal', oneClick: 'Con un clic' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Una máquina' },
+      kubernetes: { name: 'Kubernetes', hint: 'Con Helm' },
+      source: { name: 'Desde el código', hint: 'Tu propia imagen' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Como app' },
+    },
+    need: 'Lo que necesitas',
+    see: 'Deberías ver',
+  },
+  fr: {
+    picker: 'Comment vous faites tourner Kept',
+    groups: { terminal: 'Dans un terminal', oneClick: 'En un clic' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Une machine' },
+      kubernetes: { name: 'Kubernetes', hint: 'Avec Helm' },
+      source: { name: 'Depuis les sources', hint: 'Votre propre image' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Comme application' },
+    },
+    need: 'Ce qu’il vous faut',
+    see: 'Vous devriez voir',
+  },
+  it: {
+    picker: 'Come esegui Kept',
+    groups: { terminal: 'In un terminale', oneClick: 'Con un clic' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Una macchina' },
+      kubernetes: { name: 'Kubernetes', hint: 'Con Helm' },
+      source: { name: 'Dal codice sorgente', hint: 'La tua immagine' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Come app' },
+    },
+    need: 'Cosa ti serve',
+    see: 'Dovresti vedere',
+  },
+  uk: {
+    picker: 'Як ви запускаєте Kept',
+    groups: { terminal: 'У терміналі', oneClick: 'Одним кліком' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Одна машина' },
+      kubernetes: { name: 'Kubernetes', hint: 'З Helm' },
+      source: { name: 'З вихідного коду', hint: 'Ваш власний образ' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Як додаток' },
+    },
+    need: 'Що потрібно',
+    see: 'Ви маєте побачити',
+  },
+  vi: {
+    picker: 'Cách bạn chạy Kept',
+    groups: { terminal: 'Trong terminal', oneClick: 'Một cú nhấp' },
+    paths: {
+      compose: { name: 'Docker Compose', hint: 'Một máy' },
+      kubernetes: { name: 'Kubernetes', hint: 'Với Helm' },
+      source: { name: 'Từ mã nguồn', hint: 'Image của riêng bạn' },
+      'home-assistant': { name: 'Home Assistant', hint: 'Dưới dạng ứng dụng' },
+    },
+    need: 'Bạn cần',
+    see: 'Bạn sẽ thấy',
   },
 };

@@ -35,6 +35,7 @@ import {
   moneyProps,
 } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
+import { type ThingRack, ThingRackSchema, thingRackOf } from '../templates/rack-view.js';
 import { moneyShaped } from './audit-image.js';
 import { type ResolvedFieldView, resolvedFields } from './fields.js';
 import { type ThingTag, ThingTagSchema, tagsOfRow, tagsSql } from './tag-sql.js';
@@ -305,6 +306,10 @@ export type ThingView = ThingRow & {
   /** Step 4, T10 (D57): the open loan, "with Murdock since 3 Oct · due 17 Oct" (the web words it);
    * a person's name only, never a contact detail. Null when it isn't on loan. */
   loanLine: ThingLoanLine | null;
+  /** #373: how many rack units it takes (null: not given), and the rack it is directly in with
+   * its position there (null: not in a rack). */
+  rackUnits: number | null;
+  rack: ThingRack | null;
   rowVersion: number;
   createdAt: string;
   updatedAt: string;
@@ -338,6 +343,8 @@ type DetailRecord = RowRecord & {
   custom: Record<string, unknown> | null;
   archived_custom: Record<string, unknown> | null;
   purchase_line_id: string | null;
+  rack_units: number | null;
+  rack_at: unknown;
   row_version: number;
   created_at: Date;
   updated_at: Date;
@@ -364,7 +371,8 @@ export async function viewOf(
             t.ended_on::text AS ended_on, t.ended_price::text AS ended_price,
             t.ended_currency::text AS ended_currency, t.ended_to, t.ended_notes,
             t.acquired_from, t.provenance_notes, t.field_status, t.custom, t.archived_custom,
-            t.purchase_line_id, t.row_version, t.created_at, t.updated_at,
+            t.purchase_line_id, t.rack_units::float8 AS rack_units, t.rack_at,
+            t.row_version, t.created_at, t.updated_at,
             (SELECT count(*)::int FROM public.things c
               WHERE c.container_id = t.id AND c.deleted_at IS NULL) AS contents_count,
             (SELECT count(*)::int FROM public.attachments a WHERE a.thing_id = t.id)
@@ -394,6 +402,7 @@ export async function viewOf(
   const currentValue = await currentValueOf(client, gate, r.id);
   const repairAt = r.in_repair ? await repairAtOf(client, r.id) : null;
   const loanLine = r.loan_direction ? await loanLineOf(client, r.id) : null;
+  const rack = await thingRackOf(client, r);
 
   const row = await rowOf(files, await rowThumbKeys(client, files, [r]), r);
   const ended =
@@ -454,6 +463,8 @@ export async function viewOf(
     ...(currentValue === undefined ? {} : { currentValue }),
     repairAt,
     loanLine,
+    rackUnits: r.rack_units,
+    rack,
     rowVersion: r.row_version,
     createdAt: r.created_at.toISOString(),
     updatedAt: r.updated_at.toISOString(),
@@ -1044,6 +1055,8 @@ export const ThingViewSchema = ThingRowSchema.extend({
       withName: z.string().nullable().optional(),
     })
     .nullable(),
+  rackUnits: z.number().nullable(),
+  rack: ThingRackSchema.nullable(),
   rowVersion: z.number(),
   createdAt: Iso,
   updatedAt: Iso,

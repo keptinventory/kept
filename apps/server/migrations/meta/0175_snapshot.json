@@ -1,6 +1,6 @@
 {
-  "id": "60c19ec5-07ff-4b7f-acb9-a19fda28199c",
-  "prevId": "3441585f-2e5a-4825-8150-8c98fe61491b",
+  "id": "f550bcde-edd4-4b04-933a-6b32f3265ca4",
+  "prevId": "c2d63f9e-5566-48de-921d-3a9aa5ad6ed5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -21958,6 +21958,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "rack_units": {
+          "name": "rack_units",
+          "type": "numeric(3, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rack_at": {
+          "name": "rack_at",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "last_seen_at": {
           "name": "last_seen_at",
           "type": "timestamp with time zone",
@@ -22688,6 +22700,14 @@
         "things_field_status_chk": {
           "name": "things_field_status_chk",
           "value": "jsonb_typeof(field_status) = 'object'"
+        },
+        "things_rack_units_chk": {
+          "name": "things_rack_units_chk",
+          "value": "rack_units BETWEEN 0 AND 60 AND rack_units * 2 = trunc(rack_units * 2)"
+        },
+        "things_rack_at_chk": {
+          "name": "things_rack_at_chk",
+          "value": "rack_at IS NULL OR jsonb_typeof(rack_at) = 'object'"
         }
       },
       "isRLSEnabled": false

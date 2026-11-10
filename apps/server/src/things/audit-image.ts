@@ -43,6 +43,8 @@ export const IMAGE_COLUMNS = [
   'ended_notes',
   'acquired_from',
   'provenance_notes',
+  'rack_units',
+  'rack_at',
   'location_uncertain',
   'review_state',
   'deleted_at',
@@ -54,6 +56,7 @@ export type ImageColumn = (typeof IMAGE_COLUMNS)[number];
 /** Columns whose value an image holds as text (numerics, dates) so it compares exactly. */
 const TEXT_COLUMNS = new Set<ImageColumn>([
   'quantity',
+  'rack_units',
   'ended_price',
   'expires_on',
   'ended_on',

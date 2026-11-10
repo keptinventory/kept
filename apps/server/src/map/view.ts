@@ -7,6 +7,11 @@ import {
   MAP_SURFACES,
   PLACE_LAYOUT_KINDS,
   parseCell,
+  parseRack,
+  parseRackPosition,
+  RACK_FACES,
+  RACK_MOUNTS,
+  RACK_NUMBERINGS,
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
@@ -119,6 +124,25 @@ export const MapViewSchema = z.object({
           cols: z.number().int(),
         }),
       ),
+      /** A rack (#373): its units and numbering, and the gear mounted in it (where each is, from
+       * the bottom), so the map draws each piece at its unit and a tap picks it; null otherwise. */
+      rack: z
+        .object({
+          units: z.number().int(),
+          numbering: z.enum(RACK_NUMBERINGS),
+          mount: z.enum(RACK_MOUNTS),
+          gear: z.array(
+            z.object({
+              id: z.uuid(),
+              name: z.string(),
+              u: z.number(),
+              units: z.number(),
+              face: z.enum(RACK_FACES),
+              full: z.boolean(),
+            }),
+          ),
+        })
+        .nullable(),
     }),
   ),
   things: z.array(
@@ -183,6 +207,9 @@ type ThingRow = {
   short_code: string | null;
   label_printed: boolean;
   on_map: boolean;
+  /** Gear in a rack (#373): its height in units and its position. */
+  rack_units?: number | null;
+  rack_at?: unknown;
 };
 
 export type NodeRow = {
@@ -289,7 +316,8 @@ export async function thingRows(client: pg.ClientBase, locationId: string): Prom
                           WHERE c.container_id = t.id AND c.deleted_at IS NULL)) AS is_container,
             ${shownCodeSql('thing_id', 't.id')} AS short_code,
             ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
-            EXISTS (SELECT 1 FROM public.map_nodes n WHERE n.thing_id = t.id) AS on_map
+            EXISTS (SELECT 1 FROM public.map_nodes n WHERE n.thing_id = t.id) AS on_map,
+            t.rack_units::float8 AS rack_units, t.rack_at
        FROM public.things t
        LEFT JOIN public.types ty ON ty.id = t.type_id
       WHERE t.location_id = $1 AND t.deleted_at IS NULL AND t.lifecycle = 'in_use'
@@ -565,6 +593,26 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
     }
     return null;
   };
+  // #373: a rack's gear, each at its unit.
+  const racks = new Map<string, NonNullable<MapView['nodes'][number]['rack']>>();
+  for (const p of placeList) {
+    if (!nodeIds.has(p.id) || !p.layout) continue;
+    const rack = parseRack(p.layout);
+    if (rack)
+      racks.set(p.id, {
+        units: rack.units,
+        numbering: rack.numbering,
+        mount: rack.mount,
+        gear: [],
+      });
+  }
+  for (const t of things) {
+    const rack = t.place_id && !t.container_id ? racks.get(t.place_id) : undefined;
+    const at = rack ? parseRackPosition(t.rack_at) : null;
+    const units = t.rack_units ?? 1;
+    if (!rack || !at || at.rackId !== t.place_id || units === 0) continue;
+    rack.gear.push({ id: t.id, name: t.name ?? '', u: at.u, units, face: at.face, full: at.full });
+  }
   const noFurniture = { grid: null, compartments: [] };
 
   const outNodes: MapView['nodes'] = [];
@@ -587,6 +635,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
       quantity: 1,
       layout: nodeLayout(p.id),
       ...(furniture.get(p.id) ?? noFurniture),
+      rack: racks.get(p.id) ?? null,
     });
   }
   const outThings: MapView['things'] = [];
@@ -612,6 +661,7 @@ export async function mapView(tx: Tx, client: pg.ClientBase, locationId: string)
         quantity: Number(t.quantity),
         layout: nodeLayout(t.id),
         ...noFurniture,
+        rack: null,
       });
     }
     if (outThings.length >= THING_CAP) {

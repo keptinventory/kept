@@ -137,6 +137,36 @@ Un inserto de cubo o un estante retirado une dos o más compartimentos en uno.
 - **Las apps de IA** pueden hacer lo mismo: `create_place` toma una `template`, y `update_place` un `turn`
   ([clientes MCP](/es/users/mcp-clients/#las-herramientas)). Combinar y dividir se quedan en la app.
 
+### Bastidores
+
+Un bastidor de 19 o de 10 pulgadas es un mueble que se mide en unidades de rack (U). Un equipo es un
+objeto dentro: cuántas unidades ocupa y en qué unidad empieza.
+
+- **Añadir aquí → Sala o lugar → Mueble con compartimentos…** y luego una plantilla de bastidor:
+  **Bastidor de 19 pulgadas, 42U**, **Bastidor de 19 pulgadas, 24U**, **Bastidor de pared, 12U**,
+  **Bastidor de pared, 6U** o **Bastidor de 10 pulgadas, 8U**. Cambia sus **Unidades** (de 1 a 60)
+  y si van **Numeradas desde** **Abajo** (U1 abajo, lo habitual) o **Arriba**. Un bastidor no tiene
+  compartimentos; **Su propio código (opcional)** sigue disponible.
+- **Su página** muestra el bastidor (**Vista desde** **Frontal** o **Trasera**) de arriba abajo: cada
+  equipo en sus unidades (`U11`, `U5–U6`) y las unidades libres entre ellos como **Vacío**. Las
+  unidades se escriben como las imprimen los rieles, en todos los idiomas.
+- **Poner un equipo:** mueve un objeto al bastidor como a cualquier lugar. Aparece en **Aún sin
+  colocar**, y **Colocarlo** pregunta **Empieza en** (su unidad más baja, o la más alta en un
+  bastidor numerado desde arriba), **Altura** en unidades de rack (también medias, como 1,5),
+  **Cara** (**Frontal** o **Trasera**) y **Profundidad**. **Fondo completo** ocupa la unidad por las
+  dos caras; **Medio fondo**, solo por la suya, así un switch delante y una bandeja detrás pueden
+  compartir unidad.
+- **Rechazado:** dos equipos en la misma unidad y la misma cara, o un equipo que pasa del tope del
+  bastidor. Kept nombra el equipo que ya está y no guarda nada.
+- **Altura 0** es un equipo junto a los rieles, como una regleta: no ocupa unidad y aparece en
+  **Junto a los rieles (0U)**.
+- **La página del objeto** muestra **En el bastidor**: el bastidor, las unidades y la profundidad,
+  con **Cambiar**. **Quitarlo de su unidad** libera la unidad y deja el objeto en el bastidor.
+- **Sacar un equipo** del bastidor libera su unidad; si vuelve, queda otra vez **Aún sin colocar**.
+  **Deshacer** devuelve una posición, salvo que alguien haya ocupado esa unidad desde entonces.
+- **Las apps de IA** pueden hacer lo mismo: `create_place` acepta una plantilla de bastidor con
+  `units` y `numbering`, y `update_thing` acepta `rack_units` y `rack_at`.
+
 ## Su posición
 
 La posición de una ubicación permite que **Sugerir dónde estoy** de Capturar la elija cuando estás

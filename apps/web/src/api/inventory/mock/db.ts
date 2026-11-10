@@ -11,7 +11,9 @@ import {
   gridOf,
   isAuditAction,
   naturalCompare,
+  type RackLayout,
   type StoredCell,
+  type StoredRackPosition,
 } from '@kept/shared';
 import type { LocationDetail } from '../../types';
 import type {
@@ -43,8 +45,10 @@ import type {
 
 export type StoredPlace = Omit<
   PlaceView,
-  'path' | 'counts' | 'attachments' | 'labelPrinted' | 'childOrder' | 'furniture'
+  'path' | 'counts' | 'attachments' | 'labelPrinted' | 'childOrder' | 'furniture' | 'rack'
 > & {
+  /** A rack (#373): its units, numbering and mount. */
+  rackLayout?: RackLayout;
   /** A label of it was confirmed printed (the labels mock sets it). */
   labelPrinted?: boolean;
   /** Furniture made from a place template (#238): its layout as it stands, and its patterns. */
@@ -64,8 +68,10 @@ export type StoredPlace = Omit<
 /** A thing as the mock stores it: the view's own fields; `path` and counts are computed. */
 export type StoredThing = Omit<
   ThingView,
-  'path' | 'derivedState' | 'contentsCount' | 'links' | 'labelPrinted'
+  'path' | 'derivedState' | 'contentsCount' | 'links' | 'labelPrinted' | 'rack'
 > & {
+  /** Where it is mounted in a rack (#373), and the rack it was given in. */
+  rackAt?: StoredRackPosition | null;
   /** A label of it was confirmed printed or claimed (the labels mock sets it). */
   labelPrinted?: boolean;
   links: { id: string; kind: ThingView['links'][number]['kind']; toThingId: string }[];
@@ -223,10 +229,21 @@ export function tagsOf(inv: InventoryState, t: StoredThing): ThingRow['tags'] {
 }
 
 export function viewOf(inv: InventoryState, t: StoredThing): ThingView {
-  const { deletedAt: _d, trashBatchId: _b, deletedBy: _by, links, ...own } = t;
+  const { deletedAt: _d, trashBatchId: _b, deletedBy: _by, links, rackAt: _r, ...own } = t;
   const contents = contentsOf(inv, t.id);
+  const rackPlace = t.placeId && !t.containerId ? livePlace(inv, t.placeId) : undefined;
   return {
     ...own,
+    rackUnits: t.rackUnits ?? null,
+    rack: rackPlace?.rackLayout
+      ? {
+          id: rackPlace.id,
+          name: rackPlace.name,
+          units: rackPlace.rackLayout.units,
+          numbering: rackPlace.rackLayout.numbering,
+          at: rackAtOf(t),
+        }
+      : null,
     ...rowOf(inv, t),
     isContainer: t.isContainer || contents.length > 0,
     contentsCount: contents.length,
@@ -302,6 +319,7 @@ export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
     layout: _l,
     cell: _c,
     ownCodes: _o,
+    rackLayout: _r,
     ...own
   } = p;
   const node = placeNodeOf(inv, p);
@@ -315,7 +333,35 @@ export function placeViewOf(inv: InventoryState, p: StoredPlace): PlaceView {
       (a) => 'placeId' in a.subject && a.subject.placeId === p.id,
     ),
     furniture: furnitureOf(inv, p),
+    rack: rackOf(inv, p),
   };
+}
+
+/** A rack's gear as the server's place view has it (#373), or null. */
+export function rackOf(inv: InventoryState, p: StoredPlace): PlaceView['rack'] {
+  if (!p.rackLayout) return null;
+  const { kind: _k, ...shape } = p.rackLayout;
+  return {
+    ...shape,
+    gear: inv.things
+      .filter((t) => t.placeId === p.id && !t.containerId && !t.deletedAt)
+      .map((t) => ({
+        id: t.id,
+        name: t.name ?? '',
+        shortCode: t.shortCode,
+        units: t.rackUnits ?? null,
+        at: rackAtOf(t),
+        rowVersion: t.rowVersion,
+      })),
+  };
+}
+
+/** A thing's position, while it is in the rack it was given in. */
+export function rackAtOf(t: StoredThing) {
+  const at = t.rackAt;
+  return at && at.rackId === t.placeId && !t.containerId
+    ? { u: at.u, face: at.face, full: at.full }
+    : null;
 }
 
 /** Furniture's compartments as the server's place view has them (#238), or null. */

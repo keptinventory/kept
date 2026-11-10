@@ -7,6 +7,8 @@ import {
   LIFECYCLES,
   LINK_KINDS,
   parseAmount,
+  RACK_FACES,
+  RACK_LIMITS,
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
@@ -100,6 +102,18 @@ export const CreateBody = z
   });
 export type CreateBody = z.infer<typeof CreateBody>;
 
+/** A position in a rack as PATCH /things/:id takes it (#373, templates/racks.ts checks it). */
+export const RackPositionBody = z.strictObject({
+  /** Its lowest unit, counted from the bottom whatever the rack's numbering: 1, 1.5, 2 … */
+  u: z.number().min(1).max(RACK_LIMITS.units),
+  face: z.enum(RACK_FACES),
+  /** Full depth: it takes the unit on both faces. */
+  full: z.boolean(),
+});
+
+/** How many units a piece of gear takes, 0 to 60 (half units, checked by templates/racks.ts). */
+export const RackUnitsBody = z.number().min(0).max(RACK_LIMITS.gear);
+
 /** The fields a thing's edit may change, each optional in UpdateBody; the spreadsheet's bulk
  * edit (sheet.ts) takes the built-in ones it edits in place. */
 export const UpdateFields = z.object({
@@ -122,6 +136,9 @@ export const UpdateFields = z.object({
   acquiredFrom: NullableText(200),
   provenanceNotes: NullableText(5000),
   custom: Custom,
+  /** Gear in a rack (#373): how many units it takes, and where it is mounted (null: nowhere). */
+  rackUnits: RackUnitsBody.nullable(),
+  rackAt: RackPositionBody.nullable(),
 });
 export const UpdateBody = UpdateFields.partial().refine((b) => Object.keys(b).length > 0, {
   message: 'Nothing to change.',

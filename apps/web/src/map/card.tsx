@@ -59,6 +59,7 @@ import {
 } from './layout';
 import { type ChosenShape, matches, offMapIn, whereOf } from './list';
 import { AddOnSheet, PutOnSheet } from './put-on';
+import { RackList } from './rack-card';
 import { ShapeField, shapeInputOf } from './shapes';
 import { SizeFields } from './size';
 import { cardPath } from './where';
@@ -468,7 +469,8 @@ export function MapCard(p: CardProps) {
   // #238: a compartment of the selected furniture, as its own card.
   const furniture = p.sel.type === 'item' ? plan.items.find((x) => x.id === p.sel.id) : undefined;
   const compartment = p.part ? furniture?.compartments?.find((c) => c.id === p.part) : undefined;
-  if (furniture && compartment) {
+  // A rack's gear opens as the thing it is (map-view's onPart), never as a compartment.
+  if (furniture && compartment && !furniture.rack) {
     const inside = (contents.under.get(furniture.id) ?? []).filter(
       (x) => x.compartmentId === compartment.id,
     );
@@ -863,7 +865,11 @@ export function MapCard(p: CardProps) {
   ) : null;
   const hangs =
     it.hang === undefined ? null : lengths.imperial ? lengths.span(it.hang * 100) : f.num(it.hang);
-  const cells = <CompartmentGrid it={it} part={null} onPick={(id) => p.setPart?.(id)} />;
+  const cells = it.rack ? (
+    <RackList it={it} part={p.part ?? null} onPick={(id) => p.setInner(id)} />
+  ) : (
+    <CompartmentGrid it={it} part={null} onPick={(id) => p.setPart?.(id)} />
+  );
   if (!p.detail) {
     return (
       <aside data-map-obstacle className="kmap-panel" aria-live="polite">

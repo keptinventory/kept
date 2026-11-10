@@ -28872,6 +28872,163 @@ msgstr "<0>{0}</0> und seine Fächer enthalten {inside}. Was soll damit passiere
 msgid "Only {placeName} and its compartments go to the trash."
 msgstr "Nur {placeName} und seine Fächer kommen in den Papierkorb."
 
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "Serverschrank"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "Hinten"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "In the rack"
+msgstr "Im Serverschrank"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Full depth"
+msgstr "Volle Tiefe"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Rear, half depth"
+msgstr "Hinten, halbe Tiefe"
+
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Front, half depth"
+msgstr "Vorne, halbe Tiefe"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "Neben den Schienen (0 HE)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+#: src/assistant/confirm-card.tsx
+msgid "Not placed yet"
+msgstr "Noch nicht eingebaut"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "Einbauen"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, one {Wandschrank, # HE} other {Wandschrank, # HE}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, one {10-Zoll-Schrank, # HE} other {10-Zoll-Schrank, # HE}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, one {19-Zoll-Schrank, # HE} other {19-Zoll-Schrank, # HE}}"
+
+#: src/components/places/furniture.tsx
+msgid "Units"
+msgstr "Höheneinheiten"
+
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "Wie viele Höheneinheiten (HE) hoch."
+
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "Nummeriert von"
+
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "Unten"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "Oben"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, one {# Höheneinheit, U1 oben} other {# Höheneinheiten, U1 oben}}"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, one {# Höheneinheit, U1 unten} other {# Höheneinheiten, U1 unten}}"
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "{u} ist hinten von {name} belegt."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "{u} ist vorne von {name} belegt."
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, one {Passt nicht: Der Schrank ist # Höheneinheit hoch.} other {Passt nicht: Der Schrank ist # Höheneinheiten hoch.}}"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "Geräte ohne Höhe sitzen neben den Schienen."
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "Nur halbe Einheiten, etwa 1, 1,5 oder 2."
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "Ansicht von"
+
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "Halbe Tiefe"
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "{name} eingebaut"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "Einheit von {name} freigegeben"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} in {rackName}"
+
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "Beginnt bei"
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "Seine oberste Einheit, wie der Schrank sie nummeriert."
+
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "Seine unterste Einheit, wie der Schrank sie nummeriert."
+
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "In Höheneinheiten, halbe erlaubt. 0 sitzt neben den Schienen."
+
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "Seite"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "Aus der Einheit nehmen"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "Höheneinheiten"
+
 #: src/components/connections/home-assistant.tsx
 msgid "This request has ended. Start again from Home Assistant."
 msgstr "Diese Anfrage ist beendet. Starte sie in Home Assistant neu."

@@ -73,6 +73,7 @@ import { MergePlaceDialog } from '@/components/places/merge-dialog';
 import { type PickedPlace, PlacePicker } from '@/components/places/move-picker';
 import { OfflinePlacePage, useOfflinePage } from '@/components/places/offline-pages';
 import { PlaceFields } from '@/components/places/place-fields';
+import { RackSection } from '@/components/places/rack-lazy';
 import { PlaceCounts } from '@/components/places/rows';
 import { Sheet } from '@/components/places/sheet';
 import { BoxesSheet, OrderSheet } from '@/components/places/sub-places-lazy';
@@ -372,6 +373,9 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
           }
         />
       )}
+
+      {/* #373: a rack's elevation, each piece of gear at its units. */}
+      {map || graph || !place.rack ? null : <RackSection place={place} canEdit={canEdit} />}
 
       {map || graph ? null : (
         <ContentsList

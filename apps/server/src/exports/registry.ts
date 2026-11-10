@@ -121,7 +121,7 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid place_id:uuid container_id:uuid type_id:uuid name:text brand_id:uuid model:text serial:text barcode:text colour:text quantity:dec condition:text notes:text aliases:json belongs_to_person_id:uuid purchase_line_id:uuid manual_url:text expires_on:date expiry_lead_days:int lifecycle:text ended_on:date ended_price:dec ended_currency:text ended_to:text ended_notes:text acquired_from:text provenance_notes:text last_seen_at:ts location_uncertain:bool custom:json archived_custom:json field_status:json review_state:text created_via:text split_from_id:uuid deleted_at:ts created_at:ts updated_at:ts merged_into_id:uuid cover_file_id:uuid',
+      'id:uuid place_id:uuid container_id:uuid type_id:uuid name:text brand_id:uuid model:text serial:text barcode:text colour:text quantity:dec condition:text notes:text aliases:json belongs_to_person_id:uuid purchase_line_id:uuid manual_url:text expires_on:date expiry_lead_days:int lifecycle:text ended_on:date ended_price:dec ended_currency:text ended_to:text ended_notes:text acquired_from:text provenance_notes:text rack_units:dec rack_at:json last_seen_at:ts location_uncertain:bool custom:json archived_custom:json field_status:json review_state:text created_via:text split_from_id:uuid deleted_at:ts created_at:ts updated_at:ts merged_into_id:uuid cover_file_id:uuid',
     omit: 'location_id created_by place_path search_tsv trash_batch_id row_version change_seq capture_batch_id change_xid meter_version state_version',
     money: ['ended_price'],
     thingRefs: ['x.id'],
