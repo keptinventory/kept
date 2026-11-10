@@ -1,14 +1,16 @@
 /**
  * Choosing the label stock (D44): the rolls a label printer takes, label-maker tape (#303) and
- * the office sheets, as radio cards. Sizes follow the digit setting (D143); the names are the
- * app's own words, never a maker's logo (D172). The last stock used is remembered on this
+ * the office sheets, as radio cards. Sizes follow the digit setting (D143), in millimetres or, when
+ * the person's Units setting is imperial, in inches (#385); the names are the app's own words,
+ * never a maker's logo (D172). The last stock used is remembered on this
  * browser, since a household has one printer.
  */
-import { hasQr, isSheet, isTape, LABEL_STOCKS, type LabelStock } from '@kept/shared';
+import { hasQr, isSheet, isTape, LABEL_STOCKS, type LabelStock, labelSize } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { ChoiceCards } from '@/components/ui/segmented';
 import { useFormat } from '@/lib/format';
+import { useUnitSystem } from '@/lib/units';
 
 const STOCK_KEY = 'kept.labels.stock';
 export const DEFAULT_STOCK = 'a4_24_70x37';
@@ -35,17 +37,19 @@ export function rememberStock(key: string) {
 export function useStockText() {
   const { t } = useLingui();
   const fmt = useFormat();
+  const units = useUnitSystem();
+  const imperial = units === 'imperial';
   const size = (w: number, h: number) => {
-    const a = fmt.num(Math.round(w));
-    const b = fmt.num(Math.round(h));
-    return t`${a} × ${b} mm`;
+    const a = fmt.num(labelSize(w, units));
+    const b = fmt.num(labelSize(h, units));
+    return imperial ? t`${a} × ${b} in` : t`${a} × ${b} mm`;
   };
   return (stock: LabelStock): { title: string; detail: string } => {
     const cell = size(stock.cell.w, stock.cell.h);
     if (isTape(stock)) {
-      const width = fmt.num(stock.cell.h);
+      const width = fmt.num(imperial ? labelSize(stock.cell.h, units) : stock.cell.h);
       return {
-        title: t`${width} mm tape`,
+        title: imperial ? t`${width} in tape` : t`${width} mm tape`,
         detail: hasQr(stock)
           ? t`Label maker · QR code, short ID and name`
           : t`Label maker · short ID large, and the name`,

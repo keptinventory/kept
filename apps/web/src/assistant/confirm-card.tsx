@@ -55,6 +55,7 @@ import { isolate } from '@/lib/bidi';
 import { sep, useFormat } from '@/lib/format';
 import { useOnline } from '@/lib/online';
 import { formatLocale, usePrefs } from '@/lib/prefs';
+import { useLengths } from '@/lib/units';
 import { cn } from '@/lib/utils';
 import { PathText } from './answer';
 import {
@@ -232,9 +233,22 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
   };
 }
 
-/** A room's size as its map card says it: to the centimetre, in the reader's digits. */
+/** A room's size as its map card says it: to the centimetre, in the reader's digits; in feet and
+ * inches in imperial (#385). */
 function RoomSizeView({ w: wCm, d: dCm }: { w: number; d: number }) {
   const { locale, digits } = usePrefs();
+  const lengths = useLengths();
+  if (lengths.imperial) {
+    const w = lengths.span(wCm);
+    const d = lengths.span(dCm);
+    return (
+      <span className="tabular-nums">
+        <Trans>
+          {w} × {d}
+        </Trans>
+      </span>
+    );
+  }
   const tag = formatLocale(locale, digits);
   const w = formatRoomSide(wCm, tag);
   const d = formatRoomSide(dCm, tag);

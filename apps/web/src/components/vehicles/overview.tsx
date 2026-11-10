@@ -22,6 +22,7 @@ import { useMeterName } from '@/components/things/meters-section';
 import { Button } from '@/components/ui/button';
 import { useFormat } from '@/lib/format';
 import { useMeterUnit } from '@/lib/units';
+import { ChangeUnitSheet } from './change-unit';
 import { EstimatedPill, useEstimatedDates, useMainMeter } from './estimates';
 import { LubeLoggerImportButton } from './lubelogger-import';
 import { useVehicleNav } from './nav';
@@ -140,6 +141,7 @@ export function OdometerCard() {
   const meterName = useMeterName();
   const meter = useMainMeter();
   const [logging, setLogging] = useState(false);
+  const [changing, setChanging] = useState(false);
   const latestRow = useReadings(meter?.id ?? '', {
     'f.state': ['accepted'],
     sort: 'takenAt',
@@ -148,6 +150,7 @@ export function OdometerCard() {
   });
   const last = latestRow.data?.pages[0]?.items[0];
   const canLog = accessOf(location).can('logs.add');
+  const canManage = accessOf(location).can('meters.manage');
   const unitOf = useMeterUnit();
   if (!meter) return null;
   const latest = meter.latest;
@@ -191,6 +194,19 @@ export function OdometerCard() {
           <Trans>No readings yet. Log the first one to start the estimates.</Trans>
         </p>
       )}
+      {canManage ? (
+        <div>
+          <Button size="small" variant="ghost" onPress={() => setChanging(true)}>
+            <Trans>Change unit</Trans>
+          </Button>
+          <ChangeUnitSheet
+            meter={meter}
+            thingId={thing.id}
+            isOpen={changing}
+            onClose={() => setChanging(false)}
+          />
+        </div>
+      ) : null}
       {canLog ? (
         <LogReadingSheet
           target={

@@ -23,6 +23,7 @@ import { useConfirm } from '@/components/ui/confirm';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { ChangeUnitSheet } from '@/components/vehicles/change-unit';
 import { sep, useFormat } from '@/lib/format';
 import { useMeterUnit } from '@/lib/units';
 import { useThingCtx } from './context';
@@ -56,15 +57,25 @@ function MeterCard({ meter }: { meter: ThingMeter }) {
   const name = useMeterName();
   const readings = useReadings(meter.id);
   const [logging, setLogging] = useState(false);
+  const [changing, setChanging] = useState(false);
   const [editing, setEditing] = useState<Reading | null>(null);
   return (
     <Section
       title={name(meter)}
       action={
-        can('logs.add') ? (
-          <Button size="small" onPress={() => setLogging(true)}>
-            <Trans>Log a reading</Trans>
-          </Button>
+        can('logs.add') || can('meters.manage') ? (
+          <div className="flex flex-wrap gap-2">
+            {can('meters.manage') ? (
+              <Button size="small" variant="secondary" onPress={() => setChanging(true)}>
+                <Trans>Change unit</Trans>
+              </Button>
+            ) : null}
+            {can('logs.add') ? (
+              <Button size="small" onPress={() => setLogging(true)}>
+                <Trans>Log a reading</Trans>
+              </Button>
+            ) : null}
+          </div>
         ) : undefined
       }
     >
@@ -119,6 +130,14 @@ function MeterCard({ meter }: { meter: ThingMeter }) {
         }
         onClose={() => setLogging(false)}
       />
+      {can('meters.manage') ? (
+        <ChangeUnitSheet
+          meter={meter}
+          thingId={thing.id}
+          isOpen={changing}
+          onClose={() => setChanging(false)}
+        />
+      ) : null}
       <ReadingSheet
         meter={meter}
         isOpen={editing !== null}

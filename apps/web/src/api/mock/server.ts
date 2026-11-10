@@ -190,12 +190,21 @@ export function createMockApi(state: MockState): MockApi {
       suggestLocation: on,
       hidePersonal: hide,
       locale,
+      units,
     } = body as {
       suggestLocation?: unknown;
       hidePersonal?: unknown;
       locale?: unknown;
+      units?: unknown;
     };
-    if (typeof on !== 'boolean' && typeof hide !== 'boolean' && typeof locale !== 'string')
+    const unitsOk = units === 'metric' || units === 'imperial';
+    if (units !== undefined && !unitsOk) return err(400, 'validation', 'The request is not valid.');
+    if (
+      typeof on !== 'boolean' &&
+      typeof hide !== 'boolean' &&
+      typeof locale !== 'string' &&
+      !unitsOk
+    )
       return err(400, 'validation', 'The request is not valid.');
     const others = state.locations.some((l) => l.kind !== 'personal');
     if (hide === true && !state.me.profile.hidePersonal && !others)
@@ -205,6 +214,7 @@ export function createMockApi(state: MockState): MockApi {
       ...(typeof on === 'boolean' ? { suggestLocation: on } : {}),
       ...(typeof hide === 'boolean' ? { hidePersonal: hide } : {}),
       ...(typeof locale === 'string' ? { locale } : {}),
+      ...(unitsOk ? { units: units as 'metric' | 'imperial' } : {}),
     };
     state.me.personalHidden = state.me.profile.hidePersonal === true && others;
     state.locations = state.locations.map((l) =>
@@ -214,6 +224,7 @@ export function createMockApi(state: MockState): MockApi {
       suggestLocation: state.me.profile.suggestLocation === true,
       hidePersonal: state.me.profile.hidePersonal === true,
       locale: state.me.profile.locale,
+      units: state.me.profile.units,
     };
   });
   add('GET', paths.mySessions, () => requireSession() ?? { sessions: state.sessions });

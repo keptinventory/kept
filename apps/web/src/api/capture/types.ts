@@ -256,6 +256,9 @@ export type InboxItem = {
       after?: { value: string; takenAt: string };
     };
     proofThumbUrl: string | null;
+    /** The unit the photo showed, when AI read one (#385); the value is never converted. Absent
+     * from an older server. */
+    unitSeen?: 'km' | 'mi' | 'h' | null;
   };
   duplicate?: { other: ThingRow; reason: 'serial' | 'brand_model_place' };
   claim?: { code: string; claimedFor: { kind: 'thing' | 'place'; id: string; name: string } };

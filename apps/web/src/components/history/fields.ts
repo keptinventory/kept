@@ -54,6 +54,8 @@ const HIDDEN = new Set([
   'map',
   'mode',
   'meter_created',
+  // #385: what a meter's Change unit keeps for its Undo (every value before).
+  'unit_change',
   'token_hash',
   'unprinted',
 ]);

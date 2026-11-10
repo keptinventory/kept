@@ -1,5 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { keys } from '@/api/queries';
+import type { Me } from '@/api/types';
 import { setDigits, setLocale } from '@/lib/prefs';
 import { expectLogicalOnly, renderUI } from '@/test/render';
 import { SizeFields } from './size';
@@ -129,5 +133,46 @@ describe('SizeFields: a bookcase (#241)', () => {
     }
     expect(screen.getByText('Enter a whole number.')).toBeTruthy();
     expect(onModel).not.toHaveBeenCalled();
+  });
+});
+
+// #385: in imperial a bookcase is sized in whole inches and a cube shelf's outside size in inches,
+// kept in centimetres as before.
+function inImperial(ui: ReactElement) {
+  const qc = new QueryClient();
+  qc.setQueryData(keys.me, { profile: { units: 'imperial' } } as Me);
+  return <QueryClientProvider client={qc}>{ui}</QueryClientProvider>;
+}
+
+describe('SizeFields in imperial (#385)', () => {
+  it('shows a bookcase in inches and saves centimetres', async () => {
+    const onModel = vi.fn();
+    const { user } = await renderUI(inImperial(<SizeFields model="bookcase" onModel={onModel} />));
+    expect(value('Width')).toBe('31 in');
+    expect(value('Depth')).toBe('11 in');
+    expect(value('Height')).toBe('80 in');
+    const width = screen.getByRole('textbox', { name: 'Width' });
+    await user.clear(width);
+    await user.type(width, '30{Enter}');
+    expect(onModel).toHaveBeenLastCalledWith('bookcase_76x28x202_6');
+    await user.clear(width);
+    await user.type(width, `2'6"{Enter}`);
+    expect(onModel).toHaveBeenLastCalledWith('bookcase_76x28x202_6');
+    // An inch a step.
+    await user.keyboard('{ArrowUp}');
+    expect(onModel).toHaveBeenLastCalledWith('bookcase_81x28x202_6');
+  });
+
+  it('says what isn’t a size in inches', async () => {
+    const { user } = await renderUI(inImperial(<SizeFields model="bookcase" onModel={vi.fn()} />));
+    const width = screen.getByRole('textbox', { name: 'Width' });
+    await user.clear(width);
+    await user.type(width, 'wide{Enter}');
+    expect(screen.getByText('Enter inches, like 30 in.')).toBeTruthy();
+  });
+
+  it('gives a cube shelf’s outside size in inches', async () => {
+    await renderUI(inImperial(<SizeFields model="cube_grid" onModel={vi.fn()} />));
+    expect(screen.getByText('30 × 15 × 30 in')).toBeTruthy();
   });
 });

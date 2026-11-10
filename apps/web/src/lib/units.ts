@@ -11,8 +11,47 @@
  * the reader's digits, as they would type it: no grouping, the Arabic decimal separator. Every
  * parser reads Eastern digits back (`westernNumber`, `parseAmount`, D172).
  */
-import { useMemo } from 'react';
+import { formatSpan, type UnitSystem } from '@kept/shared';
+import { QueryClientContext } from '@tanstack/react-query';
+import { useContext, useMemo, useSyncExternalStore } from 'react';
+import { keys } from '@/api/queries';
+import type { Me } from '@/api/types';
 import { formatLocale, type Locale, usePrefs } from './prefs';
+
+const noSubscription = () => () => undefined;
+
+/** The reader's unit system (Settings → Units, #385): kept on their profile, which the shell loads
+ * first; metric until it has, and wherever there is no profile (the sign-in pages, a component
+ * shown on its own). Read from the cache, never fetched here. Map sizes, label sizes and fuel use
+ * follow it; stored values never change. */
+export function useUnitSystem(): UnitSystem {
+  const client = useContext(QueryClientContext);
+  const read = () => client?.getQueryData<Me>(keys.me)?.profile.units ?? 'metric';
+  return useSyncExternalStore(
+    client ? (onChange) => client.getQueryCache().subscribe(onChange) : noSubscription,
+    read,
+    read,
+  );
+}
+
+/**
+ * Lengths in the reader's units and digits (#385), from @kept/shared's length.ts: `span(cm)` is
+ * metres or feet and inches with the unit (3.58 m, 11 ft 9 in); `span(cm, 'cm')` is whole
+ * centimetres or whole inches (80 cm, 31 in). `tag` is their locale with its digits.
+ */
+export function useLengths() {
+  const { locale, digits } = usePrefs();
+  const system = useUnitSystem();
+  return useMemo(() => {
+    const tag = formatLocale(locale, digits);
+    return {
+      system,
+      tag,
+      imperial: system === 'imperial',
+      span: (cm: number, metric: 'm' | 'cm' = 'm') => formatSpan(cm, tag, system, metric),
+    };
+  }, [locale, digits, system]);
+}
 
 const INTL_UNITS: Record<string, string> = { km: 'kilometer', mi: 'mile', h: 'hour' };
 

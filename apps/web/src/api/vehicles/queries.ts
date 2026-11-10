@@ -41,6 +41,9 @@ import type {
   LubeLoggerImportBody,
   LubeLoggerImportResult,
   MeterSeries,
+  MeterUnitBody,
+  MeterUnitPreview,
+  MeterUnitResult,
   Page,
   ProofsPage,
   ReadingRow,
@@ -104,6 +107,12 @@ export const vehiclesApi = {
   // meters and readings (T8)
   updateMeter: (meterId: string, body: UpdateMeterBodyV5, rowVersion: number) =>
     written.patch<unknown>(inventoryPaths.meter(meterId), body, ifMatch(rowVersion)),
+  /** What Change unit would do (#385); changes nothing. */
+  meterUnitPreview: (meterId: string, body: MeterUnitBody) =>
+    api.post<MeterUnitPreview>(inventoryPaths.meterUnitPreview(meterId), body),
+  /** Change unit (#385): undoable. */
+  changeMeterUnit: (meterId: string, body: MeterUnitBody, rowVersion: number) =>
+    written.post<MeterUnitResult>(inventoryPaths.meterUnit(meterId), body, ifMatch(rowVersion)),
   readings: (meterId: string, params: ReadingsParams = {}) =>
     api.get<Page<ReadingRow>>(inventoryPaths.meterReadings(meterId) + qs(params)),
   /** Undoable (D150). A backwards value is 409 `conflict`; an implausible jump is `needs_review`
