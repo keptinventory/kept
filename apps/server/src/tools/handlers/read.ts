@@ -316,6 +316,8 @@ export const getThing: Handler<'get_thing'> = {
           ...(v.purchase.unitPrice !== undefined && v.purchase.currency
             ? { price: { amount: v.purchase.unitPrice, currency: v.purchase.currency } }
             : {}),
+          // The shop isn't money: the route shows it to every role, and so does this.
+          ...(v.purchase.vendor ? { untrusted: { shop: v.purchase.vendor.name } } : {}),
         }
       : undefined;
     const loans = await openLoansOf(op.client, [id]);
@@ -427,6 +429,7 @@ export const getThing: Handler<'get_thing'> = {
             type: typeNameOf(v.type),
             brand: v.brand?.name ?? null,
             model: v.model,
+            serial: v.serial,
             notes: v.notes,
             ...(Object.keys(custom).length > 0 ? { fields: custom } : {}),
           },

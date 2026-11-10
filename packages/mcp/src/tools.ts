@@ -487,11 +487,17 @@ export const TOOL_DEFS = Object.freeze({
           type: z.string().nullable(),
           brand: z.string().nullable(),
           model: z.string().nullable(),
+          serial: z.string().nullable(),
           notes: z.string().nullable(),
           fields: z.record(z.string(), z.unknown()).optional(),
         }),
+        // Where it was bought: `shop`, as add_thing and update_thing take it.
         purchase: z
-          .object({ purchased_on: z.string().nullable(), price: money.optional() })
+          .object({
+            purchased_on: z.string().nullable(),
+            price: money.optional(),
+            untrusted: z.object({ shop: z.string() }).optional(),
+          })
           .optional(),
         meters: z
           .array(

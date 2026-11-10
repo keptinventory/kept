@@ -502,6 +502,64 @@ describe('every field a person can set, through add_thing and update_thing', () 
     });
   });
 
+  it('get_thing reads back the serial and the shop add_thing wrote, as the thing page shows them', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Label printer',
+          serial: 'LP-20931',
+          purchase: {
+            purchased_on: '2026-08-14',
+            price: '120',
+            currency: 'EGP',
+            shop: 'Paper shop',
+          },
+        },
+      ],
+    });
+    const id = d.things[0].id;
+    const view = ok(await call(t, `/api/v1/things/${id}`, { as: louis }));
+    const got = await data(louis, 'get_thing', { thing_id: id });
+    expect(got.thing.untrusted.serial).toBe('LP-20931');
+    expect(got.thing.untrusted.serial).toBe(view.serial);
+    expect(got.thing.purchase).toEqual({
+      purchased_on: '2026-08-14',
+      price: { amount: '120', currency: 'EGP' },
+      untrusted: { shop: 'Paper shop' },
+    });
+    const vendorOf = (v: Json) => (v.purchase as { vendor: { name: string } }).vendor.name;
+    expect(got.thing.purchase.untrusted.shop).toBe(vendorOf(view));
+    // A viewer where money is hidden: the serial and the shop, as the route gives them, no price.
+    const asViewer = ok(await call(t, `/api/v1/things/${id}`, { as: talia }));
+    const forTalia = await data(talia, 'get_thing', { thing_id: id });
+    expect(asViewer.serial).toBe('LP-20931');
+    expect(vendorOf(asViewer)).toBe('Paper shop');
+    expect(forTalia.thing.untrusted.serial).toBe('LP-20931');
+    expect(forTalia.thing.purchase).toEqual({
+      purchased_on: '2026-08-14',
+      untrusted: { shop: 'Paper shop' },
+    });
+  });
+
+  it('get_thing leaves out a serial and a shop nobody gave', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Plain stool',
+          purchase: { purchased_on: '2026-08-15', price: '9', currency: 'EGP' },
+        },
+      ],
+    });
+    const got = await data(louis, 'get_thing', { thing_id: d.things[0].id });
+    expect(got.thing.untrusted.serial).toBeNull();
+    expect(got.thing.purchase).toEqual({
+      purchased_on: '2026-08-15',
+      price: { amount: '9', currency: 'EGP' },
+    });
+  });
+
   it('a type is matched by its name in either language, a consumable keeps a minimum', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
