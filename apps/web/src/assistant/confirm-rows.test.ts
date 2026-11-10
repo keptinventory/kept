@@ -121,6 +121,7 @@ describe('add_thing rows', () => {
         tags: ['Kitchen'],
         belongs_to: 'Murdock',
         manual_url: 'https://example.com/fk2',
+        acquired_from: 'A gift from Alfred',
         expires_on: '2030-01-31',
         keep_at_least: 2,
         purchase: {
@@ -151,6 +152,7 @@ describe('add_thing rows', () => {
       'expires',
       'keepAtLeast',
       'manual',
+      'acquiredFrom',
       'custom',
       'notes',
     ]);
@@ -162,6 +164,10 @@ describe('add_thing rows', () => {
       t: 'money',
       amount: '45.5',
       currency: 'EGP',
+    });
+    expect(row?.fields.find((f) => f.key === 'acquiredFrom')?.after).toEqual({
+      t: 'text',
+      v: 'A gift from Alfred',
     });
     expect(row?.editable).toMatchObject({ colour: 'Blue', condition: 'good' });
   });

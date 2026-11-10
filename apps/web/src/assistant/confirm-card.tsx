@@ -215,6 +215,8 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`Keep at least`;
       case 'manual':
         return t`Manual`;
+      case 'acquiredFrom':
+        return t`Came from`;
       case 'order':
         return t`Order`;
       case 'step':
