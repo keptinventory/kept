@@ -2,15 +2,14 @@ import { z } from 'zod';
 import { requireScope } from '../auth/http.js';
 import { withScope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
-import { forbidden, notFound } from '../http/errors.js';
+import { AppError, forbidden, notFound } from '../http/errors.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import {
   type ClientNames,
   CreateTokenBody,
   CrossLocationWarningSchema,
+  checkNewToken,
   createToken,
-  revokeToken,
-  TokenRowSchema,
 } from '../tokens/service.js';
 import { type HomeAssistantLinks, LINK_TOKEN_NAME } from './link.js';
 
@@ -29,15 +28,19 @@ import { type HomeAssistantLinks, LINK_TOKEN_NAME } from './link.js';
 // GET  /api/v1/home-assistant/link-requests            → {available, items: [PendingLink]}
 // POST /api/v1/home-assistant/link-requests/:id/approve {scope, locationIds,
 //                                                       confirmCrossLocation?}
-//                                                      → 201 {token} | 200 {warning} (D179)
+//                                                      → 202 {state: 'approved'} | 200 {warning}
+//                                                        (D179)
 // POST /api/v1/home-assistant/link-requests/:id/decline → 204
 //
-// The approval makes a personal token named "Home Assistant" through createToken, with New token's
-// checks (each location's `tokens.manage-own`, a viewer reads only, D179's warning) and its audit
-// row (token.create). Unlike New token it is allowed over plain http (D181 refuses http where a
-// secret would reach the browser): the secret is never in this answer, only handed to the
-// request's claim. Outside the Home Assistant app (no link secret) every route here is 404, and
-// the list says `available: false`.
+// The approval runs New token's checks (each location's `tokens.manage-own`, a viewer reads only,
+// D179's warning) and makes nothing (202): the claim that collects it makes a personal token named
+// "Home Assistant" through createToken, as the person who approved, with the checks again and its
+// audit row (token.create). An approval nobody collects, because the request ended or Kept
+// restarted, leaves no token that nobody holds (#489). A claim whose person can no longer make
+// the token (a membership ended) is told `declined`. Unlike New token it is allowed over plain
+// http (D181 refuses http where a secret would reach the browser): the secret is only ever in the
+// claim's answer. Outside the Home Assistant app (no link secret) every route here is 404, and the
+// list says `available: false`.
 
 const Params = z.object({ id: z.uuid() });
 
@@ -67,7 +70,7 @@ export const ApproveLinkBody = CreateTokenBody.pick({
   locationIds: true,
   confirmCrossLocation: true,
 });
-const ApprovedSchema = z.object({ token: TokenRowSchema });
+const ApprovedSchema = z.object({ state: z.literal('approved') });
 
 export type HomeAssistantLinkDeps = {
   pools: Parameters<typeof scopedRead>[0];
@@ -113,7 +116,14 @@ export async function homeAssistantLinkRoutes(
     async (req) => {
       const result = required().claim(req.params.id.toLowerCase(), req.body.claimKey);
       if (!result) throw notFound(GONE);
-      return result;
+      if (result.state !== 'approved') return result;
+      try {
+        return { state: 'approved' as const, token: await result.issue(req.id) };
+      } catch (err) {
+        // The person can no longer make it (a membership ended, a role changed): nothing was made.
+        if (err instanceof AppError && err.status < 500) return { state: 'declined' as const };
+        throw err;
+      }
     },
   );
 
@@ -133,7 +143,7 @@ export async function homeAssistantLinkRoutes(
       schema: {
         params: Params,
         body: ApproveLinkBody,
-        response: { 200: CrossLocationWarningSchema, 201: ApprovedSchema },
+        response: { 200: CrossLocationWarningSchema, 202: ApprovedSchema },
       },
     },
     (req, reply) => {
@@ -143,28 +153,27 @@ export async function homeAssistantLinkRoutes(
         pools,
         req,
         reply,
-        async (tx, client, scope) => {
+        async (_tx, client, scope) => {
           if (!l.isPending(id)) throw notFound(GONE);
-          const ctx = { tx, client, scope, requestId: req.id };
-          const result = await createToken(
-            ctx,
-            { name: LINK_TOKEN_NAME, ...req.body },
-            { key: deps.tokenKey, publicUrl: deps.publicUrl, names: deps.names },
-          );
-          if (result.kind === 'warning') return { status: 200, body: result.body };
-          const { token, secret } = result.body;
-          return {
-            status: 201,
-            // Never the secret: it goes to the request, after the token is committed.
-            body: { token },
-            afterCommit: async () => {
-              if (l.approve(id, secret)) return;
-              // The request ended while the token was made: nobody can collect it, so it goes.
-              await withScope(pools.app, scope, (tx2, client2) =>
-                revokeToken({ tx: tx2, client: client2, scope, requestId: req.id }, token.id),
+          const body = { name: LINK_TOKEN_NAME, ...req.body };
+          const checked = await checkNewToken(client, body);
+          if (checked.kind === 'warning') return { status: 200, body: checked.body };
+          // The token is made only when Home Assistant collects it, as this person; the approval
+          // already passed D179, so collecting doesn't ask again.
+          const person = { userId: scope.userId, mfa: scope.mfa };
+          const approved = l.approve(id, (requestId) =>
+            withScope(pools.app, person, async (tx2, client2) => {
+              const made = await createToken(
+                { tx: tx2, client: client2, scope: person, requestId },
+                { ...body, confirmCrossLocation: true },
+                { key: deps.tokenKey, publicUrl: deps.publicUrl, names: deps.names },
               );
-            },
-          };
+              if (made.kind !== 'created') throw forbidden();
+              return made.body.secret;
+            }),
+          );
+          if (!approved) throw notFound(GONE);
+          return { status: 202, body: { state: 'approved' as const } };
         },
       );
     },

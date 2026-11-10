@@ -70,7 +70,7 @@ Con l'[app Kept](/it/install/home-assistant/) nello stesso Home Assistant, non c
 3. **Consentilo in Kept.** Home Assistant mostra un codice e attende. Apri Kept (va bene la barra laterale) in **Impostazioni → Connessioni**: **Home Assistant chiede di connettersi** mostra lo stesso codice. **Consenti**, seleziona i luoghi e scegli cosa può fare, come per un token.
 4. **Fatto.** Home Assistant completa da solo e indica la versione di Kept e i tuoi luoghi.
 
-Cosa riceve Home Assistant: un normale token personale chiamato **Home Assistant**, creato da te e che agisce come te, per i luoghi selezionati. Passa da Kept a Home Assistant sulla rete interna di Home Assistant e non viene mai mostrato in una pagina. Revocalo in **Impostazioni → Connessioni**. Una richiesta che nessuno consente entro 10 minuti termina: ricomincia da Home Assistant.
+Cosa riceve Home Assistant: un normale token personale chiamato **Home Assistant**, creato da te e che agisce come te, per i luoghi selezionati. Passa da Kept a Home Assistant sulla rete interna di Home Assistant e non viene mai mostrato in una pagina. Revocalo in **Impostazioni → Connessioni**. Una richiesta che nessuno consente entro 10 minuti termina: ricomincia da Home Assistant. Kept crea il token solo quando Home Assistant lo ritira: se Home Assistant smette di attendere prima, o Kept si riavvia, non viene creato nessun token.
 
 ## Configurazione
 
