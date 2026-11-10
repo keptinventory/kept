@@ -333,6 +333,7 @@ export async function deleteValuation(ctx: ValCtx, id: string, expected: number)
     {
       locationId: row.location_id,
       userId: ctx.scope.userId,
+      tokenId: ctx.scope.tokenId ?? null,
       column: 'valuation_id',
       recordId: id,
       thingId: row.thing_id,

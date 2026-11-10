@@ -369,6 +369,7 @@ export async function deleteWarranty(ctx: Ctx, id: string, expected: number): Pr
     {
       locationId: row.location_id,
       userId: ctx.scope.userId,
+      tokenId: ctx.scope.tokenId ?? null,
       column: 'warranty_id',
       recordId: id,
       thingId: row.thing_id,

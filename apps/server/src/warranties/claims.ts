@@ -126,6 +126,7 @@ async function vendorFor(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.scope.userId,
+    tokenId: ctx.scope.tokenId ?? null,
     action: 'vendor.create',
     entity: { type: 'vendor', id },
     after: { name: vendor.name.trim(), kind: 'service_centre' },
@@ -403,6 +404,7 @@ export async function deleteClaim(ctx: Ctx, id: string, expected: number): Promi
     {
       locationId: row.location_id,
       userId: ctx.scope.userId,
+      tokenId: ctx.scope.tokenId ?? null,
       column: 'claim_id',
       recordId: id,
       thingId: row.thing_id,

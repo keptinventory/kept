@@ -324,6 +324,7 @@ export async function createPlaceTemplate(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.create',
     entity: { type: 'template', id },
     after: await imageOf(client, id),
@@ -407,6 +408,7 @@ export async function updatePlaceTemplate(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.update',
     entity: { type: 'template', id },
     before,
@@ -425,6 +427,7 @@ export async function deletePlaceTemplate(ctx: WriteCtx, id: string): Promise<vo
   await auditRegistry(ctx.tx, {
     accountId: row.owner_account_id,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.delete',
     entity: { type: 'template', id },
     before,

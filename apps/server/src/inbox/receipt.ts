@@ -1,5 +1,6 @@
 import { newId, normalize, parseAmount, tsQuery } from '@kept/shared';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { invalid } from '../http/errors.js';
 import { unplacedOf } from '../places/view.js';
@@ -219,7 +220,14 @@ export async function confirmReceipt(
       [locationId],
     );
     const made = await createItem(
-      { tx, client, userId: scope.userId, requestId: ctx.requestId, jobs: ctx.jobs },
+      {
+        tx,
+        client,
+        userId: scope.userId,
+        tokenId: scope.tokenId ?? null,
+        requestId: ctx.requestId,
+        jobs: ctx.jobs,
+      },
       'vendors',
       rows[0]?.account as string,
       { name: body.vendor.name },
@@ -315,7 +323,7 @@ export async function confirmReceipt(
   );
   await audited(tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'purchase.confirm',
     entity: { type: 'purchase', id: purchaseId },
     before: { review_state: states[0]?.review_state ?? 'draft' },

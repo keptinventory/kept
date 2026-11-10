@@ -140,6 +140,7 @@ export async function createPlaceKind(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'place_kind.create',
     entity: { type: 'place_kind', id },
     after: kindImage(row),
@@ -180,6 +181,7 @@ export async function updatePlaceKind(
   await auditRegistry(ctx.tx, {
     accountId: before.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'place_kind.update',
     entity: { type: 'place_kind', id },
     before: kindImage(before),
@@ -250,6 +252,7 @@ export async function customisePlaceKind(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'place_kind.customise',
     entity: { type: 'place_kind', id },
     after: { copied_from_key: builtinKey, ...kindImage(row) },
