@@ -32,6 +32,8 @@ export const THEME_KEY = 'kept.theme';
 export const LOCALE_KEY = 'kept.locale';
 /** #474: the chosen language this device last put on the account, so it is sent only once. */
 export const LOCALE_SENT_KEY = 'kept.localeSent';
+/** #482: set on this version's first start, after a language stored by an older one is settled. */
+export const LOCALE_SETTLED_KEY = 'kept.localeSettled';
 export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
 export const REGION_KEY = 'kept.region';
@@ -171,12 +173,34 @@ export function storedThemePref(): ThemePref {
   return v === 'light' || v === 'dark' ? v : 'system';
 }
 
-/** The stored language, else the browser's if it is one of the six, else English. */
+/** The browser's language if Kept has it, else English. */
+function browserLocale(): Locale {
+  const nav = typeof navigator !== 'undefined' ? navigator.language : 'en';
+  return localeOfTag(nav ?? 'en') ?? 'en';
+}
+
+/** The stored language, else the browser's if Kept has it, else English. */
 export function initialLocale(): Locale {
   const v = read(LOCALE_KEY);
   if (isLocale(v)) return v;
-  const nav = typeof navigator !== 'undefined' ? navigator.language : 'en';
-  return localeOfTag(nav ?? 'en') ?? 'en';
+  return browserLocale();
+}
+
+/**
+ * Once per device, on this version's first start (#482): versions before it stored the language
+ * on every start, so a stored language that is the browser's own and never went to the account
+ * may be no one's pick. It is forgotten (the page looks the same: it follows the browser), so it
+ * doesn't replace the account's language. Someone who did pick the browser's language before can't
+ * be told apart; the account keeps what it has. A language that isn't the browser's was picked and
+ * stays. Later picks, even of the browser's language, are kept.
+ */
+export function settleStoredLocale(): void {
+  if (read(LOCALE_SETTLED_KEY)) return;
+  const stored = read(LOCALE_KEY);
+  if (isLocale(stored) && !read(LOCALE_SENT_KEY) && stored === browserLocale()) {
+    write(LOCALE_KEY, null);
+  }
+  write(LOCALE_SETTLED_KEY, '1');
 }
 
 export function storedWidthPref(): WidthPref {

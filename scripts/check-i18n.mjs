@@ -10,6 +10,9 @@
 //
 // It also fails when a message has an empty translation in a non-source locale (every msgstr is written; an empty one would show English in that language's UI).
 //
+// And it fails when a catalogue holds the same message twice (same msgctxt and msgid): only one
+// translation is compiled, so the other screen shows the wrong word.
+//
 // Every language the app ships (Arabic, English, French, German, Italian, Ukrainian, Vietnamese,
 // Spanish) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
 // same placeholders ({name}, {0}), the same numbered tags (<0>…</0>) and the same number of ICU
@@ -24,6 +27,7 @@
 //   node scripts/check-i18n.mjs --list-obsolete  also prints each obsolete message, per locale
 //                                                (delete those entries by hand; never a --clean
 //                                                re-extract, which rewrites the catalogues)
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -202,6 +206,56 @@ export function shapeProblems(extracted, catalogues, sourceLocale = 'en') {
   return out;
 }
 
+/**
+ * Entries a PO catalogue holds twice: the same `msgctxt` (or none) and `msgid`. Only one of them
+ * is compiled, so the other's translation is lost, often for a screen that needed a different
+ * word (#499: a rack's "Units" read as the units setting's word). The header and obsolete `#~`
+ * entries are left out; multi-line strings are joined. Each repeat is listed once.
+ */
+export function duplicateEntries(text) {
+  const seen = new Set();
+  const out = [];
+  const listed = new Set();
+  let entry = null;
+  let field = null;
+  const flush = () => {
+    if (entry?.msgid) {
+      const context = entry.msgctxt ?? null;
+      const key = `${context ?? ''}\u0004${entry.msgid}`;
+      if (seen.has(key) && !listed.has(key)) {
+        listed.add(key);
+        out.push({ context, id: entry.msgid });
+      }
+      seen.add(key);
+    }
+    entry = null;
+    field = null;
+  };
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (line === '') {
+      flush();
+      continue;
+    }
+    if (line.startsWith('#')) {
+      if (entry?.msgstr !== undefined) flush();
+      continue;
+    }
+    const m = /^(msgctxt|msgid|msgid_plural|msgstr(?:\[\d+\])?)\s+(".*")$/.exec(line);
+    if (m) {
+      if (m[1] === 'msgctxt' || (m[1] === 'msgid' && entry?.msgstr !== undefined)) flush();
+      entry ??= {};
+      field = m[1].startsWith('msgstr') ? 'msgstr' : m[1];
+      entry[field] = (field === 'msgstr' && entry.msgstr) || '';
+      entry[field] += JSON.parse(m[2]);
+      continue;
+    }
+    if (line.startsWith('"') && entry && field) entry[field] += JSON.parse(line);
+  }
+  flush();
+  return out;
+}
+
 /** How a missing message reads in the report: its source text and where it is. */
 function describe(id, message) {
   const text = message?.message ?? id;
@@ -280,6 +334,17 @@ async function main() {
       );
       for (const { id, why } of problems.slice(0, 40))
         console.error(`${describe(id, extracted.get(id))}  [${why}]`);
+    }
+    for (const locale of config.locales) {
+      const file = catalog.getFilename(locale);
+      const twice = duplicateEntries(readFileSync(file, 'utf8'));
+      if (twice.length === 0) continue;
+      failed = true;
+      console.error(
+        `check-i18n: ${twice.length} message(s) are in ${relative(repo, file)} twice; only one translation is used. Give one a context:`,
+      );
+      for (const { context, id } of twice)
+        console.error(`  ${JSON.stringify(id)}${context === null ? '' : ` [context: ${context}]`}`);
     }
     if (listObsolete) {
       for (const locale of config.locales) {

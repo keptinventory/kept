@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   compareCatalogues,
+  duplicateEntries,
   icuShape,
   missingLocales,
   oneLosesNumber,
@@ -173,5 +174,42 @@ describe("a message's shape (an ICU walk, not a regex)", () => {
       de: { k: '{n, plural, one {# von jemandem} other {#}}' },
     });
     expect(r.de).toEqual([{ id: 'k', why: 'placeholders' }]);
+  });
+});
+
+describe('duplicateEntries', () => {
+  const po = (...entries) => entries.join('\n\n');
+  const header = 'msgid ""\nmsgstr ""\n"Language: de\\n"';
+
+  it('finds two entries with the same msgid and no context (the later one wins at runtime)', () => {
+    const text = po(
+      header,
+      '#: src/a.tsx\nmsgid "Units"\nmsgstr "Höheneinheiten"',
+      '#: src/b.tsx\nmsgid "Units"\nmsgstr "Einheiten"',
+    );
+    expect(duplicateEntries(text)).toEqual([{ context: null, id: 'Units' }]);
+  });
+
+  it('tells entries apart by their context', () => {
+    const text = po(
+      header,
+      'msgctxt "rack"\nmsgid "Units"\nmsgstr "Höheneinheiten"',
+      'msgid "Units"\nmsgstr "Einheiten"',
+    );
+    expect(duplicateEntries(text)).toEqual([]);
+  });
+
+  it('finds a repeated context and msgid, and joins multi-line strings', () => {
+    const text = po(
+      header,
+      'msgctxt "rack"\nmsgid ""\n"Un"\n"its"\nmsgstr "A"',
+      'msgctxt "rack"\nmsgid "Units"\nmsgstr "B"',
+    );
+    expect(duplicateEntries(text)).toEqual([{ context: 'rack', id: 'Units' }]);
+  });
+
+  it('leaves obsolete #~ entries out', () => {
+    const text = po(header, 'msgid "Units"\nmsgstr "A"', '#~ msgid "Units"\n#~ msgstr "B"');
+    expect(duplicateEntries(text)).toEqual([]);
   });
 });

@@ -213,6 +213,11 @@ export type VehicleWords = {
   moreInvoices: (n: string) => string;
   moneyHidden: string;
   per100: (fuel: string, distance: string) => string;
+  /** Fuel use as the app's catalogue writes it (fuel/labels.tsx): miles per US gallon, miles per
+   * kWh, and fuel an hour on an hours meter. `v` is the figure in the language's digits. */
+  mpg: (v: string) => string;
+  miPerKwh: (v: string) => string;
+  perHour: (v: string, fuel: string) => string;
 };
 
 /** Every PDF's words in one language. */

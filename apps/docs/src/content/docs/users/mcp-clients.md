@@ -184,7 +184,7 @@ key. `add_thing` also takes where it goes and the purchase (date, price of one w
 and the shop); `update_thing` also takes where it came from, and its purchase: the date, the shop,
 its line on the receipt, the price of one with its currency and the notes, changing the purchase
 it has or recording one, as the thing page does. Gear in a rack takes `rack_units` (its height, 0 beside
-the rails) and `rack_at` (its lowest unit counted from the bottom, its face and full depth or not),
+the rails) and `rack_at` (the lowest unit number it takes in the rack's own numbering, as `get_thing` gives it, its face and full depth or not),
 refused as the app refuses a taken unit. A price needs Money on and a role that
 sees money, as in the app; a minimum needs **Things you run out of**. A type Kept doesn't know is
 left out and the answer's `not_set` says so; the assistant's card

@@ -143,8 +143,8 @@ const schema = z.object({
       'earlier `KEPT_SECRET_KEY` versions, still needed to open values and backups sealed before a rotation: comma-separated `version:key` pairs; never logged',
     ),
   KEPT_PUBLIC_URL: httpUrl().describe('required; source of truth for links and QR codes'),
-  KEPT_ROLE: z.enum(KEPT_ROLES).default('all').describe('`all` · `web` · `worker`'),
-  KEPT_STORAGE: z.enum(KEPT_STORAGES).default('local').describe('`local` · `s3` (+ `KEPT_S3_*`)'),
+  KEPT_ROLE: z.enum(KEPT_ROLES).default('all').describe('`all`, `web`, `worker`'),
+  KEPT_STORAGE: z.enum(KEPT_STORAGES).default('local').describe('`local`, `s3` (+ `KEPT_S3_*`)'),
   KEPT_SMTP_URL: z
     .url({ protocol: /^smtps?$/ })
     .optional()
@@ -176,7 +176,7 @@ const schema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value === 'true'))
     .describe(
-      '`true` · `false`; when set, locks sign-up open or closed and the admin setting shows as locked',
+      '`true`, `false`; when set, locks sign-up open or closed and the admin setting shows as locked',
     ),
   KEPT_CONFIG_DIR: z
     .string()
@@ -245,7 +245,7 @@ const schema = z.object({
     .enum(['on', 'off'])
     .default('on')
     .describe(
-      '`on` · `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent',
+      '`on`, `off`; over https Kept sends HSTS for a year; `off` sends `max-age=0`, so browsers forget a stored policy (other plain-http services on the same hostname); over http never sent',
     ),
   // #404 (D274): the admin's choice, in `.env` beside the public URL, never in the app: it loosens
   // what a copied cookie is worth. auth/auth.ts sessionPolicy() is what reads it.
@@ -305,7 +305,7 @@ const schema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value === 'true'))
     .describe(
-      '`true` · `false`; when set, locks barcode lookup (Open*Facts) on or off and the admin setting shows as locked',
+      '`true`, `false`; when set, locks barcode lookup (Open*Facts) on or off and the admin setting shows as locked',
     ),
   KEPT_BARCODE_CONTACT: z
     .email()
@@ -417,7 +417,7 @@ const schema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value === 'true'))
     .describe(
-      '`true` · `false`; when set, locks "Check for new versions" (GitHub releases, off by default, D65) on or off',
+      '`true`, `false`; when set, locks "Check for new versions" (GitHub releases, off by default, D65) on or off',
     ),
   KEPT_PORT: z.coerce
     .number()
@@ -476,7 +476,7 @@ const schema = z.object({
     .enum(['auto', 'off'])
     .default('auto')
     .describe(
-      '`auto` · `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8)',
+      '`auto`, `off`: whether `kept migrate` takes a database snapshot before migrating a populated database (plan Q8)',
     ),
   // Web push. Unset, Kept generates a pair at first run and keeps it in
   // instance_settings, the private key sealed; set, these override it.
@@ -498,7 +498,7 @@ const schema = z.object({
     .enum(KEPT_EMBEDDINGS_SOURCES)
     .default('provider')
     .describe(
-      "`provider` · `local` · `off`: where search's embeddings come from; `local` is refused unless the local model's runtime is installed (D207)",
+      "`provider`, `local`, `off`: where search's embeddings come from; `local` is refused unless the local model's runtime is installed (D207)",
     ),
   KEPT_EMBEDDINGS_DIR: z
     .string()

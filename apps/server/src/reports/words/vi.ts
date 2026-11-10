@@ -244,6 +244,9 @@ const vehicle: PdfWords['vehicle'] = {
   moreInvoices: (n) => `+${n}`,
   moneyHidden: 'Không có chi phí: chi phí bị ẩn với bạn ở địa điểm này.',
   per100: (fuel, distance) => `${fuel}/100 ${distance}`,
+  mpg: (v) => `${v} mpg`,
+  miPerKwh: (v) => `${v} mi/kWh`,
+  perHour: (v, fuel) => `${v} ${fuel} mỗi giờ`,
 };
 
 export const VI: PdfWords = {

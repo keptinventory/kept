@@ -13,6 +13,7 @@ import {
   ok,
   own,
 } from '../../test/things.js';
+import { runScan } from '../reminders/scan.js';
 
 // #385 through the front door: an odometer starts in the unit of the person who sets it up, and
 // Change unit relabels a meter or converts its readings, the replacement offsets, the daily limit
@@ -315,6 +316,78 @@ describe('POST /api/v1/meters/:id/unit', () => {
     const res = ok(await change(bruce, car.meterId, { unit: 'km', convert: true }));
     expect(res.meter).toMatchObject({ unit: 'km' });
     expect(await values(car.meterId)).toEqual(['1609.344', '2414.821']);
+  });
+
+  it('keeps no daily limit as none: a later reading is not a jump (#510)', async () => {
+    const car = await newCar(ibrahim, 'No limit car');
+    await reading(car, '10000', day(1));
+    expect((await meterRow(car.meterId))?.max_per_day).toBeNull();
+    const view = ok(await preview(ibrahim, car.meterId, { unit: 'mi', convert: true }));
+    expect(view.maxPerDay).toBeNull();
+    ok(await change(ibrahim, car.meterId, { unit: 'mi', convert: true }));
+    expect((await meterRow(car.meterId))?.max_per_day).toBeNull();
+    // 6213.712 mi, then 100 mi a day later: a normal day's driving, accepted.
+    const next = ok(
+      await call(t, `/api/v1/meters/${car.meterId}/readings`, {
+        as: ibrahim,
+        body: { value: '6313.712', takenAt: day(2) },
+      }),
+      201,
+    );
+    expect(next).toMatchObject({ reading: { state: 'accepted' } });
+  });
+
+  it('sends a reminder already sent once, not again after a conversion and its undo', async () => {
+    const car = await newCar(ibrahim, 'Reminder car');
+    await reading(car, '10000', day(1));
+    await reading(car, '15100', day(20));
+    const oil = ok(
+      await call(t, '/api/v1/schedules', {
+        as: ibrahim,
+        body: {
+          subject: { thingId: car.id },
+          name: 'Oil change',
+          everyUnits: '5000',
+          meterId: car.meterId,
+          anchorValue: '10000',
+        },
+      }),
+      201,
+    ).id as string;
+    const sent = async () =>
+      (
+        await own<{ occurrences: number; notifications: number; deliveries: number }>(
+          db,
+          `SELECT (SELECT count(*)::int FROM public.reminder_occurrences o
+                    WHERE o.source_id = $1) AS occurrences,
+                  (SELECT count(*)::int FROM public.notifications n
+                     JOIN public.reminder_occurrences o ON o.id = n.occurrence_id
+                    WHERE o.source_id = $1) AS notifications,
+                  (SELECT count(*)::int FROM public.reminder_deliveries d
+                     JOIN public.reminder_occurrences o ON o.id = d.occurrence_id
+                    WHERE o.source_id = $1) AS deliveries`,
+          [oil],
+        )
+      )[0];
+    const scan = () => runScan({ pools: db.pools, channels: {} });
+    await scan();
+    const first = await sent();
+    expect(first?.occurrences).toBe(1);
+    expect(first?.notifications).toBeGreaterThan(0);
+
+    const res = await changed(await change(ibrahim, car.meterId, { unit: 'mi', convert: true }));
+    await scan();
+    expect(await sent()).toEqual(first);
+    const [open] = await own<{ due_period: string; state: string }>(
+      db,
+      'SELECT due_period, state FROM public.reminder_occurrences WHERE source_id = $1',
+      [oil],
+    );
+    expect(open?.state).toBe('open');
+
+    ok(await undo(ibrahim, res.undo.eventId));
+    await scan();
+    expect(await sent()).toEqual(first);
   });
 
   it('relabels only: the readings were always in the new unit, and stay', async () => {

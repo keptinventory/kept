@@ -21,7 +21,9 @@ import { type Ctx, type MeterRow, type MeterView, meterView, writableMeter } fro
 //   for review), the replacement offsets (the meter's and each event's), the daily limit, and the
 //   schedules that count on the meter (every N, the lead, the base and a snooze's value) are
 //   converted, rounded to the column's thousandth. Each schedule's anchor follows by the 0175
-//   trigger, so an anchor taken from a service's reading is the converted reading.
+//   trigger, so an anchor taken from a service's reading is the converted reading, and the same
+//   trigger carries a reminder already raised to the converted due point (0176), so it isn't
+//   sent again.
 // - An odometer counts in km or mi; an hours meter or a custom one is relabelled only.
 // - The preview (POST …/unit/preview) answers what a change would do and changes nothing.
 // - One audited event, `meter.unit`, on the meter and its vehicle's history, undoable for 7 days.
@@ -206,11 +208,14 @@ export async function changeUnit(
       `UPDATE public.meter_events SET "offset" = ${converted('"offset"', to)} WHERE meter_id = $1`,
       [id],
     );
-    // A limit or an interval stays above 0 however small it was.
+    // A limit or an interval stays above 0 however small it was. No limit of its own (NULL) stays
+    // none: GREATEST skips a NULL, so it would make one of 0.001 (#510). A meter's schedule
+    // always has every_units (schedules_meter_chk).
     await client.query(
       `UPDATE public.meters
           SET "offset" = ${converted('"offset"', to)},
-              max_per_day = greatest(${converted('max_per_day', to)}, 0.001)
+              max_per_day = CASE WHEN max_per_day IS NULL THEN NULL
+                                 ELSE greatest(${converted('max_per_day', to)}, 0.001) END
         WHERE id = $1`,
       [id],
     );

@@ -51,6 +51,19 @@ type Numbered = Pick<RackView, 'units' | 'numbering'>;
 /** The top unit a piece covers, counted from the bottom. */
 const topUnit = (u: number, units: number): number => Math.floor(u + Math.max(units, 0.5) - 0.5);
 
+/**
+ * The lowest unit, counted from the bottom, of a piece whose top unit is `top` (counted from the
+ * bottom). Two half-step starts share each top unit; the one with the same half-unit offset as
+ * `was` (where the piece starts now) wins, so saving without a change keeps it where it is.
+ */
+function startUnder(top: number, units: number, was: number | null): number {
+  const high = top - Math.max(units, 0.5) + 1;
+  if (!Number.isInteger(top)) return high;
+  const offset = was === null ? 0 : was - Math.floor(was);
+  // Half a unit lower would leave the rack at its bottom: the other start fits.
+  return high - Math.floor(high) === offset || high - 0.5 < 1 ? high : high - 0.5;
+}
+
 /** The units a piece covers as the rails print them: "U12", or "U11–U12". */
 export function unitsLabel(rack: Numbered, u: number, units: number): string {
   const { from, to } = shownRange(rack, u, units);
@@ -65,13 +78,17 @@ export function useRackCaption() {
       : plural(units, { one: '# unit, U1 at the bottom', other: '# units, U1 at the bottom' });
 }
 
+/** A refusal: the shared rules' problem, with the name the server gave for the gear in the way. */
+type Refusal = RackProblem & { byName?: string };
+
 /** A refused position in words, from the shared rules or the server's answer. */
 export function useRackProblemText() {
   const { t } = useLingui();
-  return (problem: RackProblem, rack: Numbered, nameOf: (id: string) => string): string => {
+  return (problem: Refusal, rack: Numbered, nameOf: (id: string) => string): string => {
     if (problem.reason === 'taken') {
       const u = `U${problem.u}`;
-      const name = isolate(nameOf(problem.by));
+      // The server names gear this page may not know yet (moved in since it loaded).
+      const name = isolate(problem.byName || nameOf(problem.by));
       return problem.face === 'rear'
         ? t`${u} is taken by ${name} at the rear.`
         : t`${u} is taken by ${name} at the front.`;
@@ -89,7 +106,7 @@ export function useRackProblemText() {
 }
 
 /** The server's refusal (`rack` in the error body) as the shared rules' problem, if it is one. */
-function problemOf(error: unknown): RackProblem | null {
+function problemOf(error: unknown): Refusal | null {
   if (!isApiError(error)) return null;
   const r = error.details.rack as
     | {
@@ -102,7 +119,7 @@ function problemOf(error: unknown): RackProblem | null {
     | undefined;
   if (!r?.reason) return null;
   if (r.reason === 'taken' && r.by && r.face && r.u !== undefined) {
-    return { reason: 'taken', by: r.by.id, face: r.face, u: r.u };
+    return { reason: 'taken', by: r.by.id, byName: r.by.name, face: r.face, u: r.u };
   }
   if (r.reason === 'outside') return { reason: 'outside', top: r.top ?? 0 };
   if (r.reason === 'zero') return { reason: 'zero' };
@@ -266,8 +283,9 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
   const tag = formatLocale(locale, digits);
   const startUnits = thing.units ?? 1;
   const free = firstFree(rack, others, startUnits, 'front', true);
+  const was = thing.at?.u ?? free;
   const [startText, setStartText] = useState(() => {
-    const u = thing.at?.u ?? free;
+    const u = was;
     if (u === null) return '';
     // From the top, the unit a person names is the piece's top one.
     return String(rack.numbering === 'top' ? shownUnit(rack, topUnit(u, startUnits)) : u);
@@ -282,18 +300,22 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
   const start = readLength(startText, tag, null);
   const heightOk = typeof height === 'number' && height <= 60;
   // The unit typed is in the rack's numbering; the rules count from the bottom. From the top,
-  // the unit typed is the piece's top one.
+  // the unit typed is the piece's top one, and the piece keeps its half-unit offset.
   const u =
     typeof start === 'number' && heightOk
       ? rack.numbering === 'top'
-        ? shownUnit(rack, start) - Math.max(height, 0.5) + 1
+        ? startUnder(shownUnit(rack, start), height, was)
         : start
       : null;
   const at: RackAt | null = u === null ? null : { u, face, full: depth === 'full' };
-  const local: RackProblem | null =
+  const found: RackProblem | null =
     heightOk && height !== 0 && at
       ? rackProblem(rack, { id: thing.id, units: height, at }, others)
       : null;
+  // The rules count from the bottom; the sentence names the unit as the rails print it, as the
+  // server's refusal does.
+  const local: RackProblem | null =
+    found?.reason === 'taken' ? { ...found, u: shownUnit(rack, found.u) } : found;
   const missing = heightOk && height !== 0 && at === null;
 
   const refresh = () =>
@@ -373,7 +395,7 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
           />
           {local || serverProblem ? (
             <Notice tone="danger">
-              {problemText((local ?? serverProblem) as RackProblem, rack, nameOf)}
+              {problemText((local ?? serverProblem) as Refusal, rack, nameOf)}
             </Notice>
           ) : save.error ? (
             <Notice tone="danger">{errorText(save.error)}</Notice>

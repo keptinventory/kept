@@ -82,12 +82,15 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   réseau local et un nom Tailscale.
 - **Langues** : allemand, anglais, arabe (de droite à gauche), espagnol, français, italien,
   ukrainien et vietnamien ; tapez pour trouver le vôtre dans le sélecteur, et des dates au style de
-  votre région, ou à votre choix. Les montants sont lus comme votre langue les écrit. Les PDF, les dossiers de sinistre et la copie lisible sortent dans votre langue. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
+  votre région, ou à votre choix. Les montants sont lus comme votre langue les écrit. Les [PDF](/fr/users/reports/), les dossiers de sinistre et la copie lisible sortent dans votre langue. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
 
 ## Sur votre téléphone
 
 - **[Kept sur votre téléphone](/fr/users/phone-app/)** : s'installe depuis le navigateur ; capture, scan
   et recherche sans signal, synchronisés plus tard.
+- **[Un scanner qui redémarre](/fr/users/troubleshooting/#une-étiquette-ne-se-scanne-pas)** : s'il
+  ne démarre pas, **Réessayer** relance la caméra et le scanner, sans fermer l'appli. Les fenêtres
+  restent au-dessus du clavier du téléphone.
 
 ## IA, en option
 
@@ -112,6 +115,8 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 
 ## L'exploitation
 
+- **[Installer Kept](/fr/install/)** : choisissez comment vous faites tourner Kept (Docker Compose,
+  Kubernetes, depuis les sources ou Home Assistant) et suivez ses étapes sur une seule page.
 - **[Sauvegardes](/fr/admin/backups/)** : quotidiennes, chiffrées, vers un répertoire, S3 ou SFTP,
   chacune avec une copie qui [s'ouvre sans Kept](/fr/admin/read-with-restic/).
 - **[Ce qu'il faut](/fr/install/hardware/)** : un conteneur et Postgres ; testé avec 1 Go de RAM et un

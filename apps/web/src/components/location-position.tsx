@@ -16,7 +16,6 @@ import { keys } from '@/api/queries';
 import type { LocationDetail, LocationPosition } from '@/api/types';
 import { currentPosition, deviceGeo, type Geo } from '@/camera/geo';
 import { Section, useErrorText } from '@/components/page';
-import { parseNumber } from '@/components/things/form-model';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
@@ -31,10 +30,24 @@ export function mapsLink({ latitude, longitude }: LocationPosition): string {
   return `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=17/${latitude}/${longitude}`;
 }
 
-/** A typed coordinate: null when empty, NaN when it isn't a number within ±`limit`. */
+const LOCAL_DIGITS = /[٠-٩۰-۹]/g;
+
+/**
+ * A typed coordinate: null when empty, NaN when it isn't a number within ±`limit`. A coordinate
+ * has no thousands, so the one mark in it is the decimal one in every language (#481): `.`, `,`
+ * or `٫`, with any number of decimals after it ("52,520008" in German). A minus may lead.
+ */
 function coordinate(typed: string, limit: number): number | null {
-  const n = parseNumber(typed);
-  if (n === null) return null;
+  const w = typed
+    .trim()
+    .replace(LOCAL_DIGITS, (d) => {
+      const c = d.charCodeAt(0);
+      return String(c >= 0x06f0 ? c - 0x06f0 : c - 0x0660);
+    })
+    .replace(/^\u2212/, '-');
+  if (w === '') return null;
+  if (!/^-?\d+([.,٫]\d+)?$/.test(w)) return Number.NaN;
+  const n = Number(w.replace(/[,٫]/, '.'));
   return Number.isFinite(n) && Math.abs(n) <= limit ? n : Number.NaN;
 }
 

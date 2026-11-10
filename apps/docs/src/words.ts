@@ -27,7 +27,7 @@ export interface HeroWords {
 
 export const hero: Words<HeroWords> = {
   ar: {
-    eyebrow: 'جديد · الخريطة ثلاثية الأبعاد',
+    eyebrow: 'جديد: الخريطة ثلاثية الأبعاد',
     facts: ['AGPL-3.0', 'Docker أو Kubernetes', 'تطبيق هاتف بلا اتصال'],
     mapAlt:
       'خريطة Kept ثلاثية الأبعاد لمنزل: غرفه في منظر مائل، لكلٍّ منها اسمها، بأثاثها وصناديقها، بجانب شجرة أماكن الموقع',
@@ -39,7 +39,7 @@ export const hero: Words<HeroWords> = {
       'Die 3D-Karte von Kept für ein Zuhause: die Räume in isometrischer Ansicht, jeweils benannt, mit Möbeln und Kisten, neben dem Ortsbaum des Standorts',
   },
   en: {
-    eyebrow: 'New · The 3D map',
+    eyebrow: 'New: the 3D map',
     facts: ['AGPL-3.0', 'Docker or Kubernetes', 'Offline phone app'],
     mapAlt:
       "Kept's 3D map of a home: its rooms in an isometric view, each labelled, with furniture and boxes, beside the location's tree of places",

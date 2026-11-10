@@ -40,8 +40,8 @@ export type Val =
   | { t: 'turn'; v: 'right' | 'left'; renumber: boolean }
   /** create_place (#372): the room's width and length on the map, in whole centimetres. */
   | { t: 'roomSize'; w: number; d: number }
-  /** update_thing (#373): where gear is mounted in its rack (its lowest unit from the bottom), or
-   * null: off its unit. */
+  /** update_thing (#373): where gear is mounted in its rack (its lowest unit as the rack numbers
+   * them, #499), or null: off its unit. */
   | { t: 'rack'; at: { u: number; face: 'front' | 'rear'; full: boolean } | null };
 
 export type FieldKey =
