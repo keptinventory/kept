@@ -22,8 +22,8 @@
  * works on a car of its own, made through the API as the person would, so the phone and desktop
  * projects (which run at the same time on this one instance) never share a car's readings.
  *
- * Imperial units (mpg) aren't driven here: no route or screen sets a person's units yet;
- * components/fuel/fuel.test.tsx covers the mpg reading.
+ * Imperial units (mpg, a car in miles, Change unit) are driven in units.spec.ts, as Bruce, so the
+ * figures here stay in metric.
  *
  *   KEPT_E2E_INSTANCES=vehicles pnpm --filter @kept/web exec playwright test step5.spec.ts
  */
