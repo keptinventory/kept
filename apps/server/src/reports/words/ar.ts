@@ -248,8 +248,8 @@ const vehicle: PdfWords['vehicle'] = {
     contract: 'العقد',
   },
   docStates: { current: 'ساري', expired: 'منتهٍ', renewed: 'جُدِّد' },
-  units: { L: 'لتر', kWh: 'ك.و.س', gal: 'جالون' },
-  distance: { km: 'كم', mi: 'ميل', h: 'ساعة' },
+  units: { L: 'لتر', kWh: 'ك.و.س', gal: 'غالون' },
+  distance: { km: 'كم', mi: 'ميل', h: 'س' },
   generated: (who, when) => `أنشأه ${who}، ${when}`,
   asOf: (day) => `حتى ${day}`,
   range: (from, to) => `من ${from} إلى ${to}`,
@@ -257,6 +257,9 @@ const vehicle: PdfWords['vehicle'] = {
   moreInvoices: (n) => `+${n}`,
   moneyHidden: 'التكاليف غير مذكورة: فهي مخفية عنك في هذا الموقع.',
   per100: (fuel, distance) => `${fuel}/١٠٠ ${distance}`,
+  mpg: (v) => `${v} ميل/غالون`,
+  miPerKwh: (v) => `${v} ميل/ك.و.س`,
+  perHour: (v, fuel) => `${v} ${fuel} في الساعة`,
 };
 
 export const AR: PdfWords = { inventory, readable, insurance, condition, move, vehicle };

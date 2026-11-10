@@ -71,6 +71,8 @@ describe('the PDF words', () => {
       'vehicle.units.gal',
       'vehicle.moreInvoices()',
       'vehicle.per100()',
+      'vehicle.mpg()',
+      'vehicle.miPerKwh()',
     ];
     const same: Record<ReportLocale, string[]> = {
       ar: ['vehicle.sources.home_assistant', 'vehicle.moreInvoices()'],
@@ -96,7 +98,10 @@ describe('the PDF words', () => {
         'vehicle.docKinds.inspection',
       ],
       it: [...shared, 'insurance.converted()'],
-      uk: shared.filter((k) => !k.startsWith('vehicle.units.')),
+      uk: shared.filter(
+        (k) =>
+          !k.startsWith('vehicle.units.') && k !== 'vehicle.mpg()' && k !== 'vehicle.miPerKwh()',
+      ),
       vi: shared,
     };
     for (const l of REPORT_LOCALES) {
@@ -420,7 +425,7 @@ function move(l: ReportLocale) {
   );
 }
 
-function vehicle(l: ReportLocale, requesterUnits: UnitSystem = 'metric') {
+function vehicle(l: ReportLocale, requesterUnits: UnitSystem = 'metric', meterUnit = 'km') {
   const g: GatheredVehicle = {
     thing: {
       id: id(7),
@@ -438,7 +443,7 @@ function vehicle(l: ReportLocale, requesterUnits: UnitSystem = 'metric') {
     requesterName: 'Alfred',
     requesterTimezone: 'Africa/Cairo',
     requesterUnits,
-    meter: { id: 'm', kind: 'distance', unit: 'km' },
+    meter: { id: 'm', kind: meterUnit === 'h' ? 'hours' : 'distance', unit: meterUnit },
     latest: { value: '84250', day: '2026-09-20' },
     readingCount: 3,
     readings: [
@@ -580,9 +585,22 @@ describe('the views', () => {
   it('write fuel use in the requester’s units', () => {
     const use = (v: ReturnType<typeof vehicle>) => v.fuel?.summary[0]?.[1];
     expect(use(vehicle('en'))).toBe('6.8 L/100 km');
-    expect(use(vehicle('en', 'imperial'))).toBe('34.6 mi/gal');
-    expect(use(vehicle('ar', 'imperial'))).toContain('ميل/جالون');
-    expect(use(vehicle('de', 'imperial'))).toBe('34,6 mi/gal');
+    expect(use(vehicle('en', 'imperial'))).toBe('34.6 mpg');
+    expect(use(vehicle('ar', 'imperial'))).toContain('ميل/غالون');
+    expect(use(vehicle('de', 'imperial'))).toBe('34,6 mpg');
+  });
+
+  // The PDF writes fuel use and a meter's unit as the app's catalogues do, in each language.
+  it('write fuel use and miles in the app’s words, never a Latin “mi” in Ukrainian', () => {
+    const use = (v: ReturnType<typeof vehicle>) => v.fuel?.summary[0]?.[1];
+    expect(use(vehicle('uk', 'imperial', 'mi'))).toMatch(/^[\d,]+ миль на галон$/);
+    expect(use(vehicle('vi', 'imperial', 'mi'))).toMatch(/^[\d,]+ mpg$/);
+    expect(use(vehicle('de', 'metric', 'h'))).toMatch(/ L pro Stunde$/);
+    expect(use(vehicle('uk', 'metric', 'h'))).toMatch(/ л на годину$/);
+    const uk = JSON.stringify(vehicle('uk', 'imperial', 'mi'));
+    expect(uk).toContain('миль');
+    expect(uk).not.toMatch(/(^|[^A-Za-z])mi([^A-Za-z]|$)/);
+    expect(JSON.stringify(vehicle('ar', 'imperial', 'mi'))).not.toContain('جالون');
   });
 
   it('never put the middle dot between a line’s parts', () => {
