@@ -142,7 +142,7 @@ export function useIssueText(when: 'before' | 'after' = 'after') {
       case 'needs_price':
         return t`A purchase needs a price; kept in the notes.`;
       case 'needs_date':
-        return t`A price needs a purchase date; kept in the notes.`;
+        return t`A purchase needs a date; kept in the notes.`;
       case 'purchase_incomplete':
         return t`The purchase is incomplete; kept in the notes.`;
       case 'not_currency':

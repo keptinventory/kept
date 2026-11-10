@@ -89,12 +89,19 @@ export const CreateBody = z
     custom: Custom.optional(),
     /** Quick add: the template's payload is the base, and the fields sent here win. */
     templateId: z.uuid().optional(),
+    /** A one-line purchase. The price is optional, as on POST /purchases and the thing page's
+     * purchase sheet (a gift, a bundle's part, a price nobody kept); a price comes with its
+     * currency. */
     purchase: z
       .object({
         purchasedOn: IsoDate,
         vendorId: z.uuid().optional(),
-        currency: Currency,
-        price: Amount,
+        currency: Currency.optional(),
+        price: Amount.optional(),
+      })
+      .refine((p) => (p.price === undefined) === (p.currency === undefined), {
+        message: 'Send a price with its currency, or neither.',
+        path: ['price'],
       })
       .optional(),
   })

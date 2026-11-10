@@ -271,6 +271,64 @@ describe('POST /api/v1/things', () => {
     expect(off.json().code).toBe('module_off');
   });
 
+  it('makes a purchase with a date and a shop but no price, as POST /purchases does', async () => {
+    const [vendor] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.vendors (owner_account_id, name, kind) VALUES ($1, 'Souq', 'store')
+       RETURNING id`,
+      [home.accountId],
+    );
+    const made = await createThing(t, mo, home, {
+      name: 'Gift lamp',
+      purchase: { purchasedOn: '2026-08-15', vendorId: vendor?.id },
+    });
+    const bought = made.purchase as Record<string, unknown>;
+    expect(bought).toMatchObject({
+      purchasedOn: '2026-08-15',
+      vendor: { id: vendor?.id, name: 'Souq' },
+      currency: null,
+      lineDescription: 'Gift lamp',
+      quantity: 1,
+    });
+    expect(bought).not.toHaveProperty('unitPrice');
+    const whole = ok(await call(t, `/api/v1/purchases/${bought.purchaseId}`, { as: mo }));
+    expect(whole).toMatchObject({ purchasedOn: '2026-08-15', currency: null });
+    expect(whole).not.toHaveProperty('total');
+    expect((whole.lines as Record<string, unknown>[])[0]).not.toHaveProperty('unitPrice');
+    const actions = await own<{ action: string; diff: Record<string, unknown> }>(
+      db,
+      `SELECT action, diff FROM public.audit_events WHERE location_id = $1 AND root_thing_id = $2
+        ORDER BY at, id`,
+      [home.id, made.id],
+    );
+    expect(actions.map((a) => a.action)).toEqual(
+      expect.arrayContaining(['purchase.create', 'purchase_line.create', 'thing.create']),
+    );
+
+    // A price still needs its currency, and a currency its price.
+    for (const purchase of [
+      { purchasedOn: '2026-08-15', price: '10' },
+      { purchasedOn: '2026-08-15', currency: 'EGP' },
+    ]) {
+      const half = await call(t, '/api/v1/things', {
+        as: mo,
+        body: { locationId: home.id, placeId: home.unplacedId, name: 'Half', purchase },
+      });
+      expect(half.statusCode).toBe(400);
+    }
+    // Where money is off, a purchase is still refused, priced or not (unchanged).
+    const off = await call(t, '/api/v1/things', {
+      as: mo,
+      body: {
+        locationId: basic.id,
+        placeId: basic.unplacedId,
+        name: 'Gift lamp',
+        purchase: { purchasedOn: '2026-08-15' },
+      },
+    });
+    expect(off.statusCode).toBe(409);
+  });
+
   it('refuses a purchase date in the future and a disabled currency', async () => {
     const future = await call(t, '/api/v1/things', {
       as: ann,

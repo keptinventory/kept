@@ -51,6 +51,15 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'GET /api/v1/brands/:id': 'read',
   'POST /api/v1/accounts/:accountId/brands': 'write',
   'POST /api/v1/locations/:id/brands': 'write',
+  // Vendors and tags, the same way: a script adding things can name the shop and the tags it
+  // gives them. List, read and create only (a member may, as inline in the app); editing, deleting
+  // and merging stay with the app.
+  'GET /api/v1/accounts/:accountId/vendors': 'read',
+  'GET /api/v1/vendors/:id': 'read',
+  'POST /api/v1/accounts/:accountId/vendors': 'write',
+  'GET /api/v1/accounts/:accountId/tags': 'read',
+  'GET /api/v1/tags/:id': 'read',
+  'POST /api/v1/accounts/:accountId/tags': 'write',
   // Search, codes and the activity feed.
   'GET /api/v1/search': 'read',
   'GET /api/v1/codes/:code': 'read',
