@@ -880,7 +880,7 @@ describe('the frame', () => {
     // read "v1.14.7 , Source code").
     const versionItem = (_: string, el: Element | null) =>
       (el?.parentElement?.getAttribute('class') ?? '').includes('flex-wrap') &&
-      el.textContent === `v${KEPT_VERSION},`;
+      el?.textContent === `v${KEPT_VERSION},`;
     expect(screen.getAllByText(versionItem).length).toBeGreaterThan(0);
   });
 
