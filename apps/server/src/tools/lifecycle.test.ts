@@ -212,6 +212,39 @@ describe('change_lifecycle', () => {
     expect(await row(tv.id)).toMatchObject({ lifecycle: 'in_use' });
   });
 
+  it('refuses a negative ended price by its own field, as the route’s amount does, and takes 0', async () => {
+    const lamp = await createThing(t, ibrahim, home, { name: 'Lamp' });
+    const env = await tool(ctx(louis), 'change_lifecycle', {
+      location_id: home.id,
+      thing_id: lamp.id,
+      lifecycle: 'sold',
+      ended_price: { amount: '-50', currency: 'EGP' },
+    });
+    expect(env).toMatchObject({ error: 'validation' });
+    expect((env as { hint: string }).hint).toMatch(/ended_price\.amount/);
+    expect(await row(lamp.id)).toMatchObject({ lifecycle: 'in_use', ended_price: null });
+    // The route refuses the same amount before it reaches the database.
+    const res = await call(t, `/api/v1/things/${lamp.id}/lifecycle`, {
+      as: louis,
+      headers: { 'if-match': String(lamp.rowVersion) },
+      body: { lifecycle: 'sold', endedPrice: '-50', endedCurrency: 'EGP' },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().hint).toMatch(/body\.endedPrice/);
+    // 0 is a price, as the route's amount and the database allow (sold for nothing).
+    await data(louis, 'change_lifecycle', {
+      location_id: home.id,
+      thing_id: lamp.id,
+      lifecycle: 'sold',
+      ended_price: { amount: '0', currency: 'EGP' },
+    });
+    expect(await row(lamp.id)).toMatchObject({
+      lifecycle: 'sold',
+      ended_price: '0',
+      ended_currency: 'EGP',
+    });
+  });
+
   it('replaces the ended details it is sent: one left out is cleared, as the route does', async () => {
     const bench = await createThing(t, ibrahim, home, { name: 'Bench' });
     await data(louis, 'change_lifecycle', {

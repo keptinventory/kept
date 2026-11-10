@@ -622,6 +622,10 @@ export const changeLifecycleTool: Handler<'change_lifecycle'> = {
     if (input.lifecycle === 'in_use' && ended.length > 0) {
       throw invalid(`Leave out ${ended.join(', ')}: back in use clears the ended details.`);
     }
+    // The shared money schema takes a minus; the route's amount doesn't, nor does the database.
+    if (input.ended_price?.amount.startsWith('-')) {
+      throw invalid('ended_price.amount is 0 or more.');
+    }
     const body: LifecycleBody = { lifecycle: input.lifecycle };
     if (input.ended_on !== undefined) body.endedOn = input.ended_on;
     if (input.ended_to !== undefined) body.endedTo = input.ended_to;
