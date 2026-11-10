@@ -201,6 +201,9 @@ export const returnThing: Handler<'return_thing'> = {
       ? await memberOf(op.client, loc.id, input.taken_back_by)
       : undefined;
     if (takenBackBy === null) throw invalid('Check taken_back_by: a member of this location.');
+    if (takenBackBy === 'ambiguous') {
+      throw invalid('Check taken_back_by: two members go by that name; use their id.');
+    }
     // A box or a kit that went as a hand-over brings back what is still out with it.
     const { rows: lines } = await op.client.query<{ id: string }>(
       `SELECT o.id FROM public.loans o JOIN public.handovers h ON h.id = o.handover_id
