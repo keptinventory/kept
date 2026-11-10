@@ -78,13 +78,17 @@ export function useRackCaption() {
       : plural(units, { one: '# unit, U1 at the bottom', other: '# units, U1 at the bottom' });
 }
 
+/** A refusal: the shared rules' problem, with the name the server gave for the gear in the way. */
+type Refusal = RackProblem & { byName?: string };
+
 /** A refused position in words, from the shared rules or the server's answer. */
 export function useRackProblemText() {
   const { t } = useLingui();
-  return (problem: RackProblem, rack: Numbered, nameOf: (id: string) => string): string => {
+  return (problem: Refusal, rack: Numbered, nameOf: (id: string) => string): string => {
     if (problem.reason === 'taken') {
       const u = `U${problem.u}`;
-      const name = isolate(nameOf(problem.by));
+      // The server names gear this page may not know yet (moved in since it loaded).
+      const name = isolate(problem.byName || nameOf(problem.by));
       return problem.face === 'rear'
         ? t`${u} is taken by ${name} at the rear.`
         : t`${u} is taken by ${name} at the front.`;
@@ -102,7 +106,7 @@ export function useRackProblemText() {
 }
 
 /** The server's refusal (`rack` in the error body) as the shared rules' problem, if it is one. */
-function problemOf(error: unknown): RackProblem | null {
+function problemOf(error: unknown): Refusal | null {
   if (!isApiError(error)) return null;
   const r = error.details.rack as
     | {
@@ -115,7 +119,7 @@ function problemOf(error: unknown): RackProblem | null {
     | undefined;
   if (!r?.reason) return null;
   if (r.reason === 'taken' && r.by && r.face && r.u !== undefined) {
-    return { reason: 'taken', by: r.by.id, face: r.face, u: r.u };
+    return { reason: 'taken', by: r.by.id, byName: r.by.name, face: r.face, u: r.u };
   }
   if (r.reason === 'outside') return { reason: 'outside', top: r.top ?? 0 };
   if (r.reason === 'zero') return { reason: 'zero' };
@@ -387,7 +391,7 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
           />
           {local || serverProblem ? (
             <Notice tone="danger">
-              {problemText((local ?? serverProblem) as RackProblem, rack, nameOf)}
+              {problemText((local ?? serverProblem) as Refusal, rack, nameOf)}
             </Notice>
           ) : save.error ? (
             <Notice tone="danger">{errorText(save.error)}</Notice>

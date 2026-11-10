@@ -172,6 +172,26 @@ describe('a rack', () => {
     ).toBeVisible();
   });
 
+  it('names gear the page has not seen in the server’s refusal', async () => {
+    const state = withRack();
+    const { user, mock } = await renderApp(`/p/${RACK}`, { state, digits: 'western' });
+    await findHeading('Wall rack');
+    await user.click(await screen.findByRole('button', { name: 'Place it' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    // Someone else moves a NAS into the rack, at U1, before this sheet saves.
+    const sw = mock.state.inventory.things.find((x) => x.id === SWITCH) as StoredThing;
+    mock.state.inventory.things.push({
+      ...sw,
+      id: '01970000-0000-7000-8000-00000000a103',
+      name: 'NAS',
+      rackAt: { rackId: RACK, u: 1, face: 'front', full: true },
+    });
+    await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+    expect(
+      await within(sheet).findByText((t) => plainText(t) === 'U1 is taken by NAS at the front.'),
+    ).toBeVisible();
+  });
+
   it('says on the thing page where a piece sits', async () => {
     await renderApp(`/t/${SWITCH}`, { state: withRack(), digits: 'western' });
     await findHeading('Switch');
