@@ -998,4 +998,144 @@ describe('warranties with a personal token', () => {
     expect(off.statusCode).toBe(404);
     expect(off.json()).toMatchObject({ code: 'module_off' });
   });
+
+  describe('undo of a warranty a token added', () => {
+    const undoAs = (eventId: string, who: { as?: Person; headers?: Record<string, string> }) =>
+      call(secure, `/api/v1/audit/${eventId}/undo`, { ...who, method: 'POST', body: {} });
+    const added = async (thingId: string, secret: string) => {
+      const res = await add(thingId, secret, {
+        kind: 'manufacturer',
+        startsOn: '2026-03-01',
+        termMonths: 24,
+      });
+      const w = ok<Warranty>(res, 201);
+      const [event] = await own<{ id: string }>(
+        `SELECT id FROM public.audit_events WHERE entity_id = $1 AND action = 'warranty.create'`,
+        [w.id],
+      );
+      return { w, eventId: event?.id as string, header: res.headers['x-kept-audit-event'] };
+    };
+    const refusal = (res: LightMyRequestResponse) => {
+      expect(res.statusCode, res.body).toBe(409);
+      return res.json() as { code: string; reason: string; conflicts: string[] };
+    };
+    const rows = (id: string) =>
+      own<{ id: string }>('SELECT id FROM public.warranties WHERE id = $1', [id]);
+
+    it('is undoable for 7 days, and the token undoes it while nothing changed since', async () => {
+      const { token, secret } = await tokenFor(lena, 'write', [home.id]);
+      const fridge = (await createThing(secure, lena, home, { name: 'Fridge' })).id as string;
+      const { w, eventId, header } = await added(fridge, secret);
+      const [event] = await own<{ id: string; undoable_until: Date | null }>(
+        'SELECT id, undoable_until FROM public.audit_events WHERE id = $1',
+        [eventId],
+      );
+      // The answer names it, as every undoable write does.
+      expect(header).toBe(eventId);
+      const until = event?.undoable_until?.getTime() ?? 0;
+      expect(until).toBeGreaterThan(Date.now() + 6 * 24 * 3600_000);
+      expect(until).toBeLessThanOrEqual(Date.now() + 7 * 24 * 3600_000);
+
+      const res = await undoAs(eventId, bearer(secret));
+      expect(ok<{ undoOf: string; eventId: string }>(res)).toMatchObject({ undoOf: eventId });
+      expect(await rows(w.id)).toEqual([]);
+      expect(ok<Listed>(await list(fridge, bearer(secret))).items).toEqual([]);
+      const [undone] = await own<{
+        action: string;
+        actor_type: string;
+        actor_id: string;
+        root_thing_id: string;
+        diff: Record<string, { before?: unknown; after?: unknown }>;
+      }>(
+        `SELECT action, actor_type, actor_id, root_thing_id, diff FROM public.audit_events
+          WHERE undo_of = $1`,
+        [eventId],
+      );
+      expect(undone).toMatchObject({
+        action: 'warranty.create',
+        actor_type: 'token',
+        actor_id: token.id,
+        root_thing_id: fridge,
+      });
+      expect(undone?.diff.term_months).toEqual(
+        expect.objectContaining({ before: 24, after: null }),
+      );
+      // Once is enough.
+      const again = refusal(await undoAs(eventId, bearer(secret)));
+      expect(again.reason).toBe('already_undone');
+    });
+
+    it('its owner undoes it in the app; another of her tokens may not', async () => {
+      const { secret } = await tokenFor(lena, 'write', [home.id]);
+      const other = await tokenFor(lena, 'write', [home.id]);
+      const freezer = (await createThing(secure, lena, home, { name: 'Freezer' })).id as string;
+      const { w, eventId } = await added(freezer, secret);
+      const theirs = await undoAs(eventId, bearer(other.secret));
+      expect(theirs.statusCode, theirs.body).toBe(403);
+      expect(await rows(w.id)).toHaveLength(1);
+      ok(await undoAs(eventId, as(lena)));
+      expect(await rows(w.id)).toEqual([]);
+    });
+
+    it('refuses once it was edited, or has a claim or a document', async () => {
+      const { secret } = await tokenFor(lena, 'write', [home.id]);
+      const mixer = (await createThing(secure, lena, home, { name: 'Mixer' })).id as string;
+      const edited = await added(mixer, secret);
+      const claimed = await added(mixer, secret);
+      const papered = await added(mixer, secret);
+
+      ok(
+        await call(secure, `/api/v1/warranties/${edited.w.id}`, {
+          as: lena,
+          method: 'PATCH',
+          body: { provider: 'Mixer maker' },
+          headers: { 'if-match': '1' },
+        }),
+      );
+      ok(
+        await call(secure, `/api/v1/things/${mixer}/claims`, {
+          as: lena,
+          body: { openedOn: today(), warrantyId: claimed.w.id },
+        }),
+        201,
+      );
+      ok(
+        await call(secure, '/api/v1/attachments', {
+          as: lena,
+          body: {
+            locationId: home.id,
+            url: 'https://maker.example/warranty/mixer',
+            subject: { warrantyId: papered.w.id },
+            role: 'warranty_doc',
+          },
+        }),
+        201,
+      );
+
+      const afterEdit = refusal(await undoAs(edited.eventId, bearer(secret)));
+      expect(afterEdit).toMatchObject({ code: 'undo_refused', reason: 'changed_since' });
+      expect(afterEdit.conflicts).toContain('provider');
+      const withClaim = refusal(await undoAs(claimed.eventId, bearer(secret)));
+      expect(withClaim).toMatchObject({ reason: 'changed_since', conflicts: ['claims'] });
+      const withDoc = refusal(await undoAs(papered.eventId, as(lena)));
+      expect(withDoc).toMatchObject({ reason: 'changed_since', conflicts: ['documents'] });
+      for (const { w } of [edited, claimed, papered]) expect(await rows(w.id)).toHaveLength(1);
+    });
+
+    it('a warranty added in the app keeps no undo window, as the app’s creates', async () => {
+      const toaster = (await createThing(secure, lena, home, { name: 'Toaster' })).id as string;
+      const res = await call(secure, `/api/v1/things/${toaster}/warranties`, {
+        as: lena,
+        body: { kind: 'store', startsOn: '2026-03-01', termMonths: 12 },
+      });
+      const w = ok<Warranty>(res, 201);
+      expect(res.headers['x-kept-audit-event']).toBeUndefined();
+      const [event] = await own<{ undoable_until: Date | null }>(
+        `SELECT undoable_until FROM public.audit_events
+          WHERE entity_id = $1 AND action = 'warranty.create'`,
+        [w.id],
+      );
+      expect(event).toEqual({ undoable_until: null });
+    });
+  });
 });

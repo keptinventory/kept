@@ -106,6 +106,8 @@ export async function warrantyRoutes(app: KeptApp, deps: InventoryDeps): Promise
           ctxOf(req, tx, client, scope),
           req.params.id.toLowerCase(),
           req.body,
+          // A personal token's warranty is undoable by it (audit/undo.ts), as its other writes.
+          { undoable: !!req.token },
         ),
       })),
   );
