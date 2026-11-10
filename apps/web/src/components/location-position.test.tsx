@@ -54,7 +54,7 @@ afterEach(() => {
 
 async function renderForm(
   props: { location?: LocationDetail; geo?: Geo | null; secure?: boolean } = {},
-  locale: 'en' | 'ar' = 'en',
+  locale: 'en' | 'ar' | 'de' = 'en',
 ) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return renderUI(
@@ -185,5 +185,31 @@ describe('a location’s position', () => {
       expect(patches()[0]?.[1]).toEqual({ position: { latitude: 29.9, longitude: 31.2357 } }),
     );
     expectLogicalOnly();
+  });
+
+  it('reads a decimal comma in German, however many decimals follow (#481)', async () => {
+    setLocale('de');
+    const { user } = await renderForm({}, 'de');
+    await user.type(screen.getByLabelText('Breitengrad'), '52,520008');
+    await user.type(screen.getByLabelText('Längengrad'), '13,404954');
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+    await waitFor(() =>
+      expect(patches()[0]?.[1]).toEqual({
+        position: { latitude: 52.520008, longitude: 13.404954 },
+      }),
+    );
+  });
+
+  it('takes a minus, and refuses grouping or a second mark', async () => {
+    const { user } = await renderForm();
+    await user.type(screen.getByLabelText('Latitude'), '-33.8688');
+    await user.type(screen.getByLabelText('Longitude'), '1,51.2');
+    expect(screen.getByText('Enter a number from -180 to 180.')).toBeInTheDocument();
+    await user.clear(screen.getByLabelText('Longitude'));
+    await user.type(screen.getByLabelText('Longitude'), '151,2093');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(patches()[0]?.[1]).toEqual({ position: { latitude: -33.8688, longitude: 151.2093 } }),
+    );
   });
 });
