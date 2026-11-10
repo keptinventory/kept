@@ -77,12 +77,15 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   einem Tailscale-Namen.
 - **Sprachen**: Arabisch (rechts nach links), Deutsch, Englisch, Französisch, Italienisch, Spanisch,
   Ukrainisch und Vietnamesisch; tippe, um deine in der Auswahlliste zu finden, und Datumsangaben im Stil deiner
-  Region oder wie du es wählst. Beträge werden so gelesen, wie deine Sprache sie schreibt. PDFs, Schadenspakete und die lesbare Kopie erscheinen in deiner Sprache. Auch die Dokumentation für Nutzung, Verwaltung und Installation gibt es in jeder dieser Sprachen.
+  Region oder wie du es wählst. Beträge werden so gelesen, wie deine Sprache sie schreibt. [PDFs](/de/users/reports/), Schadenspakete und die lesbare Kopie erscheinen in deiner Sprache. Auch die Dokumentation für Nutzung, Verwaltung und Installation gibt es in jeder dieser Sprachen.
 
 ## Auf deinem Telefon
 
 - **[Kept auf deinem Telefon](/de/users/phone-app/)**: installiert aus dem Browser; erfassen, scannen und suchen
   ohne Verbindung, später synchronisiert.
+- **[Ein Scanner, der neu startet](/de/users/troubleshooting/#ein-label-lässt-sich-nicht-scannen)**:
+  startet er nicht, startet **Erneut versuchen** Kamera und Scanner neu, ohne dass du die App schließen
+  musst. Eingabefenster bleiben über der Tastatur des Telefons.
 
 ## KI, optional
 
@@ -107,6 +110,8 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 
 ## Betrieb
 
+- **[Kept installieren](/de/install/)**: wähle, wie du Kept betreibst (Docker Compose, Kubernetes,
+  aus dem Quellcode oder Home Assistant), und folge seinen Schritten auf einer Seite.
 - **[Backups](/de/admin/backups/)**: nächtlich, verschlüsselt, in ein Verzeichnis, S3 oder SFTP, jeweils mit einer
   Kopie, die [ohne Kept geöffnet werden kann](/de/admin/read-with-restic/).
 - **[Was es braucht](/de/install/hardware/)**: ein Container und Postgres; getestet mit 1 GB RAM und einem CPU-Kern.
