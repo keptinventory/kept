@@ -15,7 +15,7 @@ Vier Schritte, ohne dass du das Repository kopieren oder Passwörter erzeugen mu
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
@@ -49,7 +49,7 @@ Hub als `keptinventory/kept`. `compose.yaml` startet die Veröffentlichung, mit 
 auskommentiert. Sie funktioniert auch eigenständig. Um stattdessen sie zu nutzen:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.full.yaml
 docker compose -f compose.full.yaml run --rm init
 echo COMPOSE_FILE=compose.full.yaml >> .env
 docker compose up -d

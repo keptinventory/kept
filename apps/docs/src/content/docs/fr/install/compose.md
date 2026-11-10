@@ -15,7 +15,7 @@ Quatre étapes, sans copie du dépôt et sans mot de passe à créer :
 
 ```sh
 mkdir kept && cd kept
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.yaml
 docker compose run --rm init
 docker compose up -d
 ```
@@ -49,7 +49,7 @@ profil `https`), Ollama pour l'IA locale (le profil `ollama`) et un déploiement
 commenté. Il fonctionne aussi seul. Pour l'utiliser à la place :
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.5/compose.full.yaml
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/v1.14.6/compose.full.yaml
 docker compose -f compose.full.yaml run --rm init
 echo COMPOSE_FILE=compose.full.yaml >> .env
 docker compose up -d
