@@ -52,9 +52,10 @@ import {
 //   icons dropped (`hb_icon_dropped`), or none (`{none: true}`); v0.27's `global.item` and
 //   `global.location` read as "Item" and "Location", never as the key;
 // - description, a blank line, then notes; manufacturer → brand, model, serial;
-// - purchase date, from and price → a one-line purchase (D115) in the `currency` choice, its
-//   vendor by name; warranty expiry or lifetime → a warranty from the purchase date; sold → the
-//   thing ended `sold` with its date, price, buyer and notes;
+// - purchase date, from and price → a one-line purchase (D115), its vendor by name, its price in
+//   the `currency` choice when more than 0 (Homebox writes 0 for no price, so a date alone is a
+//   purchase without one, as the CSV preset reads it); warranty expiry or lifetime → a warranty
+//   from the purchase date; sold → the thing ended `sold` with its date, price, buyer and notes;
 // - tags → tags with colours, flattened (each ancestor tag applied too); tag icons dropped;
 // - custom fields → the mapped type's field of the same normalised label and kind, else by the
 //   `fields` choice: added to the type (a built-in is customised first) or kept in the notes;
@@ -132,11 +133,12 @@ export type ThingOp = {
   notes: string | null;
   tags: Ref[];
   custom: Record<string, unknown>;
+  /** A one-line purchase: a date, and a price with its currency when Homebox has one. */
   purchase: {
     key: string;
     purchasedOn: string;
-    price: string;
-    currency: string;
+    price: string | null;
+    currency: string | null;
     vendor: NameRef | null;
   } | null;
   sold: {
@@ -314,7 +316,7 @@ const MESSAGES: Partial<Record<ImportIssueCode, string>> = {
   money_off: 'Money is turned off in this location; kept in the notes.',
   future_date: 'The date is in the future; kept in the notes.',
   needs_price: 'A purchase needs a price; kept in the notes.',
-  needs_date: 'A price needs a purchase date; kept in the notes.',
+  needs_date: 'A purchase needs a date; kept in the notes.',
   not_type_field: "Not a field of this item's type; kept in the notes.",
   not_field_value: 'Not a value this field can hold; kept in the notes.',
   tag_not_added: 'Not added as a tag (too long, or too many tags).',
@@ -1031,16 +1033,18 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
         .filter(Boolean)
         .join(', ');
     if (bought || price || e.purchase_from) {
+      // A purchase needs a date; its price is optional, as on POST /purchases. With no price
+      // there is no currency to turn on, so only money being off keeps it as text.
       const why: ImportIssueCode | null = !bought
-        ? price
-          ? 'needs_date'
-          : null
-        : !price
-          ? 'needs_price'
-          : bought > look.today
-            ? 'future_date'
-            : moneyBlock;
-      if (bought && price && !why) {
+        ? 'needs_date'
+        : bought > look.today
+          ? 'future_date'
+          : price
+            ? moneyBlock
+            : look.showMoney
+              ? null
+              : 'money_off';
+      if (bought && !why) {
         let vendor: NameRef | null = null;
         if (e.purchase_from) {
           if (e.purchase_from.length > LIMITS.vendor) {
@@ -1055,12 +1059,21 @@ export function planHomebox(data: HomeboxData, choices: HomeboxChoices, look: Hb
             vendor = id ? { id } : { create: e.purchase_from };
           }
         }
-        purchase = { key: `${e.id}:purchase`, purchasedOn: bought, price, currency, vendor };
+        purchase = {
+          key: `${e.id}:purchase`,
+          purchasedOn: bought,
+          price,
+          currency: price ? currency : null,
+          vendor,
+        };
         purchaseKeys.add(e.id);
         summary.purchases += 1;
       } else {
         text(purchaseText());
-        if (why) report.issue(ref, why, { status: 'text', column: 'purchase_price' });
+        if (why) {
+          const column = price ? 'purchase_price' : bought ? 'purchase_date' : 'purchase_from';
+          report.issue(ref, why, { status: 'text', column });
+        }
       }
     }
 
