@@ -317,6 +317,25 @@ describe('POST /api/v1/meters/:id/unit', () => {
     expect(await values(car.meterId)).toEqual(['1609.344', '2414.821']);
   });
 
+  it('keeps no daily limit as none: a later reading is not a jump (#510)', async () => {
+    const car = await newCar(ibrahim, 'No limit car');
+    await reading(car, '10000', day(1));
+    expect((await meterRow(car.meterId))?.max_per_day).toBeNull();
+    const view = ok(await preview(ibrahim, car.meterId, { unit: 'mi', convert: true }));
+    expect(view.maxPerDay).toBeNull();
+    ok(await change(ibrahim, car.meterId, { unit: 'mi', convert: true }));
+    expect((await meterRow(car.meterId))?.max_per_day).toBeNull();
+    // 6213.712 mi, then 100 mi a day later: a normal day's driving, accepted.
+    const next = ok(
+      await call(t, `/api/v1/meters/${car.meterId}/readings`, {
+        as: ibrahim,
+        body: { value: '6313.712', takenAt: day(2) },
+      }),
+      201,
+    );
+    expect(next).toMatchObject({ reading: { state: 'accepted' } });
+  });
+
   it('relabels only: the readings were always in the new unit, and stay', async () => {
     const { car, oil } = await loadedCar();
     const before = await values(car.meterId);

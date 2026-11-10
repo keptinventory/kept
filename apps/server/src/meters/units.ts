@@ -206,11 +206,14 @@ export async function changeUnit(
       `UPDATE public.meter_events SET "offset" = ${converted('"offset"', to)} WHERE meter_id = $1`,
       [id],
     );
-    // A limit or an interval stays above 0 however small it was.
+    // A limit or an interval stays above 0 however small it was. No limit of its own (NULL) stays
+    // none: GREATEST skips a NULL, so it would make one of 0.001 (#510). A meter's schedule
+    // always has every_units (schedules_meter_chk).
     await client.query(
       `UPDATE public.meters
           SET "offset" = ${converted('"offset"', to)},
-              max_per_day = greatest(${converted('max_per_day', to)}, 0.001)
+              max_per_day = CASE WHEN max_per_day IS NULL THEN NULL
+                                 ELSE greatest(${converted('max_per_day', to)}, 0.001) END
         WHERE id = $1`,
       [id],
     );
