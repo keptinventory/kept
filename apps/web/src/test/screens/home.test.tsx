@@ -872,23 +872,20 @@ describe('the frame', () => {
     expect(within(sidebar).getByRole('link', { name: 'Settings' })).toBeInTheDocument();
   });
 
-  it('shows the version and the Source code link', async () => {
+  it('shows only the version, linked to the source code (AGPL, D147)', async () => {
     await renderApp('/');
-    const links = await screen.findAllByRole('link', { name: 'Source code' });
+    const links = await screen.findAllByRole('link', { name: /^Source code/ });
     expect(links[0]).toHaveAttribute('href', 'https://github.com/keptinventory/kept/tree/3f9ed1d');
-    // The comma follows the version with no space before it (a flex gap around a separate comma
-    // read "v1.14.7 , Source code").
-    const versionItem = (_: string, el: Element | null) =>
-      (el?.parentElement?.getAttribute('class') ?? '').includes('flex-wrap') &&
-      el?.textContent === `v${KEPT_VERSION},`;
-    expect(screen.getAllByText(versionItem).length).toBeGreaterThan(0);
+    // The footer reads "v1.14.7" alone; the words "Source code" are its accessible name and tooltip.
+    expect(links[0]).toHaveTextContent(new RegExp(`^v${KEPT_VERSION}$`));
+    expect(screen.queryByText('Source code')).toBeNull();
   });
 
   it('keeps the image’s third-party notices out of the footer, even when the server serves them', async () => {
     const state = ownerScenario();
     state.version = { ...state.version, notices: '/notices.txt' };
     await renderApp('/more', { state });
-    await screen.findAllByRole('link', { name: 'Source code' });
+    await screen.findAllByRole('link', { name: /^Source code/ });
     expect(screen.queryByRole('link', { name: 'Third-party notices' })).toBeNull();
   });
 
