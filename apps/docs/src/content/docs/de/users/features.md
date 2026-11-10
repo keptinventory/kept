@@ -33,7 +33,7 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 ## Dinge finden
 
 - **[Die Standortkarte](/de/users/location-map/)**: jeder Standort in 3D, mit Stockwerken, Räumen in ihrer
-  echten Größe (ab 50 cm), Möbeln und ihren Fächern, und was darin ist. Startet aus einem Grundriss, wenn du einen hast.
+  echten Größe (ab 50 cm), Möbeln und ihren Fächern, und was darin ist. Startet aus einem Grundriss, wenn du einen hast. Größen in Metern oder in Fuß und Zoll.
 - **[Der Graph](/de/users/graph/)**: Orte, Boxen und Dinge eines Standorts in 2D oder 3D.
 - **[Kurz-IDs und Etiketten](/de/users/short-ids/)**: eine Kurz-ID und ein QR-Code auf jeder Box; scanne einen, um
   sie zu öffnen. Etikettenrollen oder Bürobögen. Modul: Etiketten und QR-Codes.
@@ -55,7 +55,7 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   niedriger Bestand, in der App, per Mail, Push, ntfy, Telegram und einem Kalender-Feed. Modul: Erinnerungen.
 - **Was zur Neige geht**: ein Minimum pro Ding; du wirst benachrichtigt, wenn es knapp wird. Modul: Was zur Neige geht.
 - **[Fahrzeuge und Maschinen](/de/users/vehicles/)**: Zählerstände, Services, Kraftstoff und Betriebskosten.
-  Modul: Fahrzeuge, Kraftstoff.
+  Kilometerzähler in km oder mi, mit Einheit ändern zum Umbenennen oder zum Umrechnen der Zählerstände. Modul: Fahrzeuge, Kraftstoff.
 - **Passwörter und Codes**: geheime Felder, verborgen bis jemand Berechtigtes eines aufdeckt, und protokolliert.
   Modul: Passwörter und Codes.
 - **[Zustandsberichte](/de/users/condition-reports/)**: Einzug und Auszug, Raum für Raum, mit Fotos.

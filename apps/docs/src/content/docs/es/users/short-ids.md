@@ -11,7 +11,7 @@ Las listas, los resultados de búsqueda y la paleta ⌘K muestran un objeto por 
 
 **Impresión** (Etiquetas en el menú, o **Etiqueta** en un objeto): elige qué imprimir (una selección, **Etiqueta todo lo sin imprimir** en una ubicación o lugar, o una **Hoja en blanco**), elige el **Stock de etiquetas**, elige por dónde empezar en una hoja parcialmente usada e imprime desde el navegador. La **Vista previa de hoja** es la impresión misma, más pequeña: los mismos códigos QR, nombres y lugares, partidos en las mismas líneas. Un nombre nunca se corta: uno largo se envuelve y su tipo de letra se reduce, y uno que aún no quepa se lista antes de imprimir, con un enlace para renombrarlo. La página está configurada al papel de la hoja sin márgenes, así que los valores por defecto del diálogo de impresión (escala 100 %) ponen cada etiqueta en su celda.
 
-Los stocks de etiqueta:
+Los stocks de etiqueta (con **Unidades** en **Imperial** en Configuración → Yo → Visualización, el selector muestra estos tamaños en pulgadas, con dos decimales: las etiquetas de la hoja Letter miden 2,63 × 1 in; la impresión es la misma en ambos casos):
 
 | Stock | Tamaño | Cada etiqueta |
 |---|---|---|

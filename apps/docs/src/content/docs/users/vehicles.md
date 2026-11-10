@@ -76,10 +76,31 @@ odometer readings.
 
 ## Units
 
-- **Odometer**: a new vehicle's odometer counts in **km**; a generator's meter counts hours. A
-  meter's unit can't be changed yet once it's created.
-- **Readings and fuel amounts** are kept exactly as entered and never converted.
-- **Fuel use** is shown as L/100 km, or kWh/100 km for a charge; per hour on an hours meter.
+- **Odometer**: a new vehicle's odometer counts in **km**, or in **mi** when your **Units**
+  setting (Settings → Me → Display) is **Imperial**. A generator's meter counts hours.
+- **Change unit**: owners and admins find it on the odometer card of the Overview, and on a meter
+  on a thing's page. An odometer goes between km and mi in one of two ways:
+  - **Relabel only**: the readings were always in the new unit. Every value stays as it is.
+  - **Convert the readings**: every reading (those waiting for review too), the replacement
+    offset, the daily limit and the schedules that run on the odometer (every so many km, the
+    notice before it, the reading it counts from and a snooze to a reading) are converted at
+    1 mi = 1.609344 km, to the thousandth.
+
+  Before you save, Kept shows how many readings change and the latest one before and after. The
+  change goes in the vehicle's history as **Meter unit changed**, and the message after it offers
+  **Undo**, which puts every value back exactly. Undo is refused, and says why, once anything on
+  the meter changed since: a reading logged, kept or edited, or a schedule changed. An hours meter
+  or a custom one can be relabelled only.
+- **Readings and fuel amounts** are kept as entered. Only **Convert the readings** changes a
+  reading, and it can be undone. Fuel amounts (litres, gallons, kWh) are never converted.
+- **Fuel use** follows your **Units** setting, whichever unit the odometer counts in: **L/100 km**,
+  or **kWh/100 km** for a charge, in metric; **mpg** (US gallons) or **mi/kWh** in imperial. On an
+  hours meter it is per hour, in the unit you entered. The history report's PDF follows the
+  setting of the person who makes it.
+- **A dashboard photo in the other unit**: when the photo shows miles and the odometer counts km,
+  or the other way round, the reading waits in the Inbox as every photo reading does. Its card
+  says what the photo showed and gives the value in the odometer's unit, with a button to use it.
+  Nothing is converted until you choose.
 
 ## Costs
 

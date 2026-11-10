@@ -34,7 +34,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 
 - **[Mapa de ubicación](/es/users/location-map/)**: cada ubicación en 3D, con pisos, habitaciones a su
   tamaño real (desde 50 cm), muebles y sus compartimentos, y lo que hay dentro. Comienza desde un
-  plano de piso si tienes uno.
+  plano de piso si tienes uno. Tamaños en metros o en pies y pulgadas.
 - **[Gráfico](/es/users/graph/)**: los lugares, cajas y objetos de una ubicación en 2D o 3D.
 - **[IDs cortos y etiquetas](/es/users/short-ids/)**: un ID corto y un código QR en cada caja; escanea uno
   para abrirlo. Rolos de etiquetadora o hojas de oficina. Módulo: Etiquetas y códigos QR.
@@ -57,7 +57,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   Módulo: Recordatorios.
 - **Objetos que se te acaban**: un mínimo por objeto; avisa cuando se agota. Módulo: Objetos que se te acaban.
 - **[Vehículos y máquinas](/es/users/vehicles/)**: lecturas, servicios, combustible y costos de funcionamiento.
-  Módulo: Vehículos, Combustible.
+  Odómetros en km o mi, con Cambiar unidad para cambiar el nombre o convertir las lecturas. Módulo: Vehículos, Combustible.
 - **Contraseñas y códigos**: campos secretos, ocultos hasta que alguien autorizado revela uno, y registrado.
   Módulo: Contraseñas y códigos.
 - **[Informes de condición](/es/users/condition-reports/)**: entrada y salida, habitación por habitación,

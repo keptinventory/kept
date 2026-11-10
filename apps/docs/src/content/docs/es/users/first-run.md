@@ -136,6 +136,12 @@ tiene como máximo 20 de ellas.
   escrita así, en tu región. Las fechas de compra y
   garantía siempre muestran el año.
 - **Tema**: **Sistema** (sigue el ajuste claro u oscuro del dispositivo), **Claro** u **Oscuro**.
+- **Unidades**: **Métrico** o **Imperial**, guardado en tu cuenta y no en el dispositivo, así que todos
+  los dispositivos lo siguen. Imperial muestra los tamaños de las habitaciones, los tamaños de los muebles, la altura
+  de un objeto en una pared y los tamaños del stock de etiquetas en pies y pulgadas, el uso de combustible en mpg o
+  mi/kWh, y un vehículo que añades recibe un odómetro en millas. Lo que guardaste nunca cambia: los tamaños
+  se quedan en centímetros y las lecturas como las introdujiste. Un odómetro tiene su propia unidad: consulta
+  [Vehículos](/es/users/vehicles/#unidades).
 - **Ancho del contenido**: **Centrado** o **Ancho completo**, en pantallas de 768 px o más anchas.
 
 ## 7. Toma el tour

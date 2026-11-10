@@ -16,7 +16,7 @@ mã QR, tên và vị trí, ngắt dòng cùng chỗ. Một tên không bao gi�
 xuống dòng và chữ nhỏ lại, và cái vẫn không vừa được liệt kê trước khi bạn in, với
 liên kết để đổi tên. Trang được đặt theo kích thước giấy của trang với lề bằng không, nên mặc định của hộp thoại in (tỷ lệ 100 %) đặt mọi nhãn vào ô của nó.
 
-Các loại giấy nhãn:
+Các loại giấy nhãn (khi **Đơn vị đo** là **Hệ Anh** trong Cài đặt → Tôi → Hiển thị, bộ chọn hiển thị các kích thước này bằng inch, đến hai chữ số thập phân: nhãn của trang Letter là 2,63 × 1 inch; bản in vẫn như nhau):
 
 | Loại | Kích thước | Mỗi nhãn |
 |---|---|---|

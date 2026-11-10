@@ -27,7 +27,9 @@ wraps and its type gets smaller, and one that still doesn't fit is listed before
 a link to rename it. The page is set to the sheet's paper with no margins, so the print dialog's
 defaults (scale 100 %) put every label in its cell.
 
-The label stocks:
+The label stocks (with **Units** set to **Imperial** in Settings → Me → Display, the picker shows
+these sizes in inches, to two decimals: the Letter sheet's labels are 2.63 × 1 in; printing is the
+same either way):
 
 | Stock | Size | Each label |
 |---|---|---|

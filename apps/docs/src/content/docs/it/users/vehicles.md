@@ -56,9 +56,15 @@ Nel preset Completo, la scheda **Carburante** registra ogni rifornimento. Il mod
 
 ## Unità
 
-- **Contachilometri**: il contachilometri di un nuovo veicolo conta in **km**; il contatore di un generatore conta ore. L'unità di un contatore non può ancora essere modificata dopo la sua creazione.
-- **Letture e quantità di carburante** vengono mantenute esattamente come inserite e mai convertite.
-- **Consumo di carburante** viene mostrato come L/100 km, oppure kWh/100 km per una carica; all'ora su un contatore di ore.
+- **Contachilometri**: il contachilometri di un nuovo veicolo conta in **km**, o in **mi** quando la tua impostazione **Unità** (Impostazioni → Profilo → Aspetto) è **Imperiale**. Il contatore di un generatore conta ore.
+- **Cambia unità**: proprietari e amministratori lo trovano sulla scheda del contachilometri nella panoramica, e su un contatore nella pagina di un oggetto. Un contachilometri passa tra km e mi in uno di due modi:
+  - **Cambia solo il nome**: le letture erano sempre nella nuova unità. Ogni valore resta com'è.
+  - **Converti le letture**: ogni lettura (anche quelle in attesa di revisione), lo scostamento della sostituzione, il limite giornaliero e le pianificazioni che seguono il contachilometri (ogni tanti km, il preavviso, la lettura da cui contano e un posticipo a una lettura) vengono convertiti a 1 mi = 1,609344 km, al millesimo.
+
+  Prima di salvare, Kept mostra quante letture cambiano e l'ultima prima e dopo. La modifica entra nella cronologia del veicolo come **Unità del contatore cambiata**, e il messaggio che segue offre **Annulla**, che rimette ogni valore esattamente com'era. Annulla viene rifiutato, e dice perché, se nel frattempo è cambiato qualcosa sul contatore: una lettura registrata, tenuta o modificata, o una pianificazione cambiata. Un contatore di ore o uno personalizzato può solo cambiare nome.
+- **Letture e quantità di carburante** vengono mantenute come inserite. Solo **Converti le letture** cambia una lettura, e si può annullare. Le quantità di carburante (litri, galloni, kWh) non vengono mai convertite.
+- **Consumo di carburante** segue la tua impostazione **Unità**, qualunque sia l'unità del contachilometri: **L/100 km**, oppure **kWh/100 km** per una carica, in metrico; **mpg** (galloni USA) o **mi/kWh** in imperiale. Su un contatore di ore è all'ora, nell'unità che hai inserito. Il PDF del rapporto storico segue l'impostazione della persona che lo crea.
+- **Una foto del cruscotto nell'altra unità**: quando la foto mostra miglia e il contachilometri conta km, o viceversa, la lettura aspetta in **In arrivo** come ogni lettura da foto. La sua scheda dice cosa mostrava la foto e dà il valore nell'unità del contachilometri, con un pulsante per usarlo. Niente viene convertito finché non scegli.
 
 ## Costi
 

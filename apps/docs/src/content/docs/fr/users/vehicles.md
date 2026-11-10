@@ -56,9 +56,15 @@ Sur le préréglage Complete, l'onglet **Carburant** enregistre chaque plein. Le
 
 ## Unités
 
-- **Compteur kilométrique** : le compteur d'un nouveau véhicule compte en **km** ; celui d'un groupe électrogène compte en heures. L'unité d'un compteur ne peut pas encore être modifiée après création.
-- Les **relevés et quantités de carburant** sont conservés exactement comme saisis, sans conversion.
-- La **consommation de carburant** s'affiche en L/100 km, ou en kWh/100 km pour une charge ; par heure sur un compteur horaire.
+- **Compteur kilométrique** : le compteur d'un nouveau véhicule compte en **km**, ou en **mi** quand votre réglage **Unités** (Paramètres → Moi → Affichage) est **Impérial**. Celui d'un groupe électrogène compte en heures.
+- **Changer d’unité** : les propriétaires et les administrateurs le trouvent sur la fiche du compteur kilométrique de la synthèse, et sur un compteur dans la page d'un objet. Un compteur kilométrique passe de km à mi, ou l'inverse, de l'une de deux façons :
+  - **Changer seulement le nom** : les relevés étaient toujours dans la nouvelle unité. Chaque valeur reste telle quelle.
+  - **Convertir les relevés** : chaque relevé (y compris ceux en attente de vérification), le décalage de remplacement, la limite par jour et les échéances qui suivent le compteur kilométrique (tous les tant de km, le préavis, le relevé à partir duquel elles comptent et un report jusqu'à un relevé) sont convertis à 1 mi = 1,609344 km, au millième.
+
+  Avant d'enregistrer, Kept indique combien de relevés changent et le dernier avant et après. Le changement entre dans l'historique du véhicule comme **Unité du compteur modifiée**, et le message qui suit propose **Annuler**, qui remet chaque valeur exactement. Annuler est refusé, avec la raison, dès que quelque chose a changé sur le compteur depuis : un relevé enregistré, gardé ou modifié, ou une échéance modifiée. Un compteur horaire ou un compteur personnalisé peut seulement changer de nom.
+- Les **relevés et quantités de carburant** sont conservés comme saisis. Seul **Convertir les relevés** change un relevé, et cela peut être annulé. Les quantités de carburant (litres, gallons, kWh) ne sont jamais converties.
+- La **consommation de carburant** suit votre réglage **Unités**, quelle que soit l'unité du compteur kilométrique : **L/100 km**, ou **kWh/100 km** pour une charge, en métrique ; **mpg** (gallons américains) ou **mi/kWh** en impérial. Sur un compteur horaire, elle est par heure, dans l'unité saisie. Le PDF du rapport d'historique suit le réglage de la personne qui le crée.
+- **Une photo du tableau de bord dans l'autre unité** : quand la photo montre des miles et que le compteur kilométrique compte en km, ou l'inverse, le relevé attend dans la **Réception** comme tout relevé par photo. Sa fiche indique ce que la photo montrait et donne la valeur dans l'unité du compteur kilométrique, avec un bouton pour l'utiliser. Rien n'est converti avant que vous choisissiez.
 
 ## Coûts
 

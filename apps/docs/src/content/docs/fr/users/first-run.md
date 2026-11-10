@@ -134,6 +134,12 @@ contient au plus 20 comptes gérés.
   écrite ainsi, dans votre région. Les dates d’achat et de
   garantie affichent toujours l’année.
 - **Thème** : **Système** (suit le réglage clair ou sombre de l’appareil), **Clair** ou **Sombre**.
+- **Unités** : **Métrique** ou **Impérial**, gardé sur votre compte et non sur l’appareil, donc chaque
+  appareil le suit. Impérial affiche les tailles des pièces, les tailles des meubles, la hauteur d’un objet
+  sur un mur et les tailles des supports d’étiquettes en pieds et pouces, la consommation de carburant en mpg
+  ou mi/kWh, et un véhicule que vous ajoutez reçoit un compteur kilométrique en miles. Ce que vous avez
+  enregistré ne change jamais : les tailles restent en centimètres et les relevés tels que vous les avez saisis.
+  Un compteur kilométrique a sa propre unité : voir [Véhicules](/fr/users/vehicles/#unités).
 - **Largeur du contenu** : **Centré** ou **Pleine largeur**, sur les écrans de 768 px et plus larges.
 
 ## 7. Faire la visite

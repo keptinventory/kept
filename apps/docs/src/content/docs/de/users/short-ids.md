@@ -11,6 +11,8 @@ Listen, Suchergebnisse und die ⌘K-Palette zeigen ein Ding bei seinem Namen. Se
 
 **Drucken** (Etiketten im Menü, oder **Etikett** auf einem Ding): wähle, was zu drucken ist (eine Auswahl, **Alles etikettieren, was noch kein gedrucktes Etikett hat** an einem Ort oder Platz, oder ein **leeres Blatt**), wähle das **Etikettenmaterial**, lege fest, wo auf einem teilweise benutzten Blatt gestartet wird, und drucke aus dem Browser. Die **Blattvorschau** ist der Druck selbst, nur kleiner: dieselben QR-Codes, Namen und Orte, auf dieselben Zeilen umbrochen. Ein Name wird nie abgeschnitten: ein langer bricht um und seine Schrift wird kleiner, und einer, der immer noch nicht passt, wird vor dem Druck aufgelistet, mit einem Link zum Umbenennen. Die Seite ist auf das Papier des Blatts ohne Ränder eingestellt, sodass die Standardeinstellungen des Druckdialogs (Skalierung 100 %) jedes Etikett in seine Zelle setzen.
 
+Die Etikettenmaterialien (mit **Einheiten** auf **Imperial** unter Einstellungen → Profil → Anzeige zeigt die Auswahl diese Größen in Zoll, auf zwei Dezimalstellen: die Etiketten des Letter-Blatts sind 2,63 × 1 in; gedruckt wird so oder so gleich):
+
 | Material | Größe | Jedes Etikett |
 |---|---|---|
 | A4-Blatt, 24 Etiketten | 70 × 37 mm, 3 × 8 | QR-Code, kurze ID, Name und Ort |

@@ -21,7 +21,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 ## Tìm đồ vật
 
-- **[Bản đồ địa điểm](/vi/users/location-map/)**: mỗi địa điểm trong 3D, với các tầng, phòng kích thước thực (từ 50 cm), đồ gia dụng và ngăn, và đồ vật bên trong. Bắt đầu từ bản mặt bằng nếu bạn có.
+- **[Bản đồ địa điểm](/vi/users/location-map/)**: mỗi địa điểm trong 3D, với các tầng, phòng kích thước thực (từ 50 cm), đồ gia dụng và ngăn, và đồ vật bên trong. Bắt đầu từ bản mặt bằng nếu bạn có. Kích thước bằng mét hoặc bằng feet và inch.
 - **[Sơ đồ](/vi/users/graph/)**: vị trí, hộp và đồ vật của một địa điểm trong 2D hoặc 3D.
 - **[ID ngắn và nhãn](/vi/users/short-ids/)**: ID ngắn và mã QR trên mỗi hộp; quét một cái để mở nó. Cuộn máy dán nhãn hoặc giấy in văn phòng. Mô-đun: Nhãn và mã QR.
 - **[Phiên quét](/vi/users/scanning-sessions/)**: đếm một kệ, đóng gói một hộp, di chuyển một đống, lần quét sau lần quét.
@@ -34,7 +34,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 - **[Chuyển nhà](/vi/users/moving/)**: các hộp được số thứ tự, một nhãn và trang nội dung cho mỗi hộp, theo dõi trong xe tải, dỡ gói bằng cách quét. Hoạt động ngoại tuyến. Mô-đun: Chuyển nhà.
 - **[Nhắc nhở và thông báo](/vi/users/reminders/)**: bảo hành, dịch vụ, giấy tờ, vay mượn và tồn kho thấp, trong ứng dụng, qua thư, đẩy, ntfy, Telegram và nguồn lịch. Mô-đun: Nhắc nhở.
 - **Đồ vật bạn dùng hết**: một mức tối thiểu cho mỗi đồ vật; được thông báo khi nó gần hết. Mô-đun: Đồ vật bạn dùng hết.
-- **[Xe cộ và máy móc](/vi/users/vehicles/)**: chỉ số, dịch vụ, nhiên liệu và chi phí vận hành. Mô-đun: Xe cộ, Nhiên liệu.
+- **[Xe cộ và máy móc](/vi/users/vehicles/)**: chỉ số, dịch vụ, nhiên liệu và chi phí vận hành. Đồng hồ công-tơ-mét bằng km hoặc mi, với Đổi đơn vị để đổi tên hoặc quy đổi các chỉ số. Mô-đun: Xe cộ, Nhiên liệu.
 - **Mật khẩu và mã**: trường bí mật, ẩn cho đến khi người được phép hiện một cái, và được ghi log. Mô-đun: Mật khẩu và mã.
 - **[Báo cáo tình trạng](/vi/users/condition-reports/)**: nhập và xuất, phòng theo phòng, có ảnh.
 - **[Báo cáo, bảo hiểm và khiếu nại](/vi/users/reports/)**: kho đồ vật dạng PDF, báo cáo bảo hiểm, gói khiếu nại.

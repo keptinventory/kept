@@ -34,7 +34,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 
 - **[La mappa del luogo](/it/users/location-map/)**: ogni luogo in 3D, con piani, stanze alle loro
   dimensioni reali (da 50 cm), mobili e i loro scomparti, e ciò che c'è dentro. Parte da una
-  pianta se ne hai una.
+  pianta se ne hai una. Misure in metri o in piedi e pollici.
 - **[Il grafo](/it/users/graph/)**: i posti, le scatole e gli oggetti di un luogo in 2D o 3D.
 - **[ID brevi ed etichette](/it/users/short-ids/)**: un ID breve e un codice QR su ogni scatola; scansionane uno per
   aprirla. Rotoli per etichettatrice o fogli da ufficio. Modulo: Etichette e codici QR.
@@ -56,7 +56,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   scorte basse, nell'app, per mail, push, ntfy, Telegram e un feed calendario. Modulo: Promemoria.
 - **Oggetti che si esauriscono**: una quantità minima per oggetto; ti avvisa quando finisce. Modulo: Oggetti che si esauriscono.
 - **[Veicoli e macchine](/it/users/vehicles/)**: letture, manutenzioni, carburante e costi di gestione.
-  Modulo: Veicoli, Carburante.
+  Contachilometri in km o mi, con Cambia unità per cambiare il nome o convertire le letture. Modulo: Veicoli, Carburante.
 - **Password e codici**: campi segreti, nascosti finché qualcuno autorizzato non ne rivela uno, e registrati.
   Modulo: Password e codici.
 - **[Rapporti sullo stato](/it/users/condition-reports/)**: ingresso e uscita, stanza per stanza, con

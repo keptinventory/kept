@@ -34,7 +34,7 @@ a location turns them on in **Location settings → What to track**
 
 - **[The location map](/users/location-map/)**: each location in 3D, with floors, rooms at their
   real size (from 50 cm), furniture and its compartments, and what's inside. Starts from a floor
-  plan if you have one.
+  plan if you have one. Sizes in metres or in feet and inches.
 - **[The graph](/users/graph/)**: a location's places, boxes and things in 2D or 3D.
 - **[Short IDs and labels](/users/short-ids/)**: a short ID and a QR code on every box; scan one to
   open it. Label-maker rolls or office sheets. Module: Labels and QR codes.
@@ -57,7 +57,8 @@ a location turns them on in **Location settings → What to track**
 - **Things you run out of**: a minimum per thing; told when it runs low. Module: Things you run out
   of.
 - **[Vehicles and machines](/users/vehicles/)**: readings, services, fuel and running costs.
-  Module: Vehicles, Fuel.
+  Odometers in km or mi, with Change unit to relabel or convert the readings. Module: Vehicles,
+  Fuel.
 - **Passwords and codes**: secret fields, hidden until someone allowed reveals one, and logged.
   Module: Passwords and codes.
 - **[Condition reports](/users/condition-reports/)**: move-in and move-out, room by room, with

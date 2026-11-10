@@ -56,9 +56,15 @@ Trên cài đặt sẵn Complete, thẻ **Nhiên liệu** ghi nhận mỗi lần
 
 ## Đơn vị
 
-- **Đồng hồ công-tơ-mét**: đồng hồ công-tơ-mét của một phương tiện mới đếm bằng **km**; đồng hồ của máy phát điện đếm giờ. Đơn vị của một đồng hồ không thể thay đổi sau khi đã tạo.
-- **Chỉ số và số lượng nhiên liệu** được giữ chính xác như đã nhập và không bao giờ được chuyển đổi.
-- **Tiêu thụ nhiên liệu** hiển thị là L/100 km, hoặc kWh/100 km cho lần sạc; tính theo giờ trên đồng hồ giờ.
+- **Đồng hồ công-tơ-mét**: đồng hồ công-tơ-mét của một phương tiện mới đếm bằng **km**, hoặc bằng **mi** khi cài đặt **Đơn vị đo** của bạn (Cài đặt → Tôi → Hiển thị) là **Hệ Anh**. Đồng hồ của máy phát điện đếm giờ.
+- **Đổi đơn vị**: chủ sở hữu và quản trị viên tìm thấy nó trên thẻ đồng hồ công-tơ-mét của tổng quan, và trên một đồng hồ ở trang của một đồ vật. Đồng hồ công-tơ-mét chuyển giữa km và mi theo một trong hai cách:
+  - **Chỉ đổi tên**: các chỉ số vốn luôn ở đơn vị mới. Mọi giá trị giữ nguyên.
+  - **Quy đổi các chỉ số**: mọi chỉ số (cả những chỉ số đang chờ xem lại), độ lệch khi thay, giới hạn mỗi ngày và các lịch trình chạy theo đồng hồ công-tơ-mét (mỗi bao nhiêu km, thông báo trước đó, chỉ số mà nó đếm từ đó và hoãn đến một chỉ số) được quy đổi theo 1 mi = 1,609344 km, đến phần nghìn.
+
+  Trước khi bạn lưu, Kept cho biết bao nhiêu chỉ số thay đổi và chỉ số mới nhất trước và sau. Thay đổi được ghi vào lịch sử của phương tiện là **Đã đổi đơn vị đồng hồ đo**, và thông báo sau đó có **Hoàn tác**, đưa mọi giá trị trở lại chính xác. Hoàn tác bị từ chối, và nói rõ lý do, khi có bất cứ gì trên đồng hồ đã thay đổi kể từ đó: một chỉ số được ghi, giữ lại hoặc sửa, hoặc một lịch trình được thay đổi. Đồng hồ giờ hoặc đồng hồ tùy chỉnh chỉ có thể đổi tên.
+- **Chỉ số và số lượng nhiên liệu** được giữ như đã nhập. Chỉ **Quy đổi các chỉ số** thay đổi một chỉ số, và có thể hoàn tác. Số lượng nhiên liệu (lít, gallon, kWh) không bao giờ được quy đổi.
+- **Tiêu thụ nhiên liệu** theo cài đặt **Đơn vị đo** của bạn, bất kể đồng hồ công-tơ-mét đếm bằng đơn vị nào: **L/100 km**, hoặc **kWh/100 km** cho lần sạc, ở hệ mét; **mpg** (gallon Mỹ) hoặc **mi/kWh** ở hệ Anh. Trên đồng hồ giờ, nó tính theo giờ, bằng đơn vị bạn đã nhập. PDF của báo cáo lịch sử theo cài đặt của người tạo ra nó.
+- **Ảnh màn hình điều khiển ở đơn vị khác**: khi ảnh hiển thị dặm và đồng hồ công-tơ-mét đếm km, hoặc ngược lại, chỉ số chờ trong **Hộp thư đến** như mọi chỉ số từ ảnh. Thẻ của nó nói ảnh đã hiển thị gì và đưa ra giá trị theo đơn vị của đồng hồ công-tơ-mét, kèm một nút để dùng nó. Không có gì được quy đổi cho đến khi bạn chọn.
 
 ## Chi phí
 
