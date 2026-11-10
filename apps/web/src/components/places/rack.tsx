@@ -308,10 +308,14 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
         : start
       : null;
   const at: RackAt | null = u === null ? null : { u, face, full: depth === 'full' };
-  const local: RackProblem | null =
+  const found: RackProblem | null =
     heightOk && height !== 0 && at
       ? rackProblem(rack, { id: thing.id, units: height, at }, others)
       : null;
+  // The rules count from the bottom; the sentence names the unit as the rails print it, as the
+  // server's refusal does.
+  const local: RackProblem | null =
+    found?.reason === 'taken' ? { ...found, u: shownUnit(rack, found.u) } : found;
   const missing = heightOk && height !== 0 && at === null;
 
   const refresh = () =>

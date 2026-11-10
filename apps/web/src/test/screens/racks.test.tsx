@@ -237,6 +237,20 @@ describe('a rack numbered from the top', () => {
     expect((await saveUnchanged(1, 1.5)).rackAt.u).toBe(1.5);
   });
 
+  it('names a taken unit as the rails print it', async () => {
+    const { user } = await renderApp(`/p/${RACK}`, { state: withRack('top'), digits: 'western' });
+    await findHeading('Wall rack');
+    await user.click(await screen.findByRole('button', { name: 'Place it' }));
+    const sheet = await screen.findByRole('dialog', { name: /Mini PC.*in.*Wall rack/ });
+    const start = within(sheet).getByRole('textbox', { name: 'Starts at' });
+    // The switch is at unit 11 from the bottom: U2 from the top.
+    await user.clear(start);
+    await user.type(start, '2');
+    expect(
+      within(sheet).getByText((t) => plainText(t) === 'U2 is taken by Switch at the front.'),
+    ).toBeVisible();
+  });
+
   it('a new top unit keeps the piece’s half-unit offset', async () => {
     const { user, mock } = await renderApp(`/p/${RACK}`, {
       state: placed(1.5, 1),
