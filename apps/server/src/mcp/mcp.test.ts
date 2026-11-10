@@ -411,18 +411,18 @@ describe('/mcp names a new shop or person over a token', () => {
 
   it('add_thing for someone Kept has no person for makes the person, audited as the token', async () => {
     const w = await writer();
-    await w.run('add_thing', { items: [{ name: 'Scarf', belongs_to: 'Auntie Mona' }] });
-    const mona = await personNamed('Auntie Mona');
-    expect(mona).toBeDefined();
-    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: mona }]);
+    await w.run('add_thing', { items: [{ name: 'Scarf', belongs_to: 'Murdock' }] });
+    const murdock = await personNamed('Murdock');
+    expect(murdock).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: murdock }]);
   });
 
   it('lend_thing to a new person makes the person, audited as the token', async () => {
     const w = await writer();
     const ladder = await createThing(t, louis, home, { name: 'Step ladder' });
-    await w.run('lend_thing', { thing_id: ladder.id, person: 'Neighbor Sami' });
-    const sami = await personNamed('Neighbor Sami');
-    expect(sami).toBeDefined();
-    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: sami }]);
+    await w.run('lend_thing', { thing_id: ladder.id, person: 'Peter' });
+    const peter = await personNamed('Peter');
+    expect(peter).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: peter }]);
   });
 });
