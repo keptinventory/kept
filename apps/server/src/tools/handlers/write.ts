@@ -6,6 +6,9 @@ import {
   type ModuleId,
   normalize,
   parseAmount,
+  type RackPosition,
+  startFromShown,
+  unitsOf,
 } from '@kept/shared';
 import { undoableEventIds } from '../../audit/audited.js';
 import { undoableUntil } from '../../audit/undo.js';
@@ -20,6 +23,7 @@ import { lineRows, type PatchBody } from '../../purchases/view.js';
 import { todayIn } from '../../schedules/service.js';
 import { vendorFor } from '../../schedules/services.js';
 import { createFromTemplate, FromTemplateBody } from '../../templates/place-templates.js';
+import { thingRackOf } from '../../templates/rack-view.js';
 import { moveThings } from '../../things/move.js';
 import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
 import type { UpdateBody } from '../../things/validate.js';
@@ -293,6 +297,34 @@ function aliasesByLanguage(locale: string, aliases: readonly string[]): Record<s
   return out;
 }
 
+/**
+ * `rack_at` as stored, from the rack's own numbering the tools speak (#499): get_thing's `rack.u`
+ * sent back leaves the gear where it is. The height is the one this update gives, else the
+ * thing's own. Not in a rack: as given, for the route's own refusal.
+ */
+async function rackAtStored(
+  op: Op,
+  id: string,
+  at: RackPosition,
+  rackUnits: number | null | undefined,
+): Promise<RackPosition> {
+  const { rows } = await op.client.query<{
+    place_id: string | null;
+    container_id: string | null;
+    rack_at: unknown;
+    units: number | null;
+  }>(
+    `SELECT place_id, container_id, rack_at, rack_units::float8 AS units
+       FROM public.things WHERE id = $1`,
+    [id],
+  );
+  const thing = rows[0];
+  const rack = thing ? await thingRackOf(op.client, thing) : null;
+  if (!rack) return at;
+  const units = unitsOf({ units: rackUnits !== undefined ? rackUnits : (thing?.units ?? null) });
+  return { ...at, u: startFromShown(rack, at.u, units) };
+}
+
 export const updateThingTool: Handler<'update_thing'> = {
   action: 'things.edit',
   subjectLocation: (client, input) => locationOfRef(client, input.thing_id),
@@ -317,7 +349,9 @@ export const updateThingTool: Handler<'update_thing'> = {
     if (f.custom !== undefined) body.custom = f.custom;
     // #373: gear in a rack, checked as the app's position sheet is.
     if (f.rack_units !== undefined) body.rackUnits = f.rack_units;
-    if (f.rack_at !== undefined) body.rackAt = f.rack_at;
+    if (f.rack_at !== undefined) {
+      body.rackAt = f.rack_at === null ? null : await rackAtStored(op, id, f.rack_at, f.rack_units);
+    }
     if (f.type_id !== undefined) body.typeId = f.type_id;
     else if (f.type !== undefined) {
       const typeId = f.type === null ? null : await typeNamed(op.client, loc.id, f.type);

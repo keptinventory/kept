@@ -191,7 +191,7 @@ Zeile auf der Quittung, den Preis für eine mit Währung und die Notizen, wobei 
 Kauf geändert oder ein neuer erfasst wird, wie es die Gegenstand-Seite tut. Ein Preis braucht Geld
 aktiviert und eine Rolle, die Geld sehen kann, wie in der App; ein Minimum braucht **Was zur Neige
 geht**. Ein Typ, den Kept nicht kennt, wird ausgelassen, und die Antwort sagt das mit `not_set`;
-die Karte des Assistenten zeigt ihn als "not set" mit einem Auswahlfeld. Ein Gerät in einem Serverschrank nimmt `rack_units` (seine Höhe, 0 neben den Schienen) und `rack_at` (seine unterste Einheit von unten gezählt, seine Seite und ob volle Tiefe), abgelehnt wie in der App, wenn die Einheit belegt ist.
+die Karte des Assistenten zeigt ihn als "not set" mit einem Auswahlfeld. Ein Gerät in einem Serverschrank nimmt `rack_units` (seine Höhe, 0 neben den Schienen) und `rack_at` (die kleinste Einheitennummer, die es belegt, in der Nummerierung des Schranks, wie `get_thing` sie angibt, seine Seite und ob volle Tiefe), abgelehnt wie in der App, wenn die Einheit belegt ist.
 
 Jedes Werkzeug, das eine ID nimmt, nimmt auch eine 6-stellige Kurz-ID wie `K7D2QX`. Die
 vollständigen Verträge sind in

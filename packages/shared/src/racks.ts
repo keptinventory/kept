@@ -194,6 +194,29 @@ export function shownRange(
   return { from: shownUnit(rack, high), to: shownUnit(rack, Math.floor(low)) };
 }
 
+/**
+ * Where a position starts as the rack numbers its units (#499): the lowest number it covers, half
+ * units exact, so a person reads it off the rack. From the bottom that is `u` itself; from the top
+ * it is the unit at the piece's top edge, so 1U from 3.5 in a 12U rack starts at U9.5. `units`
+ * is the piece's height (`unitsOf`). `startFromShown` takes it back.
+ */
+export function shownStart(
+  rack: Pick<RackLayout, 'units' | 'numbering'>,
+  u: number,
+  units: number,
+): number {
+  return rack.numbering === 'top' ? rack.units - u - units + 2 : u;
+}
+
+/** A start in the rack's numbering (`shownStart`) as stored: counted from the bottom. */
+export function startFromShown(
+  rack: Pick<RackLayout, 'units' | 'numbering'>,
+  shown: number,
+  units: number,
+): number {
+  return rack.numbering === 'top' ? rack.units - shown - units + 2 : shown;
+}
+
 /** One row of a rack's elevation from one face, top to bottom: a piece of gear, or a run of free
  * whole units (`from` and `to` counted from the bottom, `to` the higher). */
 export type ElevationRow =

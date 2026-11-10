@@ -177,7 +177,7 @@ hoạt động với cả hai loại truy cập; công cụ **thay đổi** cầ
 hoặc tiếng Ả Rập, hoặc theo id), thương hiệu (tạo nếu mới), mẫu, số seri, mã vạch, màu, tình trạng, ghi chú,
 tên khác, thẻ (tên mới tạo thẻ, cho thành viên trở lên), của ai nó là (một người, tạo nếu mới), liên kết sổ hướng dẫn,
 hết hạn và bao nhiêu ngày trước để nhắc, tối thiểu của tiêu hao, và các trường riêng của loại theo khóa. `add_thing` cũng lấy nó đi đâu và mua (ngày, giá một cái với tiền tệ, và cửa hàng); `update_thing` cũng lấy nó từ đâu, và mua của nó: ngày, cửa hàng, dòng của nó trên hóa đơn, giá một cái với tiền tệ và ghi chú, thay đổi mua nó có hoặc ghi một cái, như trang đồ vật làm. Giá cần Bật tiền và vai trò thấy tiền, như trong ứng dụng; tối thiểu cần **Đồ vật bạn dùng hết**. Loại Kept không biết bị bỏ qua và `not_set` trong câu trả lời nói vậy; thẻ của trợ lý
-hiện nó như "chưa đặt" với bộ chọn. Thiết bị trong tủ rack nhận `rack_units` (chiều cao, 0 là cạnh thanh ray) và `rack_at` (đơn vị thấp nhất tính từ dưới lên, mặt của nó và có hết chiều sâu không), bị từ chối như trong ứng dụng nếu đơn vị đã có thiết bị.
+hiện nó như "chưa đặt" với bộ chọn. Thiết bị trong tủ rack nhận `rack_units` (chiều cao, 0 là cạnh thanh ray) và `rack_at` (số đơn vị nhỏ nhất nó chiếm, theo cách đánh số của chính tủ, như `get_thing` trả về, mặt của nó và có hết chiều sâu không), bị từ chối như trong ứng dụng nếu đơn vị đã có thiết bị.
 
 Các công cụ chuyển nhà chỉ dành cho ứng dụng đã kết nối; trợ lý trong Kept không dùng chúng.
 
