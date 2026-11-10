@@ -346,12 +346,21 @@ export const addThingItem = z
       })
       .optional()
       .describe('A place that does not exist yet; it is proposed with the thing (D213)'),
+    // A price is optional, as on POST /things and the create sheet (a gift, a price nobody
+    // kept); it comes with its currency. The refinements stay out of the schema the model reads.
     purchase: z
       .object({
         purchased_on: isoDate.optional(),
-        price: money.shape.amount.describe('The price of one'),
-        currency: money.shape.currency,
+        price: money.shape.amount.optional().describe('The price of one, with its currency'),
+        currency: money.shape.currency.optional(),
         shop: shortText(200).optional(),
+      })
+      .refine((p) => (p.price === undefined) === (p.currency === undefined), {
+        message: 'Send a price with its currency, or neither.',
+        path: ['price'],
+      })
+      .refine((p) => Object.values(p).some((v) => v !== undefined), {
+        message: 'give at least purchased_on, shop or price.',
       })
       .optional(),
   })

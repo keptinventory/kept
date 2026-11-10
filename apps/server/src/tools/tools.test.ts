@@ -605,6 +605,70 @@ describe('every field a person can set, through add_thing and update_thing', () 
       });
   });
 
+  it('add_thing records a purchase with a date, or a date and a shop, and no price', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        { name: 'Gift lamp', purchase: { purchased_on: '2026-08-15' } },
+        { name: 'Bundle cable', purchase: { purchased_on: '2026-08-16', shop: 'Souq' } },
+      ],
+    });
+    expect(await fullRow(d.things[0].id)).toMatchObject({
+      bought: '2026-08-15',
+      currency: null,
+      price: null,
+      shop: null,
+    });
+    expect(await fullRow(d.things[1].id)).toMatchObject({
+      bought: '2026-08-16',
+      currency: null,
+      price: null,
+      shop: 'Souq',
+    });
+  });
+
+  it('add_thing takes a price with its currency, or neither, as POST /things does', async () => {
+    const shapes: { purchase: Record<string, string>; takes: boolean }[] = [
+      { purchase: { purchased_on: '2026-08-15' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', shop: 'Souq' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', price: '10', currency: 'EGP' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', price: '10' }, takes: false },
+      { purchase: { purchased_on: '2026-08-15', currency: 'EGP' }, takes: false },
+    ];
+    for (const { purchase, takes } of shapes) {
+      const env = await tool(louis, 'add_thing', {
+        location_id: home.id,
+        items: [{ name: 'Parity lamp', purchase }],
+      });
+      const { purchased_on, shop, ...money } = purchase;
+      const route = await call(t, '/api/v1/things', {
+        as: louis,
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Parity lamp',
+          purchase: { purchasedOn: purchased_on, ...money },
+        },
+      });
+      expect(isToolError(env), JSON.stringify(purchase)).toBe(!takes);
+      expect(route.statusCode, JSON.stringify(purchase)).toBe(takes ? 201 : 400);
+      if (!takes)
+        expect(env).toMatchObject({
+          error: 'validation',
+          hint: 'Check items.0.purchase.price: Send a price with its currency, or neither.',
+        });
+    }
+  });
+
+  it('add_thing refuses a purchase that says nothing, as update_thing does', async () => {
+    const env = await tool(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Empty lamp', purchase: {} }],
+    });
+    expect(env).toMatchObject({ error: 'validation' });
+    expect(isToolError(env) ? env.hint : null).toMatch(/purchased_on, shop or price/);
+  });
+
   it('update_thing changes those fields too, and null clears one', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,

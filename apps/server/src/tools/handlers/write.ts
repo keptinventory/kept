@@ -237,8 +237,10 @@ export const addThing: Handler<'add_thing'> = {
             ? {
                 purchase: {
                   purchasedOn: p.purchased_on ?? (await todayIn(op.client, loc.id)),
-                  currency: p.currency,
-                  price: parseAmount(p.price),
+                  // A price comes with its currency (the tool's schema checks), or neither.
+                  ...(p.price !== undefined && p.currency !== undefined
+                    ? { currency: p.currency, price: parseAmount(p.price) }
+                    : {}),
                   ...(vendorId ? { vendorId } : {}),
                 },
               }
