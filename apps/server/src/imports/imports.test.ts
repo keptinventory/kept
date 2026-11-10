@@ -524,6 +524,76 @@ describe('POST /api/v1/imports/:id/dry-run', () => {
   });
 });
 
+describe('a purchase with a date and no price', () => {
+  let report: Report;
+  let things: Awaited<ReturnType<typeof thingsIn>>;
+
+  beforeAll(async () => {
+    const attic = await createLocation(t, db, ann, 'household', 'Attic');
+    ({ report } = await importRows(ann, attic, [
+      row({ Name: 'Drill', Bought: '01/02/2025' }),
+      row({ Name: 'Charger', Bought: '02/02/2025', Shop: 'Carrefour' }),
+      row({ Name: 'Cable', Shop: 'Carrefour' }),
+      row({ Name: 'Lamp', Price: '300' }),
+      row({ Name: 'Fan', Bought: '03/02/2025', Price: 'about 40' }),
+      row({ Name: 'Iron', Bought: '04/02/2025', Price: '250', Shop: 'Carrefour' }),
+    ]));
+    things = await thingsIn(attic);
+  }, LONG);
+
+  it('makes the purchase with its date and shop, and no price or currency', () => {
+    expect(report.rows.slice(0, 2).map((r) => r.status)).toEqual(['ok', 'ok']);
+    const [drill, charger] = things;
+    expect(drill).toMatchObject({
+      name: 'Drill',
+      purchased_on: '2025-02-01',
+      price: null,
+      currency: null,
+      vendor: null,
+      notes: null,
+    });
+    expect(charger).toMatchObject({
+      name: 'Charger',
+      purchased_on: '2025-02-02',
+      price: null,
+      currency: null,
+      vendor: 'Carrefour',
+      notes: null,
+    });
+  });
+
+  it('still keeps a shop with no date, a price with no date, and a price it cannot read as text', () => {
+    expect(report.rows.slice(2, 5).map((r) => r.status)).toEqual(['text', 'text', 'text']);
+    expect(report.rows[2]?.issues).toEqual([
+      expect.objectContaining({ column: 'Shop', code: 'needs_date' }),
+    ]);
+    expect(report.rows[3]?.issues).toEqual([
+      expect.objectContaining({ column: 'Price', code: 'needs_date' }),
+    ]);
+    // Someone meant a price here: the whole purchase stays as text for them to fix.
+    expect(report.rows[4]?.issues.map((i) => [i.column, i.code])).toEqual([
+      ['Price', 'not_price'],
+      ['Bought', 'purchase_incomplete'],
+    ]);
+    const [, , cable, lamp, fan] = things;
+    expect(cable).toMatchObject({ purchased_on: null, notes: 'Shop: Carrefour' });
+    expect(lamp).toMatchObject({ purchased_on: null, notes: 'Price: 300' });
+    expect(fan).toMatchObject({ purchased_on: null, notes: 'Bought: 03/02/2025\nPrice: about 40' });
+  });
+
+  it('prices a row with a price as before, and counts every purchase', () => {
+    expect(report.rows[5]?.status).toBe('ok');
+    expect(things[5]).toMatchObject({
+      name: 'Iron',
+      purchased_on: '2025-02-04',
+      price: '250.0000',
+      currency: 'EGP',
+      vendor: 'Carrefour',
+    });
+    expect(report.summary).toMatchObject({ things: 6, purchases: 3, asText: 3 });
+  });
+});
+
 describe('POST /api/v1/imports/:id/run', () => {
   // catalogue: POST /api/v1/imports/:id/run
   it('starts a checked run (202, the tenant job sent, audited as import.start); a draft is 409', async () => {
@@ -819,6 +889,29 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
     ({ run: oldRun, report: oldReport } = await importHomebox(old, OLD, 'archived'));
     things = await endedIn(old);
   }, LONG);
+
+  it(
+    'keeps a purchase date with no price as text under the preset, as the Homebox archive import does',
+    async () => {
+      const at = OLD.columns.indexOf('HB.purchase_time');
+      const name = OLD.columns.indexOf('HB.name');
+      const rows = OLD.rows
+        .filter((r) => r[name] === 'Toolbox')
+        .map((r) => r.map((c, i) => (i === at ? '2024-05-01' : c)));
+      const loc = await createLocation(t, db, ann, 'household', 'Homebox, dated, no price');
+      const { report } = await importRows(ann, loc, rows, {
+        columns: OLD.columns,
+        mapping: mappingOf(OLD.columns),
+        choices: hbChoices('in_use'),
+      });
+      expect(report.rows[0]?.status).toBe('text');
+      expect(report.rows[0]?.issues).toContainEqual(
+        expect.objectContaining({ column: 'HB.purchase_time', code: 'needs_price' }),
+      );
+      expect(report.summary.purchases).toBe(0);
+    },
+    LONG,
+  );
 
   it('imports every v0.10.3 item, and a 0 price is no price', () => {
     expect(oldRun).toMatchObject({ status: 'done', error: null });
