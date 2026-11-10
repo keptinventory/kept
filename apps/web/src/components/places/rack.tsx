@@ -51,6 +51,19 @@ type Numbered = Pick<RackView, 'units' | 'numbering'>;
 /** The top unit a piece covers, counted from the bottom. */
 const topUnit = (u: number, units: number): number => Math.floor(u + Math.max(units, 0.5) - 0.5);
 
+/**
+ * The lowest unit, counted from the bottom, of a piece whose top unit is `top` (counted from the
+ * bottom). Two half-step starts share each top unit; the one with the same half-unit offset as
+ * `was` (where the piece starts now) wins, so saving without a change keeps it where it is.
+ */
+function startUnder(top: number, units: number, was: number | null): number {
+  const high = top - Math.max(units, 0.5) + 1;
+  if (!Number.isInteger(top)) return high;
+  const offset = was === null ? 0 : was - Math.floor(was);
+  // Half a unit lower would leave the rack at its bottom: the other start fits.
+  return high - Math.floor(high) === offset || high - 0.5 < 1 ? high : high - 0.5;
+}
+
 /** The units a piece covers as the rails print them: "U12", or "U11–U12". */
 export function unitsLabel(rack: Numbered, u: number, units: number): string {
   const { from, to } = shownRange(rack, u, units);
@@ -266,8 +279,9 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
   const tag = formatLocale(locale, digits);
   const startUnits = thing.units ?? 1;
   const free = firstFree(rack, others, startUnits, 'front', true);
+  const was = thing.at?.u ?? free;
   const [startText, setStartText] = useState(() => {
-    const u = thing.at?.u ?? free;
+    const u = was;
     if (u === null) return '';
     // From the top, the unit a person names is the piece's top one.
     return String(rack.numbering === 'top' ? shownUnit(rack, topUnit(u, startUnits)) : u);
@@ -282,11 +296,11 @@ export function PositionSheet({ rack, thing, others, nameOf, onClose }: Position
   const start = readLength(startText, tag, null);
   const heightOk = typeof height === 'number' && height <= 60;
   // The unit typed is in the rack's numbering; the rules count from the bottom. From the top,
-  // the unit typed is the piece's top one.
+  // the unit typed is the piece's top one, and the piece keeps its half-unit offset.
   const u =
     typeof start === 'number' && heightOk
       ? rack.numbering === 'top'
-        ? shownUnit(rack, start) - Math.max(height, 0.5) + 1
+        ? startUnder(shownUnit(rack, start), height, was)
         : start
       : null;
   const at: RackAt | null = u === null ? null : { u, face, full: depth === 'full' };
