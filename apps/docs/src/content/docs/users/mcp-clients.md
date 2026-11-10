@@ -149,6 +149,7 @@ higher. The part of Kept a tool needs is the name under **What to track**.
 | `update_thing` | change | | Change any of a thing's fields the app's edit form changes (see below); `null` clears one. |
 | `move_thing` | change | | Move a thing, or some of a quantity, to another place or container. |
 | `mark_seen` | change | | I just saw this thing where Kept says it is. |
+| `change_lifecycle` | change | | Change a thing's lifecycle, as **Change lifecycle** and **Archive** do: sold, given away, lost, thrown away, archived or another end, with when, who it went to, what it sold for and a note, or back in use with `in_use`. Each call sends the whole end, so a detail it leaves out is cleared. Kept keeps the thing and its history, and it can be undone for 7 days. |
 | `create_place` | change | | Add a place under another place, or at the top of the location. With `template`, add furniture and a place for each of its compartments in one step, as [Furniture with compartments](/users/locations/#furniture-with-compartments) does; one Undo takes it all back. A rack template takes `units` and `numbering` ([Racks](/users/locations/#racks)). A room takes its real size, `width_cm` and `length_cm` (50 cm to 100 m), and goes on the [map](/users/location-map/) with it. |
 | `update_place` | change | | Change a place as its page does: rename it, change its kind, move it into another place or to the top, set its fields, and the order of the places in it (A to Z or Custom order, then Move up or Move down). `turn` (`right` or `left`, where its top went) turns [furniture with compartments](/users/locations/#turning-furniture) onto its side or back, with `renumber` true or false. Undo for 7 days, except a move up or down: the opposite move undoes it. |
 | `turn_into_boxes` | change | | Turn up to 50 places into boxes, as **Turn places into boxes** does. Each keeps its ID, label and what's in it; one with places inside stays a place, and so does one at the top of the location (turn that one in Kept). One Undo turns them all back. |
@@ -190,7 +191,7 @@ sees money, as in the app; a minimum needs **Things you run out of**. A type Kep
 left out and the answer's `not_set` says so; the assistant's card
 shows it as "not set" with a picker.
 
-The moving tools are for connected apps only; the assistant in Kept doesn't use them.
+The moving tools and `change_lifecycle` are for connected apps only; the assistant in Kept doesn't use them.
 
 Every tool that takes an id also takes a 6-character short ID such as `K7D2QX`. The full
 contracts are in
