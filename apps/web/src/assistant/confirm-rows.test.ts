@@ -165,6 +165,15 @@ describe('add_thing rows', () => {
     });
     expect(row?.editable).toMatchObject({ colour: 'Blue', condition: 'good' });
   });
+
+  it('shows a purchase with no price as its date and shop, with no price row', () => {
+    const [row] = add([
+      { name: 'Gift lamp', purchase: { purchased_on: '2026-08-15', shop: 'Souq' } },
+    ]);
+    const keys = row?.fields.map((f) => f.key);
+    expect(keys).toEqual(expect.arrayContaining(['bought', 'shop']));
+    expect(keys).not.toContain('price');
+  });
 });
 
 describe('tag_things rows', () => {
