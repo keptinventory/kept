@@ -19,6 +19,7 @@ import { type ReactNode, useId, useMemo, useState } from 'react';
 import { Radio, RadioGroup } from 'react-aria-components';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { BoxNode, MovePreview, MoveTarget, PlaceNode } from '@/api/inventory/types';
+import { useAllLocations } from '@/api/queries';
 import { useOfferUndo } from '@/components/history/undo';
 import { SearchIcon } from '@/components/icons';
 import { LoadingRows, Notice, useErrorText } from '@/components/page';
@@ -100,9 +101,16 @@ export function PlacePicker({
   const nameOf = usePlaceName();
   const locationName = useLocationName();
   const searchId = useId();
+  // A hidden Personal (#392) when it is the only place you can write (#459), as Capture.
+  const locations = useAllLocations().data ?? [];
+  const onlyHidden =
+    locationIds || locations.some((l) => !l.hidden && l.role !== 'viewer')
+      ? []
+      : locations.filter((l) => l.hidden && l.role !== 'viewer').map((l) => l.id);
   const { trees, isPending } = useAllPlaceTrees([
     ...(locationIds ?? []),
     ...(firstLocationId ? [firstLocationId] : []),
+    ...onlyHidden,
   ]);
   const [q, setQ] = useState('');
 

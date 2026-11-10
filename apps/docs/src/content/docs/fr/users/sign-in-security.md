@@ -19,7 +19,7 @@ L’activation ou la désactivation de l’authentification à deux facteurs ne 
 
 La dissociation de Google ou de votre connexion OIDC dans **Moyens de connexion** demande la même confirmation.
 
-Chaque modification déconnecte tous les autres appareils, sauf le renommage d’une clé d’accès. Kept vous envoie un courriel lorsqu’une clé d’accès est ajoutée ou retirée, lorsqu’une connexion externe est dissociée, lorsque l’authentification à deux facteurs est activée, configurée à nouveau ou désactivée, et lorsque de nouveaux codes de secours sont générés. Les comptes gérés (un nom d’utilisateur, sans e-mail) ne reçoivent aucun courriel.
+Chaque modification déconnecte tous les autres appareils, sauf le renommage d’une clé d’accès. Kept vous envoie un courriel lorsqu’une clé d’accès est ajoutée ou retirée, lorsqu’une connexion externe est dissociée, lorsque l’authentification à deux facteurs est activée, configurée à nouveau ou désactivée, et lorsque de nouveaux codes de secours sont générés. Il vous envoie aussi un courriel chaque fois qu’un code de secours sert à se connecter, avec l’heure, l’appareil, le nombre de codes restants et ce qu’il faut faire si ce n’était pas vous. Les comptes gérés (un nom d’utilisateur, sans e-mail) ne reçoivent aucun courriel.
 
 ## Clés d’accès
 

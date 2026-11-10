@@ -22,7 +22,7 @@ import { gearRows, rackOf } from './rack-view.js';
 // unit at once can't both win: two pieces sharing a half unit on a face (a full-depth one is on
 // both) are refused (409, `rack.reason = 'taken'`, naming the piece), as is a position past the
 // rack's top or below U1, or not in half units (400). Only gear directly in a rack has a position;
-// a position given in one rack never counts in another, and a move clears it (0172's trigger).
+// a position given in one rack never counts in another, and a move clears it (0174's trigger).
 
 const FACE_WORD: Record<string, string> = { front: 'front', rear: 'rear' };
 

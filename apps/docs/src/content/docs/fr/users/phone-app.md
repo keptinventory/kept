@@ -36,7 +36,7 @@ La copie ne contient jamais de valeurs secrètes ni les coordonnées des personn
 
 Ce que vous faites hors ligne entre dans une file d’attente et est envoyé quand le téléphone est de nouveau en ligne. Une ligne sous l’en-tête n’apparaît que s’il y a quelque chose à dire :
 
-- **Hors ligne · 12 en attente de synchronisation**, ou **Hors ligne · d’après la dernière synchronisation, 14:02**.
+- **Hors ligne, 12 en attente de synchronisation**, ou **Hors ligne, d’après la dernière synchronisation, 14:02**.
 - Les nouveaux objets affichent **ID en attente** jusqu’à ce que le serveur leur attribue leur identifiant court ; leurs étiquettes peuvent être imprimées une fois celui-ci reçu (Étiquettes propose **Imprimer les étiquettes en attente**).
 - **Sur iPhone, la file n’avance que si Kept est ouvert** : la ligne indique **Ouvrir pour terminer la synchronisation (12)**. Laissez Kept ouvert à l’écran un instant quand vous êtes de nouveau en ligne.
 - **Mettez à jour Kept pour terminer la synchronisation** signifie que le serveur est plus récent que l’application : rechargez. La file est conservée.
@@ -55,7 +55,7 @@ Ce que vous faites hors ligne entre dans une file d’attente et est envoyé qua
 - **Partager vers Kept** : sur Android et Chrome sur ordinateur, l’application installée apparaît dans la feuille de partage, donc un reçu ou un PDF d’une autre application arrive dans Capture. L’iPhone ne permet pas aux applications web d’apparaître dans la feuille de partage : enregistrez le fichier, puis utilisez **Galerie** dans Capture.
 - **Scanner** lit les étiquettes Kept et les codes-barres produits, même hors ligne, depuis la copie du téléphone, ainsi que les codes Data Matrix, Code 39, Code 93, ITF, Codabar, PDF417 et Aztec ; un numéro de série ou une étiquette d’inventaire ouvre son objet quand vous êtes en ligne. La liste complète :
   [Identifiants courts et étiquettes](/fr/users/everyday-use/#id-courts-et-étiquettes).
-- **Suggérer où je suis**, un interrupteur dans le sélecteur d’emplacement de Capture, compare votre position avec les positions de vos lieux sur le téléphone lui-même et propose celui qui est à proximité. Votre position n’est jamais envoyée ni conservée. Un lieu a une position uniquement s’il en avait une dans un [export Kept](/fr/users/import-export/#un-export-kept) : pouvoir la définir dans l’application arrivera, et jusque-là un lieu sans position n’est jamais proposé.
+- **Suggérer où je suis**, un interrupteur dans le sélecteur d’emplacement de Capture, compare votre position avec les positions de vos lieux sur le téléphone lui-même et propose celui où vous êtes : à 150 m ou moins de sa position, le plus proche s’il y en a deux. Votre position n’est jamais envoyée ni conservée. Un propriétaire ou un administrateur définit la position d’un lieu dans **Paramètres du lieu → Général → Position** ([Sa position](/fr/users/locations/#sa-position)) ; un lieu sans position n’est jamais proposé.
 - **Dicter** remplit le nom à la voix là où le navigateur le permet.
 
 **Paramètres → Diagnostic** vérifie l’appareil photo, la prise en charge hors ligne et le stockage, et copie un rapport de ce qu’il a trouvé.

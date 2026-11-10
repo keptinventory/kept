@@ -18,11 +18,11 @@ Tutto sta in un albero: un **luogo** (Home, Garage, un deposito) contiene **stan
 - **La sua larghezza** (su computer, da 1280 px di larghezza): trascina la linea lungo il bordo dell'albero, o focalizzala e usa i tasti freccia, Home e End. **Comprimi posti**, il pulsante in cima all'albero, lo comprime per lasciare tutto lo spazio alla pagina; **Espandi posti** lo riporta. Questo dispositivo ricorda entrambi.
 - Su un luogo, **Sistemali** passa in rassegna Senza posto un oggetto alla volta con un selettore di posto.
 - Una scatola aperta dalla sua etichetta mostra una griglia di foto di ciò che contiene.
-- **Layout:** la pagina di un luogo passa da **Elenco**, **Griglia**, **Grafo**, **Tabella** e **Mappa**, ciascuna con la sua icona. **Grafo** disegna il luogo come un grafo dei suoi piani, stanze, scatole e oggetti, in 2D o 3D ([Il grafo](/it/users/graph/)). **Tabella** mostra i suoi oggetti come un foglio di calcolo, su uno schermo largo almeno 1024 px ([La vista foglio di calcolo](/it/users/spreadsheet/)), quindi un telefono mostra Elenco · Griglia · Grafo · Mappa. **Mappa** mostra il luogo in 3D, piano per piano, con le sue stanze, scaffali e scatole ([La mappa del luogo](/it/users/location-map/)). Il menu **Aspetto** dell'elenco offre la stessa scelta. La pagina di un posto (non Senza posto) ha l'interruttore anche lei, senza Tabella. Kept ricorda il layout per ogni luogo e ogni posto su quel dispositivo.
+- **Layout:** la pagina di un luogo passa da **Elenco**, **Griglia**, **Grafo**, **Tabella** e **Mappa**, ciascuna con la sua icona. **Grafo** disegna il luogo come un grafo dei suoi piani, stanze, scatole e oggetti, in 2D o 3D ([Il grafo](/it/users/graph/)). **Tabella** mostra i suoi oggetti come un foglio di calcolo, su uno schermo largo almeno 1024 px ([La vista foglio di calcolo](/it/users/spreadsheet/)), quindi un telefono mostra Elenco, Griglia, Grafo, Mappa. **Mappa** mostra il luogo in 3D, piano per piano, con le sue stanze, scaffali e scatole ([La mappa del luogo](/it/users/location-map/)). Il menu **Aspetto** dell'elenco offre la stessa scelta. La pagina di un posto (non Senza posto) ha l'interruttore anche lei, senza Tabella. Kept ricorda il layout per ogni luogo e ogni posto su quel dispositivo.
 - **Griglia** mostra i posti e gli oggetti di un luogo o stanza come riquadri, sotto le stesse intestazioni **Posti** e **Oggetti** di Elenco; ogni intestazione si comprime. **Aspetto → Dimensioni** sceglie riquadri **Piccolo**, **Medio** o **Grande** (3, 2 o 1 per fila su un telefono), e Kept ricorda la tua dimensione su quel dispositivo.
 - Su computer o tablet, la barra laterale segna il luogo in cui ti trovi: nella sua pagina, e nelle sue stanze, oggetti, scatole e impostazioni.
 
-![Un luogo in Griglia con riquadri Piccoli: l'intestazione Posti · 9 sopra le stanze, poi l'intestazione Oggetti · 20+ sopra gli oggetti, sei riquadri a fila, ciascuno con solo il nome](../../../../assets/screens/grid-desktop-light.webp)
+![Un luogo in Griglia con riquadri Piccoli: l'intestazione Posti, 9 sopra le stanze, poi l'intestazione Oggetti, 20+ sopra gli oggetti, sei riquadri a fila, ciascuno con solo il nome](../../../../assets/screens/grid-desktop-light.webp)
 
 ![La stessa griglia nel tema scuro](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -74,6 +74,26 @@ Un armadio rack da 19 o da 10 pollici è un mobile misurato in unità rack (U). 
 - **La pagina dell'oggetto** mostra **Nell'armadio rack**: l'armadio, le unità e la profondità, con **Cambia**. **Toglilo dalla sua unità** libera l'unità e lascia l'oggetto nell'armadio.
 - **Togliere un apparato** dall'armadio libera la sua unità; se torna, è di nuovo **Non ancora posizionato**. **Annulla** rimette una posizione, a meno che qualcuno abbia preso quell'unità nel frattempo.
 - Le **app AI** possono fare lo stesso: `create_place` prende un modello di armadio con `units` e `numbering`, e `update_thing` prende `rack_units` e `rack_at`.
+
+## La sua posizione
+
+La posizione di un luogo permette a **Suggerisci dove sono** di **Acquisisci** di sceglierlo quando
+sei lì ([Kept sul tuo telefono](/it/users/phone-app/)).
+
+- **Impostarla:** **Impostazioni del luogo → Generali → Posizione**, per proprietari e
+  amministratori. **Usa dove sono ora** legge una volta la posizione del telefono (prima il browser
+  chiede) e riempie **Latitudine** e **Longitudine**; oppure scrivile in gradi, per esempio 30.0444 e
+  31.2357. Poi **Salva**. **Rimuovi posizione** la cancella. Personale non ne ha: ti segue ovunque.
+- **Su HTTP semplice** i browser rifiutano di dare la posizione: scrivila a mano.
+- **Apri nelle mappe** apre OpenStreetMap alla posizione salvata, in una nuova scheda. Solo allora la
+  posizione esce da Kept.
+- **Quanto vicino:** Acquisisci suggerisce un luogo quando il telefono è entro 150 m dalla sua
+  posizione, il più vicino se sono due. 150 m coprono una casa con il giardino più il solito errore
+  di un telefono al chiuso, e distinguono comunque due strade.
+- **Chi la vede:** proprietari e amministratori, in questa pagina; e i telefoni di chi aggiunge cose
+  lì, per il suggerimento. I visualizzatori e i link condivisi non la ricevono mai. La
+  cronologia dice che la posizione è cambiata, chi l’ha cambiata e quando, mai dove. Un’esportazione
+  del luogo la contiene, e importarla la riporta.
 
 ## Nascondi Personale
 

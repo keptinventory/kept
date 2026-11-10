@@ -3,7 +3,7 @@
  * Setting it back to "In use" is "found": the end details are cleared. The price it went for is
  * money, so it only appears with the Money module on and money visible to you.
  */
-import { AmountError, LIFECYCLES, parseAmount } from '@kept/shared';
+import { AmountError, LIFECYCLES } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
@@ -16,6 +16,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { DialogFooter } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
+import { readAmount } from '@/lib/amount';
 import { useThingCtx } from './context';
 import { todayIn } from './household';
 import { useLifecycleLabels } from './labels';
@@ -49,7 +50,7 @@ export function LifecycleSheet({ isOpen, onClose }: { isOpen: boolean; onClose: 
       if (notes.trim()) body.endedNotes = notes.trim();
       if (showMoney && price.trim()) {
         try {
-          body.endedPrice = parseAmount(price);
+          body.endedPrice = readAmount(price);
         } catch (e) {
           if (e instanceof AmountError) {
             setPriceError(t`Enter an amount, like 1250 or 1250.50.`);

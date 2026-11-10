@@ -4,7 +4,8 @@
  * thing here, chosen in a multi-select with flags. Its timezone: dates here read in it. Its
  * currency: new amounts default to it (existing amounts keep theirs; converted totals need
  * Account → Exchange rates). Room photos: whether the full photos of a room stay on its place
- * after review (#194; deleted by default). Then the location's own codes: numbering and
+ * after review (#194; deleted by default). Its position (#375), for Capture's "Suggest where I
+ * am"; not on Personal. Then the location's own codes: numbering and
  * the format rule (D208). Last, for the owner, Delete with "Export first" (D149).
  */
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -18,6 +19,7 @@ import type { LocationDetail } from '@/api/types';
 import { OwnCodeSettingsSection } from '@/components/codes/code-settings';
 import { DeleteLocationSection } from '@/components/export/delete-location-sheet';
 import { LanguagesMultiSelect } from '@/components/languages';
+import { PositionForm } from '@/components/location-position';
 import { LocationSettingsPage } from '@/components/location-settings';
 import { SettingsRouteError } from '@/components/on-demand-route-error';
 import { Section, useErrorText } from '@/components/page';
@@ -43,6 +45,12 @@ function GeneralPage() {
           <NameForm key={`${loc.id}:${loc.name}`} location={loc} />
           <LanguagesForm key={`${loc.id}:${(loc.languages ?? []).join()}`} location={loc} />
           <RoomPhotosForm location={loc} />
+          {loc.kind === 'personal' ? null : (
+            <PositionForm
+              key={`${loc.id}:${loc.position?.latitude}:${loc.position?.longitude}`}
+              location={loc}
+            />
+          )}
           <TimezoneForm key={`${loc.id}:${loc.timezone}`} location={loc} />
           <CurrencyForm key={`${loc.id}:${loc.currency}`} location={loc} />
           <OwnCodeSettingsSection locationId={loc.id} />

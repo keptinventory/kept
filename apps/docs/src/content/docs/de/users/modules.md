@@ -44,7 +44,7 @@ KI-Erfassung und der Assistent werden in jeder Voreinstellung aktiv, sobald ein 
 Ein ausgeschaltetes Modul wird überall ausgeblendet, wo es erscheinen würde (seine Bildschirme, Menüeinträge, Filter) und seine Erinnerungen pausieren. Das Wiedereinschalten bringt alles zurück, da nichts gelöscht wurde.
 
 - **Erinnerungen pausieren mit ihrem Modul.** Zeitpläne und ablaufende Dinge warten mit **Erinnerungen**, Garantie- und Registrierungsdaten mit **Belegen und Garantien**, Dokumentdaten mit **Unterlagen** (die Dokumente eines Fahrzeugs laufen auch weiter, während **Fahrzeuge** eingeschaltet ist), Ausleihen mit **Verleihen**, niedriger Bestand mit **Dingen die zur Neige gehen**. Erinnerungen über längst nicht gelesene Zähler laufen ständig weiter.
-- **Abhängigkeiten gehen ebenfalls mit.** Tanken benötigt Fahrzeuge, und Umzug benötigt Etiketten und QR-Codes: das Ausschalten des benötigten Moduls schaltet auch dieses Modul aus. Sein Schalter zeigt dann *Benötigt Fahrzeuge · aus in diesem Standort*.
+- **Abhängigkeiten gehen ebenfalls mit.** Tanken benötigt Fahrzeuge, und Umzug benötigt Etiketten und QR-Codes: das Ausschalten des benötigten Moduls schaltet auch dieses Modul aus. Sein Schalter zeigt dann *Benötigt Fahrzeuge, aus in diesem Standort*.
 - **Das Menü folgt allen deinen Standorten.** Unter **Nachverfolgung** erscheint ein Eintrag (Zeitpläne, Verleih, Unterlagen, Verbrauchsgüter, Fahrzeuge, Umzug, Einblicke) einmal, wenn sein Modul in einem deiner Standorte eingeschaltet ist. Unter **Werkzeuge** erscheint **Etiketten**, solange Etikett irgendwo eingeschaltet ist, und **Zählungen** ist immer dort vorhanden. Aktivität, Papierkorb und Benachrichtigungen sind ebenfalls immer vorhanden.
 
 ## Später ändern

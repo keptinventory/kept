@@ -14,7 +14,7 @@ Recherchez par ce qui a été compté, et filtrez par type (comptages, vérifica
 ## La page d'un comptage
 
 - **Trouvé X sur Y**, quand, combien de temps cela a pris, qui a compté (tout le monde, dans un comptage partagé) et qui l'a terminé.
-- **Depuis le comptage précédent** du même emplacement ou de la même boîte : « 1 nouveau manquant · 0 retrouvé · 2 nouveaux objets », avec un lien vers le précédent.
+- **Depuis le comptage précédent** du même emplacement ou de la même boîte : « 1 nouveau manquant, 0 retrouvé, 2 nouveaux objets », avec un lien vers le précédent.
 - Ses listes, chaque ligne renvoie à l'objet, avec son emplacement actuel :
 
 | Liste | Ce que cela signifie |

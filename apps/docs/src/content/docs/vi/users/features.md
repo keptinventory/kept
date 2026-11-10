@@ -9,6 +9,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 - **[Các địa điểm, phòng và hộp](/vi/users/locations/)**: nhà, gara, kho chứa; các vị trí bên trong vị trí. Di chuyển một hộp và đồ vật trong nó cũng di chuyển theo. Cây vị trí có thể mở rộng hoặc thu gọn.
 - **[Ẩn Cá nhân](/vi/users/locations/#ẩn-cá-nhân)**: lấy vị trí Cá nhân ra khỏi menu, Trang chủ, danh sách và tìm kiếm, và hiện lại bất cứ khi nào.
+- **[Vị trí của địa điểm](/vi/users/locations/#vị-trí-của-nó)**: đặt từ điện thoại hoặc tự nhập, để Chụp gợi ý địa điểm bạn đang ở.
 - **[Đồ gia dụng có ngăn](/vi/users/locations/#đồ-nội-thất-có-ngăn)**: kệ khối hoặc bàn có ngăn kéo, mỗi ngăn là một vị trí riêng. Xoay nó ngang, gộp hoặc tách ngăn; nhãn của chúng vẫn hoạt động.
 - **[Tủ rack](/vi/users/locations/#tủ-rack)**: tủ máy chủ theo đơn vị rack (U), với thứ ở mỗi đơn vị, trên trang của nó và trên bản đồ. Hai thiết bị cùng một đơn vị, hoặc vượt quá đỉnh, bị từ chối.
 - **[Đồ vật](/vi/users/things/)**: loại, trường tùy chỉnh, số lượng, tình trạng, kho lưu trữ, và thùng rác để khôi phục.
@@ -29,7 +30,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 ## Gia đình
 
-- **[Cho mượn và vay](/vi/users/lending/)**: ai có cái gì và khi nào phải trả, với nhắc nhở và tin nhắn lịch sự để sao chép. Người vay không cần tài khoản. Mô-đun: Cho mượn.
+- **[Cho mượn và vay](/vi/users/lending/)**: ai có cái gì và khi nào phải trả, với nhắc nhở và tin nhắn lịch sự để sao chép. Người vay không cần tài khoản. Mỗi đồ vật cho thấy ai đã giữ nó, theo thứ tự, nó trở về ra sao và ai đã nhận lại. Mô-đun: Cho mượn.
 - **[Bộ đồ và bàn giao](/vi/users/kits/)**: cho mượn một hộp với mọi thứ bên trong; mỗi đồ vật quay lại trên bản ghi riêng của nó. Một bộ đồ nhớ những gì thuộc về nó.
 - **[Chuyển nhà](/vi/users/moving/)**: các hộp được số thứ tự, một nhãn và trang nội dung cho mỗi hộp, theo dõi trong xe tải, dỡ gói bằng cách quét. Hoạt động ngoại tuyến. Mô-đun: Chuyển nhà.
 - **[Nhắc nhở và thông báo](/vi/users/reminders/)**: bảo hành, dịch vụ, giấy tờ, vay mượn và tồn kho thấp, trong ứng dụng, qua thư, đẩy, ntfy, Telegram và nguồn lịch. Mô-đun: Nhắc nhở.
@@ -44,7 +45,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 - **[Chia sẻ một địa điểm](/vi/users/sharing/)**: mời mọi người với vai trò (quản trị, thành viên, người xem) và ngày kết thúc tùy chọn; tài khoản được quản lý cho người không có email; liên kết chỉ đọc cho người không có tài khoản.
 - **[Đăng nhập và bảo mật](/vi/users/sign-in-security/)**: khóa truy cập và xác thực hai yếu tố; trên mạng nhà qua http thường, [đăng nhập miễn là quản trị viên đặt](/vi/install/home-network/#giữ-trong-mạng-của-bạn); một Kept trên [nhiều hơn một địa chỉ](/vi/install/home-network/#hơn-một-địa-chỉ), như tên LAN và tên Tailscale.
-- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
+- **Ngôn ngữ**: tiếng Ả Rập (phải sang trái), tiếng Anh, tiếng Đức, tiếng Pháp, tiếng Tây Ban Nha, tiếng Ukraina, tiếng Việt và tiếng Ý; gõ để tìm ngôn ngữ của bạn trong bộ chọn, và ngày tháng theo kiểu khu vực của bạn, hoặc như bạn chọn. Số tiền được đọc theo cách ngôn ngữ của bạn viết. Tài liệu về sử dụng, quản trị và cài đặt cũng có ở tất cả các ngôn ngữ này.
 
 ## Trên điện thoại của bạn
 

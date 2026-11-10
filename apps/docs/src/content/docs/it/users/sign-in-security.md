@@ -20,7 +20,7 @@ Attivare o disattivare l'accesso a due fattori non conta come un nuovo accesso.
 
 Scollegare Google o il tuo accesso OIDC in **Metodi di accesso** chiede allo stesso modo.
 
-Ogni modifica disconnette tutti gli altri dispositivi, tranne la rinomina di una passkey. Kept ti invia email quando aggiungi o rimuovi una passkey, quando un accesso esterno viene scollegato, quando l'accesso a due fattori viene attivato, riconfigurato o disattivato, e quando vengono creati nuovi codici di backup. Gli account gestiti (un nome utente, nessuna email) non ricevono email.
+Ogni modifica disconnette tutti gli altri dispositivi, tranne la rinomina di una passkey. Kept ti invia email quando aggiungi o rimuovi una passkey, quando un accesso esterno viene scollegato, quando l'accesso a due fattori viene attivato, riconfigurato o disattivato, e quando vengono creati nuovi codici di backup. Ti invia un'email anche ogni volta che si accede con un codice di backup, con l'ora, il dispositivo, quanti codici restano e cosa fare se non sei stato tu. Gli account gestiti (un nome utente, nessuna email) non ricevono email.
 
 ## Passkey
 

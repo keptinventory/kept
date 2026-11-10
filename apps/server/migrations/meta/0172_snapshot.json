@@ -1,5 +1,5 @@
 {
-  "id": "3773cb61-717f-4267-9dac-284836984bc7",
+  "id": "2094b916-caf7-4325-b395-3cb1bf1569a2",
   "prevId": "44be2807-6f6a-4d7a-94c9-da1a4893d525",
   "version": "7",
   "dialect": "postgresql",
@@ -9813,6 +9813,19 @@
         "return_notes": {
           "name": "return_notes",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "damaged": {
+          "name": "damaged",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "taken_back_by": {
+          "name": "taken_back_by",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -21945,18 +21958,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "rack_units": {
-          "name": "rack_units",
-          "type": "numeric(3, 1)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "rack_at": {
-          "name": "rack_at",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "last_seen_at": {
           "name": "last_seen_at",
           "type": "timestamp with time zone",
@@ -22687,14 +22688,6 @@
         "things_field_status_chk": {
           "name": "things_field_status_chk",
           "value": "jsonb_typeof(field_status) = 'object'"
-        },
-        "things_rack_units_chk": {
-          "name": "things_rack_units_chk",
-          "value": "rack_units BETWEEN 0 AND 60 AND rack_units * 2 = trunc(rack_units * 2)"
-        },
-        "things_rack_at_chk": {
-          "name": "things_rack_at_chk",
-          "value": "rack_at IS NULL OR jsonb_typeof(rack_at) = 'object'"
         }
       },
       "isRLSEnabled": false

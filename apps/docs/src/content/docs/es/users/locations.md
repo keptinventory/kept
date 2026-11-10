@@ -55,7 +55,7 @@ lugares** ("sala o lugar" es la palabra de Kept para cualquier sitio), que conti
   **Mapa**, cada uno con su icono. **Grafo** dibuja la ubicación como un grafo de sus pisos, salas, cajas
   y objetos, en 2D o 3D ([El grafo](/es/users/graph/)). **Tabla** muestra sus objetos como una hoja de cálculo,
   en una pantalla de 1024 px de ancho o más ([La hoja de cálculo](/es/users/spreadsheet/)), así que un teléfono muestra
-  Lista · Cuadrícula · Grafo · Mapa. **Mapa** muestra la ubicación en 3D, piso por piso, con sus salas,
+  Lista, Cuadrícula, Grafo, Mapa. **Mapa** muestra la ubicación en 3D, piso por piso, con sus salas,
   estantes y cajas ([El mapa de la ubicación](/es/users/location-map/)). El menú **Visualización** de la lista ofrece
   la misma opción. La página de un lugar (no Sin ubicar) también tiene el interruptor, sin Tabla. Kept
   recuerda el diseño para cada ubicación y cada lugar en ese dispositivo.
@@ -65,7 +65,7 @@ lugares** ("sala o lugar" es la palabra de Kept para cualquier sitio), que conti
 - En una computadora o tableta, la barra lateral marca la ubicación en la que estás: en su página, y en sus
   salas, objetos, cajas y configuración.
 
-![Una ubicación en Cuadrícula con fichas Pequeñas: el encabezado Lugares · 9 sobre las salas, luego el encabezado Objetos · 20+ sobre los objetos, seis fichas por fila, cada una solo con su nombre](../../../../assets/screens/grid-desktop-light.webp)
+![Una ubicación en Cuadrícula con fichas Pequeñas: el encabezado Lugares, 9 sobre las salas, luego el encabezado Objetos, 20+ sobre los objetos, seis fichas por fila, cada una solo con su nombre](../../../../assets/screens/grid-desktop-light.webp)
 
 ![La misma cuadrícula en el tema oscuro](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -166,6 +166,27 @@ objeto dentro: cuántas unidades ocupa y en qué unidad empieza.
   **Deshacer** devuelve una posición, salvo que alguien haya ocupado esa unidad desde entonces.
 - **Las apps de IA** pueden hacer lo mismo: `create_place` acepta una plantilla de bastidor con
   `units` y `numbering`, y `update_thing` acepta `rack_units` y `rack_at`.
+
+## Su posición
+
+La posición de una ubicación permite que **Sugerir dónde estoy** de Capturar la elija cuando estás
+allí ([Kept en tu teléfono](/es/users/phone-app/)).
+
+- **Configurarla:** **Configuración de ubicación → General → Posición**, para propietarios y
+  administradores. **Usar dónde estoy ahora** lee la posición del teléfono una vez (el navegador
+  pregunta antes) y rellena **Latitud** y **Longitud**; o escríbelas en grados, como 30.0444 y
+  31.2357. Luego **Guardar**. **Quitar posición** la borra. Personal no tiene: va contigo a donde
+  vayas.
+- **Con HTTP simple** los navegadores se niegan a dar la posición: escríbela tú.
+- **Abrir en mapas** abre OpenStreetMap en la posición guardada, en una pestaña nueva. Solo entonces
+  la posición sale de Kept.
+- **A qué distancia:** Capturar sugiere una ubicación cuando el teléfono está a 150 m o menos de su
+  posición, la más cercana si hay dos. 150 m abarcan una casa y su jardín más el error habitual de
+  un teléfono en interiores, y aun así distinguen dos calles.
+- **Quién la ve:** propietarios y administradores, en esta página; y los teléfonos de quienes añaden
+  cosas allí, para la sugerencia. Los espectadores y los enlaces compartidos nunca la reciben. El
+  historial dice que la posición cambió, quién la cambió y cuándo, nunca dónde. Una exportación de
+  la ubicación la incluye, e importar esa exportación la recupera.
 
 ## Ocultar Personal
 

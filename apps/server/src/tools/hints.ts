@@ -22,7 +22,7 @@ export const TOOL_FIELDS: Partial<Record<ToolName, Readonly<Record<string, strin
   create_place: { kindKey: 'kind', map: 'width_cm and length_cm' },
   update_place: { kindKey: 'kind' },
   lend_thing: { alsoParts: 'with_parts_elsewhere' },
-  return_thing: { quantityBack: 'quantity' },
+  return_thing: { quantityBack: 'quantity', conditionIn: 'condition', notes: 'note' },
   complete_schedule: { servicedOn: 'done_on', anchorOn: 'done_on', reading: 'value' },
   log_fuel: { cost: 'cost.amount', currency: 'cost.currency' },
   log_service: {

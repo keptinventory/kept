@@ -268,6 +268,6 @@ describe('semantic search in Search', () => {
     const state = ownerScenario();
     semanticMock(state).state = { state: 'paused' };
     await renderApp('/search?q=hdmi', { state });
-    expect(await screen.findByText('Semantic search paused · keyword results')).toBeInTheDocument();
+    expect(await screen.findByText('Semantic search paused, keyword results')).toBeInTheDocument();
   });
 });

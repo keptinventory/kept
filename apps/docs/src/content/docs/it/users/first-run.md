@@ -86,10 +86,15 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 **Impostazioni → Profilo → Aspetto** contiene le scelte di visualizzazione del dispositivo, applicate prima che la pagina venga disegnata:
 
 - **Lingua**: arabo, francese, inglese, italiano, spagnolo, tedesco, ucraino o vietnamita.
-  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore. Le email e i promemoria seguono l'ultima lingua che hai scelto.
+  Apri l'elenco, oppure digita per trovarne uno: il suo nome stesso, il suo nome in inglese o nella lingua che stai usando, e piccoli errori di battitura sono accettati (`german`, `deutsch` e `francais` funzionano tutti). L'arabo dispone l'intera applicazione da destra a sinistra. Le pagine di accesso hanno lo stesso selettore. Finché non ne scegli una, Kept segue la lingua del browser. Le email e i promemoria seguono l'ultima lingua che hai scelto.
 - **Cifre in arabo**: occidentali (0123) o orientali (٠١٢٣), mostrati solo quando la lingua è arabo.
   Gli ID brevi e i numeri di serie rimangono sempre in cifre occidentali.
 - **Regione**: **Stati Uniti** (29 ott) o **Regno Unito** (29 ott, 29/10/2026), mostrato solo quando la lingua è inglese.
+  In spagnolo, numeri e date seguono la regione del browser: un browser impostato sul Messico scrive
+  `1,234,567.5`, uno impostato sulla Spagna `1.234.567,5`.
+- **Gli importi** si leggono come li scrive la tua lingua. Dove la virgola è il separatore decimale,
+  come in italiano, `1.234` è milleduecentotrentaquattro e `12,50` è dodici e mezzo. Un importo che
+  si può leggere in due modi, come `0.125`, viene rifiutato invece che indovinato.
 - **Formato data**: **Predefinito** (29 ott, con l'anno soltanto per altri anni), 29 ott 2026,
   29/10/2026 o 2026-10-29 (come li scrive il Regno Unito). Ogni scelta mostra la data odierna scritta in quel modo, nella tua regione. Le date di acquisto e
   di garanzia mostrano sempre l'anno.
@@ -104,7 +109,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 |---|---|
 | Nozioni di base | Home, i tuoi luoghi, Scansione, Ricerca, e dove si trova tutto il resto |
 | Oggetti e posti | aggiunta a un luogo, cosa vi si trova, e la pagina di un oggetto e le sue schede |
-| Grafo e mappa 3D | l'interruttore Lista · Griglia · Grafo · Tabella · Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
+| Grafo e mappa 3D | l'interruttore Lista, Griglia, Grafo, Tabella, Mappa (Tabella su un computer), il grafo in 2D o 3D, 3D o piano, spilli, piani e Disponi, dove una stanza si sposta insieme al suo contenuto |
 | Acquisizione e In arrivo | scegli cosa acquisire, l'otturatore, e verificare cosa Kept ha letto |
 | Scansione | una sessione di scansione: conta, imballa o spostati, dove, e cosa cambia Finish |
 | Ricerca ed etichette | il campo di ricerca, le visualizzazioni salvate, Seleziona (sposta, stampa etichette, sposta nel cestino), stampa etichette e Scansione, che può mettere un'etichetta vuota su un posto che hai |
@@ -119,7 +124,7 @@ Per un figlio o un genitore senza email, un proprietario o amministratore utiliz
 - In alto: quanti capitoli sono completati, con una barra sottile, e **Fai il tour**. Quando alcuni sono completati, legge **Continua il tour** e riprende dal primo capitolo non ancora finito.
 - Sotto, una breve riga per capitolo: il suo numero e i suoi passaggi. Tocca una riga per avviare il tour da quel capitolo. I capitoli completati si riducono sotto **Fatto (N)**; aprilo per riprodurre nuovamente.
 - Il tour inizia da **Aiuto**. La barra superiore di una pagina rimane relativa agli strumenti di quella pagina; la sessione di scansione **Avvia una sessione** ha un piccolo **Mostrami** per il suo capitolo.
-- Il popup mostra dove ti trovi: "Capitolo 3 di 12 · passaggio 2 di 5".
+- Il popup mostra dove ti trovi: "Capitolo 3 di 12, passaggio 2 di 5".
 - **Avanti** procede, **Indietro** torna indietro nel capitolo, le frecce fanno entrambe le cose, e **Esc** o **×** lo chiudono.
 - L'ultimo passaggio di un capitolo indica il successivo: **Continua** vi accede direttamente, **Fermati qui** interrompe il tour lì. L'ultimo capitolo si conclude con **Fatto**.
 - La pagina continua a funzionare mentre il tour è in corso: tocca qualsiasi cosa fuori dall'evidenziazione. Andare in un posto che il tour non ha aperto lo chiude.

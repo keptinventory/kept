@@ -43,9 +43,27 @@ application, courriel, notification push, ntfy, Télégramme ([rappels et notifi
 
 ## Quand ça revient
 
-**Marquer comme rendu** : retour à l'endroit où il était, ou ailleurs, avec l'état dans lequel il est revenu.
-Un transfert est retourné ligne par ligne : revenu, revenu endommagé, toujours avec eux, ou perdu. Un objet
-perdu est marqué perdu, jamais supprimé. Chaque étape peut être annulée.
+**Marquer comme rendu** : retour à l'endroit où il était, ou ailleurs, avec l'état dans lequel il est revenu
+et une note.
+
+- **Endommagé**, sous **Ce qui s’est passé**, s'il est revenu endommagé. L'état dans lequel il est revenu
+  est **Mauvais** sauf si vous en choisissez un autre, et l'objet prend cet état. Désactivez **Mettre à
+  jour son état** pour laisser l'état de l'objet tel qu'il était.
+- **Repris par** : vous, ou un autre membre du lieu qui l'a repris. Pour un objet emprunté, c'est
+  **Rendu par**.
+
+Un transfert est retourné ligne par ligne : revenu, endommagé, pas rendu ou perdu, et un seul membre a tout
+repris. Un objet perdu est marqué perdu, jamais supprimé. Chaque étape peut être annulée.
+
+L'assistant et les clients MCP rendent un objet avec les mêmes choix : endommagé, une note, et qui l'a repris.
+
+## Qui l’a eu
+
+Dans l'onglet **Prêts** d'un objet, **Qui l’a eu** liste chacun de ses prêts, le plus récent d'abord : qui
+l'a eu, de quand à quand, comment il est revenu (rendu, rendu en retard, revenu endommagé, perdu, l'état
+dans lequel il est revenu) et qui l'a repris. Un prêt reste après le retour, donc la liste remonte au
+premier prêt de l'objet. Les spectateurs la voient aussi, sans les boutons. Les retours enregistrés avant
+Kept 1.14.7 ne disent pas qui les a repris.
 
 ## Laisser la famille ou les amis regarder
 

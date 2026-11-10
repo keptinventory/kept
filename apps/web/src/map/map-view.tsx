@@ -308,6 +308,7 @@ function MapBody({
       inside: (n: number) => t`${n} inside`,
       openFloor: t`click to open`,
       changeFloor: t`click to change floor`,
+      sep: f.sep,
       // #372: under a room's name in the plan view, to the centimetre.
       roomSize: (wm: number, dm: number) => {
         const tag = formatLocale(locale, digits);
@@ -316,7 +317,7 @@ function MapBody({
         return t`${w} × ${d} m`;
       },
     }),
-    [t, locale, digits],
+    [t, locale, digits, f.sep],
   );
 
   // The map fills the screen below where it starts, down to the tab bar (and its raised Capture
@@ -1476,14 +1477,14 @@ function MapBody({
         <div className="kmap-readout" data-map-obstacle data-map-reserve="bottom">
           {debug && stats ? (
             <div>
-              <b>{stats.fps ?? '–'}</b> fps · worst{' '}
-              <b>{stats.worst ? stats.worst.toFixed(0) : '–'}</b> ms · <b>{stats.calls}</b> draw
-              calls · {(stats.triangles / 1000).toFixed(0)}k tris
+              <b>{stats.fps ?? '–'}</b> fps, worst{' '}
+              <b>{stats.worst ? stats.worst.toFixed(0) : '–'}</b> ms, <b>{stats.calls}</b> draw
+              calls, {(stats.triangles / 1000).toFixed(0)}k tris
               <br />
               {quality === 'detailed'
-                ? `${stats.models} models · ${(stats.bytes / 1024).toFixed(0)} KB${stats.loading ? ` · loading ${stats.loading}` : ''}${stats.failed ? ` · ${stats.failed} failed` : ''}`
-                : 'simple: nothing downloaded'}{' '}
-              · first draw <b>{stats.firstDraw ? stats.firstDraw.toFixed(0) : '–'}</b> ms
+                ? `${stats.models} models, ${(stats.bytes / 1024).toFixed(0)} KB${stats.loading ? `, loading ${stats.loading}` : ''}${stats.failed ? `, ${stats.failed} failed` : ''}`
+                : 'simple: nothing downloaded'}
+              , first draw <b>{stats.firstDraw ? stats.firstDraw.toFixed(0) : '–'}</b> ms
             </div>
           ) : null}
           <div className="kmap-toggles">
@@ -1537,7 +1538,7 @@ function MapBody({
                         <button type="button" onClick={() => showOnMap({ type: 'item', id: i.id })}>
                           {i.name}
                           {countIn(contents, i) !== null
-                            ? ` · ${f.num(countIn(contents, i) ?? 0)}`
+                            ? `${f.sep}${f.num(countIn(contents, i) ?? 0)}`
                             : ''}
                         </button>
                       </li>

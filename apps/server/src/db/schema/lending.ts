@@ -1,6 +1,7 @@
 import { CONDITIONS, LOAN_DIRECTIONS, LOAN_OUTCOMES } from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   date,
   foreignKey,
@@ -106,6 +107,12 @@ export const loans = pgTable(
     conditionOut: conditionOut.col(),
     conditionIn: conditionIn.col(),
     returnNotes: text('return_notes'),
+    /** #374: it came back damaged (a return, `outcome` returned). The condition it came back in
+     * is `condition_in`, and the thing's own condition takes it unless the return says not to. */
+    damaged: boolean('damaged').notNull().default(false),
+    /** #374: the member who took it back (a user, like `created_by`; no foreign key). A return
+     * names them or is the caller's; null on an open or lost loan, and on returns before 1.14.7. */
+    takenBackBy: uuid('taken_back_by'),
     ...mutable(),
   },
   (t) => [

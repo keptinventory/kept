@@ -18,11 +18,11 @@ Tout se trouve dans une arborescence : un lieu (Maison, Garage, une unité de st
 - **Sa largeur** (sur un ordinateur, à partir de 1280 px de large) : faites glisser la ligne le long du bord de l'arborescence, ou concentrez-vous dessus et utilisez les touches fléchées, Début et Fin. **Réduire les emplacements**, le bouton en haut de l'arborescence, le réduit pour laisser toute la place à la page ; **Développer les emplacements** le rétablit. Cet appareil mémorise les deux.
 - Sur un lieu, **Les ranger** parcourt **Sans emplacement** un objet à la fois avec un sélecteur d'emplacement.
 - Une boîte ouverte depuis son étiquette affiche une grille de photos de son contenu.
-- **Présentations :** la page d'un lieu bascule entre **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**, chacune avec son icône. **Graphe** représente le lieu sous forme de graphe de ses étages, pièces, boîtes et objets, en 2D ou 3D ([Le graphe](/fr/users/graph/)). **Tableau** affiche ses objets sous forme de tableau, sur un écran de 1024 px de large ou plus ([Vue du tableau](/fr/users/spreadsheet/)), donc un téléphone montre Liste · Grille · Graphe · Carte. **Carte** montre le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes ([La carte des lieux](/fr/users/location-map/)). Le menu **Affichage** de la liste propose le même choix. La page propre d'un emplacement (hors Sans emplacement) possède également ce commutateur, sans Tableau. Kept mémorise la présentation pour chaque lieu et chaque emplacement sur cet appareil.
+- **Présentations :** la page d'un lieu bascule entre **Liste**, **Grille**, **Graphe**, **Tableau** et **Carte**, chacune avec son icône. **Graphe** représente le lieu sous forme de graphe de ses étages, pièces, boîtes et objets, en 2D ou 3D ([Le graphe](/fr/users/graph/)). **Tableau** affiche ses objets sous forme de tableau, sur un écran de 1024 px de large ou plus ([Vue du tableau](/fr/users/spreadsheet/)), donc un téléphone montre Liste, Grille, Graphe, Carte. **Carte** montre le lieu en 3D, étage par étage, avec ses pièces, étagères et boîtes ([La carte des lieux](/fr/users/location-map/)). Le menu **Affichage** de la liste propose le même choix. La page propre d'un emplacement (hors Sans emplacement) possède également ce commutateur, sans Tableau. Kept mémorise la présentation pour chaque lieu et chaque emplacement sur cet appareil.
 - **Grille** affiche les emplacements et les objets d'un lieu ou d'une pièce sous forme de tuiles, sous les mêmes intitulés Emplacements et Objets que la Liste ; chaque intitulé se replie. **Affichage → Taille** choisit **Petit**, **Moyen** ou **Grand** pour les tuiles (3, 2 ou 1 par rangée sur un téléphone), et Kept mémorise votre préférence de taille sur cet appareil.
 - Sur un ordinateur ou une tablette, la barre latérale indique le lieu où vous vous trouvez : sur sa page, ainsi que sur ses pièces, objets, boîtes et paramètres.
 
-![Un lieu dans la grille avec de petites tuiles : l'en-tête Emplacements · 9 au-dessus des pièces, puis l'en-tête Objets · 20+ au-dessus des objets, six tuiles par rangée, chacune avec son nom uniquement](../../../../assets/screens/grid-desktop-light.webp)
+![Un lieu dans la grille avec de petites tuiles : l'en-tête Emplacements, 9 au-dessus des pièces, puis l'en-tête Objets, 20+ au-dessus des objets, six tuiles par rangée, chacune avec son nom uniquement](../../../../assets/screens/grid-desktop-light.webp)
 
 ![La même grille en thème sombre](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -73,6 +73,27 @@ Une baie de 19 ou de 10 pouces est un meuble mesuré en unités de rack (U). Un 
 - **La page de l'objet** affiche **Dans la baie** : la baie, les unités et la profondeur, avec **Modifier**. **Le retirer de son unité** libère l'unité et laisse l'objet dans la baie.
 - **Sortir un équipement** de la baie libère son unité ; s'il y revient, il est de nouveau **Pas encore placé**. **Annuler** rétablit une position, sauf si quelqu'un a pris cette unité entre-temps.
 - Les **applications IA** peuvent faire de même : `create_place` prend un modèle de baie avec `units` et `numbering`, et `update_thing` prend `rack_units` et `rack_at`.
+
+## Sa position
+
+La position d’un lieu permet à **Suggérer où je suis** de la capture de le choisir quand vous y
+êtes ([Kept sur votre téléphone](/fr/users/phone-app/)).
+
+- **La définir :** **Paramètres du lieu → Général → Position**, pour les propriétaires et les
+  administrateurs. **Utiliser ma position actuelle** lit une fois la position du téléphone (le
+  navigateur demande d’abord) et remplit **Latitude** et **Longitude** ; ou saisissez-les en degrés,
+  par exemple 30.0444 et 31.2357. Puis **Enregistrer**. **Retirer la position** l’efface. Personnel
+  n’en a pas : il vous suit partout.
+- **En HTTP simple**, les navigateurs refusent de donner la position : saisissez-la.
+- **Ouvrir dans les cartes** ouvre OpenStreetMap à la position enregistrée, dans un nouvel onglet.
+  C’est seulement alors que la position quitte Kept.
+- **À quelle distance :** la capture propose un lieu quand le téléphone est à 150 m ou moins de sa
+  position, le plus proche s’il y en a deux. 150 m couvrent une maison et son jardin plus l’erreur
+  habituelle d’un téléphone en intérieur, tout en distinguant deux rues.
+- **Qui la voit :** les propriétaires et les administrateurs, sur cette page ; et les téléphones de
+  ceux qui ajoutent des objets ici, pour la suggestion. Les lecteurs et les liens de partage ne la
+  reçoivent jamais. L’historique indique que la position a changé, qui l’a changée et quand, jamais
+  où. Un export du lieu la contient, et importer cet export la rétablit.
 
 ## Masquer Personnel
 

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AppProviders } from '@/app-providers';
 import { activateLocale } from '@/i18n/i18n';
-import { plainText, useSummary, useSummaryLine } from './labels';
+import { plainText, useFieldLabel, useSummary, useSummaryLine } from './labels';
 
 // #140: every key the server can send reads as a sentence in the reader's language, never the
 // server's English fallback. The sentence map is typed by SUMMARY_KEYS, so a missing key fails the
@@ -51,3 +51,53 @@ describe.each(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const)(
     });
   },
 );
+
+function Damaged() {
+  const say = useSummary();
+  return (
+    <p>
+      {plainText(
+        say({
+          summaryKey: 'loan.return',
+          summaryParams: { person: 'Murdock', condition: 'poor', damaged: '1' },
+          summary: FALLBACK,
+        }),
+      )}
+    </p>
+  );
+}
+
+describe('a loan that came back damaged (#374)', () => {
+  it('says so, in the reader’s language', async () => {
+    await activateLocale('en');
+    render(
+      <AppProviders locale="en">
+        <Damaged />
+      </AppProviders>,
+    );
+    expect(await screen.findByText(/^Came back damaged from .?Murdock.?$/)).toBeInTheDocument();
+  });
+});
+
+function FieldLabel({ field }: { field: string }) {
+  const label = useFieldLabel();
+  return <p>{label(field)}</p>;
+}
+
+describe("a location's position in its history (#375)", () => {
+  it('is named, in the reader’s language', async () => {
+    for (const [locale, name] of [
+      ['en', 'Position'],
+      ['ar', 'الموقع الجغرافي'],
+    ] as const) {
+      await activateLocale(locale);
+      const { unmount } = render(
+        <AppProviders locale={locale}>
+          <FieldLabel field="position" />
+        </AppProviders>,
+      );
+      expect(screen.getByText(name)).toBeInTheDocument();
+      unmount();
+    }
+  });
+});

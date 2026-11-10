@@ -83,7 +83,7 @@ describe('Settings → Me → Display: the language', () => {
     await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
     expect(screen.getByRole('combobox', { name: 'Language' })).toHaveValue('English');
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
-    expect(localStorage.getItem('kept.locale')).toBe('en');
+    expect(localStorage.getItem('kept.locale')).toBeNull();
     expect(mock.calls.some((c) => c.method === 'PATCH')).toBe(false);
   });
 });
@@ -95,5 +95,48 @@ describe('the sign-in pages', () => {
     await pick(user, 'Deutsch');
     await waitFor(() => expect(document.documentElement.lang).toBe('de'));
     expect(mock.calls.some((c) => c.method === 'PATCH')).toBe(false);
+  });
+});
+
+describe('a language picked on this device before it reached the account (#474)', () => {
+  const patches = (mock: Awaited<ReturnType<typeof renderApp>>['mock']) =>
+    mock.calls.filter((c) => c.method === 'PATCH' && c.path === paths.me).map((c) => c.body);
+
+  it('goes to the account once, quietly, when signed in', async () => {
+    localStorage.setItem('kept.locale', 'de');
+    const { mock } = await renderApp('/', { locale: 'de' });
+    await waitFor(() => expect(mock.state.me.profile.locale).toBe('de'));
+    expect(patches(mock)).toEqual([{ locale: 'de' }]);
+    expect(localStorage.getItem('kept.localeSent')).toBe('de');
+  });
+
+  it('is not sent again, so another device’s later choice stays the account’s', async () => {
+    localStorage.setItem('kept.locale', 'de');
+    localStorage.setItem('kept.localeSent', 'de');
+    const { mock } = await renderApp('/', { locale: 'de' });
+    await findHeading(/./);
+    expect(patches(mock)).toEqual([]);
+  });
+
+  it('is not a default: a device that follows its browser sends nothing', async () => {
+    const { mock } = await renderApp('/', { locale: 'de' });
+    await findHeading(/./);
+    expect(patches(mock)).toEqual([]);
+    expect(mock.state.me.profile.locale).toBe('en');
+  });
+
+  it('never gets in the way when the account refuses it, and tries again next time', async () => {
+    localStorage.setItem('kept.locale', 'fr');
+    const { mock } = await renderApp('/', {
+      locale: 'fr',
+      setup: (m) =>
+        m.on('PATCH', paths.me, () => {
+          throw new MockReply(500, { error: 'No', code: 'internal' });
+        }),
+    });
+    await findHeading(/./);
+    await waitFor(() => expect(patches(mock)).toEqual([{ locale: 'fr' }]));
+    expect(localStorage.getItem('kept.localeSent')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

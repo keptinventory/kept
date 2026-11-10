@@ -101,8 +101,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
   box it is on. Scan sessions count a shelf, pack a box or move a pile in one go.
 - **Lending and borrowing.** Who has what and when it's due back; borrowers need no account.
-  Reminders before and after the due date, and one list of everything out
-  ([lending](https://keptinventory.info/users/lending/)).
+  Reminders before and after the due date, one list of everything out, and each thing's trail of
+  who had it and how it came back ([lending](https://keptinventory.info/users/lending/)).
 - **Kits and hand-overs.** Lend a box with everything in it; each thing comes back on its own
   record ([kits](https://keptinventory.info/users/kits/)).
 - **Moving house.** Numbered boxes, a label and a contents sheet for each, tracked in the van,
@@ -114,7 +114,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   condition reports, an insurance report and insights.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
-  Ollama) suggests the details and you confirm them. Without one, you type them.
+  Ollama) suggests the details and you confirm them. Without one, you type them. Give a location
+  its position and Capture suggests it when you are there.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
@@ -128,7 +129,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Your own network or HTTPS.** Works over plain http at home, with sign-ins as long as you set
   and more than one address; an export with secret values needs HTTPS.
 - **Languages:** Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian and
-  Vietnamese; type to find yours. The user, admin and install docs are in every language too.
+  Vietnamese; type to find yours, and amounts are read as your language writes them. The user,
+  admin and install docs are in every language too.
 
 <p align="center">
   <img src="docs/assets/claude-mcp.webp" alt="Claude Code connected to Kept over MCP: asked to add a TV with its serial number, it puts it in Home › Living room" width="720">

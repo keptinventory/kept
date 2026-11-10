@@ -228,6 +228,10 @@ function useFieldLabels(): (key: FieldKey, verb: Verb) => string {
         return t`In the rack`;
       case 'rackUnits':
         return t`Rack units`;
+      case 'damaged':
+        return t`Came back damaged`;
+      case 'takenBackBy':
+        return t`Taken back by`;
     }
   };
 }

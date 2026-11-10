@@ -58,7 +58,7 @@ auch **Ohne Ort** für Gegenstände, die noch keinen Platz haben.
   **Karte**, jedes mit seinem Symbol. **Graph** zeichnet den Standort als Graph seiner Stockwerke, Räume, Kisten
   und Gegenstände in 2D oder 3D ([Der Graph](/de/users/graph/)). **Tabelle** zeigt seine Gegenstände in Tabellenform
   auf einem Bildschirm 1024 px breit oder mehr ([Die Tabellenansicht](/de/users/spreadsheet/)), sodass ein Telefon
-  Liste · Raster · Graph · Karte zeigt. **Karte** zeigt den Standort in 3D, Stockwerk für Stockwerk, mit seinen Räumen,
+  Liste, Raster, Graph, Karte zeigt. **Karte** zeigt den Standort in 3D, Stockwerk für Stockwerk, mit seinen Räumen,
   Regalböden und Kisten ([Die Standortkarte](/de/users/location-map/)). Das **Anzeige**-Menü der Liste bietet
   dieselbe Auswahl. Die eigene Seite eines Ortes (nicht Ohne Ort) hat den Schalter auch, ohne Tabelle. Kept
   merkt sich das Layout für jeden Standort und jeden Ort auf diesem Gerät.
@@ -69,7 +69,7 @@ auch **Ohne Ort** für Gegenstände, die noch keinen Platz haben.
 - Auf Computer oder Tablet markiert die Seitenleiste den Standort, in dem du bist: auf seiner Seite und auf
   seinen Räumen, Gegenständen, Kisten und Einstellungen.
 
-![Ein Standort im Raster mit kleinen Kacheln: die Überschrift Orte · 9 über den Räumen, dann Gegenstände · 20+ über den Gegenständen, sechs Kacheln pro Zeile, jede nur mit ihrem Namen](../../../../assets/screens/grid-desktop-light.webp)
+![Ein Standort im Raster mit kleinen Kacheln: die Überschrift Orte, 9 über den Räumen, dann Gegenstände, 20+ über den Gegenständen, sechs Kacheln pro Zeile, jede nur mit ihrem Namen](../../../../assets/screens/grid-desktop-light.webp)
 
 ![Dasselbe Raster im dunklen Design](../../../../assets/screens/grid-desktop-dark.webp)
 
@@ -176,6 +176,27 @@ Gegenstand darin: wie viele Einheiten es belegt und bei welcher Einheit es begin
   belegt.
 - **KI-Apps** können dasselbe: `create_place` nimmt eine Schrankvorlage mit `units` und
   `numbering`, `update_thing` nimmt `rack_units` und `rack_at`.
+
+## Seine Position
+
+Mit der Position eines Standorts wählt **Vorschlagen, wo ich bin** in Erfassen ihn, wenn du dort
+bist ([Kept auf deinem Telefon](/de/users/phone-app/)).
+
+- **Festlegen:** **Standorteinstellungen → Allgemein → Position**, für Eigentümer und Admins.
+  **Meine aktuelle Position verwenden** liest die Position des Telefons einmal (der Browser fragt
+  zuerst) und füllt **Breitengrad** und **Längengrad**; oder tippe sie in Grad ein, etwa 30.0444
+  und 31.2357. Dann **Speichern**. **Position entfernen** löscht sie. Persönlich hat keine: es geht
+  mit dir, wohin du gehst.
+- **Über einfaches HTTP** geben Browser die Position nicht heraus: tippe sie stattdessen ein.
+- **In Karten öffnen** öffnet OpenStreetMap an der gespeicherten Position in einem neuen Tab. Erst
+  dann verlässt die Position Kept.
+- **Wie nah:** Erfassen schlägt einen Standort vor, wenn das Telefon höchstens 150 m von seiner
+  Position entfernt ist, bei zweien den näheren. 150 m decken ein Haus mit Garten und die übliche
+  Ungenauigkeit eines Telefons im Haus ab und unterscheiden trotzdem zwei Straßen.
+- **Wer sie sieht:** Eigentümer und Admins auf dieser Seite, und für den Vorschlag die Telefone
+  derer, die dort Dinge hinzufügen. Betrachter und geteilte Links bekommen sie nie. Der Verlauf sagt,
+  dass sich die Position geändert hat, wer sie geändert hat und wann, nie wo. Ein Export des
+  Standorts enthält sie, und der Import dieses Exports bringt sie zurück.
 
 ## Persönlich ausblenden
 

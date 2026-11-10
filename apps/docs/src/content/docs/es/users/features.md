@@ -13,6 +13,8 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   dentro de lugares. Mover una caja y lo que contiene también se mueve. Un árbol de ubicaciones que puedes ampliar o colapsar.
 - **[Ocultar Personal](/es/users/locations/#ocultar-personal)**: quita tu ubicación Personal del
   menú, Inicio, listas y búsqueda, y muestra de nuevo cuando quieras.
+- **[La posición de una ubicación](/es/users/locations/#su-posición)**: desde el teléfono o
+  escrita, para que Capturar sugiera la ubicación en la que estás.
 - **[Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos)**: una estantería cúbica o
   una cómoda, cada compartimento su propio lugar. Ponlo de lado, fusiona o divide
   compartimentos; sus etiquetas siguen funcionando.
@@ -47,7 +49,8 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 ## El hogar
 
 - **[Préstamos y devoluciones](/es/users/lending/)**: quién tiene qué y cuándo debe devolverlo, con
-  recordatorios y un mensaje amable para copiar. Los prestatarios no necesitan cuenta. Módulo: Préstamos.
+  recordatorios y un mensaje amable para copiar. Los prestatarios no necesitan cuenta. Cada objeto
+  muestra quién lo tuvo, en orden, cómo regresó y quién lo recibió. Módulo: Préstamos.
 - **[Kits y entregas](/es/users/kits/)**: presta una caja con todo lo que contiene; cada objeto regresa
   en su propio registro. Un kit recuerda qué pertenece en ella.
 - **[Mudanza de casa](/es/users/moving/)**: cajas numeradas, una etiqueta y una hoja de contenido para cada
@@ -79,7 +82,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   Tailscale.
 - **Idiomas**: alemán, árabe (de derecha a izquierda), español, francés, inglés, italiano, ucraniano
   y vietnamita; escribe para encontrar el tuyo en el selector, y las fechas en el estilo de tu región, o
-  como elijas. La documentación para usuarios, administración e instalación también está en todos estos idiomas.
+  como elijas. Los importes se leen como los escribe tu idioma. La documentación para usuarios, administración e instalación también está en todos estos idiomas.
 
 ## En tu teléfono
 

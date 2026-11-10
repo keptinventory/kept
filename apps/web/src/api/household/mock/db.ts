@@ -412,6 +412,17 @@ export function claimView(state: MockState, c: StoredClaim): Claim {
   };
 }
 
+/** #374: who took a loan back: the member named (null when they aren't one), else you. */
+export function takerOf(
+  state: MockState,
+  locationId: string,
+  userId?: string,
+): { id: string; displayName: string } | null {
+  const members = state.members[locationId]?.members ?? [];
+  const m = userId ? members.find((x) => x.userId === userId) : members.find((x) => x.isYou);
+  return m ? { id: m.userId, displayName: m.displayName } : null;
+}
+
 export function loanView(state: MockState, l: StoredLoan): Loan {
   const today = todayIn(state, l.locationId);
   const { locationId: _l, personId, createdById: _c, ...own } = l;

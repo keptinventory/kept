@@ -139,7 +139,7 @@ describe('Admin → Backups', () => {
     const runs = await screen.findByRole('list', { name: 'Backup runs' });
     expect(within(runs).getByText(/much smaller than the last good one/)).toBeInTheDocument();
     expect(within(runs).getByText(/Couldn't reach the backup storage/)).toBeInTheDocument();
-    expect(within(runs).getAllByText(/^Today · |^Yesterday · /).length).toBeGreaterThan(0);
+    expect(within(runs).getAllByText(/^Today, |^Yesterday, /).length).toBeGreaterThan(0);
   });
 
   it('filters the runs by status from the URL', async () => {

@@ -15,7 +15,7 @@ nothing.
 <title id="d-roles-t">Who connects as which role, and what it reaches</title>
 <defs><marker id="d-roles-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="kd-head" d="M0 0L10 5L0 10z"/></marker></defs>
 <rect class="kd-box" x="20" y="20" width="190" height="46" rx="6"/>
-<text class="kd-t" x="115" y="48" text-anchor="middle">kept migrate · kept admin</text>
+<text class="kd-t" x="115" y="48" text-anchor="middle">kept migrate, kept admin</text>
 <rect class="kd-box" x="20" y="80" width="190" height="46" rx="6"/>
 <text class="kd-t" x="115" y="108" text-anchor="middle">Requests, tenant jobs</text>
 <rect class="kd-box" x="20" y="140" width="190" height="46" rx="6"/>

@@ -1013,6 +1013,12 @@ export const TOOL_DEFS = Object.freeze({
       thing_id: idOrCode,
       quantity: z.number().int().min(1).optional(),
       condition: z.enum(CONDITIONS).optional().describe('The condition it came back in'),
+      // #374: the return dialog's fields (#215).
+      damaged: z.boolean().optional(),
+      note: z.string().trim().max(2000).optional(),
+      taken_back_by: shortText(120)
+        .optional()
+        .describe('The member who took it back; you if unset'),
     }),
     output: writeResult.extend({
       thing: thingRef,

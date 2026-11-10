@@ -36,7 +36,7 @@ Bản sao không bao giờ giữ giá trị bí mật hay chi tiết liên lạc
 
 Những gì bạn làm ngoại tuyến đi vào hàng đợi và được gửi khi điện thoại quay lại trực tuyến. Một dòng dưới tiêu đề chỉ xuất hiện khi có điều gì để nói:
 
-- **Ngoại tuyến · 12 đang chờ đồng bộ**, hoặc **Ngoại tuyến · tính theo lần đồng bộ cuối, 14:02**.
+- **Ngoại tuyến, 12 đang chờ đồng bộ**, hoặc **Ngoại tuyến, tính theo lần đồng bộ cuối, 14:02**.
 - Đồ vật mới hiển thị **ID đang chờ** cho đến khi máy chủ cấp cho chúng ID ngắn; nhãn cho chúng có thể in khi nó đến (Nhãn cung cấp **In nhãn đang chờ**).
 - **Trên iPhone, hàng đợi chỉ di chuyển khi Kept đang mở**: dòng nói **Mở để hoàn tất đồng bộ hóa (12)**. Giữ Kept mở trên màn hình một chút khi bạn quay lại trực tuyến.
 - **Cập nhật Kept để hoàn tất đồng bộ hóa** có nghĩa là máy chủ mới hơn ứng dụng: tải lại. Hàng đợi được giữ nguyên.
@@ -54,7 +54,7 @@ Những gì bạn làm ngoại tuyến đi vào hàng đợi và được gửi 
 - Ảnh iPhone định dạng HEIC được giữ nguyên bản gốc; nếu một ảnh không thể xem trước, nó nói **Xem trước không khả dụng** và không bao giờ bị từ chối.
 - **Chia sẻ vào Kept**: trên Android và Chrome máy tính, ứng dụng đã cài xuất hiện trong bảng chia sẻ, nên hóa đơn hoặc PDF từ ứng dụng khác rơi vào Chụp. iPhone không cho ứng dụng web xuất hiện trong bảng Chia sẻ: lưu tệp, sau đó dùng **Thư viện** trong Chụp.
 - **Quét** đọc nhãn Kept và mã vạch sản phẩm, ngoại tuyến cũng được, từ bản sao trên điện thoại, và mã Data Matrix, Code 39, Code 93, ITF, Codabar, PDF417 và Aztec; một số seri hoặc thẻ tài sản mở đồ vật của nó khi bạn trực tuyến. Danh sách đầy đủ: [ID ngắn và nhãn](/vi/users/everyday-use/#id-ngắn-và-nhãn).
-- **Gợi ý vị trí của tôi**, một công tắc trong bộ chọn vị trí của Chụp, so sánh vị trí của bạn với vị trí của các địa điểm của bạn trên chính điện thoại và gợi ý địa điểm gần đó. Vị trí của bạn không bao giờ được gửi hay giữ. Một địa điểm chỉ có vị trí nếu nó đi kèm trong một [xuất Kept](/vi/users/import-export/#một-bản-xuất-kept): đặt nó trong ứng dụng đang đến, và cho đến lúc đó, một địa điểm không có vị trí không bao giờ được gợi ý.
+- **Gợi ý vị trí của tôi**, một công tắc trong bộ chọn vị trí của Chụp, so sánh vị trí của bạn với vị trí của các địa điểm của bạn trên chính điện thoại và gợi ý địa điểm bạn đang ở: cách vị trí của nó không quá 150 m, chọn địa điểm gần hơn nếu có hai. Vị trí của bạn không bao giờ được gửi hay giữ. Chủ sở hữu hoặc quản trị viên đặt vị trí của địa điểm trong **Cài đặt địa điểm → Chung → Vị trí** ([Vị trí của nó](/vi/users/locations/#vị-trí-của-nó)); địa điểm không có vị trí không bao giờ được gợi ý.
 - **Đọc chính tả** điền tên bằng giọng nói ở nơi trình duyệt hỗ trợ.
 
 **Cài đặt → Chẩn đoán** kiểm tra máy ảnh, hỗ trợ ngoại tuyến và bộ nhớ, và sao chép báo cáo những gì nó tìm thấy.

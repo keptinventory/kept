@@ -42,7 +42,7 @@ Cuando la sala se dibuja en el [mapa de ubicación](/es/users/location-map/), ca
 
 ## Cuánto cuesta
 
-Cada foto es una lectura de IA, y una captura de más de una foto agrega una llamada breve solo de texto que fusiona lo que las fotos tienen en común. Antes de enviar, la bandeja muestra un límite superior, como "Aproximadamente 3 fotos · hasta ~31,000 tokens · Groq": la foto, las instrucciones y la respuesta más larga que Kept permite, para cada foto; una respuesta más corta cuesta menos. Un modelo que piensa antes de responder factura su proceso de pensamiento adicionalmente.
+Cada foto es una lectura de IA, y una captura de más de una foto agrega una llamada breve solo de texto que fusiona lo que las fotos tienen en común. Antes de enviar, la bandeja muestra un límite superior, como "Aproximadamente 3 fotos, hasta ~31,000 tokens, Groq": la foto, las instrucciones y la respuesta más larga que Kept permite, para cada foto; una respuesta más corta cuesta menos. Un modelo que piensa antes de responder factura su proceso de pensamiento adicionalmente.
 
 La lectura de sala cuenta con los mismos presupuestos y límites que otras lecturas de fotos. Cuando se alcanza un límite, la tarjeta muestra "Esperando el presupuesto de IA", y las fotos se leen cuando la IA se reanuda. Cada llamada aparece en **Uso de IA** como **Foto de habitación** o **Fotos de habitación combinadas**.
 

@@ -242,6 +242,69 @@ describe('PATCH /api/v1/locations/:id', () => {
     expect((await patch(member, { name: 'x' }, 2)).statusCode).toBe(403);
   });
 
+  // #375: the location's position, for Capture's "Suggest where I am".
+  it('sets and clears its position, owners and admins only, and logs it without the numbers', async () => {
+    expect(home).toMatchObject({ position: null });
+    const at = { latitude: 30.0444, longitude: 31.2357 };
+    expect((await patch(member, { position: at }, 1)).statusCode).toBe(403);
+    const set = await patch(admin, { position: at }, 1);
+    expect(set.statusCode, set.body).toBe(200);
+    expect(set.json()).toMatchObject({ position: at, rowVersion: 2 });
+    expect((await call(t, `/api/v1/locations/${home.id}`, { as: owner })).json().position).toEqual(
+      at,
+    );
+    const cleared = await patch(owner, { position: null }, 2);
+    expect(cleared.statusCode, cleared.body).toBe(200);
+    expect(cleared.json().position).toBeNull();
+    const events = (await auditOf(db, home.id)).filter((e) => e.action === 'location.update');
+    // Every member, viewer and read token sees the location's history: it says the position
+    // changed, by whom and when, never where.
+    expect(events.map((e) => e.diff)).toEqual([
+      { position: { changed: true, class: 'secret' } },
+      { position: { changed: true, class: 'secret' } },
+    ]);
+    expect(JSON.stringify(events)).not.toContain('30.0444');
+  });
+
+  it('refuses a position off the globe, half a position, and one on Personal', async () => {
+    for (const bad of [
+      { latitude: 91, longitude: 0 },
+      { latitude: 0, longitude: -180.5 },
+      { latitude: 30 },
+      { latitude: '30', longitude: '31' },
+    ]) {
+      expect((await patch(admin, { position: bad }, 1)).statusCode).toBe(400);
+    }
+    const personal = await call(t, `/api/v1/locations/${owner.personalLocationId}`, {
+      as: owner,
+    });
+    const res = await call(t, `/api/v1/locations/${owner.personalLocationId}`, {
+      method: 'PATCH',
+      as: owner,
+      body: { position: { latitude: 30, longitude: 31 } },
+      headers: { 'if-match': String(personal.json().rowVersion) },
+    });
+    expect(res.statusCode).toBe(409);
+  });
+
+  it('shows the position to owners and admins only', async () => {
+    const viewer = await person(t, db, 'viewer');
+    await join(db, home.id, viewer.userId, 'viewer');
+    await patch(admin, { position: { latitude: 30.0444, longitude: 31.2357 } }, 1);
+    for (const [as, shown] of [
+      [owner, true],
+      [admin, true],
+      [member, false],
+      [viewer, false],
+    ] as const) {
+      const one = await call(t, `/api/v1/locations/${home.id}`, { as });
+      expect(one.json().position !== null, `GET as ${one.json().role}`).toBe(shown);
+      const list = await call(t, '/api/v1/locations', { as });
+      const inList = list.json().locations.find((l: { id: string }) => l.id === home.id);
+      expect(inList.position !== null, `list as ${inList.role}`).toBe(shown);
+    }
+  });
+
   it("keeps require_2fa and the successor the owner's", async () => {
     expect((await patch(admin, { require2fa: true }, 1)).statusCode).toBe(403);
     expect((await patch(admin, { successorUserId: admin.userId }, 1)).statusCode).toBe(403);

@@ -86,7 +86,7 @@ export function ScheduledReports() {
                     )}
                     {s.lastRunOn ? (
                       <>
-                        {' · '}
+                        {f.sep}
                         {s.lastError ? why(s) : <Trans>Last sent {f.day(s.lastRunOn)}</Trans>}
                       </>
                     ) : null}

@@ -38,7 +38,18 @@ Dos días antes de la fecha de vencimiento, y cuando un préstamo está vencido,
 
 ## Cuando regresa
 
-**Marcar como devuelto**: vuelve a donde estaba, o a otro lugar, con el estado en que regresó. Una entrega se devuelve línea por línea: regresó, regresó dañado, todavía con ellos, o perdido. Un objeto perdido se marca como perdido, nunca se elimina. Cada paso puede deshacerse.
+**Marcar como devuelto**: vuelve a donde estaba, o a otro lugar, con el estado en que regresó y una nota.
+
+- **Dañado**, en **Qué pasó**, si regresó dañado. El estado en que regresó es **Malo** salvo que elijas otro, y el objeto toma ese estado. Desactiva **Actualizar su condición** para dejar el estado del objeto como estaba.
+- **Recibido por**: tú, u otro miembro de la ubicación que lo recibió. Para algo que tomaste prestado es **Devuelto por**.
+
+Una entrega se devuelve línea por línea: regresó, dañado, no devuelto o perdido, y un solo miembro lo recibió todo. Un objeto perdido se marca como perdido, nunca se elimina. Cada paso puede deshacerse.
+
+El asistente y los clientes MCP devuelven un objeto con las mismas opciones: dañado, una nota y quién lo recibió.
+
+## Quién lo tuvo
+
+En la pestaña **Préstamos** de un objeto, **Quién lo tuvo** lista cada préstamo, el más reciente primero: quién lo tuvo, desde cuándo hasta cuándo, cómo regresó (devuelto, devuelto tarde, volvió dañado, perdido, el estado en que regresó) y quién lo recibió. Un préstamo se conserva al regresar, así que la lista llega hasta el primer préstamo del objeto. Los espectadores también la ven, sin los botones. Las devoluciones registradas antes de Kept 1.14.7 no dicen quién las recibió.
 
 ## Permitiendo que familiares o amigos miren
 

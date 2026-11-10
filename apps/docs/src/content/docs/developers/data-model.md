@@ -88,7 +88,7 @@ one file per area. This page is the map.
 | `user_profiles` | `tenancy.ts` | Display name, locale, time zone, units, digits, quiet hours, `managed`, `hide_personal` |
 | `owner_accounts` | `tenancy.ts` | One per user; owns locations and the account registries |
 | `locations` | `tenancy.ts` | A household: kind, currency, time zone, `require_2fa`, `deleted_at` (30-day grace) |
-| `memberships` | `tenancy.ts` | (`location_id`, `user_id`, `role`: owner · admin · member · viewer, `expires_at`) |
+| `memberships` | `tenancy.ts` | (`location_id`, `user_id`, `role`: owner, admin, member, viewer, `expires_at`) |
 | `invites`, `location_modules`, `user_hidden_modules` | `tenancy.ts` | Invites; which modules a location has on; what a user hides |
 | `instance_admins`, `instance_settings` | `tenancy.ts` | Who administers the instance; instance-wide settings |
 
@@ -148,7 +148,7 @@ Channels, push subscriptions, preferences and calendar feeds are per user (`noti
 
 | Table | File | What it is |
 |---|---|---|
-| `audit_events`, `audit_event_subjects` | `audit.ts` | Every write: actor (`user` · `token` · `system` · `import`), entity, action, a redacted diff; partitioned by month. Subjects fan a container move out to its contents |
+| `audit_events`, `audit_event_subjects` | `audit.ts` | Every write: actor (`user`, `token`, `system`, `import`), entity, action, a redacted diff; partitioned by month. Subjects fan a container move out to its contents |
 | `api_tokens`, `token_locations`, `token_rate_windows` | `tokens.ts` | Personal tokens and OAuth grants, the locations each reaches, the rate windows |
 | `idempotency_keys` | `tenancy.ts` | Stored responses per (`user_id`, `key`) |
 | `sync_tombstones`, `sync_ops` | `tenancy.ts`, `sync.ts` | Deletions phones must hear about; each user's ledger of applied offline ops |

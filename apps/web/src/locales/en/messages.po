@@ -29028,3 +29028,82 @@ msgstr "Take it off its unit"
 #: src/assistant/confirm-card.tsx
 msgid "Rack units"
 msgstr "Rack units"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Came back damaged"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Came back damaged from {person}"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Given back by"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "given back by <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Not back yet"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "since {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Taken back by"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "taken back by <0>{taker}</0>"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Who had it"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Position"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Latitude"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Longitude"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Enter a number from {from} to {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Use where I am now"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Couldn't read where you are. Try again, or type it."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Open in maps"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Remove position"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Position removed"

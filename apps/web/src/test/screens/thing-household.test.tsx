@@ -62,7 +62,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
   it('lists the warranties longest first, each with its coverage bar', async () => {
     await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    expect(await screen.findByRole('heading', { name: 'Warranties · 2' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Warranties, 2' })).toBeInTheDocument();
     const cards = screen
       .getAllByRole('article')
       .filter((a) => /warranty/i.test(a.textContent ?? ''));
@@ -76,7 +76,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
   it('adds a warranty from the brand default, labelled as such, with the card', async () => {
     const { user, mock } = await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    const heading = await screen.findByRole('heading', { name: 'Warranties · 2' });
+    const heading = await screen.findByRole('heading', { name: 'Warranties, 2' });
     const block = heading.closest('section') as HTMLElement;
     await user.click(within(block).getByRole('button', { name: 'Add' }));
     const dialog = await screen.findByRole('dialog', { name: 'Add a warranty' });
@@ -106,7 +106,7 @@ describe('the Samsung TV (in repair, two warranties)', () => {
       'step',
     );
     // "In repair" once as the pill and once as the step, not in the eyebrow too.
-    expect(within(card).getByText('Claim · open')).toBeInTheDocument();
+    expect(within(card).getByText('Claim, open')).toBeInTheDocument();
     expect(within(card).getAllByText('In repair')).toHaveLength(2);
     await user.click(within(card).getByRole('button', { name: 'Update' }));
     const dialog = await screen.findByRole('dialog', { name: 'Update the claim' });
@@ -138,18 +138,18 @@ describe('the Samsung TV (in repair, two warranties)', () => {
 });
 
 describe('the Bosch drill (lent to Murdock, overdue)', () => {
-  it('reads "With Murdock since … · due … · overdue" and marks it returned, with Undo', async () => {
+  it('reads "With Murdock since …, due …, overdue" and marks it returned, with Undo', async () => {
     desktop();
     const { user, mock } = await renderApp(`/t/${T.drill}?tab=loans`);
     await findHeading('Bosch drill, 18 V');
     // The person's name is isolated in the line (UI step-4 review L9).
     const line = screen.getByText(
       (_, el) =>
-        /^With Murdock since .* · due .* · overdue$/.test(el?.textContent ?? '') &&
+        /^With Murdock since .*, due .*, overdue$/.test(el?.textContent ?? '') &&
         ![...(el?.children ?? [])].some((c) => /^With Murdock/.test(c.textContent ?? '')),
     );
     expect(line.querySelector('bdi')).toHaveTextContent(/^Murdock$/);
-    expect(screen.getByRole('tab', { name: 'Loans · 1 open' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Loans, 1 open' })).toHaveAttribute(
       'aria-selected',
       'true',
     );
@@ -184,6 +184,95 @@ describe('the Bosch drill (lent to Murdock, overdue)', () => {
   });
 });
 
+describe('the custody trail (#374)', () => {
+  /** The drill with an earlier loan: Louis had it, it came back damaged, Bruce took it back. */
+  function withTrail(patch?: (s: MockState) => void): MockState {
+    const s = ownerScenario();
+    s.members[IDS.garage] = structuredClone(s.members[IDS.home] as MockState['members'][string]);
+    const open = s.household.loans.find((l) => l.id === H.loan.drill);
+    if (!open) throw new Error('fixture');
+    s.household.loans.push({
+      ...structuredClone(open),
+      id: 'loan-drill-earlier',
+      personId: H.person.murdock,
+      startedAt: '2026-09-01T09:00:00Z',
+      dueOn: '2026-09-10',
+      returnedAt: '2026-09-08T09:00:00Z',
+      outcome: 'returned',
+      condition: { out: null, in: 'poor' },
+      returnNotes: 'Chipped chuck',
+      damaged: true,
+      takenBackBy: { id: 'u-bruce', displayName: 'Bruce' },
+    });
+    patch?.(s);
+    return s;
+  }
+
+  it('lists who had it, newest first, with how it came back and who took it back', async () => {
+    desktop();
+    await renderApp(`/t/${T.drill}?tab=loans`, { state: withTrail() });
+    await findHeading('Bosch drill, 18 V');
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    const rows = within(trail.closest('section') as HTMLElement).getAllByRole('listitem');
+    expect(rows).toHaveLength(2);
+    // The open loan first: overdue, nobody took it back yet.
+    expect(rows[0]).toHaveTextContent(/^Murdock, since .*Lent out, Overdue$/);
+    expect(rows[1]).toHaveTextContent(
+      /Murdock, .* – .*Came back damaged, came back poor, taken back by Bruce, Chipped chuck/,
+    );
+    expect(within(rows[1] as HTMLElement).getByText('Bruce').tagName).toBe('BDI');
+  });
+
+  it('a viewer reads the trail, with no actions', async () => {
+    desktop();
+    const state = withTrail((s) => {
+      const g = s.locations.find((l) => l.id === IDS.garage);
+      if (g) g.role = 'viewer';
+    });
+    await renderApp(`/t/${T.drill}?tab=loans`, { state });
+    await findHeading('Bosch drill, 18 V');
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    const section = trail.closest('section') as HTMLElement;
+    expect(within(section).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(section).queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mark returned' })).toBeNull();
+  });
+
+  it('marks it returned damaged, taken back by another member, with a note', async () => {
+    desktop();
+    const { user, mock } = await renderApp(`/t/${T.drill}?tab=loans`, { state: withTrail() });
+    await findHeading('Bosch drill, 18 V');
+    await user.click(await screen.findByRole('button', { name: 'Mark returned' }));
+    const dialog = await screen.findByRole('dialog', { name: /^Back from/ });
+    await user.click(within(dialog).getByRole('radio', { name: 'Damaged' }));
+    expect(within(dialog).getByRole('switch', { name: 'Update its condition' })).toBeChecked();
+    const taker = within(dialog).getByRole('combobox', { name: 'Taken back by' });
+    expect(taker).toHaveValue('Ibrahim');
+    await user.clear(taker);
+    await user.type(taker, 'Bru');
+    await user.click(await screen.findByRole('option', { name: 'Bruce' }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Note' }), 'Cracked casing');
+    await user.click(within(dialog).getByRole('button', { name: 'Mark returned' }));
+    await waitFor(() =>
+      expect(mock.lastCall('POST', hp.loanReturn(H.loan.drill))?.body).toEqual({
+        damaged: true,
+        updateCondition: true,
+        conditionIn: 'poor',
+        takenBackBy: 'u-bruce',
+        to: 'previous',
+        notes: 'Cracked casing',
+      }),
+    );
+    // The trail now starts with it: damaged, taken back by Bruce.
+    const trail = await screen.findByRole('heading', { name: 'Who had it' });
+    await waitFor(() =>
+      expect(
+        within(trail.closest('section') as HTMLElement).getAllByRole('listitem')[0],
+      ).toHaveTextContent(/Came back damaged, came back poor, taken back by Bruce, Cracked casing/),
+    );
+  });
+});
+
 describe('lending part of a quantity', () => {
   it('lends 2 of the 3 HDMI cables to a new person, with a due date', async () => {
     const { user, mock } = await renderApp(`/t/${T.hdmiCable}?sheet=lend`);
@@ -212,7 +301,7 @@ describe('variants', () => {
     });
     await renderApp(`/t/${T.tv}?tab=paperwork`, { state: s });
     await findHeading('Samsung TV, 55″');
-    expect(await screen.findByRole('heading', { name: 'Warranties · 2' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Warranties, 2' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Add' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
     const { user } = await import('@testing-library/user-event').then((m) => ({
@@ -289,7 +378,7 @@ describe('variants', () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     await renderApp(`/t/${T.tv}`);
     await findHeading('Samsung TV, 55″');
-    const heading = await screen.findByRole('heading', { name: 'Warranties · 2' });
+    const heading = await screen.findByRole('heading', { name: 'Warranties, 2' });
     const block = heading.closest('section') as HTMLElement;
     expect(within(block).getByRole('button', { name: 'Add' })).toBeDisabled();
     expect(within(block).getByText('Needs a connection')).toBeInTheDocument();

@@ -46,6 +46,7 @@ export const OMIT_REASONS: Readonly<Record<string, string>> = Object.freeze({
   claimed_by: 'a user of this server',
   checked_by: 'a user of this server',
   logged_by: 'a user of this server',
+  taken_back_by: 'a user of this server',
   member_user_id: 'a user of this server; members travel by name in the manifest (Q23)',
   successor_user_id: 'a user of this server',
   reveal_user_ids: 'users of this server',
@@ -440,8 +441,8 @@ export const REGISTRY: readonly EntityDef[] = Object.freeze([
     scope: 'location',
     key: ['id'],
     fields:
-      'id:uuid thing_id:uuid direction:text person_id:uuid started_at:ts due_on:date returned_at:ts return_place_id:uuid previous_place_id:uuid previous_container_id:uuid split_from_thing_id:uuid lead_days:int notes:text created_at:ts updated_at:ts return_container_id:uuid handover_id:uuid path_at_lend:text outcome:text condition_out:text condition_in:text return_notes:text',
-    omit: 'location_id created_by row_version change_seq',
+      'id:uuid thing_id:uuid direction:text person_id:uuid started_at:ts due_on:date returned_at:ts return_place_id:uuid previous_place_id:uuid previous_container_id:uuid split_from_thing_id:uuid lead_days:int notes:text created_at:ts updated_at:ts return_container_id:uuid handover_id:uuid path_at_lend:text outcome:text condition_out:text condition_in:text return_notes:text damaged:bool',
+    omit: 'location_id created_by taken_back_by row_version change_seq',
     thingRefs: ['x.thing_id'],
   },
   {

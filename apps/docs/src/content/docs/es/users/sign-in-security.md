@@ -16,7 +16,7 @@ Agregar una llave de acceso pide también la contraseña en una cuenta que tiene
 
 Desvincular Google o tu inicio de sesión con OIDC en **Métodos de inicio de sesión** pide lo mismo.
 
-Cada cambio cierra la sesión en todos los demás dispositivos, excepto renombrar una llave de acceso. Kept te envía un correo cuando se agrega o elimina una llave de acceso, cuando se desvincula un inicio de sesión externo, cuando se activa, configura de nuevo o desactiva la autenticación de dos factores, y cuando se crean nuevos códigos de respaldo. Las cuentas gestionadas (con nombre de usuario, sin correo) no reciben correo.
+Cada cambio cierra la sesión en todos los demás dispositivos, excepto renombrar una llave de acceso. Kept te envía un correo cuando se agrega o elimina una llave de acceso, cuando se desvincula un inicio de sesión externo, cuando se activa, configura de nuevo o desactiva la autenticación de dos factores, y cuando se crean nuevos códigos de respaldo. También te envía un correo cada vez que se inicia sesión con un código de respaldo, con la hora, el dispositivo, cuántos códigos quedan y qué hacer si no fuiste tú. Las cuentas gestionadas (con nombre de usuario, sin correo) no reciben correo.
 
 ## Llaves de acceso
 

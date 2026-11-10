@@ -13,6 +13,8 @@ a location turns them on in **Location settings → What to track**
   inside places. Move a box and what's in it moves too. A place tree you can widen or collapse.
 - **[Hide Personal](/users/locations/#hide-personal)**: take your Personal location out of the
   menu, Home, lists and search, and show it again any time.
+- **[A location's position](/users/locations/#its-position)**: set it from the phone or
+  typed, so Capture suggests the location you're at.
 - **[Furniture with compartments](/users/locations/#furniture-with-compartments)**: a cube shelf or
   a chest of drawers, each compartment its own place. Turn it on its side, merge or split
   compartments; their labels keep working.
@@ -46,7 +48,8 @@ a location turns them on in **Location settings → What to track**
 ## The household
 
 - **[Lending and borrowing](/users/lending/)**: who has what and when it's due back, with
-  reminders and a polite message to copy. Borrowers need no account. Module: Lending.
+  reminders and a polite message to copy. Borrowers need no account. Each thing shows who had it,
+  in order, how it came back and who took it back. Module: Lending.
 - **[Kits and hand-overs](/users/kits/)**: lend a box with everything in it; each thing comes back
   on its own record. A kit remembers what belongs in it.
 - **[Moving house](/users/moving/)**: numbered boxes, a label and a contents sheet for each,
@@ -77,7 +80,7 @@ a location turns them on in **Location settings → What to track**
   name and a Tailscale name.
 - **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
   and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
-  The user, admin and install docs are in every language too.
+  Amounts are read as your language writes them. The user, admin and install docs are in every language too.
 
 ## On your phone
 

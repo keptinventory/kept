@@ -21077,3 +21077,82 @@ msgstr "Gỡ khỏi vị trí"
 #: src/assistant/confirm-card.tsx
 msgid "Rack units"
 msgstr "Đơn vị rack"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Trả lại bị hư hỏng"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "{person} đã trả lại, bị hư hỏng"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Người trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "do <0>{taker}</0> trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Chưa trả lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "từ {from}"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Người nhận lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "do <0>{taker}</0> nhận lại"
+
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "Ai đã giữ"
+
+#: src/components/location-position.tsx
+#: src/components/history/labels.ts
+msgid "Position"
+msgstr "Vị trí"
+
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Khi bật “Gợi ý vị trí của tôi”, Chụp sẽ chọn địa điểm này khi bạn ở đây. Vị trí điện thoại của bạn được so sánh ngay trên điện thoại và không bao giờ được gửi đi. Chỉ chủ sở hữu và quản trị viên thấy mục này."
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Vĩ độ"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Kinh độ"
+
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Nhập một số từ {from} đến {to}."
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Dùng vị trí hiện tại của tôi"
+
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Không đọc được vị trí của bạn. Hãy thử lại hoặc tự nhập."
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Mở trong bản đồ"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Xóa vị trí"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Đã xóa vị trí"

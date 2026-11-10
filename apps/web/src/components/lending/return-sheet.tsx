@@ -8,6 +8,9 @@
  * 1.14 (#170): the condition it came back in (and "Update its condition"), part of a quantity
  * back (the rest stays out on its own line), or Lost: the loan closes as lost and the thing is
  * marked lost, never deleted. The note is the return's own; the lend note stays.
+ *
+ * #374: "Damaged": it came back damaged, in a condition (poor unless you choose), and its own
+ * condition is updated unless you switch that off. Who took it back: you, or another member.
  */
 import type { Condition } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -31,6 +34,7 @@ import { TextField } from '@/components/ui/text-field';
 import { bdi, isolate } from '@/lib/bidi';
 import { useFormat } from '@/lib/format';
 import { ConditionPicker } from './condition-picker';
+import { type TakenBackBy, TakenBackByPicker, takenBackByInput, useMyId } from './taken-back-by';
 
 /** "Garage › Tool wall": a subject's path with its own name at the end, once. */
 export function subjectText(s: { name: string; path: string }): string {
@@ -84,7 +88,9 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
   });
   const [mergeBack, setMergeBack] = useState(true);
   const [notes, setNotes] = useState('');
-  const [outcome, setOutcome] = useState<'back' | 'lost'>('back');
+  const [outcome, setOutcome] = useState<'back' | 'damaged' | 'lost'>('back');
+  const [takenBackBy, setTakenBackBy] = useState<TakenBackBy>(null);
+  const myId = useMyId();
   const [condition, setCondition] = useState<Condition | null>(null);
   const [updateCondition, setUpdateCondition] = useState(false);
   const [back, setBack] = useState(loan.quantity);
@@ -113,10 +119,17 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
       return;
     }
     const body: ReturnBody = {};
+    const damaged = out && outcome === 'damaged';
+    if (damaged) {
+      body.damaged = true;
+      body.updateCondition = updateCondition;
+    }
     if (condition) {
       body.conditionIn = condition;
       if (updateCondition) body.updateCondition = true;
     }
+    const taker = takenBackByInput(takenBackBy, myId);
+    if (taker) body.takenBackBy = taker;
     if (out && Number(loan.quantity) > 1) {
       const n = Number(westernNumber(back).trim());
       if (!(n > 0) || n > Number(loan.quantity)) {
@@ -166,12 +179,20 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
       }}
     >
       {out ? (
-        <Segmented<'back' | 'lost'>
+        <Segmented<'back' | 'damaged' | 'lost'>
           label={t`What happened`}
           value={outcome}
-          onChange={setOutcome}
+          onChange={(v) => {
+            setOutcome(v);
+            // Damaged: poor unless chosen, and its own condition follows.
+            if (v === 'damaged') {
+              if (!condition) setCondition('poor');
+              setUpdateCondition(true);
+            }
+          }}
           options={[
             { id: 'back', label: t`Came back` },
+            { id: 'damaged', label: t`Damaged` },
             { id: 'lost', label: t`Lost` },
           ]}
         />
@@ -238,6 +259,14 @@ function ReturnForm({ loan, onClose }: { loan: Loan; onClose: () => void }) {
           </Trans>
         </p>
       )}
+      {!(out && outcome === 'lost') ? (
+        <TakenBackByPicker
+          locationId={thing.locationId}
+          direction={loan.direction}
+          value={takenBackBy}
+          onChange={setTakenBackBy}
+        />
+      ) : null}
       <TextField label={t`Note`} value={notes} onChange={setNotes} inputProps={{ dir: 'auto' }} />
       {out && can('attachments.add') ? (
         <PendingFiles

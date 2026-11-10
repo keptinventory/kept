@@ -42,7 +42,7 @@ Lorsque la pièce est dessinée sur la [carte du lieu](/fr/users/location-map/),
 
 ## Quel est le coût
 
-Chaque photo correspond à une lecture IA, et une capture de plusieurs photos ajoute un appel texte court supplémentaire qui fusionne ce que les photos ont en commun. Avant d'envoyer, le plateau montre une borne supérieure, telle que *« Environ 3 photos · jusqu'à ~31 000 jetons · Groq »* : la photo, les instructions et la plus longue réponse autorisée par Kept, pour chaque photo ; une réponse plus courte coûte moins cher. Un modèle qui réfléchit avant de répondre facture sa réflexion en supplément.
+Chaque photo correspond à une lecture IA, et une capture de plusieurs photos ajoute un appel texte court supplémentaire qui fusionne ce que les photos ont en commun. Avant d'envoyer, le plateau montre une borne supérieure, telle que *« Environ 3 photos, jusqu'à ~31 000 jetons, Groq »* : la photo, les instructions et la plus longue réponse autorisée par Kept, pour chaque photo ; une réponse plus courte coûte moins cher. Un modèle qui réfléchit avant de répondre facture sa réflexion en supplément.
 
 La lecture des pièces compte dans les mêmes budgets et plafonds que les autres lectures de photos. Lorsque le plafond est atteint, la carte indique *« En attente du budget IA »*, et les photos sont lues lorsque l'IA reprend. Chaque appel apparaît dans **Utilisation de l’IA** sous **Photo de pièce** ou **Photos de pièce fusionnées**.
 

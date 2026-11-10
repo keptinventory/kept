@@ -56,7 +56,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
   **Map**, each with its icon. **Graph** draws the location as a graph of its floors, rooms, boxes
   and things, in 2D or 3D ([The graph](/users/graph/)). **Table** shows its things as a spreadsheet,
   on a screen 1024 px wide or more ([The spreadsheet view](/users/spreadsheet/)), so a phone shows
-  List · Grid · Graph · Map. **Map** shows the location in 3D, floor by floor, with its rooms,
+  List, Grid, Graph, Map. **Map** shows the location in 3D, floor by floor, with its rooms,
   shelves and boxes ([The location map](/users/location-map/)). The list's **Display** menu offers
   the same choice. A place's own page (not Unplaced) has the switch too, without Table. Kept
   remembers the layout for each location and each place on that device.
@@ -67,7 +67,7 @@ spots** ("room or spot" is Kept's word for any place), which hold **things**. A 
 - On a computer or tablet, the sidebar marks the location you're in: on its page, and on its
   rooms, things, boxes and settings.
 
-![A location in Grid with Small tiles: the Places · 9 heading over the rooms, then the Things · 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
+![A location in Grid with Small tiles: the Places, 9 heading over the rooms, then the Things, 20+ heading over the things, six tiles a row, each with its name only](../../../assets/screens/grid-desktop-light.webp)
 
 ![The same grid in the dark theme](../../../assets/screens/grid-desktop-dark.webp)
 
@@ -172,6 +172,26 @@ units it takes, and the unit it starts at.
 - **Undo** puts a position back, unless someone has taken that unit since.
 - **AI apps** can do the same: `create_place` takes a rack template with `units` and `numbering`,
   and `update_thing` takes `rack_units` and `rack_at` ([MCP clients](/users/mcp-clients/#the-tools)).
+
+## Its position
+
+A location's position lets Capture's **Suggest where I am** pick it when you're there
+([Kept on your phone](/users/phone-app/#camera-gallery-and-scanning)).
+
+- **Set it:** **Location settings → General → Position**, for owners and admins. **Use where I am
+  now** reads the phone's position once (the browser asks first) and fills **Latitude** and
+  **Longitude**; or type them in degrees, such as 30.0444 and 31.2357. Then **Save**. **Remove
+  position** clears it. Personal has none: it goes wherever you do.
+- **Over plain HTTP** browsers refuse to give the position: type it instead.
+- **Open in maps** opens OpenStreetMap at the saved position in a new tab. Only then does the
+  position leave Kept.
+- **How near:** Capture suggests a location when the phone is within 150 m of its position, the
+  nearer one if two are. 150 m covers a house and its garden plus a phone's usual error indoors,
+  and still tells two streets apart.
+- **Who sees it:** owners and admins, on this page; and the phones of those who add things there,
+  for the suggestion. Viewers and share links never get it. The history says the position
+  changed, who changed it and when, never where. A location export carries it, and importing
+  that export brings it back.
 
 ## Hide Personal
 

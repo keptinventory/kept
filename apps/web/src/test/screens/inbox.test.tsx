@@ -41,7 +41,7 @@ describe('the inbox', () => {
     const { user } = await renderApp('/inbox');
     await findHeading('Inbox');
     const list = await inboxList();
-    expect(list.textContent).toMatch(/6 captured · Garage › Shelves/);
+    expect(list.textContent).toMatch(/6 captured, Garage › Shelves/);
     const kinds = screen.getByRole('radiogroup', { name: 'Kind' });
     const chips = within(kinds)
       .getAllByRole('radio')
@@ -100,7 +100,7 @@ describe('the inbox', () => {
     expect(driver.textContent).toMatch(/Confirm or reject each suggested value first/);
     expect(
       within(driver).getByRole('group', { name: 'Suggested serial number' }).textContent,
-    ).toMatch(/Suggested · serial number/);
+    ).toMatch(/Suggested, serial number/);
     expect(
       within(driver).getByRole('group', { name: 'Suggested manufacture date' }).textContent,
     ).toMatch(/Nov 14, 2025/);
@@ -153,7 +153,7 @@ describe('the inbox', () => {
   it('asks which currency "$" was, with no default', async () => {
     const { user, mock } = await renderApp('/inbox?f.kind=currency');
     // Named apart from the receipt's own review item (both are "Hardware Depot receipt" on screen).
-    const receipt = await card('Hardware Depot receipt · Needs a currency');
+    const receipt = await card('Hardware Depot receipt, Needs a currency');
     const choices = within(within(receipt).getByRole('group', { name: 'Currency' })).getAllByRole(
       'button',
     );
@@ -187,7 +187,7 @@ describe('the inbox', () => {
     Object.assign(ace, { currency: code, total });
     await queryClient.invalidateQueries();
     await waitFor(() => expect(picker).toHaveValue(code));
-    expect(within(receipt).getByRole('textbox', { name: 'Total' })).toHaveValue(total);
+    expect(within(receipt).getByRole('textbox', { name: 'Total' })).toHaveValue('5800');
     expect(within(receipt).queryByText('Choose the currency.')).toBeNull();
   });
 
@@ -300,7 +300,7 @@ describe('the inbox', () => {
   it('shows where naming is: paused, waiting, naming, failed with Retry, and the AI line', async () => {
     const { user, mock } = await renderApp('/inbox?f.kind=draft');
     await card('Bosch impact driver, 18 V');
-    const banner = screen.getByText(/^AI paused until .* · Home's monthly cap reached$/);
+    const banner = screen.getByText(/^AI paused until .*, Home's monthly cap reached$/);
     expect(banner).toBeInTheDocument();
     const list = await inboxList();
     expect(list.textContent).toMatch(/Waiting: AI paused until/);
@@ -308,7 +308,7 @@ describe('the inbox', () => {
     expect(list.textContent).toMatch(/Waiting for Groq/);
     // Short (an iPhone): the model id is in the call's detail, and Garage's
     // account is the viewer's own.
-    expect(list.textContent).toMatch(/AI · Groq · 2\.5K tokens · ≈ \$0\.004 · paid by you/);
+    expect(list.textContent).toMatch(/AI, Groq, 2\.5K tokens, ≈ \$0\.004, paid by you/);
     const failed = within(list)
       .getAllByRole('article', { name: 'Unnamed thing' })
       .find((a) => /provider error/.test(a.textContent ?? ''));
@@ -450,7 +450,7 @@ describe('the inbox', () => {
     await renderApp('/inbox?f.kind=draft', { state });
     const list = await inboxList();
     await waitFor(() =>
-      expect(list.textContent).toMatch(/Waiting for an AI provider · Connect one in Settings → AI/),
+      expect(list.textContent).toMatch(/Waiting for an AI provider, Connect one in Settings → AI/),
     );
     expect(
       within(list).getByRole('link', { name: 'Connect one in Settings → AI' }),
@@ -478,7 +478,7 @@ describe('the inbox', () => {
     expect(within(cord).getByRole('button', { name: 'Accept' })).toBeDisabled();
     expect(within(cord).getByRole('button', { name: 'Edit' })).toBeDisabled();
     expect(cord.textContent).toMatch(/Needs a connection/);
-    const local = await screen.findByRole('region', { name: 'On this phone · waiting to sync' });
+    const local = await screen.findByRole('region', { name: 'On this phone, waiting to sync' });
     expect(local.textContent).toMatch(/Tape measure/);
   });
 

@@ -195,7 +195,7 @@ function BoxRow({ move, box, waiting }: { move: Move; box: MoveBox; waiting: boo
             {title}
             {box.name && box.name !== title ? (
               <span className="font-normal text-ink-2">
-                {' · '}
+                {f.sep}
                 <bdi>{box.name}</bdi>
               </span>
             ) : null}
@@ -210,7 +210,7 @@ function BoxRow({ move, box, waiting }: { move: Move; box: MoveBox; waiting: boo
             )}
             {box.visible ? (
               <>
-                {' · '}
+                {f.sep}
                 <Plural value={box.contents} one="# thing" other="# things" />
               </>
             ) : null}
