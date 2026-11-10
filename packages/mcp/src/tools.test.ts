@@ -59,6 +59,8 @@ const TABLE: Record<
   // Places (1.x, #313): the app's place form, and Turn places into boxes.
   update_place: ['write', null, '1.x'],
   turn_into_boxes: ['write', null, '1.x'],
+  // A thing's lifecycle (1.x): sold, given away, put away, and back in use. MCP only.
+  change_lifecycle: ['write', null, '1.x'],
 };
 
 const MCP_ONLY = [
@@ -69,16 +71,17 @@ const MCP_ONLY = [
   'pack_into_box',
   'set_box_status',
   'unpack_box',
+  'change_lifecycle',
 ];
 
 describe('TOOL_DEFS', () => {
   it('is exactly the plan’s table: scope, module and step', () => {
     expect(Object.keys(TOOL_DEFS).sort()).toEqual(Object.keys(TABLE).sort());
     for (const [name, d] of defs) expect([d.scope, d.module, d.since]).toEqual(TABLE[name]);
-    expect(TOOL_NAMES).toHaveLength(38);
+    expect(TOOL_NAMES).toHaveLength(39);
   });
 
-  it('offers every tool at both doors but Moving mode’s, which only MCP is offered', () => {
+  it('offers every tool at both doors but Moving mode’s and change_lifecycle, which only MCP is offered', () => {
     for (const [name, d] of defs) {
       expect([...d.doors].sort(), name).toEqual(
         MCP_ONLY.includes(name) ? ['mcp'] : ['assistant', 'mcp'],
@@ -100,6 +103,28 @@ describe('TOOL_DEFS', () => {
     expect(TOOL_DEFS.get_move.output.shape.items.element.shape.untrusted.shape).toHaveProperty(
       'name',
     );
+  });
+
+  it('change_lifecycle: a lifecycle, never the trash; an ended price is an amount and its currency', () => {
+    const input = TOOL_DEFS.change_lifecycle.input;
+    const base = { thing_id: 'K7D2QX' };
+    for (const lifecycle of ['archived', 'sold', 'given_away', 'lost', 'disposed', 'in_use'])
+      expect(input.safeParse({ ...base, lifecycle }).success, lifecycle).toBe(true);
+    expect(input.safeParse({ ...base, lifecycle: 'trashed' }).success).toBe(false);
+    expect(input.safeParse({ ...base, lifecycle: 'deleted' }).success).toBe(false);
+    expect(input.safeParse(base).success).toBe(false);
+    const sold = {
+      ...base,
+      lifecycle: 'sold',
+      ended_on: '2026-10-01',
+      ended_to: 'Murdock',
+      ended_notes: 'Collected in person',
+      ended_price: { amount: '120.00', currency: 'EGP' },
+    };
+    expect(input.safeParse(sold).success).toBe(true);
+    expect(input.safeParse({ ...sold, ended_price: { amount: '120.00' } }).success).toBe(false);
+    expect(input.safeParse({ ...sold, ended_on: '1 October' }).success).toBe(false);
+    expect(TOOL_DEFS.change_lifecycle.annotations.destructiveHint).toBe(false);
   });
 
   it('has no tool that trashes, deletes, merges, transfers, reveals, uploads or runs SQL', () => {

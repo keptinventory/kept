@@ -2,7 +2,7 @@ import { addThingItem, TOOL_DEFS } from '@kept/mcp';
 import { describe, expect, it } from 'vitest';
 import { ReturnBody } from '../lending/routes.js';
 import { UpdatePlaceBody } from '../places/service.js';
-import { CreateBody, UpdateFields } from '../things/validate.js';
+import { CreateBody, LifecycleBody, UpdateFields } from '../things/validate.js';
 
 // Every field a person can set on a thing in the app (the create sheet and the edit form send
 // POST /things' CreateBody and PATCH /things/:id's UpdateFields) can be set by add_thing and
@@ -121,6 +121,25 @@ const RETURN_NOT_A_TOOL_FIELD: Record<string, string> = {
   // Damaged sets the thing's condition (the dialog's default); a condition alone is the loan's.
   updateCondition: 'follows damaged',
 };
+
+// A thing's lifecycle. POST /things/:id/lifecycle's body is what the Change lifecycle sheet and
+// Archive send.
+const LIFECYCLE_AS_TOOL: Record<string, string> = {
+  lifecycle: 'lifecycle',
+  endedOn: 'ended_on',
+  endedTo: 'ended_to',
+  endedNotes: 'ended_notes',
+  endedPrice: 'ended_price',
+  endedCurrency: 'ended_price',
+};
+
+describe('change_lifecycle takes every field the Change lifecycle sheet sets', () => {
+  const lifecycleKeys = keysOf(TOOL_DEFS.change_lifecycle.input.shape);
+  it.each(keysOf(LifecycleBody.shape))('lifecycle: %s', (key) => {
+    expect(LIFECYCLE_AS_TOOL[key], `${key} has no tool field`).toBeDefined();
+    expect(lifecycleKeys).toContain(LIFECYCLE_AS_TOOL[key]);
+  });
+});
 
 describe('return_thing takes every field the return dialog sets', () => {
   const returnKeys = keysOf(TOOL_DEFS.return_thing.input.shape);
