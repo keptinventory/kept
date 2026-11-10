@@ -192,13 +192,6 @@ const noScript = [
     }
   }
 
-  /* Commands read left to right. In Arabic a code block otherwise opens scrolled to the end of
-     its longest line, hiding the start of each command; this page is mostly commands, so it
-     sets them left to right here (the other pages' blocks are not changed by this). */
-  :root[dir='rtl'] .sl-markdown-content .expressive-code pre {
-    direction: ltr;
-  }
-
   /* One path at a time. Without JavaScript: the one the hash names, or else the default. */
   .kd-path {
     scroll-margin-block-start: calc(var(--sl-nav-height, 4rem) + 1rem);
