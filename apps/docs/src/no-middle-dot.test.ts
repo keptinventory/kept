@@ -8,13 +8,15 @@ const root = join(import.meta.dirname, '../../..');
 const docs = join(import.meta.dirname, 'content/docs');
 const MIDDLE_DOT = '·';
 
-function pages(dir: string): string[] {
+/** The files under `dir` whose names match `kind`. */
+function files(dir: string, kind: RegExp): string[] {
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
-    if (statSync(path).isDirectory()) return pages(path);
-    return /\.mdx?$/.test(name) ? [path] : [];
+    if (statSync(path).isDirectory()) return files(path, kind);
+    return kind.test(name) ? [path] : [];
   });
 }
+const pages = (dir: string) => files(dir, /\.mdx?$/);
 
 /** `file:line` for every line holding a middle dot. */
 function dots(path: string): string[] {
@@ -31,5 +33,11 @@ describe('the middle dot', () => {
   it('is nowhere in the docs, in any language', () => {
     expect(pages(docs).length).toBeGreaterThan(0);
     expect(pages(docs).flatMap(dots)).toEqual([]);
+  });
+
+  it('is nowhere in the diagrams', () => {
+    const diagrams = files(join(import.meta.dirname, 'assets'), /\.svg$/);
+    expect(diagrams.length).toBeGreaterThan(0);
+    expect(diagrams.flatMap(dots)).toEqual([]);
   });
 });
