@@ -136,7 +136,8 @@ port or on Home Assistant itself:
 | Feature | Plain http | https |
 |---|---|---|
 | Things, places, search, labels, photos from a file | yes | yes |
-| Personal tokens (the integration, scripts), showing secrets, exports | no | yes |
+| The Kept integration, set up from this app | yes | yes |
+| Personal tokens (scripts), showing secrets, exports | no | yes |
 | Passkeys, the camera, installing the phone app, push | no | yes |
 
 Inside Home Assistant, Kept counts as https only when Home Assistant itself is served over https.
@@ -146,9 +147,20 @@ with one there.
 
 ## The Kept integration
 
-Install the Kept integration (HACS: `keptinventory/kept-homeassistant`) and give it
-`http://<this app's host name>:8080` and a personal token made in Kept (Settings → Connections)
-over https. Automatic setup of the integration from the app comes later.
+Install the Kept integration (HACS: `keptinventory/kept-homeassistant`) and restart Home Assistant.
+This app tells Home Assistant it is here, so **Settings → Devices & services** shows Kept as
+discovered. Add it; Home Assistant shows a code and waits. In Kept, **Settings → Connections** shows
+**Home Assistant asks to connect** with the same code: **Allow**, then pick the locations and what
+it can do. No token to copy, and no https needed.
+
+- **What it gets:** an ordinary personal token named **Home Assistant**, made by the person who
+  allowed it and acting as them, for the locations they picked.
+- **How it travels:** from Kept to Home Assistant over Home Assistant's internal network, never
+  through a browser. The request carries a secret only Home Assistant has: the app sends it in the
+  discovery message, which only Home Assistant reads.
+- **Revoke:** in Kept, **Settings → Connections**. A request nobody allows within 10 minutes ends.
+- **Kept elsewhere** (Compose, Kubernetes): set the integration up with Kept's address and a token,
+  as before ([guide](https://keptinventory.info/users/home-assistant/)).
 
 ## Backups and restore
 

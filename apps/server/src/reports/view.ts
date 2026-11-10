@@ -1,6 +1,7 @@
-import { type Digits, formatMoney, printedCode } from '@kept/shared';
+import { formatMoney, printedCode } from '@kept/shared';
 import type { Gathered, GatheredThing, ReportOptions } from './gather.js';
 import { type ReportLabels, type ReportLocale, templateLabels, wordsFor } from './labels.js';
+import { colonOf, dirOf, intlLocaleOf, numberingOf, pathSeparatorOf, sepOf } from './locale.js';
 
 // The report's data as the Typst template reads it (template/report.typ, `/data.json`). Every
 // string is final here: numbers, money and dates are formatted with Intl in the report's
@@ -45,6 +46,8 @@ export type ReportView = {
   lang: ReportLocale;
   /** Between a line's parts: a comma, the Arabic comma in Arabic; never the middle dot (#459). */
   sep: string;
+  /** After a label ("Serial number: …"), as the language writes it. */
+  colon: string;
   dir: 'ltr' | 'rtl';
   /**
    * Between a path's steps: "›" left to right, "‹" right to left, pointing from the outer place
@@ -106,13 +109,9 @@ function sums(things: readonly GatheredThing[]): [string, string][] {
 
 // --- formatting ------------------------------------------------------------------------------
 
-const intlLocale = (locale: ReportLocale) => (locale === 'ar' ? 'ar-EG' : 'en-GB');
-const numbering = (locale: ReportLocale, digits: Digits) =>
-  locale === 'ar' && digits === 'eastern' ? 'arab' : 'latn';
-
 function formatters(options: ReportOptions, timeZone: string) {
-  const locale = intlLocale(options.locale);
-  const numberingSystem = numbering(options.locale, options.digits);
+  const locale = intlLocaleOf(options.locale);
+  const numberingSystem = numberingOf(options.locale, options.digits);
   const nf = new Intl.NumberFormat(locale, { numberingSystem, maximumFractionDigits: 3 });
   const date = new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
@@ -155,8 +154,9 @@ export function buildView(g: Gathered, options: ReportOptions, ctx: ViewContext)
   const account = g.accountOwnerName !== null;
   const locationName = new Map(g.locations.map((l) => [l.id, l.name]));
   const showMoney = options.include.money && g.moneyShown;
-  const pathSeparator = options.locale === 'ar' ? '‹' : '›';
-  const sep = options.locale === 'ar' ? '، ' : ', ';
+  const pathSeparator = pathSeparatorOf(options.locale);
+  const sep = sepOf(options.locale);
+  const colon = colonOf(options.locale);
 
   const groups = new Map<string, { path: string[]; pathText: string; things: GatheredThing[] }>();
   for (const t of g.things) {
@@ -215,21 +215,23 @@ export function buildView(g: Gathered, options: ReportOptions, ctx: ViewContext)
 
   const when = f.dateTime(ctx.now);
   const filters: string[] = [];
-  const list = (names: string[]) => names.join(options.locale === 'ar' ? '، ' : ', ');
+  const list = (names: string[]) => names.join(sep);
   if (g.filterNames.places.length > 0)
-    filters.push(`${w.filterPlaces}: ${list(g.filterNames.places)}`);
+    filters.push(`${w.filterPlaces}${colon}${list(g.filterNames.places)}`);
   if (g.filterNames.types.length > 0)
-    filters.push(`${w.filterTypes}: ${list(g.filterNames.types)}`);
-  if (g.filterNames.tags.length > 0) filters.push(`${w.filterTags}: ${list(g.filterNames.tags)}`);
+    filters.push(`${w.filterTypes}${colon}${list(g.filterNames.types)}`);
+  if (g.filterNames.tags.length > 0)
+    filters.push(`${w.filterTags}${colon}${list(g.filterNames.tags)}`);
   if (options.filters.includeEnded) filters.push(w.withEnded);
   if (options.filters.includeTrashed) filters.push(w.withTrashed);
 
   return {
     lang: options.locale,
     sep,
-    dir: options.locale === 'ar' ? 'rtl' : 'ltr',
+    colon,
+    dir: dirOf(options.locale),
     pathSeparator,
-    digits: numbering(options.locale, options.digits),
+    digits: numberingOf(options.locale, options.digits),
     labels: templateLabels(options.locale),
     scopeName: account ? w.allLocations : (g.locations[0]?.name ?? ''),
     scopeDetail: account

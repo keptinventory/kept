@@ -33,7 +33,7 @@ import {
   type RunScope,
   TooManyThingsError,
 } from './gather.js';
-import type { ReportLocale } from './labels.js';
+import { REPORT_LOCALES, reportLocaleOf } from './locale.js';
 import { gatherMove, type MoveReportOptions } from './move/gather.js';
 import { buildMoveView } from './move/view.js';
 import {
@@ -47,6 +47,8 @@ import {
 import { gatherVehicle, type VehicleReportOptions } from './vehicle/gather.js';
 import { buildVehicleView } from './vehicle/view.js';
 import { buildView } from './view.js';
+
+export { reportLocaleOf };
 
 // The inventory report (D201).
 //
@@ -130,8 +132,8 @@ export const InventoryReportBody = z
       })
       .strict()
       .optional(),
-    /** Omitted: the requester's own language (Arabic when it is Arabic, else English). */
-    locale: z.enum(['en', 'ar']).optional(),
+    /** Omitted: the requester's own language (#465: every language Kept speaks). */
+    locale: z.enum(REPORT_LOCALES).optional(),
     /** Omitted: the requester's own setting (D143). Applies to Arabic only. */
     digits: z.enum(['western', 'eastern']).optional(),
     /** 1.3 (D228): mail the PDF to the requester when it is done. */
@@ -202,7 +204,7 @@ async function optionsOf(client: pg.ClientBase, body: InventoryReportBody): Prom
     'SELECT locale, digits FROM public.user_profiles WHERE user_id = kept.current_user_id()',
   );
   const profile = rows[0];
-  const locale = body.locale ?? (profile?.locale?.startsWith('ar') ? 'ar' : 'en');
+  const locale = body.locale ?? reportLocaleOf(profile?.locale);
   const dedupe = (ids: string[] | undefined) => [
     ...new Set((ids ?? []).map((i) => i.toLowerCase())),
   ];
@@ -355,9 +357,8 @@ export const InsuranceReportBody = z
       .regex(/^[A-Z]{3}$/)
       .optional(),
     include: z.object({ photos: z.boolean().optional() }).strict().optional(),
-    /** The web's languages; a report is written in English or Arabic (D201), so French, German,
-     * Italian, Spanish, Ukrainian and Vietnamese readers get English. Omitted: the requester's own. */
-    locale: z.enum(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']).optional(),
+    /** The report's language (#465: every language Kept speaks). Omitted: the requester's own. */
+    locale: z.enum(REPORT_LOCALES).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
     /** 1.3 (D228): mail the PDF to the requester when it is done. */
     email: z.boolean().optional(),
@@ -413,10 +414,6 @@ export async function todayFor(client: pg.ClientBase): Promise<string> {
   );
   return rows[0]?.today as string;
 }
-
-/** The report's language: Arabic for Arabic, else English (D201). */
-export const reportLocaleOf = (locale: string | null | undefined): ReportLocale =>
-  locale?.startsWith('ar') ? 'ar' : 'en';
 
 /** An insurance run's options from a request body and the requester's profile. */
 export async function insuranceOptionsOf(
@@ -518,7 +515,7 @@ export const VehicleHistoryReportBody = z
       })
       .strict()
       .optional(),
-    locale: z.enum(['en', 'ar']).optional(),
+    locale: z.enum(REPORT_LOCALES).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
   })
   .strict()
@@ -606,7 +603,7 @@ export const ConditionReportBody = z
     /** Another report of the same location, printed beside this one, room by room. */
     compareWith: z.uuid().optional(),
     include: z.object({ photos: z.boolean().optional() }).strict().optional(),
-    locale: z.enum(['en', 'ar']).optional(),
+    locale: z.enum(REPORT_LOCALES).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
   })
   .strict()
@@ -687,7 +684,7 @@ export const MoveReportBody = z
     moveId: z.uuid(),
     /** Only these boxes (their containers); omitted: every box of the move. */
     containerIds: z.array(z.uuid()).min(1).max(MAX_SHEET_BOXES).optional(),
-    locale: z.enum(['en', 'ar']).optional(),
+    locale: z.enum(REPORT_LOCALES).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
   })
   .strict();

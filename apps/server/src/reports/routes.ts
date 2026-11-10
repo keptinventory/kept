@@ -34,7 +34,7 @@ import {
 //   {scope: {locationId} | {accountId},
 //    filters?: {placeIds?, typeIds?, tagIds?, includeEnded?, includeTrashed?},
 //    include?: {photos? = true, qr? = false, money? = true},
-//    locale?: 'en' | 'ar', digits?: 'western' | 'eastern'}
+//    locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi', digits?: 'western' | 'eastern'}
 //   → 202 {id, status: 'queued', expiresAt}; 404 for a scope the caller can't see; 429 past
 //   five an hour (`retryAfter` seconds in the body and the Retry-After header). With `email: true`,
 //   409 `mail_not_configured` on a server without mail, or `no_email_address` for an account with
@@ -57,18 +57,18 @@ import {
 // The vehicle history report (D51), in the Vehicles module of the vehicle's location:
 // POST /api/v1/reports/vehicle-history
 //   {thingId, from?, to?, include?: {costs?, proofPhotos?, fuel?, documents?} (all true),
-//    locale?: 'en' | 'ar', digits?} → 202 {id, status: 'queued', expiresAt}; anyone who sees the
+//    locale?, digits?} → 202 {id, status: 'queued', expiresAt}; anyone who sees the
 //   vehicle, viewers included (no money unless the location shows it to them); 404 for a vehicle
 //   they can't see; 409 `module_off` where Vehicles is off; the same 5-an-hour limit.
 //
 // The condition report (1.x, D171, D235), in no module:
 // POST /api/v1/reports/condition
-//   {reportId, compareWith?, include?: {photos? = true}, locale?: 'en' | 'ar', digits?}
+//   {reportId, compareWith?, include?: {photos? = true}, locale?, digits?}
 //   → 202 {id, status: 'queued', expiresAt}; anyone who sees the report, viewers included; 404
 //   for a report they can't see, or a comparison with one of another location; the same limit.
 //
 // A move's contents sheets (1.x, D251), in the Moving mode module of the move's location:
-// POST /api/v1/reports/move {moveId, containerIds?, locale?: 'en' | 'ar', digits?}
+// POST /api/v1/reports/move {moveId, containerIds?, locale?, digits?}
 //   → 202 {id, status: 'queued', expiresAt}; anyone who sees the move, viewers included; 404 for a
 //   move they can't see; the same limit.
 

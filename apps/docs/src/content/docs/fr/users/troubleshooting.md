@@ -95,6 +95,8 @@ Ce que l'IA remplit est une suggestion. Ouvrez l'objet et corrigez le nom, la ma
 
 Assurez-vous que l'étiquette est plane et bien éclairée, et nettoyez l'objectif de l'appareil photo. **Saisir le code** prend les six caractères imprimés sous le code QR, avec ou sans le tiret. Une étiquette usée se réimprime avec le même code ([Identifiants courts et étiquettes](/fr/users/short-ids/)). Une étiquette sur du ruban étroit d'imprimante d'étiquettes n'a pas de code QR : maintenez **Scanner** sur son identifiant court imprimé, ou saisissez-le ([scanner un code sans code QR](/fr/users/short-ids/#scanner-un-code-sans-qr-code)).
 
+Si **Scanner** affiche **Kept ne peut pas scanner ici** parce que le scanner n'a pas démarré, touchez **Réessayer** : l'appareil photo et le scanner redémarrent, sans fermer l'application.
+
 ## IA
 
 ### « En attente d'un fournisseur d'IA »

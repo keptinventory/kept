@@ -42,8 +42,8 @@ ou par son nom), la plus ancienne d'abord.
 
 ## Créer le PDF
 
-**Créer le PDF** produit le rapport, ou les deux côte à côte lors de la comparaison, en anglais ou
-en arabe, avec ou sans photos. Un rapport non terminé l'indique dans le PDF.
+**Créer le PDF** produit le rapport, ou les deux côte à côte lors de la comparaison, dans n'importe
+quelle langue de Kept (la vôtre par défaut), avec ou sans photos. Un rapport non terminé l'indique dans le PDF.
 
 ## Exporter et importer
 

@@ -22,6 +22,7 @@ import {
   type ReportOptions,
   readThingsPage,
 } from '../../reports/gather.js';
+import { dirOf, intlLocaleOf } from '../../reports/locale.js';
 import type { RenderOptions } from '../../reports/render/render.js';
 import { prepareInventoryReport, renderPrepared } from '../../reports/service.js';
 import { gateFor } from '../../serialize/gates.js';
@@ -207,7 +208,7 @@ export async function buildReadableCopy(
   const lang = readableLocaleOf(options.locale);
   const words = readableWords(lang);
   const digits: Digits = lang === 'ar' ? options.digits : 'western';
-  const intlLocale = lang === 'ar' ? 'ar-EG' : 'en-GB';
+  const intlLocale = intlLocaleOf(lang);
   const numberingSystem = digits === 'eastern' ? 'arab' : 'latn';
   const nf = new Intl.NumberFormat(intlLocale, { numberingSystem, maximumFractionDigits: 3 });
   const reportOptions: ReportOptions = {
@@ -564,7 +565,7 @@ export async function buildReadableCopy(
   // 6. The pages.
   const view: ReadableView = {
     lang,
-    dir: lang === 'ar' ? 'rtl' : 'ltr',
+    dir: dirOf(lang),
     words,
     location: read.loc.name,
     exported: words.exported(dateFmt.format(now())),
@@ -576,7 +577,7 @@ export async function buildReadableCopy(
       pdf === 'included'
         ? { href: 'inventory.pdf' }
         : pdf === 'too_many_things'
-          ? { note: words.pdfLeftOut(nf.format(MAX_THINGS)) }
+          ? { note: words.pdfLeftOut(MAX_THINGS, nf.format(MAX_THINGS)) }
           : pdf === 'failed'
             ? { note: words.pdfFailed }
             : null,

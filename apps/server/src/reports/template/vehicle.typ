@@ -110,7 +110,8 @@
 #v(2mm)
 #if d.readings.len() == 0 { none-line() } else {
   tbl((1fr, 1fr, 1fr, 1fr, 12mm), (L.date, L.reading, L.source, L.by, L.proof),
-    d.readings.map(r => (r.date, text(font: W(500), r.value), r.source, r.by, if r.proof { "●" } else { "" })).flatten())
+    // The photo mark is drawn: the report font has no "●", and a fallback font would print it.
+    d.readings.map(r => (r.date, text(font: W(500), r.value), r.source, r.by, if r.proof { box(circle(radius: 2.2pt, fill: c.ink2)) } else { "" })).flatten())
 }
 
 #if d.proofs.len() > 0 [
@@ -152,7 +153,7 @@
 // ---- Fuel: the summary and the fills per year (no fill-by-fill table: V39's row bound).
 #if d.fuel != none [
   == #L.fuel
-  #for (k, v) in d.fuel.summary [#text(fill: c.ink3, k + ": ") #text(font: W(600), v) \ ]
+  #for (k, v) in d.fuel.summary [#text(fill: c.ink3, k + d.colon) #text(font: W(600), v) \ ]
   #v(3mm)
   #if d.fuel.years.len() > 0 {
     tbl((1fr, 1fr, 2fr), (L.year, L.fills, L.fuelAmount),

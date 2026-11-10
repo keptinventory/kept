@@ -111,7 +111,7 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   ntfy, Telegram and a calendar feed.
 - **Vehicles and machines.** Readings, services, fuel and running costs.
 - **The household.** Shared locations with roles and end dates, share links, stocktakes,
-  condition reports, an insurance report and insights.
+  condition reports, an insurance report and insights. PDFs in the reader's language.
 - **Capture.** Photograph a thing, a receipt, a label or a whole room, online or offline; your AI
   provider (OpenAI, Anthropic, Google, OpenRouter, Groq, or an OpenAI-compatible server such as
   Ollama) suggests the details and you confirm them. Without one, you type them. Give a location
@@ -119,7 +119,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
-  dashboards and automations ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
+  dashboards and automations, and the app offers to set it up: no token to copy
+  ([Home Assistant](https://keptinventory.info/users/home-assistant/)).
 - **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
   Homebox import takes its links' titles from Paperless
   ([Paperless](https://keptinventory.info/users/paperless/)).
@@ -185,8 +186,8 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
 
 - **Home Assistant:** the [kept-homeassistant](https://github.com/keptinventory/kept-homeassistant)
   integration, a HACS custom repository ([setup](https://keptinventory.info/users/home-assistant/)).
-  The app runs Kept; the integration brings it into Home Assistant. App users turn on the app's
-  **https on Kept's port** option first ([the app and the integration](https://keptinventory.info/users/home-assistant/#the-app-and-the-integration)).
+  The app runs Kept; the integration brings it into Home Assistant. With the app, Home Assistant
+  finds Kept and you allow it in Kept: no token, no https ([set up from the app](https://keptinventory.info/users/home-assistant/#set-up-from-the-app)).
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="apps/docs/src/assets/diagrams/home-assistant-dark.svg">

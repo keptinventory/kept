@@ -131,5 +131,12 @@ The server doesn't use Lingui:
   Each language's chrome sets `dir`.
 - **Reminders** (`apps/server/src/notify/words.ts`): one wording shared by the email, the push
   payload and the calendar feed.
-- **The inventory report PDF** (`apps/server/src/reports/labels.ts`): English or Arabic
-  only (D201). The Arabic follows the web catalogue's wording for terms the app already uses.
+- **The PDFs** (`apps/server/src/reports/words/`): the inventory, insurance, condition and
+  vehicle reports, a move's contents sheets, the readable copy and the claim pack's report, in
+  every language Kept speaks. One table per language (`words/<locale>.ts`), gathered in
+  `words/index.ts` as a `Record` over `REPORT_LOCALES`, so a missing language or key is a type
+  error; `languages.test.ts` checks each has every key English has and renders each kind in each
+  language with the report font alone. Each table follows the web catalogue's wording for terms
+  the app already uses. How each language writes what isn't a word (its Intl locale, Arabic's
+  Eastern digits and right to left, the separator, French's space before a colon, plural forms)
+  is in `reports/locale.ts`. Add a language there and in `words/`.

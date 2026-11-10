@@ -8400,8 +8400,8 @@ msgid "This browser can't open the camera here."
 msgstr "لا يستطيع هذا المتصفح فتح الكاميرا هنا."
 
 #: src/components/scan/scanner-view.tsx
-msgid "This browser can't read codes with the camera."
-msgstr "لا يستطيع هذا المتصفح قراءة الرموز بالكاميرا."
+msgid "The scanner didn't start."
+msgstr "لم يبدأ الماسح."
 
 #: src/components/sync-status.tsx
 msgid "This browser may clear Kept's offline copy after weeks unused. Open Kept to sync soon."
@@ -29028,6 +29028,42 @@ msgstr "أزِله من وحدته"
 #: src/assistant/confirm-card.tsx
 msgid "Rack units"
 msgstr "وحدات الخزانة"
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "انتهى هذا الطلب. ابدأ من جديد في Home Assistant."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "رُفض الطلب. لن يحصل Home Assistant على شيء."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "يطلب Home Assistant الاتصال"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "رمز التحقق <0>{code}</0>. تأكد أن Home Assistant يعرض الرمز نفسه."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "رفض"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "ربط Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "يقرأ Home Assistant بيانات Kept باسمك، في المواقع التي تختارها، ويحصل على رمزه بنفسه: لا شيء لتنسخه. ألغِه من هنا متى شئت."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "تم ربط Home Assistant"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "يكمل Home Assistant الإعداد بنفسه. يظهر الرمز هنا باسم Home Assistant."
 
 #: src/assistant/confirm-card.tsx
 #: src/components/lending/thing-loans.tsx

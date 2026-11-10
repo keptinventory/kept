@@ -3,17 +3,19 @@
  * (plan Phase C: "forms are bottom sheets on phones with an explicit Save", L88). React Aria's
  * modal underneath, so focus is trapped and restored and Escape closes it.
  *
+ * Every sheet follows the visual viewport (#487), so on a phone it sits above the on-screen
+ * keyboard and the browser's form bar, at its own height, at most 92% of what is left.
+ *
  * `fitKeyboard` (#130) is for a sheet whose content scrolls under a search field (the map's
- * shape picker): it follows the visual viewport, so on a phone it sits above the on-screen
- * keyboard and the browser's form bar and keeps one height while results change; its content
- * gets the rows that are left (a `min-h-0` grid row that scrolls).
+ * shape picker): it also keeps one height while results change; its content gets the rows that
+ * are left (a `min-h-0` grid row that scrolls).
  */
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { ModalOverlay, Modal as ModalPrimitive } from 'react-aria-components';
 import { CloseOnBack } from '@/components/ui/close-on-back';
 import { Dialog } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { useVisibleBox } from '@/lib/visual-viewport';
+import { useOverlayOnVisibleBox } from '@/lib/visual-viewport';
 
 export function Sheet({
   isOpen,
@@ -32,18 +34,10 @@ export function Sheet({
   isDismissable?: boolean;
   className?: string;
   role?: 'dialog' | 'alertdialog';
-  /** Follow the visual viewport: stay above a phone's keyboard, at one height (#130). */
+  /** One height, whatever the results: a picker with a search field above a list (#130). */
   fitKeyboard?: boolean;
 }) {
-  const box = useVisibleBox(fitKeyboard && isOpen);
-  const overlayStyle = box
-    ? ({
-        top: box.top,
-        height: box.height,
-        bottom: 'auto',
-        '--sheet-vh': `${box.height}px`,
-      } as CSSProperties)
-    : undefined;
+  const overlayStyle = useOverlayOnVisibleBox(isOpen);
   return (
     <ModalOverlay
       isOpen={isOpen}
@@ -58,7 +52,7 @@ export function Sheet({
           'w-full rounded-t-2xl border border-line bg-surface pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_-10px_30px_rgba(0,0,0,.18)] outline-none md:max-w-lg md:rounded-xl md:shadow-[0_10px_30px_rgba(0,0,0,.2)]',
           fitKeyboard
             ? 'flex h-[calc(var(--sheet-vh,100dvh)*0.92)] flex-col overflow-hidden md:h-auto md:max-h-[calc(var(--sheet-vh,100dvh)*0.92)]'
-            : 'max-h-[92dvh] overflow-y-auto',
+            : 'max-h-[calc(var(--sheet-vh,100dvh)*0.92)] overflow-y-auto',
           className,
         )}
       >

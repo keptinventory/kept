@@ -81,6 +81,8 @@ Lo que la IA completa es una sugerencia. Abre el elemento y corrige el nombre, l
 
 Asegúrate de que la etiqueta esté plana y bien iluminada, y limpia la lente de la cámara. **Escribe el código** toma los seis caracteres impresos debajo del código QR, con o sin el guion. Una etiqueta desgastada se vuelve a imprimir con el mismo código ([Identificadores cortos y etiquetas](/es/users/short-ids/)). Una etiqueta en cinta de etiquetadora estrecha no tiene código QR: mantén presionado **Escanear** en su identificador corto impreso, o escríbelo ([escanear un código sin código QR](/es/users/short-ids/#escanear-un-código-sin-código-qr)).
 
+Si **Escanear** dice **Kept no puede escanear aquí** porque el escáner no se inició, toca **Intentar de nuevo**: la cámara y el escáner vuelven a empezar, sin cerrar la aplicación.
+
 ## IA
 
 ### "Esperando un proveedor de IA"

@@ -81,7 +81,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   réseau local et un nom Tailscale.
 - **Langues** : allemand, anglais, arabe (de droite à gauche), espagnol, français, italien,
   ukrainien et vietnamien ; tapez pour trouver le vôtre dans le sélecteur, et des dates au style de
-  votre région, ou à votre choix. Les montants sont lus comme votre langue les écrit. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
+  votre région, ou à votre choix. Les montants sont lus comme votre langue les écrit. Les PDF, les dossiers de sinistre et la copie lisible sortent dans votre langue. La documentation pour les utilisateurs, l'administration et l'installation existe aussi dans toutes ces langues.
 
 ## Sur votre téléphone
 

@@ -30,8 +30,8 @@ chi l'ha aggiunta. Le foto perdono i dati di posizione, come tutte le foto in Ke
 o per nome), quella precedente prima.
 
 ## Crea il PDF
-**Crea il PDF** genera il rapporto, o entrambi fianco a fianco quando confronti, in inglese o arabo,
-con o senza foto. Un rapporto non finito lo indica nel PDF.
+**Crea il PDF** genera il rapporto, o entrambi fianco a fianco quando confronti, in qualsiasi lingua di Kept
+(all'inizio, la tua), con o senza foto. Un rapporto non finito lo indica nel PDF.
 
 ## Esporta e importa
 Un'esportazione di Kept del luogo contiene i suoi rapporti e le loro foto. Importato, un rapporto concluso rimane concluso e bloccato. Vedi [importazione ed esportazione](/it/users/import-export/).

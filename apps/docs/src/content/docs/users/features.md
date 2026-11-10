@@ -80,7 +80,8 @@ a location turns them on in **Location settings → What to track**
   name and a Tailscale name.
 - **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
   and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
-  Amounts are read as your language writes them. The user, admin and install docs are in every language too.
+  Amounts are read as your language writes them. PDFs, claim packs and the readable copy
+  come out in your language. The user, admin and install docs are in every language too.
 
 ## On your phone
 
@@ -99,7 +100,8 @@ a location turns them on in **Location settings → What to track**
 ## Works with
 
 - **[Home Assistant](/users/home-assistant/)**: Kept as a Home Assistant app, and an integration
-  for dashboards, automations and the calendar.
+  for dashboards, automations and the calendar. The app offers the integration in Home Assistant;
+  you allow it in Kept, with no token to copy.
 - **[Paperless-ngx](/users/paperless/)**: link documents instead of copying them; the start of a
   word finds one in **Link from Paperless**. A [Homebox import](/users/import-export/) takes its
   links' titles from Paperless.

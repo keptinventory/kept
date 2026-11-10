@@ -14,7 +14,8 @@ import { downloadName } from '../files/views.js';
 import { AppError, conflict, invalid, notFound, pgErrorOf } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireCan, requireMembership } from '../locations/access.js';
-import { prepareInsurance, renderPrepared, reportLocaleOf, todayFor } from '../reports/service.js';
+import { REPORT_LOCALES, type ReportLocale, reportLocaleOf } from '../reports/locale.js';
+import { prepareInsurance, renderPrepared, todayFor } from '../reports/service.js';
 import { exportKey, type FileStorage } from '../storage/blob-store.js';
 import type { InsuranceOptions } from './report.js';
 
@@ -56,7 +57,7 @@ export const CreateClaimPackBody = z
         .object({ locationId: z.uuid(), thingIds: z.array(z.uuid()).min(1).max(MAX_PACK_THINGS) })
         .strict(),
     ]),
-    locale: z.enum(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']).optional(),
+    locale: z.enum(REPORT_LOCALES).optional(),
     digits: z.enum(['western', 'eastern']).optional(),
     /** D158: the "this includes prices and documents" warning was shown and accepted. */
     acknowledged: z.boolean().optional(),
@@ -89,7 +90,8 @@ export type ClaimPackView = z.infer<typeof ClaimPackView>;
  * Not rights: the job reads everything as the creator (jobs/boss.ts). */
 export type ClaimPackJobData = {
   runId: string;
-  locale: 'en' | 'ar';
+  /** The pack's report is written in it (#465). */
+  locale: ReportLocale;
   digits: 'western' | 'eastern';
   asOf: string;
 };
@@ -551,7 +553,7 @@ export async function buildClaimPack(
       asOf: data.asOf,
       reportCurrency: null,
       include: { photos: true },
-      locale: data.locale === 'ar' ? 'ar' : 'en',
+      locale: reportLocaleOf(data.locale),
       digits: data.digits === 'eastern' ? 'eastern' : 'western',
     };
     const { prepared, entries, things } = await withScope(deps.pools.app, scope, async (tx, c) => {

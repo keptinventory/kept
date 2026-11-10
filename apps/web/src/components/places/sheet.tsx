@@ -12,6 +12,7 @@ import { ModalOverlay, Modal as ModalPrimitive } from 'react-aria-components';
 import { CloseOnBack } from '@/components/ui/close-on-back';
 import { Dialog } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { useOverlayOnVisibleBox } from '@/lib/visual-viewport';
 
 export function Sheet({
   isOpen,
@@ -29,16 +30,19 @@ export function Sheet({
   /** A picker with a long list: taller, and wider on desktop. */
   wide?: boolean;
 }) {
+  // Above a phone's on-screen keyboard (#487).
+  const overlayStyle = useOverlayOnVisibleBox(isOpen);
   return (
     <ModalOverlay
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 md:items-center md:p-4"
+      {...(overlayStyle ? { style: overlayStyle } : {})}
     >
       <ModalPrimitive
         className={cn(
-          'max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-line bg-surface pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_10px_30px_rgba(0,0,0,.2)] outline-none md:rounded-xl md:pb-0',
+          'max-h-[calc(var(--sheet-vh,100dvh)*0.92)] w-full overflow-y-auto rounded-t-2xl border border-line bg-surface pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_10px_30px_rgba(0,0,0,.2)] outline-none md:rounded-xl md:pb-0',
           wide ? 'md:max-w-xl' : 'md:max-w-md',
         )}
       >

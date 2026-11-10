@@ -8400,8 +8400,8 @@ msgid "This browser can't open the camera here."
 msgstr "Dieser Browser kann die Kamera hier nicht öffnen."
 
 #: src/components/scan/scanner-view.tsx
-msgid "This browser can't read codes with the camera."
-msgstr "Dieser Browser kann mit der Kamera keine Codes lesen."
+msgid "The scanner didn't start."
+msgstr "Der Scanner ist nicht gestartet."
 
 #: src/components/sync-status.tsx
 msgid "This browser may clear Kept's offline copy after weeks unused. Open Kept to sync soon."
@@ -29028,6 +29028,42 @@ msgstr "Aus der Einheit nehmen"
 #: src/assistant/confirm-card.tsx
 msgid "Rack units"
 msgstr "Höheneinheiten"
+
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Diese Anfrage ist beendet. Starte sie in Home Assistant neu."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Abgelehnt. Home Assistant bekommt nichts."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant möchte sich verbinden"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Code <0>{code}</0>. Prüfe, dass Home Assistant denselben zeigt."
+
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Ablehnen"
+
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Home Assistant verbinden"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant liest Kept als du, in den Orten, die du wählst, und holt sich sein Token selbst: Es gibt nichts zu kopieren. Widerrufe es hier jederzeit."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant ist verbunden"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant richtet den Rest selbst ein. Das Token steht hier als Home Assistant."
 
 #: src/assistant/confirm-card.tsx
 #: src/components/lending/thing-loans.tsx
