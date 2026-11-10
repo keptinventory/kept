@@ -4,9 +4,11 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { signedOutScenario } from '@/api/mock/fixtures';
+import { ownerScenario, signedOutScenario } from '@/api/mock/fixtures';
 import { MockReply } from '@/api/mock/server';
 import { paths } from '@/api/paths';
+import { startLocale } from '@/i18n/i18n';
+import { setLocale } from '@/lib/prefs';
 import { findHeading, renderApp } from '@/test/app';
 
 vi.setConfig({ testTimeout: 20_000 });
@@ -138,5 +140,44 @@ describe('a language picked on this device before it reached the account (#474)'
     await waitFor(() => expect(patches(mock)).toEqual([{ locale: 'fr' }]));
     expect(localStorage.getItem('kept.localeSent')).toBeNull();
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+
+describe('a language stored by a version before 1.14.7 (#482)', () => {
+  const patches = (mock: Awaited<ReturnType<typeof renderApp>>['mock']) =>
+    mock.calls.filter((c) => c.method === 'PATCH' && c.path === paths.me).map((c) => c.body);
+  /** The account's language is `locale`. */
+  const account = (locale: string) => {
+    const state = ownerScenario();
+    state.me = { ...state.me, profile: { ...state.me.profile, locale } };
+    return state;
+  };
+
+  it('is the browser’s own language, stored on every start: nothing goes to the account', async () => {
+    expect(navigator.language).toBe('en-US');
+    localStorage.setItem('kept.locale', 'en');
+    await startLocale();
+    const { mock } = await renderApp('/', { state: account('de') });
+    await findHeading(/./);
+    expect(patches(mock)).toEqual([]);
+    expect(mock.state.me.profile.locale).toBe('de');
+  });
+
+  it('is not the browser’s language, so it was picked: it goes to the account once', async () => {
+    localStorage.setItem('kept.locale', 'de');
+    await startLocale();
+    const { mock } = await renderApp('/', { state: account('en'), locale: 'de' });
+    await waitFor(() => expect(mock.state.me.profile.locale).toBe('de'));
+    expect(patches(mock)).toEqual([{ locale: 'de' }]);
+  });
+
+  it('a language picked after the first start of this version is kept, even the browser’s', async () => {
+    await startLocale();
+    setLocale('en');
+    await startLocale();
+    expect(localStorage.getItem('kept.locale')).toBe('en');
+    const { mock } = await renderApp('/', { state: account('de') });
+    await waitFor(() => expect(mock.state.me.profile.locale).toBe('en'));
+    expect(patches(mock)).toEqual([{ locale: 'en' }]);
   });
 });
