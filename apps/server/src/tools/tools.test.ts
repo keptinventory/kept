@@ -800,6 +800,100 @@ describe('every field a person can set, through add_thing and update_thing', () 
   });
 });
 
+// A shop named for the first time is made inline (D11). A purchase's shop is a store; a service's
+// vendor stays a service centre (log-service.test.ts). One Kept already has is matched by name and
+// keeps the kind it has.
+describe('the kind of a shop add_thing and update_thing make', () => {
+  const shopsNamed = (name: string) =>
+    own<{ id: string; kind: string }>(
+      db,
+      `SELECT id, kind FROM public.vendors
+        WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+      [home.accountId, name],
+    );
+  const shopOf = async (thingId: string) =>
+    (
+      await own<{ vendor_id: string | null }>(
+        db,
+        `SELECT pu.vendor_id FROM public.things t
+           JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id
+           JOIN public.purchases pu ON pu.id = pl.purchase_id WHERE t.id = $1`,
+        [thingId],
+      )
+    )[0]?.vendor_id;
+
+  it('add_thing makes a new shop a store', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Bread bin',
+          purchase: {
+            purchased_on: '2026-09-02',
+            price: '150',
+            currency: 'EGP',
+            shop: 'Souq Attaba',
+          },
+        },
+      ],
+    });
+    const shops = await shopsNamed('Souq Attaba');
+    expect(shops.map((v) => v.kind)).toEqual(['store']);
+    expect(await shopOf(d.things[0].id)).toBe(shops[0]?.id);
+  });
+
+  it('update_thing makes a new shop a store', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Fruit bowl' }],
+    });
+    const id = d.things[0].id;
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { purchased_on: '2026-09-03', shop: 'Khan el-Khalili Crafts' } },
+    });
+    const shops = await shopsNamed('Khan el-Khalili Crafts');
+    expect(shops.map((v) => v.kind)).toEqual(['store']);
+    expect(await shopOf(id)).toBe(shops[0]?.id);
+  });
+
+  it('a shop Kept already has is matched by name and keeps its kind', async () => {
+    const [kept] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.vendors (owner_account_id, name, kind)
+       VALUES ($1, 'Delta Tyres', 'service_centre') RETURNING id`,
+      [home.accountId],
+    );
+    const added = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Spare tyre',
+          purchase: {
+            purchased_on: '2026-09-04',
+            price: '2400',
+            currency: 'EGP',
+            shop: 'delta tyres',
+          },
+        },
+      ],
+    });
+    const later = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Tyre pump' }],
+    });
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: later.things[0].id,
+      fields: { purchase: { purchased_on: '2026-09-05', shop: 'Delta Tyres' } },
+    });
+    expect(await shopsNamed('Delta Tyres')).toEqual([{ id: kept?.id, kind: 'service_centre' }]);
+    expect(await shopOf(added.things[0].id)).toBe(kept?.id);
+    expect(await shopOf(later.things[0].id)).toBe(kept?.id);
+  });
+});
+
 describe('reads', () => {
   let cable: Json;
   let lent: Json;
