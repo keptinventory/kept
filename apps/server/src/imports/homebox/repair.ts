@@ -28,6 +28,7 @@
 import { homeboxTypeName } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import { registerUndo, type UndoArgs, undoableUntil, undoConflict } from '../../audit/undo.js';
 import type { Scope, Tx } from '../../db/scope.js';
@@ -265,6 +266,7 @@ export async function applyRepair(
     tx: c.tx,
     client: c.client,
     userId: c.scope.userId,
+    tokenId: c.scope.tokenId ?? null,
     requestId: c.requestId,
     jobs: c.jobs,
   };
@@ -279,7 +281,7 @@ export async function applyRepair(
     });
   await audited(c.tx, {
     locationId: run.location_id,
-    actor: { type: 'user', id: c.scope.userId },
+    actor: actorOf(c.scope),
     action: 'import.repair',
     entity: { type: 'import_run', id: run.id },
     before: { types: image(before), things: null },
@@ -316,6 +318,7 @@ async function undoRepair(args: UndoArgs): Promise<void> {
     tx: args.tx,
     client,
     userId: args.scope.userId,
+    tokenId: args.scope.tokenId ?? null,
     requestId: args.requestId,
     jobs: args.deps.jobs,
   };

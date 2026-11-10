@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { rateLimited, requireScope } from '../auth/http.js';
 import { reserveInWindow } from '../auth/sign-in-limiter.js';
@@ -40,7 +41,7 @@ export async function listExportRoutes(app: KeptApp, deps: InventoryDeps): Promi
         Object.entries(req.query).filter(([, v]) => v !== undefined && v !== ''),
       );
       const after = { filter, truncated: out.truncated, moneyShown: out.money };
-      const actor = { type: 'user' as const, id: scope.userId };
+      const actor = actorOf(scope);
       if (out.perLocation.size === 0) {
         // Nothing left the server; recorded on the caller's own account when they have one (a
         // managed member may not, and the audit's insert policy has nowhere else to put it).

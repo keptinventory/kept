@@ -10,6 +10,7 @@ import {
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { aiCaptureOn } from '../capture/service.js';
 import type { Scope, Tx } from '../db/scope.js';
@@ -185,7 +186,7 @@ export async function requestExtraction(
   );
   await audited(tx, {
     locationId: thing.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'thing.reextract',
     entity: { type: 'thing', id: thing.id },
     after: {
@@ -264,7 +265,7 @@ export async function requestReceiptExtraction(
   );
   await audited(tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'purchase.reextract',
     entity: { type: 'purchase', id: purchaseId },
     after: { extraction_id: id, attachment_id: first, mode: 'receipt', attempt, superseded },

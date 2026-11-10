@@ -1,6 +1,7 @@
 import { MODULE_IDS, PRESETS, type Preset } from '@kept/shared';
 import { z } from 'zod';
 import { validTimeZone } from '../accounts/ensure-account.js';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { LOCATION_KINDS } from '../db/schema/index.js';
@@ -303,7 +304,7 @@ export async function locationRoutes(
           Object.fromEntries(fields.map((f) => [f, v[f as keyof LocationView]]));
         await audited(tx, {
           locationId: id,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'location.update',
           entity: { type: 'location', id },
           before: pick(before),
@@ -335,7 +336,7 @@ export async function locationRoutes(
         // (0006 §5). The definer checks ownership again and refuses a Personal location.
         await audited(tx, {
           locationId: id,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'location.delete',
           entity: { type: 'location', id },
           before: { name: before.name, kind: before.kind, deleted_at: null },
@@ -362,7 +363,7 @@ export async function locationRoutes(
         // Audited after: only now is the location visible again (0006 §5).
         await audited(tx, {
           locationId: id,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'location.restore',
           entity: { type: 'location', id },
           after: { deleted_at: null },
@@ -419,7 +420,7 @@ export async function locationRoutes(
         const after = await oneLocation(client, id);
         await audited(tx, {
           locationId: id,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'location.modules',
           entity: { type: 'location', id },
           before: { preset: before.preset, modules: before.modules },

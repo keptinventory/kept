@@ -2,6 +2,7 @@ import { rm } from 'node:fs/promises';
 import type { Readable } from 'node:stream';
 import type { FastifyRequest } from 'fastify';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { requireScope } from '../auth/http.js';
 import type { Pools } from '../db/pools.js';
@@ -182,7 +183,7 @@ export async function setDisplay(
       const row = (await readFile(client, fileId)) as FileRow;
       await audited(tx, {
         locationId: row.location_id,
-        actor: { type: 'user', id: scope.userId },
+        actor: actorOf(scope),
         action: 'file.display_set',
         entity: { type: 'file', id: row.id },
         before: { derivative_state: file.derivative_state, sha256: null },

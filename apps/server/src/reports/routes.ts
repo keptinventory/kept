@@ -1,5 +1,6 @@
 import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { withScope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
@@ -194,7 +195,7 @@ export async function reportRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
         const gathered = await gatherInsurance(tx, client, scope, options);
         await audited(tx, {
           locationId: at.locationId,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'report.export_csv',
           entity: { type: 'report', id: null },
           before: null,

@@ -1,5 +1,6 @@
 import { rm } from 'node:fs/promises';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, withScope } from '../db/scope.js';
@@ -209,7 +210,7 @@ export async function ingestFile(
         }
         await audited(tx, {
           locationId: row.location_id,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: opts.auditAction ?? 'file.upload',
           entity: { type: 'file', id: row.id },
           after: {

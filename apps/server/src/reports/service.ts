@@ -5,6 +5,7 @@ import type pg from 'pg';
 import sharp from 'sharp';
 import { renderSVG } from 'uqr';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { auditedMany } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope, withSystem } from '../db/scope.js';
@@ -325,7 +326,7 @@ export async function createInventoryRun(
     tx,
     locationIds.map((locationId) => ({
       locationId,
-      actor: { type: 'user' as const, id: scope.userId },
+      actor: actorOf(scope),
       action: 'report.generate',
       entity: { type: 'report', id },
       after,
@@ -475,7 +476,7 @@ export async function createInsuranceRun(
   await auditedMany(tx, [
     {
       locationId: at.locationId,
-      actor: { type: 'user' as const, id: scope.userId },
+      actor: actorOf(scope),
       action: 'report.generate',
       entity: { type: 'report', id },
       after: {
@@ -571,7 +572,7 @@ export async function createVehicleRun(
   await auditedMany(tx, [
     {
       locationId,
-      actor: { type: 'user' as const, id: scope.userId },
+      actor: actorOf(scope),
       action: 'report.generate',
       entity: { type: 'report', id },
       after: {
@@ -656,7 +657,7 @@ export async function createConditionRun(
   await auditedMany(tx, [
     {
       locationId,
-      actor: { type: 'user' as const, id: scope.userId },
+      actor: actorOf(scope),
       action: 'report.generate',
       entity: { type: 'report', id },
       after: {
@@ -731,7 +732,7 @@ export async function createMoveRun(
   await auditedMany(tx, [
     {
       locationId,
-      actor: { type: 'user' as const, id: scope.userId },
+      actor: actorOf(scope),
       action: 'report.generate',
       entity: { type: 'report', id },
       after: {

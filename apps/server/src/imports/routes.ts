@@ -10,6 +10,7 @@ import {
 import type { FastifyRequest } from 'fastify';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Scope, Tx } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
@@ -172,8 +173,6 @@ function viewOf(run: RunRow, withReport: boolean): ImportRunView {
 
 type Ctx = { tx: Tx; client: pg.PoolClient; scope: Scope; requestId: string };
 
-const actor = (scope: Scope) => ({ type: 'user' as const, id: scope.userId });
-
 /** The run, locked, once the caller may import into its location: 404 when they can't see it
  * (only owners and admins can), 403 if their role no longer allows it. */
 async function importableRun(client: pg.ClientBase, id: string): Promise<RunRow> {
@@ -235,7 +234,7 @@ async function createRun(c: Ctx, body: CreateImportBody): Promise<ImportRunView>
   // The file's contents stay out of the audit; its shape and choices are what it records.
   await audited(c.tx, {
     locationId,
-    actor: actor(c.scope),
+    actor: actorOf(c.scope),
     action: 'import.create',
     entity: { type: 'import_run', id },
     after: {
@@ -262,7 +261,7 @@ async function checkRun(c: Ctx, id: string): Promise<{ report: DryRunReport }> {
   );
   await audited(c.tx, {
     locationId: run.location_id,
-    actor: actor(c.scope),
+    actor: actorOf(c.scope),
     action: 'import.check',
     entity: { type: 'import_run', id: run.id },
     before: { status: run.status },
@@ -291,7 +290,7 @@ async function startRun(c: Ctx, jobs: JobQueue, id: string): Promise<ImportRunVi
   );
   await audited(c.tx, {
     locationId: run.location_id,
-    actor: actor(c.scope),
+    actor: actorOf(c.scope),
     action: 'import.start',
     entity: { type: 'import_run', id: run.id },
     before: { status: run.status },
@@ -312,7 +311,7 @@ async function cancelRun(c: Ctx, id: string): Promise<ImportRunView> {
   );
   await audited(c.tx, {
     locationId: run.location_id,
-    actor: actor(c.scope),
+    actor: actorOf(c.scope),
     action: 'import.cancel',
     entity: { type: 'import_run', id: run.id },
     before: { status: run.status },

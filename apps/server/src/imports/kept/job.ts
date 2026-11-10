@@ -1,5 +1,6 @@
 import { EXPORT_PATHS, type ExportEntity, type ExportHistoryEvent } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import type { Sealed } from '../../crypto/envelope.js';
 import type { SecretKeys } from '../../crypto/keyring.js';
@@ -191,7 +192,7 @@ async function chunkAudit(
 ): Promise<void> {
   await audited(tx, {
     locationId: s.locationId,
-    actor: { type: 'user', id: s.scope.userId },
+    actor: actorOf(s.scope),
     action: 'import.run',
     entity: { type: 'import_run', id: s.runId },
     after: {
@@ -377,7 +378,7 @@ async function finishReports(s: Session): Promise<void> {
       if (n === 0) return;
       await audited(tx, {
         locationId: s.locationId,
-        actor: { type: 'user', id: s.scope.userId },
+        actor: actorOf(s.scope),
         action: 'import.run',
         entity: { type: 'import_run', id: s.runId },
         after: { entity: 'condition-reports', finished: n },
@@ -413,7 +414,7 @@ async function finishMoves(s: Session): Promise<void> {
       if (n === 0) return;
       await audited(tx, {
         locationId: s.locationId,
-        actor: { type: 'user', id: s.scope.userId },
+        actor: actorOf(s.scope),
         action: 'import.run',
         entity: { type: 'import_run', id: s.runId },
         after: { entity: 'moves', finished: n },
@@ -498,7 +499,7 @@ async function finish(s: Session): Promise<void> {
     );
     await audited(tx, {
       locationId: s.locationId,
-      actor: { type: 'user', id: s.scope.userId },
+      actor: actorOf(s.scope),
       action: 'import.run',
       entity: { type: 'import_run', id: s.runId },
       after: {

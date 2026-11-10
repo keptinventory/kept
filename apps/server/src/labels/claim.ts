@@ -1,6 +1,7 @@
 import { isShortCode, newId, normaliseInputCode } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { AppError, notFound, pgErrorOf } from '../http/errors.js';
 import { type Ctx, insertThing, requireRole } from '../things/service.js';
@@ -188,7 +189,7 @@ export async function claimLabel(
     const isThing = result.target.kind === 'thing';
     await audited(tx, {
       locationId,
-      actor: { type: 'user', id: scope.userId },
+      actor: actorOf(scope),
       action: 'label.claim',
       entity: { type: result.target.kind, id: result.target.id },
       after: { code, ...(made ? { new_container: true } : {}) },

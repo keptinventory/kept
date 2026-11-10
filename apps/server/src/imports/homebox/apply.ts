@@ -1,5 +1,6 @@
 import { newId, normalize } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import type { Scope, Tx } from '../../db/scope.js';
 import { createAttachment } from '../../files/attachments.js';
@@ -89,6 +90,7 @@ const writeCtx = (c: ApplyCtx) => ({
   tx: c.tx,
   client: c.client,
   userId: c.scope.userId,
+  tokenId: c.scope.tokenId ?? null,
   requestId: c.requestId,
   jobs: c.jobs,
 });
@@ -357,7 +359,7 @@ export async function applyOp(c: ApplyCtx, op: HbOp): Promise<Applied> {
       if (id) {
         await audited(c.tx, {
           locationId: c.locationId,
-          actor: { type: 'user', id: c.scope.userId },
+          actor: actorOf(c.scope),
           action: 'paperless_link.create',
           entity: { type: 'paperless_link', id },
           after: {

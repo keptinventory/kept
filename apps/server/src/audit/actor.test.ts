@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { newId } from '@kept/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -5,11 +6,14 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { draftPurchase, inboxItem } from '../../test/inbox.js';
 import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { builtinType, createLocation, createThing, type Loc, ok, own } from '../../test/things.js';
+import { fixedSecretKeys, keyringOf } from '../crypto/keyring.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
 import { logFuel } from '../fuel/service.js';
 import { confirmReceipt } from '../inbox/receipt.js';
+import { putRate } from '../money/fx.js';
 import { deleteValuation } from '../money/valuations.js';
 import type { WriteCtx } from '../registries/account.js';
+import { clearSecret, subjectOf } from '../secrets/service.js';
 import { CreatePlaceTemplateBody, createPlaceTemplate } from '../templates/place-templates.js';
 import { CreateTemplateBody, createTemplate } from '../templates/service.js';
 import { convertField } from '../types/convert.js';
@@ -35,8 +39,13 @@ let seq = 0;
 beforeAll(async () => {
   db = await testDb();
   await db.reset();
-  // Token creation is https only.
-  t = await peopleApp(db, { publicUrl: 'https://kept.example' });
+  // Token creation is https only; the secret below needs a key.
+  t = await peopleApp(db, {
+    publicUrl: 'https://kept.example',
+    secretKeys: fixedSecretKeys(
+      keyringOf({ version: 1, key: randomBytes(32), retired: new Map() }),
+    ),
+  });
   ibrahim = await person(t, db, 'ibrahim');
   home = await createLocation(t, db, ibrahim, 'complete');
   const made = ok(
@@ -309,5 +318,55 @@ describe.each<Who>(['token', 'session'])('audited as the caller: %s', (who) => {
     await doc({ valuationId: v.id }, 'document');
     const rows = await as(who, (r) => deleteValuation(r, v.id, 1));
     expectBy(who, rows, ['attachment.delete', 'valuation.delete']);
+  });
+
+  // One of the session-only routes that wrote `{type: 'user'}` by hand.
+  it('an exchange rate (money/fx)', async () => {
+    const rows = await as(who, (r) =>
+      putRate(
+        r,
+        home.accountId,
+        {
+          fromCcy: 'USD',
+          toCcy: 'EGP',
+          rate: '48.5',
+          validFrom: who === 'token' ? '2026-03-01' : '2026-03-02',
+        },
+        null,
+      ),
+    );
+    expectBy(who, rows, ['fx_rate.set']);
+  });
+});
+
+// The routes a token must never reach (tokens/access.ts NEVER_FOR_TOKENS) keep the hand-built user
+// actor on purpose: should a token scope ever reach one, the audit insert refuses it (0070).
+describe('a never-for-tokens route keeps the user actor', () => {
+  async function safeWithCombination() {
+    const safe = await createThing(t, ibrahim, home, {
+      name: 'Safe',
+      typeId: await builtinType(db, 'safe'),
+    });
+    const put = await call(t, `/api/v1/things/${safe.id}/secrets/combination`, {
+      as: ibrahim,
+      method: 'PUT',
+      body: { value: '12-34-56' },
+    });
+    expect(put.statusCode, put.body).toBe(204);
+    return safe.id;
+  }
+  const clear = (who: Who, safeId: string) =>
+    as(who, async (r) => clearSecret(r, await subjectOf(r.client, 'thing', safeId, 'combination')));
+
+  it('clearing a secret audits as the person', async () => {
+    const rows = await clear('session', await safeWithCombination());
+    expectBy('session', rows, ['secret.clear']);
+  });
+
+  it('clearing a secret in a token scope is refused at the audit insert', async () => {
+    const safeId = await safeWithCombination();
+    await expect(clear('token', safeId)).rejects.toMatchObject({
+      cause: { code: '42501', message: expect.stringContaining('"audit_events"') },
+    });
   });
 });

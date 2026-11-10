@@ -10,6 +10,7 @@ import {
 } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited, undoableEventIds } from '../audit/audited.js';
 import { undoableUntil } from '../audit/undo.js';
 import type { Tx } from '../db/scope.js';
@@ -122,8 +123,6 @@ export type CaptureResult = {
   /** ROOM: the room capture made, its photos' reading under way (`reading`) or not (`off`). */
   room?: { id: string; photos: number; status: 'reading' | 'off' };
 };
-
-const actor = (userId: string) => ({ type: 'user' as const, id: userId });
 
 // ---------------------------------------------------------------------------------------------
 // Pieces
@@ -463,7 +462,7 @@ export async function capture(
     );
     await audited(tx, {
       locationId,
-      actor: actor(scope.userId),
+      actor: actorOf(scope),
       action: 'thing.capture',
       entity: { type: 'thing', id: thing.id },
       after: { ...base, capture_id: id, attachment_ids: attachments },
@@ -584,7 +583,7 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
     const pages = await attachFiles(client, c.locationId, { purchaseId }, 'receipt', c.fileIds);
     await audited(tx, {
       locationId: c.locationId,
-      actor: actor(scope.userId),
+      actor: actorOf(scope),
       action: 'purchase.capture',
       entity: { type: 'purchase', id: purchaseId },
       after: { ...c.base, capture_id: c.id, page_of: input.pageOf.toLowerCase(), pages },
@@ -643,7 +642,7 @@ async function captureReceipt(ctx: Ctx, input: CaptureInput, c: Common): Promise
   });
   await audited(tx, {
     locationId: c.locationId,
-    actor: actor(scope.userId),
+    actor: actorOf(scope),
     action: 'purchase.capture',
     entity: { type: 'purchase', id: purchaseId },
     after: {
@@ -748,7 +747,7 @@ async function captureReading(
   }
   await audited(tx, {
     locationId: c.locationId,
-    actor: actor(scope.userId),
+    actor: actorOf(scope),
     action: 'thing.capture',
     entity: { type: 'thing', id: thing.id },
     after: {

@@ -112,8 +112,6 @@ export const SummarySchema = z.object({
   things: z.number(),
 });
 
-const actor = (userId: string) => ({ type: 'user' as const, id: userId });
-
 /** A label's link (D120): the host is only for the system camera; the app ignores it. */
 export const labelUrl = (publicUrl: string, code: string) =>
   `${publicUrl.replace(/\/+$/, '')}/l/${code}`;
@@ -534,7 +532,7 @@ export async function createBatch(
   );
   await audited(tx, {
     locationId,
-    actor: actor(scope.userId),
+    actor: actorOf(scope),
     action: 'label_batch.create',
     entity: { type: 'label_batch', id },
     after: {
@@ -602,7 +600,7 @@ export async function markPrinted(ctx: Ctx, publicUrl: string, id: string): Prom
     );
     await audited(tx, {
       locationId: b.location_id,
-      actor: actor(scope.userId),
+      actor: actorOf(scope),
       action: 'labels.printed',
       entity: { type: 'label_batch', id },
       before: { printed_confirmed_at: null },
@@ -634,7 +632,7 @@ export async function dismissBatch(ctx: Ctx, publicUrl: string, id: string): Pro
     await client.query('UPDATE public.label_batches SET dismissed_at = now() WHERE id = $1', [id]);
     await audited(tx, {
       locationId: b.location_id,
-      actor: actor(scope.userId),
+      actor: actorOf(scope),
       action: 'label_batch.dismiss',
       entity: { type: 'label_batch', id },
       before: { dismissed_at: null },

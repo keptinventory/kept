@@ -2,6 +2,7 @@ import { newId } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { allowPrivateAddresses } from '../ai/runtime.js';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { rateLimited, requireScope } from '../auth/http.js';
 import { limiterKey, reserveInWindow } from '../auth/sign-in-limiter.js';
@@ -345,7 +346,7 @@ export async function mailboxRoutes(app: KeptApp, deps: InventoryDeps): Promise<
         };
         await audited(tx, {
           locationId,
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: existing ? 'mailbox.update' : 'mailbox.create',
           entity: { type: 'mailbox', id },
           ...(existing && saved
@@ -399,7 +400,7 @@ export async function mailboxRoutes(app: KeptApp, deps: InventoryDeps): Promise<
       await client.query('DELETE FROM public.mailboxes WHERE id = $1', [row.id]);
       await audited(tx, {
         locationId: req.params.id,
-        actor: { type: 'user', id: scope.userId },
+        actor: actorOf(scope),
         action: 'mailbox.delete',
         entity: { type: 'mailbox', id: row.id },
         before: { host: row.host, username: row.username, folder: row.folder },

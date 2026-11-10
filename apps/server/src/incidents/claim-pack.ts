@@ -7,6 +7,7 @@ import { safeCsvCell } from '@kept/shared';
 import type pg from 'pg';
 import yazl from 'yazl';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope, withSystem } from '../db/scope.js';
@@ -182,7 +183,7 @@ export async function createClaimPack(
   const id = (rows[0] as { id: string }).id;
   await audited(tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'claim_pack.create',
     entity: { type: 'export_run', id },
     before: null,
@@ -290,7 +291,7 @@ export async function createPackLink(
   );
   await audited(tx, {
     locationId: run.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'claim_pack.link',
     entity: { type: 'export_run', id: run.id },
     // Never the token (nor its hash): only that a link now exists, and until when.
@@ -313,7 +314,7 @@ export async function revokePackLink(
   await client.query('UPDATE public.export_runs SET revoked_at = now() WHERE id = $1', [run.id]);
   await audited(tx, {
     locationId: run.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'claim_pack.link_revoke',
     entity: { type: 'export_run', id: run.id },
     before: { link_expires_at: run.token_expires_at },

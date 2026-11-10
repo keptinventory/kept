@@ -1,6 +1,7 @@
 import { DOCUMENT_KINDS, type DocumentKind, newId } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { lastChangedBy, undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
@@ -390,7 +391,7 @@ export async function createDocument(
   const row = await readDocumentRow(client, body.id);
   await audited(tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'document.create',
     entity: { type: 'expiring_document', id: row.id },
     after: imageOf(row),
@@ -458,7 +459,7 @@ export async function updateDocument(
   const after = await readDocumentRow(client, id);
   await audited(tx, {
     locationId: after.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'document.update',
     entity: { type: 'expiring_document', id },
     before: imageOf(before),
@@ -513,7 +514,7 @@ export async function deleteDocument(
   await client.query('DELETE FROM public.expiring_documents WHERE id = $1', [id]);
   await audited(tx, {
     locationId: row.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'document.delete',
     entity: { type: 'expiring_document', id },
     before: {
@@ -583,7 +584,7 @@ export async function renewDocument(
   const previous = await readDocumentRow(client, id);
   await audited(tx, {
     locationId: old.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'document.renew',
     entity: { type: 'expiring_document', id },
     before: { superseded_by_id: null },

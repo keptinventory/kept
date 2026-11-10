@@ -32,6 +32,7 @@
 import type pg from 'pg';
 import { z } from 'zod';
 import { allowPrivateAddresses } from '../../ai/runtime.js';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import { requireScope } from '../../auth/http.js';
 import { withScope } from '../../db/scope.js';
@@ -326,7 +327,7 @@ export async function homeboxConnectRoutes(app: KeptApp, deps: InventoryDeps): P
         await audited(tx, {
           locationId: locked.location_id,
           ...(owner !== undefined ? { ownerAccountId: owner } : {}),
-          actor: { type: 'user', id: scope.userId },
+          actor: actorOf(scope),
           action: 'import.homebox_connect',
           entity: { type: 'import_run', id },
           after: {

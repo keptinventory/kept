@@ -1,5 +1,6 @@
 import { newId, randomShortCode } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
@@ -734,7 +735,7 @@ async function relabelThing(
   const allocated = await allocateShortId(client, locationId, { thingId }, firstThen(code));
   await audited(tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'thing.label',
     entity: { type: 'thing', id: thingId },
     rootThingId: thingId,
