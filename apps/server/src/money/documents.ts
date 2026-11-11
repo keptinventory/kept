@@ -1,5 +1,6 @@
 import { can, type Role } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Tx } from '../db/scope.js';
 import {
@@ -98,6 +99,7 @@ export async function auditDeletedDocuments(
   event: {
     locationId: string;
     userId: string;
+    tokenId?: string | null;
     column: DocColumn;
     recordId: string;
     thingId: string | null;
@@ -108,7 +110,7 @@ export async function auditDeletedDocuments(
   for (const d of docs) {
     await audited(tx, {
       locationId: event.locationId,
-      actor: { type: 'user', id: event.userId },
+      actor: actorOf({ userId: event.userId, tokenId: event.tokenId ?? undefined }),
       action: 'attachment.delete',
       entity: { type: 'attachment', id: d.id },
       before: {

@@ -49,6 +49,7 @@ import type { CallResult, ImageInput } from '../ai/call.js';
 import { toDbTime } from '../ai/db-run.js';
 import { type Extracted, extract } from '../ai/extract.js';
 import type { AiDeps } from '../ai/routes.js';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { aiCaptureState, NO_PROVIDER } from '../capture/service.js';
 import { type ExtraObject, multiItemOn, splitDrafts } from '../capture/split.js';
@@ -455,7 +456,7 @@ async function cropToPaper(
       ]);
       await audited(tx, {
         locationId,
-        actor: { type: 'user', id: scope.userId },
+        actor: actorOf(scope),
         action: 'file.crop',
         entity: { type: 'file', id: crop.fileId },
         after: { bbox: crop.bbox, variants: variants.map((v) => v.variant) },

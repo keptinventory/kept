@@ -19,6 +19,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { requireScope } from '../auth/http.js';
 import type { Pools } from '../db/pools.js';
@@ -292,7 +293,7 @@ export async function auditRun(
   await audited(c.tx, {
     locationId: run.location_id,
     ...(ownerAccountId !== undefined ? { ownerAccountId } : {}),
-    actor: { type: 'user', id: c.scope.userId },
+    actor: actorOf(c.scope),
     action,
     entity: { type: 'import_run', id: run.id },
     before,

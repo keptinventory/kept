@@ -481,3 +481,68 @@ describe('/mcp names a new shop or person over a token', () => {
     expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: peter }]);
   });
 });
+
+// A brand named by add_thing or update_thing is made through brandByName(), as POST
+// /locations/:id/brands makes one: a new brand leaves a `brand.create` row naming the token, an
+// existing one (after kept.normalize()) is only found.
+describe('/mcp names a brand over a token', () => {
+  const brandCreates = (tokenId: string) =>
+    own<{ entity_id: string }>(
+      db,
+      `SELECT entity_id FROM public.audit_events
+        WHERE action = 'brand.create' AND actor_type = 'token' AND actor_id = $1 ORDER BY id`,
+      [tokenId],
+    );
+  const brandNamed = async (name: string) =>
+    (
+      await own<{ id: string }>(
+        db,
+        'SELECT id FROM public.brands WHERE owner_account_id = $1 AND name = $2',
+        [home.accountId, name],
+      )
+    ).map((r) => r.id);
+
+  async function writer() {
+    const { token: made, secret } = await token(louis, 'write', [home.id]);
+    const client = await connect(secret);
+    const run = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      const body = answer(res);
+      expect(res.isError, JSON.stringify(body)).toBeFalsy();
+      return body.data as Json;
+    };
+    return { id: made.id as string, run };
+  }
+
+  it('add_thing with a new brand makes it once, audited as the token', async () => {
+    const w = await writer();
+    await w.run('add_thing', {
+      items: [
+        { name: 'Kettle', brand: 'Nilebrand' },
+        { name: 'Toaster', brand: 'nilebrand ' },
+      ],
+    });
+    const ids = await brandNamed('Nilebrand');
+    expect(ids).toHaveLength(1);
+    expect(await brandCreates(w.id)).toEqual([{ entity_id: ids[0] }]);
+  });
+
+  it('add_thing with a brand Kept has writes no brand row', async () => {
+    await own(db, `INSERT INTO public.brands (owner_account_id, name) VALUES ($1, 'Deltabrand')`, [
+      home.accountId,
+    ]);
+    const w = await writer();
+    await w.run('add_thing', { items: [{ name: 'Blender', brand: 'DELTABRAND' }] });
+    expect(await brandNamed('Deltabrand')).toHaveLength(1);
+    expect(await brandCreates(w.id)).toEqual([]);
+  });
+
+  it('update_thing with a new brand makes it, audited as the token', async () => {
+    const w = await writer();
+    const iron = await createThing(t, louis, home, { name: 'Iron' });
+    await w.run('update_thing', { thing_id: iron.id, fields: { brand: 'Sinaibrand' } });
+    const ids = await brandNamed('Sinaibrand');
+    expect(ids).toHaveLength(1);
+    expect(await brandCreates(w.id)).toEqual([{ entity_id: ids[0] }]);
+  });
+});

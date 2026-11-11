@@ -209,7 +209,7 @@ export const addThing: Handler<'add_thing'> = {
         item.type_id ?? (item.type ? await typeNamed(op.client, loc.id, item.type) : null);
       if (item.type && !typeId)
         notSet.push({ item: i, field: 'type', untrusted: { value: item.type } });
-      const brandId = item.brand?.trim() ? await brandEnsured(op.client, loc.id, item.brand) : null;
+      const brandId = item.brand?.trim() ? await brandEnsured(op, loc.id, item.brand) : null;
       // A tag no tag has yet is made where the role may (#209); else it is reported, not set.
       const tags = item.tags?.length ? await ensureTags(op, loc.id, item.tags) : null;
       for (const value of tags?.missing ?? [])
@@ -405,7 +405,7 @@ export const updateThingTool: Handler<'update_thing'> = {
     }
     if (f.brand !== undefined) {
       body.brandId =
-        f.brand === null || !f.brand.trim() ? null : await brandEnsured(op.client, loc.id, f.brand);
+        f.brand === null || !f.brand.trim() ? null : await brandEnsured(op, loc.id, f.brand);
     }
     const expected = op.ifMatch ?? (await liveThing(op.client, id)).row_version;
     // The route's operation: secret keys in `custom` are refused (they have their own route,

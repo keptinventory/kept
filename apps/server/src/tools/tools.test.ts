@@ -281,6 +281,14 @@ describe('add_thing and its undo', () => {
       [d.things[2].id],
     );
     expect(brand?.name).toBe('Nobrand');
+    // The new brand is audited on the account, as Louis (brandByName, not undoable on its own).
+    const made = await own<{ actor_type: string; actor_id: string }>(
+      db,
+      `SELECT e.actor_type, e.actor_id FROM public.audit_events e
+         JOIN public.brands b ON b.id = e.entity_id AND b.name = 'Nobrand'
+        WHERE e.action = 'brand.create'`,
+    );
+    expect(made).toEqual([{ actor_type: 'user', actor_id: louis.userId }]);
     const events = await own<{ action: string; actor_id: string; undoable_until: Date | null }>(
       db,
       `SELECT action, actor_id, undoable_until FROM public.audit_events

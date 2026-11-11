@@ -1,6 +1,7 @@
 import { MODULE_IDS, newId, type Preset, presetModules } from '@kept/shared';
 import type pg from 'pg';
 import { validTimeZone } from '../accounts/ensure-account.js';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { assertClientId } from '../http/conventions.js';
@@ -95,7 +96,7 @@ export async function createLocation(c: CreateCtx, body: NewLocation): Promise<s
   );
   await audited(c.tx, {
     locationId: id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'location.create',
     entity: { type: 'location', id },
     after: {
@@ -172,7 +173,7 @@ export async function switchPreset(
   );
   await audited(c.tx, {
     locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'location.modules',
     entity: { type: 'location', id: locationId },
     before: { preset: was.preset, modules: on.map((r) => r.module) },

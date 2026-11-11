@@ -1,5 +1,6 @@
 import type { MappableField } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, type Tx, withScope } from '../db/scope.js';
@@ -117,7 +118,14 @@ async function ensureItem(
   let id: string;
   try {
     const made = await createItem(
-      { tx: c.tx, client: c.client, userId: c.scope.userId, requestId: c.requestId, jobs: null },
+      {
+        tx: c.tx,
+        client: c.client,
+        userId: c.scope.userId,
+        tokenId: c.scope.tokenId ?? null,
+        requestId: c.requestId,
+        jobs: null,
+      },
       kind,
       c.lookups.accountId,
       { name: ref.create },
@@ -330,7 +338,7 @@ export async function importChunk(
   );
   await audited(tx, {
     locationId: run.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'import.run',
     entity: { type: 'import_run', id: runId },
     after: {

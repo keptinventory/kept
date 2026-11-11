@@ -1,5 +1,6 @@
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited, undoableEventIds } from '../audit/audited.js';
 import {
   lastChangedBy,
@@ -226,7 +227,7 @@ export async function boxCheck(
   const until = undoableUntil();
   await audited(tx, {
     locationId: box.location_id,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'box.check',
     entity: { type: 'thing', id: boxId },
     before: {

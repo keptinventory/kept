@@ -14,6 +14,7 @@
  * - Audited `room.capture` on the target.
  */
 import { ROOM_LIMITS } from '@kept/shared';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import {
   attachFiles,
@@ -78,7 +79,7 @@ export async function captureRoom(
   );
   await audited(tx, {
     locationId: c.locationId,
-    actor: { type: 'user', id: scope.userId },
+    actor: actorOf(scope),
     action: 'room.capture',
     entity: c.target.containerId
       ? { type: 'thing', id: c.target.containerId }

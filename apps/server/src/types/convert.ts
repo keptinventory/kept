@@ -377,6 +377,7 @@ export async function convertField(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type.field_convert',
     entity: { type: 'type_field', id: fieldId },
     before: { kind: field.kind, secret: field.secret, converted: null, to_notes: null },

@@ -1,6 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 import { newId } from '@kept/shared';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { type AuditEventInput, audited, auditedMany } from '../audit/audited.js';
 import {
   lastChangedBy,
@@ -199,7 +200,7 @@ async function bulkOne(
       );
       await audited(ctx.tx, {
         locationId: item.location_id,
-        actor: { type: 'user', id: ctx.scope.userId },
+        actor: actorOf(ctx.scope),
         action: 'thing.trash',
         entity: { type: 'thing', id: thingId },
         before: { deleted_at: null, trash_batch_id: null },
@@ -255,7 +256,7 @@ export async function bulk(ctx: Ctx, body: BulkBody): Promise<BulkResult> {
   for (const [locationId, done] of byLocation) {
     const event = await audited(ctx.tx, {
       locationId,
-      actor: { type: 'user', id: ctx.scope.userId },
+      actor: actorOf(ctx.scope),
       action: 'inbox.bulk',
       entity: { type: 'inbox_bulk', id: newId() },
       before: { bulk_action: null, things: done.map((d) => d.before) },
@@ -326,7 +327,7 @@ async function undoBulk(args: UndoArgs): Promise<void> {
   }
 
   const events: AuditEventInput[] = [];
-  const actor = { type: 'user' as const, id: args.scope.userId };
+  const actor = actorOf(args.scope);
   if (action === 'discard') {
     const batches = [
       ...new Set([...afters.values()].map((a) => a.trash_batch_id).filter((b) => !!b)),

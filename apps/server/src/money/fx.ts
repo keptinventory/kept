@@ -1,4 +1,5 @@
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import { undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
@@ -224,7 +225,7 @@ export async function putRate(
   await audited(ctx.tx, {
     locationId: null,
     ownerAccountId: accountId,
-    actor: { type: 'user', id: ctx.scope.userId },
+    actor: actorOf(ctx.scope),
     action: 'fx_rate.set',
     entity: { type: 'fx_rate' },
     before: { fx_rate: existing ? imageOf(key, rateOut(existing.rate)) : null },
@@ -252,7 +253,7 @@ export async function deleteRate(ctx: FxCtx, key: RateKey, expected: number): Pr
   await audited(ctx.tx, {
     locationId: null,
     ownerAccountId: k.accountId,
-    actor: { type: 'user', id: ctx.scope.userId },
+    actor: actorOf(ctx.scope),
     action: 'fx_rate.delete',
     entity: { type: 'fx_rate' },
     before: { fx_rate: imageOf(k, rateOut(existing.rate)) },

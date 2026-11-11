@@ -346,6 +346,7 @@ export async function createType(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type.create',
     entity: { type: 'type', id },
     after: typeImage(created),
@@ -413,6 +414,7 @@ export async function updateType(
   await auditRegistry(ctx.tx, {
     accountId: before.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type.update',
     entity: { type: 'type', id },
     before: typeImage(before),
@@ -448,6 +450,7 @@ export async function customiseType(
     await auditRegistry(ctx.tx, {
       accountId,
       userId: ctx.userId,
+      tokenId: ctx.tokenId,
       action: 'type.customise',
       entity: { type: 'type', id: typeId },
       after: { copied_from_id: id, ...typeImage(await typeRow(client, typeId)) },
@@ -476,6 +479,7 @@ export async function mergeType(
   await auditRegistry(ctx.tx, {
     accountId: from.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type.merge',
     entity: { type: 'type', id },
     before: typeImage(from),
@@ -507,6 +511,7 @@ export async function deleteType(ctx: WriteCtx, id: string): Promise<void> {
   await auditRegistry(ctx.tx, {
     accountId: row.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type.delete',
     entity: { type: 'type', id },
     before: typeImage(row),
@@ -570,6 +575,7 @@ export async function insertField(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type_field.create',
     entity: { type: 'type_field', id },
     after: fieldImage(row),
@@ -663,6 +669,7 @@ export async function updateField(
   await auditRegistry(ctx.tx, {
     accountId: before.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'type_field.update',
     entity: { type: 'type_field', id },
     before: fieldImage(before),
@@ -689,6 +696,7 @@ export async function setFieldArchived(
   await auditRegistry(ctx.tx, {
     accountId: before.owner_account_id as string,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: archived ? 'type_field.archive' : 'type_field.restore',
     entity: { type: 'type_field', id },
     before: fieldImage(before),

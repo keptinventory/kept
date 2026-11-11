@@ -2,6 +2,7 @@ import { rm } from 'node:fs/promises';
 import { HomeboxChoices, type ImportIssueCode, newId } from '@kept/shared';
 import type pg from 'pg';
 import { allowPrivateAddresses } from '../../ai/runtime.js';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import type { SecretKeys } from '../../crypto/keyring.js';
 import type { Pools } from '../../db/pools.js';
@@ -220,7 +221,7 @@ async function applyChunk(
   );
   await audited(tx, {
     locationId: base.locationId,
-    actor: { type: 'user', id: base.scope.userId },
+    actor: actorOf(base.scope),
     action: 'import.run',
     entity: { type: 'import_run', id: base.runId },
     after: {

@@ -4,6 +4,8 @@ import type pg from 'pg';
 import { matchType } from '../extraction/apply.js';
 import { notFound } from '../http/errors.js';
 import type { PersonInput } from '../lending/service.js';
+import { brandByName } from '../registries/service.js';
+import type { Op } from './types.js';
 
 // References a model or an MCP client typed (a UUID or a short ID in any spelling, D137, D208),
 // resolved as the caller: a row they can't see, one in the trash, and one in another location
@@ -95,18 +97,22 @@ export async function typeNamed(
   return account ? matchType(client, account, name) : null;
 }
 
-/** A brand of the location's account by name: the one there is, or a new one (as capture
- * makes a brand it reads). */
+/** A brand of the location's account by name: the one there is, or a new one, made and audited
+ * as the caller (a token as the token) through brandByName(), as POST /locations/:id/brands. */
 export async function brandEnsured(
-  client: pg.ClientBase,
+  op: Pick<Op, 'tx' | 'client' | 'scope' | 'requestId' | 'jobs'>,
   locationId: string,
   name: string,
 ): Promise<string> {
-  const { rows } = await client.query<{ id: string }>('SELECT kept.ai_ensure_brand($1, $2) AS id', [
-    locationId,
-    name.trim(),
-  ]);
-  return (rows[0] as { id: string }).id;
+  const ctx = {
+    tx: op.tx,
+    client: op.client,
+    userId: op.scope.userId,
+    tokenId: op.scope.tokenId ?? null,
+    requestId: op.requestId,
+    jobs: op.jobs,
+  };
+  return (await brandByName(ctx, locationId, name.trim())).item.id;
 }
 
 /** The location account's tags by name; the names no tag has come back in `missing`. */

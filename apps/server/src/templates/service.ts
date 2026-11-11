@@ -427,6 +427,7 @@ async function insertTemplate(
   await auditRegistry(ctx.tx, {
     accountId: t.accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.create',
     entity: { type: 'template', id: t.id },
     after: {
@@ -551,6 +552,7 @@ export async function updateTemplate(
   await auditRegistry(ctx.tx, {
     accountId,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.update',
     entity: { type: 'template', id },
     before: before as unknown as Record<string, unknown>,
@@ -569,6 +571,7 @@ export async function deleteTemplate(ctx: WriteCtx, id: string): Promise<void> {
   await auditRegistry(ctx.tx, {
     accountId: row.owner_account_id,
     userId: ctx.userId,
+    tokenId: ctx.tokenId,
     action: 'template.delete',
     entity: { type: 'template', id },
     before: before as unknown as Record<string, unknown>,

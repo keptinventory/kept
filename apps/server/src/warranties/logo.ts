@@ -4,6 +4,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import type pg from 'pg';
 import sharp from 'sharp';
 import { z } from 'zod';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { KeptApp } from '../http/app.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
@@ -129,7 +130,7 @@ export async function logoRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
       await audited(tx, {
         locationId: null,
         ownerAccountId: accountId,
-        actor: { type: 'user', id: scope.userId },
+        actor: actorOf(scope),
         action: 'brand.logo_remove',
         entity: { type: 'brand', id: brandId },
         before: { logo_sha256: rows[0].sha256 },
@@ -184,7 +185,7 @@ export async function logoRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
           await audited(tx, {
             locationId: null,
             ownerAccountId: accountId,
-            actor: { type: 'user', id: s.userId },
+            actor: actorOf(s),
             action: 'brand.logo_set',
             entity: { type: 'brand', id: brandId },
             before: { logo_sha256: was[0]?.sha256 ?? null },

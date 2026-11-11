@@ -1,5 +1,6 @@
 import { newId } from '@kept/shared';
 import type pg from 'pg';
+import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import {
   lastChangedBy,
@@ -85,7 +86,7 @@ export async function undoCaptureBatch(ctx: Ctx, batchId: string): Promise<Batch
     if (here.length === 0) continue;
     await audited(tx, {
       locationId,
-      actor: { type: 'user', id: scope.userId },
+      actor: actorOf(scope),
       action: 'capture.batch_undo',
       entity: { type: 'capture_batch', id: batchId },
       before: { trash_batch_id: null, trashed: [] },
@@ -126,7 +127,7 @@ export async function rehomeOrphans(args: UndoArgs, ids: readonly string[]): Pro
     args.tx,
     {
       locationId: event.locationId,
-      actor: { type: 'user', id: args.scope.userId },
+      actor: actorOf(args.scope),
       requestId: args.requestId,
     },
     orphans.map(relocationOf),
