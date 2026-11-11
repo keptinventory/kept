@@ -181,6 +181,9 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
   appdata folder ([install on Unraid](https://keptinventory.info/install/unraid/)).
 - **Kubernetes:** the Helm chart, `oci://ghcr.io/keptinventory/charts/kept`, signed and published
   with each release ([install on Kubernetes](https://keptinventory.info/install/kubernetes/)).
+- **Proxmox VE:** an unprivileged Debian 13 container with Kept in it, without Docker, from one
+  command in the host's shell ([install on Proxmox VE](https://keptinventory.info/install/proxmox/)):
+  `bash -c "$(curl -fsSL https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/deploy/proxmox/kept.sh)"`
 - **Verify the image:** `cosign verify --key cosign.pub <image>:<version>`, with `cosign.pub` from
   this repository ([verifying a release](https://keptinventory.info/admin/verify-release/)).
 - **Backups:** nightly, encrypted, to a directory, S3 or SFTP

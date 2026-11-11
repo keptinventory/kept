@@ -3,7 +3,8 @@
  * page: a command is the same in every language, and one copy can't fall a release behind.
  *
  * Each command is copied from the page that explains it (install/compose.md, the chart's
- * README, admin/upgrades.md, CONTRIBUTING.md); each printed line from the code that prints it
+ * README, admin/upgrades.md, CONTRIBUTING.md, install/proxmox.md and deploy/proxmox/kept.sh's
+ * header); each printed line from the code that prints it
  * (the server's `kept init` and recovery kit, the chart's NOTES.txt, the Home Assistant app's
  * start, the Unraid image's start). install.test.ts checks every one against its source.
  *
@@ -39,6 +40,12 @@ export const commands = {
     build: 'docker build -t kept:local .',
     init: ['echo KEPT_IMAGE=kept:local >> .env', 'docker compose run --rm init'].join('\n'),
     update: ['git pull', 'docker build -t kept:local .', 'docker compose up -d'].join('\n'),
+  },
+  proxmox: {
+    install: `bash -c "$(curl -fsSL https://raw.githubusercontent.com/keptinventory/kept/v${RELEASE}/deploy/proxmox/kept.sh)"`,
+    creds: 'pct exec <CTID> -- cat /root/kept.creds',
+    recoveryKit: 'pct exec <CTID> -- kept admin recovery-kit',
+    update: 'update',
   },
   kubernetes: {
     secrets: [
@@ -82,6 +89,7 @@ export const printed = {
   setupCode: 'KEPT SETUP CODE: XXX-XXX',
   recoveryKit: 'KEPT RECOVERY KIT',
   helmInstalled: `Kept ${RELEASE} is installed as "kept" in namespace "kept".`,
+  proxmox: 'Kept is running',
   homeAssistant: `Kept is at http://homeassistant.local:8080 (change it in Configuration: "Kept's address")`,
   unraid: 'app: Kept is at http://tower.local:8080',
 } as const;

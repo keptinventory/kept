@@ -14,7 +14,7 @@
 #   bash scripts/ci-local.sh --list           print the step names
 #
 # Steps: install lint catalogues typecheck compose test drift licences attribution docs helm
-# prod-boot eval portability backup perf e2e images ha unraid release-dry-run
+# prod-boot eval portability backup perf e2e images ha unraid release-dry-run proxmox
 # (`pnpm lint` already runs scripts/check-logical-css.mjs and scripts/check-i18n.mjs, the web
 # catalogues holding every source message, through Lingui's API in memory. `catalogues` runs the
 # real `lingui extract` CLI into a scratch copy and fails on a new msgid or an empty translation.)
@@ -44,7 +44,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo"
 
-ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images ha unraid release-dry-run)
+ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images ha unraid release-dry-run proxmox)
 FAST_STEPS=(lint catalogues typecheck unit eval)
 
 DEV_COMPOSE=(docker compose -f compose.dev.yaml)
@@ -738,6 +738,26 @@ step_release-dry-run() {
     return 1
   fi
   echo "release-dry-run: signed in the throwaway registry, nothing left behind"
+}
+
+# The Proxmox VE install (deploy/proxmox/): shellcheck on its scripts (the pinned image, so the
+# laptop and the runner agree), the release tarball for this machine's platform built from HEAD
+# (committed files only: scripts/release/tarball.sh builds `git archive HEAD`), then
+# scripts/smoke-proxmox.sh: install, update and rollback on a clean Debian 13, and kept.sh on
+# stubbed Proxmox tools.
+SHELLCHECK_IMAGE=koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+step_proxmox() {
+  ensure_docker_config
+  docker run --rm -v "$repo:/mnt:ro" -w /mnt "$SHELLCHECK_IMAGE" -x \
+    deploy/proxmox/kept.sh deploy/proxmox/kept-install.sh scripts/release/tarball.sh scripts/smoke-proxmox.sh
+  echo "proxmox: shellcheck clean"
+  local arch=amd64 out=$repo/.tmp/proxmox-ci
+  [[ $(uname -m) == arm64 || $(uname -m) == aarch64 ]] && arch=arm64
+  rm -rf "$out"
+  mkdir -p "$out"
+  cleanup_cmds+=("rm -rf '$out'")
+  bash scripts/release/tarball.sh build 0.0.0-ci "$arch" "$out"
+  bash scripts/smoke-proxmox.sh "$out"/kept-0.0.0-ci-linux-*.tar.gz
 }
 
 # ---------------------------------------------------------------------------------------------

@@ -14,6 +14,7 @@ export const INSTALL_PATHS = [
   { id: 'compose', group: 'terminal' },
   { id: 'kubernetes', group: 'terminal' },
   { id: 'source', group: 'terminal' },
+  { id: 'proxmox', group: 'terminal' },
   { id: 'home-assistant', group: 'oneClick' },
   { id: 'unraid', group: 'oneClick' },
 ] as const satisfies readonly { id: string; group: PathGroup }[];
