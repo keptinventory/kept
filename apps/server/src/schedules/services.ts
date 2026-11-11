@@ -1,4 +1,10 @@
-import { type AuditAction, isDateFilterValue, newId, type ServiceLineKind } from '@kept/shared';
+import {
+  type AuditAction,
+  isDateFilterValue,
+  newId,
+  type ServiceLineKind,
+  type VendorKind,
+} from '@kept/shared';
 import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
@@ -246,11 +252,14 @@ export const stockRecordOf = (row: {
 });
 
 /** The vendor a body names: an existing one of the account (the guard refuses another's: a
- * 404), or a new one by name, created inline (D11, `people-vendors.create-inline`). */
+ * 404), or a new one by name, created inline (D11, `people-vendors.create-inline`) with the kind
+ * the caller says: `service_centre` for a service's vendor, `store` for a purchase's shop. Each
+ * caller names it, so none gets a kind it didn't choose. An existing vendor keeps its own. */
 export async function vendorFor(
   ctx: Ctx,
   locationId: string,
   input: VendorInput | null | undefined,
+  kind: VendorKind,
 ): Promise<string | null> {
   if (!input) return null;
   if ('id' in input) return input.id.toLowerCase();
@@ -265,12 +274,13 @@ export async function vendorFor(
       tx: ctx.tx,
       client: ctx.client,
       userId: ctx.scope.userId,
+      tokenId: ctx.scope.tokenId ?? null,
       requestId: ctx.requestId,
       jobs: ctx.jobs,
     },
     'vendors',
     accountId,
-    { name: input.name.trim(), kind: 'service_centre' },
+    { name: input.name.trim(), kind },
   );
   return created.item.id;
 }
@@ -444,7 +454,7 @@ export async function createService(
   const cleared = await completable(ctx, locationId, body.completes ?? []);
   await requireStockThings(ctx, locationId, body.lines ?? []);
   const money = await moneyFor(ctx, locationId, body);
-  const vendorId = await vendorFor(ctx, locationId, body.vendor);
+  const vendorId = await vendorFor(ctx, locationId, body.vendor, 'service_centre');
 
   let readingId: string | null = null;
   if (body.reading) {
@@ -627,7 +637,7 @@ export async function confirmService(
   // The draft holds no money of its own (its invoice's amounts are suggestions): only what the
   // form sends is written, with an enabled currency (requireCurrencies).
   const money = await moneyFor(ctx, locationId, body);
-  const vendorId = await vendorFor(ctx, locationId, body.vendor);
+  const vendorId = await vendorFor(ctx, locationId, body.vendor, 'service_centre');
 
   let readingId: string | null = row.meter_reading_id;
   let readingCreated = false;
@@ -756,7 +766,9 @@ export async function updateService(
   // A hidden amount can't be cleared by someone who never saw it: clearing is a money write too.
   const money = await moneyFor(ctx, locationId, body, { total: row.total, currency: row.currency });
   const vendorId =
-    body.vendor === undefined ? row.vendor_id : await vendorFor(ctx, locationId, body.vendor);
+    body.vendor === undefined
+      ? row.vendor_id
+      : await vendorFor(ctx, locationId, body.vendor, 'service_centre');
 
   let readingId = row.meter_reading_id;
   let readingCreated = false;

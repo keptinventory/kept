@@ -7,10 +7,10 @@
 //
 // The first wave: things, places, search, history, meters and readings, labels (read),
 // files' metadata (read), and undo of the token's own changes. Writes are the everyday ones a
-// Shortcut or a script makes (add, edit, move, mark seen, a place, a reading); nothing that
-// trashes, merges, converts, empties, reveals or claims is open to a token (D58, D124: the same
-// line the MCP tools hold). A token reads only its own locations whatever the route says: RLS
-// intersects them on every call (0070).
+// Shortcut or a script makes (add, edit, move, mark seen, a lifecycle, a place, a reading);
+// nothing that trashes, merges, converts, empties, reveals or claims is open to a token (D58,
+// D124: the same line the MCP tools hold). A token reads only its own locations whatever the
+// route says: RLS intersects them on every call (0070).
 
 export type TokenAccess = 'none' | 'read' | 'write';
 
@@ -28,6 +28,10 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'POST /api/v1/things': 'write',
   'PATCH /api/v1/things/:id': 'write',
   'POST /api/v1/things/:id/seen': 'write',
+  // 1.x: a thing's lifecycle (sold, given away, lost, archived, back in use). Not a trash: the
+  // thing and its history stay, it is undoable for 7 days like any lifecycle change, and the MCP
+  // tool change_lifecycle makes the same change. The money gate still applies to an ended price.
+  'POST /api/v1/things/:id/lifecycle': 'write',
   'POST /api/v1/things/move': 'write',
   'POST /api/v1/things/move/preview': 'write',
   // 1.x (D250): the spreadsheet's wide rows and its "Save N changes", the same edits as PATCH a
@@ -51,6 +55,21 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'GET /api/v1/brands/:id': 'read',
   'POST /api/v1/accounts/:accountId/brands': 'write',
   'POST /api/v1/locations/:id/brands': 'write',
+  // Vendors and tags, the same way: a script adding things can name the shop and the tags it
+  // gives them. List, read and create only (a member may, as inline in the app); editing, deleting
+  // and merging stay with the app.
+  'GET /api/v1/accounts/:accountId/vendors': 'read',
+  'GET /api/v1/vendors/:id': 'read',
+  'POST /api/v1/accounts/:accountId/vendors': 'write',
+  'GET /api/v1/accounts/:accountId/tags': 'read',
+  'GET /api/v1/tags/:id': 'read',
+  'POST /api/v1/accounts/:accountId/tags': 'write',
+  // Warranties: a thing's list (lifetime and ended ones too, which the agenda leaves out) and
+  // adding one, as the MCP tool `add_warranty` already does. A document comes back as metadata,
+  // never a signed link, as on the attachments routes. Editing, deleting, the defaults and claims
+  // stay with the app.
+  'GET /api/v1/things/:id/warranties': 'read',
+  'POST /api/v1/things/:id/warranties': 'write',
   // Search, codes and the activity feed.
   'GET /api/v1/search': 'read',
   'GET /api/v1/codes/:code': 'read',

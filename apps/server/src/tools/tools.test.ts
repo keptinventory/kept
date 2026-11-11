@@ -426,7 +426,7 @@ describe('every field a person can set, through add_thing and update_thing', () 
       db,
       `SELECT t.name, trim_scale(t.quantity)::text AS quantity, t.model, t.serial, t.barcode,
               t.colour, t.condition, t.notes, t.aliases, t.manual_url, t.expires_on::text,
-              t.expiry_lead_days, ty.builtin_key AS type, b.name AS brand, pe.display_name AS owner,
+              t.expiry_lead_days, t.acquired_from, ty.builtin_key AS type, b.name AS brand, pe.display_name AS owner,
               (SELECT array_agg(g.name ORDER BY g.name) FROM public.thing_tags x
                  JOIN public.tags g ON g.id = x.tag_id WHERE x.thing_id = t.id) AS tags,
               pu.purchased_on::text AS bought, pu.currency, trim_scale(pl.unit_price)::text AS price,
@@ -467,6 +467,7 @@ describe('every field a person can set, through add_thing and update_thing', () 
           manual_url: 'https://example.com/fk2',
           expires_on: '2030-01-31',
           expiry_lead_days: 30,
+          acquired_from: 'A gift from Murdock',
           purchase: {
             purchased_on: '2026-09-01',
             price: '45.5',
@@ -493,6 +494,7 @@ describe('every field a person can set, through add_thing and update_thing', () 
       manual_url: 'https://example.com/fk2',
       expires_on: '2030-01-31',
       expiry_lead_days: 30,
+      acquired_from: 'A gift from Murdock',
       owner: 'Murdock',
       tags: ['Kitchen', 'No such tag'],
       bought: '2026-09-01',
@@ -605,6 +607,70 @@ describe('every field a person can set, through add_thing and update_thing', () 
       });
   });
 
+  it('add_thing records a purchase with a date, or a date and a shop, and no price', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        { name: 'Gift lamp', purchase: { purchased_on: '2026-08-15' } },
+        { name: 'Bundle cable', purchase: { purchased_on: '2026-08-16', shop: 'Souq' } },
+      ],
+    });
+    expect(await fullRow(d.things[0].id)).toMatchObject({
+      bought: '2026-08-15',
+      currency: null,
+      price: null,
+      shop: null,
+    });
+    expect(await fullRow(d.things[1].id)).toMatchObject({
+      bought: '2026-08-16',
+      currency: null,
+      price: null,
+      shop: 'Souq',
+    });
+  });
+
+  it('add_thing takes a price with its currency, or neither, as POST /things does', async () => {
+    const shapes: { purchase: Record<string, string>; takes: boolean }[] = [
+      { purchase: { purchased_on: '2026-08-15' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', shop: 'Souq' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', price: '10', currency: 'EGP' }, takes: true },
+      { purchase: { purchased_on: '2026-08-15', price: '10' }, takes: false },
+      { purchase: { purchased_on: '2026-08-15', currency: 'EGP' }, takes: false },
+    ];
+    for (const { purchase, takes } of shapes) {
+      const env = await tool(louis, 'add_thing', {
+        location_id: home.id,
+        items: [{ name: 'Parity lamp', purchase }],
+      });
+      const { purchased_on, shop, ...money } = purchase;
+      const route = await call(t, '/api/v1/things', {
+        as: louis,
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Parity lamp',
+          purchase: { purchasedOn: purchased_on, ...money },
+        },
+      });
+      expect(isToolError(env), JSON.stringify(purchase)).toBe(!takes);
+      expect(route.statusCode, JSON.stringify(purchase)).toBe(takes ? 201 : 400);
+      if (!takes)
+        expect(env).toMatchObject({
+          error: 'validation',
+          hint: 'Check items.0.purchase.price: Send a price with its currency, or neither.',
+        });
+    }
+  });
+
+  it('add_thing refuses a purchase that says nothing, as update_thing does', async () => {
+    const env = await tool(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Empty lamp', purchase: {} }],
+    });
+    expect(env).toMatchObject({ error: 'validation' });
+    expect(isToolError(env) ? env.hint : null).toMatch(/purchased_on, shop or price/);
+  });
+
   it('update_thing changes those fields too, and null clears one', async () => {
     const d = await data(louis, 'add_thing', {
       location_id: home.id,
@@ -641,6 +707,7 @@ describe('every field a person can set, through add_thing and update_thing', () 
       manual_url: 'https://example.com/mug',
       expires_on: '2031-05-01',
       expiry_lead_days: 7,
+      acquired_from: 'A friend',
     });
     await data(louis, 'update_thing', { thing_id: id, fields: { colour: null, belongs_to: null } });
     expect(await fullRow(id)).toMatchObject({ colour: null, owner: null });
@@ -733,6 +800,100 @@ describe('every field a person can set, through add_thing and update_thing', () 
       fields: { purchase: { price: '12' } },
     });
     expect(await fullRow(id)).toMatchObject({ price: '12', currency: 'EGP' });
+  });
+});
+
+// A shop named for the first time is made inline (D11). A purchase's shop is a store; a service's
+// vendor stays a service centre (log-service.test.ts). One Kept already has is matched by name and
+// keeps the kind it has.
+describe('the kind of a shop add_thing and update_thing make', () => {
+  const shopsNamed = (name: string) =>
+    own<{ id: string; kind: string }>(
+      db,
+      `SELECT id, kind FROM public.vendors
+        WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+      [home.accountId, name],
+    );
+  const shopOf = async (thingId: string) =>
+    (
+      await own<{ vendor_id: string | null }>(
+        db,
+        `SELECT pu.vendor_id FROM public.things t
+           JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id
+           JOIN public.purchases pu ON pu.id = pl.purchase_id WHERE t.id = $1`,
+        [thingId],
+      )
+    )[0]?.vendor_id;
+
+  it('add_thing makes a new shop a store', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Bread bin',
+          purchase: {
+            purchased_on: '2026-09-02',
+            price: '150',
+            currency: 'EGP',
+            shop: 'Souq Attaba',
+          },
+        },
+      ],
+    });
+    const shops = await shopsNamed('Souq Attaba');
+    expect(shops.map((v) => v.kind)).toEqual(['store']);
+    expect(await shopOf(d.things[0].id)).toBe(shops[0]?.id);
+  });
+
+  it('update_thing makes a new shop a store', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Fruit bowl' }],
+    });
+    const id = d.things[0].id;
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: id,
+      fields: { purchase: { purchased_on: '2026-09-03', shop: 'Khan el-Khalili Crafts' } },
+    });
+    const shops = await shopsNamed('Khan el-Khalili Crafts');
+    expect(shops.map((v) => v.kind)).toEqual(['store']);
+    expect(await shopOf(id)).toBe(shops[0]?.id);
+  });
+
+  it('a shop Kept already has is matched by name and keeps its kind', async () => {
+    const [kept] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.vendors (owner_account_id, name, kind)
+       VALUES ($1, 'Delta Tyres', 'service_centre') RETURNING id`,
+      [home.accountId],
+    );
+    const added = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [
+        {
+          name: 'Spare tyre',
+          purchase: {
+            purchased_on: '2026-09-04',
+            price: '2400',
+            currency: 'EGP',
+            shop: 'delta tyres',
+          },
+        },
+      ],
+    });
+    const later = await data(louis, 'add_thing', {
+      location_id: home.id,
+      items: [{ name: 'Tyre pump' }],
+    });
+    await data(louis, 'update_thing', {
+      location_id: home.id,
+      thing_id: later.things[0].id,
+      fields: { purchase: { purchased_on: '2026-09-05', shop: 'Delta Tyres' } },
+    });
+    expect(await shopsNamed('Delta Tyres')).toEqual([{ id: kept?.id, kind: 'service_centre' }]);
+    expect(await shopOf(added.things[0].id)).toBe(kept?.id);
+    expect(await shopOf(later.things[0].id)).toBe(kept?.id);
   });
 });
 

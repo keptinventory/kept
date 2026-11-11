@@ -927,6 +927,7 @@ export type CreateThingBody = {
   manualUrl?: string;
   expiresOn?: string;
   expiryLeadDays?: number;
+  acquiredFrom?: string;
   custom?: Record<string, unknown>;
   /** Makes a one-line purchase; a price comes with its currency, or neither is sent. */
   purchase?: { purchasedOn: string; vendorId?: string; currency?: string; price?: string };

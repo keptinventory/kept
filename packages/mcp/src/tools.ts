@@ -10,9 +10,9 @@
  *   after the plan (Moving mode's, D251). The contract lands now; the handler lands with that
  *   step, and `capabilities` never lists a tool without one.
  * - `doors`: who is offered the tool, MCP and the assistant (D22) unless it says otherwise. The
- *   moving tools are MCP's only: the assistant's confirmation card has no rows for them (D124's
- *   amendment). The assistant offers each step the tools its question is about
- *   (apps/server/src/assistant/select.ts).
+ *   moving tools and `change_lifecycle` are MCP's only: the assistant's confirmation card has no
+ *   rows for them (D124's amendment). The assistant offers each step the tools its question is
+ *   about (apps/server/src/assistant/select.ts).
  * - `input` is what the model or the MCP client sends (snake_case). Ids are UUIDs or
  *   6-character short IDs (`idOrCode`), read through `normaliseInputCode`. `location_id` is
  *   optional where the principal has one location (D179).
@@ -22,7 +22,8 @@
  *   never shows them.
  *
  * No tool trashes, deletes, merges, transfers ownership, reveals a secret, uploads a file or runs
- * SQL (D58, D63, D124); `tools.test.ts` walks the names.
+ * SQL (D58, D63, D124); `tools.test.ts` walks the names. A lifecycle change (`change_lifecycle`)
+ * is none of those: the thing and its history stay, and its Undo puts it back.
  */
 
 import {
@@ -346,14 +347,24 @@ export const addThingItem = z
       })
       .optional()
       .describe('A place that does not exist yet; it is proposed with the thing (D213)'),
+    // A price is optional, as on POST /things and the create sheet (a gift, a price nobody
+    // kept); it comes with its currency. The refinements stay out of the schema the model reads.
     purchase: z
       .object({
         purchased_on: isoDate.optional(),
-        price: money.shape.amount.describe('The price of one'),
-        currency: money.shape.currency,
+        price: money.shape.amount.optional().describe('The price of one, with its currency'),
+        currency: money.shape.currency.optional(),
         shop: shortText(200).optional(),
       })
+      .refine((p) => (p.price === undefined) === (p.currency === undefined), {
+        message: 'Send a price with its currency, or neither.',
+        path: ['price'],
+      })
+      .refine((p) => Object.values(p).some((v) => v !== undefined), {
+        message: 'give at least purchased_on, shop or price.',
+      })
       .optional(),
+    acquired_from: z.string().max(200).optional().describe('Where it came from'),
   })
   .extend(z.object(thingFields).partial().shape);
 
@@ -790,6 +801,37 @@ export const TOOL_DEFS = Object.freeze({
       quantity: z.number().int().min(1).optional(),
     }),
     output: writeResult.extend({ thing: thingRef, split_from: uuid.optional() }),
+  }),
+  // 1.x: a thing's lifecycle, as the thing page's Change lifecycle sheet and Archive set it
+  // (POST /things/:id/lifecycle): in use, or any of the ways a thing ends. Sold, given away, lost
+  // or put away, the thing keeps its record and history and stays out of the Trash; the change is
+  // undoable for 7 days, and `in_use` brings it back. Like the sheet, a call sends the whole end:
+  // an ended detail left out is cleared. MCP only, like Moving mode: the assistant's card has no
+  // rows for it yet.
+  change_lifecycle: tool({
+    name: 'change_lifecycle',
+    title: 'Change lifecycle',
+    description:
+      'Change a thing’s lifecycle as Change lifecycle does: sold, given away, lost, archived, another end, or back `in_use`. Kept keeps its record. Send the whole end: a detail left out is cleared.',
+    scope: 'write',
+    module: null,
+    since: '1.x',
+    doors: ['mcp'],
+    idempotent: true,
+    input: z.object({
+      location_id: locationId,
+      thing_id: idOrCode,
+      lifecycle: z
+        .enum(LIFECYCLES)
+        .describe(
+          '`archived`: still yours, put away. `disposed`: thrown away or recycled. `in_use`: back in use, which clears the ended details',
+        ),
+      ended_on: isoDate.optional().describe('When it ended'),
+      ended_to: shortText(200).optional().describe('Who it went to (sold, given away, returned)'),
+      ended_notes: shortText(5000).optional(),
+      ended_price: money.optional().describe('What it sold for, where money is shown'),
+    }),
+    output: writeResult.extend({ thing: thingRef, lifecycle: z.enum(LIFECYCLES) }),
   }),
   mark_seen: tool({
     name: 'mark_seen',

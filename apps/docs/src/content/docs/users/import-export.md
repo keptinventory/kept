@@ -69,7 +69,8 @@ import would drop:
 | `HB.warranty_expires`, `HB.lifetime_warranty` | A warranty from the purchase date, where Warranties is on |
 | `HB.warranty_details`, `HB.insured` | Lines in the notes |
 
-A price of 0 is read as no price (Homebox writes 0 when none was set). Where Money is off, the
+A price of 0 is read as no price (Homebox writes 0 when none was set), so an item with a purchase
+date and no price still comes in with its purchase: the date and the shop. Where Money is off, the
 whole purchase stays in the notes, as with the export ZIP. The location rows a
 v0.26 or later spreadsheet lists are left out; places come from each item's location path. A
 spreadsheet can't carry photos, files, maintenance or items inside items, and custom fields
@@ -136,7 +137,7 @@ What comes over:
 | Locations (nested) | Rooms and spots, keeping the tree |
 | Items | Things; an item holding others becomes a box, never its whole type |
 | Manufacturer, model, serial | Brand, model, serial |
-| Purchase date, shop and price | A purchase with its shop |
+| Purchase date, shop and price | A purchase with its shop, and its price when it has one (Homebox's 0 is no price). A shop or a price with no date stays in the notes |
 | Warranty, lifetime warranty | A warranty |
 | Sold details | With a buyer or a price (more than 0): the thing ended as sold, with its date, price, buyer and notes. A sold date alone isn't a sale: the thing stays in use, the date in its notes |
 | Tags | Tags with their colours (nested tags flattened) |

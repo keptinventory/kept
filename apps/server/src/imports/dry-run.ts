@@ -58,7 +58,8 @@ import {
 // out, by the choice; a warranty's end or a lifetime warranty becomes a warranty from the
 // purchase date where the warranties module is on (else its text stays in the notes); warranty
 // details and "insured" go in the notes; a 0 price is no price (Homebox writes 0 when none is
-// set); a location row (v0.26 on lists them) is left out.
+// set), so a dated row is a purchase without one; a location row (v0.26 on lists them) is left
+// out.
 //
 // Lookups are read under the importer's own row-level security, and only with equality on
 // indexed columns, or all of a location's (or an account's) rows at once, never with a
@@ -903,11 +904,11 @@ export async function planRow(
     }
     const dateOk = !!date && date <= lookups.today;
     // A purchase needs a date. Its price is optional (a gift, a bundle's part, a price nobody
-    // kept), as on POST /purchases; but a price cell that doesn't read keeps the whole purchase
-    // as text, since a price was meant. The Homebox preset still needs a price, as the Homebox
-    // archive import does (homebox/plan.ts).
+    // kept), as on POST /purchases, under the Homebox preset too (its 0 is no price), as the
+    // Homebox archive import does (homebox/plan.ts); but a price cell that doesn't read keeps
+    // the whole purchase as text, since a price was meant.
     const priced = !!price && !!cur;
-    if (dateOk && (priced || (!priceCell && !hb))) {
+    if (dateOk && (priced || !priceCell)) {
       let vendor: Ref | null = null;
       if (vendorCell) {
         if (vendorCell.value.length > REGISTRY_NAME_MAX.vendor) {
@@ -928,14 +929,10 @@ export async function planRow(
         vendor,
       };
     } else {
-      // No date, or a price that doesn't read (or none, under the Homebox preset): whatever is
-      // here stays as text.
-      const [code, why]: [ImportIssueCode, string] =
-        hb && !priceCell
-          ? ['needs_price', 'A purchase needs a price.']
-          : !dateCell
-            ? ['needs_date', 'A purchase needs a date.']
-            : ['purchase_incomplete', 'The purchase is incomplete; kept as text.'];
+      // No date, or a price that doesn't read: whatever is here stays as text.
+      const [code, why]: [ImportIssueCode, string] = !dateCell
+        ? ['needs_date', 'A purchase needs a date.']
+        : ['purchase_incomplete', 'The purchase is incomplete; kept as text.'];
       for (const c of [priceCell, dateCell, vendorCell]) {
         if (c && !ctx.text.some((x) => x.column === c.column)) {
           asText(ctx, c.column, c.value, code, why);

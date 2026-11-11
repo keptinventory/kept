@@ -873,6 +873,75 @@ describe('a sale is a buyer or a price, never a date alone (#346)', () => {
   });
 });
 
+describe('a purchase date with no price (Homebox writes 0 for none)', () => {
+  /** Home with `patch` on the named entity. */
+  const withEntity = (name: string, patch: Partial<HbEntity>): HomeboxData => ({
+    ...home,
+    entities: new Map(
+      [...home.entities].map(([id, e]) => [id, e.name === name ? { ...e, ...patch } : e]),
+    ),
+  });
+  let dated: HomeboxData;
+  beforeAll(() => {
+    dated = withEntity('Desk lamp', {
+      purchase_date: '2025-03-02T00:00:00Z',
+      purchase_price: 0,
+      purchase_from: 'Souq',
+    });
+  });
+
+  it('makes a purchase with its date and shop, and no price or currency', () => {
+    const plan = planHomebox(dated, choices(dated), lookups());
+    const lamp = thing(plan.ops, 'Desk lamp');
+    expect(lamp.purchase).toEqual({
+      key: `${idOf(dated, 'Desk lamp')}:purchase`,
+      purchasedOn: '2025-03-02',
+      price: null,
+      currency: null,
+      vendor: { create: 'Souq' },
+    });
+    expect(lamp.notes ?? '').not.toContain('Purchased');
+    // Its quantity of 0 is the fixture's own; nothing is said about the purchase.
+    expect(issuesOf(plan, idOf(dated, 'Desk lamp'))).toEqual(['hb_quantity_zero']);
+    expect(plan.report.summary.purchases).toBe(
+      planHomebox(home, choices(home), lookups()).report.summary.purchases + 1,
+    );
+  });
+
+  it("makes it where the chosen currency isn't turned on, since it has no price", () => {
+    const plan = planHomebox(dated, choices(dated), lookups({ currencies: new Set(['USD']) }));
+    expect(thing(plan.ops, 'Desk lamp').purchase).toMatchObject({
+      purchasedOn: '2025-03-02',
+      price: null,
+      currency: null,
+    });
+    expect(issuesOf(plan, idOf(dated, 'Desk lamp'))).toEqual(['hb_quantity_zero']);
+  });
+
+  it('keeps it in the notes where money is off, or the date is in the future', () => {
+    const off = planHomebox(dated, choices(dated), lookups({ showMoney: false }));
+    expect(thing(off.ops, 'Desk lamp').purchase).toBeNull();
+    expect(thing(off.ops, 'Desk lamp').notes).toContain('Purchased: 2025-03-02, From: Souq');
+    expect(issuesOf(off, idOf(dated, 'Desk lamp'))).toContain('money_off');
+    const ahead = withEntity('Desk lamp', {
+      purchase_date: '2027-01-01T00:00:00Z',
+      purchase_from: 'Souq',
+    });
+    const later = planHomebox(ahead, choices(ahead), lookups());
+    expect(thing(later.ops, 'Desk lamp').purchase).toBeNull();
+    expect(thing(later.ops, 'Desk lamp').notes).toContain('Purchased: 2027-01-01');
+    expect(issuesOf(later, idOf(ahead, 'Desk lamp'))).toContain('future_date');
+  });
+
+  it('keeps a shop with no date in the notes, saying a purchase needs a date, as the preset does', () => {
+    const shop = withEntity('Desk lamp', { purchase_from: 'Souq' });
+    const plan = planHomebox(shop, choices(shop), lookups());
+    expect(thing(plan.ops, 'Desk lamp').purchase).toBeNull();
+    expect(thing(plan.ops, 'Desk lamp').notes).toContain('From: Souq');
+    expect(issuesOf(plan, idOf(shop, 'Desk lamp'))).toEqual(['hb_quantity_zero', 'needs_date']);
+  });
+});
+
 describe('a Homebox link to a Paperless-ngx document (#347)', () => {
   const LINK = 'Manufacturer page';
   /** Home with the link attachment pointing at `url`. */
