@@ -26,8 +26,19 @@ import { vendorFor } from '../../schedules/services.js';
 import { createFromTemplate, FromTemplateBody } from '../../templates/place-templates.js';
 import { thingRackOf } from '../../templates/rack-view.js';
 import { moveThings } from '../../things/move.js';
-import { insertThing, liveThing, markSeen, updateThing } from '../../things/service.js';
-import { RackPositionBody, RackUnitsBody, type UpdateBody } from '../../things/validate.js';
+import {
+  insertThing,
+  liveThing,
+  markSeen,
+  setLifecycle,
+  updateThing,
+} from '../../things/service.js';
+import {
+  type LifecycleBody,
+  RackPositionBody,
+  RackUnitsBody,
+  type UpdateBody,
+} from '../../things/validate.js';
 import { viewOf } from '../../things/view.js';
 import { placePath, placeRefOf, thingPath, thingRefOf } from '../output.js';
 import {
@@ -232,13 +243,16 @@ export const addThing: Handler<'add_thing'> = {
           ...(item.manual_url ? { manualUrl: item.manual_url } : {}),
           ...(item.expires_on ? { expiresOn: item.expires_on } : {}),
           ...(item.expiry_lead_days !== undefined ? { expiryLeadDays: item.expiry_lead_days } : {}),
+          ...(item.acquired_from?.trim() ? { acquiredFrom: item.acquired_from.trim() } : {}),
           ...(item.custom ? { custom: item.custom } : {}),
           ...(p
             ? {
                 purchase: {
                   purchasedOn: p.purchased_on ?? (await todayIn(op.client, loc.id)),
-                  currency: p.currency,
-                  price: parseAmount(p.price),
+                  // A price comes with its currency (the tool's schema checks), or neither.
+                  ...(p.price !== undefined && p.currency !== undefined
+                    ? { currency: p.currency, price: parseAmount(p.price) }
+                    : {}),
                   ...(vendorId ? { vendorId } : {}),
                 },
               }
@@ -588,6 +602,48 @@ export const markSeenTool: Handler<'mark_seen'> = {
         ...(await writeResult(op, 'thing', id)),
         thing: await thingRef(op, id),
         last_seen_at: lastSeenAt,
+      },
+    };
+  },
+};
+
+/**
+ * change_lifecycle: POST /things/:id/lifecycle's own operation, so the role, the money gate (an
+ * ended price where money is hidden is `module_off`), the row's version and the undoable
+ * `thing.lifecycle` event are the route's. Back in use (`in_use`) clears the ended details, so
+ * one sent with it is refused rather than dropped.
+ */
+export const changeLifecycleTool: Handler<'change_lifecycle'> = {
+  action: 'things.edit',
+  subjectLocation: (client, input) => locationOfRef(client, input.thing_id),
+  run: async (op, input) => {
+    const loc = locationOf(op);
+    const id = await thingIn(op.client, loc.id, input.thing_id);
+    const ended = (['ended_on', 'ended_to', 'ended_notes', 'ended_price'] as const).filter(
+      (k) => input[k] !== undefined,
+    );
+    if (input.lifecycle === 'in_use' && ended.length > 0) {
+      throw invalid(`Leave out ${ended.join(', ')}: back in use clears the ended details.`);
+    }
+    // The shared money schema takes a minus; the route's amount doesn't, nor does the database.
+    if (input.ended_price?.amount.startsWith('-')) {
+      throw invalid('ended_price.amount is 0 or more.');
+    }
+    const body: LifecycleBody = { lifecycle: input.lifecycle };
+    if (input.ended_on !== undefined) body.endedOn = input.ended_on;
+    if (input.ended_to !== undefined) body.endedTo = input.ended_to;
+    if (input.ended_notes !== undefined) body.endedNotes = input.ended_notes;
+    if (input.ended_price !== undefined) {
+      body.endedPrice = input.ended_price.amount;
+      body.endedCurrency = input.ended_price.currency;
+    }
+    const expected = op.ifMatch ?? (await liveThing(op.client, id)).row_version;
+    await setLifecycle(op, id, expected, body);
+    return {
+      data: {
+        ...(await writeResult(op, 'thing', id)),
+        thing: await thingRef(op, id),
+        lifecycle: input.lifecycle,
       },
     };
   },

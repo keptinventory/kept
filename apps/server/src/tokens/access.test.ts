@@ -52,4 +52,35 @@ describe('token access', () => {
       else expect(access, route).toBe('write');
     }
   });
+
+  it('opens the account registries a script names things with: list, read and create only', () => {
+    for (const kind of ['brands', 'vendors', 'tags']) {
+      expect(tokenAccessOf('GET', `/api/v1/accounts/:accountId/${kind}`), kind).toBe('read');
+      expect(tokenAccessOf('GET', `/api/v1/${kind}/:id`), kind).toBe('read');
+      expect(tokenAccessOf('POST', `/api/v1/accounts/:accountId/${kind}`), kind).toBe('write');
+    }
+    // Nothing edits, merges or deletes a registry row with a token (D58, D124).
+    for (const kind of ['brands', 'vendors', 'people', 'tags']) {
+      expect(tokenAccessOf('PATCH', `/api/v1/${kind}/:id`), kind).toBe('none');
+      expect(tokenAccessOf('DELETE', `/api/v1/${kind}/:id`), kind).toBe('none');
+      expect(tokenAccessOf('POST', `/api/v1/${kind}/:id/merge-into`), kind).toBe('none');
+    }
+  });
+
+  it('opens a thing’s warranties to read and add; editing, deleting and claims stay closed', () => {
+    const warranties = [...routes].filter((r) =>
+      /\/(warranties|warranty-defaults|claims|claim-prefill)(\/|$)/.test(r),
+    );
+    const open = Object.fromEntries(
+      warranties
+        .map((r) => [r, tokenAccessOf(...(r.split(' ') as [string, string]))] as const)
+        .filter(([, access]) => access !== 'none'),
+    );
+    expect(open).toEqual({
+      'GET /api/v1/things/:id/warranties': 'read',
+      'HEAD /api/v1/things/:id/warranties': 'read',
+      'POST /api/v1/things/:id/warranties': 'write',
+    });
+    expect(warranties.length).toBeGreaterThanOrEqual(10);
+  });
 });

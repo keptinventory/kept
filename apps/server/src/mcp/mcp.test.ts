@@ -200,6 +200,61 @@ describe('/mcp', () => {
     );
   });
 
+  it('offers change_lifecycle to a member’s write token, not a viewer’s read token; it ends a thing as the token, undoably', async () => {
+    const read = await connect((await token(talia, 'read', [home.id])).secret);
+    expect((await read.listTools()).tools.map((x) => x.name)).not.toContain('change_lifecycle');
+
+    const { token: made, secret } = await token(louis, 'write', [home.id]);
+    const client = await connect(secret);
+    const listed = (await client.listTools()).tools.find((x) => x.name === 'change_lifecycle');
+    expect(listed?.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false });
+    const tent = await createThing(t, louis, home, { name: 'Old tent' });
+    const res = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { thing_id: tent.id, lifecycle: 'given_away', ended_to: 'Murdock' },
+    });
+    const body = answer(res);
+    expect(res.isError, JSON.stringify(body)).toBeFalsy();
+    expect(body.data).toMatchObject({ lifecycle: 'given_away', thing: { id: tent.id } });
+    expect((body.data as Json).undo_until).toBeTruthy();
+    const events = await own<{ action: string }>(
+      db,
+      `SELECT action FROM public.audit_events
+        WHERE actor_type = 'token' AND actor_id = $1 AND entity_id = $2`,
+      [made.id, tent.id],
+    );
+    expect(events).toEqual([{ action: 'thing.lifecycle' }]);
+    const [live] = await own<{ lifecycle: string; deleted_at: Date | null }>(
+      db,
+      'SELECT lifecycle, deleted_at FROM public.things WHERE id = $1',
+      [tent.id],
+    );
+    expect(live).toEqual({ lifecycle: 'given_away', deleted_at: null });
+  });
+
+  it('keeps change_lifecycle in the token’s locations, though its creator reaches more', async () => {
+    // Ibrahim owns Home and Office (both with MCP on); his token holds Home only.
+    const client = await connect((await token(ibrahim, 'write', [home.id])).secret);
+    const chair = await createThing(t, ibrahim, office, { name: 'Desk chair' });
+    const res = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { location_id: office.id, thing_id: chair.id, lifecycle: 'disposed' },
+    });
+    expect(res.isError).toBe(true);
+    const bare = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { thing_id: chair.id, lifecycle: 'disposed' },
+    });
+    expect(bare.isError).toBe(true);
+    expect(answer(bare)).toMatchObject({ error: 'not_found' });
+    const [live] = await own<{ lifecycle: string }>(
+      db,
+      'SELECT lifecycle FROM public.things WHERE id = $1',
+      [chair.id],
+    );
+    expect(live?.lifecycle).toBe('in_use');
+  });
+
   it('refuses a token per call once its creator loses the role, in Kept’s words', async () => {
     const peter = await person(t, db, 'louis-two');
     const membership = await join(db, home.id, peter.userId, 'member');
@@ -346,5 +401,83 @@ describe('/mcp', () => {
     const res = await client.callTool({ name: 'where_is', arguments: { query: 'HDMI' } });
     expect(res.isError).toBeFalsy();
     expect(JSON.stringify(answer(res))).toContain('HDMI cable');
+  });
+});
+
+// A name Kept doesn't have yet becomes a vendor or person inline (D11). Over a token, the audit
+// row of that create must name the token, as 0070's audit policy requires: a user actor while a
+// token is the principal is refused by row security (a 500 before this was fixed).
+describe('/mcp names a new shop or person over a token', () => {
+  /** The account-level create rows the token made, by action. */
+  const creates = (tokenId: string) =>
+    own<{ action: string; entity_id: string }>(
+      db,
+      `SELECT action, entity_id FROM public.audit_events
+        WHERE actor_type = 'token' AND actor_id = $1 AND location_id IS NULL ORDER BY id`,
+      [tokenId],
+    );
+
+  async function writer() {
+    const { token: made, secret } = await token(louis, 'write', [home.id]);
+    const client = await connect(secret);
+    const run = async (name: string, args: Record<string, unknown>) => {
+      const res = await client.callTool({ name, arguments: args });
+      const body = answer(res);
+      expect(res.isError, JSON.stringify(body)).toBeFalsy();
+      return body.data as Json;
+    };
+    return { id: made.id as string, run };
+  }
+
+  const vendorNamed = async (name: string) =>
+    (await own<{ id: string }>(db, 'SELECT id FROM public.vendors WHERE name = $1', [name]))[0]?.id;
+  const personNamed = async (name: string) =>
+    (
+      await own<{ id: string }>(db, 'SELECT id FROM public.people WHERE display_name = $1', [name])
+    )[0]?.id;
+
+  it('add_thing with a shop Kept has no vendor for makes the vendor, audited as the token', async () => {
+    const w = await writer();
+    await w.run('add_thing', {
+      items: [
+        {
+          name: 'Kettle',
+          purchase: { purchased_on: '2026-08-14', price: '900', currency: 'EGP', shop: 'Souq Bab' },
+        },
+      ],
+    });
+    const vendor = await vendorNamed('Souq Bab');
+    expect(vendor).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'vendor.create', entity_id: vendor }]);
+  });
+
+  it('log_service with a new vendor makes it, audited as the token', async () => {
+    const w = await writer();
+    const boiler = await createThing(t, louis, home, { name: 'Boiler' });
+    await w.run('log_service', {
+      thing_id: boiler.id,
+      serviced_on: '2026-08-20',
+      vendor: 'Heliopolis Heating',
+    });
+    const vendor = await vendorNamed('Heliopolis Heating');
+    expect(vendor).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'vendor.create', entity_id: vendor }]);
+  });
+
+  it('add_thing for someone Kept has no person for makes the person, audited as the token', async () => {
+    const w = await writer();
+    await w.run('add_thing', { items: [{ name: 'Scarf', belongs_to: 'Murdock' }] });
+    const murdock = await personNamed('Murdock');
+    expect(murdock).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: murdock }]);
+  });
+
+  it('lend_thing to a new person makes the person, audited as the token', async () => {
+    const w = await writer();
+    const ladder = await createThing(t, louis, home, { name: 'Step ladder' });
+    await w.run('lend_thing', { thing_id: ladder.id, person: 'Peter' });
+    const peter = await personNamed('Peter');
+    expect(peter).toBeDefined();
+    expect(await creates(w.id)).toEqual([{ action: 'person.create', entity_id: peter }]);
   });
 });

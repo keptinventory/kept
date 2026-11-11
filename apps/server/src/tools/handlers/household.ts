@@ -342,12 +342,17 @@ export const addWarranty: Handler<'add_warranty'> = {
     if (!input.ends_on && term === undefined) {
       throw invalid('Give ends_on or term_months: nothing here says how long it lasts.');
     }
-    const w = await createWarranty(op, id, {
-      kind: input.kind,
-      startsOn: defaults.startsOn ?? (await todayIn(op.client, loc.id)),
-      ...(input.ends_on ? { endsOn: input.ends_on } : { termMonths: term as number }),
-      ...(input.provider ? { provider: input.provider } : {}),
-    });
+    const w = await createWarranty(
+      op,
+      id,
+      {
+        kind: input.kind,
+        startsOn: defaults.startsOn ?? (await todayIn(op.client, loc.id)),
+        ...(input.ends_on ? { endsOn: input.ends_on } : { termMonths: term as number }),
+        ...(input.provider ? { provider: input.provider } : {}),
+      },
+      { undoable: true },
+    );
     return {
       data: {
         ...(await eventOf(op, 'warranty', w.id)),

@@ -325,3 +325,32 @@ describe('the routes open to tokens', () => {
     expect(bad.statusCode).toBe(400);
   });
 });
+
+describe('marking a schedule done over a token, naming a new service center', () => {
+  it('makes the vendor inline, audited as the token, not refused by row security as a 404', async () => {
+    const res = await call(t, '/api/v1/tokens', {
+      as: ibrahim,
+      body: { name: 'Garage write', scope: 'write', locationIds: [garage.id] },
+    });
+    const made = ok(res, 201) as unknown as { token: { id: string }; secret: string };
+    const tires = await schedule(garage, ibrahim, car.id, 'Rotate the tires', inDays(300));
+    const done = await bearer(made.secret, `/api/v1/schedules/${tires}/complete`, {
+      body: { servicedOn: cairoToday(), vendor: { name: 'Nasr City Tires' } },
+      headers: { 'if-match': '1' },
+    });
+    expect(done.statusCode, done.body).toBe(200);
+    const vendor = await own<{ id: string }>(
+      db,
+      'SELECT id FROM public.vendors WHERE owner_account_id = $1 AND name = $2',
+      [garage.accountId, 'Nasr City Tires'],
+    );
+    expect(vendor).toHaveLength(1);
+    const events = await own<{ action: string; entity_id: string }>(
+      db,
+      `SELECT action, entity_id FROM public.audit_events
+        WHERE actor_type = 'token' AND actor_id = $1 AND location_id IS NULL`,
+      [made.token.id],
+    );
+    expect(events).toEqual([{ action: 'vendor.create', entity_id: vendor[0]?.id }]);
+  });
+});

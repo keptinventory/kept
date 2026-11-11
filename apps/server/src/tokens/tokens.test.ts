@@ -355,6 +355,109 @@ describe('tokens', () => {
     expect(events).toEqual([{ actor_type: 'token', actor_id: token.id }]);
   });
 
+  it('says where a thing came from in the create itself, no edit after', async () => {
+    const { secret } = await makeToken(louis, {
+      name: 'Gifts',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    const thing = ok(
+      await bearer(secret, '/api/v1/things', {
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Drill',
+          acquiredFrom: 'A gift from Dad',
+        },
+      }),
+      201,
+    );
+    expect(thing.acquiredFrom).toBe('A gift from Dad');
+    expect(thing.rowVersion).toBe(1);
+    expect(ok(await bearer(secret, `/api/v1/things/${thing.id}`)).acquiredFrom).toBe(
+      'A gift from Dad',
+    );
+  });
+
+  // A lifecycle change keeps the thing and its history, and its Undo puts it back, so a write
+  // token may make it; trashing stays the app's.
+  it('ends a thing’s use as the token (sold, archived, back in use), never trashes it, and only in its locations', async () => {
+    const { token, secret } = await makeToken(louis, {
+      name: 'Lifecycle',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    const bike = await createThing(t, ibrahim, home, { name: 'Bike' });
+    const sold = ok(
+      await bearer(secret, `/api/v1/things/${bike.id}/lifecycle`, {
+        body: { lifecycle: 'sold', endedOn: '2026-10-01', endedTo: 'Murdock' },
+        headers: { 'if-match': String(bike.rowVersion) },
+      }),
+    ) as Json & { rowVersion: number };
+    expect(sold.lifecycle).toBe('sold');
+    expect(sold.ended).toMatchObject({ on: '2026-10-01', to: 'Murdock' });
+    const events = await own<{ actor_type: string; actor_id: string; action: string }>(
+      db,
+      `SELECT actor_type, actor_id, action FROM public.audit_events
+        WHERE entity_id = $1 AND action = 'thing.lifecycle'`,
+      [bike.id],
+    );
+    expect(events).toEqual([
+      { actor_type: 'token', actor_id: token.id, action: 'thing.lifecycle' },
+    ]);
+    // Archived, then back in use: the same route.
+    const archived = ok(
+      await bearer(secret, `/api/v1/things/${bike.id}/lifecycle`, {
+        body: { lifecycle: 'archived' },
+        headers: { 'if-match': String(sold.rowVersion) },
+      }),
+    ) as Json & { rowVersion: number };
+    expect(archived.lifecycle).toBe('archived');
+    const back = ok(
+      await bearer(secret, `/api/v1/things/${bike.id}/lifecycle`, {
+        body: { lifecycle: 'in_use' },
+        headers: { 'if-match': String(archived.rowVersion) },
+      }),
+    );
+    expect(back.lifecycle).toBe('in_use');
+    // Still never the Trash.
+    const trash = await bearer(secret, `/api/v1/things/${bike.id}/trash`, {
+      method: 'POST',
+      body: {},
+    });
+    expect(trash.statusCode).toBe(403);
+    expect(trash.json()).toMatchObject({ code: 'token_scope' });
+    const del = await bearer(secret, `/api/v1/things/${bike.id}`, { method: 'DELETE' });
+    expect(del.statusCode).toBe(403);
+    expect(del.json()).toMatchObject({ code: 'token_scope' });
+    const [live] = await own<{ deleted_at: Date | null }>(
+      db,
+      'SELECT deleted_at FROM public.things WHERE id = $1',
+      [bike.id],
+    );
+    expect(live?.deleted_at).toBeNull();
+    // A read token is refused; a thing in a location the token doesn't reach is not there.
+    const read = await makeToken(louis, { name: 'Reader', scope: 'read', locationIds: [home.id] });
+    const refused = await bearer(read.secret, `/api/v1/things/${bike.id}/lifecycle`, {
+      body: { lifecycle: 'lost' },
+      headers: { 'if-match': '1' },
+    });
+    expect(refused.statusCode).toBe(403);
+    expect(refused.json()).toMatchObject({ code: 'token_scope' });
+    const drill = await createThing(t, ibrahim, garage, { name: 'Drill' });
+    const elsewhere = await bearer(secret, `/api/v1/things/${drill.id}/lifecycle`, {
+      body: { lifecycle: 'lost' },
+      headers: { 'if-match': String(drill.rowVersion) },
+    });
+    expect(elsewhere.statusCode).toBe(404);
+    const [untouched] = await own<{ lifecycle: string }>(
+      db,
+      'SELECT lifecycle FROM public.things WHERE id = $1',
+      [drill.id],
+    );
+    expect(untouched?.lifecycle).toBe('in_use');
+  });
+
   it('names a thing’s brand: lists and creates brands, never edits or deletes them', async () => {
     // Creating a brand is an owner's or admin's (registries), so an admin's token can (Bruce
     // admins Home); a member's write token is refused, as its creator would be.
@@ -400,6 +503,159 @@ describe('tokens', () => {
       locationIds: [home.id],
     });
     expect((await bearer(member.secret, brands, { body: { name: 'Sony' } })).statusCode).toBe(403);
+  });
+
+  it('names a thing’s shop and tags: lists and creates vendors and tags, audited as the token', async () => {
+    // A member adds vendors and tags inline (registries), so a member's write token can: Louis
+    // is a member of Home.
+    const write = await makeToken(louis, {
+      name: 'Shops and tags',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    const vendors = `/api/v1/accounts/${home.accountId}/vendors`;
+    const tags = `/api/v1/accounts/${home.accountId}/tags`;
+    const vendor = (
+      ok(
+        await bearer(write.secret, vendors, {
+          body: { name: 'Hardware Corner', kind: 'store', phone: '+20 2 555 0100' },
+        }),
+        201,
+      ) as unknown as { item: { id: string; name: string } }
+    ).item;
+    expect(vendor.name).toBe('Hardware Corner');
+    const tag = (
+      ok(await bearer(write.secret, tags, { body: { name: 'Camping' } }), 201) as unknown as {
+        item: { id: string; name: string; colour: string | null };
+      }
+    ).item;
+    expect(tag).toMatchObject({ name: 'Camping', colour: expect.stringMatching(/^#[0-9A-F]{6}$/) });
+
+    const audit = await own<{ action: string; actor_type: string; actor_id: string }>(
+      db,
+      `SELECT action, actor_type, actor_id FROM public.audit_events
+        WHERE entity_id = ANY ($1::uuid[]) ORDER BY at, id`,
+      [[vendor.id, tag.id]],
+    );
+    expect(audit).toEqual([
+      { action: 'vendor.create', actor_type: 'token', actor_id: write.token.id },
+      { action: 'tag.create', actor_type: 'token', actor_id: write.token.id },
+    ]);
+
+    // Found again by name, read by id, and used on a new thing.
+    const vendorPage = ok(await bearer(write.secret, `${vendors}?q=hardware`)) as unknown as {
+      items: { id: string }[];
+    };
+    expect(vendorPage.items.map((v) => v.id)).toContain(vendor.id);
+    expect(ok(await bearer(write.secret, `/api/v1/vendors/${vendor.id}`))).toMatchObject({
+      name: 'Hardware Corner',
+      phone: '+20 2 555 0100',
+    });
+    const thing = ok(
+      await bearer(write.secret, '/api/v1/things', {
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Tent',
+          tagIds: [tag.id],
+          purchase: {
+            purchasedOn: '2026-10-01',
+            vendorId: vendor.id,
+            currency: 'EGP',
+            price: '900',
+          },
+        },
+      }),
+      201,
+    );
+    expect(thing.purchase).toMatchObject({ vendor: { id: vendor.id, name: 'Hardware Corner' } });
+
+    // The same tag on a thing in Garage: the Home token's counts leave it out.
+    await createThing(t, ibrahim, garage, { name: 'Lantern', tagIds: [tag.id] });
+    const tagPage = ok(await bearer(write.secret, `${tags}?q=camping`)) as unknown as {
+      items: { id: string; thingCount: number }[];
+    };
+    expect(tagPage.items.find((x) => x.id === tag.id)?.thingCount).toBe(1);
+    expect(ok(await bearer(write.secret, `/api/v1/tags/${tag.id}`))).toMatchObject({
+      thingCount: 1,
+      uses: [{ locationId: home.id, count: 1 }],
+    });
+    const asIbrahim = ok(await call(t, `/api/v1/tags/${tag.id}`, { as: ibrahim }));
+    expect(asIbrahim.thingCount).toBe(2);
+
+    // Never edited, merged or deleted by a token, even an admin's.
+    const admin = await makeToken(bruce, {
+      name: 'Admin script',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    for (const [kind, id] of [
+      ['vendors', vendor.id],
+      ['tags', tag.id],
+    ] as const) {
+      const patch = await bearer(admin.secret, `/api/v1/${kind}/${id}`, {
+        method: 'PATCH',
+        body: { name: 'Renamed' },
+        headers: { 'if-match': '1' },
+      });
+      expect(patch.statusCode, `PATCH ${kind}`).toBe(403);
+      expect(patch.json()).toMatchObject({ code: 'token_scope' });
+      const del = await bearer(admin.secret, `/api/v1/${kind}/${id}`, { method: 'DELETE' });
+      expect(del.statusCode, `DELETE ${kind}`).toBe(403);
+      const merge = await bearer(admin.secret, `/api/v1/${kind}/${id}/merge-into`, {
+        body: { targetId: id },
+      });
+      expect(merge.statusCode, `merge ${kind}`).toBe(403);
+    }
+
+    // A read token lists and reads, and is refused a create.
+    const read = await makeToken(talia, { name: 'Read', scope: 'read', locationIds: [home.id] });
+    expect((await bearer(read.secret, vendors)).statusCode).toBe(200);
+    expect((await bearer(read.secret, `/api/v1/tags/${tag.id}`)).statusCode).toBe(200);
+    for (const url of [vendors, tags]) {
+      const res = await bearer(read.secret, url, { body: { name: 'Refused' } });
+      expect(res.statusCode, url).toBe(403);
+      expect(res.json()).toMatchObject({ code: 'token_scope' });
+    }
+  });
+
+  it('keeps vendors and tags to the token’s own account', async () => {
+    // Bruce's own account is his; his Home token reaches only Ibrahim's.
+    const [row] = await own<{ account: string }>(
+      db,
+      'SELECT owner_account_id AS account FROM public.locations WHERE id = $1',
+      [bruce.personalLocationId],
+    );
+    const bruceAccount = row?.account as string;
+    const mine = ok(
+      await call(t, `/api/v1/accounts/${bruceAccount}/vendors`, {
+        as: bruce,
+        body: { name: 'Corner shop' },
+      }),
+      201,
+    ) as unknown as { item: { id: string } };
+    const myTag = ok(
+      await call(t, `/api/v1/accounts/${bruceAccount}/tags`, {
+        as: bruce,
+        body: { name: 'Private' },
+      }),
+      201,
+    ) as unknown as { item: { id: string } };
+    const { secret } = await makeToken(bruce, {
+      name: 'Home only',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    for (const kind of ['vendors', 'tags']) {
+      const url = `/api/v1/accounts/${bruceAccount}/${kind}`;
+      expect((await bearer(secret, url)).statusCode, url).toBe(404);
+      expect((await bearer(secret, url, { body: { name: 'Sneaky' } })).statusCode, url).toBe(404);
+    }
+    expect((await bearer(secret, `/api/v1/vendors/${mine.item.id}`)).statusCode).toBe(404);
+    expect((await bearer(secret, `/api/v1/tags/${myTag.item.id}`)).statusCode).toBe(404);
+    // Ibrahim's account's list never carries Bruce's own rows.
+    const theirs = ok(await bearer(secret, `/api/v1/accounts/${home.accountId}/vendors`));
+    expect(JSON.stringify(theirs)).not.toContain(mine.item.id);
   });
 
   it('dies with the creator’s role or membership, at the next call', async () => {
@@ -457,6 +713,11 @@ describe('tokens', () => {
     };
     expect(doc.components.securitySchemes.bearerAuth).toMatchObject({ scheme: 'bearer' });
     expect(doc.paths['/api/v1/things']?.get?.security).toEqual([{ bearerAuth: [] }]);
+    expect(doc.paths['/api/v1/things/{id}/lifecycle']?.post?.security).toEqual([
+      { bearerAuth: [] },
+    ]);
+    expect(doc.paths['/api/v1/things/{id}/trash']?.post).toBeDefined();
+    expect(doc.paths['/api/v1/things/{id}/trash']?.post?.security).toBeUndefined();
     expect(doc.paths['/api/v1/tokens']?.get?.security).toBeUndefined();
   });
 });
