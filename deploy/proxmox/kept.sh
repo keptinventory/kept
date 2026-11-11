@@ -31,7 +31,7 @@
 #   var_storage    where the disk goes                (the first storage that holds containers)
 #   var_tmpl_storage  where the template goes         (the first storage that holds templates)
 #   var_bridge     the network bridge                 (vmbr0)
-#   var_ip         dhcp, or an address with its prefix, such as 192.168.1.50/24   (dhcp)
+#   var_ip         dhcp, or an address with its prefix, such as 192.0.2.50/24   (dhcp)
 #   var_gateway    the gateway, with a static address
 #   var_vlan       a VLAN tag                         (none)
 #   var_dns        DNS servers, space-separated       (the host's)
@@ -160,7 +160,7 @@ choose() {
   list=$(storages rootdir | awk '{ printf "%s ", $1 }')
   askbox storage "Storage for the disk (empty: the first one). Holds containers here: $list"
   askbox bridge "Network bridge"
-  askbox ip "IPv4: dhcp, or an address with its prefix such as 192.168.1.50/24"
+  askbox ip "IPv4: dhcp, or an address with its prefix such as 192.0.2.50/24"
   [[ $ip == dhcp ]] || askbox gateway "Gateway"
   askbox vlan "VLAN tag (empty: none)"
   askbox dns "DNS servers, space-separated (empty: the host's)"
@@ -184,8 +184,8 @@ check_settings() {
   [[ $hostname =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$ ]] || die "'$hostname' is not a host name"
   [[ -d /sys/class/net/$bridge ]] || die "there is no bridge $bridge on this host" "ip link show"
   if [[ $ip != dhcp ]]; then
-    [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]] || die "the address needs its prefix, such as 192.168.1.50/24, not '$ip'"
-    [[ $gateway =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || die "a static address needs a gateway, such as 192.168.1.1"
+    [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]] || die "the address needs its prefix, such as 192.0.2.50/24, not '$ip'"
+    [[ $gateway =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || die "a static address needs a gateway, such as 192.0.2.1"
   fi
   [[ -z $vlan || $vlan =~ ^[0-9]+$ ]] || die "the VLAN tag is a number, not '$vlan'"
   [[ -z $ssh_key || -f $ssh_key ]] || die "there is no file $ssh_key"

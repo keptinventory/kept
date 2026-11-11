@@ -84,7 +84,7 @@ cosign verify-blob --key cosign.pub --bundle SHA256SUMS.sigstore.json SHA256SUMS
 يمكن ضبط كل قيمة مسبقًا، و`var_unattended=yes` يشغّله دون أسئلة:
 
 ```sh
-var_unattended=yes var_ram=4096 var_ip=192.168.1.50/24 var_gateway=192.168.1.1 \
+var_unattended=yes var_ram=4096 var_ip=192.0.2.50/24 var_gateway=192.0.2.1 \
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/deploy/proxmox/kept.sh)"
 ```
 

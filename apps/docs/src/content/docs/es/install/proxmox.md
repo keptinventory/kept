@@ -90,7 +90,7 @@ importaciones y copias. Las fotos ocupan casi todo el disco.
 Cada valor se puede predefinir, y `var_unattended=yes` lo ejecuta sin preguntas:
 
 ```sh
-var_unattended=yes var_ram=4096 var_ip=192.168.1.50/24 var_gateway=192.168.1.1 \
+var_unattended=yes var_ram=4096 var_ip=192.0.2.50/24 var_gateway=192.0.2.1 \
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/deploy/proxmox/kept.sh)"
 ```
 

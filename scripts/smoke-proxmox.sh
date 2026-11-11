@@ -272,7 +272,7 @@ echo \"pct \$*\" >>/stub/pct.log
 case \"\$1\" in
   exec)
     case \"\$*\" in
-      *' ip -4 '*) echo '2: eth0    inet 10.0.0.5/24 brd 10.0.0.255 scope global eth0' ;;
+      *' ip -4 '*) echo '2: eth0    inet 198.51.100.5/24 brd 198.51.100.255 scope global eth0' ;;
     esac ;;
 esac
 exit 0
@@ -290,19 +290,19 @@ for want in 'pct create 100 local:vztmpl/debian-13-standard_13.1-2_' '--unprivil
   '--onboot 1' '--timezone host' '--hostname kept'; do
   [[ $create == *"$want"* ]] || fail "the default pct create lacks '$want': $create"
 done
-in_ct "grep -q 'pct exec 100 -- env KEPT_URL=http://10.0.0.5:8080 KEPT_CTID=100 bash /root/kept-install.sh install' /stub/pct.log" ||
+in_ct "grep -q 'pct exec 100 -- env KEPT_URL=http://198.51.100.5:8080 KEPT_CTID=100 bash /root/kept-install.sh install' /stub/pct.log" ||
   fail "kept.sh didn't run the installer with the container's address"
 in_ct "grep -q '^pct set 100 --description' /stub/pct.log" || fail "kept.sh wrote no Notes"
 ok "defaults: $create"
 in_ct ": >/stub/pct.log"
-host "var_ctid=105 var_cpu=1 var_ram=1024 var_disk=6 var_ip=192.168.1.50/24 var_gateway=192.168.1.1 var_vlan=20 var_hostname=inventory" \
+host "var_ctid=105 var_cpu=1 var_ram=1024 var_disk=6 var_ip=192.0.2.50/24 var_gateway=192.0.2.1 var_vlan=20 var_hostname=inventory" \
   >/tmp/kept-proxmox-host.log 2>&1 || {
   cat /tmp/kept-proxmox-host.log >&2
   fail "kept.sh failed with presets"
 }
 create=$(in_ct "grep '^pct create' /stub/pct.log")
 for want in 'pct create 105 ' '--cores 1' '--memory 1024' '--rootfs local-lvm:6' '--hostname inventory' \
-  '--net0 name=eth0,bridge=eth0,ip=192.168.1.50/24,gw=192.168.1.1,tag=20'; do
+  '--net0 name=eth0,bridge=eth0,ip=192.0.2.50/24,gw=192.0.2.1,tag=20'; do
   [[ $create == *"$want"* ]] || fail "the preset pct create lacks '$want': $create"
 done
 ok "presets: $create"

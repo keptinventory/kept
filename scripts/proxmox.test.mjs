@@ -74,7 +74,7 @@ describe('the Proxmox scripts', () => {
   });
 
   it('never put a middle dot in what they print', () => {
-    expect(host).not.toContain('·');
-    expect(inside).not.toContain('·');
+    expect(host).not.toContain(String.fromCharCode(0xb7));
+    expect(inside).not.toContain(String.fromCharCode(0xb7));
   });
 });
