@@ -7,10 +7,10 @@
 //
 // The first wave: things, places, search, history, meters and readings, labels (read),
 // files' metadata (read), and undo of the token's own changes. Writes are the everyday ones a
-// Shortcut or a script makes (add, edit, move, mark seen, a place, a reading); nothing that
-// trashes, merges, converts, empties, reveals or claims is open to a token (D58, D124: the same
-// line the MCP tools hold). A token reads only its own locations whatever the route says: RLS
-// intersects them on every call (0070).
+// Shortcut or a script makes (add, edit, move, mark seen, a lifecycle, a place, a reading);
+// nothing that trashes, merges, converts, empties, reveals or claims is open to a token (D58,
+// D124: the same line the MCP tools hold). A token reads only its own locations whatever the
+// route says: RLS intersects them on every call (0070).
 
 export type TokenAccess = 'none' | 'read' | 'write';
 
@@ -28,6 +28,10 @@ export const TOKEN_ROUTES: Readonly<Record<string, Exclude<TokenAccess, 'none'>>
   'POST /api/v1/things': 'write',
   'PATCH /api/v1/things/:id': 'write',
   'POST /api/v1/things/:id/seen': 'write',
+  // 1.x: a thing's lifecycle (sold, given away, lost, archived, back in use). Not a trash: the
+  // thing and its history stay, it is undoable for 7 days like any lifecycle change, and the MCP
+  // tool change_lifecycle makes the same change. The money gate still applies to an ended price.
+  'POST /api/v1/things/:id/lifecycle': 'write',
   'POST /api/v1/things/move': 'write',
   'POST /api/v1/things/move/preview': 'write',
   // 1.x (D250): the spreadsheet's wide rows and its "Save N changes", the same edits as PATCH a

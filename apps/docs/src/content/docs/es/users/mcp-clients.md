@@ -147,6 +147,7 @@ superior. La parte de Kept que necesita una herramienta es el nombre bajo **Qué
 | `update_thing` | cambio | | Cambia cualquiera de los campos de un objeto que cambia el formulario de edición de la app (ver abajo); `null` borra uno. |
 | `move_thing` | cambio | | Mueve un objeto, o parte de una cantidad, a otro lugar o contenedor. |
 | `mark_seen` | cambio | | Acabo de ver este objeto donde Kept dice que está. |
+| `change_lifecycle` | cambio | | Cambia el ciclo de vida de un objeto, como hacen **Cambiar ciclo de vida** y **Archivar**: vendido, regalado, perdido, tirado, archivado u otro final, con cuándo, a quién fue, por cuánto se vendió y una nota, o de nuevo en uso con `in_use`. Cada llamada envía el final entero, así que un detalle que deja fuera se borra. Kept conserva el objeto y su historial, y se puede deshacer durante 7 días. |
 | `create_place` | cambio | | Añade un lugar bajo otro lugar, o en la cima de la ubicación. Con `template`, añade muebles y un lugar para cada uno de sus compartimentos en un paso, como hace [Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos); un Deshacer lo quita todo. Una habitación toma su tamaño real, `width_cm` y `length_cm` (50 cm a 100 m), y va en el [mapa](/es/users/location-map/) con él. Una plantilla de bastidor acepta `units` y `numbering` ([Bastidores](/es/users/locations/#bastidores)). |
 | `update_place` | cambio | | Cambia un lugar como hace su página: cámbiale el nombre, cambia su tipo, muévelo a otro lugar o a la cima, fija sus campos, y el orden de los lugares en él (A a Z u Orden personalizado, luego Subir o Bajar). `turn` (`right` o `left`, a dónde fue su parte de arriba) gira [muebles con compartimentos](/es/users/locations/#girar-el-mueble) de lado o boca arriba, con `renumber` true o false. Deshacer durante 7 días, salvo subir o bajar: el movimiento opuesto lo deshace. |
 | `turn_into_boxes` | cambio | | Convierte hasta 50 lugares en cajas, como hace **Convierte lugares en cajas**. Cada una conserva su ID, etiqueta y lo que tiene dentro; una con lugares dentro se queda lugar, y también la que está en la cima de la ubicación (conviértela en Kept). Un Deshacer las vuelve a todas. |
@@ -186,7 +187,7 @@ vea dinero, como en la app; un mínimo necesita **Objetos que se te acaban**. Un
 se omite y la respuesta `not_set` lo dice; la tarjeta del asistente
 lo muestra como "no establecido" con un selector. Un equipo en un bastidor acepta `rack_units` (su altura, 0 junto a los rieles) y `rack_at` (el número de unidad más bajo que ocupa, según la numeración del bastidor, como lo da `get_thing`, su cara y si es de fondo completo), rechazado como en la app si la unidad está ocupada.
 
-Las herramientas de mudanza son solo para apps conectadas; el asistente en Kept no las usa.
+Las herramientas de mudanza y `change_lifecycle` son solo para apps conectadas; el asistente en Kept no las usa.
 
 Toda herramienta que tome un id también toma un ID corto de 6 caracteres como `K7D2QX`. Los
 contratos completos están en
