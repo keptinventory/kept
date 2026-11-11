@@ -168,6 +168,20 @@ describe('the commands', () => {
   });
 });
 
+describe('the Proxmox VE commands', () => {
+  it('are the host script’s own and its guide’s, at the release compose.yaml runs', () => {
+    const script = repo('deploy/proxmox/kept.sh');
+    expect(script).toContain(`#   ${commands.proxmox.install}`);
+    expect(script).toContain(`KEPT_VERSION=${RELEASE}`);
+    const guide = docs('install/proxmox.md');
+    for (const line of Object.values(commands.proxmox)) expect(guide).toContain(line);
+    // The update command the container gets, and the files the first run points at.
+    const inside = repo('deploy/proxmox/kept-install.sh');
+    expect(inside).toContain('>/usr/bin/update');
+    expect(inside).toContain('CREDS=/root/kept.creds');
+  });
+});
+
 describe('what Kept prints', () => {
   it('is what `kept init` prints', () => {
     const init = repo('apps/server/src/cli/init.ts');
@@ -204,6 +218,10 @@ describe('what Kept prints', () => {
     expect(printed.helmInstalled).toBe(
       `Kept ${RELEASE} is installed as "kept" in namespace "kept".`,
     );
+  });
+
+  it('is what the Proxmox VE script prints at the end', () => {
+    expect(repo('deploy/proxmox/kept.sh')).toContain(`say "${printed.proxmox}"`);
   });
 
   it('is what the Home Assistant app logs at start', () => {

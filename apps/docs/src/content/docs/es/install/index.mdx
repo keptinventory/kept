@@ -1,6 +1,6 @@
 ---
 title: Instalar Kept
-description: Elige cómo ejecutas Kept, con Docker Compose, Kubernetes, desde el código o como app de Home Assistant, y sigue los pasos de ese camino, con una comprobación después de cada uno.
+description: Elige cómo ejecutas Kept, con Docker Compose, Kubernetes, desde el código, en Proxmox VE o como app de Home Assistant, y sigue los pasos de ese camino, con una comprobación después de cada uno.
 sidebar:
   order: 0
   label: Empieza aquí
@@ -186,6 +186,53 @@ En Windows, ejecuta estos comandos en WSL. El mismo `compose.yaml` que una versi
 explicado en detalle: [Instalar con Docker Compose](/es/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+Proxmox VE 8 o 9 en amd64, y la terminal del host como root. El contenedor recibe por defecto 2
+núcleos de CPU, 2 GB de memoria y 8 GB de disco. Aún sin probar en un host Proxmox VE real: trata
+la primera instalación como una prueba.
+</Need>
+
+<Steps>
+
+1. **Ejecuta el script** en la terminal del host Proxmox VE. Elige **Default**, revisa los ajustes
+   y el comando `pct create` que muestra, y confirma.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   Tras unos minutos, esta línea, con la dirección que abrir debajo:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **Busca el código de configuración.** Está en el contenedor, en `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   Una línea que empieza por `Setup code:`.
+   </See>
+
+   Abre la dirección, introduce el código y crea la primera cuenta: será la administradora de la
+   instancia.
+
+3. **Guarda las claves.** Imprime el kit de recuperación y guárdalo en otro sitio que no sea este
+   servidor.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   Un texto que empieza por `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+`<CTID>` es el ID del contenedor, que el script imprime. Leerlo antes, los valores por defecto,
+las actualizaciones, las copias y cómo quitarlo: [Instalar en Proxmox VE](/es/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -291,6 +338,8 @@ Todo lo demás: [Resolución de problemas](/es/admin/troubleshooting/).
 
 - **Kubernetes:** cada versión publica un chart con la misma versión, y sus migraciones se ejecutan
   en un Job antes de que la nueva versión atienda.
+- **Proxmox VE:** `update` en la consola del contenedor. Pregunta antes y vuelve atrás si la
+  nueva versión no arranca.
 - **Home Assistant:** Home Assistant ofrece la actualización. Activa
   **Mantener copia de seguridad de la última versión** en su diálogo de actualización.
 

@@ -1,6 +1,6 @@
 ---
 title: تثبيت Kept
-description: اختر كيف تشغّل Kept، باستخدام Docker Compose أو Kubernetes أو من المصدر أو كتطبيق لـ Home Assistant، ثم اتبع خطوات تلك الطريقة، مع تحقّق بعد كل خطوة.
+description: اختر كيف تشغّل Kept، باستخدام Docker Compose أو Kubernetes أو من المصدر أو على Proxmox VE أو كتطبيق لـ Home Assistant، ثم اتبع خطوات تلك الطريقة، مع تحقّق بعد كل خطوة.
 sidebar:
   order: 0
   label: ابدأ هنا
@@ -177,6 +177,51 @@ import { commands, printed } from '../../../../components/install/commands';
 بالتفصيل: [التثبيت باستخدام Docker Compose](/ar/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+‏Proxmox VE ‏٨ أو ٩ على amd64، وطرفية المضيف بصلاحيات root. تحصل الحاوية افتراضيًا على نواتين
+من المعالج و٢ غيغابايت من الذاكرة و٨ غيغابايت من القرص. لم تُجرَّب بعد على مضيف Proxmox VE حقيقي: تعامل مع
+أول تثبيت كتجربة.
+</Need>
+
+<Steps>
+
+1. **شغّل السكربت** في طرفية مضيف Proxmox VE. اختر **Default**، وراجع الإعدادات وأمر
+   `pct create` الذي يعرضه، ثم أكّد.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   بعد بضع دقائق، هذا السطر، وتحته العنوان الذي تفتحه:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **اعثر على رمز الإعداد.** إنه داخل الحاوية، في `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   سطر يبدأ بـ `Setup code:`.
+   </See>
+
+   افتح العنوان، وأدخل الرمز، وأنشئ الحساب الأول: يصبح مدير النسخة.
+
+3. **احتفظ بالمفاتيح.** اطبع مجموعة الاسترداد واحفظها في مكان غير هذا الخادم.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   نص يبدأ بـ `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+‏`<CTID>` هو معرّف الحاوية الذي يطبعه السكربت. القراءة أولًا والإعدادات الافتراضية والتحديثات
+والنسخ الاحتياطي والإزالة: [التثبيت على Proxmox VE](/ar/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -276,6 +321,8 @@ Assistant Container ولا Core. جهاز `aarch64` أو `amd64`، مثل راس
 
 - **‏Kubernetes:** ينشر كل إصدار مخططًا بالإصدار نفسه، وتعمل ترحيلاته في Job قبل أن يبدأ الإصدار
   الجديد بالخدمة.
+- **‏Proxmox VE:** الأمر `update` في طرفية الحاوية. يسأل أولًا، ويعود إلى الإصدار السابق إن لم
+  يبدأ الجديد.
 - **‏Home Assistant:** يعرض Home Assistant التحديث. شغّل
   **احتفظ بنسخة احتياطية من الإصدار الأخير** في مربع حوار التحديث.
 
