@@ -1,0 +1,68 @@
+#!/bin/bash
+# The Unraid image's start (`--target unraid`, ghcr.io/keptinventory/kept-unraid): Kept and
+# Postgres 18 in one container, everything that lasts under /data. The Home Assistant app without
+# Home Assistant: for Unraid's Community Applications (unraid/kept.xml) and a plain `docker run`.
+#
+#   1. the settings are the container's environment, as given (Unraid's template, `docker run -e`):
+#      KEPT_PUBLIC_URL is required; what this image decides itself (the database, the folders, the
+#      port, the role) is set over whatever the environment says;
+#   2. to 8. the steps the Home Assistant app shares (docker/one-container.sh): /data's folders
+#      owned for Postgres and for Kept's uid 10001 on every start (Unraid's appdata is usually
+#      99:100), the database made or restored from /data/backup/kept.pgdump, Postgres as
+#      `postgres`, the logins, `kept migrate` with the owner login, Kept as uid 10001, and on TERM
+#      a dump to /data/backup/kept.pgdump, so a backup of the stopped container holds the database.
+#
+# Kept's keys are generated on the first start into /data/config (KEPT_CONFIG_DIR, D193) unless
+# KEPT_SECRET_KEY and KEPT_AUTH_SECRET are given. Without --init this script is PID 1: it traps TERM
+# and waits on both processes, so `docker stop` stops them in order.
+set -euo pipefail
+umask 077
+
+# shellcheck source=../one-container.sh
+. /usr/local/lib/kept-unraid/one-container.sh
+
+# 1. The settings. Without the address Kept refuses to start anyway; say it before a database is
+# made, in words a template's user recognises.
+if [[ -z ${KEPT_PUBLIC_URL:-} ]]; then
+  log "KEPT_PUBLIC_URL is required: the address you open Kept at, like http://tower.local:8080 (no path)"
+  exit 1
+fi
+# What this image decides: one process serving and working, the Home Assistant app's settings off,
+# and the owner login never in the serving process. The database URLs, their password files, the
+# port and the folders are set below and in the image.
+unset KEPT_ROLE KEPT_HA KEPT_HA_TRUST_GROUPS KEPT_HA_LINK_SECRET_FILE \
+  KEPT_OWNER_DATABASE_URL KEPT_DB_OWNER_PASSWORD_FILE \
+  KEPT_DB_OWNER_PASSWORD KEPT_DB_APP_PASSWORD KEPT_DB_AUTH_PASSWORD KEPT_DB_SYSTEM_PASSWORD
+export KEPT_CONFIG_DIR=$DATA/config KEPT_DATA_DIR=$DATA/kept
+
+# Postgres's processes start with none of the environment the container was given (its mail URL,
+# client secrets, keys, …): every variable but the few a process needs to run is left out.
+PG_ENV_UNSET=()
+while IFS= read -r name; do
+  case $name in
+    PATH | HOME | LANG | LC_* | TZ | PWD | SHLVL | HOSTNAME | TERM) ;;
+    *) PG_ENV_UNSET+=(-u "$name") ;;
+  esac
+done < <(compgen -e)
+
+# 2. Ownership, every start.
+own_data
+
+# 3. and 4. A database, made or restored; Postgres.
+make_database
+start_postgres
+
+# 5. and 6. The logins, a restore, then the migrations.
+bootstrap_logins
+restore_dump
+export_kept_env
+# Plain lines for Unraid's log window, unless the environment asks for JSON.
+export KEPT_LOG_FORMAT=${KEPT_LOG_FORMAT:-pretty}
+log "Kept is at $KEPT_PUBLIC_URL"
+run_migrate
+
+# 7. Kept.
+start_kept
+
+# 8. Until either process exits, or the container is stopped.
+wait_for_exit

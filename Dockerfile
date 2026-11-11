@@ -8,6 +8,8 @@
 # One image for every role (KEPT_ROLE = all · web · worker) and for the one-shot `kept migrate`.
 # `--target ha` builds the Home Assistant app's image instead (D272, at the end of this file): Kept
 # with its own Postgres 18 and pgvector, published as ghcr.io/keptinventory/kept-ha.
+# `--target unraid` builds the same without Home Assistant, settings from the environment, for
+# Unraid and a plain `docker run`: ghcr.io/keptinventory/kept-unraid.
 # It runs as uid 10001 (user `kept`) with a read-only root filesystem: the only writable paths are
 # /data (local file storage), /config (first-boot keys, D193), /owner (the database owner's
 # password, which Compose's bootstrap writes and only migrate mounts) and /tmp.
@@ -199,8 +201,9 @@ RUN dpkg --purge --force-depends perl libperl5.36 perl-modules-5.36 \
 # postgresql-18 18.6-1.pgdg12+2, the client's own; postgresql-18-pgvector 0.8.7-1.pgdg12+1;
 # postgresql-common 293.pgdg12+1, Architecture: all). Perl and locales come back as their
 # dependencies. postgresql-common is installed first and told to make no cluster: the app's start
-# script makes its own under /data (docker/ha/kept-ha-start), and nothing may live outside /data.
-FROM os-base AS ha-os
+# script makes its own under /data (docker/one-container.sh), and nothing may live outside /data.
+# `db-os` is that OS; `ha-os` and `unraid-os` add their start scripts.
+FROM os-base AS db-os
 RUN apt-get update \
  && apt-get install -y --no-install-recommends postgresql-common=293.pgdg12+1 \
  && sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
@@ -211,10 +214,18 @@ RUN apt-get update \
  && test -f /usr/share/postgresql/18/extension/vector.control \
  && test ! -e /var/lib/postgresql/18/main \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
-# The start and backup scripts and the options reader (docker/ha/). Root runs them: the start
-# script drops to `postgres` for the database and to 10001 for Kept.
+
+# The start and backup scripts, the steps they share and the options reader (docker/ha/). Root runs
+# them: the start script drops to `postgres` for the database and to 10001 for Kept.
+FROM db-os AS ha-os
 COPY --chmod=0755 docker/ha/kept-ha-start docker/ha/kept-ha-backup /usr/local/bin/
 COPY --chmod=0644 docker/ha/options.mjs /usr/local/lib/kept-ha/options.mjs
+COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-ha/one-container.sh
+
+# The Unraid image's: its start script, the same steps and the same dump on stop.
+FROM db-os AS unraid-os
+COPY --chmod=0755 docker/unraid/kept-unraid-start docker/ha/kept-ha-backup /usr/local/bin/
+COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-unraid/one-container.sh
 
 # ---------------------------------------------------------------------------------------------
 # Third-party notices (D151): generated from this architecture's own pruned
@@ -319,6 +330,55 @@ COPY --from=ha-notices /THIRD-PARTY-NOTICES.txt ./THIRD-PARTY-NOTICES.txt
 USER 0:0
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/kept-ha-start"]
+
+# ---------------------------------------------------------------------------------------------
+# The Unraid image: `docker buildx build --target unraid`, published as
+# ghcr.io/keptinventory/kept-unraid with the same tags as kept (X.Y.Z, and X.Y and X for the
+# newest release of a line): Unraid's template (unraid/kept.xml) follows the major version. The
+# Home Assistant app without Home Assistant: Kept, Postgres 18 and pgvector in one container, its
+# settings from the environment (KEPT_PUBLIC_URL required), everything that lasts under /data, keys
+# generated there on the first start, a dump to /data/backup on every stop. The start script runs
+# as root, owns /data's folders for Postgres and 10001 on each start (Unraid's appdata is usually
+# 99:100), and runs Postgres as `postgres` and Kept as 10001 (docker/unraid/kept-unraid-start).
+# /app is the Home Assistant image's, notices included: the two OSes hold the same packages.
+FROM scratch AS unraid
+COPY --from=unraid-os / /
+
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+
+LABEL org.opencontainers.image.title="Kept for Unraid" \
+      org.opencontainers.image.description="Kept, a home inventory you can self-host, with its own database in one container" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.source="${SOURCE}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.version="${VERSION}"
+
+# As the Home Assistant image's, without KEPT_HA.
+ENV NODE_ENV=production \
+    KEPT_VERSION="${VERSION}" \
+    KEPT_REVISION="${REVISION}" \
+    KEPT_SOURCE_URL="${SOURCE}${REVISION:+/tree/${REVISION}}" \
+    KEPT_CONFIG_DIR=/data/config \
+    KEPT_DATA_DIR=/data/kept \
+    KEPT_RESTIC_BIN=/usr/local/bin/restic \
+    HOME=/tmp \
+    PATH=/usr/lib/postgresql/18/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /app
+COPY --from=ha /app /app
+COPY docker/healthcheck.mjs ./docker/healthcheck.mjs
+
+# Root: the start script owns the processes. Without --init it is PID 1 and handles the stop
+# signal itself.
+USER 0:0
+VOLUME ["/data"]
+EXPOSE 8080
+# The first start makes the database and runs every migration: a longer start period than kept's.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+  CMD ["node", "/app/docker/healthcheck.mjs"]
+ENTRYPOINT ["/usr/local/bin/kept-unraid-start"]
 
 # ---------------------------------------------------------------------------------------------
 FROM scratch AS runtime
