@@ -321,6 +321,41 @@ EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/kept-ha-start"]
 
 # ---------------------------------------------------------------------------------------------
+# The release tarball, kept-<version>-linux-<x64|arm64>.tar.gz, for an install without Docker
+# (deploy/proxmox/): the runtime's /app tree under kept/, from the same stages and with the same
+# files, plus kept/release.env, the version, commit and source the runtime sets as ENV, and the
+# Node version it was built with (the installer checks it against its own). Built by
+# scripts/release/tarball.sh as `--target app-tarball --output type=tar`. The notices are the
+# image's: they also list the image's OS packages, which the tarball doesn't ship (the installer
+# installs Node, Postgres and restic itself).
+FROM ${NODE_IMAGE} AS app-release-env
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+RUN printf 'KEPT_VERSION=%s\nKEPT_REVISION=%s\nKEPT_SOURCE_URL=%s\nKEPT_NODE_VERSION=%s\n' \
+      "$VERSION" "$REVISION" "${SOURCE}${REVISION:+/tree/${REVISION}}" "$(node -p process.versions.node)" \
+      >/release.env
+
+FROM scratch AS app-tarball
+COPY --from=prod-deps /src/node_modules /kept/node_modules
+COPY --from=prod-deps /src/apps/server/node_modules /kept/apps/server/node_modules
+COPY --from=prod-deps /src/packages/shared/node_modules /kept/packages/shared/node_modules
+COPY --from=prod-deps /src/packages/mcp/node_modules /kept/packages/mcp/node_modules
+COPY --from=build /src/package.json /kept/package.json
+COPY --from=build /src/apps/server/package.json /kept/apps/server/package.json
+COPY --from=build /src/apps/server/dist /kept/apps/server/dist
+COPY --from=build /src/apps/server/assets /kept/apps/server/assets
+COPY --from=build /src/apps/server/migrations /kept/apps/server/migrations
+COPY --from=build /src/packages/shared/package.json /kept/packages/shared/package.json
+COPY --from=build /src/packages/shared/dist /kept/packages/shared/dist
+COPY --from=build /src/packages/mcp/package.json /kept/packages/mcp/package.json
+COPY --from=build /src/packages/mcp/dist /kept/packages/mcp/dist
+COPY --from=build /src/apps/web/dist /kept/apps/web/dist
+COPY LICENSE /kept/LICENSE
+COPY --from=notices /THIRD-PARTY-NOTICES.txt /kept/THIRD-PARTY-NOTICES.txt
+COPY --from=app-release-env /release.env /kept/release.env
+
+# ---------------------------------------------------------------------------------------------
 FROM scratch AS runtime
 COPY --from=os / /
 
