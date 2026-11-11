@@ -359,6 +359,8 @@ describe('warranties and claims', () => {
       term_months: 24,
     });
     expect(w.ends_on.slice(0, 4)).toBe(String(Number(today.slice(0, 4)) + 2));
+    // Undoable for 7 days, as the tools' other creates.
+    expect(w.undo_until).toEqual(expect.any(String));
     const [row] = await own<{ term_months: number; starts_on: string }>(
       db,
       'SELECT term_months, starts_on::text AS starts_on FROM public.warranties WHERE id = $1',

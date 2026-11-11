@@ -66,4 +66,21 @@ describe('token access', () => {
       expect(tokenAccessOf('POST', `/api/v1/${kind}/:id/merge-into`), kind).toBe('none');
     }
   });
+
+  it('opens a thing’s warranties to read and add; editing, deleting and claims stay closed', () => {
+    const warranties = [...routes].filter((r) =>
+      /\/(warranties|warranty-defaults|claims|claim-prefill)(\/|$)/.test(r),
+    );
+    const open = Object.fromEntries(
+      warranties
+        .map((r) => [r, tokenAccessOf(...(r.split(' ') as [string, string]))] as const)
+        .filter(([, access]) => access !== 'none'),
+    );
+    expect(open).toEqual({
+      'GET /api/v1/things/:id/warranties': 'read',
+      'HEAD /api/v1/things/:id/warranties': 'read',
+      'POST /api/v1/things/:id/warranties': 'write',
+    });
+    expect(warranties.length).toBeGreaterThanOrEqual(10);
+  });
 });
