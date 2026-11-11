@@ -14,7 +14,8 @@
 #              (`ubuntu-24.04` x64, `ubuntu-24.04-arm`; both offered to private repositories):
 #              `release.sh --ci --arch <a>` builds that platform natively, pushes it BY DIGEST
 #              (no tag) with its SBOM and provenance, pulls it back and smokes it natively; the
-#              same for the Home Assistant app's image (ghcr.io/keptinventory/kept-ha, D272);
+#              same for the Home Assistant app's image (ghcr.io/keptinventory/kept-ha, D272) and
+#              the Unraid image (ghcr.io/keptinventory/kept-unraid);
 #   publish    `release.sh --ci --publish` joins the two smoked digests into one index by digest
 #              (`imagetools create`: no layer is rebuilt, so the published manifests are the
 #              smoked ones), signs it, tags X.Y.Z (X.Y, X), pushes the chart and writes the
@@ -134,8 +135,9 @@ jobs:
           - arch: arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    # The Home Assistant app's image and its smoke add some minutes to each leg.
-    timeout-minutes: 50
+    # The Home Assistant app's image, the Unraid image and their smokes add some minutes to each
+    # leg.
+    timeout-minutes: 65
     permissions:
       contents: read
       packages: write # GHCR: the image by digest, and the layer cache
@@ -150,6 +152,11 @@ jobs:
       ha_amd64_manifest: ${{ steps.release.outputs.ha_amd64_manifest }}
       ha_arm64_index: ${{ steps.release.outputs.ha_arm64_index }}
       ha_arm64_manifest: ${{ steps.release.outputs.ha_arm64_manifest }}
+      # The Unraid image (Dockerfile --target unraid, ghcr.io/keptinventory/kept-unraid).
+      unraid_amd64_index: ${{ steps.release.outputs.unraid_amd64_index }}
+      unraid_amd64_manifest: ${{ steps.release.outputs.unraid_amd64_manifest }}
+      unraid_arm64_index: ${{ steps.release.outputs.unraid_arm64_index }}
+      unraid_arm64_manifest: ${{ steps.release.outputs.unraid_arm64_manifest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -254,6 +261,10 @@ jobs:
           KEPT_RELEASE_HA_AMD64_MANIFEST: ${{ needs.build.outputs.ha_amd64_manifest }}
           KEPT_RELEASE_HA_ARM64_INDEX: ${{ needs.build.outputs.ha_arm64_index }}
           KEPT_RELEASE_HA_ARM64_MANIFEST: ${{ needs.build.outputs.ha_arm64_manifest }}
+          KEPT_RELEASE_UNRAID_AMD64_INDEX: ${{ needs.build.outputs.unraid_amd64_index }}
+          KEPT_RELEASE_UNRAID_AMD64_MANIFEST: ${{ needs.build.outputs.unraid_amd64_manifest }}
+          KEPT_RELEASE_UNRAID_ARM64_INDEX: ${{ needs.build.outputs.unraid_arm64_index }}
+          KEPT_RELEASE_UNRAID_ARM64_MANIFEST: ${{ needs.build.outputs.unraid_arm64_manifest }}
         run: bash scripts/release.sh "$VERSION" --ci --publish
 
       - name: The GitHub release

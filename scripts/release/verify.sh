@@ -68,26 +68,39 @@ release_notices() {
   fi
 }
 
-# The Home Assistant app's image (D272), each architecture in $smoke_arches by digest, with the
-# commit's own scripts/smoke-ha-image.sh: first start, the setup code, backup_pre and _post, a clean
-# stop, a second start and a restore from the dump. Its io.hass.version must be this version.
-release_verify_ha() {
-  say "4b. smoke the Home Assistant app's image (${smoke_arches// / + }) by digest"
-  local arch digest ref log got smoke=$work/src/scripts/smoke-ha-image.sh
+# The one-container images (release/build.sh), each architecture in $smoke_arches by digest, with
+# the commit's own smoke script: `ha` with scripts/smoke-ha-image.sh (first start, the setup code,
+# backup_pre and _post, a clean stop, a second start and a restore from the dump), its
+# io.hass.version this version; `unraid` with scripts/smoke-unraid-image.sh (Unraid's way: no
+# --init, /data owned 99:100; first start, a clean stop with its dump, the same keys after a
+# restart, a restore), its org.opencontainers.image.version this version.
+release_verify_extra() { # <variant>
+  local v=$1 label stage reg_var reg label_key smoke
+  label=$(extra_label "$v")
+  stage=$(extra_stage "$v")
+  stage=${stage/3/4}
+  reg_var=${v}_registry
+  reg=${!reg_var}
+  case $v in
+    ha) label_key=io.hass.version smoke=$work/src/scripts/smoke-ha-image.sh ;;
+    unraid) label_key=org.opencontainers.image.version smoke=$work/src/scripts/smoke-unraid-image.sh ;;
+  esac
+  say "$stage. smoke $label (${smoke_arches// / + }) by digest"
+  local arch digest ref log got
   for arch in $smoke_arches; do
-    digest=ha_${arch}_digest
+    digest=${v}_${arch}_digest
     digest=${!digest}
-    ref=$ha_registry@$digest
+    ref=$reg@$digest
     docker pull --quiet --platform "linux/$arch" "$ref" >/dev/null
     cleanup_cmds+=("docker image rm '$ref'")
-    got=$(docker image inspect -f '{{index .Config.Labels "io.hass.version"}}' "$ref")
-    [[ $got == "$version" ]] || die "linux/$arch Home Assistant image says io.hass.version '$got', expected '$version'"
-    log=$work/smoke-ha-$arch.log
+    got=$(docker image inspect -f "{{index .Config.Labels \"$label_key\"}}" "$ref")
+    [[ $got == "$version" ]] || die "linux/$arch: $label says $label_key '$got', expected '$version'"
+    log=$work/smoke-$v-$arch.log
     note "smoke linux/$arch ($ref); log $log"
     BOOT_TIMEOUT=${KEPT_RELEASE_BOOT_TIMEOUT:-300} bash "$smoke" "$ref" >"$log" 2>&1 || {
       tail -n 30 "$log" >&2
-      die "the linux/$arch Home Assistant smoke failed"
+      die "the linux/$arch smoke of $label failed"
     }
-    note "linux/$arch Home Assistant image: smoke PASS"
+    note "linux/$arch $label: smoke PASS"
   done
 }
