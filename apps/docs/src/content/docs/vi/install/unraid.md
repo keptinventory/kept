@@ -15,7 +15,7 @@ không cần tự đặt mật khẩu.
 | | |
 |---|---|
 | Unraid | Có thẻ **Apps** (plugin Community Applications) |
-| Bộ nhớ | Khoảng 300 MB trống cho Kept và cơ sở dữ liệu của nó |
+| Bộ nhớ | Khoảng 500 MB trống cho Kept và cơ sở dữ liệu của nó, 1 GB khi nhập dữ liệu và sao lưu |
 | Một địa chỉ | Địa chỉ bạn sẽ mở Kept, chẳng hạn `http://tower.local:8080`. Dùng một cái tên thay vì địa chỉ IP: nhãn in ra mang địa chỉ này |
 
 ## Cài đặt

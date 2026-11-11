@@ -15,7 +15,7 @@ password da inventare.
 | | |
 |---|---|
 | Unraid | Con la scheda **Apps** (il plugin Community Applications) |
-| Memoria | Circa 300 MB liberi per Kept e il suo database |
+| Memoria | Circa 500 MB liberi per Kept e il suo database, 1 GB per importazioni e backup |
 | Un indirizzo | Quello a cui aprirai Kept, come `http://tower.local:8080`. Usa un nome invece di un indirizzo IP: le etichette stampate lo riportano |
 
 ## Installare

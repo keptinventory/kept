@@ -114,7 +114,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 ## Come si esegue
 
 - **[Installa Kept](/it/install/)**: scegli come esegui Kept (Docker Compose, Kubernetes, dal codice
-  sorgente o Home Assistant) e segui i suoi passi in una sola pagina.
+  sorgente, Proxmox VE, Unraid o Home Assistant) e segui i suoi passi in una sola pagina.
 - **[Backup](/it/admin/backups/)**: ogni notte, cifrati, verso una cartella, S3 o SFTP, ognuno con una copia
   che [si apre senza Kept](/it/admin/read-with-restic/).
 - **[Di cosa ha bisogno](/it/install/hardware/)**: un container e Postgres; provato su 1 GB di RAM e

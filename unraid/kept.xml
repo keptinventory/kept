@@ -22,7 +22,7 @@ Guide: https://keptinventory.info/install/unraid/</Overview>
   <ExtraParams>--stop-timeout=60</ExtraParams>
   <PostArgs/>
   <License>AGPL-3.0-only</License>
-  <Requires>1 GB of free memory. The address you will open Kept at, such as http://tower.local:8080.</Requires>
+  <Requires>About 500 MB of free memory, 1 GB for imports and backups. The address you will open Kept at, such as http://tower.local:8080.</Requires>
   <Config Name="Web UI port" Target="8080" Default="8080" Mode="tcp" Description="The port Kept is served on. If you change it, change Kept's address to match." Type="Port" Display="always" Required="true" Mask="false">8080</Config>
   <Config Name="Data" Target="/data" Default="/mnt/user/appdata/kept" Mode="rw" Description="Everything Kept keeps: the database, photos and files, its keys, and the dump written on every stop (backup/kept.pgdump)." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/kept</Config>
   <Config Name="Kept's address" Target="KEPT_PUBLIC_URL" Default="" Mode="" Description="The address you open Kept at, such as http://tower.local:8080 or https://kept.example.com. No path. Printed labels, links in mail and sign-in use it, so use a name rather than an IP address." Type="Variable" Display="always" Required="true" Mask="false"></Config>

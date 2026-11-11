@@ -15,7 +15,7 @@ make.
 | | |
 |---|---|
 | Unraid | With the **Apps** tab (the Community Applications plugin) |
-| Memory | About 300 MB free for Kept and its database |
+| Memory | About 500 MB free for Kept and its database, 1 GB for imports and backups |
 | An address | The one you'll open Kept at, such as `http://tower.local:8080`. Use a name rather than an IP address: printed labels carry it |
 
 ## Install

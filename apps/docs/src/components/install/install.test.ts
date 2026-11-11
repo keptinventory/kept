@@ -248,3 +248,35 @@ describe('what Kept prints', () => {
     );
   });
 });
+
+describe('the Unraid and Proxmox VE guides', () => {
+  const page = (lang: Lang, file: string) =>
+    docs(lang === 'en' ? `install/${file}` : `${lang}/install/${file}`);
+
+  // One figure everywhere (install/hardware.md has the measurements behind it): about 500 MB,
+  // 1 GB for imports and backups. Arabic writes its own digits.
+  it('give Unraid one memory figure: the template, the guide and the install page', () => {
+    expect(repo('unraid/kept.xml')).toContain(
+      '<Requires>About 500 MB of free memory, 1 GB for imports and backups.',
+    );
+    for (const lang of LANGS) {
+      const [mb, gb] = lang === 'ar' ? ['٥٠٠', '١'] : ['500', '1'];
+      const need = sections(pageOf(lang)).find(([id]) => id === 'unraid')?.[1] ?? '';
+      for (const [where, text] of [
+        ['unraid.md', page(lang, 'unraid.md')],
+        ['index.mdx', need],
+      ]) {
+        expect(text, `${lang} ${where}`).toMatch(new RegExp(`${mb} (MB|Mo|МБ|ميغابايت)`));
+        expect(text, `${lang} ${where}`).toMatch(new RegExp(`${gb} (GB|Go|ГБ|جيجابايت)`));
+        expect(text, `${lang} ${where}`).not.toMatch(/(300|٣٠٠) (MB|Mo|МБ|ميغابايت)/);
+      }
+    }
+  });
+
+  // Until the real-host checklist has run: the caution goes with that sign-off, not before.
+  it('keep the Proxmox VE guide’s "not yet tested on a real host" caution in every language', () => {
+    for (const lang of LANGS) {
+      expect(page(lang, 'proxmox.md'), lang).toMatch(/^:::caution\[[^\]]+\]$/m);
+    }
+  });
+});

@@ -15,7 +15,7 @@ Compose, sin contraseñas que inventar.
 | | |
 |---|---|
 | Unraid | Con la pestaña **Apps** (el plugin Community Applications) |
-| Memoria | Unos 300 MB libres para Kept y su base de datos |
+| Memoria | Unos 500 MB libres para Kept y su base de datos, 1 GB para importaciones y copias de seguridad |
 | Una dirección | La que abrirás para usar Kept, como `http://tower.local:8080`. Usa un nombre en lugar de una dirección IP: las etiquetas impresas la llevan |
 
 ## Instalar
