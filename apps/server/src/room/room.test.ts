@@ -1,4 +1,5 @@
 import { newId } from '@kept/shared';
+import { MockLanguageModelV4 } from 'ai/test';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
@@ -6,8 +7,9 @@ import { type TestFiles, testFiles, upload } from '../../test/files.js';
 import { call, join, type Person, peopleApp, person, type RecordedJob } from '../../test/people.js';
 import { roomPhoto } from '../../test/room-photos.js';
 import { createLocation, type Json, type Loc, ok, own, place } from '../../test/things.js';
+import type { AiRuntime } from '../ai/call.js';
 import { providerKeyAad } from '../ai/db-keys.js';
-import { type MockAnswer, mockKey } from '../ai/mock.js';
+import { createMockModel, type MockAnswer, mockKey } from '../ai/mock.js';
 import { aiRuntime } from '../ai/runtime.js';
 import { seal } from '../crypto/envelope.js';
 import { partsFor } from '../extraction/image.js';
@@ -31,6 +33,7 @@ const MASTER = { key: Buffer.alloc(32, 9), keyVersion: 1 };
 const keyring = new Map([[1, MASTER.key]]);
 const silent = { warn: () => {}, info: () => {}, error: () => {} };
 let answers: Record<string, MockAnswer> = {};
+let overrides: Partial<AiRuntime> = {};
 let seed = 0;
 
 const deps = (): ExtractionJobDeps => ({
@@ -38,7 +41,10 @@ const deps = (): ExtractionJobDeps => ({
   ai: {
     mock: true,
     runtime: (scope) =>
-      aiRuntime({ pools: db.pools, keyring: () => keyring, log: silent, mock: answers }, scope),
+      aiRuntime(
+        { pools: db.pools, keyring: () => keyring, log: silent, mock: answers, overrides },
+        scope,
+      ),
   },
   files,
   sendLater: async () => {},
@@ -202,6 +208,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   answers = {};
+  overrides = {};
 });
 
 afterAll(async () => {
@@ -465,6 +472,103 @@ describe('reading and finishing a room', () => {
     const { row } = await roomOf([many]);
     expect(row?.result?.photos[0]).toMatchObject({ objects: 60, more: true });
     expect(row?.result?.drafts).toHaveLength(60);
+  });
+});
+
+// #533: a brand a room's draft names is found or made through brandByName(), as POST
+// /locations/:id/brands makes one: a new brand leaves one `brand.create` row naming the capturing
+// person, an existing one (after kept.normalize()) is only found.
+describe('a brand a room photo reads (#533)', () => {
+  const brandsNamed = async (name: string) =>
+    (
+      await own<{ id: string }>(
+        db,
+        `SELECT id FROM public.brands
+          WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+        [home.accountId, name],
+      )
+    ).map((r) => r.id);
+  const brandCreates = (name: string) =>
+    own<{ actor_type: string; actor_id: string; entity_id: string }>(
+      db,
+      `SELECT e.actor_type, e.actor_id, e.entity_id FROM public.audit_events e
+         JOIN public.brands b ON b.id = e.entity_id
+        WHERE e.action = 'brand.create' AND b.owner_account_id = $1
+          AND kept.normalize(b.name) = kept.normalize($2)`,
+      [home.accountId, name],
+    );
+  const brandsOf = async (result: RoomResult | null | undefined) =>
+    (
+      await own<{ brand_id: string | null }>(
+        db,
+        'SELECT brand_id FROM public.things WHERE id = ANY ($1::uuid[]) ORDER BY name',
+        [(result?.drafts ?? []).map((d) => d.thingId)],
+      )
+    ).map((r) => r.brand_id);
+
+  it('makes a new brand once, audited as the person; a later room with the name finds it', async () => {
+    const { row } = await roomOf([
+      [
+        obj('Kettle', [0.1, 0.1, 0.2, 0.3], 'item', { brand: c('Luxorbrand') }),
+        obj('Toaster', [0.5, 0.4, 0.3, 0.3], 'item', { brand: c('luxorbrand') }),
+      ],
+    ]);
+    expect(row?.status).toBe('ready');
+    const ids = await brandsNamed('Luxorbrand');
+    expect(ids).toHaveLength(1);
+    expect(await brandsOf(row?.result)).toEqual([ids[0], ids[0]]);
+    expect(await brandCreates('Luxorbrand')).toEqual([
+      { actor_type: 'user', actor_id: louis.userId, entity_id: ids[0] },
+    ]);
+
+    const again = await roomOf([
+      [obj('Blender', [0.1, 0.1, 0.2, 0.3], 'item', { brand: c('LUXORBRAND ') })],
+    ]);
+    expect(again.row?.status).toBe('ready');
+    expect(await brandsNamed('Luxorbrand')).toEqual(ids);
+    expect(await brandsOf(again.row?.result)).toEqual([ids[0]]);
+    expect(await brandCreates('Luxorbrand')).toHaveLength(1);
+  });
+
+  it('makes no brand and no draft for a member demoted to viewer during the merge', async () => {
+    const mock = createMockModel(answers);
+    overrides = {
+      modelFactory: () =>
+        new MockLanguageModelV4({
+          doGenerate: async (options) => {
+            const format = options.responseFormat;
+            if (format?.type === 'json' && format.name === 'kept_room_merge') {
+              // Ibrahim makes Louis a viewer after the photos are read, before the drafts.
+              await own(
+                db,
+                `UPDATE public.memberships SET role = 'viewer'
+                  WHERE location_id = $1 AND user_id = $2`,
+                [home.id, louis.userId],
+              );
+            }
+            return mock.doGenerate(options);
+          },
+        }),
+    };
+    let room: Awaited<ReturnType<typeof roomOf>>;
+    try {
+      room = await roomOf([
+        [obj('Rice cooker', [0.1, 0.1, 0.2, 0.3], 'item', { brand: c('Dakhlabrand') })],
+        [obj('Stand mixer', [0.5, 0.4, 0.3, 0.3], 'item', { brand: c('Dakhlabrand') })],
+      ]);
+    } finally {
+      await own(
+        db,
+        `UPDATE public.memberships SET role = 'member' WHERE location_id = $1 AND user_id = $2`,
+        [home.id, louis.userId],
+      );
+    }
+    // A viewer adds no thing (0016), so no draft is made to carry the brand, and none is made.
+    expect(await brandsNamed('Dakhlabrand')).toEqual([]);
+    expect(await brandCreates('Dakhlabrand')).toEqual([]);
+    expect(
+      await own(db, 'SELECT id FROM public.things WHERE capture_batch_id = $1', [room.batchId]),
+    ).toEqual([]);
   });
 });
 

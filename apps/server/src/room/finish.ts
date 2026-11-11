@@ -33,6 +33,7 @@ import { openDuplicate } from '../extraction/duplicates.js';
 import { partsFor, type SourceFile } from '../extraction/image.js';
 import type { ExtractionJobDeps } from '../extraction/job.js';
 import { ingestFile } from '../files/ingest.js';
+import { brandByName } from '../registries/service.js';
 import { ImageLimiter } from '../storage/derivatives.js';
 import { insertThing } from '../things/service.js';
 import { type Already, candidatesOf, sortOut } from './match.js';
@@ -380,13 +381,23 @@ async function makeDraft(
       f.typeHint && acct[0]
         ? await matchType(client, acct[0].owner_account_id, f.typeHint.value)
         : null;
+    const requestId = `room-${room.id}`.slice(0, 64);
+    // Found or made through brandByName(), a brand made audited as the capturing person (#533).
     const brandId = f.brand
-      ? ((
-          await client.query<{ id: string }>('SELECT kept.ai_ensure_brand($1, $2) AS id', [
+      ? (
+          await brandByName(
+            {
+              tx,
+              client,
+              userId: scope.userId,
+              tokenId: scope.tokenId ?? null,
+              requestId,
+              jobs: null,
+            },
             room.location_id,
-            f.brand.value,
-          ])
-        ).rows[0]?.id ?? null)
+            f.brand.value.trim(),
+          )
+        ).item.id
       : null;
     const fieldStatus: Record<string, unknown> = {};
     for (const [key, v] of [
@@ -405,7 +416,7 @@ async function makeDraft(
         tx,
         client,
         scope,
-        requestId: `room-${room.id}`.slice(0, 64),
+        requestId,
         jobs: null,
         files: deps.files,
       },

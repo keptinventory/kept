@@ -706,6 +706,99 @@ describe('LABEL', () => {
   });
 });
 
+// #533: a brand AI reads is found or made through brandByName(), as POST /locations/:id/brands
+// makes one: a new brand leaves one `brand.create` row naming the capturing person, an existing
+// one (after kept.normalize()) is only found.
+describe('a brand AI reads (#533)', () => {
+  const brandsNamed = async (name: string) =>
+    (
+      await own<{ id: string }>(
+        db,
+        `SELECT id FROM public.brands
+          WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+        [home.accountId, name],
+      )
+    ).map((r) => r.id);
+  const brandCreates = (name: string) =>
+    own<{ actor_type: string; actor_id: string; entity_id: string }>(
+      db,
+      `SELECT e.actor_type, e.actor_id, e.entity_id FROM public.audit_events e
+         JOIN public.brands b ON b.id = e.entity_id
+        WHERE e.action = 'brand.create' AND b.owner_account_id = $1
+          AND kept.normalize(b.name) = kept.normalize($2)`,
+      [home.accountId, name],
+    );
+  const brandOf = async (thingId: string) =>
+    (
+      await own<{ brand_id: string | null }>(
+        db,
+        'SELECT brand_id FROM public.things WHERE id = $1',
+        [thingId],
+      )
+    )[0]?.brand_id;
+
+  it('makes a new brand once, audited as the person; a later capture of the name finds it', async () => {
+    const first = await up(louis);
+    const thing = await capture(louis, { files: [{ fileId: first, role: 'photo' }] });
+    answers[(await keyOf(first, 'thing')).key] = {
+      output: thingAnswer({ brand: c('Aswanbrand') }),
+    };
+    expect((await run(louis, thing.extraction.id)).status).toBe('succeeded');
+    const ids = await brandsNamed('Aswanbrand');
+    expect(ids).toHaveLength(1);
+    expect(await brandOf(thing.thing?.id as string)).toBe(ids[0]);
+    expect(await brandCreates('Aswanbrand')).toEqual([
+      { actor_type: 'user', actor_id: louis.userId, entity_id: ids[0] },
+    ]);
+
+    // A label read later names it again, cased and spaced differently: found, no second row.
+    const second = await up(louis);
+    const label = await capture(louis, {
+      mode: 'label',
+      files: [{ fileId: second, role: 'photo' }],
+    });
+    answers[(await keyOf(second, 'label')).key] = { output: { brand: c('ASWANBRAND ') } };
+    expect((await run(louis, label.extraction.id)).status).toBe('succeeded');
+    expect(await brandsNamed('Aswanbrand')).toEqual(ids);
+    expect(await brandOf(label.thing?.id as string)).toBe(ids[0]);
+    expect(await brandCreates('Aswanbrand')).toHaveLength(1);
+  });
+
+  it('makes no brand for a member demoted to viewer between the capture and the job', async () => {
+    const fileId = await up(louis);
+    const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });
+    answers[(await keyOf(fileId, 'thing')).key] = {
+      output: thingAnswer({ brand: c('Siwabrand') }),
+    };
+    await own(
+      db,
+      `UPDATE public.memberships SET role = 'viewer' WHERE location_id = $1 AND user_id = $2`,
+      [home.id, louis.userId],
+    );
+    try {
+      // The job's lock on the extraction is the location's writers' only (0038): it ends there,
+      // before the model is asked, any field is written or a brand is made, and nothing fails.
+      expect(await run(louis, out.extraction.id)).toEqual({ status: 'skipped', why: 'missing' });
+    } finally {
+      await own(
+        db,
+        `UPDATE public.memberships SET role = 'member' WHERE location_id = $1 AND user_id = $2`,
+        [home.id, louis.userId],
+      );
+    }
+    expect(await brandsNamed('Siwabrand')).toEqual([]);
+    expect(await brandCreates('Siwabrand')).toEqual([]);
+    expect(await calls(out.extraction.id)).toEqual([]);
+    const [thing] = await own<{ name: string | null; brand_id: string | null }>(
+      db,
+      'SELECT name, brand_id FROM public.things WHERE id = $1',
+      [out.thing?.id],
+    );
+    expect(thing).toEqual({ name: null, brand_id: null });
+    expect((await extraction(out.extraction.id))?.status).toBe('queued');
+  });
+});
+
 describe('RECEIPT', () => {
   const lines = [
     { description: c('Drill'), line_total: c(200) },

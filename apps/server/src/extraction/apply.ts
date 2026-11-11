@@ -4,8 +4,9 @@
  * code checks (checks.ts), with one audit event.
  *
  * THING, and LABEL on a thing:
- * - **Auto-accepted** (D19): name, brand (through `kept.ai_ensure_brand`, the only way a member
- *   makes a brand), model, colour and type (the type hint matched against the account's types and
+ * - **Auto-accepted** (D19): name, brand (found or made through brandByName(), whose door for a
+ *   member is `kept.ai_ensure_brand`; a brand made is audited as `brand.create` by the capturing
+ *   person), model, colour and type (the type hint matched against the account's types and
  *   the built-in library's English and Arabic names through `normalize`; never a new type), when
  *   the thing's value is empty or was itself filled in by AI. A value a person typed, or one
  *   already confirmed, is never overwritten. LABEL fills brand and model only.
@@ -47,6 +48,7 @@ import { audited } from '../audit/audited.js';
 import { undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { placementOf } from '../meters/service.js';
+import { brandByName } from '../registries/service.js';
 import { readImage, type ThingImage } from '../things/audit-image.js';
 import { defaultMeterOf } from '../things/fields.js';
 import type {
@@ -220,16 +222,17 @@ export async function matchType(
   return r ? (r.copy_id ?? r.id) : null;
 }
 
-async function ensureBrand(
-  client: pg.ClientBase,
-  locationId: string,
-  name: string,
-): Promise<string> {
-  const { rows } = await client.query<{ id: string }>('SELECT kept.ai_ensure_brand($1, $2) AS id', [
-    locationId,
-    name,
-  ]);
-  return (rows[0] as { id: string }).id;
+/** The account's brand of that name, or a new one audited as the capturing person (#533). */
+async function ensureBrand(ctx: ApplyCtx, locationId: string, name: string): Promise<string> {
+  const write = {
+    tx: ctx.tx,
+    client: ctx.client,
+    userId: ctx.scope.userId,
+    tokenId: ctx.scope.tokenId ?? null,
+    requestId: ctx.requestId,
+    jobs: null,
+  };
+  return (await brandByName(write, locationId, name.trim())).item.id;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -335,7 +338,7 @@ async function applyToThing(
     if (!v || !writable(effective, status, field)) return;
     const column = COLUMN[field] as string;
     let value: string | null = v.value;
-    if (field === 'brand') value = await ensureBrand(client, thing.location_id, v.value);
+    if (field === 'brand') value = await ensureBrand(ctx, thing.location_id, v.value);
     if (field === 'type') {
       // A type is set only on a thing without one: changing a type re-files custom fields (the
       // PATCH's retype), which is a person's decision.
