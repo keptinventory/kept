@@ -218,6 +218,43 @@ Assistant Container or Core. An `aarch64` or `amd64` machine, such as a Raspberr
 Kept's address, https and the backups: [Install as a Home Assistant app](/install/home-assistant/).
 
 </InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid with the **Apps** tab (Community Applications), and about 300 MB of free memory. No
+terminal.
+</Need>
+
+<Steps>
+
+1. **Install.** In **Apps**, search for **Kept**, then **Install**.
+
+2. **Set Kept's address**, such as `http://tower.local:8080`, then **Apply**. Use a name rather
+   than an IP address: printed labels carry it.
+
+   <See>
+   In the **Docker** tab, Kept's icon, **Logs**: Kept's address and the setup code.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Set up.** Kept's icon, **WebUI**: **Enter the setup code**, then create the first account.
+
+4. **Keep the keys.** Kept's icon, **Console**, then:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Text that starts with `KEPT RECOVERY KIT`. Keep it somewhere other than this server.
+   </See>
+
+</Steps>
+
+The appdata folder, backups and updates: [Install on Unraid](/install/unraid/).
+
+</InstallPath>
 </InstallPicker>
 
 ## Something not working?
@@ -280,6 +317,7 @@ Everything else: [Troubleshooting](/admin/troubleshooting/).
   Job before the new version serves.
 - **Home Assistant:** Home Assistant offers the update. Turn on **Keep backup of the last
   version** in its update dialog.
+- **Unraid:** the **Docker** tab offers the update: **apply update**.
 
 With a backup target set, Kept takes a snapshot before it migrates.
 [Upgrades and rollback](/admin/upgrades/).

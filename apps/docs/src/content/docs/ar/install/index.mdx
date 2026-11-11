@@ -216,6 +216,43 @@ Assistant Container ولا Core. جهاز `aarch64` أو `amd64`، مثل راس
 [تثبيت كتطبيق لـ Home Assistant](/ar/install/home-assistant/).
 
 </InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+‏Unraid مع تبويب **Apps** ‏(Community Applications)، ونحو ٣٠٠ ميغابايت من الذاكرة الحرة. لا حاجة
+إلى طرفية.
+</Need>
+
+<Steps>
+
+1. **ثبّت.** في **Apps** ابحث عن **Kept**، ثم **Install**.
+
+2. **اكتب عنوان Kept**، مثل `http://tower.local:8080`، ثم **Apply**. استعمل اسمًا لا عنوان IP:
+   فالملصقات المطبوعة تحمله.
+
+   <See>
+   في تبويب **Docker**، أيقونة Kept، ثم **Logs**: عنوان Kept ورمز الإعداد.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **أكمل الإعداد.** أيقونة Kept، ثم **WebUI**: **أدخل رمز الإعداد**، ثم أنشئ الحساب الأول.
+
+4. **احفظ المفاتيح.** أيقونة Kept، ثم **Console**، ثم:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   نص يبدأ بـ `KEPT RECOVERY KIT`. احفظه في مكان غير هذا الخادم.
+   </See>
+
+</Steps>
+
+مجلد appdata والنسخ الاحتياطية والتحديثات: [التثبيت على Unraid](/ar/install/unraid/).
+
+</InstallPath>
 </InstallPicker>
 
 ## شيء لا يعمل؟
@@ -278,6 +315,7 @@ Assistant Container ولا Core. جهاز `aarch64` أو `amd64`، مثل راس
   الجديد بالخدمة.
 - **‏Home Assistant:** يعرض Home Assistant التحديث. شغّل
   **احتفظ بنسخة احتياطية من الإصدار الأخير** في مربع حوار التحديث.
+- **‏Unraid:** يعرض تبويب **Docker** التحديث: **apply update**.
 
 مع وجهة نسخ احتياطي مضبوطة، يأخذ Kept لقطة قبل الترحيل.
 [الترقيات والتراجع](/ar/admin/upgrades/).

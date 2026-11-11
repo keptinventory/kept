@@ -221,6 +221,44 @@ terminal.
 [Cài đặt dưới dạng ứng dụng Home Assistant](/vi/install/home-assistant/).
 
 </InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid có thẻ **Apps** (Community Applications) và khoảng 300 MB bộ nhớ trống. Không cần
+terminal.
+</Need>
+
+<Steps>
+
+1. **Cài đặt.** Trong **Apps**, tìm **Kept**, rồi **Install**.
+
+2. **Đặt địa chỉ của Kept**, chẳng hạn `http://tower.local:8080`, rồi **Apply**. Dùng một cái tên
+   thay vì địa chỉ IP: nhãn in ra mang địa chỉ này.
+
+   <See>
+   Trong thẻ **Docker**, biểu tượng của Kept, **Logs**: địa chỉ của Kept và mã thiết lập.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Thiết lập.** Biểu tượng của Kept, **WebUI**: **Nhập mã thiết lập**, rồi tạo tài khoản đầu
+   tiên.
+
+4. **Giữ các khóa.** Biểu tượng của Kept, **Console**, rồi:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Văn bản bắt đầu bằng `KEPT RECOVERY KIT`. Cất nó ở nơi khác, không phải máy chủ này.
+   </See>
+
+</Steps>
+
+Thư mục appdata, sao lưu và cập nhật: [Cài đặt trên Unraid](/vi/install/unraid/).
+
+</InstallPath>
 </InstallPicker>
 
 ## Có gì đó không chạy?
@@ -285,6 +323,7 @@ Mọi thứ khác: [Khắc phục sự cố](/vi/admin/troubleshooting/).
   liệu của nó chạy trong một Job trước khi phiên bản mới phục vụ.
 - **Home Assistant:** Home Assistant đề xuất bản cập nhật. Bật
   **Giữ bản sao lưu của phiên bản cuối** trong hộp thoại cập nhật của nó.
+- **Unraid:** thẻ **Docker** đề xuất bản cập nhật: **apply update**.
 
 Khi đã đặt một đích sao lưu, Kept chụp một bản trước khi di chuyển dữ liệu.
 [Nâng cấp và khôi phục](/vi/admin/upgrades/).

@@ -225,6 +225,44 @@ Assistant Container і не Core. Машина `aarch64` або `amd64`, нап�
 [Встановлення як додаток Home Assistant](/uk/install/home-assistant/).
 
 </InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid із вкладкою **Apps** (Community Applications) і близько 300 МБ вільної пам’яті. Без
+термінала.
+</Need>
+
+<Steps>
+
+1. **Встановіть.** В **Apps** знайдіть **Kept**, потім **Install**.
+
+2. **Задайте адресу Kept**, наприклад `http://tower.local:8080`, потім **Apply**. Беріть ім’я, а
+   не IP-адресу: її несуть надруковані етикетки.
+
+   <See>
+   На вкладці **Docker** значок Kept, **Logs**: адреса Kept і код налаштування.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Налаштуйте.** Значок Kept, **WebUI**: **Введіть код налаштування**, потім створіть перший
+   обліковий запис.
+
+4. **Збережіть ключі.** Значок Kept, **Console**, потім:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Текст, що починається з `KEPT RECOVERY KIT`. Зберігайте його деінде, не на цьому сервері.
+   </See>
+
+</Steps>
+
+Тека appdata, резервні копії та оновлення: [Встановлення на Unraid](/uk/install/unraid/).
+
+</InstallPath>
 </InstallPicker>
 
 ## Щось не працює?
@@ -290,6 +328,7 @@ Assistant Container і не Core. Машина `aarch64` або `amd64`, нап�
   перш ніж нова версія почне обслуговувати.
 - **Home Assistant:** Home Assistant пропонує оновлення. Увімкніть
   **Keep backup of the last version** у його діалоговому вікні оновлення.
+- **Unraid:** вкладка **Docker** пропонує оновлення: **apply update**.
 
 Коли задано ціль резервного копіювання, Kept робить знімок перед міграцією.
 [Оновлення та відкат](/uk/admin/upgrades/).

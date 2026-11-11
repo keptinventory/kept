@@ -80,7 +80,7 @@ describe('the choice in the address', () => {
     expect(pathFromHash('#')).toBeNull();
     expect(pathFromHash('#updates')).toBeNull();
     expect(pathFromHash('#%E0%A4%A')).toBeNull();
-    expect(isPathId('unraid')).toBe(false);
+    expect(isPathId('truenas')).toBe(false);
   });
 });
 
@@ -204,6 +204,19 @@ describe('what Kept prints', () => {
     expect(printed.helmInstalled).toBe(
       `Kept ${RELEASE} is installed as "kept" in namespace "kept".`,
     );
+  });
+
+  it('is what the Unraid image logs at start, and its recovery kit as the Unraid guide says', () => {
+    const lib = repo('docker/one-container.sh');
+    expect(lib).toContain('log() { printf \'app: %s\\n\' "$*"; }');
+    expect(repo('docker/unraid/kept-unraid-start')).toContain('log "Kept is at $KEPT_PUBLIC_URL"');
+    expect(printed.unraid).toBe('app: Kept is at http://tower.local:8080');
+    expect(
+      docs('install/unraid.md')
+        .split('\n')
+        .map((line) => line.trim()),
+    ).toContain(commands.unraid.recoveryKit);
+    expect(repo('unraid/kept.xml')).toContain('Target="KEPT_PUBLIC_URL"');
   });
 
   it('is what the Home Assistant app logs at start', () => {

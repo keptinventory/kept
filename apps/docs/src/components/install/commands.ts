@@ -5,7 +5,7 @@
  * Each command is copied from the page that explains it (install/compose.md, the chart's
  * README, admin/upgrades.md, CONTRIBUTING.md); each printed line from the code that prints it
  * (the server's `kept init` and recovery kit, the chart's NOTES.txt, the Home Assistant app's
- * start). install.test.ts checks every one against its source.
+ * start, the Unraid image's start). install.test.ts checks every one against its source.
  *
  * The release is the one compose.yaml runs by default, which the release script sets with each
  * release, so the download address and the chart's version move with it.
@@ -61,6 +61,10 @@ export const commands = {
       'kubectl -n kept exec deploy/kept -- kept admin recovery-kit > kept-recovery-kit.txt',
     test: 'helm test kept -n kept',
   },
+  unraid: {
+    // Typed in the container's Console (Docker tab), as install/unraid.md says.
+    recoveryKit: 'kept admin recovery-kit',
+  },
 } as const;
 
 /** What Kept prints, as it prints it; `XXX-XXX` stands for the code. */
@@ -79,4 +83,5 @@ export const printed = {
   recoveryKit: 'KEPT RECOVERY KIT',
   helmInstalled: `Kept ${RELEASE} is installed as "kept" in namespace "kept".`,
   homeAssistant: `Kept is at http://homeassistant.local:8080 (change it in Configuration: "Kept's address")`,
+  unraid: 'app: Kept is at http://tower.local:8080',
 } as const;
