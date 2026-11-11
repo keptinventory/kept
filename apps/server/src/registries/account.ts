@@ -57,7 +57,7 @@ export type WriteCtx = {
   client: pg.ClientBase;
   userId: string;
   /** Set when a personal token or an OAuth grant makes the write: the audit names it (actorOf). */
-  tokenId?: string | null;
+  tokenId: string | null;
   requestId: string;
   jobs: JobQueue | null;
 };
@@ -70,7 +70,7 @@ export async function auditRegistry(
   event: {
     accountId: string;
     userId: string;
-    tokenId?: string | null;
+    tokenId: string | null;
     action: AuditAction;
     entity: { type: string; id: string };
     before?: Record<string, unknown> | null;

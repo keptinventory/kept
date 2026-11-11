@@ -99,7 +99,7 @@ export async function auditDeletedDocuments(
   event: {
     locationId: string;
     userId: string;
-    tokenId?: string | null;
+    tokenId: string | null;
     column: DocColumn;
     recordId: string;
     thingId: string | null;
