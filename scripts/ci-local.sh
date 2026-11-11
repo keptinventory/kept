@@ -14,7 +14,7 @@
 #   bash scripts/ci-local.sh --list           print the step names
 #
 # Steps: install lint catalogues typecheck compose test drift licences attribution docs helm
-# prod-boot eval portability backup perf e2e images ha release-dry-run
+# prod-boot eval portability backup perf e2e images ha unraid release-dry-run
 # (`pnpm lint` already runs scripts/check-logical-css.mjs and scripts/check-i18n.mjs, the web
 # catalogues holding every source message, through Lingui's API in memory. `catalogues` runs the
 # real `lingui extract` CLI into a scratch copy and fails on a new msgid or an empty translation.)
@@ -44,7 +44,7 @@ set -euo pipefail
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo"
 
-ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images ha release-dry-run)
+ALL_STEPS=(install lint catalogues typecheck compose test drift licences attribution docs helm prod-boot eval portability backup perf e2e e2e-update images ha unraid release-dry-run)
 FAST_STEPS=(lint catalogues typecheck unit eval)
 
 DEV_COMPOSE=(docker compose -f compose.dev.yaml)
@@ -696,6 +696,20 @@ step_ha() {
     pnpm --filter @kept/web exec playwright install chromium
   fi
   bash scripts/ha-ingress-e2e.sh "$tag"
+}
+
+# The Unraid image: built for this machine's platform (the runner's on GitHub;
+# arm64 natively on the laptop) and smoked as Unraid runs it (scripts/smoke-unraid-image.sh: no
+# --init, /data owned 99:100; first start, the setup code, a clean stop with its dump, the same keys
+# after a restart, a restore from the dump).
+step_unraid() {
+  ensure_docker_config
+  local revision tag=kept-unraid:ci platform=()
+  revision=$(git rev-parse HEAD)
+  [[ -n ${CI:-} ]] || platform=(--platform linux/arm64)
+  docker buildx build ${platform[@]+"${platform[@]}"} --target unraid \
+    --build-arg "REVISION=$revision" -t "$tag" --load .
+  bash scripts/smoke-unraid-image.sh "$tag"
 }
 
 # The laptop release's dry run (step 8 T17): scripts/release.sh --dry-run builds both platforms
