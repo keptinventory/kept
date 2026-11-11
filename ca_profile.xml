@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<CommunityApplications>
+  <Profile>Kept, a self-hosted inventory of everything a household owns and where it is. One container: Kept and its own PostgreSQL database, everything in the appdata folder. Install guide: https://keptinventory.info/install/unraid/. Support: GitHub issues and Discord.</Profile>
+  <Icon>https://raw.githubusercontent.com/keptinventory/kept/main/apps/web/public/icon-512.png</Icon>
+  <WebPage>https://github.com/keptinventory/kept</WebPage>
+  <Forum>https://github.com/keptinventory/kept/issues</Forum>
+  <Discord>https://discord.gg/g4WCXPfuNv</Discord>
+</CommunityApplications>
