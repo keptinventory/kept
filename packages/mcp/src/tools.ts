@@ -364,6 +364,7 @@ export const addThingItem = z
         message: 'give at least purchased_on, shop or price.',
       })
       .optional(),
+    acquired_from: z.string().max(200).optional().describe('Where it came from'),
   })
   .extend(z.object(thingFields).partial().shape);
 

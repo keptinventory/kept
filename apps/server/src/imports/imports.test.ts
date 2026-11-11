@@ -891,24 +891,52 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
   }, LONG);
 
   it(
-    'keeps a purchase date with no price as text under the preset, as the Homebox archive import does',
+    'makes a purchase from a date with a 0 or an empty price under the preset, as the Homebox archive import does',
     async () => {
-      const at = OLD.columns.indexOf('HB.purchase_time');
-      const name = OLD.columns.indexOf('HB.name');
-      const rows = OLD.rows
-        .filter((r) => r[name] === 'Toolbox')
-        .map((r) => r.map((c, i) => (i === at ? '2024-05-01' : c)));
+      // Toolbox's price is Homebox's 0 for none; Drill bits' is left empty, with a shop.
+      const col = (c: string) => OLD.columns.indexOf(c);
+      const set = (r: string[], patch: Record<string, string>) =>
+        r.map((c, i) => patch[OLD.columns[i] as string] ?? c);
+      const byName = (n: string) => OLD.rows.find((r) => r[col('HB.name')] === n) as string[];
+      expect(byName('Toolbox')[col('HB.purchase_price')]).toBe('0');
+      const rows = [
+        set(byName('Toolbox'), { 'HB.purchase_time': '2024-05-01' }),
+        set(byName('Drill bits'), {
+          'HB.purchase_time': '2024-05-02',
+          'HB.purchase_price': '',
+          'HB.purchase_from': 'Hardware Hub',
+        }),
+        set(byName('Spare router'), { 'HB.purchase_from': 'Hardware Hub' }),
+      ];
       const loc = await createLocation(t, db, ann, 'household', 'Homebox, dated, no price');
       const { report } = await importRows(ann, loc, rows, {
         columns: OLD.columns,
         mapping: mappingOf(OLD.columns),
         choices: hbChoices('in_use'),
       });
-      expect(report.rows[0]?.status).toBe('text');
-      expect(report.rows[0]?.issues).toContainEqual(
-        expect.objectContaining({ column: 'HB.purchase_time', code: 'needs_price' }),
-      );
-      expect(report.summary.purchases).toBe(0);
+      expect(report.rows.map((r) => r.status)).toEqual(['ok', 'ok', 'text']);
+      expect(report.summary.purchases).toBe(2);
+      const made = await thingsIn(loc);
+      const named = (n: string) => made.find((m) => m.name === n);
+      expect(named('Toolbox')).toMatchObject({
+        purchased_on: '2024-05-01',
+        price: null,
+        currency: null,
+        vendor: null,
+      });
+      expect(named('Toolbox')?.notes ?? '').not.toContain('2024-05-01');
+      expect(named('Drill bits')).toMatchObject({
+        purchased_on: '2024-05-02',
+        price: null,
+        currency: null,
+        vendor: 'Hardware Hub',
+      });
+      // A shop with no date still stays in the notes, and says why.
+      expect(report.rows[2]?.issues).toEqual([
+        expect.objectContaining({ column: 'HB.purchase_from', code: 'needs_date' }),
+      ]);
+      expect(named('Spare router')).toMatchObject({ purchased_on: null, vendor: null });
+      expect(named('Spare router')?.notes).toContain('HB.purchase_from: Hardware Hub');
     },
     LONG,
   );

@@ -183,8 +183,9 @@ async function applyThing(c: ApplyCtx, op: ThingOp): Promise<string> {
         ? {
             purchase: {
               purchasedOn: op.purchase.purchasedOn,
-              currency: op.purchase.currency,
-              price: op.purchase.price,
+              ...(op.purchase.price !== null && op.purchase.currency !== null
+                ? { currency: op.purchase.currency, price: op.purchase.price }
+                : {}),
               ...(vendorId ? { vendorId } : {}),
             },
           }

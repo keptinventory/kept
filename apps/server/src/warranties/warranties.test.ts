@@ -1,9 +1,10 @@
 import { newId } from '@kept/shared';
 import type { LightMyRequestResponse } from 'fastify';
 import type pg from 'pg';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
+import { type TestFiles, testFiles, uniqueJpeg, upload } from '../../test/files.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import {
   createLocation,
@@ -773,5 +774,368 @@ describe('claims and repairs', () => {
     expect(back).toMatchObject([
       { id: c.id, openedOn: '2026-06-01', documents: [{ url: 'https://centre.example/job/77' }] },
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Personal tokens
+// ---------------------------------------------------------------------------------------------
+
+describe('warranties with a personal token', () => {
+  // Token creation is https only, and a document's signed links need file storage, so these
+  // cases have an app of their own on the same database. Lena is a member of Home and Garage,
+  // Vera a viewer of Home (Home hides money from viewers).
+  type FileView = { id: string; thumbUrl: string | null; displayUrl: string | null };
+  type Doc = { id: string; role: string; url: string | null; file: FileView | null };
+  type Listed = {
+    items: (Omit<Warranty, 'documents'> & { documents: Doc[] })[];
+    coverage: Coverage;
+  };
+
+  let secure: TestApp;
+  let files: TestFiles;
+  let lena: Person;
+  let vera: Person;
+  let washer: string;
+
+  const as = (who: Person) => ({ as: who });
+  const bearer = (secret: string) => ({ headers: { authorization: `Bearer ${secret}` } });
+  const tokenFor = async (who: Person, scope: 'read' | 'write', locationIds: string[]) => {
+    const res = await call(secure, '/api/v1/tokens', {
+      as: who,
+      body: { name: `Warranties ${scope}`, scope, locationIds },
+    });
+    return ok<{ token: { id: string }; secret: string }>(res, 201);
+  };
+  const list = (thingId: string, who: { as?: Person; headers?: Record<string, string> }) =>
+    call(secure, `/api/v1/things/${thingId}/warranties`, who);
+  const add = (thingId: string, secret: string, body: object) =>
+    call(secure, `/api/v1/things/${thingId}/warranties`, { ...bearer(secret), body });
+
+  beforeAll(async () => {
+    files = await testFiles();
+    secure = await peopleApp(db, { files, publicUrl: 'https://kept.example' });
+    lena = await person(secure, db, 'lena');
+    vera = await person(secure, db, 'vera');
+    await join(db, home.id, lena.userId, 'member');
+    await join(db, garage.id, lena.userId, 'member');
+    await join(db, home.id, vera.userId, 'viewer');
+
+    washer = (await createThing(secure, lena, home, { name: 'Washing machine' })).id as string;
+    const start = shift(today(), -30);
+    const lifetime = ok<Warranty>(
+      await call(secure, `/api/v1/things/${washer}/warranties`, {
+        as: lena,
+        body: { kind: 'manufacturer', provider: 'Drum maker', startsOn: start, lifetime: true },
+      }),
+      201,
+    );
+    ok(
+      await call(secure, `/api/v1/things/${washer}/warranties`, {
+        as: lena,
+        body: { kind: 'store', startsOn: '2020-01-01', endsOn: '2021-01-01' },
+      }),
+      201,
+    );
+    ok(
+      await call(secure, `/api/v1/things/${washer}/warranties`, {
+        as: lena,
+        body: { kind: 'extended', startsOn: start, termMonths: 60, claimContact: '0800 123' },
+      }),
+      201,
+    );
+    // The lifetime warranty's card (a file) and its receipt (money: a link).
+    const card = await upload(secure, lena, home.id, await uniqueJpeg());
+    expect(card.statusCode, card.body).toBe(201);
+    for (const body of [
+      { fileId: (card.json() as FileView).id, role: 'warranty_doc' },
+      { url: 'https://shop.example/receipt/washer', role: 'receipt' },
+    ]) {
+      ok(
+        await call(secure, '/api/v1/attachments', {
+          as: lena,
+          body: { locationId: home.id, subject: { warrantyId: lifetime.id }, ...body },
+        }),
+        201,
+      );
+    }
+  });
+
+  afterAll(async () => {
+    await secure.app.close();
+    await files.cleanup();
+  });
+
+  it('a read token lists every warranty, lifetime and ended ones too; documents as metadata only', async () => {
+    const { secret } = await tokenFor(lena, 'read', [home.id]);
+    const res = await list(washer, bearer(secret));
+    const seen = ok<Listed>(res);
+    expect(seen.items.map((w) => [w.kind, w.lifetime, w.state])).toEqual([
+      ['manufacturer', true, 'active'],
+      ['extended', false, 'active'],
+      ['store', false, 'ended'],
+    ]);
+    expect(seen.items[0]).toMatchObject({ provider: 'Drum maker', effectiveEndsOn: null });
+    expect(seen.items[1]).toMatchObject({ termMonths: 60, claimContact: '0800 123' });
+    // The same answer the person gets, but never a signed link to a file's bytes.
+    const mine = ok<Listed>(await list(washer, as(lena)));
+    const card = mine.items[0]?.documents.find((d) => d.role === 'warranty_doc');
+    expect(card?.file?.thumbUrl).toMatch(/^\/f\//);
+    const viaToken = seen.items[0]?.documents ?? [];
+    expect(viaToken.map((d) => d.role).sort()).toEqual(['receipt', 'warranty_doc']);
+    expect(viaToken.find((d) => d.role === 'warranty_doc')?.file).toMatchObject({
+      id: card?.file?.id,
+      thumbUrl: null,
+      displayUrl: null,
+    });
+    expect(res.body).not.toContain('/f/');
+    expect(seen.coverage).toEqual(mine.coverage);
+    expect(seen.coverage.longestId).toBe(seen.items[0]?.id);
+  });
+
+  it('a read token may not add a warranty', async () => {
+    const { secret } = await tokenFor(lena, 'read', [home.id]);
+    const res = await add(washer, secret, { kind: 'store', startsOn: today(), termMonths: 12 });
+    expect(res.statusCode).toBe(403);
+    expect(res.json()).toMatchObject({ code: 'token_scope' });
+  });
+
+  it('a viewer’s token reads as the viewer: no receipt where money is hidden', async () => {
+    const { secret } = await tokenFor(vera, 'read', [home.id]);
+    const seen = ok<Listed>(await list(washer, bearer(secret)));
+    const herself = ok<Listed>(await list(washer, as(vera)));
+    expect(seen.items[0]?.documents.map((d) => d.role)).toEqual(['warranty_doc']);
+    expect(herself.items[0]?.documents.map((d) => d.role)).toEqual(['warranty_doc']);
+    expect(seen.items.map((w) => w.id)).toEqual(herself.items.map((w) => w.id));
+  });
+
+  it('a write token adds each shape (a term, an end date, lifetime), from its start, audited as the token', async () => {
+    const { token, secret } = await tokenFor(lena, 'write', [home.id]);
+    const dryer = (await createThing(secure, lena, home, { name: 'Dryer' })).id as string;
+    const term = ok<Warranty>(
+      await add(dryer, secret, { kind: 'manufacturer', startsOn: '2026-02-01', termMonths: 24 }),
+      201,
+    );
+    expect(term).toMatchObject({
+      startsOn: '2026-02-01',
+      termMonths: 24,
+      effectiveEndsOn: '2028-01-31',
+    });
+    const dated = ok<Warranty>(
+      await add(dryer, secret, { kind: 'store', startsOn: '2026-02-01', endsOn: '2027-02-01' }),
+      201,
+    );
+    expect(dated).toMatchObject({ endsOn: '2027-02-01', termMonths: null, lifetime: false });
+    const forever = ok<Warranty>(
+      await add(dryer, secret, {
+        kind: 'manufacturer',
+        provider: 'Motor maker',
+        startsOn: '2026-02-01',
+        lifetime: true,
+      }),
+      201,
+    );
+    expect(forever).toMatchObject({ lifetime: true, effectiveEndsOn: null, endsOn: null });
+    // One of the three, and a start, as for a person.
+    for (const body of [
+      { kind: 'store', startsOn: '2026-02-01' },
+      { kind: 'store', startsOn: '2026-02-01', termMonths: 12, lifetime: true },
+      { kind: 'store', termMonths: 12 },
+    ]) {
+      expect((await add(dryer, secret, body)).statusCode, JSON.stringify(body)).toBe(400);
+    }
+    const events = await own<{ action: string; actor_type: string; actor_id: string }>(
+      `SELECT action, actor_type, actor_id FROM public.audit_events
+        WHERE entity_id = ANY ($1::uuid[]) ORDER BY at, id`,
+      [[term.id, dated.id, forever.id]],
+    );
+    expect(events).toEqual(
+      [1, 2, 3].map(() => ({ action: 'warranty.create', actor_type: 'token', actor_id: token.id })),
+    );
+    const listed = ok<Listed>(await list(dryer, bearer(secret)));
+    expect(listed.items.map((w) => w.id)).toEqual([forever.id, term.id, dated.id]);
+  });
+
+  it('keeps editing, deleting, defaults and claims with the app', async () => {
+    const { secret } = await tokenFor(lena, 'write', [home.id]);
+    const [w] = ok<Listed>(await list(washer, bearer(secret))).items;
+    const closed = [
+      call(secure, `/api/v1/warranties/${w?.id}`, {
+        method: 'PATCH',
+        body: { provider: 'Someone else' },
+        headers: { authorization: `Bearer ${secret}`, 'if-match': '1' },
+      }),
+      call(secure, `/api/v1/warranties/${w?.id}`, {
+        method: 'DELETE',
+        headers: { authorization: `Bearer ${secret}`, 'if-match': '1' },
+      }),
+      call(secure, `/api/v1/things/${washer}/warranty-defaults`, bearer(secret)),
+      call(secure, `/api/v1/things/${washer}/claims`, bearer(secret)),
+      call(secure, `/api/v1/things/${washer}/claim-prefill`, bearer(secret)),
+      call(secure, `/api/v1/things/${washer}/claims`, {
+        ...bearer(secret),
+        body: { openedOn: today() },
+      }),
+    ];
+    for (const res of await Promise.all(closed)) {
+      expect(res.statusCode, res.body).toBe(403);
+      expect(res.json()).toMatchObject({ code: 'token_scope' });
+    }
+    expect(ok<Listed>(await list(washer, as(lena))).items).toHaveLength(3);
+  });
+
+  it('a token for another location gets nothing', async () => {
+    const { secret } = await tokenFor(lena, 'write', [garage.id]);
+    // Lena sees the washer herself; her Garage token doesn't.
+    expect((await list(washer, as(lena))).statusCode).toBe(200);
+    expect((await list(washer, bearer(secret))).statusCode).toBe(404);
+    const res = await add(washer, secret, { kind: 'store', startsOn: today(), lifetime: true });
+    expect(res.statusCode).toBe(404);
+    expect(ok<Listed>(await list(washer, as(lena))).items).toHaveLength(3);
+    // In Garage itself Warranties is off: the token gets what Lena gets.
+    const jack = (await createThing(secure, lena, garage, { name: 'Jack' })).id as string;
+    const off = await list(jack, bearer(secret));
+    expect(off.statusCode).toBe(404);
+    expect(off.json()).toMatchObject({ code: 'module_off' });
+  });
+
+  describe('undo of a warranty a token added', () => {
+    const undoAs = (eventId: string, who: { as?: Person; headers?: Record<string, string> }) =>
+      call(secure, `/api/v1/audit/${eventId}/undo`, { ...who, method: 'POST', body: {} });
+    const added = async (thingId: string, secret: string) => {
+      const res = await add(thingId, secret, {
+        kind: 'manufacturer',
+        startsOn: '2026-03-01',
+        termMonths: 24,
+      });
+      const w = ok<Warranty>(res, 201);
+      const [event] = await own<{ id: string }>(
+        `SELECT id FROM public.audit_events WHERE entity_id = $1 AND action = 'warranty.create'`,
+        [w.id],
+      );
+      return { w, eventId: event?.id as string, header: res.headers['x-kept-audit-event'] };
+    };
+    const refusal = (res: LightMyRequestResponse) => {
+      expect(res.statusCode, res.body).toBe(409);
+      return res.json() as { code: string; reason: string; conflicts: string[] };
+    };
+    const rows = (id: string) =>
+      own<{ id: string }>('SELECT id FROM public.warranties WHERE id = $1', [id]);
+
+    it('is undoable for 7 days, and the token undoes it while nothing changed since', async () => {
+      const { token, secret } = await tokenFor(lena, 'write', [home.id]);
+      const fridge = (await createThing(secure, lena, home, { name: 'Fridge' })).id as string;
+      const { w, eventId, header } = await added(fridge, secret);
+      const [event] = await own<{ id: string; undoable_until: Date | null }>(
+        'SELECT id, undoable_until FROM public.audit_events WHERE id = $1',
+        [eventId],
+      );
+      // The answer names it, as every undoable write does.
+      expect(header).toBe(eventId);
+      const until = event?.undoable_until?.getTime() ?? 0;
+      expect(until).toBeGreaterThan(Date.now() + 6 * 24 * 3600_000);
+      expect(until).toBeLessThanOrEqual(Date.now() + 7 * 24 * 3600_000);
+
+      const res = await undoAs(eventId, bearer(secret));
+      expect(ok<{ undoOf: string; eventId: string }>(res)).toMatchObject({ undoOf: eventId });
+      expect(await rows(w.id)).toEqual([]);
+      expect(ok<Listed>(await list(fridge, bearer(secret))).items).toEqual([]);
+      const [undone] = await own<{
+        action: string;
+        actor_type: string;
+        actor_id: string;
+        root_thing_id: string;
+        diff: Record<string, { before?: unknown; after?: unknown }>;
+      }>(
+        `SELECT action, actor_type, actor_id, root_thing_id, diff FROM public.audit_events
+          WHERE undo_of = $1`,
+        [eventId],
+      );
+      expect(undone).toMatchObject({
+        action: 'warranty.create',
+        actor_type: 'token',
+        actor_id: token.id,
+        root_thing_id: fridge,
+      });
+      expect(undone?.diff.term_months).toEqual(
+        expect.objectContaining({ before: 24, after: null }),
+      );
+      // Once is enough.
+      const again = refusal(await undoAs(eventId, bearer(secret)));
+      expect(again.reason).toBe('already_undone');
+    });
+
+    it('its owner undoes it in the app; another of her tokens may not', async () => {
+      const { secret } = await tokenFor(lena, 'write', [home.id]);
+      const other = await tokenFor(lena, 'write', [home.id]);
+      const freezer = (await createThing(secure, lena, home, { name: 'Freezer' })).id as string;
+      const { w, eventId } = await added(freezer, secret);
+      const theirs = await undoAs(eventId, bearer(other.secret));
+      expect(theirs.statusCode, theirs.body).toBe(403);
+      expect(await rows(w.id)).toHaveLength(1);
+      ok(await undoAs(eventId, as(lena)));
+      expect(await rows(w.id)).toEqual([]);
+    });
+
+    it('refuses once it was edited, or has a claim or a document', async () => {
+      const { secret } = await tokenFor(lena, 'write', [home.id]);
+      const mixer = (await createThing(secure, lena, home, { name: 'Mixer' })).id as string;
+      const edited = await added(mixer, secret);
+      const claimed = await added(mixer, secret);
+      const papered = await added(mixer, secret);
+
+      ok(
+        await call(secure, `/api/v1/warranties/${edited.w.id}`, {
+          as: lena,
+          method: 'PATCH',
+          body: { provider: 'Mixer maker' },
+          headers: { 'if-match': '1' },
+        }),
+      );
+      ok(
+        await call(secure, `/api/v1/things/${mixer}/claims`, {
+          as: lena,
+          body: { openedOn: today(), warrantyId: claimed.w.id },
+        }),
+        201,
+      );
+      ok(
+        await call(secure, '/api/v1/attachments', {
+          as: lena,
+          body: {
+            locationId: home.id,
+            url: 'https://maker.example/warranty/mixer',
+            subject: { warrantyId: papered.w.id },
+            role: 'warranty_doc',
+          },
+        }),
+        201,
+      );
+
+      const afterEdit = refusal(await undoAs(edited.eventId, bearer(secret)));
+      expect(afterEdit).toMatchObject({ code: 'undo_refused', reason: 'changed_since' });
+      expect(afterEdit.conflicts).toContain('provider');
+      const withClaim = refusal(await undoAs(claimed.eventId, bearer(secret)));
+      expect(withClaim).toMatchObject({ reason: 'changed_since', conflicts: ['claims'] });
+      const withDoc = refusal(await undoAs(papered.eventId, as(lena)));
+      expect(withDoc).toMatchObject({ reason: 'changed_since', conflicts: ['documents'] });
+      for (const { w } of [edited, claimed, papered]) expect(await rows(w.id)).toHaveLength(1);
+    });
+
+    it('a warranty added in the app keeps no undo window, as the app’s creates', async () => {
+      const toaster = (await createThing(secure, lena, home, { name: 'Toaster' })).id as string;
+      const res = await call(secure, `/api/v1/things/${toaster}/warranties`, {
+        as: lena,
+        body: { kind: 'store', startsOn: '2026-03-01', termMonths: 12 },
+      });
+      const w = ok<Warranty>(res, 201);
+      expect(res.headers['x-kept-audit-event']).toBeUndefined();
+      const [event] = await own<{ undoable_until: Date | null }>(
+        `SELECT undoable_until FROM public.audit_events
+          WHERE entity_id = $1 AND action = 'warranty.create'`,
+        [w.id],
+      );
+      expect(event).toEqual({ undoable_until: null });
+    });
   });
 });
