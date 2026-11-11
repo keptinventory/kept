@@ -1,6 +1,7 @@
 import { EXPORT_PATHS, type ExportSecretRecord } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
+import { actorOf } from '../../audit/actor.js';
 import { audited } from '../../audit/audited.js';
 import type { Sealed } from '../../crypto/envelope.js';
 import type { SecretKeys } from '../../crypto/keyring.js';
@@ -138,7 +139,7 @@ export async function unlockSecrets(
     if (now.location_id) {
       await audited(tx, {
         locationId: now.location_id,
-        actor: { type: 'user', id: scope.userId },
+        actor: actorOf(scope),
         action: 'import.passphrase',
         entity: { type: 'import_run', id: runId },
         after: { unlocked: true },
