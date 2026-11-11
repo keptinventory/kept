@@ -220,7 +220,7 @@ export const addThing: Handler<'add_thing'> = {
       const p = item.purchase;
       const vendorId = p?.shop
         ? ((await vendorNamed(op.client, loc.id, p.shop)) ??
-          (await vendorFor(op, loc.id, { name: p.shop })))
+          (await vendorFor(op, loc.id, { name: p.shop }, 'store')))
         : null;
       const id = await insertThing(
         op,
@@ -476,7 +476,7 @@ async function setPurchase(
       : p.shop === null
         ? null
         : ((await vendorNamed(op.client, locationId, p.shop)) ??
-          (await vendorFor(op, locationId, { name: p.shop })));
+          (await vendorFor(op, locationId, { name: p.shop }, 'store')));
   let price: string | null | undefined;
   try {
     price = p.price === undefined ? undefined : p.price === null ? null : parseAmount(p.price);
