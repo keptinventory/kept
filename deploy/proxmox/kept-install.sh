@@ -8,6 +8,8 @@
 #   kept-install.sh bootstrap          kept-bootstrap.service: the database and its four logins
 #   kept-install.sh migrate            kept.service, before Kept starts: `kept migrate`
 #   kept-install.sh cli <args>         installed as /usr/local/bin/kept: Kept's command line
+#   kept-install.sh units              this script, `update`, `kept` and the systemd units again
+#                                      (what a rollback runs with the previous release's script)
 #
 # Where things live:
 #   /opt/kept/releases/<version>   each release's files (root's, read-only to Kept)
@@ -61,6 +63,12 @@ restic_sha256() {
 # PostgreSQL's repository (PGDG): its key by the SHA-256 the Dockerfile pins (fingerprint
 # B97B 0AFC AA1A 47F0 44F2 44A0 7FCC 7D46 ACCC 4CF8), and the versions in trixie-pgdg's index for
 # amd64 and arm64 (apt.postgresql.org, read 2026-11-11). An update installs newer pins, never older.
+# PGDG keeps only a few builds of each package in its index, so a pin drops out once newer ones
+# land (trixie-pgdg had 18.3, 18.4 and 18.6 on 2026-11-12, no 18.5). When a pin is gone, pg_pick
+# takes the newest build the index has above it: never an older one, and never another Postgres
+# major, since the major is in the package's name (postgresql-18). Its build is still checked by
+# apt against the repository's signed index. (PGDG's archive of old builds is not used: one
+# repository, one key.)
 PGDG_KEY_SHA256=0144068502a1eddd2a0280ede10ef607d1ec592ce819940991203941564e8e76
 PG_PACKAGES=(
   postgresql-common=293.pgdg13+1
@@ -172,10 +180,29 @@ base_packages() {
   apt_install ca-certificates curl openssl bzip2 openssh-client iproute2 >/dev/null
 }
 
+# The version to install for a pin, from the versions the repository offers: the pin itself if it
+# is there, or else the newest one above it. Nothing (and false) when every one is older.
+pg_pick() { # <pin> <available version>...
+  local pin=$1 best='' v
+  shift
+  for v in "$@"; do
+    if [[ $v == "$pin" ]]; then
+      echo "$pin"
+      return 0
+    fi
+  done
+  for v in "$@"; do
+    dpkg --compare-versions "$v" gt "$pin" || continue
+    [[ -z $best ]] || dpkg --compare-versions "$v" gt "$best" || continue
+    best=$v
+  done
+  [[ -n $best ]] && echo "$best"
+}
+
 # Each pinned package that is missing or older than its pin; never a downgrade (apt upgrade may
 # already have gone past a pin).
 pg_packages() {
-  local want=() p name ver have
+  local want=() p name ver have got
   for p in "${PG_PACKAGES[@]}"; do
     name=${p%%=*} ver=${p#*=}
     have=$(dpkg-query -W -f '${Status} ${Version}' "$name" 2>/dev/null || true)
@@ -196,13 +223,24 @@ pg_packages() {
   echo 'deb [signed-by=/usr/share/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main' \
     >/etc/apt/sources.list.d/pgdg.list
   apt-get update -q
+  # Each pin as the repository has it now (see PG_PACKAGES).
+  local resolved=() common=''
+  for p in "${want[@]}"; do
+    name=${p%%=*} ver=${p#*=}
+    # shellcheck disable=SC2046 # one word per version
+    got=$(pg_pick "$ver" $(apt-cache madison "$name" | awk -F'|' '{ gsub(/ /, "", $2); print $2 }')) ||
+      die "PostgreSQL's repository has no $name at $ver or newer (apt-cache madison $name)"
+    [[ $got == "$ver" ]] || note "$name $ver is no longer in PostgreSQL's repository: installing $got, the newest there"
+    resolved+=("$name=$got")
+    [[ $name != postgresql-common ]] || common=$name=$got
+  done
   # Kept makes its own cluster below (UTF-8, whatever the container's locale), so the package
   # makes none.
   if [[ ! -f /etc/postgresql-common/createcluster.conf ]]; then
-    apt_install "${PG_PACKAGES[0]}" >/dev/null
+    apt_install "${common:-postgresql-common}" >/dev/null
     sed -ri 's/^#?\s*create_main_cluster\s*=.*/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
   fi
-  apt_install "${want[@]}" >/dev/null
+  apt_install "${resolved[@]}" >/dev/null
   note "$(/usr/lib/postgresql/18/bin/postgres --version)"
 }
 
@@ -623,42 +661,73 @@ cmd_update() {
   cmd_apply "$target"
 }
 
-# The update itself, by the target release's own script. On a failed start it switches back.
+cmd_units() {
+  need_root
+  install_units
+}
+
+# The update itself, by the target release's own script. On a failed start, or any failure once
+# Kept is stopped, it switches back: the previous release, its Node, and its own kept-install.sh
+# with the units that one writes.
+APPLY_TARGET='' APPLY_DIR='' APPLY_PREVIOUS='' APPLY_PREVIOUS_NODE=''
 cmd_apply() {
   need_root
-  local target=$1 previous previous_node dir
+  local target=$1 dir
   export LANG=C.UTF-8
-  previous=$(readlink -f "$PREFIX/current")
-  previous_node=$(readlink -f "$PREFIX/node")
+  APPLY_PREVIOUS=$(readlink -f "$PREFIX/current")
+  APPLY_PREVIOUS_NODE=$(readlink -f "$PREFIX/node")
   apt-get update -q >/dev/null
   pg_packages
   node_install
   restic_install
   dir=$(unpack_release "$target")
   target=$(env_value "$dir/release.env" KEPT_VERSION)
+  APPLY_TARGET=$target APPLY_DIR=$dir
   note "unpacked into $dir"
+  # The running release's script, for a rollback (install_units replaces it with this one).
+  install -m 0755 "$LIB/kept-install.sh" "$LIB/kept-install.sh.previous"
 
   say "Stopping Kept, switching to $target, starting it"
   systemctl stop kept.service
+  # From here on a failure is a rollback, not a stopped Kept.
+  trap 'rollback' ERR
   switch_to "$dir"
   install_units
   if systemctl start kept.service && wait_healthy "$target" 300; then
+    trap - ERR
     # The previous release stays for one more update; older ones go.
     local keep
     for keep in "$PREFIX"/releases/*; do
-      [[ $keep == "$dir" || $keep == "$previous" ]] || rm -rf "$keep"
+      [[ $keep == "$dir" || $keep == "$APPLY_PREVIOUS" ]] || rm -rf "$keep"
     done
+    rm -f "$LIB/kept-install.sh.previous"
     say "Kept $target is running"
     return 0
   fi
+  rollback
+}
 
-  journalctl -u kept -n 30 --no-pager >&2 || true
-  say "Kept $target did not start: switching back to $(env_value "$previous/release.env" KEPT_VERSION)"
-  systemctl stop kept.service || true
-  switch_to "$previous"
-  ln -sfn "$previous_node" "$PREFIX/node.new" && mv -T "$PREFIX/node.new" "$PREFIX/node"
-  rm -rf "$dir"
-  if systemctl start kept.service && wait_healthy "$(env_value "$previous/release.env" KEPT_VERSION)" 300; then
+# Back to the release that ran before the update, with its Node, its kept-install.sh and that
+# script's units. Ends the script: it never returns.
+rollback() {
+  # A failure inside $(...) reaches the trap there first: the script itself does the rollback.
+  ((BASH_SUBSHELL == 0)) || exit 1
+  trap - ERR
+  set +e
+  local target=$APPLY_TARGET previous_version
+  previous_version=$(env_value "$APPLY_PREVIOUS/release.env" KEPT_VERSION)
+  journalctl -u kept -n 30 --no-pager >&2
+  say "Kept $target did not start: switching back to $previous_version"
+  systemctl stop kept.service
+  switch_to "$APPLY_PREVIOUS"
+  ln -sfn "$APPLY_PREVIOUS_NODE" "$PREFIX/node.new" && mv -T "$PREFIX/node.new" "$PREFIX/node"
+  if [[ -f $LIB/kept-install.sh.previous ]]; then
+    mv "$LIB/kept-install.sh.previous" "$LIB/kept-install.sh"
+    "$LIB/kept-install.sh" units ||
+      printf 'kept: the previous kept-install.sh could not write its units back\n' >&2
+  fi
+  [[ -z $APPLY_DIR || $APPLY_DIR == "$APPLY_PREVIOUS" ]] || rm -rf "$APPLY_DIR"
+  if systemctl start kept.service && wait_healthy "$previous_version" 300; then
     die "the update to $target failed and was rolled back: Kept $(current_version) is running again (journalctl -u kept says why)"
   fi
   die "the update to $target failed, and the previous release didn't start either. If $target migrated the database more than one release ahead, restore the backup (vzdump or the snapshot), or start the previous release with KEPT_ALLOW_DOWNGRADE=1 in $ENV_FILE"
@@ -671,6 +740,7 @@ case "${1:-}" in
   bootstrap) shift; cmd_bootstrap ;;
   migrate) shift; cmd_migrate ;;
   cli) shift; cmd_cli "$@" ;;
+  units) shift; cmd_units ;;
   *)
     awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"
     exit 2
