@@ -37,7 +37,7 @@
 #   var_dns        DNS servers, space-separated       (the host's)
 #   var_ssh_key    a public key file for root's SSH login inside the container   (none)
 #   var_timezone   a time zone such as Europe/Paris   (host)
-#   var_unattended yes: no questions, no confirmation
+#   var_unattended yes: no questions, no confirmation (needed when there is no terminal)
 #   var_keep_failed  yes: keep the container if the install fails (default: it is destroyed)
 # A root password is asked for in Advanced only (never taken from the environment); without one,
 # reach the container with `pct enter <id>`.
@@ -66,8 +66,14 @@ die() {
   exit 1
 }
 
+# Questions need a terminal. Without one (a pipe, cron, a CI job) it runs only when told to run
+# without questions: var_unattended=yes, with any setting preset.
 unattended=
-[[ ${var_unattended:-} == yes || ! -t 0 ]] && unattended=1
+if [[ ${var_unattended:-} == yes ]]; then
+  unattended=1
+elif [[ ! -t 0 ]]; then
+  die "this asks its questions in a terminal: run it in the Proxmox VE host's shell, or preset the var_* settings and set var_unattended=yes"
+fi
 
 work=$(mktemp -d)
 ctid_created=
@@ -303,10 +309,11 @@ create_container() {
   if [[ -n $password ]]; then
     printf 'root:%s\n' "$password" | pct exec "$ctid" -- chpasswd
   fi
-  # Its address, once the network is up and DNS answers inside it.
+  # Its address, once the network is up and DNS answers inside it. `pct exec` can fail while the
+  # container is still starting: that is a retry, not a stop.
   local i
   for ((i = 0; i < 60; i++)); do
-    address=$(pct exec "$ctid" -- ip -4 -o addr show dev eth0 scope global 2>/dev/null |
+    address=$({ pct exec "$ctid" -- ip -4 -o addr show dev eth0 scope global 2>/dev/null || true; } |
       awk '{ split($4, a, "/"); print a[1]; exit }')
     [[ -n $address ]] && pct exec "$ctid" -- getent hosts deb.debian.org >/dev/null 2>&1 && break
     sleep 2
