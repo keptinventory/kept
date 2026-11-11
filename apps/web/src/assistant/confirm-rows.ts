@@ -93,6 +93,7 @@ export type FieldKey =
   | 'expires'
   | 'keepAtLeast'
   | 'manual'
+  | 'acquiredFrom'
   | 'order'
   | 'step'
   | 'turn'
@@ -282,6 +283,7 @@ export function rowsOf(p: Proposal): CardRow[] {
         const min = num(item.keep_at_least);
         if (min !== undefined) add('keepAtLeast', { t: 'num', v: min });
         add('manual', text(item.manual_url));
+        add('acquiredFrom', text(item.acquired_from));
         const custom = Object.entries(rec(item.custom)).map(([k, v]) => `${k}: ${String(v)}`);
         add('custom', custom.length ? { t: 'list', v: custom } : undefined);
         add('notes', text(item.notes));

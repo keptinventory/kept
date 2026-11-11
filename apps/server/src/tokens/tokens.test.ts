@@ -355,6 +355,30 @@ describe('tokens', () => {
     expect(events).toEqual([{ actor_type: 'token', actor_id: token.id }]);
   });
 
+  it('says where a thing came from in the create itself, no edit after', async () => {
+    const { secret } = await makeToken(louis, {
+      name: 'Gifts',
+      scope: 'write',
+      locationIds: [home.id],
+    });
+    const thing = ok(
+      await bearer(secret, '/api/v1/things', {
+        body: {
+          locationId: home.id,
+          placeId: home.unplacedId,
+          name: 'Drill',
+          acquiredFrom: 'A gift from Dad',
+        },
+      }),
+      201,
+    );
+    expect(thing.acquiredFrom).toBe('A gift from Dad');
+    expect(thing.rowVersion).toBe(1);
+    expect(ok(await bearer(secret, `/api/v1/things/${thing.id}`)).acquiredFrom).toBe(
+      'A gift from Dad',
+    );
+  });
+
   // A lifecycle change keeps the thing and its history, and its Undo puts it back, so a write
   // token may make it; trashing stays the app's.
   it('ends a thing’s use as the token (sold, archived, back in use), never trashes it, and only in its locations', async () => {
