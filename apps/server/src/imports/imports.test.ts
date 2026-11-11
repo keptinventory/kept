@@ -468,14 +468,19 @@ describe('POST /api/v1/imports/:id/dry-run', () => {
     expect((await dryRun(louis, id)).statusCode).toBe(404);
   });
 
-  it('keeps money as text where the money module is off', async () => {
+  it('keeps the price as text where the money module is off, and the purchase with its date', async () => {
     const { run } = await importRows(ann, shed, [
       row({ Name: 'Mower', Price: '5000', Bought: '01/02/2025' }),
     ]);
     expect(run.status).toBe('done');
     const [mower] = await thingsIn(shed);
-    expect(mower).toMatchObject({ name: 'Mower', purchased_on: null });
-    expect(mower?.notes).toBe('Bought: 01/02/2025\nPrice: 5000');
+    expect(mower).toMatchObject({
+      name: 'Mower',
+      purchased_on: '2025-02-01',
+      price: null,
+      currency: null,
+    });
+    expect(mower?.notes).toBe('Price: 5000');
   });
 
   it('finds a built-in type by its Ukrainian name', async () => {
@@ -591,6 +596,136 @@ describe('a purchase with a date and no price', () => {
       vendor: 'Carrefour',
     });
     expect(report.summary).toMatchObject({ things: 6, purchases: 3, asText: 3 });
+  });
+});
+
+describe('a purchase where money is off', () => {
+  // The same rows into a location with money off (Essentials) and one with it on (Household).
+  // Purchases are core (purchases/routes.ts): with money off, the date and the shop still make the
+  // purchase, as POST /purchases records them; the price and its currency stay in the notes.
+  const COLS = [...COLUMNS, 'Currency'];
+  const MAP = { ...MAPPING, Currency: 'currency' };
+  const rowC = (cells: Parameters<typeof row>[0], currency = '') => [...row(cells), currency];
+  const ROWS = [
+    rowC({ Name: 'Mower', Bought: '01/02/2025', Price: '5000', Shop: 'Carrefour' }, 'EGP'),
+    rowC({ Name: 'Rake', Bought: '02/02/2025', Shop: 'Carrefour' }),
+    rowC({ Name: 'Hoe', Bought: '03/02/2025' }),
+    rowC({ Name: 'Lamp', Price: '300' }),
+    rowC({ Name: 'Cable', Shop: 'Carrefour' }),
+    rowC({ Name: 'Fan', Bought: '04/02/2025', Price: 'about 40' }),
+  ];
+  let off: { run: Run; report: Report };
+  let on: { run: Run; report: Report };
+  let offLoc: Loc;
+  let offThings: Awaited<ReturnType<typeof thingsIn>>;
+  let onThings: Awaited<ReturnType<typeof thingsIn>>;
+  const columnsOf = (r: Report, i: number) =>
+    r.rows[i]?.issues.map((x) => [x.column, x.code]) ?? [];
+
+  beforeAll(async () => {
+    offLoc = await createLocation(t, db, ann, 'essentials', 'Shed, money off');
+    const onLoc = await createLocation(t, db, ann, 'household', 'Home, money on');
+    const extra = { columns: COLS, mapping: MAP };
+    off = await importRows(ann, offLoc, ROWS, extra);
+    on = await importRows(ann, onLoc, ROWS, extra);
+    offThings = await thingsIn(offLoc);
+    onThings = await thingsIn(onLoc);
+  }, LONG);
+
+  it('makes the purchase with its date and shop, and keeps the price and currency in the notes', () => {
+    expect(off.run.status).toBe('done');
+    expect(off.report.rows.map((r) => r.status)).toEqual([
+      'text',
+      'ok',
+      'ok',
+      'text',
+      'text',
+      'text',
+    ]);
+    // The price and its currency say why they are in the notes; the date and the shop don't.
+    expect(columnsOf(off.report, 0)).toEqual([
+      ['Price', 'money_off'],
+      ['Currency', 'money_off'],
+    ]);
+    expect(columnsOf(off.report, 3)).toEqual([['Price', 'money_off']]);
+    expect(columnsOf(off.report, 4)).toEqual([['Shop', 'needs_date']]);
+    // A price nobody may see isn't read: it doesn't hold the purchase back.
+    expect(columnsOf(off.report, 5)).toEqual([['Price', 'money_off']]);
+    const [mower, rake, hoe, lamp, cable, fan] = offThings;
+    expect(mower).toMatchObject({
+      purchased_on: '2025-02-01',
+      vendor: 'Carrefour',
+      price: null,
+      currency: null,
+      notes: 'Price: 5000\nCurrency: EGP',
+    });
+    expect(rake).toMatchObject({ purchased_on: '2025-02-02', vendor: 'Carrefour', notes: null });
+    expect(hoe).toMatchObject({ purchased_on: '2025-02-03', vendor: null, notes: null });
+    expect(lamp).toMatchObject({ purchased_on: null, notes: 'Price: 300' });
+    expect(cable).toMatchObject({ purchased_on: null, notes: 'Shop: Carrefour' });
+    expect(fan).toMatchObject({
+      purchased_on: '2025-02-04',
+      price: null,
+      notes: 'Price: about 40',
+    });
+  });
+
+  it('stores no amount and no currency on those purchases, nor in their audit', async () => {
+    const purchases = await own<{
+      total: string | null;
+      tax: string | null;
+      currency: string | null;
+    }>(
+      db,
+      'SELECT total::text AS total, tax::text AS tax, currency::text AS currency FROM public.purchases WHERE location_id = $1',
+      [offLoc.id],
+    );
+    expect(purchases).toHaveLength(4);
+    expect(purchases.every((p) => p.total === null && p.tax === null && p.currency === null)).toBe(
+      true,
+    );
+    const lines = await own<{ unit_price: string | null }>(
+      db,
+      'SELECT unit_price::text AS unit_price FROM public.purchase_lines WHERE location_id = $1',
+      [offLoc.id],
+    );
+    expect(lines).toHaveLength(4);
+    expect(lines.every((l) => l.unit_price === null)).toBe(true);
+    const audit = (await auditOf(db, offLoc.id)).filter((e) => e.action.startsWith('purchase'));
+    expect(audit).toHaveLength(8);
+    for (const e of audit) {
+      const diff = e.diff as Record<string, { after?: unknown } | undefined>;
+      for (const key of ['total', 'tax', 'currency', 'unit_price']) {
+        expect(diff[key]?.after ?? null, `${e.action} ${key}`).toBeNull();
+      }
+    }
+  });
+
+  it('counts those purchases in the check and in the run alike', () => {
+    expect(off.report.summary).toMatchObject({ things: 6, purchases: 4, asText: 4 });
+    expect(off.run.report?.summary).toMatchObject({ things: 6, purchases: 4, asText: 4 });
+  });
+
+  it('is unchanged where money is on', () => {
+    expect(on.run.status).toBe('done');
+    expect(on.report.rows.map((r) => r.status)).toEqual(['ok', 'ok', 'ok', 'text', 'text', 'text']);
+    expect(columnsOf(on.report, 3)).toEqual([['Price', 'needs_date']]);
+    expect(columnsOf(on.report, 5)).toEqual([
+      ['Price', 'not_price'],
+      ['Bought', 'purchase_incomplete'],
+    ]);
+    const [mower, rake, , , , fan] = onThings;
+    expect(mower).toMatchObject({
+      purchased_on: '2025-02-01',
+      vendor: 'Carrefour',
+      price: '5000.0000',
+      currency: 'EGP',
+      notes: null,
+    });
+    expect(rake).toMatchObject({ purchased_on: '2025-02-02', price: null, currency: null });
+    expect(fan).toMatchObject({ purchased_on: null, notes: 'Bought: 04/02/2025\nPrice: about 40' });
+    expect(on.report.summary).toMatchObject({ things: 6, purchases: 3, asText: 3 });
+    expect(on.run.report?.summary).toMatchObject({ things: 6, purchases: 3, asText: 3 });
   });
 });
 
@@ -891,24 +1026,52 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
   }, LONG);
 
   it(
-    'keeps a purchase date with no price as text under the preset, as the Homebox archive import does',
+    'makes a purchase from a date with a 0 or an empty price under the preset, as the Homebox archive import does',
     async () => {
-      const at = OLD.columns.indexOf('HB.purchase_time');
-      const name = OLD.columns.indexOf('HB.name');
-      const rows = OLD.rows
-        .filter((r) => r[name] === 'Toolbox')
-        .map((r) => r.map((c, i) => (i === at ? '2024-05-01' : c)));
+      // Toolbox's price is Homebox's 0 for none; Drill bits' is left empty, with a shop.
+      const col = (c: string) => OLD.columns.indexOf(c);
+      const set = (r: string[], patch: Record<string, string>) =>
+        r.map((c, i) => patch[OLD.columns[i] as string] ?? c);
+      const byName = (n: string) => OLD.rows.find((r) => r[col('HB.name')] === n) as string[];
+      expect(byName('Toolbox')[col('HB.purchase_price')]).toBe('0');
+      const rows = [
+        set(byName('Toolbox'), { 'HB.purchase_time': '2024-05-01' }),
+        set(byName('Drill bits'), {
+          'HB.purchase_time': '2024-05-02',
+          'HB.purchase_price': '',
+          'HB.purchase_from': 'Hardware Hub',
+        }),
+        set(byName('Spare router'), { 'HB.purchase_from': 'Hardware Hub' }),
+      ];
       const loc = await createLocation(t, db, ann, 'household', 'Homebox, dated, no price');
       const { report } = await importRows(ann, loc, rows, {
         columns: OLD.columns,
         mapping: mappingOf(OLD.columns),
         choices: hbChoices('in_use'),
       });
-      expect(report.rows[0]?.status).toBe('text');
-      expect(report.rows[0]?.issues).toContainEqual(
-        expect.objectContaining({ column: 'HB.purchase_time', code: 'needs_price' }),
-      );
-      expect(report.summary.purchases).toBe(0);
+      expect(report.rows.map((r) => r.status)).toEqual(['ok', 'ok', 'text']);
+      expect(report.summary.purchases).toBe(2);
+      const made = await thingsIn(loc);
+      const named = (n: string) => made.find((m) => m.name === n);
+      expect(named('Toolbox')).toMatchObject({
+        purchased_on: '2024-05-01',
+        price: null,
+        currency: null,
+        vendor: null,
+      });
+      expect(named('Toolbox')?.notes ?? '').not.toContain('2024-05-01');
+      expect(named('Drill bits')).toMatchObject({
+        purchased_on: '2024-05-02',
+        price: null,
+        currency: null,
+        vendor: 'Hardware Hub',
+      });
+      // A shop with no date still stays in the notes, and says why.
+      expect(report.rows[2]?.issues).toEqual([
+        expect.objectContaining({ column: 'HB.purchase_from', code: 'needs_date' }),
+      ]);
+      expect(named('Spare router')).toMatchObject({ purchased_on: null, vendor: null });
+      expect(named('Spare router')?.notes).toContain('HB.purchase_from: Hardware Hub');
     },
     LONG,
   );
@@ -1056,6 +1219,11 @@ describe('a Homebox spreadsheet export (the Homebox preset)', () => {
       const codes = report.rows.flatMap((r) => r.issues.map((i) => i.code));
       expect(codes).toContain('hb_needs_module');
       expect(codes).toContain('money_off');
+      // The preset keeps the whole purchase as text with money off, as the Homebox archive
+      // import does (homebox/plan.ts), so the two never disagree.
+      expect(report.summary.purchases).toBe(0);
+      expect(byName(rows, 'Cordless drill')?.notes).toContain('HB.purchase_time: 2023-03-14');
+      expect(byName(rows, 'Cordless drill')?.notes).toContain('HB.purchase_from: Hardware Hub');
     },
     LONG,
   );

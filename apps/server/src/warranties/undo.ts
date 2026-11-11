@@ -23,6 +23,9 @@ import {
 
 // Undo of warranties' and claims' changes (D124, D150), registered by
 // routes.ts:
+// - `warranty.create` (written undoable by a personal token or a tool, service.ts): the warranty
+//   goes, while it is as the event left it (no edit since) and has no claim and no document;
+//   else 409 `changed_since`. Its thing must still be here and live, as for a delete.
 // - `warranty.update`, `claim.update`, `claim.status`: each field the event changed goes back, if
 //   it still holds the event's `after` (else 409 `changed_since`, naming who). A claim's status
 //   goes back through the transition guard's undo path (`app.undo`, 0051), so a resolved claim
@@ -117,6 +120,57 @@ async function undoWarrantyUpdate(args: UndoArgs): Promise<void> {
     after: warrantyImage(after),
     subjects: [before.thing_id],
     rootThingId: before.thing_id,
+  });
+}
+
+async function undoWarrantyCreate(args: UndoArgs): Promise<void> {
+  const { event, client } = args;
+  const id = event.entityId;
+  if (event.entityType !== 'warranty' || !id) throw notUndoable();
+  const { rows } = await client.query<{ location_id: string }>(
+    'SELECT location_id FROM public.warranties WHERE id = $1 FOR UPDATE',
+    [id],
+  );
+  if (rows[0]?.location_id !== event.locationId) {
+    throw conflict("Can't undo: that warranty no longer exists.");
+  }
+  const row = await warrantyRow(client, id);
+  await requireThingHere(args, row.thing_id);
+  // Every field as the create left it: a field it left empty is not in its diff.
+  const now = warrantyImage(row);
+  const made = Object.fromEntries(
+    Object.keys(now).map((f) => [f, { after: event.diff[f]?.after ?? null }]),
+  );
+  const edited = changedSince(made, now);
+  const who = (type: string, entityId: string) =>
+    lastChangedBy(client, event.locationId, { type, id: entityId }, event.at);
+  if (edited.length > 0) throw undoConflict(edited, await who('warranty', id));
+  // Changed and changed back is still a change since.
+  const { rows: later } = await client.query<{ n: number }>(
+    `SELECT count(*)::int AS n FROM public.audit_events
+      WHERE location_id = $1 AND entity_type = 'warranty' AND entity_id = $2 AND at > $3`,
+    [event.locationId, id, event.at],
+  );
+  if ((later[0]?.n ?? 0) > 0) throw undoConflict(['warranty'], await who('warranty', id));
+  // A claim or a document on it is someone's work since: the delete would unlink or remove it.
+  const { rows: claims } = await client.query<{ id: string }>(
+    'SELECT id FROM public.claims WHERE warranty_id = $1 ORDER BY id LIMIT 1',
+    [id],
+  );
+  if (claims[0]) throw undoConflict(['claims'], await who('claim', claims[0].id));
+  const { rows: docs } = await client.query<{ id: string }>(
+    'SELECT id FROM public.attachments WHERE warranty_id = $1 ORDER BY id LIMIT 1',
+    [id],
+  );
+  if (docs[0]) throw undoConflict(['documents'], await who('attachment', docs[0].id));
+  await client.query('DELETE FROM public.warranties WHERE id = $1', [id]);
+  await args.audit({
+    action: 'warranty.create',
+    entity: { type: 'warranty', id },
+    before: now,
+    after: null,
+    subjects: [row.thing_id],
+    rootThingId: row.thing_id,
   });
 }
 
@@ -273,6 +327,7 @@ let registered = false;
 export function registerWarrantyUndo(): void {
   if (registered) return;
   registered = true;
+  registerUndo('warranty.create', undoWarrantyCreate);
   registerUndo('warranty.update', undoWarrantyUpdate);
   registerUndo('warranty.delete', undoWarrantyDelete);
   registerUndo('claim.update', undoClaimChange);

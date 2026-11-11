@@ -119,6 +119,51 @@ describe('log_service', () => {
     expect(row).toEqual({ notes: 'Wipers squeak in the rain.' });
   });
 
+  it('makes a new vendor a service centre, and leaves the kind of one Kept has', async () => {
+    const thing = await car('Vendor kind car');
+    const day = await today();
+    const made = await data(louis, 'log_service', {
+      location_id: home.id,
+      thing_id: thing,
+      serviced_on: day,
+      vendor: 'Nile Auto Care',
+    });
+    const vendorsNamed = (name: string) =>
+      own<{ id: string; kind: string }>(
+        db,
+        `SELECT id, kind FROM public.vendors
+          WHERE owner_account_id = $1 AND kept.normalize(name) = kept.normalize($2)`,
+        [home.accountId, name],
+      );
+    const vendorOf = async (serviceId: string) =>
+      (
+        await own<{ vendor_id: string }>(
+          db,
+          'SELECT vendor_id FROM public.service_records WHERE id = $1',
+          [serviceId],
+        )
+      )[0]?.vendor_id;
+    const nile = await vendorsNamed('Nile Auto Care');
+    expect(nile.map((v) => v.kind)).toEqual(['service_centre']);
+    expect(await vendorOf(made.service_id)).toBe(nile[0]?.id);
+
+    // A shop Kept already has, named for a service: the same vendor, still a store.
+    const [shop] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.vendors (owner_account_id, name, kind)
+       VALUES ($1, 'Corner Hardware', 'store') RETURNING id`,
+      [home.accountId],
+    );
+    const again = await data(louis, 'log_service', {
+      location_id: home.id,
+      thing_id: thing,
+      serviced_on: day,
+      vendor: 'corner hardware',
+    });
+    expect(await vendorsNamed('Corner Hardware')).toEqual([{ id: shop?.id, kind: 'store' }]);
+    expect(await vendorOf(again.service_id)).toBe(shop?.id);
+  });
+
   it('logs a confirmed service with its vendor, lines and total, completing a schedule, undoable', async () => {
     const thing = await car('Service car');
     const schedule = ok(

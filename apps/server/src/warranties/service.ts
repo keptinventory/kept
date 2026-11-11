@@ -40,7 +40,8 @@ import {
 //   409 `quantity_not_one`, "Split it first".
 // - Audited on the thing's timeline; `warranty.update` and `warranty.delete` are undoable
 //   (undo.ts). Deleting one leaves its claims without a warranty (the key is ON DELETE SET NULL);
-//   the event names them, so undo links them again.
+//   the event names them, so undo links them again. `warranty.create` is undoable when a personal
+//   token or a tool made it (`opts.undoable`), as their other creates; the app's are not.
 
 export type Ctx = {
   tx: Tx;
@@ -199,6 +200,7 @@ export async function createWarranty(
   ctx: Ctx,
   thingId: string,
   body: CreateWarrantyBody,
+  opts: { undoable?: boolean } = {},
 ): Promise<WarrantyView> {
   const { client } = ctx;
   const thing = await liveThing(client, thingId);
@@ -242,6 +244,7 @@ export async function createWarranty(
     subjects: [thingId],
     rootThingId: thingId,
     requestId: ctx.requestId,
+    ...(opts.undoable ? { undoableUntil: undoableUntil() } : {}),
   });
   return oneView(ctx, await gateFor(ctx.tx, thing.location_id, ctx.scope), id);
 }
