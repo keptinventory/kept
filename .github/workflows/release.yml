@@ -217,7 +217,7 @@ jobs:
           name: tarball-${{ matrix.arch }}
           path: ${{ runner.temp }}/tarballs/kept-*.tar.gz
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   publish:
     needs: [preflight, build]
