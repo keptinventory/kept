@@ -348,7 +348,12 @@ export async function insertThing(
 
   const { set: custom } = checkCustom(fields, body.custom ?? {});
   const money = moneyValues(fields, custom);
-  if ((money.length > 0 || body.purchase) && !gate.showMoney) throw moneyOff();
+  // Purchases are core (purchases/routes.ts): where money is hidden, a purchase keeps its date
+  // and shop, and only its price and currency are refused, as on POST /purchases.
+  const pricedPurchase =
+    body.purchase !== undefined &&
+    (body.purchase.price !== undefined || body.purchase.currency !== undefined);
+  if ((money.length > 0 || pricedPurchase) && !gate.showMoney) throw moneyOff();
   await requireCurrencies(
     client,
     money.map((m) => m.currency),

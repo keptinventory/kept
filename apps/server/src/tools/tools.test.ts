@@ -629,6 +629,47 @@ describe('every field a person can set, through add_thing and update_thing', () 
     });
   });
 
+  it('add_thing records a date and a shop where Money is off, and still refuses a price there', async () => {
+    const d = await data(louis, 'add_thing', {
+      location_id: garage.id,
+      items: [{ name: 'Garage lamp', purchase: { purchased_on: '2026-08-17', shop: 'Souq' } }],
+    });
+    expect(await fullRow(d.things[0].id)).toMatchObject({
+      bought: '2026-08-17',
+      currency: null,
+      price: null,
+      shop: 'Souq',
+    });
+    const env = await tool(louis, 'add_thing', {
+      location_id: garage.id,
+      items: [
+        {
+          name: 'Garage kettle',
+          purchase: { purchased_on: '2026-08-17', price: '10', currency: 'EGP' },
+        },
+      ],
+    });
+    // The tool answers a module that is off as tool_unavailable (D113); the route says module_off.
+    expect(env).toMatchObject({ error: 'tool_unavailable' });
+    const route = await call(t, '/api/v1/things', {
+      as: louis,
+      body: {
+        locationId: garage.id,
+        placeId: garage.unplacedId,
+        name: 'Garage kettle',
+        purchase: { purchasedOn: '2026-08-17', price: '10', currency: 'EGP' },
+      },
+    });
+    expect(route.statusCode).toBe(409);
+    expect(route.json().code).toBe('module_off');
+    const [n] = await own<{ n: number }>(
+      db,
+      `SELECT count(*)::int AS n FROM public.things WHERE location_id = $1 AND name = 'Garage kettle'`,
+      [garage.id],
+    );
+    expect(n?.n).toBe(0);
+  });
+
   it('add_thing takes a price with its currency, or neither, as POST /things does', async () => {
     const shapes: { purchase: Record<string, string>; takes: boolean }[] = [
       { purchase: { purchased_on: '2026-08-15' }, takes: true },

@@ -316,17 +316,59 @@ describe('POST /api/v1/things', () => {
       });
       expect(half.statusCode).toBe(400);
     }
-    // Where money is off, a purchase is still refused, priced or not (unchanged).
-    const off = await call(t, '/api/v1/things', {
+  });
+
+  it('with money off, makes a purchase with a date and a shop and refuses a price, as POST /purchases does', async () => {
+    // Purchases are core (purchases/routes.ts): Essentials has no money module, so only the
+    // money is refused there.
+    const [vendor] = await own<{ id: string }>(
+      db,
+      `INSERT INTO public.vendors (owner_account_id, name, kind) VALUES ($1, 'Hardware Hub', 'store')
+       RETURNING id`,
+      [basic.accountId],
+    );
+    const made = await createThing(t, mo, basic, {
+      name: 'Rake',
+      purchase: { purchasedOn: '2026-08-15', vendorId: vendor?.id },
+    });
+    expect(made.purchase).toMatchObject({
+      purchasedOn: '2026-08-15',
+      vendor: { id: vendor?.id, name: 'Hardware Hub' },
+      moneyHidden: true,
+    });
+    const [stored] = await own<{
+      currency: string | null;
+      total: string | null;
+      unit_price: string | null;
+    }>(
+      db,
+      `SELECT pu.currency::text AS currency, pu.total::text AS total, pl.unit_price::text AS unit_price
+         FROM public.things t JOIN public.purchase_lines pl ON pl.id = t.purchase_line_id
+         JOIN public.purchases pu ON pu.id = pl.purchase_id WHERE t.id = $1`,
+      [made.id],
+    );
+    expect(stored).toEqual({ currency: null, total: null, unit_price: null });
+    const actions = await own<{ action: string }>(
+      db,
+      `SELECT action FROM public.audit_events WHERE location_id = $1 AND root_thing_id = $2`,
+      [basic.id, made.id],
+    );
+    expect(actions.map((a) => a.action)).toEqual(
+      expect.arrayContaining(['purchase.create', 'purchase_line.create', 'thing.create']),
+    );
+
+    // A price there is still refused, not silently dropped.
+    const priced = await call(t, '/api/v1/things', {
       as: mo,
       body: {
         locationId: basic.id,
         placeId: basic.unplacedId,
-        name: 'Gift lamp',
-        purchase: { purchasedOn: '2026-08-15' },
+        name: 'Rake',
+        purchase: { purchasedOn: '2026-08-15', currency: 'EGP', price: '10' },
       },
     });
-    expect(off.statusCode).toBe(409);
+    expect(priced.statusCode).toBe(409);
+    expect(priced.json().code).toBe('module_off');
   });
 
   it('refuses a purchase date in the future and a disabled currency', async () => {
