@@ -200,6 +200,61 @@ describe('/mcp', () => {
     );
   });
 
+  it('offers change_lifecycle to a member’s write token, not a viewer’s read token; it ends a thing as the token, undoably', async () => {
+    const read = await connect((await token(talia, 'read', [home.id])).secret);
+    expect((await read.listTools()).tools.map((x) => x.name)).not.toContain('change_lifecycle');
+
+    const { token: made, secret } = await token(louis, 'write', [home.id]);
+    const client = await connect(secret);
+    const listed = (await client.listTools()).tools.find((x) => x.name === 'change_lifecycle');
+    expect(listed?.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false });
+    const tent = await createThing(t, louis, home, { name: 'Old tent' });
+    const res = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { thing_id: tent.id, lifecycle: 'given_away', ended_to: 'Murdock' },
+    });
+    const body = answer(res);
+    expect(res.isError, JSON.stringify(body)).toBeFalsy();
+    expect(body.data).toMatchObject({ lifecycle: 'given_away', thing: { id: tent.id } });
+    expect((body.data as Json).undo_until).toBeTruthy();
+    const events = await own<{ action: string }>(
+      db,
+      `SELECT action FROM public.audit_events
+        WHERE actor_type = 'token' AND actor_id = $1 AND entity_id = $2`,
+      [made.id, tent.id],
+    );
+    expect(events).toEqual([{ action: 'thing.lifecycle' }]);
+    const [live] = await own<{ lifecycle: string; deleted_at: Date | null }>(
+      db,
+      'SELECT lifecycle, deleted_at FROM public.things WHERE id = $1',
+      [tent.id],
+    );
+    expect(live).toEqual({ lifecycle: 'given_away', deleted_at: null });
+  });
+
+  it('keeps change_lifecycle in the token’s locations, though its creator reaches more', async () => {
+    // Ibrahim owns Home and Office (both with MCP on); his token holds Home only.
+    const client = await connect((await token(ibrahim, 'write', [home.id])).secret);
+    const chair = await createThing(t, ibrahim, office, { name: 'Desk chair' });
+    const res = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { location_id: office.id, thing_id: chair.id, lifecycle: 'disposed' },
+    });
+    expect(res.isError).toBe(true);
+    const bare = await client.callTool({
+      name: 'change_lifecycle',
+      arguments: { thing_id: chair.id, lifecycle: 'disposed' },
+    });
+    expect(bare.isError).toBe(true);
+    expect(answer(bare)).toMatchObject({ error: 'not_found' });
+    const [live] = await own<{ lifecycle: string }>(
+      db,
+      'SELECT lifecycle FROM public.things WHERE id = $1',
+      [chair.id],
+    );
+    expect(live?.lifecycle).toBe('in_use');
+  });
+
   it('refuses a token per call once its creator loses the role, in Kept’s words', async () => {
     const peter = await person(t, db, 'louis-two');
     const membership = await join(db, home.id, peter.userId, 'member');

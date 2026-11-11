@@ -429,9 +429,9 @@ export async function insertThing(
                                 brand_id, model, serial, barcode, colour, condition, notes,
                                 aliases, belongs_to_person_id, purchase_line_id, manual_url,
                                 expires_on, expiry_lead_days, custom, created_via, review_state,
-                                field_status, capture_batch_id)
+                                field_status, capture_batch_id, acquired_from)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
-             $19, $20, $21, $25, $22, $23, $24)`,
+             $19, $20, $21, $25, $22, $23, $24, $26)`,
     [
       id,
       locationId,
@@ -458,6 +458,7 @@ export async function insertThing(
       JSON.stringify(extras.fieldStatus ?? {}),
       extras.captureBatchId?.toLowerCase() ?? null,
       extras.createdVia ?? 'app',
+      body.acquiredFrom ?? null,
     ],
   );
   if (body.tagIds?.length) await setTags(client, locationId, id, body.tagIds);
