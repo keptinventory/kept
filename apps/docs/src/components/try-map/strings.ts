@@ -98,7 +98,7 @@ export const MODEL_NAMES: Record<MapModelKey, Two> = {
   rack_42u: ['Server rack 42U', 'خزانة سيرفر ٤٢ وحدة'],
   box: ['Storage box', 'صندوق تخزين'],
   washer: ['Washing machine', 'غسالة'],
-  water_purifier: ['Water purifier', 'جهاز تنقية المياه'],
+  water_purifier: ['Water purifier', 'جهاز تنقية مياه'],
   workbench: ['Workbench', 'طاولة عمل'],
   tool_wall: ['Tool wall', 'جدار الأدوات'],
   wall_tv: ['Wall TV', 'تلفزيون حائط'],

@@ -29299,4 +29299,4 @@ msgstr "تغيّرت وحدة العدّاد"
 
 #: src/map/labels.ts
 msgid "Water purifier"
-msgstr "جهاز تنقية المياه"
+msgstr "جهاز تنقية مياه"

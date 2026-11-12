@@ -283,7 +283,7 @@ const pack: Pack = {
     rack_42u: 'Serverschrank 42 HE',
     box: 'Aufbewahrungsbox',
     washer: 'Waschmaschine',
-    water_purifier: 'Wasserfilter',
+    water_purifier: 'Wasserfilteranlage',
     workbench: 'Werkbank',
     tool_wall: 'Werkzeugwand',
     wall_tv: 'Wandfernseher',

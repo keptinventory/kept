@@ -29299,4 +29299,4 @@ msgstr "Zählereinheit geändert"
 
 #: src/map/labels.ts
 msgid "Water purifier"
-msgstr "Wasserfilter"
+msgstr "Wasserfilteranlage"
