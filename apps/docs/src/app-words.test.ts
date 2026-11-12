@@ -25,3 +25,62 @@ describe('the app’s words in the docs', () => {
     },
   );
 });
+
+/** The "Capture and the Inbox" section of everyday use, by its heading in each language (#508). */
+const CAPTURE_HEADING: Record<Lang, string> = {
+  en: '## Capture and the Inbox',
+  ar: '## الالتقاط والوارد',
+  de: '## Erfassen und der Eingang',
+  es: '## Capturar y la bandeja de entrada',
+  fr: '## La capture et la Réception',
+  it: '## Acquisire e In arrivo',
+  uk: '## Додавання та Вхідні',
+  vi: '## Chụp và Hộp thư đến',
+};
+
+/** The labels the section quotes, as the app's English strings (its catalogue's msgids). */
+const CAPTURE_WORDS = [
+  'Capture',
+  'Draft',
+  'Inbox',
+  'Home',
+  'Insights',
+  'Drafts',
+  'Unnamed thing',
+  'Edit',
+  'Save',
+  'Confirm',
+  'Reject',
+  'Move',
+  'Set type',
+  'More',
+  'Accept',
+  'Discard',
+  'Accept names',
+];
+
+function section(text: string, heading: string): string {
+  const at = text.indexOf(`\n${heading}\n`);
+  expect(at, heading).toBeGreaterThan(-1);
+  const rest = text.slice(at + heading.length + 2);
+  const end = rest.indexOf('\n## ');
+  return end === -1 ? rest : rest.slice(0, end);
+}
+
+describe('Draft and finishing a capture in the Inbox (#508)', () => {
+  it.each(LANGS)('everyday use quotes each label as the app shows it, in %s', (lang) => {
+    const text = section(page(lang, 'users/everyday-use.md'), CAPTURE_HEADING[lang]);
+    for (const word of CAPTURE_WORDS) expect(text, word).toContain(`**${appWord(lang, word)}**`);
+  });
+
+  it.each(LANGS)('the glossary has Draft, in the app’s word, in %s', (lang) => {
+    const glossary = page(lang, 'users/glossary.md');
+    expect(glossary).toContain(`\n**${appWord(lang, 'Draft')}**`);
+    expect(glossary).toContain(
+      `${lang === 'en' ? '' : `/${lang}`}/users/everyday-use/#${CAPTURE_HEADING[lang]
+        .slice(3)
+        .toLowerCase()
+        .replaceAll(' ', '-')}`,
+    );
+  });
+});

@@ -43,6 +43,37 @@ sections pour ce qu'il suit : **Détails**, **Documents et garanties**, **Valeur
 **Prêts**, **Réclamations**, **Liens**, **Échéances** et **Historique**. Les sections dont le
 module est désactivé dans le lieu ne s'affichent pas.
 
+## La capture et la Réception
+
+**Capture**, l'onglet du milieu sur un téléphone, enregistre un objet à partir de sa photo, à
+l'emplacement qu'indique la puce en haut. Avec un fournisseur d'IA, Kept lit la photo et remplit ce
+qu'il peut ; sans fournisseur, l'objet attend un nom. Dans les deux cas, il commence en brouillon.
+
+### Ce que veut dire Brouillon
+
+Un objet marqué **Brouillon** est enregistré, à son emplacement, avec sa photo et son ID court,
+mais personne ne l'a encore vérifié. Tant qu'il n'est pas accepté, il attend dans la **Réception**,
+les totaux de l'**Accueil** et des **Statistiques** l'ignorent, et la recherche le liste avec le
+filtre **Brouillon**. Le modifier sur sa propre page ne le termine pas ; c'est la Réception qui le
+fait.
+
+### Terminer une capture dans la Réception
+
+1. **Ouvrez la Réception** : l'onglet après **Capture** sur un téléphone, ou **Réception** dans la
+   barre latérale. **Brouillons** n'affiche que les brouillons.
+2. **Choisissez-le.** Sur un ordinateur, choisissez-le dans la liste et il s'ouvre à côté. Sur un
+   téléphone, chaque brouillon est une carte de la liste.
+3. **Vérifiez ses champs.** Un brouillon sans nom s'affiche comme **Objet sans nom** :
+   **Modifier**, tapez le nom, puis **Enregistrer**. Les valeurs que l'IA a lues sans les remplir
+   attendent comme suggestions : **Confirmer** ou **Refuser**, une par une. **Déplacer** et
+   **Définir le type** corrigent son emplacement et son type (sous **Plus** sur un téléphone).
+4. **Accepter** ou **Rejeter**. **Accepter** le termine, une fois qu'il a un nom et que chaque
+   suggestion est confirmée ou refusée ; **Enregistrer** après **Modifier** le termine aussi.
+   **Rejeter** l'envoie à la corbeille avec ses photos, où il peut être restauré pendant 30 jours.
+
+Pour en terminer plusieurs à la fois, cochez-les, puis **Accepter les noms**. Les brouillons sans
+nom, ou avec des valeurs à confirmer, restent à vérifier.
+
 ## ID courts et étiquettes
 
 Détails complets : [ID courts et étiquettes](/fr/users/short-ids/).

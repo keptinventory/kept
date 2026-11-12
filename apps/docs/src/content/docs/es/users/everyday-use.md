@@ -44,6 +44,36 @@ que rastrea: **Detalles**, **Documentos y garantías**, **Valor**, **Medidores**
 **Reclamos**, **Enlaces**, **Horarios** y **Historial**. Las secciones cuyo módulo está desactivado
 en la ubicación no se muestran.
 
+## Capturar y la bandeja de entrada
+
+**Capturar**, la pestaña central en el teléfono, guarda un objeto a partir de su foto en el lugar
+que indica la etiqueta de arriba. Con un proveedor de IA, Kept lee la foto y completa lo que puede;
+sin uno, el objeto espera un nombre. En ambos casos empieza como borrador.
+
+### Qué significa Borrador
+
+Un objeto marcado como **Borrador** está guardado, en su lugar, con su foto y su ID corto, pero
+nadie lo ha revisado todavía. Hasta que se acepta, espera en la **Bandeja de entrada**, los totales
+de **Inicio** y de **Perspectivas** lo dejan fuera, y la búsqueda lo muestra con el filtro
+**Borrador**. Editarlo en su propia página no lo termina; eso lo hace la bandeja de entrada.
+
+### Terminar una captura en la bandeja de entrada
+
+1. **Abre la bandeja de entrada**: la pestaña después de **Capturar** en el teléfono, o **Bandeja
+   de entrada** en la barra lateral. **Borradores** muestra solo los borradores.
+2. **Elígelo.** En una computadora, elígelo en la lista y se abre al lado. En el teléfono, cada
+   borrador es una tarjeta de la lista.
+3. **Revisa sus campos.** Un borrador sin nombre aparece como **Objeto sin nombre**: **Editar**,
+   escribe el nombre y luego **Guardar**. Los valores que la IA leyó pero no completó esperan como
+   sugerencias: **Confirmar** o **Rechazar** cada uno. **Mover** y **Definir tipo** corrigen su
+   lugar y su tipo (en **Más** en el teléfono).
+4. **Aceptar** o **Descartar**. **Aceptar** lo termina, cuando tiene nombre y cada sugerencia está
+   confirmada o rechazada; **Guardar** después de **Editar** también lo termina. **Descartar** lo
+   manda a la papelera con sus fotos, donde se puede restaurar durante 30 días.
+
+Para terminar varios a la vez, márcalos y luego **Aceptar nombres**. Los borradores sin nombre, o
+con valores por confirmar, quedan para que los revises.
+
 ## IDs cortos y etiquetas
 
 Detalle completo: [IDs cortos y etiquetas](/es/users/short-ids/).

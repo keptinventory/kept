@@ -36,6 +36,37 @@ Full detail: [things](/users/things/).
 A thing's page has its photos, its name and **ID**, its full path, and sections for what it
 tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loans**, **Claims**,
 **Links**, **Schedules** and **History**. Sections whose module is off in the location don't show.
+
+## Capture and the Inbox
+
+**Capture**, the middle tab on a phone, saves a thing from its photo in the place the chip at the
+top names. With an AI provider, Kept reads the photo and fills in what it can; without one, the
+thing waits for a name. Either way, it starts as a draft.
+
+### What Draft means
+
+A thing marked **Draft** is saved, in its place, with its photo and short ID, but nobody has
+checked it yet. Until it's accepted, it waits in the **Inbox**, the totals on **Home** and in
+**Insights** leave it out, and Search lists it under the **Draft** filter. Editing it on its own
+page doesn't finish it; the Inbox does.
+
+### Finishing a capture in the Inbox
+
+1. **Open the Inbox**: the tab after **Capture** on a phone, or **Inbox** in the sidebar.
+   **Drafts** shows only drafts.
+2. **Choose it.** On a computer, pick it in the list and it opens beside it. On a phone, each
+   draft is a card in the list.
+3. **Check its fields.** A draft with no name shows as **Unnamed thing**: **Edit**, type the
+   name, then **Save**. Values AI read but didn't fill in wait as suggestions: **Confirm** or
+   **Reject** each one. **Move** and **Set type** fix its place and type (under **More** on a
+   phone).
+4. **Accept** or **Discard**. **Accept** finishes it, once it has a name and every suggestion is
+   confirmed or rejected; **Save** after **Edit** finishes it too. **Discard** moves it to the
+   Trash with its photos, where it can be restored for 30 days.
+
+To finish several at once, tick them, then **Accept names**. Drafts with no name, or with values
+to confirm, stay for you to review.
+
 ## Short IDs and labels
 
 Full detail: [short IDs and labels](/users/short-ids/).

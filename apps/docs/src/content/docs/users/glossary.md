@@ -50,6 +50,10 @@ box on a shelf. A container is a thing, not a place.
 is kept, with what was found and what was missing. Also called a stocktake.
 [Counts and stocktakes](/users/counts/)
 
+## D
+
+**Draft**: a thing Capture saved that nobody has reviewed yet. It waits in the Inbox until it is accepted or discarded. [Capture and the Inbox](/users/everyday-use/#capture-and-the-inbox)
+
 ## F
 
 **Furniture**: a place kind for storage furniture added with its compartments in one step: a cube

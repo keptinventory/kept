@@ -50,6 +50,10 @@ scatola su un ripiano. Un contenitore è un oggetto, non un posto.
 è conservata, con ciò che è stato trovato e ciò che mancava. Chiamata anche inventario.
 [Conte e inventari](/it/users/counts/)
 
+## D
+
+**Bozza**: un oggetto salvato da Acquisisci che nessuno ha ancora controllato. Attende in In arrivo finché non viene accettato o scartato. [Acquisire e In arrivo](/it/users/everyday-use/#acquisire-e-in-arrivo)
+
 ## F
 
 **Mobili**: un tipo di posto per mobili contenitori aggiunti con i loro comparti in un passaggio: una scaffalatura a cubi,

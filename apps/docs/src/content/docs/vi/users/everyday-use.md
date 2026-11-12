@@ -25,6 +25,24 @@ Trên máy tính (cửa sổ rộng 1024 pixel trở lên), **Bảng** của m�
 Chi tiết đầy đủ: [đồ vật](/vi/users/things/).
 
 Trang của một đồ vật có ảnh của nó, tên và **ID** của nó, đường dẫn đầy đủ của nó, và các phần cho những gì nó theo dõi: **Chi tiết**, **Giấy tờ và bảo hành**, **Giá trị**, **Đồng hồ đo**, **Lượt mượn**, **Yêu cầu bảo hành**, **Liên kết**, **Lịch trình** và **Lịch sử**. Những phần mà mô-đun bị tắt ở địa điểm thì không hiển thị.
+
+## Chụp và Hộp thư đến
+
+**Chụp**, thẻ ở giữa trên điện thoại, lưu một đồ vật từ ảnh của nó vào vị trí mà nhãn ở trên cùng ghi. Với nhà cung cấp AI, Kept đọc ảnh và điền những gì có thể; nếu không có, đồ vật đợi được đặt tên. Dù cách nào, nó cũng bắt đầu là bản nháp.
+
+### Bản nháp nghĩa là gì
+
+Một đồ vật được đánh dấu **Bản nháp** đã được lưu, ở đúng vị trí, với ảnh và ID ngắn, nhưng chưa ai kiểm tra nó. Cho đến khi được chấp nhận, nó đợi trong **Hộp thư đến**, các tổng số ở **Trang chủ** và **Thống kê** không tính nó, và Tìm kiếm liệt kê nó với bộ lọc **Bản nháp**. Sửa nó trên trang riêng của nó không hoàn tất nó; Hộp thư đến mới làm việc đó.
+
+### Hoàn tất một lần chụp trong Hộp thư đến
+
+1. **Mở Hộp thư đến**: thẻ sau **Chụp** trên điện thoại, hoặc **Hộp thư đến** ở thanh bên. Lọc **Bản nháp** chỉ hiện các bản nháp.
+2. **Chọn nó.** Trên máy tính, chọn nó trong danh sách và nó mở ra bên cạnh. Trên điện thoại, mỗi bản nháp là một thẻ trong danh sách.
+3. **Kiểm tra các trường.** Bản nháp chưa có tên hiện là **Đồ vật không tên**: **Sửa**, gõ tên, rồi **Lưu**. Các giá trị AI đọc được nhưng không tự điền sẽ chờ dưới dạng gợi ý: **Xác nhận** hoặc **Từ chối** từng cái. **Di chuyển** và **Đặt loại** sửa vị trí và loại của nó (trong **Thêm** trên điện thoại).
+4. **Chấp nhận** hoặc **Hủy bỏ**. **Chấp nhận** hoàn tất nó, khi nó đã có tên và mọi gợi ý đã được xác nhận hoặc từ chối; **Lưu** sau **Sửa** cũng hoàn tất nó. **Hủy bỏ** chuyển nó vào thùng rác cùng các ảnh, nơi có thể khôi phục trong 30 ngày.
+
+Để hoàn tất nhiều cái cùng lúc, đánh dấu chúng, rồi **Chấp nhận tên**. Bản nháp chưa có tên, hoặc còn giá trị cần xác nhận, vẫn đợi bạn xem lại.
+
 ## ID ngắn và nhãn
 
 Chi tiết đầy đủ: [ID ngắn và nhãn](/vi/users/short-ids/).
