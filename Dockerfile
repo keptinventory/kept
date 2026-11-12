@@ -153,6 +153,7 @@ RUN chmod 0644 /usr/share/keyrings/pgdg.asc \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       postgresql-client-18=18.6-1.pgdg12+2 \
+      postgresql-client-common=294.pgdg12+2 \
       openssh-client=1:9.2p1-2+deb12u10 \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
 
@@ -197,12 +198,14 @@ RUN dpkg --purge --force-depends perl libperl5.36 perl-modules-5.36 \
 # server, postgresql-common and pgvector come from the same PGDG repository and key as the client,
 # each pinned to the version in bookworm-pgdg's index for both amd64 and arm64 (read 2026-10-28:
 # postgresql-18 18.6-1.pgdg12+2, the client's own; postgresql-18-pgvector 0.8.7-1.pgdg12+1;
-# postgresql-common 293.pgdg12+1, Architecture: all). Perl and locales come back as their
+# postgresql-common 294.pgdg12+2, Architecture: all; read again 2026-11-12, when PGDG moved
+# postgresql-client-common to 294 and the unpinned client-common no longer matched common 293, so
+# client-common is now pinned with the client in os-base). Perl and locales come back as their
 # dependencies. postgresql-common is installed first and told to make no cluster: the app's start
 # script makes its own under /data (docker/ha/kept-ha-start), and nothing may live outside /data.
 FROM os-base AS ha-os
 RUN apt-get update \
- && apt-get install -y --no-install-recommends postgresql-common=293.pgdg12+1 \
+ && apt-get install -y --no-install-recommends postgresql-common=294.pgdg12+2 \
  && sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
  && apt-get install -y --no-install-recommends \
       postgresql-18=18.6-1.pgdg12+2 \
