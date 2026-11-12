@@ -31279,3 +31279,7 @@ msgstr "Перераховані показники"
 #: src/components/history/labels.ts
 msgid "Meter unit changed"
 msgstr "Одиницю лічильника змінено"
+
+#: src/map/labels.ts
+msgid "Water purifier"
+msgstr "Очищувач води"

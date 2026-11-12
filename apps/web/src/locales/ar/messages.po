@@ -29296,3 +29296,7 @@ msgstr "القراءات المحوّلة"
 #: src/components/history/labels.ts
 msgid "Meter unit changed"
 msgstr "تغيّرت وحدة العدّاد"
+
+#: src/map/labels.ts
+msgid "Water purifier"
+msgstr "جهاز تنقية المياه"

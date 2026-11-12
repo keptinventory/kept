@@ -29296,3 +29296,7 @@ msgstr "Relevés convertis"
 #: src/components/history/labels.ts
 msgid "Meter unit changed"
 msgstr "Unité du compteur modifiée"
+
+#: src/map/labels.ts
+msgid "Water purifier"
+msgstr "Purificateur d’eau"

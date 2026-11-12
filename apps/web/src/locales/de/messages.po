@@ -29296,3 +29296,7 @@ msgstr "Umgerechnete Zählerstände"
 #: src/components/history/labels.ts
 msgid "Meter unit changed"
 msgstr "Zählereinheit geändert"
+
+#: src/map/labels.ts
+msgid "Water purifier"
+msgstr "Wasserfilter"
