@@ -29,3 +29,8 @@ overrides:
   'undici@>=8.0.0 <8.12.2': ^8.12.2
   # @serwist/build and @serwist/vite pin zod exactly (4.4.3; still 4.6.5 in 9.5.13, their latest).
   'zod@>=4.0.0 <4.6.6': ^4.6.6
+  # GHSA-3g3m-2fjr-6pw4 and GHSA-g3hv-75wg-m249 (Dependabot #76, #78): glob 9.0.0 to 14.0.1 and
+  # minimatch 7.0.0 to 11.0.0, via @fastify/static, @fastify/otel and @serwist's build (which pins
+  # glob 13.0.6). Both keep their named exports and require() entry, which those packages use.
+  'glob@>=9.0.0 <14.0.2': 14.0.2
+  'minimatch@>=7.0.0 <11.0.1': 11.0.1
