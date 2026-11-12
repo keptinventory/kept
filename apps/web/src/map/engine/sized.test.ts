@@ -111,11 +111,17 @@ describe('a bookcase drawn with its levels (#241)', () => {
 });
 
 describe('a shelving unit drawn with its shelves (#485)', () => {
-  it('stands 90 × 50 × 180 cm with 5 shelves at first, as its model', () => {
+  it('stands 90 × 50 × 180 cm with 4 shelves at first, as its model', () => {
     const { boards, spaces } = partsOf('shelving_unit');
     expect(bounds(boards)).toEqual({ w: 90, h: 180, d: 50, floor: 0 });
-    expect(boards.filter((b) => b.part === 'shelf')).toHaveLength(5);
-    expect(spaces).toHaveLength(5);
+    expect(boards.filter((b) => b.part === 'shelf')).toHaveLength(4);
+    expect(spaces).toHaveLength(4);
+  });
+
+  it('gives the top shelf 40 cm at most, however far apart the shelves', () => {
+    const { spaces } = partsOf('shelving_unit_90x50x300_2');
+    expect((spaces.at(-1) as Box).h).toBeLessThanOrEqual(0.4);
+    expect((spaces.at(0) as Box).h).toBeGreaterThan(2);
   });
 
   it.each([2, 4, 6, 12])(

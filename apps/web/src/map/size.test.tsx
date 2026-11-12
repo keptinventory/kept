@@ -137,12 +137,12 @@ describe('SizeFields: a bookcase (#241)', () => {
 });
 
 describe('SizeFields: a shelving unit (#485)', () => {
-  it('shows its size in centimetres and its shelves, 90 × 50 × 180 with 5 at first', async () => {
+  it('shows its size in centimetres and its shelves, 90 × 50 × 180 with 4 at first', async () => {
     await renderUI(<SizeFields model="shelving_unit" onModel={vi.fn()} />);
     expect(value('Width')).toBe('90 cm');
     expect(value('Depth')).toBe('50 cm');
     expect(value('Height')).toBe('180 cm');
-    expect(value('Shelves')).toBe('5');
+    expect(value('Shelves')).toBe('4');
     expect(screen.queryByRole('textbox', { name: 'Levels' })).toBeNull();
     expectLogicalOnly();
   });
@@ -153,7 +153,7 @@ describe('SizeFields: a shelving unit (#485)', () => {
     const depth = screen.getByRole('textbox', { name: 'Depth' });
     await user.clear(depth);
     await user.type(depth, '80{Enter}');
-    expect(onModel).toHaveBeenLastCalledWith('shelving_unit_90x80x180_5');
+    expect(onModel).toHaveBeenLastCalledWith('shelving_unit_90x80x180_4');
     const shelves = screen.getByRole('textbox', { name: 'Shelves' });
     await user.clear(shelves);
     await user.type(shelves, '1{Enter}');

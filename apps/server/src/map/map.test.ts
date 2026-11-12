@@ -442,10 +442,10 @@ describe('PUT /api/v1/locations/:id/layout', () => {
     );
     const version = (res.json() as { version: string }).version;
     for (const model of [
-      'shelving_unit_90x50x180_5', // its first size is the bare key
+      'shelving_unit_90x50x180_4', // its first size is the bare key
       'shelving_unit_90x50x40_3', // three shelves in 40 cm
       'shelving_unit_90x50x180_1',
-      'shelving_unit_90x81x180_5',
+      'shelving_unit_90x81x180_4',
     ]) {
       const bad = { ...base, version, nodes: [{ ...base.nodes[0], model }] };
       const r = await putLayout(ola, bad);

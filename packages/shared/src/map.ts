@@ -221,7 +221,7 @@ export const MAP_MODELS = {
   /** A bookcase drawn from its size, 80 × 28 × 202 cm, with 6 levels. */
   bookcase: { w: 0.8, d: 0.28, h: 2.02, kind: 'storage', holds: true },
   /** A shelving unit drawn from its size (#485): four posts and its shelves, open on every side;
-   * 90 × 50 × 180 cm with 5 shelves. */
+   * 90 × 50 × 180 cm with 4 shelves, as the built-in shelving unit template has. */
   shelving_unit: { w: 0.9, d: 0.5, h: 1.8, kind: 'storage', holds: true },
   lamp: { w: 0.4, d: 0.4, kind: 'thing' },
   counter: { w: 1.8, d: 0.62, kind: 'furniture', top: 0.92, holds: true },
@@ -422,7 +422,7 @@ export const SHELVING_UNIT = {
   d: [15, 80],
   h: [40, 300],
   shelves: [2, 12],
-  start: { w: 90, d: 50, h: 180, shelves: 5 },
+  start: { w: 90, d: 50, h: 180, shelves: 4 },
 } as const;
 
 /** A cube shelf's side in centimetres for `n` cubes. */

@@ -508,15 +508,15 @@ describe('a shelving unit sized by its width, depth, height and shelves (#485)',
     return [m.w, m.d, m.h ?? 0].map((v) => Math.round(v * 100));
   };
 
-  it('starts at 90 × 50 × 180 cm with 5 shelves, and takes the request’s sizes', () => {
-    expect(SHELVING_UNIT.start).toEqual({ w: 90, d: 50, h: 180, shelves: 5 });
+  it('starts at 90 × 50 × 180 cm with 4 shelves, and takes the request’s sizes', () => {
+    expect(SHELVING_UNIT.start).toEqual({ w: 90, d: 50, h: 180, shelves: 4 });
     expect(size('shelving_unit')).toEqual([90, 50, 180]);
     expect(sizedOf('shelving_unit')).toEqual({
       base: 'shelving_unit',
       w: 90,
       d: 50,
       h: 180,
-      shelves: 5,
+      shelves: 4,
     });
     const garage = sizedKey({ base: 'shelving_unit', w: 120, d: 60, h: 200, shelves: 4 });
     expect(garage).toBe('shelving_unit_120x60x200_4');
@@ -540,13 +540,13 @@ describe('a shelving unit sized by its width, depth, height and shelves (#485)',
       expect(key).toMatch(/^[a-z][a-z0-9_]{0,39}$/);
     }
     for (const key of [
-      'shelving_unit_90x50x180_5', // the first size is spelled bare
+      'shelving_unit_90x50x180_4', // the first size is spelled bare
       'shelving_unit_90x50x180_1', // two shelves at least: the bottom one and the top
       'shelving_unit_90x50x40_3', // three shelves in 40 cm
-      'shelving_unit_29x50x180_5',
-      'shelving_unit_90x81x180_5',
-      'shelving_unit_90x50x301_5',
-      'shelving_unit_090x50x180_5',
+      'shelving_unit_29x50x180_4',
+      'shelving_unit_90x81x180_4',
+      'shelving_unit_90x50x301_4',
+      'shelving_unit_090x50x180_4',
       'shelving_unit_90x50',
       'shelving_unit_90x50x180',
     ])
