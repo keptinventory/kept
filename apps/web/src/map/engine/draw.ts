@@ -1208,20 +1208,20 @@ export function drawnModels(F: Materials): Record<string, Build> {
      * display, the tap under it and a brass handle on top.
      */
     water_purifier(g, w, d) {
-      const top = 1.02;
+      const top = 1.088;
       rb(g, w - 0.02, 0.03, d - 0.03, w / 2, 0.015, (d - 0.03) / 2, F.black, 0);
       rb(g, w, top - 0.03, d, w / 2, (top + 0.03) / 2, d / 2, F.graphite, 0.012);
-      rb(g, w - 0.01, 0.012, 0.004, w / 2, 0.6, d + 0.002, F.brass, 0.002);
+      rb(g, w - 0.01, 0.027, 0.004, w / 2, 0.62, d + 0.002, F.brass, 0.002);
       rb(g, w, 0.012, d, w / 2, top + 0.006, d / 2, F.blackGloss, 0.004);
       rb(g, w - 0.08, 0.02, 0.003, w / 2, top - 0.022, d + 0.0015, F.screen, 0.002);
       for (const k of [-1, 0, 1]) sp(g, 0.003, w / 2 + k * 0.03, top - 0.022, d + 0.003, F.glow);
-      const panel = 0.23;
+      const panel = 0.18;
       const py = top + 0.012 + panel / 2;
       rb(g, w - 0.02, panel, 0.05, w / 2, py, 0.04, F.graphite, 0.01);
       rb(g, 0.08, 0.035, 0.003, w / 2, py + 0.05, 0.0665, F.screenLit, 0.002);
       cy(g, 0.008, 0.008, 0.04, w / 2, py - 0.06, 0.085, F.chrome, Math.PI / 2);
       cy(g, 0.006, 0.006, 0.03, w / 2, py - 0.075, 0.1, F.chrome);
-      rb(g, w * 0.55, 0.028, 0.045, w * 0.6, top + 0.012 + panel + 0.014, 0.04, F.brass, 0.008);
+      rb(g, w * 0.55, 0.014, 0.045, w * 0.6, top + 0.012 + panel + 0.003, 0.04, F.brass, 0.006);
     },
     workbench(g, w, d) {
       rb(g, w, 0.06, d, w / 2, 0.89, d / 2, F.butcher, 0.01);
