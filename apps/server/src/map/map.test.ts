@@ -428,6 +428,31 @@ describe('PUT /api/v1/locations/:id/layout', () => {
     expect((await putLayout(ola, overlapping)).statusCode).toBe(200);
   });
 
+  it('stores a shelving unit’s size and shelves in the model, and refuses others (#485)', async () => {
+    const base = fullLayout(null);
+    const sized = {
+      ...base,
+      nodes: [{ ...base.nodes[0], model: 'shelving_unit_120x60x200_4' }, base.nodes[1]],
+    };
+    const res = await putLayout(max, sized);
+    expect(res.statusCode, res.body).toBe(200);
+    const map = await json<MapJson>(getMap(vic));
+    expect(map.nodes.find((n) => n.id === ids.shelf)?.layout?.model).toBe(
+      'shelving_unit_120x60x200_4',
+    );
+    const version = (res.json() as { version: string }).version;
+    for (const model of [
+      'shelving_unit_90x50x180_5', // its first size is the bare key
+      'shelving_unit_90x50x40_3', // three shelves in 40 cm
+      'shelving_unit_90x50x180_1',
+      'shelving_unit_90x81x180_5',
+    ]) {
+      const bad = { ...base, version, nodes: [{ ...base.nodes[0], model }] };
+      const r = await putLayout(ola, bad);
+      expect(r.statusCode, model).toBe(400);
+    }
+  });
+
   it('stores a cube shelf’s grid and a bookcase’s size in the model, and refuses others (#240, #241)', async () => {
     const base = fullLayout(null);
     const sized = {

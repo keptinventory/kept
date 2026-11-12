@@ -233,6 +233,7 @@ const pack: Pack = {
     bookshelf: 'Bibliothèque',
     cube_grid: 'Étagère à cases',
     bookcase: 'Grande bibliothèque',
+    shelving_unit: 'Rayonnage',
     lamp: 'Lampadaire',
     counter: 'Plan de travail',
     sink: 'Meuble évier',

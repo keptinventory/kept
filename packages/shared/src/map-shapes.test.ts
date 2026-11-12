@@ -1099,3 +1099,42 @@ describe('a water purifier standing on the floor (#443)', () => {
     expect(m.wall).toBeUndefined();
   });
 });
+
+describe('a shelving unit sized by its numbers (#485)', () => {
+  it.each([
+    ['Shelving unit', 'shelving_unit'],
+    ['Storage shelf', 'shelving_unit'],
+    ['Garage shelving', 'shelving_unit'],
+    ['Pantry shelf', 'shelving_unit'],
+    ['Étagère de rangement', 'shelving_unit'],
+    ['Lagerregal', 'shelving_unit'],
+    ['Scaffale da garage', 'shelving_unit'],
+    ['Estantería de almacenaje', 'shelving_unit'],
+    ['Стелаж для зберігання', 'shelving_unit'],
+    ['Kệ để đồ', 'shelving_unit'],
+    ['وحدة رفوف', 'shelving_unit'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it('suggests it beside the metal shelf for plain shelving, giving neither by itself', () => {
+    const s = suggestShapes({ name: 'Shelving' });
+    expect(s.confident).toBe(false);
+    expect(s.shapes.map((x) => x.model)).toEqual(
+      expect.arrayContaining(['metal_shelf', 'shelving_unit']),
+    );
+    // A plain shelf or rack stays the metal shelf.
+    expect(first({ name: 'Rack' })).toBe('metal_shelf');
+    expect(first({ name: 'Shelf' })).toBe('metal_shelf');
+  });
+
+  it('finds it by search in each language, with storage', () => {
+    expect(searchShapes('shelving u')[0]).toBe('shelving_unit');
+    expect(searchShapes('lagerreg', {}, 'de')[0]).toBe('shelving_unit');
+    expect(SHAPE_GROUP.shelving_unit).toBe('storage');
+    for (const lang of SHAPE_LANGS)
+      expect(shapeWordsByLang('shelving_unit')[lang].length, lang).toBeGreaterThan(0);
+  });
+});

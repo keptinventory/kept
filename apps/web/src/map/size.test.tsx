@@ -136,6 +136,36 @@ describe('SizeFields: a bookcase (#241)', () => {
   });
 });
 
+describe('SizeFields: a shelving unit (#485)', () => {
+  it('shows its size in centimetres and its shelves, 90 × 50 × 180 with 5 at first', async () => {
+    await renderUI(<SizeFields model="shelving_unit" onModel={vi.fn()} />);
+    expect(value('Width')).toBe('90 cm');
+    expect(value('Depth')).toBe('50 cm');
+    expect(value('Height')).toBe('180 cm');
+    expect(value('Shelves')).toBe('5');
+    expect(screen.queryByRole('textbox', { name: 'Levels' })).toBeNull();
+    expectLogicalOnly();
+  });
+
+  it('changes its size and its shelves, two at least and what its height fits', async () => {
+    const onModel = vi.fn();
+    const { user } = await renderUI(<SizeFields model="shelving_unit" onModel={onModel} />);
+    const depth = screen.getByRole('textbox', { name: 'Depth' });
+    await user.clear(depth);
+    await user.type(depth, '80{Enter}');
+    expect(onModel).toHaveBeenLastCalledWith('shelving_unit_90x80x180_5');
+    const shelves = screen.getByRole('textbox', { name: 'Shelves' });
+    await user.clear(shelves);
+    await user.type(shelves, '1{Enter}');
+    expect(onModel).toHaveBeenLastCalledWith('shelving_unit_90x50x180_2');
+    // A 60 cm high one holds four shelves at most.
+    const height = screen.getByRole('textbox', { name: 'Height' });
+    await user.clear(height);
+    await user.type(height, '60{Enter}');
+    expect(onModel).toHaveBeenLastCalledWith('shelving_unit_90x50x60_4');
+  });
+});
+
 // #385: in imperial a bookcase is sized in whole inches and a cube shelf's outside size in inches,
 // kept in centimetres as before.
 function inImperial(ui: ReactElement) {

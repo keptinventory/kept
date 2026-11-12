@@ -233,6 +233,7 @@ const pack: Pack = {
     bookshelf: 'Bücherregal',
     cube_grid: 'Würfelregal',
     bookcase: 'Hohes Bücherregal',
+    shelving_unit: 'Regal',
     lamp: 'Stehlampe',
     counter: 'Küchenzeile',
     sink: 'Spülenschrank',

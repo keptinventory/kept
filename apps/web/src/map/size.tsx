@@ -1,13 +1,14 @@
 /**
- * Size (#240, #241): a sized shape's numbers on its card while arranging. A cube shelf by its cubes
- * across and up, with its outside size, and Turn on its side (lying down is the same unit with the
- * two swapped); a bookcase by its width, depth and height in centimetres and its levels, kept to
- * what its height fits. Fields like Height: arrow keys, typing and the − and + buttons, what is
- * typed read by @kept/shared's `readLength`, digits only (Western and Eastern Arabic both; what
- * isn't a whole number said so, never another size). Each change is a new model for the shape
- * (sizedKey), so the map draws it at its new size and saves it with the arrangement. Digits follow
- * the person's setting (D143). In imperial (#385) the sizes are whole inches, an inch a step, kept
- * as whole centimetres as before; feet and inches or centimetres typed with their unit read too.
+ * Size (#240, #241, #485): a sized shape's numbers on its card while arranging. A cube shelf by its
+ * cubes across and up, with its outside size, and Turn on its side (lying down is the same unit
+ * with the two swapped); a bookcase by its width, depth and height in centimetres and its levels,
+ * and a shelving unit the same with its shelves, each count kept to what its height fits. Fields
+ * like Height: arrow keys, typing and the − and + buttons, what is typed read by @kept/shared's
+ * `readLength`, digits only (Western and Eastern Arabic both; what isn't a whole number said so,
+ * never another size). Each change is a new model for the shape (sizedKey), so the map draws it at
+ * its new size and saves it with the arrangement. Digits follow the person's setting (D143). In
+ * imperial (#385) the sizes are whole inches, an inch a step, kept as whole centimetres as before;
+ * feet and inches or centimetres typed with their unit read too.
  */
 import {
   BOOKCASE,
@@ -20,7 +21,9 @@ import {
   type MapShapeKey,
   readLength,
   readSpan,
+  SHELVING_UNIT,
   type SizedShape,
+  shelvingMaxShelves,
   sizedKey,
   sizedOf,
 } from '@kept/shared';
@@ -179,6 +182,26 @@ export function SizeFields({
       </>
     );
   } else {
+    const lim = s.base === 'bookcase' ? BOOKCASE : SHELVING_UNIT;
+    // Its count (a bookcase's levels, a shelving unit's shelves), kept to what a height fits.
+    const count =
+      s.base === 'bookcase'
+        ? {
+            label: t`Levels`,
+            value: s.levels,
+            min: BOOKCASE.levels[0],
+            max: bookcaseMaxLevels(s.h),
+            onChange: (levels: number) => set({ ...s, levels }),
+            fit: (h: number) => ({ ...s, h, levels: Math.min(s.levels, bookcaseMaxLevels(h)) }),
+          }
+        : {
+            label: t({ message: 'Shelves', context: 'how many shelves' }),
+            value: s.shelves,
+            min: SHELVING_UNIT.shelves[0],
+            max: shelvingMaxShelves(s.h),
+            onChange: (shelves: number) => set({ ...s, shelves }),
+            fit: (h: number) => ({ ...s, h, shelves: Math.min(s.shelves, shelvingMaxShelves(h)) }),
+          };
     body = (
       <>
         <Field
@@ -187,8 +210,8 @@ export function SizeFields({
           cm
           inches={imperial}
           value={s.w}
-          min={BOOKCASE.w[0]}
-          max={BOOKCASE.w[1]}
+          min={lim.w[0]}
+          max={lim.w[1]}
           onChange={(w) => set({ ...s, w })}
         />
         <Field
@@ -197,8 +220,8 @@ export function SizeFields({
           cm
           inches={imperial}
           value={s.d}
-          min={BOOKCASE.d[0]}
-          max={BOOKCASE.d[1]}
+          min={lim.d[0]}
+          max={lim.d[1]}
           onChange={(d) => set({ ...s, d })}
         />
         <Field
@@ -207,17 +230,17 @@ export function SizeFields({
           cm
           inches={imperial}
           value={s.h}
-          min={BOOKCASE.h[0]}
-          max={BOOKCASE.h[1]}
-          onChange={(h) => set({ ...s, h, levels: Math.min(s.levels, bookcaseMaxLevels(h)) })}
+          min={lim.h[0]}
+          max={lim.h[1]}
+          onChange={(h) => set(count.fit(h))}
         />
         <Field
           tag={tag}
-          label={t`Levels`}
-          value={s.levels}
-          min={BOOKCASE.levels[0]}
-          max={bookcaseMaxLevels(s.h)}
-          onChange={(levels) => set({ ...s, levels })}
+          label={count.label}
+          value={count.value}
+          min={count.min}
+          max={count.max}
+          onChange={count.onChange}
         />
       </>
     );

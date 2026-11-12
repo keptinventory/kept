@@ -232,6 +232,7 @@ const pack: Pack = {
     bookshelf: 'Estantería',
     cube_grid: 'Estantería de cubos',
     bookcase: 'Estantería alta',
+    shelving_unit: 'Estantería',
     lamp: 'Lámpara de pie',
     counter: 'Encimera de cocina',
     sink: 'Encimera de fregadero',

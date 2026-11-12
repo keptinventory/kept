@@ -45,6 +45,23 @@ describe('compartment boxes', () => {
     expect(one.y).toBeGreaterThan(six.y);
   });
 
+  it('uses a shelving unit’s shelves, the first the top one (#485)', () => {
+    const key = 'shelving_unit_120x60x200_4';
+    const boxes = compartmentBoxes(key, { columns: 1, rows: 4 }, cells(1, 4));
+    const bottomOf = (id: string) => {
+      const b = boxes.get(id) as { y: number; h: number };
+      return cm(b.y - b.h / 2);
+    };
+    // The bottom shelf stands 8 cm up, 2 cm thick; the top one is flush with the posts.
+    expect(bottomOf('c4')).toBe(10);
+    expect(bottomOf('c1')).toBe(200);
+    expect(bottomOf('c2')).toBeGreaterThan(bottomOf('c3'));
+    // Shelves that aren't the furniture's are divided evenly instead.
+    const other = compartmentBoxes(key, { columns: 1, rows: 3 }, cells(1, 3));
+    expect(bottomOf('c1')).not.toBe(cm((other.get('c1') as { y: number }).y));
+    expect(other.size).toBe(3);
+  });
+
   it('divides any other shape evenly as it stands', () => {
     // The chest of drawers' model, 1.14 m wide and 1.88 m high, as 1 column of 9.
     const boxes = compartmentBoxes('drawers', { columns: 1, rows: 9 }, cells(1, 9));
