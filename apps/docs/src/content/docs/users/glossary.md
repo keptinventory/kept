@@ -52,7 +52,7 @@ is kept, with what was found and what was missing. Also called a stocktake.
 
 ## D
 
-**Draft**: a thing Capture saved that nobody has reviewed yet. It waits in the Inbox until it is accepted or discarded. [Capture and the Inbox](/users/everyday-use/#capture-and-the-inbox)
+**Draft**: a thing Capture saved without a name, not accepted yet. It waits in the Inbox until it is accepted or discarded. [Capture and the Inbox](/users/everyday-use/#capture-and-the-inbox)
 
 ## F
 

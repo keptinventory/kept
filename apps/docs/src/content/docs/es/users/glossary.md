@@ -35,7 +35,7 @@ Caja: véase Contenedor.
 
 ## D
 
-**Borrador**: un objeto que Capturar guardó y que nadie ha revisado todavía. Espera en la Bandeja de entrada hasta que se acepta o se descarta. [Capturar y la bandeja de entrada](/es/users/everyday-use/#capturar-y-la-bandeja-de-entrada)
+**Borrador**: un objeto que Capturar guardó sin nombre y que aún no se ha aceptado. Espera en la Bandeja de entrada hasta que se acepta o se descarta. [Capturar y la bandeja de entrada](/es/users/everyday-use/#capturar-y-la-bandeja-de-entrada)
 
 ## F
 

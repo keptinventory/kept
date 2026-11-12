@@ -35,7 +35,7 @@ Boîte : voir Conteneur.
 
 ## D
 
-**Brouillon**: un objet enregistré par la Capture que personne n'a encore vérifié. Il attend dans la Réception jusqu'à ce qu'il soit accepté ou rejeté. [La capture et la Réception](/fr/users/everyday-use/#la-capture-et-la-réception)
+**Brouillon** : un objet enregistré sans nom par la Capture, pas encore accepté. Il attend dans la Réception jusqu'à ce qu'il soit accepté ou rejeté. [La capture et la Réception](/fr/users/everyday-use/#la-capture-et-la-réception)
 
 ## F
 

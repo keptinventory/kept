@@ -76,6 +76,8 @@ describe('Draft and finishing a capture in the Inbox (#508)', () => {
   it.each(LANGS)('the glossary has Draft, in the app’s word, in %s', (lang) => {
     const glossary = page(lang, 'users/glossary.md');
     expect(glossary).toContain(`\n**${appWord(lang, 'Draft')}**`);
+    // Capture is named as the app's tab is.
+    expect(glossary).toContain(`\n**${appWord(lang, 'Capture')}**`);
     expect(glossary).toContain(
       `${lang === 'en' ? '' : `/${lang}`}/users/everyday-use/#${CAPTURE_HEADING[lang]
         .slice(3)

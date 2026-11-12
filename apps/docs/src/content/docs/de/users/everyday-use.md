@@ -45,26 +45,29 @@ ist, werden nicht angezeigt.
 ## Erfassen und der Eingang
 
 **Erfassen**, der mittlere Tab auf dem Telefon, speichert ein Ding aus seinem Foto an dem Ort, den
-der Chip oben nennt. Mit einem KI-Anbieter liest Kept das Foto und füllt aus, was es kann; ohne
-einen wartet das Ding auf einen Namen. So oder so beginnt es als Entwurf.
+der Chip oben nennt. Ohne Namen gespeichert, beginnt es als Entwurf und wartet im Eingang; mit
+einem KI-Anbieter benennt Kept es anhand des Fotos. Eine Erfassung, der du einen Namen gegeben
+hast, wird gespeichert, wie sie ist, und Werte, die die KI dafür liest, warten im Eingang als
+Vorschläge.
 
 ### Was Entwurf bedeutet
 
-Ein Ding mit **Entwurf** ist gespeichert, an seinem Ort, mit Foto und Kurz-ID, aber noch hat es
-niemand geprüft. Bis es übernommen ist, wartet es im **Eingang**, die Summen auf **Start** und in
+Ein ohne Namen erfasstes Ding trägt **Entwurf**: gespeichert, an seinem Ort, mit Foto und
+Kurz-ID, aber noch nicht übernommen. Bis es übernommen ist, wartet es im **Eingang**, die Summen auf **Start** und in
 **Einblicke** lassen es aus, und die Suche listet es unter dem Filter **Entwurf**. Es auf seiner
 eigenen Seite zu bearbeiten, schließt es nicht ab; das macht der Eingang.
 
 ### Eine Erfassung im Eingang abschließen
 
 1. **Öffne den Eingang**: der Tab nach **Erfassen** auf dem Telefon oder **Eingang** in der
-   Seitenleiste. **Entwürfe** zeigt nur Entwürfe.
+   Seitenleiste. **Entwürfe** zeigt nur die Erfassungen, die dort warten.
 2. **Wähle ihn aus.** Auf einem Computer wählst du ihn in der Liste, und er öffnet sich daneben.
-   Auf dem Telefon ist jeder Entwurf eine Karte in der Liste.
+   Auf dem Telefon ist jede Erfassung eine Karte in der Liste.
 3. **Prüfe seine Felder.** Ein Entwurf ohne Namen heißt **Ding ohne Namen**: **Bearbeiten**,
    Namen eintippen, dann **Speichern**. Werte, die die KI gelesen, aber nicht selbst eingetragen
    hat, warten als Vorschläge: **Bestätigen** oder **Verwerfen**, jeden einzeln. **Verschieben**
-   und **Typ setzen** korrigieren Ort und Typ (auf dem Telefon unter **Mehr**).
+   und **Typ setzen** korrigieren Ort und Typ; auf dem Telefon stehen sie und **Verwerfen** unter
+   **Mehr**.
 4. **Übernehmen** oder **Verwerfen**. **Übernehmen** schließt ihn ab, sobald er einen Namen hat und
    jeder Vorschlag bestätigt oder verworfen ist; **Speichern** nach **Bearbeiten** schließt ihn
    ebenfalls ab. **Verwerfen** legt ihn mit seinen Fotos in den Papierkorb, wo er sich 30 Tage lang

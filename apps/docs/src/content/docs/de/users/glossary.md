@@ -52,7 +52,7 @@ dem, was gefunden wurde, und was fehlte. Auch als Bestandsaufnahme bezeichnet.
 
 ## D
 
-**Entwurf**: ein Ding, das Erfassen gespeichert und noch niemand geprüft hat. Es wartet im Eingang, bis es übernommen oder verworfen wird. [Erfassen und der Eingang](/de/users/everyday-use/#erfassen-und-der-eingang)
+**Entwurf**: ein Ding, das Erfassen ohne Namen gespeichert hat und das noch nicht übernommen ist. Es wartet im Eingang, bis es übernommen oder verworfen wird. [Erfassen und der Eingang](/de/users/everyday-use/#erfassen-und-der-eingang)
 
 ## F
 

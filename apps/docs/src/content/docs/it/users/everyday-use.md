@@ -28,27 +28,28 @@ La pagina di un oggetto ha le sue foto, il suo nome e il suo **ID**, il percorso
 
 ## Acquisire e In arrivo
 
-**Acquisisci**, la scheda centrale sul telefono, salva un oggetto dalla sua foto nel luogo indicato
-dall'etichetta in alto. Con un fornitore di IA, Kept legge la foto e compila ciò che può; senza,
-l'oggetto attende un nome. In entrambi i casi parte come bozza.
+**Acquisisci**, la scheda centrale sul telefono, salva un oggetto dalla sua foto nel posto indicato
+dall'etichetta in alto. Salvato senza nome, parte come bozza e attende in In arrivo; con un
+fornitore di IA, Kept gli dà un nome dalla foto. Un'acquisizione a cui hai dato un nome viene salvata
+così com'è, e i valori che l'IA legge per lei attendono in In arrivo come suggerimenti.
 
 ### Cosa vuol dire Bozza
 
-Un oggetto segnato come **Bozza** è salvato, nel suo luogo, con la sua foto e il suo ID breve, ma
-nessuno l'ha ancora controllato. Finché non viene accettato, attende in **In arrivo**, i totali di
+Un oggetto acquisito senza nome è segnato come **Bozza**: salvato, nel suo posto, con la sua foto
+e il suo ID breve, ma non ancora accettato. Finché non viene accettato, attende in **In arrivo**, i totali di
 **Home** e di **Statistiche** lo lasciano fuori, e la ricerca lo elenca con il filtro **Bozza**.
 Modificarlo nella sua pagina non lo completa; lo fa In arrivo.
 
 ### Completare un'acquisizione in In arrivo
 
 1. **Apri In arrivo**: la scheda dopo **Acquisisci** sul telefono, oppure **In arrivo** nella barra
-   laterale. **Bozze** mostra solo le bozze.
-2. **Sceglila.** Su un computer, sceglila nell'elenco e si apre accanto. Sul telefono, ogni bozza è
+   laterale. **Bozze** mostra solo le acquisizioni che vi attendono.
+2. **Sceglila.** Su un computer, sceglila nell'elenco e si apre accanto. Sul telefono, ogni acquisizione è
    una scheda dell'elenco.
 3. **Controlla i campi.** Una bozza senza nome appare come **Oggetto senza nome**: **Modifica**,
    scrivi il nome, poi **Salva**. I valori che l'IA ha letto ma non ha compilato attendono come
    suggerimenti: **Conferma** o **Rifiuta**, uno per uno. **Sposta** e **Imposta tipo** correggono
-   luogo e tipo (sotto **Altro** sul telefono).
+   posto e tipo; sul telefono questi e **Scarta** sono sotto **Altro**.
 4. **Accetta** o **Scarta**. **Accetta** la completa, quando ha un nome e ogni suggerimento è
    confermato o rifiutato; anche **Salva** dopo **Modifica** la completa. **Scarta** la sposta nel
    cestino con le sue foto, dove si può ripristinare per 30 giorni.

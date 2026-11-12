@@ -52,7 +52,7 @@ scatola su un ripiano. Un contenitore è un oggetto, non un posto.
 
 ## D
 
-**Bozza**: un oggetto salvato da Acquisisci che nessuno ha ancora controllato. Attende in In arrivo finché non viene accettato o scartato. [Acquisire e In arrivo](/it/users/everyday-use/#acquisire-e-in-arrivo)
+**Bozza**: un oggetto salvato senza nome da Acquisisci, non ancora accettato. Attende in In arrivo finché non viene accettato o scartato. [Acquisire e In arrivo](/it/users/everyday-use/#acquisire-e-in-arrivo)
 
 ## F
 

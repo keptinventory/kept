@@ -36,7 +36,7 @@ Hộp: xem Vật chứa.
 
 ## D
 
-**Bản nháp**: đồ vật do Chụp lưu mà chưa ai xem lại. Nó đợi trong Hộp thư đến cho đến khi được chấp nhận hoặc hủy bỏ. [Chụp và Hộp thư đến](/vi/users/everyday-use/#chụp-và-hộp-thư-đến)
+**Bản nháp**: đồ vật do Chụp lưu khi chưa có tên và chưa được chấp nhận. Nó đợi trong Hộp thư đến cho đến khi được chấp nhận hoặc hủy bỏ. [Chụp và Hộp thư đến](/vi/users/everyday-use/#chụp-và-hộp-thư-đến)
 
 ## F
 
