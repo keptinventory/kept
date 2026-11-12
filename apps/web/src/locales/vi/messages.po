@@ -21349,3 +21349,8 @@ msgstr "Đã đổi đơn vị đồng hồ đo"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "Máy lọc nước"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Số kệ"
