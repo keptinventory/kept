@@ -21353,4 +21353,4 @@ msgstr "Máy lọc nước"
 #: src/map/size.tsx
 msgctxt "how many shelves"
 msgid "Shelves"
-msgstr "Số kệ"
+msgstr "Số tầng kệ"

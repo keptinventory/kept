@@ -27948,7 +27948,7 @@ msgstr "Estante {n}"
 #: src/components/places/furniture.tsx
 #: src/map/labels.ts
 msgid "Shelving unit"
-msgstr "Estantería"
+msgstr "Estantería de almacenaje"
 
 #: src/components/places/furniture.tsx
 msgid "Template"
