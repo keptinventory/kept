@@ -88,6 +88,7 @@ export function useModuleLabels(): Record<ModuleId, string> {
   const { t } = useLingui();
   return {
     labels: t`Labels and QR codes`,
+    counts: t`Counts`,
     money: t`Money and spending`,
     warranties: t`Receipts and warranties`,
     schedules: t`Reminders`,

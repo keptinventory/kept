@@ -74,6 +74,8 @@ export type CardProps = {
   level: Level | undefined;
   focused: string | null;
   arranging: boolean;
+  /** Counts is on in the map's location (#506): the room card offers "Count this room". */
+  countsOn?: boolean;
   /** A thing picked from an Inside list, shown as its own card. */
   inner: string | null;
   setInner: (id: string | null) => void;
@@ -592,9 +594,11 @@ export function MapCard(p: CardProps) {
               <Trans>Photograph this room</Trans>
             </Link>
           ) : null}
-          <Link to="/scan-session" search={{ mode: 'count', place: r.id }} className="kmap-btn">
-            <Trans>Count this room</Trans>
-          </Link>
+          {p.countsOn ? (
+            <Link to="/scan-session" search={{ mode: 'count', place: r.id }} className="kmap-btn">
+              <Trans>Count this room</Trans>
+            </Link>
+          ) : null}
         </div>
         {p.arranging ? (
           <>

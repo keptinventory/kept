@@ -22,6 +22,7 @@ export type Preset = (typeof PRESETS)[number];
 
 export const MODULE_IDS = [
   'labels',
+  'counts',
   'money',
   'warranties',
   'schedules',
@@ -101,6 +102,8 @@ const def = (
 
 export const MODULES: Readonly<Record<ModuleId, ModuleDef>> = Object.freeze({
   labels: def('labels', 'Labels & QR', E),
+  // 1.14.x (#506): in every preset, so a location keeps its counts until someone turns them off.
+  counts: def('counts', 'Counts', E),
   money: def('money', 'Money', H),
   warranties: def('warranties', 'Warranties & claims', H),
   schedules: def('schedules', 'Schedules & reminders', H),

@@ -24,6 +24,7 @@ import { forbidden, invalid, notFound, toErrorReply } from '../http/errors.js';
 import { callerMembership } from '../locations/access.js';
 import { moveBackForUndo, moveThings } from '../things/move.js';
 import { type Ctx, splitThing } from '../things/service.js';
+import { requireCountsOn } from './counts.js';
 
 // Scan sessions (1.12, #168): one walk with the camera, many labels, one mode.
 //
@@ -162,6 +163,7 @@ export async function startCount(ctx: Ctx, body: StartCountBody): Promise<{ id: 
   const id = assertClientId(body.id.toLowerCase());
   const locationId = await targetLocation(client, body.target);
   await requireAllowed(client, locationId, needs('count'));
+  await requireCountsOn(client, locationId, 'write');
   const found = await sessionRow(client, id);
   if (found) {
     if (found.started_by !== scope.userId || found.mode !== 'count') throw notFound();
@@ -230,6 +232,7 @@ export async function addSessionLines(
     throw invalid("The session's target is in another location.");
   }
   await requireAllowed(client, locationId, needs(head.mode));
+  if (head.mode === 'count') await requireCountsOn(client, locationId, 'write');
 
   const counted = head.countedPlaceIds ? head.countedPlaceIds.map((x) => x.toLowerCase()) : null;
   const found = await sessionRow(client, id, true);
@@ -420,6 +423,7 @@ export async function finishSession(
   if (!s || (s.started_by !== scope.userId && s.mode !== 'count')) throw notFound();
   if (s.finished_at) throw invalid('This session is already saved.');
   await requireAllowed(client, s.location_id, needs(s.mode));
+  if (s.mode === 'count') await requireCountsOn(client, s.location_id, 'write');
   if (s.mode === 'count') {
     // What is lent, in repair or trashed now, and the areas counted by everyone who joined.
     await client.query(
@@ -711,6 +715,7 @@ export async function sessionView(client: pg.ClientBase, id: string): Promise<Sc
   );
   const r = rows[0];
   if (!r) throw notFound();
+  if (r.mode === 'count') await requireCountsOn(client, r.location_id, 'read');
   return {
     id: r.id,
     mode: r.mode,

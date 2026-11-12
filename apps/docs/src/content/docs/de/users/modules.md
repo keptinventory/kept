@@ -23,6 +23,7 @@ Die folgenden Namen sind die Schalter unter **Was erfasst wird**.
 | Module | Von | Was es bringt |
 |---|---|---|
 | **Etiketten und QR-Codes** | Essentials | Druckbare Etiketten für Dinge und Orte; Scannen einer Etikette öffnet, worauf sie angebracht ist. |
+| **Zählungen** | Essentials | **Hier zählen**, **Regelmäßig zählen** und **Frühere Zählungen** auf einem Ort, **Diese Kiste zählen** und **Zählungen** unter Werkzeuge: jede Zählung und jeder Kistencheck, aufbewahrt. |
 | **Geld und Ausgaben** | Household | Preise, Gesamtbeträge und **Einblicke**. Jede Währung auf ihrer eigenen Linie, nie umgerechnet. |
 | **Belege und Garantien** | Household | Garantiedaten; eine ablaufende Garantie erscheint als Erinnerung. |
 | **Erinnerungen** | Household | Zeitpläne: was fällig ist, nach Datum oder nach Messwert. |
@@ -45,7 +46,7 @@ Ein ausgeschaltetes Modul wird überall ausgeblendet, wo es erscheinen würde (s
 
 - **Erinnerungen pausieren mit ihrem Modul.** Zeitpläne und ablaufende Dinge warten mit **Erinnerungen**, Garantie- und Registrierungsdaten mit **Belegen und Garantien**, Dokumentdaten mit **Unterlagen** (die Dokumente eines Fahrzeugs laufen auch weiter, während **Fahrzeuge** eingeschaltet ist), Ausleihen mit **Verleihen**, niedriger Bestand mit **Dingen die zur Neige gehen**. Erinnerungen über längst nicht gelesene Zähler laufen ständig weiter.
 - **Abhängigkeiten gehen ebenfalls mit.** Tanken benötigt Fahrzeuge, und Umzug benötigt Etiketten und QR-Codes: das Ausschalten des benötigten Moduls schaltet auch dieses Modul aus. Sein Schalter zeigt dann *Benötigt Fahrzeuge, aus in diesem Standort*.
-- **Das Menü folgt allen deinen Standorten.** Unter **Nachverfolgung** erscheint ein Eintrag (Zeitpläne, Verleih, Unterlagen, Verbrauchsgüter, Fahrzeuge, Umzug, Einblicke) einmal, wenn sein Modul in einem deiner Standorte eingeschaltet ist. Unter **Werkzeuge** erscheint **Etiketten**, solange Etikett irgendwo eingeschaltet ist, und **Zählungen** ist immer dort vorhanden. Aktivität, Papierkorb und Benachrichtigungen sind ebenfalls immer vorhanden.
+- **Das Menü folgt allen deinen Standorten.** Unter **Nachverfolgung** erscheint ein Eintrag (Zeitpläne, Verleih, Unterlagen, Verbrauchsgüter, Fahrzeuge, Umzug, Einblicke) einmal, wenn sein Modul in einem deiner Standorte eingeschaltet ist. Unter **Werkzeuge** erscheint **Etiketten**, solange Etikett irgendwo eingeschaltet ist, und **Zählungen**, solange Zählungen irgendwo eingeschaltet sind. Aktivität, Papierkorb und Benachrichtigungen sind ebenfalls immer vorhanden.
 
 ## Später ändern
 

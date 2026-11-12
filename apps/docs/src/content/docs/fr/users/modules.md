@@ -22,6 +22,7 @@ Les noms ci-dessous sont les interrupteurs de **Ce que vous suivez**.
 | Module | Depuis | Ce que cela apporte |
 |---|---|---|
 | **Étiquettes et codes QR** | Essentiel | Des étiquettes imprimables pour les objets et les emplacements ; scanner une étiquette ouvre ce sur quoi elle est apposée. |
+| **Comptages** | Essentiel | **Compter ici**, **Compter régulièrement** et **Comptages passés** sur un emplacement, **Compter cette boîte**, et **Comptages** sous Outils : chaque comptage et chaque vérification de boîte, conservés. |
 | **Argent et dépenses** | Foyer | Les prix, les totaux et **Statistiques**. Chaque devise sur sa propre ligne, jamais convertie. |
 | **Reçus et garanties** | Foyer | Les dates de garantie ; une garantie qui expire apparaît comme un rappel. |
 | **Rappels** | Foyer | Les plannings : ce qui est dû, par date ou par relevé. |
@@ -44,7 +45,7 @@ Un module désactivé est masqué partout où il apparaîtrait (ses écrans, ses
 
 - **Les rappels se mettent en pause avec leur module.** Les plannings et les objets qui expirent attendent avec **Rappels**, les dates de garantie et d'immatriculation avec **Reçus et garanties**, les dates de documents avec **Documents** (les documents d'un véhicule continuent aussi de fonctionner tant que **Véhicules** est activé), les prêts avec **Prêts**, le stock faible avec **Consommables**. Les rappels concernant les compteurs non relevés récemment fonctionnent toujours.
 - **Les dépendances disparaissent aussi.** Le carburant nécessite Véhicules, et le déménagement nécessite Étiquettes et codes QR : désactiver celui dont un module a besoin désactive aussi ce module. Son interrupteur indique alors *Nécessite Véhicules, désactivé dans ce lieu*.
-- **Le menu suit tous vos lieux.** Sous **Suivi**, une entrée (Plannings, Prêts, Documents, Consommables, Véhicules, Déménagement, Statistiques) s'affiche dès que son module est activé dans l'un de vos lieux. Sous **Outils**, **Étiquettes** s'affiche tant que les étiquettes sont activées quelque part, et **Comptages** est toujours présent. Activité, Corbeille et Notifications sont toujours présents aussi.
+- **Le menu suit tous vos lieux.** Sous **Suivi**, une entrée (Plannings, Prêts, Documents, Consommables, Véhicules, Déménagement, Statistiques) s'affiche dès que son module est activé dans l'un de vos lieux. Sous **Outils**, **Étiquettes** s'affiche tant que les étiquettes sont activées quelque part, et **Comptages** tant que les comptages le sont. Activité, Corbeille et Notifications sont toujours présents aussi.
 
 ## Changer plus tard
 

@@ -88,3 +88,13 @@ einen ganzen Standort regelmäßig zu zählen, plane es auf seinem obersten Ort.
 | Zählungen sehen, eine Zählungsseite, vergleichen, Als CSV exportieren | ✓ | ✓ |
 | Zählen, einer Zählung beitreten | ✓ | Eine Prüfung: nichts gespeichert, nicht gelistet |
 | Eine Zählung planen | ✓, mit Zeitplänen an | — |
+
+## Zählungen ausschalten
+
+Zählungen sind ein Modul, in jeder Voreinstellung eingeschaltet. Ein Eigentümer oder Admin schaltet sie
+unter **Standorteinstellungen → Was erfasst wird** (**Zählungen**) aus. Sind sie an einem Standort
+aus, haben seine Orte kein **Hier zählen**, **Regelmäßig zählen** oder **Frühere Zählungen**, seine
+Kisten kein **Diese Kiste zählen**, seine Räume auf der Karte kein **Diesen Raum zählen**, und
+**Sitzung starten** bietet dort kein Zählen an. **Zählungen** unter Werkzeuge verschwindet, sobald
+sie an allen deinen Standorten aus sind. Geplante Zählungen erinnern nicht mehr. Der
+**Kistencheck** bleibt. Nichts wird gelöscht: wieder eingeschaltet, ist jede Zählung wieder da.

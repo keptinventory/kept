@@ -136,7 +136,16 @@ export function familyLocation(): LocationDetail {
     thingCount: 7,
     pendingInviteCount: 0,
     require2fa: false,
-    modules: ['labels', 'money', 'warranties', 'schedules', 'lending', 'paperwork', 'vehicles'],
+    modules: [
+      'labels',
+      'counts',
+      'money',
+      'warranties',
+      'schedules',
+      'lending',
+      'paperwork',
+      'vehicles',
+    ],
     providerResolved: false,
   };
 }

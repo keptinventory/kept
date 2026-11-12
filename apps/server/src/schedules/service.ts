@@ -443,7 +443,11 @@ export async function createSchedule(ctx: Ctx, body: CreateScheduleInput): Promi
     dueOn: body.dueOn ?? null,
   });
   const kind = body.kind ?? 'task';
-  if (kind === 'count') await checkCount(client, subject, body);
+  if (kind === 'count') {
+    // A planned count needs Counts on too (#506).
+    await requireModule(ctx, subject.locationId, 'counts', 'write');
+    await checkCount(client, subject, body);
+  }
   const today = await todayIn(client, subject.locationId);
   const anchorOn = body.anchorOn ?? today;
   if (anchorOn > today)
@@ -540,6 +544,7 @@ export async function updateSchedule(
     meterId: meterId ? meterId.toLowerCase() : null,
     dueOn: pick('dueOn', before.due_on),
   });
+  if (before.kind === 'count') await requireModule(ctx, before.location_id, 'counts', 'write');
   if (before.kind === 'count' && pick('active', before.active)) {
     await checkCount(
       client,

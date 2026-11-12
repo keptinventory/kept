@@ -64,3 +64,13 @@ Nella pagina di un posto, **Conta regolarmente** pianifica un conteggio ogni 1-2
 | Visualizza Conteggi, pagina del conteggio, confronta, esporta CSV | ✓ | ✓ |
 | Conta, partecipa a un conteggio | ✓ | Un controllo: niente salvato, non elencato |
 | Pianifica un conteggio | ✓, con Pianificazioni attive | — |
+
+## Disattivare i conteggi
+
+Conteggi è un modulo, attivo in ogni preset. Un proprietario o un amministratore lo disattiva in
+**Impostazioni del luogo → Cosa monitorare** (**Conteggi**). Disattivato in un luogo, i suoi posti
+non hanno più **Conta qui**, **Conta regolarmente** né **Conteggi passati**, le sue scatole non
+hanno **Conta questa scatola**, le sue stanze sulla mappa non hanno **Conta questa stanza**, e
+**Avvia una sessione** non vi propone il conteggio. **Conteggi** sotto Strumenti sparisce quando è
+disattivato in tutti i tuoi luoghi. I conteggi pianificati smettono di ricordarsi. Il **Controllo
+scatola** resta. Non si cancella nulla: riattivato, ogni conteggio è di nuovo lì.

@@ -7,7 +7,14 @@
  * The camera is a fake stream and the decode loop is replaced: the test feeds what "the scanner
  * read". The phone's store is the real `MemoryStore`; the server's batch resolve is a stub.
  */
-import type { Role, SnapLocation, SnapPlace, SnapshotPage, SnapThing } from '@kept/shared';
+import type {
+  ModuleId,
+  Role,
+  SnapLocation,
+  SnapPlace,
+  SnapshotPage,
+  SnapThing,
+} from '@kept/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -81,7 +88,7 @@ const code = (c: string, thingId: string) => ({
   isPrimary: true,
 });
 
-async function phone(role: Role = 'member') {
+async function phone(role: Role = 'member', modules: ModuleId[] = ['labels', 'counts']) {
   const store = new MemoryStore();
   const location: SnapLocation = {
     id: HOME,
@@ -90,7 +97,7 @@ async function phone(role: Role = 'member') {
     timezone: 'Africa/Cairo',
     languages: ['en'],
     role,
-    effectiveModules: ['labels'],
+    effectiveModules: modules,
     unplacedPlaceId: UNPLACED,
     suggestRadiusM: 150,
   };
@@ -442,7 +449,7 @@ describe('a hidden Personal', () => {
           timezone: 'Africa/Cairo',
           languages: ['en'],
           role: 'owner',
-          effectiveModules: ['labels'],
+          effectiveModules: ['labels', 'counts'],
           unplacedPlaceId: PERSONAL_UNPLACED,
           suggestRadiusM: 150,
         },
@@ -479,6 +486,31 @@ describe('a hidden Personal', () => {
     await render({ store: await withPersonal('member') });
     await screen.findByRole('heading', { name: 'Start a session' });
     expect(await screen.findByRole('radio', { name: 'All of Personal' })).toBeInTheDocument();
+  });
+});
+
+describe('Counts off (#506)', () => {
+  it('offers packing and moving, and no count', async () => {
+    await render({ store: await phone('member', ['labels']) });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(await screen.findByRole('radio', { name: /^Pack into/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Move to/ })).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /^Count/ })).not.toBeInTheDocument();
+  });
+
+  it('won’t start a count from a link to one', async () => {
+    await render({
+      store: await phone('member', ['labels']),
+      start: { mode: 'count', target: { kind: 'place', id: STUDY } },
+    });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
+  });
+
+  it('tells a viewer there is nothing to do', async () => {
+    await render({ store: await phone('viewer', ['labels']) });
+    expect(await screen.findByText('Counts are off')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Start a session' })).not.toBeInTheDocument();
   });
 });
 

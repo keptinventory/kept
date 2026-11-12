@@ -43,7 +43,7 @@ a location turns them on in **Location settings → What to track**
 - **[Scan sessions](/users/scanning-sessions/)**: count a shelf, pack a box, move a pile, one scan
   after another.
 - **[Counts and stocktakes](/users/counts/)**: count a place, see what's missing, compare with the
-  last count.
+  last count. A location that doesn't count turns them off.
 
 ## The household
 

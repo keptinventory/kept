@@ -3,6 +3,8 @@
  * standard (surface `counts`: search by what was counted; filters kind, place, who, had missing
  * and date; grouped by place, person or month; paged; all in the URL). One location at a time:
  * the location filter picks it (the first one by default). Each row opens the count's page.
+ * Counts is a module (#506): only the locations with it on are offered, and with it off in every
+ * one the list says so.
  */
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -16,6 +18,7 @@ import type { FilterDef } from '@/components/filters/types';
 import { ActivityIcon, AlertIcon, BoxIcon, QrIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, IconTile, Pill, Row } from '@/components/page';
+import { accessOf } from '@/components/schedules/access';
 import { oneValue } from '@/components/schedules/list-query';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -28,7 +31,7 @@ export function CountsList() {
   const f = useFilterRegistry();
   const locations = useLocationsInView();
   const locationName = useLocationName();
-  const all = locations.data ?? [];
+  const all = (locations.data ?? []).filter((l) => accessOf(l).moduleOn('counts'));
   const locationId = oneValue(list, 'location') ?? all[0]?.id ?? null;
 
   const kind = oneValue(list, 'kind');
@@ -81,6 +84,13 @@ export function CountsList() {
     },
     f.date('when', t`Counted`),
   ];
+
+  if (locations.data && all.length === 0)
+    return (
+      <EmptyState icon={<QrIcon />} title={<Trans>Counts are off</Trans>}>
+        <Trans>An owner or admin turns them on in a location's What to track.</Trans>
+      </EmptyState>
+    );
 
   return (
     <ListSurface<CountSummary>

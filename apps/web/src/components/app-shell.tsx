@@ -231,7 +231,14 @@ export function useNavEntries(): NavEntry[] {
       to: '/labels',
       group: 'tools',
     }),
-    { key: 'counts', label: t`Counts`, icon: <QrIcon />, to: '/counts', group: 'tools' },
+    // A module since #506: shown while Counts is on in one of your locations, as Labels is.
+    ...gated(modulesOn.has('counts'), {
+      key: 'counts',
+      label: t`Counts`,
+      icon: <QrIcon />,
+      to: '/counts',
+      group: 'tools',
+    }),
     {
       key: 'activity',
       label: t`Activity`,

@@ -28,6 +28,7 @@ The names below are the switches in **What to track**.
 | Module | From | What it brings |
 |---|---|---|
 | **Labels and QR codes** | Essentials | Printable labels for things and places; scanning a label opens what it's on. |
+| **Counts** | Essentials | **Count here**, **Count regularly** and **Past counts** on a place, **Count this box**, and **Counts** under Tools: every count and box check, kept. |
 | **Money and spending** | Household | Prices, totals and **Insights**. Each currency on its own line, never converted. |
 | **Receipts and warranties** | Household | Warranty dates; an expiring warranty shows as a reminder. |
 | **Reminders** | Household | Schedules: what's due, by date or by reading. |
@@ -63,8 +64,8 @@ deleted.
   *Needs Vehicles, off in this location*.
 - **The menu follows all your locations.** Under **Tracking**, an entry (Schedules, Lending,
   Paperwork, Consumables, Vehicles, Moving, Insights) shows once its module is on in any of your
-  locations. Under **Tools**, **Labels** shows while Labels is on somewhere, and **Counts** is
-  always there. Activity, Trash and Notifications are always there too.
+  locations. Under **Tools**, **Labels** shows while Labels is on somewhere, and **Counts** while
+  Counts is. Activity, Trash and Notifications are always there.
 
 ## Changing it later
 

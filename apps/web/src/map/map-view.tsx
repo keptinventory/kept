@@ -42,6 +42,7 @@ import type {
 } from '@/api/map/types';
 import { useOfferUndo } from '@/components/history/undo';
 import { ErrorState, LoadingRows, Notice, useErrorText } from '@/components/page';
+import { useLocationAccess } from '@/components/schedules/access';
 import { buttonClass } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { Switch } from '@/components/ui/switch';
@@ -218,6 +219,7 @@ function MapBody({
   const f = useFormat();
   const lengths = useLengths();
   const qc = useQueryClient();
+  const access = useLocationAccess();
   const confirm = useConfirm();
   const errorText = useErrorText();
   const offerUndo = useOfferUndo();
@@ -1359,6 +1361,7 @@ function MapBody({
               sel={sel}
               plan={plan}
               view={data}
+              countsOn={access(data.locationId).moduleOn('counts')}
               contents={contents}
               level={plan.levels.find((l) => l.key === es.levelKey)}
               focused={es.focused}

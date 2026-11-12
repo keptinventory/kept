@@ -44,7 +44,7 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 - **[Sessioni di scansione](/it/users/scanning-sessions/)**: conta una mensola, impacchetta una scatola, sposta una pila, una
   scansione dopo l'altra.
 - **[Conteggi e inventari](/it/users/counts/)**: conta un posto, vedi cosa manca, confronta con il
-  conteggio precedente.
+  conteggio precedente. Un luogo che non conta li disattiva.
 
 ## La casa
 

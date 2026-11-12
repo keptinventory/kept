@@ -64,3 +64,13 @@ Sur la page d'un emplacement, **Compter régulièrement** planifie un comptage t
 | Voir Comptages, la page d'un comptage, comparer, exporter en CSV | ✓ | ✓ |
 | Compter, rejoindre un comptage | ✓ | Une coche : rien n'est enregistré, pas listé |
 | Planifier un comptage | ✓, avec Schedules activé | — |
+
+## Désactiver les comptages
+
+Comptages est un module, activé dans chaque préréglage. Un propriétaire ou un administrateur le
+désactive dans **Paramètres du lieu → Ce que vous suivez** (**Comptages**). Désactivé dans un lieu,
+ses emplacements n'ont plus **Compter ici**, **Compter régulièrement** ni **Comptages passés**, ses
+boîtes plus **Compter cette boîte**, ses pièces sur la carte plus **Compter cette pièce**, et
+**Démarrer une session** n'y propose plus de comptage. **Comptages** sous Outils disparaît dès
+qu'il est désactivé dans tous vos lieux. Les comptages planifiés ne rappellent plus rien.
+**Vérifier une boîte** reste. Rien n'est supprimé : réactivé, chaque comptage est de nouveau là.

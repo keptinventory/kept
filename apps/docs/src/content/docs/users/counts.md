@@ -88,3 +88,12 @@ too. To count a whole location regularly, plan it on its top place.
 | See Counts, a count's page, compare, export CSV | ✓ | ✓ |
 | Count, join a count | ✓ | A check: nothing saved, not listed |
 | Plan a count | ✓, with Schedules on | — |
+
+## Turning Counts off
+
+Counts is a module, on in every preset. An owner or an admin turns it off in **Location settings
+→ What to track** (**Counts**). Off in a location, its places have no **Count here**, **Count
+regularly** or **Past counts**, its boxes no **Count this box**, its rooms on the map no **Count
+this room**, and **Start a session** offers no count there. **Counts** under Tools goes once it
+is off in all your locations. Planned counts stop reminding. **Box check** stays. Nothing is
+deleted: turned back on, every count is there again.

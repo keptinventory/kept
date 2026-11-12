@@ -2,7 +2,7 @@ import { SCAN_SESSION_ACTIONS, type ScanSessionTarget } from '@kept/shared';
 import type pg from 'pg';
 import { z } from 'zod';
 import { encodeCursor, type PageRequest } from '../http/conventions.js';
-import { invalid, notFound } from '../http/errors.js';
+import { AppError, invalid, notFound } from '../http/errors.js';
 import { callerMembership } from '../locations/access.js';
 
 // Counts that keep every result (1.14, #172): the reads behind the Counts page, a count's page
@@ -166,6 +166,23 @@ async function requireVisible(client: pg.ClientBase, locationId: string): Promis
   if (!(await callerMembership(client, locationId))) throw notFound();
 }
 
+/**
+ * Counts is a module (#506): where it is off, a count's read is 404 `module_off` and its write
+ * 409, as http/modules.ts answers for a gated route. kept.module_on() is effectiveModules() in
+ * SQL (Counts needs no provider and no other module). A pack or a move doesn't ask.
+ */
+export async function requireCountsOn(
+  client: pg.ClientBase,
+  locationId: string,
+  mode: 'read' | 'write',
+): Promise<void> {
+  const { rows } = await client.query<{ on: boolean }>(
+    `SELECT kept.module_on($1, 'counts') AS on`,
+    [locationId],
+  );
+  if (rows[0]?.on !== true) throw new AppError('module_off', mode === 'read' ? 404 : 409);
+}
+
 const UNDONE = (event: string, location: string) =>
   `EXISTS (SELECT 1 FROM public.audit_events u WHERE u.undo_of = ${event}
                 AND u.location_id = ${location})`;
@@ -192,6 +209,7 @@ export async function listCounts(
   page: PageRequest<[string, string]>,
 ): Promise<z.infer<typeof CountsPageSchema>> {
   await requireVisible(client, locationId);
+  await requireCountsOn(client, locationId, 'read');
   const after = page.after;
   if (after && (typeof after[0] !== 'string' || typeof after[1] !== 'string'))
     throw invalid('The cursor is not valid; start again from the first page.');
@@ -327,6 +345,7 @@ async function countHead(client: pg.ClientBase, id: string): Promise<SessionHead
   );
   const r = rows[0];
   if (!r) throw notFound();
+  await requireCountsOn(client, r.location_id, 'read');
   return r;
 }
 
@@ -560,6 +579,15 @@ export async function openCount(
   const place = 'placeId' in target ? target.placeId.toLowerCase() : null;
   const box = 'containerId' in target ? target.containerId.toLowerCase() : null;
   const loc = 'locationId' in target ? target.locationId.toLowerCase() : null;
+  // The target's location, as the caller sees it: none, and there is no open count to show.
+  const { rows: at } = await client.query<{ location_id: string }>(
+    `SELECT location_id FROM public.places WHERE id = $1
+     UNION ALL SELECT location_id FROM public.things WHERE id = $2
+     UNION ALL SELECT id FROM public.locations WHERE id = $3`,
+    [place, box, loc],
+  );
+  if (!at[0]) return { session: null };
+  await requireCountsOn(client, at[0].location_id, 'read');
   const { rows } = await client.query<{
     id: string;
     target: z.infer<typeof Target>;
@@ -619,15 +647,17 @@ export async function sessionLines(
   id: string,
 ): Promise<z.infer<typeof SessionLinesSchema>> {
   const { rows: head } = await client.query<{
+    location_id: string;
     finished_at: Date | null;
     counted_place_ids: string[] | null;
   }>(
-    `SELECT finished_at, counted_place_ids FROM public.scan_sessions
+    `SELECT location_id, finished_at, counted_place_ids FROM public.scan_sessions
       WHERE id = $1 AND mode = 'count'`,
     [id],
   );
   const s = head[0];
   if (!s) throw notFound();
+  await requireCountsOn(client, s.location_id, 'read');
   const { rows } = await client.query<{
     thing_id: string;
     action: ResultLine['result'];
