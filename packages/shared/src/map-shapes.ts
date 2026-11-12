@@ -1795,45 +1795,36 @@ export const SHAPE_WORDS: Readonly<Record<MapModelKey, readonly string[]>> = {
     'lavadora',
     'lavarropas',
   ],
-  /** #443: the words the request gave in each language, and a floor water dispenser's. */
+  /** #443: the request's words for the cabinet, and a floor water dispenser's. The plain filter
+   * words ("water filter", "Wasserfilter", "فلتر مياه", "bình lọc nước") are left out: as often a
+   * jug, a cartridge or a tap's filter, they would give those a 129 cm cabinet. */
   water_purifier: [
     'water purifier',
-    'water filter',
     'water filtration system',
-    'home water filter',
     'water dispenser',
     'water cooler',
     "purificateur d'eau",
-    'filtre à eau',
     "système de filtration d'eau",
     'fontaine à eau',
     'wasserreiniger',
-    'wasserfilter',
     'wasserfilteranlage',
     'wasserfiltrationssystem',
     'wasserspender',
     "depuratore d'acqua",
     'depuratore acqua',
-    "filtro per l'acqua",
     "sistema di filtraggio dell'acqua",
     'erogatore acqua',
     'جهاز تنقية المياه',
     'جهاز تنقية مياه',
-    'فلتر مياه',
-    'فلتر المياه',
-    'مرشح المياه',
     'مبرد مياه',
     'máy lọc nước',
-    'bình lọc nước',
     'máy lọc nước gia đình',
     'hệ thống lọc nước',
     'cây nước nóng lạnh',
     'очищувач води',
-    'фільтр для води',
     'система фільтрації води',
     'кулер для води',
     'purificador de agua',
-    'filtro de agua',
     'sistema de filtración de agua',
     'dispensador de agua',
   ],
@@ -2395,7 +2386,6 @@ export const SHAPE_WORD_LANGS: Readonly<Record<(typeof LISTED_LANGS)[number], re
       'usv',
       'unterbrechungsfreie stromversorgung',
       'wasserreiniger',
-      'wasserfilter',
       'wasserfilteranlage',
       'wasserfiltrationssystem',
       'wasserspender',
@@ -2578,7 +2568,6 @@ export const SHAPE_WORD_LANGS: Readonly<Record<(typeof LISTED_LANGS)[number], re
       'zona',
       'árbol de interior',
       'purificador de agua',
-      'filtro de agua',
       'sistema de filtración de agua',
       'dispensador de agua',
     ],
@@ -2773,7 +2762,6 @@ export const SHAPE_WORD_LANGS: Readonly<Record<(typeof LISTED_LANGS)[number], re
       'panneau de brassage',
       'onduleur',
       "purificateur d'eau",
-      'filtre à eau',
       "système de filtration d'eau",
       'fontaine à eau',
     ],
@@ -2945,7 +2933,6 @@ export const SHAPE_WORD_LANGS: Readonly<Record<(typeof LISTED_LANGS)[number], re
       'computer compatto',
       "depuratore d'acqua",
       'depuratore acqua',
-      "filtro per l'acqua",
       "sistema di filtraggio dell'acqua",
       'erogatore acqua',
     ],
@@ -3122,7 +3109,6 @@ export const SHAPE_WORD_LANGS: Readonly<Record<(typeof LISTED_LANGS)[number], re
       'ổ cứng di động',
       'ổ cứng ngoài',
       'máy lọc nước',
-      'bình lọc nước',
       'máy lọc nước gia đình',
       'hệ thống lọc nước',
       'cây nước nóng lạnh',
@@ -3167,6 +3153,12 @@ const TYPE_SHAPES: Readonly<Record<string, TypeHint>> = {
   consumables: { shapes: ['box', 'basket', 'item'], score: 0.3 },
   batteries: { shapes: ['box', 'item'], score: 0.3 },
   filters: { shapes: ['box', 'item'], score: 0.3 },
+};
+
+/** Shapes a built-in type never is, whatever its name says: a filter is a part (#443), never the
+ * water purifier it goes in. */
+const TYPE_NEVER: Readonly<Record<string, readonly MapModelKey[]>> = {
+  filters: ['water_purifier'],
 };
 
 /** Folds text for matching: lower case, no accents (Cyrillic й and ї with them), ß as ss, đ as d,
@@ -3260,8 +3252,54 @@ const SINGULAR_ONLY: ReadonlySet<string> = new Set(['notebook'].flatMap(words));
  * Words that make a word name something else entirely: a "Spiral notebook", an "A5 notebook" or
  * a "Notebook a righe" is stationery, not a laptop, so it falls back to a small thing (there is no
  * book shape). Whole words only; "Notebook computer" and "Gaming
- * notebook" stay laptops.
+ * notebook" stay laptops. A term may be a phrase: a "Pet water dispenser" is a bowl, not the
+ * water purifier (#443).
  */
+/** A pet's, in Kept's languages: what a water dispenser for one is (#443). */
+const PET_WORDS: ReadonlySet<string> = new Set(
+  [
+    'pet',
+    'pets',
+    'cat',
+    'cats',
+    'dog',
+    'dogs',
+    'chat',
+    'chats',
+    'chien',
+    'chiens',
+    'haustier',
+    'haustiere',
+    'katze',
+    'katzen',
+    'hund',
+    'hunde',
+    'animali',
+    'gatto',
+    'gatti',
+    'cane',
+    'cani',
+    'mascota',
+    'mascotas',
+    'gato',
+    'gatos',
+    'perro',
+    'perros',
+    'тварин',
+    'кота',
+    'котів',
+    'собаки',
+    'mèo',
+    'chó',
+    'thú cưng',
+    'قطط',
+    'قطة',
+    'كلاب',
+    'كلب',
+    'حيوانات',
+  ].flatMap(words),
+);
+
 const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: ReadonlySet<string> }[] = [
   {
     model: 'laptop',
@@ -3357,6 +3395,21 @@ const NOT_THE_SHAPE: readonly { model: MapModelKey; term: string; words: Readonl
       ['televisor', 'televisión', 'tele', 'tv', 'distancia', 'garaje', 'aire'].flatMap(words),
     ),
   },
+  ...[
+    'water dispenser',
+    'water cooler',
+    'fontaine à eau',
+    'wasserspender',
+    'erogatore acqua',
+    'dispensador de agua',
+    'кулер для води',
+    'cây nước nóng lạnh',
+    'مبرد مياه',
+  ].map((phrase) => ({
+    model: 'water_purifier' as const,
+    term: words(phrase).join(' '),
+    words: PET_WORDS,
+  })),
 ];
 
 /** The shapes a name's words point at: phrases inside a longer matched phrase are dropped. */
@@ -3422,6 +3475,10 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'ink',
     'toner',
     'cartridge',
+    'replacement',
+    'jug',
+    'pitcher',
+    'shower',
     'battery',
     'batteries',
     'housse',
@@ -3435,6 +3492,7 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'objectif',
     'encre',
     'cartouche',
+    'carafe',
     'batterie',
     'support',
     'hülle',
@@ -3446,6 +3504,8 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'objektiv',
     'tinte',
     'patrone',
+    'kartusche',
+    'kanne',
     'akku',
     'halterung',
     'ständer',
@@ -3459,6 +3519,7 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'obiettivo',
     'inchiostro',
     'cartuccia',
+    'caraffa',
     'batteria',
     'supporto',
     'جراب',
@@ -3489,6 +3550,7 @@ const ACCESSORIES: ReadonlySet<string> = new Set(
     'lente',
     'tinta',
     'cartucho',
+    'jarra',
     'batería',
     'pila',
     'pilas',
@@ -3540,11 +3602,7 @@ function nameScores(text: string | null | undefined): Map<MapModelKey, number> {
     const phrase = MARKS_REQUIRED.get(h.terms.join(' '));
     if (phrase && !marked.includes(phrase)) return false;
     return !NOT_THE_SHAPE.some(
-      (r) =>
-        r.model === h.model &&
-        h.terms.length === 1 &&
-        h.terms[0] === r.term &&
-        ws.some((w) => r.words.has(w)),
+      (r) => r.model === h.model && h.terms.join(' ') === r.term && ws.some((w) => r.words.has(w)),
     );
   });
   const inPhrase = (i: number) =>
@@ -3610,6 +3668,7 @@ export function suggestShapes(input: ShapeInput, limit = 6): ShapeSuggestions {
     return s;
   };
   const hint = input.typeKey ? TYPE_SHAPES[input.typeKey] : undefined;
+  const ruledOut = input.typeKey ? TYPE_NEVER[input.typeKey] : undefined;
   /** Shapes the type names outright: a confident type's first shape, or a custom type's name. */
   const typeNames = new Set<MapModelKey>();
   hint?.shapes.forEach((m, i) => {
@@ -3619,11 +3678,13 @@ export function suggestShapes(input: ShapeInput, limit = 6): ShapeSuggestions {
   });
   // A custom type's name is the type speaking: "Television" is as clear as the TV type.
   for (const [m, v] of nameScores(input.typeName)) {
+    if (ruledOut?.includes(m)) continue;
     const s = at(m);
     s.type = Math.max(s.type, v >= 0.9 ? 0.92 : v);
     if (v >= 0.9) typeNames.add(m);
   }
   const fromName = nameScores(input.name);
+  for (const m of ruledOut ?? []) fromName.delete(m);
   for (const [m, v] of fromName) at(m).name = v;
 
   // Both pointing at a shape lifts it above either alone (a TV-type thing named "Monitor" ranks
