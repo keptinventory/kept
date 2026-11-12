@@ -283,6 +283,7 @@ const pack: Pack = {
     rack_42u: 'Baie serveur 42U',
     box: 'Boîte de rangement',
     washer: 'Lave-linge',
+    water_purifier: 'Purificateur d’eau',
     workbench: 'Établi',
     tool_wall: 'Panneau à outils',
     wall_tv: 'Télé murale',

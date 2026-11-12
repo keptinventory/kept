@@ -282,6 +282,7 @@ const pack: Pack = {
     rack_42u: 'Bastidor de servidor 42U',
     box: 'Caja de almacenamiento',
     washer: 'Lavadora',
+    water_purifier: 'Purificador de agua',
     workbench: 'Banco de trabajo',
     tool_wall: 'Pared de herramientas',
     wall_tv: 'TV de pared',

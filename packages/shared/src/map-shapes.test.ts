@@ -1003,3 +1003,48 @@ describe('suggestShapes: what a thing is for, in Spanish and Vietnamese', () => 
     expect(named.map((s) => s.model)).not.toContain('printer');
   });
 });
+
+describe('a water purifier standing on the floor (#443)', () => {
+  it.each([
+    ['Water purifier', 'water_purifier'],
+    ['Kitchen water purifier', 'water_purifier'],
+    ['Water filtration system', 'water_purifier'],
+    ['Water dispenser', 'water_purifier'],
+    ['Purificateur d’eau', 'water_purifier'],
+    ['Fontaine à eau', 'water_purifier'],
+    ['Wasserspender', 'water_purifier'],
+    ['Depuratore d’acqua', 'water_purifier'],
+    ['Purificador de agua', 'water_purifier'],
+    ['Очищувач води', 'water_purifier'],
+    ['Máy lọc nước', 'water_purifier'],
+    ['جهاز تنقية المياه', 'water_purifier'],
+    ['فلتر مياه', 'water_purifier'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it('is not sure about a filter cartridge, and keeps the water tank its own', () => {
+    expect(sure({ name: 'Water filter cartridge' })).toBe(false);
+    expect(first({ name: 'Water tank' })).toBe('water_tank');
+    expect(first({ name: 'Bồn nước' })).toBe('water_tank');
+  });
+
+  it('finds it by search in each language, with the kitchen and laundry', () => {
+    expect(searchShapes('water pur')[0]).toBe('water_purifier');
+    expect(searchShapes('wasserspen', {}, 'de')[0]).toBe('water_purifier');
+    expect(searchShapes('máy lọc', {}, 'vi')[0]).toBe('water_purifier');
+    expect(SHAPE_GROUP.water_purifier).toBe('kitchen');
+    for (const lang of SHAPE_LANGS)
+      expect(shapeWordsByLang('water_purifier')[lang].length, lang).toBeGreaterThan(0);
+  });
+
+  it('is drawn at 31 × 36 × 129 cm, standing on the floor', () => {
+    const m = mapModel('water_purifier');
+    expect([m.w, m.d, m.h]).toEqual([0.31, 0.36, 1.29]);
+    expect(m.kind).toBe('thing');
+    expect(m.small).toBeUndefined();
+    expect(m.wall).toBeUndefined();
+  });
+});

@@ -281,6 +281,7 @@ const pack: Pack = {
     rack_42u: 'Tủ rack máy chủ 42U',
     box: 'Hộp lưu trữ',
     washer: 'Máy giặt',
+    water_purifier: 'Máy lọc nước',
     workbench: 'Bàn thợ',
     tool_wall: 'Tường dụng cụ',
     wall_tv: 'TV treo tường',

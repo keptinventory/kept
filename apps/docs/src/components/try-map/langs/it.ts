@@ -276,6 +276,7 @@ const pack: Pack = {
     rack_42u: 'Armadio rack 42U',
     box: 'Scatola',
     washer: 'Lavatrice',
+    water_purifier: 'Depuratore d’acqua',
     workbench: 'Banco da lavoro',
     tool_wall: 'Parete attrezzi',
     wall_tv: 'TV a parete',
