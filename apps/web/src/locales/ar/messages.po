@@ -29306,3 +29306,13 @@ msgstr "جهاز تنقية مياه"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "عدد الرفوف"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "العدّ متوقف"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "يفعّله المالك أو المشرف من «ما الذي تتابعه» في الموقع."

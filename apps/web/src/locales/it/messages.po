@@ -29306,3 +29306,13 @@ msgstr "Depuratore d’acqua"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "Ripiani"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "I conteggi sono disattivati"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "Un proprietario o un amministratore li attiva in «Cosa monitorare» di un luogo."
