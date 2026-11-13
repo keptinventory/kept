@@ -51,3 +51,22 @@ describe('the homelab shapes (#171)', () => {
     }
   });
 });
+
+describe('the water purifier (#443)', () => {
+  it('is drawn in code, filling its own size and no more', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    const THREE = await import('three');
+    const { drawnModels, materials } = await import('./engine/draw');
+    const build = drawnModels(materials()).water_purifier;
+    expect(build).toBeTypeOf('function');
+    const m = mapModel('water_purifier');
+    const g = new THREE.Group();
+    build?.(g, m.w, m.d);
+    const size = new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());
+    // Its tap and buttons stand a few millimetres proud of its front.
+    expect(size.x).toBeCloseTo(m.w, 2);
+    expect(size.y).toBeCloseTo(m.h ?? 0, 2);
+    expect(size.z).toBeGreaterThanOrEqual(m.d - 0.005);
+    expect(size.z).toBeLessThanOrEqual(m.d + 0.01);
+  });
+});

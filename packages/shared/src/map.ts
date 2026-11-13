@@ -305,6 +305,8 @@ export const MAP_MODELS = {
   rack_42u: { w: 0.6, d: 1.0, h: 2.0, kind: 'storage', holds: true },
   box: { w: 0.6, d: 0.4, kind: 'storage', holds: true, small: true, top: 0.34 },
   washer: { w: 0.6, d: 0.6, kind: 'thing' },
+  /** A water purifier standing on the floor (#443): a narrow cabinet, its tap under a panel. */
+  water_purifier: { w: 0.31, d: 0.36, h: 1.29, kind: 'thing' },
   workbench: { w: 1.8, d: 0.7, kind: 'furniture', top: 0.92, holds: true },
   // On a wall (#138), drawn at real sizes. The tool wall is a 1.2 × 0.6 m pegboard over a bench:
   // tools hang from its hooks, their tops 5 cm under its top edge.

@@ -21345,3 +21345,7 @@ msgstr "Chỉ số đã quy đổi"
 #: src/components/history/labels.ts
 msgid "Meter unit changed"
 msgstr "Đã đổi đơn vị đồng hồ đo"
+
+#: src/map/labels.ts
+msgid "Water purifier"
+msgstr "Máy lọc nước"

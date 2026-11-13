@@ -1003,3 +1003,99 @@ describe('suggestShapes: what a thing is for, in Spanish and Vietnamese', () => 
     expect(named.map((s) => s.model)).not.toContain('printer');
   });
 });
+
+describe('a water purifier standing on the floor (#443)', () => {
+  it.each([
+    ['Water purifier', 'water_purifier'],
+    ['Kitchen water purifier', 'water_purifier'],
+    ['Water filtration system', 'water_purifier'],
+    ['Water dispenser', 'water_purifier'],
+    ['Purificateur d’eau', 'water_purifier'],
+    ['Fontaine à eau', 'water_purifier'],
+    ['Wasserspender', 'water_purifier'],
+    ['Depuratore d’acqua', 'water_purifier'],
+    ['Purificador de agua', 'water_purifier'],
+    ['Очищувач води', 'water_purifier'],
+    ['Máy lọc nước', 'water_purifier'],
+    ['جهاز تنقية المياه', 'water_purifier'],
+    ['جهاز تنقية مياه', 'water_purifier'],
+    ['Wasserfilteranlage', 'water_purifier'],
+  ] as const)('%s gets the %s, given by itself', (name, model) => {
+    const s = suggestShapes({ name });
+    expect(s.shapes[0]).toMatchObject({ model, from: 'name' });
+    expect(s.confident).toBe(true);
+  });
+
+  it('is not sure about a filter cartridge, and keeps the water tank its own', () => {
+    expect(sure({ name: 'Water filter cartridge' })).toBe(false);
+    expect(first({ name: 'Water tank' })).toBe('water_tank');
+    expect(first({ name: 'Bồn nước' })).toBe('water_tank');
+  });
+
+  // A water filter is as often a jug, a cartridge or a tap's as the cabinet on the floor: the
+  // plain filter words don't name it, and what these got before the shape came, they still get.
+  it.each([
+    'Water filter',
+    'Water filter jug',
+    'Water filter pitcher',
+    'Brita water filter',
+    'Shower water filter',
+    'Water filter replacement',
+    'Wasserfilter',
+    'Wasserfilter Kanne',
+    'Wasserfilter Kartusche',
+    'Carafe filtre à eau',
+    'Jarra filtro de agua',
+    "Filtro per l'acqua",
+    'Фільтр для води',
+    'Bình lọc nước',
+    'فلتر مياه',
+    'Pet water dispenser',
+    'Fontaine à eau pour chat',
+  ])('gives %s no water purifier', (name) => {
+    expect(shapeOnAdd({ name })).toEqual({ model: 'item', from: 'guess' });
+    expect(suggestShapes({ name }).shapes.map((x) => x.model)).not.toContain('water_purifier');
+  });
+
+  it('never gives a thing of the Filters type the water purifier', () => {
+    // The sample household's filter (apps/server/src/seed/inventory.ts) keeps its box.
+    for (const name of ['Water filter cartridge', 'Water filter', 'Water purifier filter'])
+      expect(shapeOnAdd({ name, typeKey: 'filters' }), name).toEqual({
+        model: 'box',
+        from: 'guess',
+      });
+    expect(
+      suggestShapes({ name: 'Water purifier', typeKey: 'filters' }).shapes.map((x) => x.model),
+    ).not.toContain('water_purifier');
+    // As the map's server reads it: the type's key and its name.
+    expect(
+      shapeOnAdd({ name: 'Water filter cartridge', typeKey: 'filters', typeName: 'Filters' }),
+    ).toEqual({ model: 'box', from: 'guess' });
+  });
+
+  it('is only a guess for a jug, a cartridge or a replacement named after it', () => {
+    for (const name of [
+      'Water purifier cartridge',
+      'Water purifier replacement',
+      'Wasserspender Kanne',
+    ])
+      expect(sure({ name }), name).toBe(false);
+  });
+
+  it('finds it by search in each language, with the kitchen and laundry', () => {
+    expect(searchShapes('water pur')[0]).toBe('water_purifier');
+    expect(searchShapes('wasserspen', {}, 'de')[0]).toBe('water_purifier');
+    expect(searchShapes('máy lọc', {}, 'vi')[0]).toBe('water_purifier');
+    expect(SHAPE_GROUP.water_purifier).toBe('kitchen');
+    for (const lang of SHAPE_LANGS)
+      expect(shapeWordsByLang('water_purifier')[lang].length, lang).toBeGreaterThan(0);
+  });
+
+  it('is drawn at 31 × 36 × 129 cm, standing on the floor', () => {
+    const m = mapModel('water_purifier');
+    expect([m.w, m.d, m.h]).toEqual([0.31, 0.36, 1.29]);
+    expect(m.kind).toBe('thing');
+    expect(m.small).toBeUndefined();
+    expect(m.wall).toBeUndefined();
+  });
+});

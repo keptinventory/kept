@@ -87,6 +87,7 @@ export function useModelNames(): Record<MapModelKey, string> {
       rack_42u: t`Server rack 42U`,
       box: t`Storage box`,
       washer: t`Washing machine`,
+      water_purifier: t`Water purifier`,
       workbench: t`Workbench`,
       tool_wall: t`Tool wall`,
       wall_tv: t`Wall TV`,

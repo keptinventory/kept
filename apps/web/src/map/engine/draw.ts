@@ -273,6 +273,8 @@ export function materials() {
     glass: mat('glass', { color: 0xbfd6e2, roughness: 0.05, transparent: true, opacity: 0.35 }),
     white: mat('white', { color: 0xf6f5f1, roughness: 0.4 }),
     appliance: mat('appliance', { color: 0xe9e9e6, roughness: 0.3, metalness: 0.1 }),
+    /** A dark grey appliance's body (the water purifier, #443). */
+    graphite: mat('graphite', { color: 0x3a3d43, roughness: 0.35, metalness: 0.2 }),
     ceramic: mat('ceramic', { color: 0xefeae1, roughness: 0.3 }),
     terracotta: mat('terracotta', { color: 0xb0643f, roughness: 0.75 }),
     soil: mat('soil', { color: 0x4a3726, roughness: 1 }),
@@ -1199,6 +1201,27 @@ export function drawnModels(F: Materials): Record<string, Build> {
       cy(g, 0.17, 0.17, 0.02, w / 2, 0.42, d + 0.005, F.glass, Math.PI / 2, 0, 28);
       rb(g, 0.2, 0.08, 0.01, 0.15, 0.76, d + 0.004, F.white, 0.008);
       cy(g, 0.035, 0.035, 0.03, w - 0.12, 0.76, d + 0.01, F.chrome, Math.PI / 2);
+    },
+    /**
+     * A water purifier on the floor (#443): a dark cabinet on a recessed plinth with a brass band,
+     * a glass top with its buttons along the front edge, and at the back a panel with a lit
+     * display, the tap under it and a brass handle on top.
+     */
+    water_purifier(g, w, d) {
+      const top = 1.088;
+      rb(g, w - 0.02, 0.03, d - 0.03, w / 2, 0.015, (d - 0.03) / 2, F.black, 0);
+      rb(g, w, top - 0.03, d, w / 2, (top + 0.03) / 2, d / 2, F.graphite, 0.012);
+      rb(g, w - 0.01, 0.027, 0.004, w / 2, 0.62, d + 0.002, F.brass, 0.002);
+      rb(g, w, 0.012, d, w / 2, top + 0.006, d / 2, F.blackGloss, 0.004);
+      rb(g, w - 0.08, 0.02, 0.003, w / 2, top - 0.022, d + 0.0015, F.screen, 0.002);
+      for (const k of [-1, 0, 1]) sp(g, 0.003, w / 2 + k * 0.03, top - 0.022, d + 0.003, F.glow);
+      const panel = 0.18;
+      const py = top + 0.012 + panel / 2;
+      rb(g, w - 0.02, panel, 0.05, w / 2, py, 0.04, F.graphite, 0.01);
+      rb(g, 0.08, 0.035, 0.003, w / 2, py + 0.05, 0.0665, F.screenLit, 0.002);
+      cy(g, 0.008, 0.008, 0.04, w / 2, py - 0.06, 0.085, F.chrome, Math.PI / 2);
+      cy(g, 0.006, 0.006, 0.03, w / 2, py - 0.075, 0.1, F.chrome);
+      rb(g, w * 0.55, 0.014, 0.045, w * 0.6, top + 0.012 + panel + 0.003, 0.04, F.brass, 0.006);
     },
     workbench(g, w, d) {
       rb(g, w, 0.06, d, w / 2, 0.89, d / 2, F.butcher, 0.01);
