@@ -36,6 +36,38 @@ Full detail: [things](/users/things/).
 A thing's page has its photos, its name and **ID**, its full path, and sections for what it
 tracks: **Details**, **Paperwork and warranties**, **Value**, **Meters**, **Loans**, **Claims**,
 **Links**, **Schedules** and **History**. Sections whose module is off in the location don't show.
+
+## Capture and the Inbox
+
+**Capture**, the middle tab on a phone, saves a thing from its photo in the place the chip at the
+top names. Saved without a name, it starts as a draft and waits in the Inbox; with an AI
+provider, Kept names it from the photo. A capture you named is saved as it is, and any values AI
+reads for it wait in the Inbox as suggestions.
+
+### What Draft means
+
+A thing captured without a name is marked **Draft**: saved, in its place, with its photo and
+short ID, but not accepted yet. Until it's accepted, it waits in the **Inbox**, the totals on **Home** and in
+**Insights** leave it out, and Search lists it under the **Draft** filter. Editing it on its own
+page doesn't finish it; the Inbox does.
+
+### Finishing a capture in the Inbox
+
+1. **Open the Inbox**: the tab after **Capture** on a phone, or **Inbox** in the sidebar.
+   **Drafts** shows only the captures waiting there.
+2. **Choose it.** On a computer, pick it in the list and it opens beside it. On a phone, each
+   capture is a card in the list.
+3. **Check its fields.** A draft with no name shows as **Unnamed thing**: **Edit**, type the
+   name, then **Save**. Values AI read but didn't fill in wait as suggestions: **Confirm** or
+   **Reject** each one. **Move** and **Set type** fix its place and type; on a phone these and
+   **Discard** are under **More**.
+4. **Accept** or **Discard**. **Accept** finishes it, once it has a name and every suggestion is
+   confirmed or rejected; **Save** after **Edit** finishes it too. **Discard** moves it to the
+   Trash with its photos, where it can be restored for 30 days.
+
+To finish several at once, tick them, then **Accept names**. Drafts with no name, or with values
+to confirm, stay for you to review.
+
 ## Short IDs and labels
 
 Full detail: [short IDs and labels](/users/short-ids/).

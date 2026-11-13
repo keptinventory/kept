@@ -34,6 +34,10 @@ Hộp: xem Vật chứa.
 
 **Kiểm kê**: đếm một vị trí, hoặc kiểm tra một hộp, đối chiếu với những gì Kept mong đợi ở đó. Mỗi lần kiểm kê đều được lưu, với những gì tìm thấy và những gì thiếu. Còn gọi là kiểm kê tồn kho. [Kiểm kê và kiểm kê tồn kho](/vi/users/counts/)
 
+## D
+
+**Bản nháp**: đồ vật do Chụp lưu khi chưa có tên và chưa được chấp nhận. Nó đợi trong Hộp thư đến cho đến khi được chấp nhận hoặc hủy bỏ. [Chụp và Hộp thư đến](/vi/users/everyday-use/#chụp-và-hộp-thư-đến)
+
 ## F
 
 **Nội thất**: loại vị trí cho nội thất đựng thêm với các ngăn của nó trong một bước: kệ ô vuông, tủ sách, bộ ngăn kéo. Nội thất vẽ trên bản đồ, như bàn làm việc, là đồ vật có hình dạng thay vào đó. [Nội thất có ngăn](/vi/users/locations/#đồ-nội-thất-có-ngăn)

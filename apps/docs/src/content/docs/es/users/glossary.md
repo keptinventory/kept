@@ -33,6 +33,10 @@ Caja: véase Contenedor.
 
 **Contar**: contar un lugar, o revisar una caja, frente a lo que Kept espera que esté allí. Cada conteo se conserva, con lo que se encontró y lo que faltó. También se llama inventario. [Conteos e inventarios](/es/users/counts/)
 
+## D
+
+**Borrador**: un objeto que Capturar guardó sin nombre y que aún no se ha aceptado. Espera en la Bandeja de entrada hasta que se acepta o se descarta. [Capturar y la bandeja de entrada](/es/users/everyday-use/#capturar-y-la-bandeja-de-entrada)
+
 ## F
 
 **Muebles**: un tipo de lugar para muebles de almacenamiento añadidos con sus compartimentos en un solo paso: un estante de cubos, una librería, una cómoda. Los muebles dibujados en el mapa, como un escritorio, son un objeto con forma en su lugar. [Muebles con compartimentos](/es/users/locations/#muebles-con-compartimentos)

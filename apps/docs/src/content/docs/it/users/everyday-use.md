@@ -25,6 +25,38 @@ Su un computer (una finestra larga almeno 1024 pixel), la **Tabella** di un luog
 Dettagli completi: [oggetti](/it/users/things/).
 
 La pagina di un oggetto ha le sue foto, il suo nome e il suo **ID**, il percorso completo, e sezioni per ciò che tiene traccia: **Dettagli**, **Documenti e garanzie**, **Valore**, **Contatori**, **Prestiti**, **Richieste**, **Collegamenti**, **Pianificazioni** e **Cronologia**. Le sezioni il cui modulo è disattivato nel luogo non appaiono.
+
+## Acquisire e In arrivo
+
+**Acquisisci**, la scheda centrale sul telefono, salva un oggetto dalla sua foto nel posto indicato
+dall'etichetta in alto. Salvato senza nome, parte come bozza e attende in In arrivo; con un
+fornitore di IA, Kept gli dà un nome dalla foto. Un'acquisizione a cui hai dato un nome viene salvata
+così com'è, e i valori che l'IA legge per lei attendono in In arrivo come suggerimenti.
+
+### Cosa vuol dire Bozza
+
+Un oggetto acquisito senza nome è segnato come **Bozza**: salvato, nel suo posto, con la sua foto
+e il suo ID breve, ma non ancora accettato. Finché non viene accettato, attende in **In arrivo**, i totali di
+**Home** e di **Statistiche** lo lasciano fuori, e la ricerca lo elenca con il filtro **Bozza**.
+Modificarlo nella sua pagina non lo completa; lo fa In arrivo.
+
+### Completare un'acquisizione in In arrivo
+
+1. **Apri In arrivo**: la scheda dopo **Acquisisci** sul telefono, oppure **In arrivo** nella barra
+   laterale. **Bozze** mostra solo le acquisizioni che vi attendono.
+2. **Sceglila.** Su un computer, sceglila nell'elenco e si apre accanto. Sul telefono, ogni acquisizione è
+   una scheda dell'elenco.
+3. **Controlla i campi.** Una bozza senza nome appare come **Oggetto senza nome**: **Modifica**,
+   scrivi il nome, poi **Salva**. I valori che l'IA ha letto ma non ha compilato attendono come
+   suggerimenti: **Conferma** o **Rifiuta**, uno per uno. **Sposta** e **Imposta tipo** correggono
+   posto e tipo; sul telefono questi e **Scarta** sono sotto **Altro**.
+4. **Accetta** o **Scarta**. **Accetta** la completa, quando ha un nome e ogni suggerimento è
+   confermato o rifiutato; anche **Salva** dopo **Modifica** la completa. **Scarta** la sposta nel
+   cestino con le sue foto, dove si può ripristinare per 30 giorni.
+
+Per completarne diverse insieme, selezionale, poi **Accetta i nomi**. Le bozze senza nome, o con
+valori da confermare, restano da controllare.
+
 ## ID brevi ed etichette
 
 Dettagli completi: [ID brevi ed etichette](/it/users/short-ids/).
