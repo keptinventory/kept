@@ -50,6 +50,10 @@ verschachteln, eine Kiste in einer Kiste auf einem Regal. Ein Behälter ist ein 
 dem, was gefunden wurde, und was fehlte. Auch als Bestandsaufnahme bezeichnet.
 [Zählen und Bestandsaufnahmen](/de/users/counts/)
 
+## D
+
+**Entwurf**: ein Ding, das Erfassen ohne Namen gespeichert hat und das noch nicht übernommen ist. Es wartet im Eingang, bis es übernommen oder verworfen wird. [Erfassen und der Eingang](/de/users/everyday-use/#erfassen-und-der-eingang)
+
 ## F
 
 **Möbel**: eine Ortsart für Aufbewahrungsmöbel, die mit ihren Fächern in einem Schritt hinzugefügt wird: ein

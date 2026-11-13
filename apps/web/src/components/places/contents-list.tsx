@@ -29,7 +29,7 @@
 import { can } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { type InfiniteData, type UseInfiniteQueryResult, useMutation } from '@tanstack/react-query';
-import { type DragEvent, lazy, type ReactNode, Suspense, useMemo, useRef, useState } from 'react';
+import { type DragEvent, type ReactNode, useMemo, useRef, useState } from 'react';
 import { inventoryApi } from '@/api/inventory/queries';
 import type { Page, PlaceNode, ThingListParams, ThingRow } from '@/api/inventory/types';
 import { useAllLocations } from '@/api/queries';
@@ -43,7 +43,7 @@ import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Notice, Pill, useErrorText } from '@/components/page';
 import { tagGroupOf } from '@/components/tags/chip';
 import { BulkTagButtons } from '@/components/tags/lazy';
-import type { BulkTrashButton as BulkTrash } from '@/components/things/bulk-trash';
+import { BulkTrashLazy } from '@/components/things/bulk-trash-lazy';
 import { ListBulkLazy } from '@/components/things/list-bulk-lazy';
 import { useLocationAccountId } from '@/components/things/pickers';
 import { SelectionBar } from '@/components/things/selection-bar';
@@ -105,13 +105,6 @@ const leavesList = (
     tab(current) !== tab(next)
   );
 };
-
-// #294: "Move to Trash" for the selection, on demand: it needs the server anyway.
-const BulkTrashButton = lazy(() =>
-  import('@/components/things/bulk-trash')
-    .then((m) => ({ default: m.BulkTrashButton }))
-    .catch(() => ({ default: (() => null) as unknown as typeof BulkTrash })),
-);
 
 export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps) {
   const { t } = useLingui();
@@ -423,13 +416,12 @@ export function ContentsList({ parent, canEdit, view, empty }: ContentsListProps
           onDone={stopSelecting}
           trash={
             canTrash ? (
-              <Suspense fallback={null}>
-                <BulkTrashButton
-                  thingIds={selected}
-                  holdsThings={things.some((x) => x.isContainer && selection.ids.has(x.id))}
-                  onDone={stopSelecting}
-                />
-              </Suspense>
+              // #294, on demand; never hidden by a failed load (discussion #183).
+              <BulkTrashLazy
+                thingIds={selected}
+                holdsThings={things.some((x) => x.isContainer && selection.ids.has(x.id))}
+                onDone={stopSelecting}
+              />
             ) : null
           }
         >

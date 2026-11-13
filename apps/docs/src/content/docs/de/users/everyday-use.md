@@ -42,6 +42,40 @@ verfolgt: **Details**, **Unterlagen und Garantien**, **Wert**, **Zähler**, **Le
 **Verknüpfungen**, **Zeitpläne** und **Verlauf**. Abschnitte, deren Modul im Standort ausgeschaltet
 ist, werden nicht angezeigt.
 
+## Erfassen und der Eingang
+
+**Erfassen**, der mittlere Tab auf dem Telefon, speichert ein Ding aus seinem Foto an dem Ort, den
+der Chip oben nennt. Ohne Namen gespeichert, beginnt es als Entwurf und wartet im Eingang; mit
+einem KI-Anbieter benennt Kept es anhand des Fotos. Eine Erfassung, der du einen Namen gegeben
+hast, wird gespeichert, wie sie ist, und Werte, die die KI dafür liest, warten im Eingang als
+Vorschläge.
+
+### Was Entwurf bedeutet
+
+Ein ohne Namen erfasstes Ding trägt **Entwurf**: gespeichert, an seinem Ort, mit Foto und
+Kurz-ID, aber noch nicht übernommen. Bis es übernommen ist, wartet es im **Eingang**, die Summen auf **Start** und in
+**Einblicke** lassen es aus, und die Suche listet es unter dem Filter **Entwurf**. Es auf seiner
+eigenen Seite zu bearbeiten, schließt es nicht ab; das macht der Eingang.
+
+### Eine Erfassung im Eingang abschließen
+
+1. **Öffne den Eingang**: der Tab nach **Erfassen** auf dem Telefon oder **Eingang** in der
+   Seitenleiste. **Entwürfe** zeigt nur die Erfassungen, die dort warten.
+2. **Wähle ihn aus.** Auf einem Computer wählst du ihn in der Liste, und er öffnet sich daneben.
+   Auf dem Telefon ist jede Erfassung eine Karte in der Liste.
+3. **Prüfe seine Felder.** Ein Entwurf ohne Namen heißt **Ding ohne Namen**: **Bearbeiten**,
+   Namen eintippen, dann **Speichern**. Werte, die die KI gelesen, aber nicht selbst eingetragen
+   hat, warten als Vorschläge: **Bestätigen** oder **Verwerfen**, jeden einzeln. **Verschieben**
+   und **Typ setzen** korrigieren Ort und Typ; auf dem Telefon stehen sie und **Verwerfen** unter
+   **Mehr**.
+4. **Übernehmen** oder **Verwerfen**. **Übernehmen** schließt ihn ab, sobald er einen Namen hat und
+   jeder Vorschlag bestätigt oder verworfen ist; **Speichern** nach **Bearbeiten** schließt ihn
+   ebenfalls ab. **Verwerfen** legt ihn mit seinen Fotos in den Papierkorb, wo er sich 30 Tage lang
+   wiederherstellen lässt.
+
+Mehrere auf einmal: hake sie an, dann **Namen übernehmen**. Entwürfe ohne Namen oder mit Werten zum
+Bestätigen bleiben, bis du sie prüfst.
+
 ## Kurz-IDs und Etiketten
 
 Full detail: [Kurz-IDs und Etiketten](/de/users/short-ids/).

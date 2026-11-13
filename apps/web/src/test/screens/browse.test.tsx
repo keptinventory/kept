@@ -683,6 +683,18 @@ describe('select and trash (#294)', () => {
     expect(deleted()).toEqual([null, null]);
   });
 
+  it('offers Move to Trash for things selected inside a box (discussion #183)', async () => {
+    const { user } = await renderApp(`/t/${T.cableBox}`);
+    await findHeading('Cable box');
+    await user.click(await screen.findByRole('button', { name: 'Select' }));
+    await user.click((await screen.findAllByRole('checkbox'))[0] as HTMLElement);
+    const bar = await screen.findByRole('toolbar', { name: 'Selection' });
+    // Off while it loads (it is fetched on demand), then on.
+    await waitFor(() =>
+      expect(within(bar).getByRole('button', { name: 'Move to Trash' })).toBeEnabled(),
+    );
+  });
+
   it('asks what happens to what is inside a box first', async () => {
     const { user, mock } = await renderApp(`/loc/${IDS.home}`);
     const dialog = await pick(user, ['Select Galaxy S23', 'Select Cable box']);

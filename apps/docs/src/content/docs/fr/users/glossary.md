@@ -33,6 +33,10 @@ Boîte : voir Conteneur.
 
 **Compter** : compter un emplacement, ou vérifier une boîte, par rapport à ce que Kept attend d'y trouver. Chaque comptage est conservé, avec ce qui a été trouvé et ce qui manquait. Aussi appelé un inventaire. [Comptages et inventaires](/fr/users/counts/)
 
+## D
+
+**Brouillon** : un objet enregistré sans nom par la Capture, pas encore accepté. Il attend dans la Réception jusqu'à ce qu'il soit accepté ou rejeté. [La capture et la Réception](/fr/users/everyday-use/#la-capture-et-la-réception)
+
 ## F
 
 **Meubles** : une sorte d'emplacement pour les meubles de rangement, ajoutés avec leurs compartiments en une seule étape : une étagère à cubes, une bibliothèque, une commode. Les meubles dessinés sur la carte, comme un bureau, sont un objet avec une forme à la place. [Meubles avec compartiments](/fr/users/locations/#mobilier-à-compartiments)
