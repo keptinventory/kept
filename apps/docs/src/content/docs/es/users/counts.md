@@ -72,5 +72,7 @@ en **Configuración de ubicación → Qué seguir** (**Conteos**). Desactivado e
 lugares no tienen **Contar aquí**, **Contar regularmente** ni **Conteos pasados**, sus cajas no
 tienen **Contar esta caja**, sus habitaciones en el mapa no tienen **Contar esta habitación**, e
 **Iniciar una sesión** no ofrece contar allí. **Conteos** en Herramientas desaparece cuando está
-desactivado en todas tus ubicaciones. Los conteos planificados dejan de recordarse. La **Revisión
-de caja** se queda. No se borra nada: al volver a activarlo, cada conteo sigue ahí.
+desactivado en todas tus ubicaciones. Los kits no tienen **Revisar este kit**. Los conteos
+planificados dejan de enviar recordatorios: se pueden pausar, reanudar o eliminar, pero no
+completar, posponer ni saltar. La **Revisión de caja** se queda, y la lista de conteos de la
+ubicación muestra solo sus revisiones de caja. No se borra nada: al volver a activarlo, cada conteo sigue ahí.

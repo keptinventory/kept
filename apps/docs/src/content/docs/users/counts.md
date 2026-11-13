@@ -95,5 +95,7 @@ Counts is a module, on in every preset. An owner or an admin turns it off in **L
 → What to track** (**Counts**). Off in a location, its places have no **Count here**, **Count
 regularly** or **Past counts**, its boxes no **Count this box**, its rooms on the map no **Count
 this room**, and **Start a session** offers no count there. **Counts** under Tools goes once it
-is off in all your locations. Planned counts stop reminding. **Box check** stays. Nothing is
-deleted: turned back on, every count is there again.
+is off in all your locations. Kits have no **Check this kit**. Planned counts stop reminding:
+they can be paused, resumed or deleted, but not done, snoozed or skipped. **Box check** stays,
+and the location's Counts list shows its box checks only. Nothing is deleted: turned back on,
+every count is there again.

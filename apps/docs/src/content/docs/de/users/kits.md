@@ -47,7 +47,7 @@ Ein **Gesetzt** ist ein Behälter mit einer Teileliste: was darin sein sollte. E
 
 - **Teile → Zu einem Set machen** auf einem Behälter: sein Inhalt wird als Teile angehakt; mehr über Suche hinzufügen. Ein Teil gehört zu höchstens einem Set, am Standort des Sets.
 - Der **Teile**-Tab sagt **Erledigen**, „2 Teile nicht im Set“ oder **Mit Sam seit 3. Okt.**, und jedes Teil: Im Set, Sonstwo (mit **Zurücklegen**), Vermisst, Bei jemandem, oder Im Papierkorb.
-- **Dieses Set prüfen** zählt es mit einer [Scan-Session](/de/users/scanning-sessions/): ihre Liste sind die Teile, egal wo sie sind.
+- **Dieses Set prüfen** zählt es mit einer [Scan-Session](/de/users/scanning-sessions/): ihre Liste sind die Teile, egal wo sie sind. Es erscheint, solange Zählungen am Standort eingeschaltet sind.
 - **Teile bearbeiten** und **Kein Set mehr** können für 7 Tage rückgängig gemacht werden.
 - Suche und Listen filtern nach **Sets** und **Unvollständige Sets**.
 

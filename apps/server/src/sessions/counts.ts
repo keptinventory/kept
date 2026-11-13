@@ -176,11 +176,17 @@ export async function requireCountsOn(
   locationId: string,
   mode: 'read' | 'write',
 ): Promise<void> {
+  if (!(await countsAreOn(client, locationId)))
+    throw new AppError('module_off', mode === 'read' ? 404 : 409);
+}
+
+/** Whether Counts is on in the location (#506). */
+export async function countsAreOn(client: pg.ClientBase, locationId: string): Promise<boolean> {
   const { rows } = await client.query<{ on: boolean }>(
     `SELECT kept.module_on($1, 'counts') AS on`,
     [locationId],
   );
-  if (rows[0]?.on !== true) throw new AppError('module_off', mode === 'read' ? 404 : 409);
+  return rows[0]?.on === true;
 }
 
 const UNDONE = (event: string, location: string) =>
@@ -201,7 +207,10 @@ const TARGET_JOINS = `
   LEFT JOIN public.things tc ON tc.id = s.target_container_id
   JOIN public.locations l ON l.id = s.location_id`;
 
-/** GET /api/v1/locations/:id/counts: finished counts and box checks, newest first. */
+/**
+ * GET /api/v1/locations/:id/counts: finished counts and box checks, newest first. With Counts off
+ * (#506) it lists the box checks only: a box check is not a count, and this is their one list.
+ */
 export async function listCounts(
   client: pg.ClientBase,
   locationId: string,
@@ -209,7 +218,7 @@ export async function listCounts(
   page: PageRequest<[string, string]>,
 ): Promise<z.infer<typeof CountsPageSchema>> {
   await requireVisible(client, locationId);
-  await requireCountsOn(client, locationId, 'read');
+  const kind = (await countsAreOn(client, locationId)) ? (query.kind ?? null) : 'box_check';
   const after = page.after;
   if (after && (typeof after[0] !== 'string' || typeof after[1] !== 'string'))
     throw invalid('The cursor is not valid; start again from the first page.');
@@ -266,7 +275,7 @@ export async function listCounts(
       LIMIT $11`,
     [
       locationId,
-      query.kind ?? null,
+      kind,
       query.placeId?.toLowerCase() ?? null,
       query.by?.toLowerCase() ?? null,
       query.had ?? null,

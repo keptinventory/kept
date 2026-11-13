@@ -72,5 +72,7 @@ désactive dans **Paramètres du lieu → Ce que vous suivez** (**Comptages**). 
 ses emplacements n'ont plus **Compter ici**, **Compter régulièrement** ni **Comptages passés**, ses
 boîtes plus **Compter cette boîte**, ses pièces sur la carte plus **Compter cette pièce**, et
 **Démarrer une session** n'y propose plus de comptage. **Comptages** sous Outils disparaît dès
-qu'il est désactivé dans tous vos lieux. Les comptages planifiés ne rappellent plus rien.
-**Vérifier une boîte** reste. Rien n'est supprimé : réactivé, chaque comptage est de nouveau là.
+qu'il est désactivé dans tous vos lieux. Les kits n'ont plus **Vérifier ce kit**. Les comptages
+planifiés ne rappellent plus rien : on peut les mettre en pause, les reprendre ou les supprimer,
+mais pas les terminer, les reporter ni les sauter. **Vérifier une boîte** reste, et la liste des
+comptages du lieu n'affiche que ses vérifications de boîtes. Rien n'est supprimé : réactivé, chaque comptage est de nouveau là.

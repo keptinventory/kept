@@ -56,7 +56,10 @@ export function BoxCheckPage({ id }: { id: string }) {
     );
   };
   return (
-    <Page title={t`Box check of ${name}`} back="/counts">
+    <Page
+      title={t`Box check of ${name}`}
+      back={{ to: '/counts', search: { 'f.location': b.locationId } }}
+    >
       <div className="grid gap-5">
         <div className="grid gap-1">
           <p className="m-0 font-semibold text-[28px] tabular-nums">{t`${found} of ${of}`}</p>

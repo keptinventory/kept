@@ -8,8 +8,12 @@
 -- 2. The agenda: a planned count (a schedule of kind `count`) is on it only while Counts is on
 --    too, so with Counts off it reminds no one and leaves Home's Needs you. The rest of the view is
 --    0152's.
--- Additive: both are CREATE OR REPLACE with the same signature and columns; the release before
--- this one never asks about 'counts', and a planned count it reads stays on its agenda.
+-- 3. Every location gets its Counts switch as a row, on: an export names the modules a location
+--    has from these rows, so without one an export, imported, would turn Counts off. A location
+--    made from now on gets every module's row when it is created.
+-- Additive: 1 and 2 are CREATE OR REPLACE with the same signature and columns, and 3 only adds
+-- rows; the release before this one never asks about 'counts' (an unknown module id is ignored),
+-- and a planned count it reads stays on its agenda.
 
 CREATE OR REPLACE FUNCTION kept.module_enabled(p_location uuid, p_module text) RETURNS boolean
 LANGUAGE sql STABLE SET search_path = pg_catalog, public AS $$
@@ -171,3 +175,7 @@ SELECT 'stock', r.id, r.location_id, r.thing_id, NULL::uuid, 'due',
   JOIN public.things t ON t.id = r.thing_id
  WHERE loc.on_consumables AND r.low_since IS NOT NULL AND t.quantity < r.min_quantity
    AND t.deleted_at IS NULL AND t.lifecycle = 'in_use';
+--> statement-breakpoint
+INSERT INTO public.location_modules (location_id, module, enabled, enabled_at)
+SELECT l.id, 'counts', true, now() FROM public.locations l
+ON CONFLICT (location_id, module) DO NOTHING;

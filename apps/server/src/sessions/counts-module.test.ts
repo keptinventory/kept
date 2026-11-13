@@ -5,6 +5,7 @@ import { type TestDb, testDb } from '../../test/db.js';
 import { call, join, type Person, peopleApp, person } from '../../test/people.js';
 import { op, sent } from '../../test/sync-ops.js';
 import {
+  builtinType,
   createLocation,
   createThing,
   type Json,
@@ -13,6 +14,7 @@ import {
   own,
   place,
 } from '../../test/things.js';
+import { runTool } from '../tools/context.js';
 
 // Counts as a module a location can turn off (#506), like Labels and Lending: on in every preset,
 // so a location keeps its counts; off, the counts' reads are 404 `module_off`, their writes 409,
@@ -126,7 +128,6 @@ describe('Counts, a module a location can turn off (#506)', () => {
     expect(view.modules).not.toContain('counts');
 
     const off404 = { status: 404, code: 'module_off' };
-    expect(await status(louis, `/api/v1/locations/${home.id}/counts`)).toEqual(off404);
     expect(await status(louis, `/api/v1/scan-sessions/${before.id}`)).toEqual(off404);
     expect(await status(louis, `/api/v1/scan-sessions/${before.id}/result`)).toEqual(off404);
     expect(await status(louis, `/api/v1/scan-sessions/${before.id}/result.csv`)).toEqual(off404);
@@ -160,6 +161,36 @@ describe('Counts, a module a location can turn off (#506)', () => {
     expect(r.session).toMatchObject({ seen: 1 });
     const list = ok(await call(t, `/api/v1/locations/${home.id}/counts`, { as: louis }));
     expect((list.items as Json[]).map((x) => x.id)).toContain(before.id);
+  });
+
+  it('off: a box check still works, and the Counts list keeps the box checks, only them', async () => {
+    const box = await createThing(t, ibrahim, home, {
+      name: 'Crate042',
+      typeId: await builtinType(db, 'box_bin'),
+    });
+    const cable = await createThing(t, ibrahim, home, { name: 'Cable', containerId: box.id });
+    await switchCounts(false);
+    try {
+      const checkId = newId();
+      ok(
+        await call(t, `/api/v1/things/${box.id}/box-check`, {
+          as: louis,
+          body: { id: checkId, lines: [{ thingId: cable.id, expectedQty: '1', foundQty: '1' }] },
+        }),
+      );
+      const list = ok(await call(t, `/api/v1/locations/${home.id}/counts`, { as: louis }));
+      const items = list.items as Json[];
+      expect(items.map((x) => x.id)).toContain(checkId);
+      expect(new Set(items.map((x) => x.kind))).toEqual(new Set(['box_check']));
+      // Asking for counts gets none either.
+      const counts = ok(
+        await call(t, `/api/v1/locations/${home.id}/counts?kind=count`, { as: louis }),
+      );
+      expect((counts.items as Json[]).map((x) => x.kind)).not.toContain('count');
+      expect((await status(louis, `/api/v1/box-checks/${checkId}`)).status).toBe(200);
+    } finally {
+      await switchCounts(true);
+    }
   });
 
   it('off: a pack or a move is still a scan session of its own', async () => {
@@ -224,5 +255,93 @@ describe('Counts, a module a location can turn off (#506)', () => {
       await switchCounts(true);
     }
     expect(await agendaHas(made.id as string)).toBe(true);
+  });
+});
+
+describe('a planned count while Counts is off (#506)', () => {
+  const plan = async (name: string) => {
+    const loft = await place(db, home, name);
+    const made = ok(
+      await call(t, '/api/v1/schedules', {
+        as: ibrahim,
+        body: {
+          subject: { placeId: loft },
+          name: `Count the ${name}`,
+          kind: 'count',
+          everyMonths: 6,
+        },
+      }),
+      201,
+    );
+    return { id: made.id as string, version: () => versionOf(made.id as string) };
+  };
+  const versionOf = async (id: string) =>
+    (
+      await own<{ v: number }>(db, 'SELECT row_version AS v FROM public.schedules WHERE id = $1', [
+        id,
+      ])
+    )[0]?.v as number;
+  const write = async (
+    method: 'DELETE' | 'PATCH' | 'POST',
+    url: string,
+    version: number,
+    body?: unknown,
+  ) => {
+    const res = await call(t, url, {
+      as: ibrahim,
+      method,
+      headers: { 'if-match': String(version) },
+      ...(body === undefined ? {} : { body }),
+    });
+    const code = res.headers['content-type']?.toString().includes('json')
+      ? (res.json() as { code?: string }).code
+      : undefined;
+    return { status: res.statusCode, code };
+  };
+  const tool = (name: 'complete_schedule' | 'snooze_schedule', args: Record<string, unknown>) =>
+    runTool(
+      {
+        deps: { pools: db.pools, jobs: null, files: null, providerResolved: async () => true },
+        principal: { userId: ibrahim.userId, mfa: false, scope: 'write' },
+        locale: 'en',
+        requestId: `counts-module-${name}`,
+        via: 'assistant',
+      },
+      name,
+      args,
+    ) as Promise<{ error?: string }>;
+  const off409 = { status: 409, code: 'module_off' };
+
+  it('pauses, resumes and is deleted, but is not done, snoozed, skipped or changed', async () => {
+    const a = await plan('Box room');
+    const b = await plan('Cellar store');
+    await switchCounts(false);
+    try {
+      const url = `/api/v1/schedules/${a.id}`;
+      expect((await write('PATCH', url, await a.version(), { active: false })).status).toBe(200);
+      expect((await write('PATCH', url, await a.version(), { active: true })).status).toBe(200);
+      expect(await write('PATCH', url, await a.version(), { everyMonths: 3 })).toEqual(off409);
+      expect(await write('POST', `${url}/complete`, await a.version(), {})).toEqual(off409);
+      expect(
+        await write('POST', `${url}/snooze`, await a.version(), { untilDate: '2099-01-01' }),
+      ).toEqual(off409);
+      expect(await write('POST', `${url}/skip`, await a.version(), {})).toEqual(off409);
+      // Through MCP and the assistant: the same refusal, as any module that is off.
+      expect(await tool('complete_schedule', { schedule_id: a.id })).toMatchObject({
+        error: 'tool_unavailable',
+      });
+      expect(
+        await tool('snooze_schedule', { schedule_id: a.id, until_date: '2099-01-01' }),
+      ).toMatchObject({ error: 'tool_unavailable' });
+      expect((await write('DELETE', `/api/v1/schedules/${b.id}`, await b.version())).status).toBe(
+        204,
+      );
+    } finally {
+      await switchCounts(true);
+    }
+    // Back on, it is done as before.
+    expect(
+      (await write('POST', `/api/v1/schedules/${a.id}/complete`, await a.version(), {})).status,
+    ).toBe(200);
   });
 });

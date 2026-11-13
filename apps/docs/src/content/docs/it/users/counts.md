@@ -72,5 +72,7 @@ Conteggi è un modulo, attivo in ogni preset. Un proprietario o un amministrator
 non hanno più **Conta qui**, **Conta regolarmente** né **Conteggi passati**, le sue scatole non
 hanno **Conta questa scatola**, le sue stanze sulla mappa non hanno **Conta questa stanza**, e
 **Avvia una sessione** non vi propone il conteggio. **Conteggi** sotto Strumenti sparisce quando è
-disattivato in tutti i tuoi luoghi. I conteggi pianificati smettono di ricordarsi. Il **Controllo
-scatola** resta. Non si cancella nulla: riattivato, ogni conteggio è di nuovo lì.
+disattivato in tutti i tuoi luoghi. I kit non hanno **Controlla questo kit**. I conteggi
+pianificati non mandano più promemoria: si possono mettere in pausa, riprendere o eliminare, ma non
+completare, rimandare o saltare. Il **Controllo scatola** resta, e l'elenco dei conteggi del luogo
+mostra solo i suoi controlli scatola. Non si cancella nulla: riattivato, ogni conteggio è di nuovo lì.

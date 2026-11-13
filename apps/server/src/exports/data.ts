@@ -1,3 +1,4 @@
+import { MODULE_IDS } from '@kept/shared';
 import type pg from 'pg';
 import { type EntityDef, type Field, fieldsOf } from './registry.js';
 
@@ -69,6 +70,9 @@ export function pageQuery(def: EntityDef, ctx: ReadContext, after: boolean): Bui
   if (def.entity === 'location') {
     select.push(`ARRAY(SELECT m.module FROM public.location_modules m
                         WHERE m.location_id = x.id AND m.enabled ORDER BY m.module) AS "modules"`);
+    // Every module this server has (#506): the importer then knows a module missing from
+    // `modules` is off, not one this export never heard of. The ids are the registry's own.
+    select.push(`ARRAY[${MODULE_IDS.map((m) => `'${m}'`).join(', ')}]::text[] AS "modulesKnown"`);
   }
   if (def.entity === 'types') select.push(`x.owner_account_id IS NULL AS "builtin"`);
   def.key.forEach((k, i) => {
@@ -110,6 +114,7 @@ function toWire(row: Record<string, unknown>, built: Built, showMoney: boolean):
     out[f.name] = v instanceof Date ? v.toISOString() : (v ?? null);
   }
   if (row.modules !== undefined) out.modules = row.modules;
+  if (row.modulesKnown !== undefined) out.modulesKnown = row.modulesKnown;
   if (row.builtin !== undefined) out.builtin = row.builtin;
   if (!showMoney && built.money.length > 0) out.moneyHidden = true;
   return out;

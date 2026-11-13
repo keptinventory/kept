@@ -96,5 +96,7 @@ unter **Standorteinstellungen → Was erfasst wird** (**Zählungen**) aus. Sind 
 aus, haben seine Orte kein **Hier zählen**, **Regelmäßig zählen** oder **Frühere Zählungen**, seine
 Kisten kein **Diese Kiste zählen**, seine Räume auf der Karte kein **Diesen Raum zählen**, und
 **Sitzung starten** bietet dort kein Zählen an. **Zählungen** unter Werkzeuge verschwindet, sobald
-sie an allen deinen Standorten aus sind. Geplante Zählungen erinnern nicht mehr. Der
-**Kistencheck** bleibt. Nichts wird gelöscht: wieder eingeschaltet, ist jede Zählung wieder da.
+sie an allen deinen Standorten aus sind. Sets haben kein **Dieses Set prüfen**. Geplante
+Zählungen erinnern nicht mehr: sie lassen sich pausieren, fortsetzen oder löschen, aber nicht
+erledigen, zurückstellen oder überspringen. Der **Kistencheck** bleibt, und die Zählungsliste des
+Standorts zeigt nur seine Kistenchecks. Nichts wird gelöscht: wieder eingeschaltet, ist jede Zählung wieder da.

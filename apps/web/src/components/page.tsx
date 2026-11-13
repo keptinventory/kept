@@ -71,7 +71,14 @@ export function Page({
 }: {
   title: ReactNode;
   /** Where the back arrow goes. Phones show it; the desktop has the sidebar. */
-  back?: LinkProps['to'] | { to: LinkProps['to']; params?: Record<string, string> };
+  back?:
+    | LinkProps['to']
+    | {
+        to: LinkProps['to'];
+        params?: Record<string, string>;
+        /** A list's filters to land on, e.g. the Counts list in the right location. */
+        search?: Record<string, string>;
+      };
   actions?: ReactNode;
   /** A small line above the title on desktop, e.g. the location name. */
   eyebrow?: ReactNode;

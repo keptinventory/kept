@@ -22,6 +22,7 @@ import { requireRole } from '../things/service.js';
 import { moneyOff, requireCurrencies } from '../things/validate.js';
 import {
   type Ctx,
+  requireCountsFor,
   requireModule,
   requireNotDone,
   type SubjectInput,
@@ -562,6 +563,7 @@ export async function completeSchedule(
   body: CompleteInput,
 ): Promise<{ serviceRecord: ServiceRecord; schedule: Schedule }> {
   const s = await writableSchedule(ctx, id);
+  await requireCountsFor(ctx, s);
   if (s.row_version !== expected) {
     const by = await lastChangedBy(ctx.client, s.location_id, { type: 'schedule', id });
     checkVersion(

@@ -47,7 +47,7 @@ Un **kit** est un conteneur avec une liste de pièces : ce qui devrait s'y trouv
 
 - **Pièces → En faire un kit** sur un conteneur : son contenu est coché comme pièces ; ajoutez-en d'autres par recherche. Un objet peut faire partie d'au plus un kit, dans le lieu du kit.
 - L'onglet **Pièces** affiche **Terminer**, « 2 pièces hors du kit » ou **Avec Sam depuis le 3 oct**, et chaque pièce : Dans le kit, Ailleurs (avec **Remettre**), Manquant, Chez quelqu'un, ou Dans la corbeille.
-- **Vérifier ce kit** la compte avec une [session de numérisation](/fr/users/scanning-sessions/) : sa liste est les pièces, où qu'elles soient.
+- **Vérifier ce kit** la compte avec une [session de numérisation](/fr/users/scanning-sessions/) : sa liste est les pièces, où qu'elles soient. Il s'affiche tant que les comptages sont activés dans le lieu.
 - **Modifier les pièces** et **Plus un kit** peuvent être annulés pendant 7 jours.
 - Recherche et listes filtrent par **Kits** et **Kits incomplets**.
 

@@ -48,7 +48,7 @@ Un **kit** è un contenitore con un elenco di parti: ciò che dovrebbe esserci. 
 - **Parti → Rendilo un kit** su un contenitore: i suoi contenuti sono spuntati come parti; aggiungine altre tramite ricerca.
 - Una cosa è parte di al massimo un kit, nel luogo del kit.
 - La scheda **Parti** dice **Completo**, "2 parti non nel kit" oppure **Con Sam dal 3 Oct**, e ogni parte: Nel kit, Altrove (con **Rimetti**), Mancante, Con qualcuno, oppure Nel cestino.
-- **Controlla questo kit** lo conta con una [sessione di scansione](/it/users/scanning-sessions/): il suo elenco è composto dalle parti, ovunque si trovino.
+- **Controlla questo kit** lo conta con una [sessione di scansione](/it/users/scanning-sessions/): il suo elenco è composto dalle parti, ovunque si trovino. Compare finché i conteggi sono attivi nel luogo.
 - **Modifica le parti** e **Non più un kit** possono essere annullati per 7 giorni.
 - La ricerca e gli elenchi filtrano per **Kit** e **Kit incompleti**.
 
