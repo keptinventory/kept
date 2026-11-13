@@ -3,6 +3,8 @@
  * standard (surface `counts`: search by what was counted; filters kind, place, who, had missing
  * and date; grouped by place, person or month; paged; all in the URL). One location at a time:
  * the location filter picks it (the first one by default). Each row opens the count's page.
+ * Counts is a module (#506): it opens on a location with Counts on, and a location with it off
+ * lists its box checks only (a box check is not a count, and this is their one list).
  */
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -15,7 +17,8 @@ import { useFilterRegistry } from '@/components/filters/registry';
 import type { FilterDef } from '@/components/filters/types';
 import { ActivityIcon, AlertIcon, BoxIcon, QrIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
-import { EmptyState, IconTile, Pill, Row } from '@/components/page';
+import { EmptyState, IconTile, Notice, Pill, Row } from '@/components/page';
+import { accessOf } from '@/components/schedules/access';
 import { oneValue } from '@/components/schedules/list-query';
 import { useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
@@ -29,9 +32,12 @@ export function CountsList() {
   const locations = useLocationsInView();
   const locationName = useLocationName();
   const all = locations.data ?? [];
-  const locationId = oneValue(list, 'location') ?? all[0]?.id ?? null;
+  const countsOn = (id: string | null) => accessOf(all.find((l) => l.id === id)).moduleOn('counts');
+  const locationId =
+    oneValue(list, 'location') ?? (all.find((l) => countsOn(l.id)) ?? all[0])?.id ?? null;
+  const boxChecksOnly = !!locations.data && !countsOn(locationId);
 
-  const kind = oneValue(list, 'kind');
+  const kind = boxChecksOnly ? 'box_check' : oneValue(list, 'kind');
   const params: CountsParams = {
     ...(list.q ? { q: list.q } : {}),
     ...(kind === 'count' || kind === 'box_check' ? { kind } : {}),
@@ -56,20 +62,24 @@ export function CountsList() {
           },
         ]
       : []),
-    {
-      key: 'kind',
-      label: t`Kind`,
-      icon: <QrIcon />,
-      kind: 'single',
-      negatable: false,
-      values: {
-        from: 'static',
-        options: [
-          { value: 'count', label: t`Counts` },
-          { value: 'box_check', label: t`Box checks` },
-        ],
-      },
-    },
+    ...(boxChecksOnly
+      ? []
+      : [
+          {
+            key: 'kind',
+            label: t`Kind`,
+            icon: <QrIcon />,
+            kind: 'single' as const,
+            negatable: false,
+            values: {
+              from: 'static' as const,
+              options: [
+                { value: 'count', label: t`Counts` },
+                { value: 'box_check', label: t`Box checks` },
+              ],
+            },
+          },
+        ]),
     { ...f.place(locationId ? [locationId] : []), kind: 'single', negatable: false },
     { ...f.actor(locationId ? [locationId] : []), key: 'by', kind: 'single', negatable: false },
     {
@@ -83,38 +93,51 @@ export function CountsList() {
   ];
 
   return (
-    <ListSurface<CountSummary>
-      label={t`Counts`}
-      search={{ label: t`Search counts`, placeholder: t`Search by what was counted` }}
-      filters={filters}
-      surface="counts"
-      groups={[
-        { value: 'none', label: t`None` },
-        { value: 'place', label: t`Place`, short: t`by place` },
-        { value: 'person', label: t`Person`, short: t`by person` },
-        { value: 'month', label: t`Month`, short: t`by month` },
-      ]}
-      query={query}
-      getKey={(c) => c.id}
-      groupOf={(c, by) =>
-        by === 'place'
-          ? { key: c.target.id, label: <bdi>{c.target.name}</bdi> }
-          : by === 'person'
-            ? { key: c.by.id ?? '', label: <bdi>{c.by.displayName}</bdi> }
-            : by === 'month'
-              ? { key: c.at.slice(0, 7), label: <MonthLabel iso={c.at} /> }
-              : null
-      }
-      renderRow={(c) => <CountRow count={c} />}
-      empty={
-        <EmptyState icon={<ActivityIcon />} title={<Trans>No counts yet</Trans>}>
-          <Trans>
-            Count a place or a box from Scan: every count and box check is kept here, with what was
-            found and what was missing.
-          </Trans>
-        </EmptyState>
-      }
-    />
+    <div className="grid gap-3">
+      {boxChecksOnly ? (
+        <Notice>
+          <Trans>Counts are off here: this lists the box checks.</Trans>
+        </Notice>
+      ) : null}
+      <ListSurface<CountSummary>
+        label={t`Counts`}
+        search={{ label: t`Search counts`, placeholder: t`Search by what was counted` }}
+        filters={filters}
+        surface="counts"
+        groups={[
+          { value: 'none', label: t`None` },
+          { value: 'place', label: t`Place`, short: t`by place` },
+          { value: 'person', label: t`Person`, short: t`by person` },
+          { value: 'month', label: t`Month`, short: t`by month` },
+        ]}
+        query={query}
+        getKey={(c) => c.id}
+        groupOf={(c, by) =>
+          by === 'place'
+            ? { key: c.target.id, label: <bdi>{c.target.name}</bdi> }
+            : by === 'person'
+              ? { key: c.by.id ?? '', label: <bdi>{c.by.displayName}</bdi> }
+              : by === 'month'
+                ? { key: c.at.slice(0, 7), label: <MonthLabel iso={c.at} /> }
+                : null
+        }
+        renderRow={(c) => <CountRow count={c} />}
+        empty={
+          boxChecksOnly ? (
+            <EmptyState icon={<QrIcon />} title={<Trans>Counts are off</Trans>}>
+              <Trans>An owner or admin turns them on in a location's What to track.</Trans>
+            </EmptyState>
+          ) : (
+            <EmptyState icon={<ActivityIcon />} title={<Trans>No counts yet</Trans>}>
+              <Trans>
+                Count a place or a box from Scan: every count and box check is kept here, with what
+                was found and what was missing.
+              </Trans>
+            </EmptyState>
+          )
+        }
+      />
+    </div>
   );
 }
 

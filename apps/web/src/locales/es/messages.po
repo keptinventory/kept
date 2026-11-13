@@ -29306,3 +29306,17 @@ msgstr "Purificador de agua"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "Estantes"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "Los conteos están desactivados"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "Un propietario o administrador los activa en «Qué seguir» de una ubicación."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Los conteos están desactivados aquí: esta lista muestra las revisiones de caja."

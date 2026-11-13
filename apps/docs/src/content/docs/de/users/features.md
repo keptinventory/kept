@@ -42,7 +42,7 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   sie zu öffnen. Etikettenrollen oder Bürobögen. Modul: Etiketten und QR-Codes.
 - **[Scansitzungen](/de/users/scanning-sessions/)**: ein Regal zählen, eine Box packen, einen Stapel verschieben, ein Scan
   nach dem anderen.
-- **[Zählungen und Inventuren](/de/users/counts/)**: einen Ort zählen, sehen was fehlt, mit der letzten Zählung vergleichen.
+- **[Zählungen und Inventuren](/de/users/counts/)**: einen Ort zählen, sehen was fehlt, mit der letzten Zählung vergleichen. Ein Standort, der nicht zählt, schaltet sie aus.
 
 ## Haushalt
 

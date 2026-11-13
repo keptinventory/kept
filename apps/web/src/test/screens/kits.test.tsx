@@ -29,6 +29,29 @@ describe('a kit', () => {
     );
     expect(await screen.findByText('Complete')).toBeInTheDocument();
   });
+
+  it('offers Check this kit while Counts is on, and not while it is off (#506)', async () => {
+    const on = await renderApp(`/t/${KIT_IDS.bag}?tab=parts`, {
+      setup: (m) => seedKitSample(m.state),
+    });
+    await findHeading('Camera bag');
+    expect(await screen.findByRole('button', { name: 'Check this kit' })).toBeInTheDocument();
+    on.unmount();
+
+    await renderApp(`/t/${KIT_IDS.bag}?tab=parts`, {
+      setup: (m) => {
+        seedKitSample(m.state);
+        for (const l of m.state.locations) {
+          l.modules = l.modules.filter((x) => x !== 'counts');
+          if (l.effectiveModules)
+            l.effectiveModules = l.effectiveModules.filter((x) => x !== 'counts');
+        }
+      },
+    });
+    await findHeading('Camera bag');
+    expect(await screen.findByRole('button', { name: 'Edit parts' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Check this kit' })).toBeNull();
+  });
 });
 
 describe('a hand-over', () => {

@@ -29306,3 +29306,17 @@ msgstr "Water purifier"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "Shelves"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "Counts are off"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "An owner or admin turns them on in a location's What to track."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Counts are off here: this lists the box checks."

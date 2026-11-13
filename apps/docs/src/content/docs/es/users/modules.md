@@ -28,6 +28,7 @@ Los nombres siguientes son los interruptores en **Qué seguir**.
 | Módulo | Desde | Lo que aporta |
 |---|---|---|
 | **Etiquetas y códigos QR** | Essentials | Etiquetas imprimibles para objetos y lugares; escanear una etiqueta abre aquello en lo que está. |
+| **Conteos** | Essentials | **Contar aquí**, **Contar regularmente** y **Conteos pasados** en un lugar, **Contar esta caja** y **Conteos** en Herramientas: cada conteo y cada revisión de caja, guardados. |
 | **Dinero y gastos** | Household | Precios, totales y **Perspectivas**. Cada moneda en su propia línea, sin convertir nunca. |
 | **Recibos y garantías** | Household | Fechas de garantía; una garantía próxima a caducar aparece como recordatorio. |
 | **Recordatorios** | Household | Programaciones: qué toca, por fecha o por lectura. |
@@ -62,8 +63,8 @@ recordatorios se pausan. Volver a activarlo recupera todo, porque no se borró n
   *Necesita Vehículos, desactivado en esta ubicación*.
 - **El menú sigue a todas tus ubicaciones.** En **Rastreo**, una entrada (Calendarios, Préstamos,
   Documentación, Consumibles, Vehículos, Mudanza, Perspectivas) aparece una vez que su módulo está activo en cualquiera de tus
-  ubicaciones. En **Herramientas**, **Etiquetas** aparece mientras Etiquetas esté activo en algún lugar, y **Conteos** está
-  siempre ahí. Actividad, Papelera y Notificaciones también están siempre ahí.
+  ubicaciones. En **Herramientas**, **Etiquetas** aparece mientras Etiquetas esté activo en algún lugar, y **Conteos** mientras
+  Conteos lo esté. Actividad, Papelera y Notificaciones también están siempre ahí.
 
 ## Cambiarlo después
 

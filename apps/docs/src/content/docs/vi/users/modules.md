@@ -22,6 +22,7 @@ Các tên dưới đây là các công tắc trong **Theo dõi gì**.
 | Module | Từ | Nó mang lại |
 |---|---|---|
 | **Nhãn và mã QR** | Thiết yếu | Nhãn in được cho đồ vật và vị trí; quét một nhãn mở ra đồ vật hoặc vị trí mà nhãn đó đang gắn trên. |
+| **Kiểm kê** | Thiết yếu | **Kiểm kê tại đây**, **Kiểm kê định kỳ** và **Các lần kiểm kê trước** trên một vị trí, **Kiểm kê hộp này**, và **Kiểm kê** trong Công cụ: mọi lần kiểm kê và kiểm tra hộp đều được lưu. |
 | **Tiền và chi tiêu** | Hộ gia đình | Giá, tổng và **Thống kê**. Mỗi loại tiền tệ trên một dòng riêng, không bao giờ được chuyển đổi. |
 | **Biên lai và bảo hành** | Hộ gia đình | Ngày bảo hành; một bảo hành sắp hết hạn hiện ra như một lời nhắc. |
 | **Lời nhắc** | Hộ gia đình | Lịch trình: những gì đến hạn, theo ngày hoặc theo số đo. |
@@ -46,7 +47,7 @@ Một mô-đun đang tắt bị ẩn mọi nơi nó sẽ xuất hiện (màn hì
 
 - **Những gì phụ thuộc cũng tắt theo.** Nhiên liệu cần Phương tiện, và Chuyển nhà cần Nhãn và mã QR: khi bạn tắt thứ một mô-đun cần, mô-đun đó cũng bị tắt theo. Công tắc của nó sau đó hiển thị *Cần Phương tiện, tắt trong địa điểm này*.
 
-- **Menu tuân theo tất cả các địa điểm của bạn.** Dưới **Theo dõi**, một mục (Lịch trình, Cho mượn, Giấy tờ, Đồ vật bạn dùng hết, Phương tiện, Chuyển nhà, Thống kê) hiện ra khi mô-đun của nó đang bật trong bất kỳ địa điểm nào của bạn. Dưới **Công cụ**, **Nhãn** hiển thị trong khi **Nhãn** đang bật ở bất kỳ đâu, và **Kiểm kê** luôn có sẵn. Hoạt động, Thùng rác và Thông báo cũng luôn có sẵn.
+- **Menu tuân theo tất cả các địa điểm của bạn.** Dưới **Theo dõi**, một mục (Lịch trình, Cho mượn, Giấy tờ, Đồ vật bạn dùng hết, Phương tiện, Chuyển nhà, Thống kê) hiện ra khi mô-đun của nó đang bật trong bất kỳ địa điểm nào của bạn. Dưới **Công cụ**, **Nhãn** hiển thị trong khi **Nhãn** đang bật ở bất kỳ đâu, và **Kiểm kê** hiển thị trong khi Kiểm kê đang bật ở bất kỳ đâu. Hoạt động, Thùng rác và Thông báo cũng luôn có sẵn.
 
 ## Thay đổi sau này
 

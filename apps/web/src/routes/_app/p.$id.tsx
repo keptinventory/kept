@@ -331,36 +331,39 @@ function PlaceBody({ place, location }: { place: PlaceView; location: LocationDe
 
       <PlaceFields place={place} canEdit={canEdit} />
 
-      {/* Scan sessions (#168): every label here in one walk. A viewer's count is a check. */}
-      <List>
-        <ActionRow
-          icon={<QrIcon />}
-          title={<Trans>Count here</Trans>}
-          subtitle={<Trans>Scan every label in {name} in one walk</Trans>}
-          onPress={() =>
-            void navigate({ to: '/scan-session', search: { mode: 'count', place: place.id } })
-          }
-        />
-        {/* 1.14 (#172): a planned count, and every past count of this place. */}
-        {place.isUnplaced || !accessOf(location).moduleOn('schedules') ? null : (
-          <CountRegularlyRow
-            placeId={place.id}
-            name={name}
-            canManage={accessOf(location).can('schedules-claims.manage')}
+      {/* Scan sessions (#168): every label here in one walk. A viewer's count is a check.
+          Counts is a module (#506): with it off here, none of the three rows shows. */}
+      {accessOf(location).moduleOn('counts') ? (
+        <List>
+          <ActionRow
+            icon={<QrIcon />}
+            title={<Trans>Count here</Trans>}
+            subtitle={<Trans>Scan every label in {name} in one walk</Trans>}
+            onPress={() =>
+              void navigate({ to: '/scan-session', search: { mode: 'count', place: place.id } })
+            }
           />
-        )}
-        <ActionRow
-          icon={<ActivityIcon />}
-          title={<Trans>Past counts</Trans>}
-          subtitle={<Trans>Every count of {name}, with what was missing</Trans>}
-          onPress={() =>
-            void navigate({
-              to: '/counts',
-              search: { 'f.location': location.id, 'f.place': place.id },
-            })
-          }
-        />
-      </List>
+          {/* 1.14 (#172): a planned count, and every past count of this place. */}
+          {place.isUnplaced || !accessOf(location).moduleOn('schedules') ? null : (
+            <CountRegularlyRow
+              placeId={place.id}
+              name={name}
+              canManage={accessOf(location).can('schedules-claims.manage')}
+            />
+          )}
+          <ActionRow
+            icon={<ActivityIcon />}
+            title={<Trans>Past counts</Trans>}
+            subtitle={<Trans>Every count of {name}, with what was missing</Trans>}
+            onPress={() =>
+              void navigate({
+                to: '/counts',
+                search: { 'f.location': location.id, 'f.place': place.id },
+              })
+            }
+          />
+        </List>
+      ) : null}
 
       {/* #238: furniture's compartments, as it stands: turned, merged or split here. */}
       {map || graph || !place.furniture ? null : (

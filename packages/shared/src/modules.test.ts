@@ -21,6 +21,7 @@ describe('the module registry', () => {
         'ai_assistant',
         'ai_capture',
         'consumables',
+        'counts',
         'fuel',
         'labels',
         'lending',
@@ -59,12 +60,19 @@ describe('the module registry', () => {
 });
 
 describe('presets', () => {
-  it('Essentials is Labels, plus AI that follows the provider', () => {
+  it('Essentials is Labels and Counts, plus AI that follows the provider', () => {
     expect([...presetModules('essentials')].sort()).toEqual([
       'ai_assistant',
       'ai_capture',
+      'counts',
       'labels',
     ]);
+  });
+
+  it('Counts is in every preset, so a location keeps its counts until it turns them off (#506)', () => {
+    for (const preset of PRESETS) expect(presetModules(preset).has('counts'), preset).toBe(true);
+    expect(MODULES.counts.deps).toEqual([]);
+    expect(MODULES.counts.nav).toEqual([]);
   });
 
   it('Household includes vehicles', () => {
@@ -72,6 +80,7 @@ describe('presets', () => {
       [
         'ai_assistant',
         'ai_capture',
+        'counts',
         'labels',
         'lending',
         'money',

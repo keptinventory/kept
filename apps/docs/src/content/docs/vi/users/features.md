@@ -26,7 +26,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 - **[Sơ đồ](/vi/users/graph/)**: vị trí, hộp và đồ vật của một địa điểm trong 2D hoặc 3D.
 - **[ID ngắn và nhãn](/vi/users/short-ids/)**: ID ngắn và mã QR trên mỗi hộp; quét một cái để mở nó. Cuộn máy dán nhãn hoặc giấy in văn phòng. Mô-đun: Nhãn và mã QR.
 - **[Phiên quét](/vi/users/scanning-sessions/)**: đếm một kệ, đóng gói một hộp, di chuyển một đống, lần quét sau lần quét.
-- **[Đếm và kiểm kê](/vi/users/counts/)**: đếm một vị trí, xem cái gì thiếu, so sánh với lần đếm cuối.
+- **[Đếm và kiểm kê](/vi/users/counts/)**: đếm một vị trí, xem cái gì thiếu, so sánh với lần đếm cuối. Địa điểm không kiểm kê có thể tắt nó.
 
 ## Gia đình
 

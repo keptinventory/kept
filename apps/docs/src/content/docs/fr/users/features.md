@@ -45,7 +45,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 - **[Sessions de scan](/fr/users/scanning-sessions/)** : comptez une étagère, emballez une boîte,
   déplacez un tas, un scan après l'autre.
 - **[Comptages et inventaires](/fr/users/counts/)** : comptez un emplacement, voyez ce qui manque, comparez au
-  dernier comptage.
+  dernier comptage. Un lieu qui ne compte pas les désactive.
 
 ## Le foyer
 

@@ -99,8 +99,9 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   if you have one; its places and things as a graph
   ([the map](https://keptinventory.info/users/location-map/)).
 - **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
-  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go. If the scanner
-  doesn't start, Try again starts it afresh; on a phone, sheets stay above the keyboard.
+  box it is on. Scan sessions count a shelf, pack a box or move a pile in one go; counts can be
+  turned off where nobody counts. If the scanner doesn't start, Try again starts it afresh; on a
+  phone, sheets stay above the keyboard.
 - **Lending and borrowing.** Who has what and when it's due back; borrowers need no account.
   Reminders before and after the due date, one list of everything out, and each thing's trail of
   who had it and how it came back ([lending](https://keptinventory.info/users/lending/)).

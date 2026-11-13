@@ -44,7 +44,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 - **[Sesiones de escaneo](/es/users/scanning-sessions/)**: cuenta una estantería, empaqueta una caja,
   mueve una pila, un escaneo tras otro.
 - **[Conteos e inventarios](/es/users/counts/)**: cuenta una ubicación, ve qué falta, compáralo con
-  el último conteo.
+  el último conteo. Una ubicación que no cuenta los desactiva.
 
 ## El hogar
 

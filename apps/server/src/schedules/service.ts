@@ -77,6 +77,17 @@ export async function requireModule(
   }
 }
 
+/**
+ * A planned count (kind `count`) is done, snoozed or skipped only while Counts is on in its
+ * location (#506): 409 `module_off` otherwise. Pausing, resuming and deleting it don't ask.
+ */
+export async function requireCountsFor(
+  ctx: Pick<Ctx, 'tx' | 'scope'>,
+  row: { kind: string; location_id: string },
+): Promise<void> {
+  if (row.kind === 'count') await requireModule(ctx, row.location_id, 'counts', 'write');
+}
+
 /** Today in the location's zone, `YYYY-MM-DD` ("today" is the location's). */
 export async function todayIn(client: pg.ClientBase, locationId: string): Promise<string> {
   const { rows } = await client.query<{ today: string }>(
@@ -443,7 +454,11 @@ export async function createSchedule(ctx: Ctx, body: CreateScheduleInput): Promi
     dueOn: body.dueOn ?? null,
   });
   const kind = body.kind ?? 'task';
-  if (kind === 'count') await checkCount(client, subject, body);
+  if (kind === 'count') {
+    // A planned count needs Counts on too (#506).
+    await requireModule(ctx, subject.locationId, 'counts', 'write');
+    await checkCount(client, subject, body);
+  }
   const today = await todayIn(client, subject.locationId);
   const anchorOn = body.anchorOn ?? today;
   if (anchorOn > today)
@@ -540,6 +555,8 @@ export async function updateSchedule(
     meterId: meterId ? meterId.toLowerCase() : null,
     dueOn: pick('dueOn', before.due_on),
   });
+  // With Counts off a planned count can still be paused or resumed (#506); anything else waits.
+  if (fields.some((f) => f !== 'active')) await requireCountsFor(ctx, before);
   if (before.kind === 'count' && pick('active', before.active)) {
     await checkCount(
       client,
@@ -610,6 +627,7 @@ export async function snoozeSchedule(
 ): Promise<Schedule> {
   const { client } = ctx;
   const before = await writableSchedule(ctx, id);
+  await requireCountsFor(ctx, before);
   await requireVersion(client, before, expected, Object.keys(body));
   await requireNotDone(client, before);
   let untilDate: string | null = null;
@@ -666,6 +684,7 @@ export async function unsnoozeSchedule(ctx: Ctx, id: string, expected: number): 
 export async function skipSchedule(ctx: Ctx, id: string, expected: number): Promise<Schedule> {
   const { client } = ctx;
   const before = await writableSchedule(ctx, id);
+  await requireCountsFor(ctx, before);
   await requireVersion(client, before, expected, ['skipNext']);
   if (before.every_months === null && before.every_units === null) {
     throw invalid('A one-off date has no interval to skip; snooze it or change the date.');

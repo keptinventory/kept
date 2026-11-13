@@ -117,7 +117,7 @@ function useItems(extra: Item[] = []): Item[] {
   if (thing.isContainer && can('things.mark-seen'))
     items.push({ id: 'box-check', label: t`Box check`, icon: <CheckCircleIcon /> });
   // Scan sessions (#168): count a box's labels in one walk (a viewer's count is a check), or pack.
-  if (thing.isContainer && can('content.view'))
+  if (thing.isContainer && can('content.view') && moduleOn('counts'))
     items.push({ id: 'scan-count', label: t`Count this box`, icon: <QrIcon /> });
   if (thing.isContainer && edit)
     items.push({ id: 'scan-pack', label: t`Pack into this box`, icon: <QrIcon /> });

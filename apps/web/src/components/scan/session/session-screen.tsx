@@ -47,7 +47,8 @@ import { appDetect, type FrameDecoder } from '@/camera/scanner';
 import type { CameraEnv } from '@/camera/session';
 import { shownLocations } from '@/components/capture/target';
 import { ShowMe } from '@/components/hints/show-me';
-import { XIcon } from '@/components/icons';
+import { QrIcon, XIcon } from '@/components/icons';
+import { EmptyState } from '@/components/page';
 import { usePlaceName } from '@/components/places/labels';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
@@ -250,7 +251,11 @@ export function SessionScreen({
       const tgt = res?.outcome === 'open' ? res.target : null;
       const thing = tgt?.kind === 'thing' ? await nameOfThing(tgt.id) : undefined;
       const role = tgt ? roles(tgt.locationId) : null;
-      const allowed = !!role && (mode === 'count' || can(role, 'things.edit'));
+      // Counts is a module (#506): a count only where it is on.
+      const countsHere = !!world?.locations
+        .find((l) => l.id === tgt?.locationId)
+        ?.effectiveModules.includes('counts');
+      const allowed = !!role && (mode === 'count' ? countsHere : can(role, 'things.edit'));
       const kindOk = tgt?.kind === 'place' ? mode !== 'pack' : thing?.isContainer === true;
       if (!tgt || !allowed || !kindOk) {
         feel('grey');
@@ -964,7 +969,15 @@ function SessionSetup({
   const hidden = useHiddenLocationId();
   const shown = useMemo(() => shownLocations(world.locations, hidden), [world, hidden]);
   const anyEdit = shown.some((l) => canEdit(l.id)) || (!!fixed && canEdit(fixed.locationId));
-  const [mode, setMode] = useState<ScanSessionMode>(start?.mode ?? 'count');
+  // Counts is a module (#506): counting is offered where it is on, and nowhere else.
+  const countsOn = useCallback(
+    (id: string) => !!world.locations.find((l) => l.id === id)?.effectiveModules.includes('counts'),
+    [world],
+  );
+  const countable = shown.some((l) => countsOn(l.id)) || (!!fixed && countsOn(fixed.locationId));
+  const [mode, setMode] = useState<ScanSessionMode>(
+    start?.mode ?? (countable || !anyEdit ? 'count' : 'pack'),
+  );
   const [inside, setInside] = useState(true);
   const [contents, setContents] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
@@ -974,6 +987,7 @@ function SessionSetup({
     const out: TargetOption[] = [];
     for (const l of shown) {
       if (mode !== 'count' && !canEdit(l.id)) continue;
+      if (mode === 'count' && !countsOn(l.id)) continue;
       if (mode === 'count')
         out.push({
           key: `l:${l.id}`,
@@ -1016,7 +1030,7 @@ function SessionSetup({
         });
     }
     return out;
-  }, [world, shown, mode, t, placeName, canEdit, locName]);
+  }, [world, shown, mode, t, placeName, canEdit, locName, countsOn]);
 
   const chosen: SessionTarget | null =
     fixed &&
@@ -1026,7 +1040,10 @@ function SessionSetup({
       : (options.find((o) => o.key === picked)?.target ?? null);
   const target = chosen?.kind === 'place' ? { ...chosen, inside } : chosen;
   const allowed =
-    !!target && (mode === 'count' ? role(target.locationId) !== null : canEdit(target.locationId));
+    !!target &&
+    (mode === 'count'
+      ? role(target.locationId) !== null && countsOn(target.locationId)
+      : canEdit(target.locationId));
   const counting = mode === 'count' && !!target;
   const counts = !!target && can(role(target.locationId) ?? 'viewer', 'things.mark-seen');
   const openKey = target ? `${target.kind}:${target.id}` : '';
@@ -1054,13 +1071,17 @@ function SessionSetup({
   const cov = coverage.data?.things ? coverage.data : null;
 
   const modes = [
-    {
-      id: 'count' as const,
-      title: t`Count`,
-      body: anyEdit
-        ? t`Walk a place or a box: what you scan is seen; the summary shows what's missing.`
-        : t`Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved.`,
-    },
+    ...(countable
+      ? [
+          {
+            id: 'count' as const,
+            title: t`Count`,
+            body: anyEdit
+              ? t`Walk a place or a box: what you scan is seen; the summary shows what's missing.`
+              : t`Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved.`,
+          },
+        ]
+      : []),
     ...(anyEdit
       ? [
           {
@@ -1076,6 +1097,16 @@ function SessionSetup({
         ]
       : []),
   ];
+
+  // A viewer where Counts is off everywhere: nothing a session could do.
+  if (modes.length === 0)
+    return (
+      <div className="p-4">
+        <EmptyState icon={<QrIcon />} title={<Trans>Counts are off</Trans>}>
+          <Trans>An owner or admin turns them on in a location's What to track.</Trans>
+        </EmptyState>
+      </div>
+    );
 
   return (
     <div className="grid gap-4 p-4">

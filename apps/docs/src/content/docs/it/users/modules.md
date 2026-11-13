@@ -22,6 +22,7 @@ I nomi qui sotto sono gli interruttori in **Cosa monitorare**.
 | Modulo | Da | Cosa aggiunge |
 |---|---|---|
 | **Etichette e codici QR** | Essenziali | Etichette stampabili per oggetti e posti; scansionare un'etichetta apre quello su cui è attaccata. |
+| **Conteggi** | Essenziali | **Conta qui**, **Conta regolarmente** e **Conteggi passati** su un luogo, **Conta questa scatola** e **Conteggi** sotto Strumenti: ogni conteggio e ogni controllo scatola, conservati. |
 | **Soldi e spese** | Famiglia | Prezzi, totali e **Statistiche**. Ogni valuta su una riga a parte, mai convertita. |
 | **Ricevute e garanzie** | Famiglia | Date di garanzia; una garanzia in scadenza appare come promemoria. |
 | **Promemoria** | Famiglia | Pianificazioni: cosa è in scadenza, per data o per lettura. |
@@ -44,7 +45,7 @@ Un modulo disattivato è nascosto ovunque apparirebbe (le sue schermate, le voci
 
 - **I promemoria vanno in pausa con il loro modulo.** Le pianificazioni e le cose che scadono aspettano con **Promemoria**, le date di garanzia e di registrazione con **Ricevute e garanzie**, le date dei documenti con **Documenti** (i documenti di un veicolo continuano a funzionare finché **Veicoli** è attivo), i prestiti con **Prestiti**, le scorte basse con **Oggetti che si esauriscono**. I promemoria sui contatori non letti di recente funzionano sempre.
 - **Anche i moduli dipendenti vengono disattivati.** Carburante richiede Veicoli e Trasloco richiede Etichette e codici QR: disattivare ciò di cui un modulo ha bisogno disattiva anche quel modulo. Il suo interruttore poi mostra *Richiede Veicoli, disattivato in questo luogo*.
-- **Il menu segue tutti i tuoi luoghi.** Sotto **Monitoraggio**, una voce (Programmazioni, Prestiti, Documenti, Consumabili, Veicoli, Trasloco, Statistiche) appare quando il suo modulo è attivo in almeno uno dei tuoi luoghi. Sotto **Strumenti**, **Etichette** appare finché Etichette è attiva da qualche parte, e **Conteggi** è sempre presente. Anche Attività, Cestino e Notifiche sono sempre presenti.
+- **Il menu segue tutti i tuoi luoghi.** Sotto **Monitoraggio**, una voce (Programmazioni, Prestiti, Documenti, Consumabili, Veicoli, Trasloco, Statistiche) appare quando il suo modulo è attivo in almeno uno dei tuoi luoghi. Sotto **Strumenti**, **Etichette** appare finché Etichette è attiva da qualche parte, e **Conteggi** finché i conteggi sono attivi da qualche parte. Anche Attività, Cestino e Notifiche sono sempre presenti.
 
 ## Cambiarlo in seguito
 

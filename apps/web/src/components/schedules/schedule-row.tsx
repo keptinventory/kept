@@ -60,6 +60,9 @@ export function ScheduleRowView({
   const recurring = s.everyMonths != null || s.everyUnits != null;
   const snoozed = !!(s.snoozedUntil || s.snoozedUntilValue);
   const done = s.next.state === 'done';
+  // A planned count with Counts off (#506): paused, resumed, edited or deleted, never done,
+  // snoozed or skipped (the server refuses those).
+  const countsOff = s.kind === 'count' && !access.moduleOn('counts');
 
   const run = async (
     write: () => Promise<{ auditEvents: string[] }>,
@@ -77,7 +80,7 @@ export function ScheduleRowView({
 
   const actions: OverflowAction[] = canManage
     ? [
-        ...(done
+        ...(done || countsOff
           ? []
           : [
               snoozed
@@ -93,7 +96,7 @@ export function ScheduleRowView({
                   }
                 : { id: 'snooze', label: t`Snooze`, onAction: () => onOpen('snooze', s) },
             ]),
-        ...(recurring && !s.skipNext
+        ...(recurring && !s.skipNext && !countsOff
           ? [
               {
                 id: 'skip',
@@ -194,7 +197,7 @@ export function ScheduleRowView({
       </div>
       {canManage ? (
         <div className="flex flex-wrap gap-2 ps-13 md:ps-0">
-          {done ? null : (
+          {done || countsOff ? null : (
             <Button
               size="small"
               isDisabled={!online}

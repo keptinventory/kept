@@ -137,7 +137,16 @@ const personal = (
   thingCount: things,
   pendingInviteCount: 0,
   require2fa: false,
-  modules: ['labels', 'money', 'warranties', 'schedules', 'lending', 'paperwork', 'vehicles'],
+  modules: [
+    'labels',
+    'counts',
+    'money',
+    'warranties',
+    'schedules',
+    'lending',
+    'paperwork',
+    'vehicles',
+  ],
   providerResolved: false,
 });
 
@@ -158,6 +167,7 @@ const home = (): LocationDetail => ({
   // Consumables on: the AA batteries keep at least 16 and run low.
   modules: [
     'labels',
+    'counts',
     'money',
     'warranties',
     'schedules',
@@ -186,7 +196,7 @@ const garage = (): LocationDetail => ({
   // Essentials, with Lending turned on over the preset: tools get lent from the garage (the
   // step-4 drill lent to Murdock). Money, warranties, schedules and paperwork stay off, the
   // module-off variant step-4 screens test against.
-  modules: ['labels', 'lending'],
+  modules: ['labels', 'counts', 'lending'],
   providerResolved: false,
 });
 

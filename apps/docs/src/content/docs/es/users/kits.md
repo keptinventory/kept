@@ -66,7 +66,8 @@ pieza, préstarla o perderla, y el kit sigue sabiendo.
   desde el 3 oct**, y cada pieza: En el kit, En otro sitio (con **Devolver**), Falta,
   Con alguien, o En la papelera.
 - **Revisar este kit** lo cuenta con una [sesión de escaneo](/es/users/scanning-sessions/):
-  su lista son las piezas, estén donde estén.
+  su lista son las piezas, estén donde estén. Aparece mientras los conteos estén activos en la
+  ubicación.
 - **Editar piezas** y **Ya no es un kit** se pueden deshacer durante 7 días.
 - La búsqueda y las listas filtran por **Kits** y **Kits incompletos**.
 

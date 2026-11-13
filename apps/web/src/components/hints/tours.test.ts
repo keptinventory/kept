@@ -102,6 +102,7 @@ describe('tour gating', () => {
   const EVERYTHING: ModuleId[] = [
     'ai_capture',
     'labels',
+    'counts',
     'moving',
     'lending',
     'schedules',
@@ -131,6 +132,8 @@ describe('tour gating', () => {
     ]);
     // Labels is one step of Search & labels, not its own tour.
     expect(stepIds('search', none)).toEqual(['field', 'views', 'select', 'scan']);
+    // Counts is the last step of Scan sessions (#506).
+    expect(stepIds('scanning', none)).toEqual(['start', 'modes', 'target', 'finish']);
   });
 
   it('follows a module that is on in any one location', () => {

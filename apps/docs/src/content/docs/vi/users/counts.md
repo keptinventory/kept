@@ -64,3 +64,7 @@ Trên trang của một vị trí, **Kiểm kê định kỳ** lên kế hoạch
 | Xem Kiểm kê, trang kiểm kê, so sánh, xuất CSV | ✓ | ✓ |
 | Kiểm kê, tham gia kiểm kê | ✓ | Một lần kiểm tra: không lưu gì, không liệt kê |
 | Lên kế hoạch kiểm kê | ✓, với Lịch trình bật | — |
+
+## Tắt kiểm kê
+
+Kiểm kê là một mô-đun, bật trong mọi mẫu cài đặt. Chủ sở hữu hoặc quản trị viên tắt nó trong **Cài đặt địa điểm → Theo dõi gì** (**Kiểm kê**). Khi tắt ở một địa điểm, các vị trí của nó không còn **Kiểm kê tại đây**, **Kiểm kê định kỳ** hay **Các lần kiểm kê trước**, các hộp không còn **Kiểm kê hộp này**, các phòng trên bản đồ không còn **Kiểm kê phòng này**, và **Bắt đầu phiên** không cho kiểm kê ở đó. **Kiểm kê** trong Công cụ biến mất khi nó tắt ở mọi địa điểm của bạn. Các bộ không còn **Kiểm tra bộ này**. Các lần kiểm kê dự định ngừng nhắc: có thể tạm dừng, tiếp tục hoặc xóa, nhưng không thể hoàn tất, hoãn hay bỏ qua. **Kiểm tra hộp** vẫn còn, và danh sách kiểm kê của địa điểm chỉ hiện các lần kiểm tra hộp. Không có gì bị xóa: bật lại, mọi lần kiểm kê vẫn còn đó.

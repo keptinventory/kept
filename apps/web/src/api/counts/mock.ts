@@ -3,6 +3,7 @@
  * mock's scan sessions saved, and Try Kept's past ones), a box check's lines, and a shared count
  * (opened, found in progress, its lines so far). Viewers read everything.
  */
+import { moduleOn } from '../household/mock/db';
 import { accessOf, livePlace, liveThing, now } from '../inventory/mock/db';
 import { INV_IDS } from '../inventory/mock/fixtures';
 import { IDS, type MockState } from '../mock/fixtures';
@@ -256,7 +257,8 @@ export function countsMockRoutes(state: MockState): MockRoute[] {
       const id = params.id ?? '';
       if (!access().visible(id)) return notFound();
       const q = (query.get('q') ?? '').toLocaleLowerCase();
-      const kind = query.get('kind');
+      // As the server: with Counts off (#506), the box checks only.
+      const kind = moduleOn(state, id, 'counts') ? query.get('kind') : 'box_check';
       const had = query.get('had');
       const by = query.get('by');
       const placeId = query.get('placeId');
@@ -291,6 +293,8 @@ export function countsMockRoutes(state: MockState): MockRoute[] {
       if (gate) return gate;
       const r = store().results.find((x) => x.session.id === params.id);
       if (!r || !access().visible(r.session.locationId)) return notFound();
+      if (!moduleOn(state, r.session.locationId, 'counts'))
+        return err(404, 'module_off', 'That feature is turned off for this location.');
       return withCompare(store().results, r);
     }),
 

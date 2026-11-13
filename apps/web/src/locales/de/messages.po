@@ -29306,3 +29306,17 @@ msgstr "Wasserfilteranlage"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "Regalböden"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "Zählungen sind aus"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "Ein Eigentümer oder Admin schaltet sie unter „Was erfasst wird“ eines Standorts ein."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Zählungen sind hier aus: Diese Liste zeigt die Kistenchecks."

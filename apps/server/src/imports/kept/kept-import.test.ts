@@ -847,3 +847,96 @@ describe('merged compartments (#425)', () => {
     expect(back?.deleted).toBe(false);
   });
 });
+
+describe('modules (#506)', () => {
+  const countsOn = async (locationId: string) =>
+    (await own<{ on: boolean }>(db, `SELECT kept.module_on($1, 'counts') AS on`, [locationId]))[0]
+      ?.on;
+  const setCounts = (locationId: string, enabled: boolean) =>
+    own(
+      db,
+      `INSERT INTO public.location_modules (location_id, module, enabled, enabled_at)
+       VALUES ($1, 'counts', $2, CASE WHEN $2 THEN now() END)
+       ON CONFLICT (location_id, module) DO UPDATE SET enabled = excluded.enabled`,
+      [locationId, enabled],
+    );
+  const importInto = async (forged: Awaited<ReturnType<typeof forgeKeptExport>>, name: string) => {
+    const target = await newTarget(name);
+    return { target, run: () => runInto(forged, target) };
+  };
+  async function runInto(forged: Awaited<ReturnType<typeof forgeKeptExport>>, target: Loc) {
+    const runId = await stageKeptRun(db, files, forged, {
+      userId: alfred.userId,
+      locationId: target.id,
+    });
+    await runKeptImport(deps(), scopeOf(alfred), runId);
+    expect(await runOf(runId)).toMatchObject({ status: 'done', error: null });
+  }
+
+  it('carries Counts off, and Counts on, to the location it is imported into', async () => {
+    await setCounts(home.id, false);
+    try {
+      const off = await forgeKeptExport(db, { userId: ibrahim.userId, locationId: home.id, files });
+      try {
+        const { target, run } = await importInto(off, 'Home, counts off');
+        expect(await countsOn(target.id)).toBe(true);
+        await run();
+        expect(await countsOn(target.id)).toBe(false);
+      } finally {
+        await off.cleanup();
+      }
+    } finally {
+      await setCounts(home.id, true);
+    }
+    const on = await forgeKeptExport(db, { userId: ibrahim.userId, locationId: home.id, files });
+    try {
+      const { target, run } = await importInto(on, 'Home, counts on');
+      await setCounts(target.id, false);
+      await run();
+      expect(await countsOn(target.id)).toBe(true);
+    } finally {
+      await on.cleanup();
+    }
+  });
+
+  it('leaves Counts as the target has it when the export was made before Counts was a module', async () => {
+    // As Kept before #506 wrote it: the modules on, with no `counts` and no `modulesKnown`.
+    const older = await forgeKeptExport(db, {
+      userId: ibrahim.userId,
+      locationId: home.id,
+      files,
+      mutate: (m, entries) => {
+        m.location.modules = m.location.modules.filter((x) => x !== 'counts');
+        const name = EXPORT_PATHS.data('location');
+        const lines = (entries.get(name)?.toString('utf8') ?? '').split('\n').filter(Boolean);
+        const out = lines.map((l) => {
+          const row = JSON.parse(l) as { modules?: string[]; modulesKnown?: string[] };
+          row.modules = (row.modules ?? []).filter((x) => x !== 'counts');
+          delete row.modulesKnown;
+          return `${JSON.stringify(row)}\n`;
+        });
+        entries.set(name, Buffer.from(out.join('')));
+      },
+    });
+    try {
+      const kept = await importInto(older, 'Home, before counts');
+      await kept.run();
+      expect(await countsOn(kept.target.id)).toBe(true);
+
+      const off = await importInto(older, 'Home, before counts, off');
+      await setCounts(off.target.id, false);
+      await off.run();
+      expect(await countsOn(off.target.id)).toBe(false);
+      // The modules it did know about still come across: Money is on in the export.
+      expect(
+        (
+          await own<{ on: boolean }>(db, `SELECT kept.module_on($1, 'money') AS on`, [
+            kept.target.id,
+          ])
+        )[0]?.on,
+      ).toBe(true);
+    } finally {
+      await older.cleanup();
+    }
+  });
+});

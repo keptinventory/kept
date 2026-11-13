@@ -82,7 +82,7 @@ export function KitSection() {
 }
 
 function KitParts({ kit, onEdit }: { kit: Kit; onEdit: () => void }) {
-  const { thing, can } = useThingCtx();
+  const { thing, can, moduleOn } = useThingCtx();
   const { t } = useLingui();
   const fmt = useFormat();
   const navigate = useNavigate();
@@ -199,7 +199,8 @@ function KitParts({ kit, onEdit }: { kit: Kit; onEdit: () => void }) {
         })}
       </List>
       <div className="flex flex-wrap gap-2">
-        {can('things.mark-seen') || !edit ? (
+        {/* A count of the kit: only while Counts is on in its location (#506). */}
+        {moduleOn('counts') && (can('things.mark-seen') || !edit) ? (
           <Button
             variant="secondary"
             onPress={() =>

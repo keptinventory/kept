@@ -10,9 +10,21 @@ import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { ApiError } from '@/api/client';
 import { useCountResult } from '@/api/counts/queries';
 import type { CountResult, ResultLine } from '@/api/counts/types';
-import { ErrorState, List, LoadingRows, Notice, Page, Pill, Row, Section } from '@/components/page';
+import { QrIcon } from '@/components/icons';
+import {
+  EmptyState,
+  ErrorState,
+  List,
+  LoadingRows,
+  Notice,
+  Page,
+  Pill,
+  Row,
+  Section,
+} from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { canShareFiles, saveFile, shareFiles } from '@/lib/files';
 import { useFormat } from '@/lib/format';
@@ -32,7 +44,14 @@ export function CountPage({ id }: { id: string }) {
   if (q.isError)
     return (
       <Page title={t`Count`} back="/counts">
-        <ErrorState error={q.error} onRetry={() => void q.refetch()} />
+        {/* Counts turned off in the count's location (#506): say so, not "Couldn't load". */}
+        {q.error instanceof ApiError && q.error.code === 'module_off' ? (
+          <EmptyState icon={<QrIcon />} title={<Trans>Counts are off</Trans>}>
+            <Trans>An owner or admin turns them on in a location's What to track.</Trans>
+          </EmptyState>
+        ) : (
+          <ErrorState error={q.error} onRetry={() => void q.refetch()} />
+        )}
       </Page>
     );
   return <CountView r={q.data} />;

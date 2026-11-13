@@ -1,4 +1,4 @@
-import { newId, presetModules } from '@kept/shared';
+import { MODULE_IDS, newId, presetModules } from '@kept/shared';
 import { v7 } from 'uuid';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -51,7 +51,7 @@ describe('POST /api/v1/locations', () => {
       pendingInviteCount: 0,
       modules: [...presetModules('essentials')],
       // The AI modules need a provider: switched on, not effective.
-      effectiveModules: ['labels'],
+      effectiveModules: ['labels', 'counts'],
       providerResolved: false,
       rowVersion: 1,
     });
@@ -71,7 +71,10 @@ describe('POST /api/v1/locations', () => {
         [loc.id],
       ),
     );
-    expect(switches.rows[0]).toEqual({ n: 14, on: presetModules('essentials').size });
+    expect(switches.rows[0]).toEqual({
+      n: MODULE_IDS.length,
+      on: presetModules('essentials').size,
+    });
     expect(await auditOf(db, loc.id)).toEqual([
       expect.objectContaining({
         action: 'location.create',
@@ -139,7 +142,7 @@ describe('GET /api/v1/locations and /:id', () => {
       ['personal', 'owner'],
       ['home', 'owner'],
     ]);
-    expect(mine[1]).toMatchObject({ memberCount: 2, effectiveModules: ['labels'] });
+    expect(mine[1]).toMatchObject({ memberCount: 2, effectiveModules: ['labels', 'counts'] });
 
     const theirs = (await call(t, '/api/v1/locations', { as: viewer })).json().locations;
     expect(theirs.map((l: { id: string; role: string }) => [l.id, l.role])).toEqual([

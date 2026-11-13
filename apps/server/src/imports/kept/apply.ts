@@ -1,4 +1,4 @@
-import { type ExportEntity, type ImportEntityType, MODULE_IDS } from '@kept/shared';
+import { type ExportEntity, type ImportEntityType, MODULE_IDS, type ModuleId } from '@kept/shared';
 import type pg from 'pg';
 import { type EntityDef, entityDef, type Field, fieldsOf } from '../../exports/registry.js';
 import { adoptCode, type CodeOutcome, type ImportedCode } from './codes.js';
@@ -451,6 +451,9 @@ async function applyPersonContact(c: ApplyCtx, def: EntityDef, row: Row): Promis
   return writeGeneric(c, def, row);
 }
 
+/** Modules added after exports began, before exports named the modules they knew (#506). */
+const MODULES_SINCE_EXPORTS_KNEW: readonly ModuleId[] = ['counts'];
+
 /** The location row: its settings onto the new location (what kept_app may change), and its
  * modules (the row's `modules`). Name, kind, timezone and currency were chosen with the target. */
 async function applyLocation(c: ApplyCtx, def: EntityDef, row: Row): Promise<Applied> {
@@ -485,9 +488,15 @@ async function applyLocation(c: ApplyCtx, def: EntityDef, row: Row): Promise<App
   if (sets.length > 0) {
     await c.client.query(`UPDATE public.locations SET ${sets.join(', ')} WHERE id = $1`, vals);
   }
-  const modules = Array.isArray(row.modules)
-    ? row.modules.filter((m): m is string => (MODULE_IDS as readonly string[]).includes(String(m)))
-    : null;
+  const ours = (list: unknown[]) =>
+    list.filter((m): m is string => (MODULE_IDS as readonly string[]).includes(String(m)));
+  const modules = Array.isArray(row.modules) ? ours(row.modules) : null;
+  // Only the modules the export knew about are set (#506): one it never heard of keeps the
+  // target's own switch (or its preset). An export made before `modulesKnown` knew every module
+  // but Counts.
+  const known = Array.isArray(row.modulesKnown)
+    ? ours(row.modulesKnown)
+    : MODULE_IDS.filter((m) => !MODULES_SINCE_EXPORTS_KNEW.includes(m));
   if (modules) {
     await c.client.query(
       `INSERT INTO public.location_modules (location_id, module, enabled, enabled_at)
@@ -498,7 +507,7 @@ async function applyLocation(c: ApplyCtx, def: EntityDef, row: Row): Promise<App
              enabled_at = CASE WHEN excluded.enabled AND NOT location_modules.enabled THEN now()
                                WHEN excluded.enabled THEN location_modules.enabled_at END
        WHERE location_modules.enabled IS DISTINCT FROM excluded.enabled`,
-      [c.locationId, [...MODULE_IDS], modules],
+      [c.locationId, known, modules],
     );
   }
   return { status: 'matched', newId: c.locationId };

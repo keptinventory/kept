@@ -60,7 +60,7 @@ ra, cho mượn nó hoặc mất nó, và bộ vẫn biết.
 - Tab **Bộ phận** nói **Hoàn thành**, "2 bộ phận không nằm trong bộ" hoặc **Đang ở chỗ Sam từ 3 thg 10**, và
   mỗi bộ phận: Trong bộ, Ở nơi khác (với **Đặt lại**), Còn thiếu, Ở chỗ ai đó, hoặc Trong Thùng rác.
 - **Kiểm tra bộ này** đếm nó bằng một [phiên quét](/vi/users/scanning-sessions/): danh sách của nó là
-  các bộ phận, bất kể chúng ở đâu.
+  các bộ phận, bất kể chúng ở đâu. Nó hiện khi Kiểm kê đang bật ở địa điểm.
 - **Sửa bộ phận** và **Không còn là bộ** có thể hoàn tác trong 7 ngày.
 - Tìm kiếm và danh sách lọc theo **Các bộ** và **Các bộ chưa đầy đủ**.
 

@@ -48,7 +48,11 @@ function schemaOf(def: EntityDef): z.ZodObject {
     shape[f.name] = KIND_SCHEMA[f.kind].nullable().optional();
   }
   if (def.money?.length) shape.moneyHidden = z.literal(true).optional();
-  if (def.entity === 'location') shape.modules = z.array(z.string());
+  if (def.entity === 'location') {
+    shape.modules = z.array(z.string());
+    // #506: the modules the exporting server had. Absent from an export made before Counts.
+    shape.modulesKnown = z.array(z.string()).optional();
+  }
   if (def.entity === 'types') shape.builtin = z.boolean();
   // An export without secrets names the secret fields whose value it left out (exports/withheld.ts).
   if (def.entity === 'things' || def.entity === 'places') {

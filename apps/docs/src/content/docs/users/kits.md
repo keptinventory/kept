@@ -60,7 +60,7 @@ it, and the kit still knows.
 - The **Parts** tab says **Complete**, "2 parts not in the kit" or **With Sam since 3 Oct**, and
   each part: In the kit, Elsewhere (with **Put back**), Missing, With someone, or In the Trash.
 - **Check this kit** counts it with a [scan session](/users/scanning-sessions/): its list is the
-  parts, wherever they are.
+  parts, wherever they are. It shows while Counts is on in the location.
 - **Edit parts** and **No longer a kit** can be undone for 7 days.
 - Search and lists filter by **Kits** and **Incomplete kits**.
 

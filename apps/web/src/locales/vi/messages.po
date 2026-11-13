@@ -21354,3 +21354,17 @@ msgstr "Máy lọc nước"
 msgctxt "how many shelves"
 msgid "Shelves"
 msgstr "Số tầng kệ"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "Kiểm kê đang tắt"
+
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "Chủ sở hữu hoặc quản trị viên bật nó trong mục Theo dõi gì của một địa điểm."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Kiểm kê đang tắt ở đây: danh sách này hiện các lần kiểm tra hộp."
