@@ -27946,6 +27946,7 @@ msgid "Shelf {n}"
 msgstr "Étagère {n}"
 
 #: src/components/places/furniture.tsx
+#: src/map/labels.ts
 msgid "Shelving unit"
 msgstr "Rayonnage"
 
@@ -29300,3 +29301,8 @@ msgstr "Unité du compteur modifiée"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "Purificateur d’eau"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Tablettes"

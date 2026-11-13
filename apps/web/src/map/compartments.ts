@@ -4,9 +4,10 @@
  * in the shape's own frame (engine/sized.ts): its corner at the origin, width along x, up along y,
  * depth along z, front towards +z; each box by its middle, metres.
  *
- * A cube shelf or a bookcase drawn from its numbers (sized.ts) whose grid is the furniture's gives
- * each compartment its own opening; any other shape is divided evenly, as the furniture stands, on
- * its front: drawn shapes have no openings to follow.
+ * A cube shelf, a bookcase or a shelving unit drawn from its numbers (sized.ts) whose grid is the
+ * furniture's gives each compartment its own opening (a shelving unit's shelf, what stands on it);
+ * any other shape is divided evenly, as the furniture stands, on its front: drawn shapes have no
+ * openings to follow.
  */
 import { type MapShapeKey, mapModel, sizedOf } from '@kept/shared';
 import type { MapCompartment } from '@/api/map/types';
@@ -41,6 +42,10 @@ function cellBoxes(model: MapShapeKey, grid: Grid): (row: number, col: number) =
     return (row, col) => spaces[(grid.rows - row) * grid.columns + (col - 1)] as Box;
   }
   if (sized?.base === 'bookcase' && grid.columns === 1 && sized.levels === grid.rows) {
+    const { spaces } = sizedParts(sized);
+    return (row) => spaces[grid.rows - row] as Box;
+  }
+  if (sized?.base === 'shelving_unit' && grid.columns === 1 && sized.shelves === grid.rows) {
     const { spaces } = sizedParts(sized);
     return (row) => spaces[grid.rows - row] as Box;
   }

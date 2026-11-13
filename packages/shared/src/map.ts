@@ -22,9 +22,9 @@
  * to the wall it faces away from, at a height: `wall` is where its middle hangs until someone
  * says otherwise. Which wall comes from its turn (wallOfTurn); the layout stores the height.
  *
- * Sized shapes (#240, #241): a cube shelf and a bookcase are drawn from their numbers, which a
- * node's stored model carries after the shape's key (SizedModelKey). Every other model has one
- * size, its catalogue entry's.
+ * Sized shapes (#240, #241, #485): a cube shelf, a bookcase and a shelving unit are drawn from
+ * their numbers, which a node's stored model carries after the shape's key (SizedModelKey). Every
+ * other model has one size, its catalogue entry's.
  */
 import { ROOM_SIDE_CM } from './length.js';
 
@@ -220,6 +220,9 @@ export const MAP_MODELS = {
   cube_grid: { w: 0.77, d: 0.39, h: 0.77, kind: 'storage', top: 0.77, holds: true },
   /** A bookcase drawn from its size, 80 × 28 × 202 cm, with 6 levels. */
   bookcase: { w: 0.8, d: 0.28, h: 2.02, kind: 'storage', holds: true },
+  /** A shelving unit drawn from its size (#485): four posts and its shelves, open on every side;
+   * 90 × 50 × 180 cm with 4 shelves, as the built-in shelving unit template has. */
+  shelving_unit: { w: 0.9, d: 0.5, h: 1.8, kind: 'storage', holds: true },
   lamp: { w: 0.4, d: 0.4, kind: 'thing' },
   counter: { w: 1.8, d: 0.62, kind: 'furniture', top: 0.92, holds: true },
   sink: { w: 1.2, d: 0.62, kind: 'furniture', top: 0.92, holds: true },
@@ -364,25 +367,30 @@ export const MAP_MODELS = {
 export type MapModelKey = keyof typeof MAP_MODELS;
 export const MAP_MODEL_KEYS = Object.keys(MAP_MODELS) as MapModelKey[];
 
-// ---- Sized shapes (#240, #241) -----------------------------------------------------------------
+// ---- Sized shapes (#240, #241, #485) -----------------------------------------------------------
 
 /**
  * A cube shelf's grid, `across` × `up` cubes (lying down is the same unit with the numbers
  * swapped: 1 × 4 standing, 4 × 1 lying); a bookcase's width, depth and height in centimetres and
- * its levels, the spaces things stand in, the bottom one included.
+ * its levels, the spaces things stand in, the bottom one included; a shelving unit's width, depth
+ * and height in centimetres and its shelves, the boards things stand on, from the bottom one to
+ * the top.
  */
 export type SizedShape =
   | { base: 'cube_grid'; across: number; up: number }
-  | { base: 'bookcase'; w: number; d: number; h: number; levels: number };
+  | { base: 'bookcase'; w: number; d: number; h: number; levels: number }
+  | { base: 'shelving_unit'; w: number; d: number; h: number; shelves: number };
 
 /**
  * A sized shape as a node stores it, its numbers after its key: `cube_grid_3x2` (3 across, 2 up),
- * `bookcase_60x28x106_3` (centimetres, then levels). Its first size is the bare key. One spelling
- * per size, so the layout's format, the API and the database's check stay as they were.
+ * `bookcase_60x28x106_3` (centimetres, then levels), `shelving_unit_120x60x200_4` (centimetres,
+ * then shelves). Its first size is the bare key. One spelling per size, so the layout's format,
+ * the API and the database's check stay as they were.
  */
 export type SizedModelKey =
   | `cube_grid_${number}x${number}`
-  | `bookcase_${number}x${number}x${number}_${number}`;
+  | `bookcase_${number}x${number}x${number}_${number}`
+  | `shelving_unit_${number}x${number}x${number}_${number}`;
 
 /** What a node's model may be: a catalogue shape, or a sized shape with its numbers. */
 export type MapShapeKey = MapModelKey | SizedModelKey;
@@ -407,6 +415,16 @@ export const BOOKCASE = {
   start: { w: 80, d: 28, h: 202, levels: 6 },
 } as const;
 
+/** A shelving unit's limits in centimetres (#485), and its first size: two shelves at least,
+ * the bottom one and the top. */
+export const SHELVING_UNIT = {
+  w: [30, 240],
+  d: [15, 80],
+  h: [40, 300],
+  shelves: [2, 12],
+  start: { w: 90, d: 50, h: 180, shelves: 4 },
+} as const;
+
 /** A cube shelf's side in centimetres for `n` cubes. */
 export const cubeRunCm = (n: number): number =>
   2 * CUBE_GRID.frame + n * CUBE_GRID.cube + (n - 1) * CUBE_GRID.divider;
@@ -415,6 +433,10 @@ export const cubeRunCm = (n: number): number =>
 export const bookcaseMaxLevels = (h: number): number =>
   Math.max(BOOKCASE.levels[0], Math.min(BOOKCASE.levels[1], Math.floor(h / 15)));
 
+/** How many shelves a shelving unit this high (cm) can have: one every 15 cm at most. */
+export const shelvingMaxShelves = (h: number): number =>
+  Math.max(SHELVING_UNIT.shelves[0], Math.min(SHELVING_UNIT.shelves[1], Math.floor(h / 15)));
+
 const within = (v: number, [lo, hi]: readonly [number, number]) =>
   Number.isInteger(v) && v >= lo && v <= hi;
 
@@ -422,6 +444,13 @@ const within = (v: number, [lo, hi]: readonly [number, number]) =>
 function sizedOk(s: SizedShape): boolean {
   if (s.base === 'cube_grid')
     return within(s.across, [1, CUBE_GRID.max]) && within(s.up, [1, CUBE_GRID.max]);
+  if (s.base === 'shelving_unit')
+    return (
+      within(s.w, SHELVING_UNIT.w) &&
+      within(s.d, SHELVING_UNIT.d) &&
+      within(s.h, SHELVING_UNIT.h) &&
+      within(s.shelves, [SHELVING_UNIT.shelves[0], shelvingMaxShelves(s.h)])
+    );
   return (
     within(s.w, BOOKCASE.w) &&
     within(s.d, BOOKCASE.d) &&
@@ -433,6 +462,10 @@ function sizedOk(s: SizedShape): boolean {
 const isStart = (s: SizedShape): boolean => {
   if (s.base === 'cube_grid')
     return s.across === CUBE_GRID.start.across && s.up === CUBE_GRID.start.up;
+  if (s.base === 'shelving_unit') {
+    const u = SHELVING_UNIT.start;
+    return s.w === u.w && s.d === u.d && s.h === u.h && s.shelves === u.shelves;
+  }
   const a = BOOKCASE.start;
   return s.w === a.w && s.d === a.d && s.h === a.h && s.levels === a.levels;
 };
@@ -440,28 +473,31 @@ const isStart = (s: SizedShape): boolean => {
 /** A sized shape's stored model: its bare key at its first size. */
 export function sizedKey(s: SizedShape): MapShapeKey {
   if (isStart(s)) return s.base;
-  return s.base === 'cube_grid'
-    ? `cube_grid_${s.across}x${s.up}`
-    : `bookcase_${s.w}x${s.d}x${s.h}_${s.levels}`;
+  if (s.base === 'cube_grid') return `cube_grid_${s.across}x${s.up}`;
+  if (s.base === 'shelving_unit') return `shelving_unit_${s.w}x${s.d}x${s.h}_${s.shelves}`;
+  return `bookcase_${s.w}x${s.d}x${s.h}_${s.levels}`;
 }
 
 const SIZED_KEY =
-  /^(cube_grid|bookcase)_([1-9][0-9]{0,2})x([1-9][0-9]{0,2})(?:x([1-9][0-9]{0,2})_([1-9][0-9]?))?$/;
+  /^(cube_grid|bookcase|shelving_unit)_([1-9][0-9]{0,2})x([1-9][0-9]{0,2})(?:x([1-9][0-9]{0,2})_([1-9][0-9]?))?$/;
 
 /** A sized shape's numbers from a stored model (a bare key gives its first size), or null for
  * any other model and for numbers out of range or spelled another way. */
 export function sizedOf(key: string): SizedShape | null {
   if (key === 'cube_grid') return { base: 'cube_grid', ...CUBE_GRID.start };
   if (key === 'bookcase') return { base: 'bookcase', ...BOOKCASE.start };
+  if (key === 'shelving_unit') return { base: 'shelving_unit', ...SHELVING_UNIT.start };
   const m = SIZED_KEY.exec(key);
   if (!m) return null;
-  const [, base, a, b, c, levels] = m;
+  const [, base, a, b, c, count] = m;
   const s: SizedShape | null =
     base === 'cube_grid' && c === undefined
       ? { base, across: Number(a), up: Number(b) }
       : base === 'bookcase' && c !== undefined
-        ? { base, w: Number(a), d: Number(b), h: Number(c), levels: Number(levels) }
-        : null;
+        ? { base, w: Number(a), d: Number(b), h: Number(c), levels: Number(count) }
+        : base === 'shelving_unit' && c !== undefined
+          ? { base, w: Number(a), d: Number(b), h: Number(c), shelves: Number(count) }
+          : null;
   return s && sizedOk(s) && sizedKey(s) === key ? s : null;
 }
 
@@ -471,8 +507,8 @@ export const baseModel = (key: MapShapeKey): MapModelKey =>
 
 /** A sized shape's model: its catalogue entry at its own size. */
 function sizedModel(s: SizedShape): MapModel {
-  if (s.base === 'bookcase')
-    return { ...MAP_MODELS.bookcase, w: s.w / 100, d: s.d / 100, h: s.h / 100 };
+  if (s.base === 'bookcase' || s.base === 'shelving_unit')
+    return { ...MAP_MODELS[s.base], w: s.w / 100, d: s.d / 100, h: s.h / 100 };
   const h = cubeRunCm(s.up) / 100;
   return { ...MAP_MODELS.cube_grid, w: cubeRunCm(s.across) / 100, h, top: h };
 }

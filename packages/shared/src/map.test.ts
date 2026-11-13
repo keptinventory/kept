@@ -29,8 +29,10 @@ import {
   offWall,
   ROOM_KIND_SURFACE,
   rectsOverlap,
+  SHELVING_UNIT,
   seatFor,
   seatHeight,
+  shelvingMaxShelves,
   sizedCacheSize,
   sizedKey,
   sizedOf,
@@ -497,5 +499,72 @@ describe('shapes drawn from their numbers (#240, #241)', () => {
     expect(mapModel('bookshelf')).toMatchObject({ w: 1.2, d: 0.35 });
     expect(sizedOf('cube_shelf')).toBeNull();
     expect(sizedOf('bookshelf')).toBeNull();
+  });
+});
+
+describe('a shelving unit sized by its width, depth, height and shelves (#485)', () => {
+  const size = (key: Parameters<typeof mapModel>[0]) => {
+    const m = mapModel(key);
+    return [m.w, m.d, m.h ?? 0].map((v) => Math.round(v * 100));
+  };
+
+  it('starts at 90 × 50 × 180 cm with 4 shelves, and takes the request’s sizes', () => {
+    expect(SHELVING_UNIT.start).toEqual({ w: 90, d: 50, h: 180, shelves: 4 });
+    expect(size('shelving_unit')).toEqual([90, 50, 180]);
+    expect(sizedOf('shelving_unit')).toEqual({
+      base: 'shelving_unit',
+      w: 90,
+      d: 50,
+      h: 180,
+      shelves: 4,
+    });
+    const garage = sizedKey({ base: 'shelving_unit', w: 120, d: 60, h: 200, shelves: 4 });
+    expect(garage).toBe('shelving_unit_120x60x200_4');
+    expect(size(garage)).toEqual([120, 60, 200]);
+    expect(baseModel(garage)).toBe('shelving_unit');
+    expect(mapModel(garage)).toMatchObject({ kind: 'storage', holds: true });
+    expect(carryOf(garage)).toBeNull();
+  });
+
+  it('keeps one spelling per size, the first bare, within the database’s check', () => {
+    expect(sizedKey({ base: 'shelving_unit', ...SHELVING_UNIT.start })).toBe('shelving_unit');
+    for (const key of [
+      'shelving_unit',
+      'shelving_unit_60x30x120_3',
+      'shelving_unit_240x80x300_12',
+    ]) {
+      const s = sizedOf(key);
+      expect(s, key).not.toBeNull();
+      if (s) expect(sizedKey(s)).toBe(key);
+      expect(isMapModel(key), key).toBe(true);
+      expect(key).toMatch(/^[a-z][a-z0-9_]{0,39}$/);
+    }
+    for (const key of [
+      'shelving_unit_90x50x180_4', // the first size is spelled bare
+      'shelving_unit_90x50x180_1', // two shelves at least: the bottom one and the top
+      'shelving_unit_90x50x40_3', // three shelves in 40 cm
+      'shelving_unit_29x50x180_4',
+      'shelving_unit_90x81x180_4',
+      'shelving_unit_90x50x301_4',
+      'shelving_unit_090x50x180_4',
+      'shelving_unit_90x50',
+      'shelving_unit_90x50x180',
+    ])
+      expect(isMapModel(key), key).toBe(false);
+    expect(shelvingMaxShelves(180)).toBe(12);
+    expect(shelvingMaxShelves(40)).toBe(2);
+    expect(shelvingMaxShelves(60)).toBe(4);
+  });
+
+  it('leaves the bookcase and the metal shelf as they were', () => {
+    expect(sizedOf('bookcase_90x50x180_5')).toEqual({
+      base: 'bookcase',
+      w: 90,
+      d: 50,
+      h: 180,
+      levels: 5,
+    });
+    expect(sizedOf('metal_shelf')).toBeNull();
+    expect(mapModel('metal_shelf')).toMatchObject({ glb: 'steel_frame_shelves_02' });
   });
 });

@@ -1446,17 +1446,30 @@ export function drawnModels(F: Materials): Record<string, Build> {
 }
 
 /**
- * A sized shape (#240, #241) from its boards (sized.ts): a white cube shelf, open at the back, or
- * an oak bookcase with books on each level but the top one.
+ * A sized shape (#240, #241, #485) from its boards (sized.ts): a white cube shelf, open at the
+ * back; an oak bookcase with books on each level but the top one; or a shelving unit, steel posts
+ * and pine shelves, with a fabric storage box on every other shelf.
  */
 function sized(g: THREE.Group, s: SizedShape, F: Materials): void {
   const { boards, spaces } = sizedParts(s);
   const cubes = s.base === 'cube_grid';
   for (const b of boards) {
-    const m = cubes ? F.white : b.part === 'back' ? F.oakDark : F.oak;
+    const m = cubes ? F.white : b.part === 'post' ? F.steel : b.part === 'back' ? F.oakDark : F.oak;
     rb(g, b.w, b.h, b.d, b.x, b.y, b.z, m, b.part === 'back' ? 0 : 0.003);
   }
   if (cubes) return;
+  if (s.base === 'shelving_unit') {
+    spaces.slice(0, -1).forEach((sp, i) => {
+      if (i % 2) return;
+      const bw = Math.min(0.4, sp.w * 0.45);
+      const bh = Math.min(0.28, sp.h - 0.03);
+      const bd = Math.min(0.4, sp.d - 0.06);
+      if (bh <= 0.04) return;
+      const x = sp.x - sp.w / 2 + 0.02 + bw / 2 + (i % 4 ? sp.w - bw - 0.04 : 0);
+      rb(g, bw, bh, bd, x, sp.y - sp.h / 2 + bh / 2, sp.z, F.fabricDark, 0.01);
+    });
+    return;
+  }
   const books = [F.booksA, F.booksB, F.booksC, F.booksD, F.booksE, F.booksF];
   spaces.slice(0, -1).forEach((sp, level) => {
     const x0 = sp.x - sp.w / 2;

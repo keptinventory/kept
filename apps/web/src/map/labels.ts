@@ -37,6 +37,7 @@ export function useModelNames(): Record<MapModelKey, string> {
       bookshelf: t`Bookshelf`,
       cube_grid: t`Cube storage`,
       bookcase: t`Tall bookcase`,
+      shelving_unit: t`Shelving unit`,
       lamp: t`Floor lamp`,
       counter: t`Kitchen counter`,
       sink: t`Sink counter`,

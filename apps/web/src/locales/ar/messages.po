@@ -27946,6 +27946,7 @@ msgid "Shelf {n}"
 msgstr "رف {n}"
 
 #: src/components/places/furniture.tsx
+#: src/map/labels.ts
 msgid "Shelving unit"
 msgstr "وحدة رفوف"
 
@@ -29300,3 +29301,8 @@ msgstr "تغيّرت وحدة العدّاد"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "جهاز تنقية مياه"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "عدد الرفوف"

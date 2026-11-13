@@ -27946,6 +27946,7 @@ msgid "Shelf {n}"
 msgstr "Shelf {n}"
 
 #: src/components/places/furniture.tsx
+#: src/map/labels.ts
 msgid "Shelving unit"
 msgstr "Shelving unit"
 
@@ -29300,3 +29301,8 @@ msgstr "Meter unit changed"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "Water purifier"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Shelves"

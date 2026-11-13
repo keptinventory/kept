@@ -231,6 +231,7 @@ const pack: Pack = {
     bookshelf: 'Kệ sách',
     cube_grid: 'Hộc lưu trữ',
     bookcase: 'Tủ sách cao',
+    shelving_unit: 'Tủ kệ',
     lamp: 'Đèn sàn',
     counter: 'Mặt bếp',
     sink: 'Mặt chậu rửa',

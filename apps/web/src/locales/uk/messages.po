@@ -24284,6 +24284,7 @@ msgid "Shelves"
 msgstr "Полиці"
 
 #: src/components/places/furniture.tsx
+#: src/map/labels.ts
 msgid "Shelving unit"
 msgstr "Стелаж"
 
@@ -31283,3 +31284,8 @@ msgstr "Одиницю лічильника змінено"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "Очищувач води"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Полиці"

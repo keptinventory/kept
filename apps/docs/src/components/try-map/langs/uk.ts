@@ -252,6 +252,7 @@ const pack: Pack = {
     bookshelf: 'Книжкова полиця',
     cube_grid: 'Стелаж-куб',
     bookcase: 'Висока книжкова шафа',
+    shelving_unit: 'Стелаж',
     lamp: 'Підлогова лампа',
     counter: 'Кухонна стільниця',
     sink: 'Стільниця з мийкою',

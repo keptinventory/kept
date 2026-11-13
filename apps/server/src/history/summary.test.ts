@@ -192,6 +192,27 @@ describe('arrangements in words (#140)', () => {
         ),
       ),
     ).toEqual(['map.resize {"name":"Corner desk"}', 'map.resize {"name":"Shelf 2"}']);
+    // A shelving unit's new size or shelves (#485), and a change from it, by its code.
+    expect(
+      text(
+        arrangeLines(
+          [n('shelf', { model: 'shelving_unit' })],
+          [n('shelf', { model: 'shelving_unit_120x60x200_4' })],
+          names,
+        ),
+      ),
+    ).toEqual(['map.resize {"name":"Shelf 2"}']);
+    expect(
+      text(
+        arrangeLines(
+          [n('shelf', { model: 'shelving_unit_120x60x200_4' })],
+          [n('shelf', { model: 'bookcase' })],
+          names,
+        ),
+      ),
+    ).toEqual([
+      'map.shape {"name":"Shelf 2","from":"shelving_unit","to":"bookcase","vocab":"model"}',
+    ]);
     // The web says a shape by its code, so the numbers stay out of it.
     expect(
       text(

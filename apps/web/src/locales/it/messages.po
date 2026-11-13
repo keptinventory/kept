@@ -27946,6 +27946,7 @@ msgid "Shelf {n}"
 msgstr "Ripiano {n}"
 
 #: src/components/places/furniture.tsx
+#: src/map/labels.ts
 msgid "Shelving unit"
 msgstr "Scaffale"
 
@@ -29300,3 +29301,8 @@ msgstr "Unità del contatore cambiata"
 #: src/map/labels.ts
 msgid "Water purifier"
 msgstr "Depuratore d’acqua"
+
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Ripiani"

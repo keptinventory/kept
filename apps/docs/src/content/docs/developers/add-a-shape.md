@@ -49,8 +49,9 @@ The key is stored in a location's layout, so never rename or remove one once it 
 
 ## A shape sized by its numbers
 
-The cube shelf sized by its grid (`cube_grid`) and the bookcase with levels (`bookcase`) are drawn
-from numbers someone sets on the card, not from one size. A node's stored model carries them after
+The cube shelf sized by its grid (`cube_grid`), the bookcase with levels (`bookcase`) and the
+shelving unit with shelves (`shelving_unit`) are drawn from numbers someone sets on the card, not
+from one size. A node's stored model carries them after
 the key, so the layout's format, the API and the database stay as they were:
 
 | Model | Means |
@@ -59,11 +60,15 @@ the key, so the layout's format, the API and the database stay as they were:
 | `cube_grid_4x1` | 4 across, 1 up (a 1 × 4 lying down) |
 | `bookcase` | 80 × 28 × 202 cm, 6 levels |
 | `bookcase_60x28x150_4` | 60 × 28 × 150 cm (width, depth, height), 4 levels |
+| `shelving_unit` | 90 × 50 × 180 cm, 4 shelves |
+| `shelving_unit_120x60x200_4` | 120 × 60 × 200 cm (width, depth, height), 4 shelves |
 
 `sizedOf` reads the numbers (null for anything else, out of range, or spelled another way: the
 first size is only ever the bare key), `sizedKey` writes them, `mapModel` gives the size and
 `baseModel` the catalogue key, which the names, the groups and the pictures use.
-`apps/web/src/map/engine/sized.ts` turns the numbers into boards and the spaces between them, and
+`apps/web/src/map/engine/sized.ts` turns the numbers into boards and the spaces between them,
+`apps/web/src/map/engine/draw.ts` gives the boards their materials (its `sized` function),
+`apps/web/src/map/compartments.ts` puts furniture's compartments in those spaces, and
 `apps/web/src/map/size.tsx` is the card's fields. A new sized shape goes in all of these, and in
 `isMapModel`'s tests and the server's layout test.
 

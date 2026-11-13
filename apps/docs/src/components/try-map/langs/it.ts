@@ -226,6 +226,7 @@ const pack: Pack = {
     bookshelf: 'Libreria',
     cube_grid: 'Scaffale a cubi',
     bookcase: 'Libreria alta',
+    shelving_unit: 'Scaffale',
     lamp: 'Lampada da terra',
     counter: 'Piano di lavoro',
     sink: 'Mobile lavello',

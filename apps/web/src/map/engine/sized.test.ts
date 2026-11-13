@@ -109,3 +109,45 @@ describe('a bookcase drawn with its levels (#241)', () => {
     expect(top.y + top.h / 2).toBeLessThan(1.8);
   });
 });
+
+describe('a shelving unit drawn with its shelves (#485)', () => {
+  it('stands 90 × 50 × 180 cm with 4 shelves at first, as its model', () => {
+    const { boards, spaces } = partsOf('shelving_unit');
+    expect(bounds(boards)).toEqual({ w: 90, h: 180, d: 50, floor: 0 });
+    expect(boards.filter((b) => b.part === 'shelf')).toHaveLength(4);
+    expect(spaces).toHaveLength(4);
+  });
+
+  it('gives the top shelf 40 cm at most, however far apart the shelves', () => {
+    const { spaces } = partsOf('shelving_unit_90x50x300_2');
+    expect((spaces.at(-1) as Box).h).toBeLessThanOrEqual(0.4);
+    expect((spaces.at(0) as Box).h).toBeGreaterThan(2);
+  });
+
+  it.each([2, 4, 6, 12])(
+    'stands %i shelves on four posts, the bottom off the floor and the top flush',
+    (shelves) => {
+      const key = sizedKey({ base: 'shelving_unit', w: 120, d: 60, h: 200, shelves });
+      const { boards, spaces } = partsOf(key);
+      expect(bounds(boards)).toEqual({ w: 120, h: 200, d: 60, floor: 0 });
+      // Open on every side: four posts the full height, no sides, back or plinth.
+      const posts = boards.filter((b) => b.part === 'post');
+      expect(posts).toHaveLength(4);
+      for (const p of posts) expect(cm(p.h)).toBe(200);
+      expect(boards.filter((b) => b.part !== 'post' && b.part !== 'shelf')).toEqual([]);
+      const shelf = boards.filter((b) => b.part === 'shelf').sort((a, b) => a.y - b.y);
+      expect(shelf).toHaveLength(shelves);
+      expect(cm((shelf[0] as Box).y - (shelf[0] as Box).h / 2)).toBeGreaterThan(0);
+      const top = shelf[shelf.length - 1] as Box;
+      expect(cm(top.y + top.h / 2)).toBe(200);
+      // Evenly apart, a space on each shelf: the top one's above it, 40 cm at most.
+      const gaps = new Set(shelf.slice(1).map((b, i) => cm(b.y - (shelf[i] as Box).y)));
+      expect(gaps.size).toBe(1);
+      expect(spaces).toHaveLength(shelves);
+      for (const [i, s] of spaces.entries()) {
+        const board = shelf[i] as Box;
+        expect(cm(s.y - s.h / 2), `space ${i}`).toBe(cm(board.y + board.h / 2));
+      }
+    },
+  );
+});
