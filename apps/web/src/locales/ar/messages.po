@@ -29316,3 +29316,7 @@ msgstr "العدّ متوقف"
 #: src/components/scan/session/session-screen.tsx
 msgid "An owner or admin turns them on in a location's What to track."
 msgstr "يفعّله المالك أو المشرف من «ما الذي تتابعه» في الموقع."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "العدّ متوقف هنا: تعرض هذه القائمة فحوص الصناديق."

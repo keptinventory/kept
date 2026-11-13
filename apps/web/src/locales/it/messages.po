@@ -29316,3 +29316,7 @@ msgstr "I conteggi sono disattivati"
 #: src/components/scan/session/session-screen.tsx
 msgid "An owner or admin turns them on in a location's What to track."
 msgstr "Un proprietario o un amministratore li attiva in «Cosa monitorare» di un luogo."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "I conteggi sono disattivati qui: questo elenco mostra i controlli scatola."

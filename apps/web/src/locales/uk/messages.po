@@ -31299,3 +31299,7 @@ msgstr "Підрахунки вимкнено"
 #: src/components/scan/session/session-screen.tsx
 msgid "An owner or admin turns them on in a location's What to track."
 msgstr "Власник або адміністратор вмикає їх у розділі «Що відстежувати» локації."
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
