@@ -53,6 +53,16 @@ export const FIELD_COLUMNS = `f.id, f.owner_account_id, f.type_id, f.place_kind_
   f.kind, f.unit, f.options, f.repeatable, f.required, f.sort, f.secret, f.archived_at,
   f.row_version`;
 
+/**
+ * The built-in key a type is named and translated by, as SQL over the `public.types` row
+ * `alias`: a built-in's own, or, for an account's customised copy of one, its source's (#546).
+ * The copy keeps no name of its own until renamed (kept.customise_type), so it reads in each
+ * person's language; every reader that names a type goes through this, as builtinKeyOf() does.
+ */
+export const typeKeySql = (alias: string): string =>
+  `coalesce(${alias}.builtin_key,
+            (SELECT k.builtin_key FROM public.types k WHERE k.id = ${alias}.copied_from_id))`;
+
 /** A key a change would define twice along a chain (D92). */
 export class Redefined extends Error {
   constructor(readonly key: string) {

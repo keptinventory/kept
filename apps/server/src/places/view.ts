@@ -37,6 +37,7 @@ import {
   tagsOfRow,
   tagsSql,
 } from '../things/tag-sql.js';
+import { typeKeySql } from '../types/graph.js';
 import { placeOrderSql, thingNameSql } from './order.js';
 
 // What the API shows of places (D45, D118, D160): the shapes of the web contract
@@ -727,11 +728,13 @@ export async function placeContents(
   }
 
   const sort = query.sort ?? 'name';
-  // Grouped by type: typed things first, by built-in key or name, untyped ones last. By tag: under
-  // the first tag A to Z, untagged ones last (things/tag-sql.ts).
+  // Grouped by type: typed things first, by name or built-in key, then the type's id, so a
+  // customised copy and its built-in, same key, stay apart (#546); untyped ones last. By tag:
+  // under the first tag A to Z, untagged ones last (things/tag-sql.ts).
   const g =
     query.group === 'type'
-      ? `CASE WHEN ty.id IS NULL THEN '1' ELSE '0' || coalesce(ty.builtin_key, lower(ty.name)) END`
+      ? `CASE WHEN ty.id IS NULL THEN '1'
+              ELSE '0' || coalesce(lower(ty.name), ${typeKeySql('ty')}) || ' ' || ty.id::text END`
       : query.group === 'tag'
         ? tagGroupSql('t.id')
         : `''`;
@@ -762,7 +765,7 @@ export async function placeContents(
             ${shownCodeSql('thing_id', 't.id')} AS short_code,
             ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
             ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
-            ty.builtin_key AS type_builtin_key,
+            ${typeKeySql('ty')} AS type_builtin_key,
             (SELECT a.file_id FROM public.attachments a
                JOIN public.file_derivatives d ON d.file_id = a.file_id AND d.variant = 'thumb'
               WHERE a.thing_id = t.id AND a.role = 'photo'

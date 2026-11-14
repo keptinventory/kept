@@ -13,6 +13,7 @@
  */
 import { normalize } from '@kept/shared';
 import type pg from 'pg';
+import { typeKeySql } from '../types/graph.js';
 import type { Merged } from './merge.js';
 
 export type MatchReason = 'code' | 'brand_model' | 'name_type';
@@ -59,7 +60,7 @@ export async function candidatesOf(
         WHERE s.code = ANY ($4::text[]) AND s.state = 'assigned' AND s.thing_id IS NOT NULL
           AND s.location_id = $1)
      SELECT t.id, coalesce(t.name, '') AS name, b.name AS brand, t.model,
-            ty.name AS type, coalesce(ty.builtin_key, pt.builtin_key) AS builtin,
+            ty.name AS type, coalesce(${typeKeySql('ty')}, ${typeKeySql('pt')}) AS builtin,
             t.id IN (SELECT id FROM coded) AS by_code
        FROM public.things t
        LEFT JOIN public.brands b ON b.id = t.brand_id

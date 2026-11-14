@@ -30,6 +30,7 @@ import { STATE_SQL } from '../search/query.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { rackWrite } from '../templates/racks.js';
+import { typeKeySql } from '../types/graph.js';
 import {
   customClasses,
   moneyShaped,
@@ -1430,7 +1431,7 @@ export function thingListOrder(q: Pick<ListQuery, 'group' | 'sort' | 'dir'>): {
 } {
   const group =
     q.group === 'type'
-      ? `(lower(coalesce(ty.name, ty.builtin_key, '~')) || ' ' || coalesce(ty.id::text, '')) ${ICU}`
+      ? `(lower(coalesce(ty.name, ${typeKeySql('ty')}, '~')) || ' ' || coalesce(ty.id::text, '')) ${ICU}`
       : q.group === 'place'
         ? `coalesce(t.container_id, t.place_id)::text ${ICU}`
         : q.group === 'tag'

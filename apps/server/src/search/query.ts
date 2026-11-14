@@ -14,6 +14,7 @@ import { type Many, manyOf, matchOf, notOf } from '../http/list-filters.js';
 import { legacyCodeOf } from '../imports/csv.js';
 import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { tagMatchSql, tagsSql } from '../things/tag-sql.js';
+import { typeKeySql } from '../types/graph.js';
 
 // The search SQL (D42). Everything here runs on the
 // request's kept_app transaction, so row-level security decides what exists: a thing, place,
@@ -440,7 +441,7 @@ export async function searchThings(
            ${shownCodeSql('thing_id', 't.id')} AS short_code,
            ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
            ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
-           ty.builtin_key AS type_builtin_key,
+           ${typeKeySql('ty')} AS type_builtin_key,
            ${firstThumb('t.id')} AS thumb_file_id,
            CASE WHEN t.container_id IS NULL THEN NULL ELSE ${firstThumb('t.container_id')} END
              AS container_thumb_file_id,

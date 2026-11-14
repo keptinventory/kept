@@ -6,6 +6,7 @@ import { type ReportLocale, reportLocaleOf, wordsFor } from '../reports/labels.j
 import { gateFor } from '../serialize/gates.js';
 import { type ThingListFilter, thingListOrder, thingListWhere } from '../things/service.js';
 import type { ListQuery } from '../things/validate.js';
+import { typeKeySql } from '../types/graph.js';
 
 // The things list you're looking at, as a CSV (D169):
 // GET /api/v1/things.csv takes every GET /things parameter and writes the same rows in the same
@@ -89,7 +90,7 @@ async function readRows(
   moneyLocations: string[],
 ): Promise<Row[]> {
   const { rows } = await client.query<Row>(
-    `SELECT t.id, t.location_id, t.name, ty.name AS type_name, ty.builtin_key AS type_builtin_key,
+    `SELECT t.id, t.location_id, t.name, ty.name AS type_name, ${typeKeySql('ty')} AS type_builtin_key,
             b.name AS brand, t.model, t.serial, t.quantity::text AS quantity, t.condition,
             t.lifecycle, t.last_seen_at,
             (SELECT s.code FROM public.short_ids s
