@@ -42,7 +42,7 @@ token (`Authorization: Bearer <token>`); without the variable, the path doesn't 
 | `kept_backup_last_success_timestamp_seconds` | when the last good backup finished (0 before the first) |
 | `kept_backup_last_run_status{status}` | 1 for the last finished run's status, 0 for the others |
 | `kept_disk_used_ratio{volume}` | how full the data disk and a directory backup target are |
-| `kept_update_available` | 1 when the update check has seen a newer release |
+| `kept_update_available` | 1 when the update check has seen a release newer than the one running |
 
 No label ever holds a path or a target. A database that can't answer leaves the backup, disk and
 update lines out; the scrape itself still succeeds.

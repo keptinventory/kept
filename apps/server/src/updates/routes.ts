@@ -56,7 +56,7 @@ export async function updateRoutes(app: KeptApp, deps: InventoryDeps): Promise<v
       });
       const at = new Date();
       return scopedWrite(deps.pools, req, reply, async (tx, client) => {
-        await storeUpdateCheck(client, result, at);
+        await storeUpdateCheck(client, result, at, KEPT_VERSION);
         await audited(tx, {
           locationId: null,
           ownerAccountId: null,

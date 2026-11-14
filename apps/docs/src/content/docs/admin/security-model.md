@@ -169,7 +169,7 @@ Kept's own re-encoded JPEGs. Exported CSV cells that start like a formula are ne
   telemetry is switched off. Tracing and error reporting go only to a collector you set
   ([monitoring](/admin/observability/#tracing-and-error-reporting)).
 - **The update check is off by default.** On, it asks GitHub for the latest release once a day,
-  sending nothing but the request ([upgrades](/admin/upgrades/#knowing-theres-a-new-version)).
+  and once after an upgrade, sending nothing but the request ([upgrades](/admin/upgrades/#knowing-theres-a-new-version)).
 - **What an AI provider sees**, when a location uses one: photos as a re-encoded copy with
   EXIF and XMP removed (Kept refuses to send an image that still has them), the fixed prompt and
   the location's languages for extraction, the question and the tool results the asker's role
