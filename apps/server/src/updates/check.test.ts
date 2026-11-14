@@ -2,6 +2,7 @@ import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { type TestDb, testDb } from '../../test/db.js';
+import { opsGauges } from '../backup/metrics.js';
 import { withSystem } from '../db/scope.js';
 import { guardedFetch } from '../net/ssrf.js';
 import {
@@ -227,13 +228,28 @@ describe('updateCheckDue', () => {
   const at = (iso: string) => new Date(iso);
   it('asks once a day at the instance hour, or after two days whatever the hour', () => {
     const empty = { lastCheckedAt: null, latest: null, error: null };
-    expect(updateCheckDue(empty, 5, at('2026-10-06T12:07:00Z'))).toBe(true);
-    const asked = { ...empty, lastCheckedAt: '2026-10-05T05:07:00Z' };
-    expect(updateCheckDue(asked, 5, at('2026-10-05T23:07:00Z'))).toBe(false);
-    expect(updateCheckDue(asked, 5, at('2026-10-06T04:07:00Z'))).toBe(false);
-    expect(updateCheckDue(asked, 5, at('2026-10-06T05:07:00Z'))).toBe(true);
-    expect(updateCheckDue(asked, 5, at('2026-10-06T06:07:00Z'))).toBe(false);
-    expect(updateCheckDue(asked, 5, at('2026-10-07T04:07:00Z'))).toBe(true);
+    expect(updateCheckDue(empty, 5, at('2026-10-06T12:07:00Z'), '1.2.0')).toBe(true);
+    const asked = { ...empty, lastCheckedAt: '2026-10-05T05:07:00Z', version: '1.2.0' };
+    expect(updateCheckDue(asked, 5, at('2026-10-05T23:07:00Z'), '1.2.0')).toBe(false);
+    expect(updateCheckDue(asked, 5, at('2026-10-06T04:07:00Z'), '1.2.0')).toBe(false);
+    expect(updateCheckDue(asked, 5, at('2026-10-06T05:07:00Z'), '1.2.0')).toBe(true);
+    expect(updateCheckDue(asked, 5, at('2026-10-06T06:07:00Z'), '1.2.0')).toBe(false);
+    expect(updateCheckDue(asked, 5, at('2026-10-07T04:07:00Z'), '1.2.0')).toBe(true);
+  });
+
+  it('an answer from another running version is due at the next hourly run (#552)', () => {
+    const asked = {
+      lastCheckedAt: '2026-10-05T05:07:00Z',
+      latest: null,
+      error: null,
+      version: '1.2.0',
+    };
+    // An hour later, not the instance's hour: due only because the server was upgraded.
+    expect(updateCheckDue(asked, 5, at('2026-10-05T06:07:00Z'), '1.2.0')).toBe(false);
+    expect(updateCheckDue(asked, 5, at('2026-10-05T06:07:00Z'), '1.3.0')).toBe(true);
+    // An answer stored before the version was kept with it counts as another version's.
+    const { version: _, ...legacy } = asked;
+    expect(updateCheckDue(legacy, 5, at('2026-10-05T06:07:00Z'), '1.2.0')).toBe(true);
   });
 });
 
@@ -328,6 +344,97 @@ describe('the scheduled check, on the database', () => {
     expect(stored?.hour).toBeLessThan(24);
     expect(await run()).toBe(false);
     expect(seen).toHaveLength(1);
+  });
+
+  // #552: an answer stored while an older version ran outlived the upgrade, so a server running
+  // 1.14.7 said "Kept 1.14.7 is available".
+  const storeRaw = (value: unknown) =>
+    inTx((c) =>
+      c.query(
+        `INSERT INTO public.instance_settings (key, value) VALUES ($1, $2::jsonb)
+         ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
+        [UPDATE_CHECK_STATE_KEY, JSON.stringify(value)],
+      ),
+    );
+  const found = (v: string) => ({
+    version: v,
+    url: `https://github.com/bruce/kept/releases/tag/v${v}`,
+    publishedAt: '2026-10-01T09:00:00Z',
+  });
+  const readAs = (running: string) => inTx((c) => readUpdateCheck(c, {}, running));
+  const updateAvailable = async (running: string) => {
+    const gauge = (await opsGauges(db.pools.system, running)).find(
+      (g) => g.name === 'kept_update_available',
+    );
+    return gauge?.samples[0]?.[1] === 1;
+  };
+
+  it('never announces the running version, or an older one (#552)', async () => {
+    await setEnabled(true);
+    await storeRaw({
+      lastCheckedAt: '2026-10-05T05:07:00Z',
+      latest: found('1.14.7'),
+      error: null,
+      hour: 5,
+    });
+    expect((await readAs('1.14.7')).latest).toBeNull();
+    expect((await readAs('1.14.8')).latest).toBeNull();
+    expect((await readAs('1.14.6')).latest).toEqual(found('1.14.7'));
+    // The metric reads the same rule.
+    expect(await updateAvailable('1.14.7')).toBe(false);
+    expect(await updateAvailable('1.14.6')).toBe(true);
+  });
+
+  it('still announces a newer release after an upgrade short of it (#552)', async () => {
+    await setEnabled(true);
+    await storeRaw({
+      lastCheckedAt: '2026-10-05T05:07:00Z',
+      latest: found('1.14.8'),
+      error: null,
+      version: '1.14.6',
+    });
+    expect((await readAs('1.14.7')).latest).toEqual(found('1.14.8'));
+    expect(await updateAvailable('1.14.7')).toBe(true);
+    expect((await readAs('1.14.9')).latest).toBeNull();
+    expect(await updateAvailable('1.14.9')).toBe(false);
+  });
+
+  it('after an upgrade asks again at the next hourly run, not the next day (#552)', async () => {
+    await setEnabled(true);
+    answer = () => ok(release('v1.3.0'));
+    const now = new Date('2026-10-06T12:07:00Z');
+    const run = (version: string, at: Date) =>
+      runScheduledUpdateCheck(inTx, { env: {}, sourceUrl: SOURCE, version, now: at, ...local });
+    expect(await run('1.2.0', now)).toBe(true);
+    const hourLater = new Date('2026-10-06T13:07:00Z');
+    expect(await run('1.2.0', hourLater)).toBe(false);
+    expect(seen).toHaveLength(1);
+    // Upgraded to 1.3.0: the stored answer was for 1.2.0, so the next run asks.
+    expect(await run('1.3.0', hourLater)).toBe(true);
+    expect(seen).toHaveLength(2);
+    expect((await readAs('1.3.0')).latest).toBeNull();
+    // And then waits for the next day again.
+    expect(await run('1.3.0', new Date('2026-10-06T14:07:00Z'))).toBe(false);
+    expect(seen).toHaveLength(2);
+  });
+
+  it('after an upgrade with the check off: no request at all (#552)', async () => {
+    await storeRaw({
+      lastCheckedAt: '2026-10-05T05:07:00Z',
+      latest: found('1.3.0'),
+      error: null,
+      version: '1.2.0',
+      hour: 5,
+    });
+    answer = () => ok(release('v1.3.0'));
+    const asked = await runScheduledUpdateCheck(inTx, {
+      env: {},
+      sourceUrl: SOURCE,
+      version: '1.3.0',
+      ...local,
+    });
+    expect(asked).toBe(false);
+    expect(seen).toHaveLength(0);
   });
 
   it('a rate limit is stored and not retried within the day', async () => {

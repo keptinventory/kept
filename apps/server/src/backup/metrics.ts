@@ -1,6 +1,7 @@
+import { KEPT_VERSION } from '@kept/shared';
 import type pg from 'pg';
 import { withSystem } from '../db/scope.js';
-import { UPDATE_CHECK_STATE_KEY } from '../updates/check.js';
+import { storedNewerRelease, UPDATE_CHECK_STATE_KEY } from '../updates/check.js';
 import { BACKUP_METRICS_KEY, type BackupMetrics, DISK_STATUS_KEY, diskStatusOf } from './watch.js';
 
 // Step 8's Prometheus gauges (D66, D166), served by /metrics (http/health.ts, behind
@@ -13,7 +14,10 @@ export type OpsGauge = { name: string; help: string; samples: [string, number][]
 
 const STATUSES = ['ok', 'warning', 'failed'] as const;
 
-export async function opsGauges(system: pg.Pool): Promise<OpsGauge[]> {
+export async function opsGauges(
+  system: pg.Pool,
+  running: string = KEPT_VERSION,
+): Promise<OpsGauge[]> {
   const rows = await withSystem(system, async (_tx, client) => {
     const res = await client.query<{ key: string; value: unknown }>(
       'SELECT key, value FROM public.instance_settings WHERE key = ANY($1::text[])',
@@ -25,7 +29,8 @@ export async function opsGauges(system: pg.Pool): Promise<OpsGauge[]> {
   const lastSuccess =
     typeof backup?.lastSuccessAt === 'string' ? Date.parse(backup.lastSuccessAt) : Number.NaN;
   const disk = diskStatusOf(rows.get(DISK_STATUS_KEY));
-  const update = rows.get(UPDATE_CHECK_STATE_KEY) as { latest?: unknown } | undefined;
+  // Only a release newer than the one running (#552), as the status page shows it.
+  const update = storedNewerRelease(rows.get(UPDATE_CHECK_STATE_KEY), running);
   const volumes = (['data', 'backup'] as const).filter((v) => disk[v] !== null);
   return [
     {
@@ -46,7 +51,7 @@ export async function opsGauges(system: pg.Pool): Promise<OpsGauge[]> {
     {
       name: 'kept_update_available',
       help: 'Whether the opt-in update check found a newer release (1) or not (0).',
-      samples: [['', update?.latest ? 1 : 0]],
+      samples: [['', update ? 1 : 0]],
     },
   ];
 }

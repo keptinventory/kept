@@ -1,6 +1,7 @@
 import { randomInt } from 'node:crypto';
 import {
   compareSemver,
+  KEPT_VERSION,
   parseSemver,
   UPDATE_CHECK_ERRORS,
   type UpdateCheckError,
@@ -208,8 +209,9 @@ export async function checkForUpdate(opts: CheckOptions): Promise<UpdateCheckRes
 
 // --- What is stored ----------------------------------------------------------------------------
 
-/** `instance_settings.update_check`: the last answer, and the hour of the day (UTC) the daily
- * job asks in, picked at random once so instances don't all ask GitHub together. */
+/** `instance_settings.update_check`: the last answer, the running version it was asked for, and
+ * the hour of the day (UTC) the daily job asks in, picked at random once so instances don't all
+ * ask GitHub together. An answer stored before `version` was kept has none. */
 const StoredState = z.object({
   lastCheckedAt: z.string().nullable().catch(null),
   latest: z
@@ -217,9 +219,36 @@ const StoredState = z.object({
     .nullable()
     .catch(null),
   error: z.enum(UPDATE_CHECK_ERRORS).nullable().catch(null),
+  version: z.string().optional().catch(undefined),
   hour: z.number().int().min(0).max(23).optional().catch(undefined),
 });
 type StoredState = z.infer<typeof StoredState>;
+
+/**
+ * The stored release, only while it is newer than `running` (#552). The answer was right when it
+ * was asked, but it outlives an upgrade: a server upgraded to the release it found would
+ * otherwise say "Kept 1.14.7 is available" while running 1.14.7, until the next daily check. So
+ * every reader (the status page, the metric) compares again. A running version that isn't semver
+ * (a local build) can't be compared and keeps the answer; it never stores one (checkForUpdate).
+ */
+function newerRelease(latest: StoredState['latest'], running: string): UpdateCheckState['latest'] {
+  if (!latest) return null;
+  const release = parseSemver(latest.version);
+  if (!release) return null;
+  const current = parseSemver(running);
+  if (!current) return latest;
+  return compareSemver(release, current) > 0 ? latest : null;
+}
+
+/** The stored row's release newer than `running`, for readers that hold the raw
+ * `instance_settings.update_check` value (backup/metrics.ts). */
+export function storedNewerRelease(
+  value: unknown,
+  running: string = KEPT_VERSION,
+): UpdateCheckState['latest'] {
+  const parsed = StoredState.safeParse(value ?? EMPTY);
+  return parsed.success ? newerRelease(parsed.data.latest, running) : null;
+}
 
 const EMPTY: StoredState = { lastCheckedAt: null, latest: null, error: null };
 
@@ -246,10 +275,12 @@ export function updateCheckSwitch(env: UpdateCheckEnv, storedEnabled: boolean) {
   return { value: locked ? env.KEPT_UPDATE_CHECK === true : storedEnabled, locked };
 }
 
-/** The status page's `updates` (AdminOpsStatus), from rows already kept. */
+/** The status page's `updates` (AdminOpsStatus), from rows already kept. `latest` only while it
+ * is newer than the running version (newerRelease). */
 export async function readUpdateCheck(
   client: pg.ClientBase,
   env: UpdateCheckEnv,
+  running: string = KEPT_VERSION,
 ): Promise<UpdateCheckState> {
   const { storedEnabled, stored } = await readKeys(client);
   const { value, locked } = updateCheckSwitch(env, storedEnabled);
@@ -257,7 +288,7 @@ export async function readUpdateCheck(
     enabled: value,
     locked,
     lastCheckedAt: stored.lastCheckedAt,
-    latest: stored.latest,
+    latest: newerRelease(stored.latest, running),
     error: stored.error,
   };
 }
@@ -279,17 +310,19 @@ async function writeState(client: pg.ClientBase, state: StoredState) {
   );
 }
 
-/** Stores one answer, keeping the job's hour. */
+/** Stores one answer and the running version it was asked for, keeping the job's hour. */
 export async function storeUpdateCheck(
   client: pg.ClientBase,
   result: UpdateCheckResult,
   at: Date,
+  running: string,
 ): Promise<void> {
   const { stored } = await readKeys(client);
   await writeState(client, {
     lastCheckedAt: at.toISOString(),
     latest: result.latest,
     error: result.error,
+    version: running,
     ...(stored.hour !== undefined ? { hour: stored.hour } : {}),
   });
 }
@@ -297,12 +330,20 @@ export async function storeUpdateCheck(
 const HOUR_MS = 3_600_000;
 
 /**
- * Whether the hourly job should ask now: never asked; or a day has passed and this is the
+ * Whether the hourly job should ask now: never asked; or the answer was asked for another
+ * running version (an upgrade or a downgrade since, #552), so the first hourly run after a
+ * restart on a new version asks, with no request at boot; or a day has passed and this is the
  * instance's hour; or two days have passed (the server was down at its hour). So it asks about
  * once a day, and a `rate_limited` answer waits for the next day.
  */
-export function updateCheckDue(state: StoredState, hour: number, now: Date): boolean {
+export function updateCheckDue(
+  state: StoredState,
+  hour: number,
+  now: Date,
+  running: string,
+): boolean {
   if (!state.lastCheckedAt) return true;
+  if (state.version !== running) return true;
   const last = Date.parse(state.lastCheckedAt);
   if (!Number.isFinite(last)) return true;
   const elapsed = now.getTime() - last;
@@ -332,10 +373,10 @@ export async function runScheduledUpdateCheck(
       hour = randomInt(24);
       await writeState(client, { ...stored, hour });
     }
-    return updateCheckDue(stored, hour, now);
+    return updateCheckDue(stored, hour, now, opts.version);
   });
   if (!due) return false;
   const result = await checkForUpdate(opts);
-  await inTx((client) => storeUpdateCheck(client, result, now));
+  await inTx((client) => storeUpdateCheck(client, result, now, opts.version));
   return true;
 }

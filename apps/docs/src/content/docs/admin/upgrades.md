@@ -97,7 +97,8 @@ version, no instance identifier). Nothing is downloaded or installed. `KEPT_UPDA
 turns it on and locks it; `false` locks it off.
 
 The switch is in Admin → Sign-up, under "New versions". Admin → Status says "Kept X is available"
-when a newer release exists, and its **Check now** asks at once.
+when a newer release exists, and its **Check now** asks at once. After an upgrade the notice goes as soon as the
+server runs that release, and the next hourly run asks again rather than waiting for the next day.
 
 ## The snapshot before every upgrade
 
