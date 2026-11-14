@@ -67,7 +67,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 ## Chạy nó
 
-- **[Cài đặt Kept](/vi/install/)**: chọn cách bạn chạy Kept (Docker Compose, Kubernetes, từ mã nguồn hoặc Home Assistant) và làm theo các bước trên một trang.
+- **[Cài đặt Kept](/vi/install/)**: chọn cách bạn chạy Kept (Docker Compose, Kubernetes, từ mã nguồn, Proxmox VE, Unraid hoặc Home Assistant) và làm theo các bước trên một trang.
 - **[Sao lưu](/vi/admin/backups/)**: hàng đêm, được mã hóa, đến thư mục, S3 hoặc SFTP, mỗi cái với một bản sao [mở không cần Kept](/vi/admin/read-with-restic/).
 - **[Những gì nó cần](/vi/install/hardware/)**: một container và Postgres; thử nghiệm trên 1 GB RAM và một nhân CPU.
 - **[Mô hình bảo mật](/vi/admin/security-model/)**: không có telemetry; không có gì rời máy chủ trừ khi bạn bật nó.

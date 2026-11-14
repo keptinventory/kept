@@ -116,7 +116,7 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 ## Ejecutándolo
 
 - **[Instalar Kept](/es/install/):** elige cómo ejecutas Kept (Docker Compose, Kubernetes, desde el
-  código fuente o Home Assistant) y sigue sus pasos en una sola página.
+  código fuente, Proxmox VE, Unraid o Home Assistant) y sigue sus pasos en una sola página.
 - **[Copias de seguridad](/es/admin/backups/):** nocturnas, encriptadas, a un directorio, S3 o SFTP,
   cada una con una copia que [se abre sin Kept](/es/admin/read-with-restic/).
 - **[Qué necesita](/es/install/hardware/):** un contenedor y Postgres; probado con 1 GB de RAM y

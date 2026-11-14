@@ -6,7 +6,8 @@
 //   2. passed through by compose.yaml (`${KEPT_X…}`) if it is in compose.env.example: a value in
 //      `.env` that compose.yaml doesn't hand to the container, or overrides with a fixed value,
 //      never reaches Kept;
-//   3. mapped by the Home Assistant app (docker/ha/options.mjs, its start script or Dockerfile), or
+//   3. mapped by the Home Assistant app (docker/ha/options.mjs, its start script, the steps it
+//      shares with the Unraid image in docker/one-container.sh, or the Dockerfile), or
 //      on NOT_IN_HA_APP with the reason: the app's settings come from its options, not `.env`.
 //
 // And no file names a KEPT_* setting env.ts doesn't know (a typo, or one that was removed).
@@ -216,6 +217,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
       'docker/ha/options.mjs',
       'docker/ha/kept-ha-start',
       'docker/ha/kept-ha-backup',
+      'docker/one-container.sh',
       'Dockerfile',
     ].map(read),
   });

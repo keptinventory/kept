@@ -74,23 +74,39 @@ describe('the Dockerfile', () => {
     ].map((m) => m[1]);
     expect(stages.at(-1)).toBe('runtime');
     expect(stages).toContain('ha');
+    expect(stages).toContain('unraid');
   });
 });
 
-// docker/ha/kept-ha-start: what Postgres starts with (D272). Postgres's processes never inherit a
-// secret the app's options put in the environment, and it asks for no huge pages: an anonymous
-// MAP_HUGETLB attempt is what AppArmor logged as a mapping named "/" (homeassistant/kept/apparmor.txt).
-describe('kept-ha-start', () => {
-  it('starts Postgres, and initdb, without the options’ secrets and without huge pages', async () => {
+// docker/one-container.sh, the steps the Home Assistant app's start (docker/ha/kept-ha-start, D272)
+// and the Unraid image's (docker/unraid/kept-unraid-start) share: what Postgres starts
+// with. Postgres's processes never inherit a secret the start put in the environment, and it asks
+// for no huge pages: an anonymous MAP_HUGETLB attempt is what AppArmor logged as a mapping named
+// "/" (homeassistant/kept/apparmor.txt).
+describe('the one-container start', () => {
+  const read = async (path) => {
     const { readFileSync } = await import('node:fs');
-    const { SECRET_VARIABLES } = await import('../docker/ha/options.mjs');
-    const start = readFileSync(new URL('../docker/ha/kept-ha-start', import.meta.url), 'utf8');
+    return readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+  };
+
+  it('starts Postgres, and initdb, through PG_ENV_UNSET and without huge pages', async () => {
+    const lib = await read('docker/one-container.sh');
     // The command that starts the server, joined across its continuation lines.
-    const joined = start.replace(/\\\n\s*/g, ' ');
+    const joined = lib.replace(/\\\n\s*/g, ' ');
     const server = joined.split('\n').find((l) => /"\$PGBIN\/postgres" -D/.test(l)) ?? '';
     const initdb = joined.split('\n').find((l) => /"\$PGBIN\/initdb"/.test(l)) ?? '';
     expect(server).toMatch(/-c huge_pages=off/);
     expect(initdb).toMatch(/-c huge_pages=off/);
+    // Every way Postgres's binaries are run goes through it.
+    expect(server).toMatch(/env "\$\{PG_ENV_UNSET\[@\]\}"/);
+    expect(lib).toMatch(/as_postgres\(\) \{ env "\$\{PG_ENV_UNSET\[@\]\}" setpriv/);
+    expect(initdb).toMatch(/^\s*as_postgres /);
+  });
+
+  it('the Home Assistant app leaves out the options’ secrets', async () => {
+    const { SECRET_VARIABLES } = await import('../docker/ha/options.mjs');
+    const start = await read('docker/ha/kept-ha-start');
+    expect(start).toContain('. /usr/local/lib/kept-ha/one-container.sh');
     expect(SECRET_VARIABLES).toEqual(
       expect.arrayContaining([
         'KEPT_SMTP_URL',
@@ -101,8 +117,32 @@ describe('kept-ha-start', () => {
     );
     const unset = /^PG_ENV_UNSET=\(([^)]*)\)/m.exec(start)?.[1] ?? '';
     for (const name of SECRET_VARIABLES) expect(unset.split(/\s+/), name).toContain(name);
-    // Every way Postgres's binaries are run goes through it.
-    expect(server).toMatch(/env "\$\{PG_ENV_UNSET\[@\]\}"/);
-    expect(start).toMatch(/as_postgres\(\) \{ env "\$\{PG_ENV_UNSET\[@\]\}" setpriv/);
+    // Set before the first step that runs Postgres's binaries.
+    expect(start.indexOf('PG_ENV_UNSET=(')).toBeLessThan(start.indexOf('\nmake_database'));
+  });
+
+  it('the Unraid image leaves out every variable but the few a process needs', async () => {
+    const start = await read('docker/unraid/kept-unraid-start');
+    expect(start).toContain('. /usr/local/lib/kept-unraid/one-container.sh');
+    expect(start).toMatch(/PG_ENV_UNSET=\(\)\nwhile IFS= read -r name; do/);
+    expect(start).toMatch(
+      /PATH \| HOME \| LANG \| LC_\* \| TZ \| PWD \| SHLVL \| HOSTNAME \| TERM\) ;;/,
+    );
+    expect(start).toMatch(/\*\) PG_ENV_UNSET\+=\(-u "\$name"\) ;;/);
+    expect(start).toContain('done < <(compgen -e)');
+    expect(start.indexOf('done < <(compgen -e)')).toBeLessThan(start.indexOf('\nmake_database'));
+    // The serving process never gets the owner login, and is never the Home Assistant app.
+    expect(start).toMatch(/unset KEPT_ROLE KEPT_HA KEPT_HA_TRUST_GROUPS KEPT_HA_LINK_SECRET_FILE/);
+    expect(start).toContain('KEPT_OWNER_DATABASE_URL');
+  });
+
+  it('both images ship the library where their start reads it', async () => {
+    const dockerfile = await read('Dockerfile');
+    expect(dockerfile).toContain(
+      'COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-ha/one-container.sh',
+    );
+    expect(dockerfile).toContain(
+      'COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-unraid/one-container.sh',
+    );
   });
 });

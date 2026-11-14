@@ -19,6 +19,11 @@ both architectures and checked at `/version` **before any tag**, signed with cos
 `X.Y.Z` (and `X.Y`, `X` when it is the newest final release of that line; a prerelease gets only
 its exact tag; never `latest`); and the Helm chart as an OCI artifact beside it, its image pinned by
 the signed digest, signed too. `docs/releases/X.Y.Z.md` records the digests and the verify commands.
+A signed release also carries, on its GitHub release page, the tarballs for installs without
+Docker (`deploy/proxmox/`): `kept-X.Y.Z-linux-x64.tar.gz` and `kept-X.Y.Z-linux-arm64.tar.gz`, with
+`SHA256SUMS` (over both tarballs and the two Proxmox scripts, `kept.sh` and `kept-install.sh`) and
+its signature, `SHA256SUMS.sigstore.json`, made with the release key. The Proxmox scripts refuse a
+release without them.
 
 ## Push the tag; the workflow does the rest
 
@@ -47,6 +52,12 @@ Three jobs, and no emulation anywhere:
    `X.Y.Z` (`X.Y`, `X`), push and sign the chart, write the release record; and the job creates
    the GitHub release `vX.Y.Z` (its notes composed by `scripts/release/compose-notes.mjs`, below,
    `THIRD-PARTY-NOTICES.txt` and `X.Y.Z.md` attached, a prerelease for `X.Y.Z-…`).
+
+After **build**, each build job also builds its platform's tarball from the same commit
+(`scripts/release/tarball.sh build`), smokes the Proxmox install on it
+(`scripts/smoke-proxmox.sh`), and keeps it as a workflow artifact for 7 days. After **publish**, the
+**tarballs** job (signed releases only) writes `SHA256SUMS`, signs it and attaches the four files to
+the GitHub release. If it fails, attach them by hand ("When the tarballs job fails", below).
 
 What the Dockerfile's `build` stage compiles (shared, mcp, server, the web bundle) is the same
 JavaScript for every architecture and runs on the build platform (`--platform=$BUILDPLATFORM`); per
@@ -154,6 +165,16 @@ reboot, updates and photo uploads). A change that adds a feature touching files,
 capabilities is checked the same way before release: `journalctl _TRANSPORT="audit" -g
 'apparmor="DENIED"'` empty for the app's profile. A denial is a missing rule: add the narrowest one
 and run again.
+
+**W3c. The Unraid image, the first time.** Every release from the one that carries the `unraid`
+target also pushes `ghcr.io/keptinventory/kept-unraid`, and the dockerhub job copies it to
+`docker.io/keptinventory/kept-unraid`. Before the first such release:
+
+- **Docker Hub:** create the repository `keptinventory/kept-unraid` (Docker Hub, the
+  `keptinventory` organisation, Create repository, public), so the copy has somewhere to go.
+- **GHCR:** after that release, make `kept-unraid` public (the package's settings, Change
+  visibility), as for `kept-ha`: Unraid pulls without a login, so a private package fails every
+  install from the template (`unraid/kept.xml`).
 
 **W4. Push `main`.** The tagged commit must be on `origin/main`, and a tag push runs the
 `release.yml` **in the tagged commit**, so the commit that adds it must be pushed before the first
@@ -313,6 +334,46 @@ its build jobs stop at "already published" in their first minutes, at the cost o
 between releases; `docker buildx rm kept-release` drops it. Never prune it right before a release
 (a cold build is much slower).
 
+**No tarballs from the laptop.** `release.sh` without `--ci` builds no tarballs and no
+`SHA256SUMS`, and the workflow's run stops at "already published" before its tarball step, so a
+release cut from the laptop has none, and the Proxmox scripts refuse it. Add them by hand once the
+GitHub release exists, as in "When the tarballs job fails", below.
+
+## When the tarballs job fails
+
+The release itself is published (the images, the chart, the GitHub release): only the four files
+are missing. If the build jobs' artifacts are still there (7 days), "Re-run failed jobs" re-runs the
+tarballs job alone. Otherwise, build them from the tagged commit, with M1 (the key) and M3 (`gh`):
+
+```sh
+git switch --detach vX.Y.Z
+out=.tmp/tarballs-X.Y.Z && rm -rf "$out"
+bash scripts/release/tarball.sh build X.Y.Z amd64 "$out"     # amd64 is emulated on an arm64 laptop: slow
+bash scripts/release/tarball.sh build X.Y.Z arm64 "$out"
+bash scripts/smoke-proxmox.sh "$out"/kept-X.Y.Z-linux-arm64.tar.gz   # this machine's architecture
+bash scripts/release/tarball.sh sums "$out"
+export KEPT_COSIGN_KEY=~/kept-signing/cosign.key
+read -rs COSIGN_PASSWORD && export COSIGN_PASSWORD
+# The repository is public: the signature goes into the transparency log, as the workflow's does.
+KEPT_RELEASE_TLOG=1 bash scripts/release/tarball.sh sign "$out"
+gh release upload vX.Y.Z -R keptinventory/kept --clobber \
+  "$out"/kept-X.Y.Z-linux-x64.tar.gz "$out"/kept-X.Y.Z-linux-arm64.tar.gz \
+  "$out"/SHA256SUMS "$out"/SHA256SUMS.sigstore.json
+git switch main
+```
+
+`sign` verifies the signature with cosign and the way the installer does (openssl against
+`cosign.pub`) before anything is uploaded. Then check from outside: the release page lists the four
+files, and on any Linux machine
+
+```sh
+curl -fsSLO https://github.com/keptinventory/kept/releases/download/vX.Y.Z/SHA256SUMS
+curl -fsSLO https://raw.githubusercontent.com/keptinventory/kept/vX.Y.Z/deploy/proxmox/kept.sh
+sha256sum -c --ignore-missing SHA256SUMS
+```
+
+says `kept.sh: OK`.
+
 ## The dry run
 
 ```sh
@@ -350,4 +411,5 @@ exercise the later stages meanwhile, a dry run (never a release) can smoke with 
 | publish, join | "the joined index has linux/… but the build job smoked …" | Never expected (imagetools copies manifests as they are). Re-run all jobs; if it repeats, release from the laptop and report it |
 | sign | `COSIGN_PASSWORD` wrong, or no registry login for cosign | W1 (the secret), M1–M2 on the laptop |
 | chart | "chart X.Y.Z is already published" | Release the next version (the chart's version is the release's; never bump `Chart.yaml`) |
+| tarballs | a failed build or smoke of a tarball, or the signing | The release is out without its tarballs: "When the tarballs job fails", above |
 | GitHub release | the last step failed after everything was published | The notes are in that step's log: save them to a file, then `gh release create vX.Y.Z --verify-tag --title "Kept X.Y.Z" --notes-file <file>`, attaching `THIRD-PARTY-NOTICES.txt` (`docker run --rm --entrypoint cat ghcr.io/keptinventory/kept:X.Y.Z /app/THIRD-PARTY-NOTICES.txt`) |

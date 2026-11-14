@@ -32,7 +32,8 @@
 #      has this version's section), checked for AI attribution (D173);
 #   3. build linux/amd64 + linux/arm64 from `git archive HEAD`, with an SBOM and minimal provenance
 #      (BuildKit attestations), pushed BY DIGEST with no tag (release/build.sh); then the same for the
-#      Home Assistant app's image (`--target ha`, <registry>-ha, D272);
+#      Home Assistant app's image (`--target ha`, <registry>-ha, D272) and the Unraid image
+#      (`--target unraid`, <registry>-unraid);
 #   4. pull each architecture by digest and smoke it (scripts/smoke-image.sh with
 #      SMOKE_SCOPE=release; on the laptop arm64 natively and amd64 under emulation, in the workflow
 #      each natively on its own runner), and check /version reports this version and commit
@@ -40,8 +41,8 @@
 #   5. cosign-sign the index digest and every manifest under it, then verify (release/sign.sh);
 #   6. tag X.Y.Z, and X.Y and X when this is the newest final release of that line, all from the
 #      signed digest; never `latest`; then verify by tag (release/sign.sh). The Home Assistant app's
-#      image is tagged first, X.Y.Z only; a re-run after a failure later on finds it published and
-#      keeps it (stage 1);
+#      image is tagged first, X.Y.Z only, then the Unraid image, with the main image's tags; a
+#      re-run after a failure later on finds either published and keeps it (stage 1);
 #   7. package the chart as version X.Y.Z with appVersion X.Y.Z (the chart's version is always the
 #      release's; the committed Chart.yaml stays 0.0.0-dev) and the image pinned by digest,
 #      push it beside the image as an OCI artifact, sign its pushed digest (release/chart.sh);
@@ -345,9 +346,12 @@ fi
 it_builder=(--builder "$builder")
 [[ -z $publish ]] || it_builder=()
 [[ $registry =~ ^[a-z0-9.-]+(:[0-9]+)?(/[a-z0-9._-]+)+$ ]] || die "'$registry' is not an image path (host/owner/name)"
-# The Home Assistant app's image (D272) sits beside the main one: ghcr.io/keptinventory/kept-ha.
+# The one-container images sit beside the main one (release/build.sh): the Home Assistant app's
+# (D272), ghcr.io/keptinventory/kept-ha, and the Unraid image, ghcr.io/keptinventory/kept-unraid.
 ha_registry=${registry}-ha
 ha_published=
+unraid_registry=${registry}-unraid
+unraid_published=
 
 source_url=${KEPT_RELEASE_SOURCE:-$(git remote get-url origin 2>/dev/null || true)}
 source_url=${source_url%.git}
@@ -367,6 +371,11 @@ if [[ -z $dry ]]; then
   if docker buildx imagetools inspect "$ha_registry:$version" >/dev/null 2>&1; then
     ha_published=1
     warn "$ha_registry:$version is already published by an earlier run: kept as it is, the rest goes on"
+  fi
+  # The same for the Unraid image, tagged second.
+  if docker buildx imagetools inspect "$unraid_registry:$version" >/dev/null 2>&1; then
+    unraid_published=1
+    warn "$unraid_registry:$version is already published by an earlier run: kept as it is, the rest goes on"
   fi
   if [[ -n $helm ]] && "$helm" show chart "oci://$chart_repo/kept" --version "$version" >/dev/null 2>&1; then
     die "chart $version is already published at $chart_repo/kept: release a newer version"
@@ -413,34 +422,47 @@ source scripts/release/notes.sh
 
 if [[ -n $arch ]]; then
   # A build job: this platform built and smoked natively, its digests to the publish job; the
-  # same for the Home Assistant app's image.
+  # same for the Home Assistant app's image and the Unraid image.
   release_build # sets index_digest and ${arch}_digest
-  [[ -n $ha_published ]] || release_build_ha # sets ha_index_digest and ha_${arch}_digest
+  # Each sets <variant>_index_digest and <variant>_${arch}_digest.
+  [[ -n $ha_published ]] || release_build_extra ha
+  [[ -n $unraid_published ]] || release_build_extra unraid
   release_verify
-  [[ -n $ha_published ]] || release_verify_ha
+  [[ -n $ha_published ]] || release_verify_extra ha
+  [[ -n $unraid_published ]] || release_verify_extra unraid
   say "9. outputs for the publish job"
   manifest_var=${arch}_digest
   ha_manifest_var=ha_${arch}_digest
+  unraid_manifest_var=unraid_${arch}_digest
   {
     echo "${arch}_index=$index_digest"
     echo "${arch}_manifest=${!manifest_var}"
     echo "ha_${arch}_index=${ha_index_digest:-}"
     echo "ha_${arch}_manifest=${!ha_manifest_var:-}"
+    echo "unraid_${arch}_index=${unraid_index_digest:-}"
+    echo "unraid_${arch}_manifest=${!unraid_manifest_var:-}"
   } >>"${GITHUB_OUTPUT:-$work/outputs.txt}"
-  note "linux/$arch $index_digest (manifest ${!manifest_var}), Home Assistant ${ha_index_digest:-already published}, smoked; nothing tagged"
+  note "linux/$arch $index_digest (manifest ${!manifest_var}), Home Assistant ${ha_index_digest:-already published}, unraid ${unraid_index_digest:-already published}, smoked; nothing tagged"
   exit 0
 fi
 
 if [[ -n $publish ]]; then
   release_export_src # the chart comes from the commit
   release_merge      # sets index_digest, amd64_digest, arm64_digest
-  if [[ -n $ha_published ]]; then release_ha_published; else release_merge_ha; fi
+  for v in ha unraid; do
+    published=${v}_published
+    if [[ -n ${!published} ]]; then release_extra_published "$v"; else release_merge_extra "$v"; fi
+  done
 else
   release_build # sets index_digest, amd64_digest, arm64_digest
-  if [[ -n $ha_published ]]; then release_ha_published; else release_build_ha; fi
+  for v in ha unraid; do
+    published=${v}_published
+    if [[ -n ${!published} ]]; then release_extra_published "$v"; else release_build_extra "$v"; fi
+  done
   [[ -n $dry ]] && cleanup_cmds+=("rm -rf '$work/src'")
   release_verify
-  [[ -n $ha_published ]] || release_verify_ha
+  [[ -n $ha_published ]] || release_verify_extra ha
+  [[ -n $unraid_published ]] || release_verify_extra unraid
 fi
 release_notices
 if [[ -n $unsigned ]]; then
@@ -448,11 +470,13 @@ if [[ -n $unsigned ]]; then
 else
   say "5. sign the index and every manifest under it, before any tag"
   [[ -n $ha_published ]] || release_sign_digest "$ha_registry@$ha_index_digest" --recursive
+  [[ -n $unraid_published ]] || release_sign_digest "$unraid_registry@$unraid_index_digest" --recursive
   release_sign_digest "$registry@$index_digest" --recursive
 fi
-# The Home Assistant image first: if a later stage fails, a re-run finds it published and resumes
+# The one-container images first: if a later stage fails, a re-run finds them published and resumes
 # (stage 1), and the main image's tags, which a re-run would refuse, aren't made yet.
-[[ -n $ha_published ]] || release_tag_ha
+[[ -n $ha_published ]] || release_tag_extra ha
+[[ -n $unraid_published ]] || release_tag_extra unraid
 release_tags # sets image_tags
 release_chart   # sets chart_ref, chart_digest
 release_notes   # sets notes_file
@@ -483,7 +507,7 @@ if [[ -n $ci ]]; then
     echo "notices_file=$work/THIRD-PARTY-NOTICES.txt"
     echo "signed=$([[ -n $unsigned ]] && echo false || echo true)"
   } >>"$out"
-  note "published $registry:$version ($index_digest), tags ${image_tags[*]}; $ha_registry:$version ($ha_index_digest); chart $chart_ref@$chart_digest${unsigned:+; UNSIGNED}"
+  note "published $registry:$version ($index_digest), tags ${image_tags[*]}; $ha_registry:$version ($ha_index_digest); $unraid_registry:$version ($unraid_index_digest); chart $chart_ref@$chart_digest${unsigned:+; UNSIGNED}"
   exit 0
 fi
 
@@ -497,7 +521,7 @@ say "9. your steps (docs/runbooks/release.md)"
 record_files=${notes_file#"$repo"/}
 git diff --quiet -- CHANGELOG.md 2>/dev/null || record_files="CHANGELOG.md $record_files"
 cat <<EOF
-Published: $registry:$version ($index_digest), tags ${image_tags[*]}; $ha_registry:$version ($ha_index_digest); chart $chart_ref@$chart_digest${unsigned:+; UNSIGNED: no cosign signature}.
+Published: $registry:$version ($index_digest), tags ${image_tags[*]}; $ha_registry:$version ($ha_index_digest); $unraid_registry:$version ($unraid_index_digest); chart $chart_ref@$chart_digest${unsigned:+; UNSIGNED: no cosign signature}.
 Written: $record_files.
 
   1. The tag, on the built commit ${commit:0:12} (main is never pushed to directly):
@@ -517,5 +541,6 @@ cat <<EOF
      git commit -m "docs(release): the $version record" && git push -u origin release-record-$version
      gh pr create --fill --base main && gh pr merge --squash --delete-branch
   4. The first time only: make the packages public on GHCR when the repository goes public (kept,
-     and kept-ha, the Home Assistant app's image: the Supervisor pulls it without a login).
+     kept-ha, the Home Assistant app's image: the Supervisor pulls it without a login, and kept-unraid,
+     the Unraid image: Unraid pulls it without a login).
 EOF

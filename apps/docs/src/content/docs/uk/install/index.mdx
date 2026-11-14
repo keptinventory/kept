@@ -1,6 +1,6 @@
 ---
 title: Встановлення Kept
-description: Виберіть, як ви запускаєте Kept, з Docker Compose, Kubernetes, з вихідного коду або як додаток Home Assistant, і пройдіть кроки цього шляху, з перевіркою після кожного.
+description: Виберіть, як ви запускаєте Kept, з Docker Compose, Kubernetes, з вихідного коду, на Proxmox VE, на Unraid або як додаток Home Assistant, і пройдіть кроки цього шляху, з перевіркою після кожного.
 sidebar:
   order: 0
   label: Почніть тут
@@ -183,6 +183,53 @@ Git, Docker з плагіном Compose і термінал. Kept працює �
 [Встановлення за допомогою Docker Compose](/uk/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+Proxmox VE 8 або 9 на amd64 і оболонка хоста від root. Контейнер типово отримує 2 ядра, 2 GB
+пам’яті та 8 GB диска. Ще не перевірено на справжньому хості Proxmox VE: вважайте перше
+встановлення випробуванням.
+</Need>
+
+<Steps>
+
+1. **Запустіть скрипт** в оболонці хоста Proxmox VE. Виберіть **Default**, перевірте налаштування
+   та команду `pct create`, яку він показує, і підтвердьте.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   За кілька хвилин цей рядок, а під ним адреса, яку треба відкрити:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **Знайдіть код налаштування.** Він у контейнері, у `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   Рядок, що починається з `Setup code:`.
+   </See>
+
+   Відкрийте адресу, введіть код і створіть перший обліковий запис: він стає адміністратором
+   екземпляра.
+
+3. **Збережіть ключі.** Виведіть набір відновлення і зберігайте його деінде, не на цьому
+   сервері.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   Текст, що починається з `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+`<CTID>` це ID контейнера, який друкує скрипт. Прочитати спершу, типові значення, оновлення,
+резервні копії та видалення: [Встановлення на Proxmox VE](/uk/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -223,6 +270,44 @@ Assistant Container і не Core. Машина `aarch64` або `amd64`, нап�
 
 Адреса Kept, https і резервні копії:
 [Встановлення як додаток Home Assistant](/uk/install/home-assistant/).
+
+</InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid із вкладкою **Apps** (Community Applications) і близько 500 МБ вільної пам’яті (1 ГБ для
+імпорту й резервних копій). Без термінала.
+</Need>
+
+<Steps>
+
+1. **Встановіть.** В **Apps** знайдіть **Kept**, потім **Install**.
+
+2. **Задайте адресу Kept**, наприклад `http://tower.local:8080`, потім **Apply**. Беріть ім’я, а
+   не IP-адресу: її несуть надруковані етикетки.
+
+   <See>
+   На вкладці **Docker** значок Kept, **Logs**: адреса Kept і код налаштування.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Налаштуйте.** Значок Kept, **WebUI**: **Введіть код налаштування**, потім створіть перший
+   обліковий запис.
+
+4. **Збережіть ключі.** Значок Kept, **Console**, потім:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Текст, що починається з `KEPT RECOVERY KIT`. Зберігайте його деінде, не на цьому сервері.
+   </See>
+
+</Steps>
+
+Тека appdata, резервні копії та оновлення: [Встановлення на Unraid](/uk/install/unraid/).
 
 </InstallPath>
 </InstallPicker>
@@ -288,8 +373,11 @@ Assistant Container і не Core. Машина `aarch64` або `amd64`, нап�
 
 - **Kubernetes:** кожен реліз публікує чарт тієї самої версії, і його міграції виконуються в Job,
   перш ніж нова версія почне обслуговувати.
+- **Proxmox VE:** `update` у консолі контейнера. Він спершу питає і повертається назад, якщо нова
+  версія не запускається.
 - **Home Assistant:** Home Assistant пропонує оновлення. Увімкніть
   **Keep backup of the last version** у його діалоговому вікні оновлення.
+- **Unraid:** вкладка **Docker** пропонує оновлення: **apply update**.
 
 Коли задано ціль резервного копіювання, Kept робить знімок перед міграцією.
 [Оновлення та відкат](/uk/admin/upgrades/).

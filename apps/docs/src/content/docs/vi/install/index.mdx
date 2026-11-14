@@ -1,6 +1,6 @@
 ---
 title: Cài đặt Kept
-description: Chọn cách bạn chạy Kept, với Docker Compose, Kubernetes, từ mã nguồn hoặc dưới dạng ứng dụng Home Assistant, rồi làm theo các bước của cách đó, với một bước kiểm tra sau mỗi bước.
+description: Chọn cách bạn chạy Kept, với Docker Compose, Kubernetes, từ mã nguồn, trên Proxmox VE, trên Unraid hoặc dưới dạng ứng dụng Home Assistant, rồi làm theo các bước của cách đó, với một bước kiểm tra sau mỗi bước.
 sidebar:
   order: 0
   label: Bắt đầu tại đây
@@ -180,6 +180,52 @@ Trên Windows, chạy các lệnh này trong WSL. Cùng `compose.yaml` như mộ
 đầy đủ: [Cài đặt với Docker Compose](/vi/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+Proxmox VE 8 hoặc 9 trên amd64, và shell của máy chủ với quyền root. Mặc định container có 2
+nhân CPU, 2 GB bộ nhớ và 8 GB ổ đĩa. Chưa được thử trên một máy chủ Proxmox VE thật: hãy coi lần
+cài đầu tiên là một lần thử.
+</Need>
+
+<Steps>
+
+1. **Chạy script** trong shell của máy chủ Proxmox VE. Chọn **Default**, kiểm tra các thiết lập
+   và lệnh `pct create` mà nó hiển thị, rồi xác nhận.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   Sau vài phút, dòng này, bên dưới là địa chỉ để mở:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **Tìm mã thiết lập.** Mã nằm trong container, ở `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   Một dòng bắt đầu bằng `Setup code:`.
+   </See>
+
+   Mở địa chỉ, nhập mã và tạo tài khoản đầu tiên: tài khoản này trở thành quản trị viên của
+   phiên bản.
+
+3. **Giữ các khóa.** In bộ khôi phục và cất nó ở nơi khác, không phải máy chủ này.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   Văn bản bắt đầu bằng `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+`<CTID>` là ID của container, do script in ra. Đọc trước, giá trị mặc định, cập nhật, sao lưu
+và gỡ bỏ: [Cài đặt trên Proxmox VE](/vi/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -219,6 +265,44 @@ terminal.
 
 Địa chỉ của Kept, https và sao lưu:
 [Cài đặt dưới dạng ứng dụng Home Assistant](/vi/install/home-assistant/).
+
+</InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid có thẻ **Apps** (Community Applications) và khoảng 500 MB bộ nhớ trống (1 GB khi nhập
+dữ liệu và sao lưu). Không cần terminal.
+</Need>
+
+<Steps>
+
+1. **Cài đặt.** Trong **Apps**, tìm **Kept**, rồi **Install**.
+
+2. **Đặt địa chỉ của Kept**, chẳng hạn `http://tower.local:8080`, rồi **Apply**. Dùng một cái tên
+   thay vì địa chỉ IP: nhãn in ra mang địa chỉ này.
+
+   <See>
+   Trong thẻ **Docker**, biểu tượng của Kept, **Logs**: địa chỉ của Kept và mã thiết lập.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Thiết lập.** Biểu tượng của Kept, **WebUI**: **Nhập mã thiết lập**, rồi tạo tài khoản đầu
+   tiên.
+
+4. **Giữ các khóa.** Biểu tượng của Kept, **Console**, rồi:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Văn bản bắt đầu bằng `KEPT RECOVERY KIT`. Cất nó ở nơi khác, không phải máy chủ này.
+   </See>
+
+</Steps>
+
+Thư mục appdata, sao lưu và cập nhật: [Cài đặt trên Unraid](/vi/install/unraid/).
 
 </InstallPath>
 </InstallPicker>
@@ -283,8 +367,11 @@ Mọi thứ khác: [Khắc phục sự cố](/vi/admin/troubleshooting/).
 
 - **Kubernetes:** mỗi bản phát hành xuất bản một chart cùng phiên bản, và các bản di chuyển dữ
   liệu của nó chạy trong một Job trước khi phiên bản mới phục vụ.
+- **Proxmox VE:** `update` trong console của container. Nó hỏi trước và quay lại bản cũ nếu bản
+  mới không khởi động.
 - **Home Assistant:** Home Assistant đề xuất bản cập nhật. Bật
   **Giữ bản sao lưu của phiên bản cuối** trong hộp thoại cập nhật của nó.
+- **Unraid:** thẻ **Docker** đề xuất bản cập nhật: **apply update**.
 
 Khi đã đặt một đích sao lưu, Kept chụp một bản trước khi di chuyển dữ liệu.
 [Nâng cấp và khôi phục](/vi/admin/upgrades/).

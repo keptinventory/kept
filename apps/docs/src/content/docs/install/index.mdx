@@ -1,6 +1,6 @@
 ---
 title: Install Kept
-description: Pick how you run Kept, with Docker Compose, Kubernetes, from source or as a Home Assistant app, and follow that path's steps, with a check after each one.
+description: Pick how you run Kept, with Docker Compose, Kubernetes, from source, on Proxmox VE, on Unraid or as a Home Assistant app, and follow that path's steps, with a check after each one.
 sidebar:
   order: 0
   label: Start here
@@ -180,6 +180,51 @@ On Windows, run these in WSL. The same `compose.yaml` as a release, explained in
 [Install with Docker Compose](/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+Proxmox VE 8 or 9 on amd64, and the host's shell as root. The container gets 2 CPU cores, 2 GB
+of memory and 8 GB of disk by default. Not yet tested on a real Proxmox VE host: treat a first
+install as a test.
+</Need>
+
+<Steps>
+
+1. **Run the script** in the Proxmox VE host's shell. Choose **Default**, check the settings and
+   the `pct create` command it shows, and confirm.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   After a few minutes, this line, with the address to open below it:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **Find the setup code.** It is in the container, in `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   A line that starts with `Setup code:`.
+   </See>
+
+   Open the address, enter the code and create the first account: it becomes the instance admin.
+
+3. **Keep the keys.** Print the recovery kit and keep it somewhere other than this server.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   Text that starts with `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+`<CTID>` is the container's ID, which the script prints. Read it first, the defaults, updates,
+backups and removal: [Install on Proxmox VE](/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -216,6 +261,43 @@ Assistant Container or Core. An `aarch64` or `amd64` machine, such as a Raspberr
 </Steps>
 
 Kept's address, https and the backups: [Install as a Home Assistant app](/install/home-assistant/).
+
+</InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid with the **Apps** tab (Community Applications), and about 500 MB of free memory (1 GB
+for imports and backups). No terminal.
+</Need>
+
+<Steps>
+
+1. **Install.** In **Apps**, search for **Kept**, then **Install**.
+
+2. **Set Kept's address**, such as `http://tower.local:8080`, then **Apply**. Use a name rather
+   than an IP address: printed labels carry it.
+
+   <See>
+   In the **Docker** tab, Kept's icon, **Logs**: Kept's address and the setup code.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Set up.** Kept's icon, **WebUI**: **Enter the setup code**, then create the first account.
+
+4. **Keep the keys.** Kept's icon, **Console**, then:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Text that starts with `KEPT RECOVERY KIT`. Keep it somewhere other than this server.
+   </See>
+
+</Steps>
+
+The appdata folder, backups and updates: [Install on Unraid](/install/unraid/).
 
 </InstallPath>
 </InstallPicker>
@@ -278,8 +360,11 @@ Everything else: [Troubleshooting](/admin/troubleshooting/).
 
 - **Kubernetes:** each release publishes a chart of the same version, and its migrations run in a
   Job before the new version serves.
+- **Proxmox VE:** `update` in the container's console. It asks first and switches back if the new
+  version doesn't start.
 - **Home Assistant:** Home Assistant offers the update. Turn on **Keep backup of the last
   version** in its update dialog.
+- **Unraid:** the **Docker** tab offers the update: **apply update**.
 
 With a backup target set, Kept takes a snapshot before it migrates.
 [Upgrades and rollback](/admin/upgrades/).

@@ -8,9 +8,9 @@ release_notes() {
   if [[ -n $dry ]]; then notes_file=$work/$version.md; else notes_file=$repo/docs/releases/$version.md; fi
   say "8. record $notes_file"
   mkdir -p "$(dirname "$notes_file")"
-  local tlog_flag=" --insecure-ignore-tlog" t tag_lines= unsigned_note= verify_lines tlog_note=
+  local tlog_flag=" --insecure-ignore-tlog" t tag_lines= unraid_tag_lines= unsigned_note= verify_lines tlog_note=
   [[ ${KEPT_RELEASE_TLOG:-} == 1 ]] && tlog_flag=
-  for t in "${image_tags[@]}"; do tag_lines+="- \`$registry:$t\`"$'\n'; done
+  for t in "${image_tags[@]}"; do tag_lines+="- \`$registry:$t\`"$'\n'; unraid_tag_lines+="- \`$unraid_registry:$t\`"$'\n'; done
   if [[ -n ${unsigned:-} ]]; then
     unsigned_note=$'\n'"**This release is unsigned.** It was published before Kept's signing key existed: the image and"$'\n'
     unsigned_note+="the chart carry no cosign signature, so \`cosign verify\` has nothing to check. Check the digests"$'\n'
@@ -19,6 +19,7 @@ release_notes() {
   else
     verify_lines="cosign verify --key cosign.pub$tlog_flag $registry:$version"$'\n'
     verify_lines+="cosign verify --key cosign.pub$tlog_flag $ha_registry:$version"$'\n'
+    verify_lines+="cosign verify --key cosign.pub$tlog_flag $unraid_registry:$version"$'\n'
     verify_lines+="cosign verify --key cosign.pub$tlog_flag $chart_repo/kept@$chart_digest"
     [[ -z $tlog_flag ]] ||
       tlog_note=$'\n''`--insecure-ignore-tlog`: this release was signed without the public transparency log (the repository was private, plan Q14).'
@@ -50,6 +51,18 @@ names that version), each platform smoked by digest (\`scripts/smoke-ha-image.sh
 |---|---|
 | linux/amd64 | \`$ha_amd64_digest\` |
 | linux/arm64 | \`$ha_arm64_digest\` |
+
+## The Unraid image
+
+\`$unraid_registry@$unraid_index_digest\`, Kept with its own database in one container
+(the Unraid template's), each platform smoked by digest (\`scripts/smoke-unraid-image.sh\`). Tags,
+as the main image's:
+
+$unraid_tag_lines
+| Platform | Manifest |
+|---|---|
+| linux/amd64 | \`$unraid_amd64_digest\` |
+| linux/arm64 | \`$unraid_arm64_digest\` |
 
 ## The chart
 
