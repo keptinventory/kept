@@ -229,7 +229,8 @@ type StoredState = z.infer<typeof StoredState>;
  * was asked, but it outlives an upgrade: a server upgraded to the release it found would
  * otherwise say "Kept 1.14.7 is available" while running 1.14.7, until the next daily check. So
  * every reader (the status page, the metric) compares again. A running version that isn't semver
- * (a local build) can't be compared and keeps the answer; it never stores one (checkForUpdate).
+ * (one set by hand, a commit hash say) can't be compared and keeps the answer; checkForUpdate never
+ * stores one for it. A local build runs as 0.0.0-dev, which is semver, so every release is newer.
  */
 function newerRelease(latest: StoredState['latest'], running: string): UpdateCheckState['latest'] {
   if (!latest) return null;

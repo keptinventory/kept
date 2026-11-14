@@ -91,14 +91,14 @@ works as before ([Verify a release](/admin/verify-release/)).
 
 ### Knowing there's a new version
 
-Kept can check for new versions, and it is **off by default**. On, it asks GitHub once a day for
-the latest release of the repository its image was built from, sending nothing but the request (no
+Kept can check for new versions, and it is **off by default**. On, it asks GitHub once a day, and
+once after each upgrade, for the latest release of the repository its image was built from, sending nothing but the request (no
 version, no instance identifier). Nothing is downloaded or installed. `KEPT_UPDATE_CHECK=true`
 turns it on and locks it; `false` locks it off.
 
 The switch is in Admin → Sign-up, under "New versions". Admin → Status says "Kept X is available"
-when a newer release exists, and its **Check now** asks at once. After an upgrade the notice goes as soon as the
-server runs that release, and the next hourly run asks again rather than waiting for the next day.
+when a newer release exists, and its **Check now** asks at once. After an upgrade the notice goes at once, and Kept
+asks again within the hour.
 
 ## The snapshot before every upgrade
 
