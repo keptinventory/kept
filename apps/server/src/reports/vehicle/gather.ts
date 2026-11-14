@@ -4,6 +4,7 @@ import type { Scope, Tx } from '../../db/scope.js';
 import { type FuelSummary, fillsOf, fuelSummary } from '../../fuel/summary.js';
 import { notFound } from '../../http/errors.js';
 import { gateFor } from '../../serialize/gates.js';
+import { typeKeySql } from '../../types/graph.js';
 import { correctedValueSql, odometerOf, type VehicleMeter } from '../../vehicles/meters.js';
 import { typeNameOf } from '../gather.js';
 import type { ReportLocale } from '../labels.js';
@@ -143,7 +144,7 @@ const inRange = (column: string, tz: string, from: string, to: string) =>
 
 async function readThing(client: pg.ClientBase, id: string): Promise<ThingRow> {
   const { rows } = await client.query<ThingRow>(
-    `SELECT t.id, t.location_id, t.name, ty.name AS type_name, ty.builtin_key AS type_builtin_key,
+    `SELECT t.id, t.location_id, t.name, ty.name AS type_name, ${typeKeySql('ty')} AS type_builtin_key,
             (SELECT s.code FROM public.short_ids s
               WHERE s.thing_id = t.id AND s.is_primary AND s.state = 'assigned' LIMIT 1)
               AS short_code,

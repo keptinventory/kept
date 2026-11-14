@@ -23,6 +23,7 @@ import {
 import type pg from 'pg';
 import { switchedOn } from '../locations/views.js';
 import { decimalOut } from '../meters/check.js';
+import { typeKeySql } from '../types/graph.js';
 import {
   type After,
   type CursorState,
@@ -151,7 +152,7 @@ async function visibleTypes(client: pg.ClientBase): Promise<{ hash: string; item
     icon: string;
     is_container: boolean;
   }>(
-    `SELECT t.id, t.builtin_key, t.name, t.icon,
+    `SELECT t.id, ${typeKeySql('t')} AS builtin_key, t.name, t.icon,
             coalesce('container' = ANY (kept.type_capabilities(t.id)), false) AS is_container
        FROM public.types t
       WHERE NOT t.is_field_group

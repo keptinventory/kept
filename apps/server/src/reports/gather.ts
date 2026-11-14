@@ -2,6 +2,7 @@ import { builtinTypeName, type Digits } from '@kept/shared';
 import type pg from 'pg';
 import type { Scope, Tx } from '../db/scope.js';
 import { gateFor } from '../serialize/gates.js';
+import { typeKeySql } from '../types/graph.js';
 import type { ReportLocale } from './labels.js';
 
 // What goes into a report (D201), read in the requester's scope: the `report` job runs as a
@@ -198,7 +199,7 @@ async function readThings(
     : 'NULL::text';
   const moneyLocs = p.add(moneyLocationIds);
   const text = `${ctes.length > 0 ? `WITH RECURSIVE ${ctes.join(',\n')}` : ''}
-    SELECT t.id, t.location_id, t.name, ty.name AS type_name, ty.builtin_key AS type_builtin_key,
+    SELECT t.id, t.location_id, t.name, ty.name AS type_name, ${typeKeySql('ty')} AS type_builtin_key,
            b.name AS brand, t.model, t.serial, t.condition, t.lifecycle,
            t.quantity::text AS quantity, t.deleted_at IS NOT NULL AS trashed,
            (SELECT s.code FROM public.short_ids s
@@ -237,7 +238,8 @@ async function namesOf(client: pg.ClientBase, options: ReportOptions) {
     f.placeIds,
   );
   const types = await read(
-    'SELECT name, builtin_key FROM public.types WHERE id = ANY ($1::uuid[])',
+    `SELECT t.name, ${typeKeySql('t')} AS builtin_key FROM public.types t
+      WHERE t.id = ANY ($1::uuid[])`,
     f.typeIds,
   );
   const tags = await read('SELECT name FROM public.tags WHERE id = ANY ($1::uuid[])', f.tagIds);

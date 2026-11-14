@@ -36,6 +36,7 @@ import {
 } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { type ThingRack, ThingRackSchema, thingRackOf } from '../templates/rack-view.js';
+import { typeKeySql } from '../types/graph.js';
 import { moneyShaped } from './audit-image.js';
 import { type ResolvedFieldView, resolvedFields } from './fields.js';
 import { type ThingTag, ThingTagSchema, tagsOfRow, tagsSql } from './tag-sql.js';
@@ -98,7 +99,7 @@ export const ROW_COLUMNS = `t.id, t.location_id, t.name, t.quantity::text AS qua
        ${shownCodeSql('thing_id', 't.id')} AS short_code,
        ${labelPrintedSql('thing_id', 't.id')} AS label_printed,
        ty.id AS type_id, ty.icon AS type_icon, ty.name AS type_name,
-       ty.builtin_key AS type_builtin_key,
+       ${typeKeySql('ty')} AS type_builtin_key,
        ${firstThumb('t.id')} AS thumb_file_id,
        CASE WHEN t.container_id IS NULL THEN NULL ELSE ${firstThumb('t.container_id')} END
          AS container_thumb_file_id,

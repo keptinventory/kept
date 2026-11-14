@@ -6,6 +6,7 @@ import { shownCodeSql } from '../labels/printed-sql.js';
 import { requireMembership } from '../locations/access.js';
 import { attentionOf, placeRows } from '../map/view.js';
 import { thingNameSql } from '../places/order.js';
+import { typeKeySql } from '../types/graph.js';
 
 // GET /api/v1/locations/:id/graph (#207): a location as a graph, in one read under the caller's
 // row-level security. The web lays it out (2D focus rings and the 3D floors) from this.
@@ -97,8 +98,8 @@ export async function graphView(
   const { rows: things } = await client.query<ThingRow>(
     `SELECT t.id, t.name, t.place_id, t.container_id,
             ${shownCodeSql('thing_id', 't.id')} AS short_code,
-            coalesce(ty.builtin_key,
-                     (SELECT pt.builtin_key FROM public.types pt WHERE pt.id = ty.parent_id))
+            coalesce(${typeKeySql('ty')},
+                     (SELECT ${typeKeySql('pt')} FROM public.types pt WHERE pt.id = ty.parent_id))
               AS type_key,
             CASE WHEN ty.builtin_key IS NULL THEN ty.name END AS type_name,
             (coalesce('container' = ANY (kept.type_capabilities(t.type_id)), false)

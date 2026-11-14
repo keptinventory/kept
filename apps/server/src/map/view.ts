@@ -22,6 +22,7 @@ import { labelPrintedSql, shownCodeSql } from '../labels/printed-sql.js';
 import { requireMembership } from '../locations/access.js';
 import { placeOrderSql, thingNameSql } from '../places/order.js';
 import { layoutOf as furnitureLayout } from '../templates/furniture-view.js';
+import { typeKeySql } from '../types/graph.js';
 
 // GET /api/v1/locations/:id/map (1.x, D237): everything the location map draws and its card and
 // list show, in one read under the caller's row-level security.
@@ -307,8 +308,8 @@ export async function placeRows(client: pg.ClientBase, locationId: string): Prom
 export async function thingRows(client: pg.ClientBase, locationId: string): Promise<ThingRow[]> {
   const { rows } = await client.query<ThingRow>(
     `SELECT t.id, t.name, t.place_id, t.container_id, t.quantity::text AS quantity,
-            coalesce(ty.builtin_key,
-                     (SELECT pt.builtin_key FROM public.types pt WHERE pt.id = ty.parent_id))
+            coalesce(${typeKeySql('ty')},
+                     (SELECT ${typeKeySql('pt')} FROM public.types pt WHERE pt.id = ty.parent_id))
               AS type_key,
             CASE WHEN ty.builtin_key IS NULL THEN ty.name END AS type_name,
             (coalesce('container' = ANY (kept.type_capabilities(t.type_id)), false)
