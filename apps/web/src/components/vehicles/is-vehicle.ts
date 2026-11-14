@@ -32,10 +32,15 @@ export function mainMeterOf<M extends { kind: string }>(meters: readonly M[]): M
   return meters.find((m) => m.kind === 'distance') ?? meters[0] ?? null;
 }
 
-/** Whether this thing is a vehicle; false while an account type's ancestry is still loading. */
+/**
+ * Whether this thing is a vehicle; false while an account type's ancestry is still loading. A
+ * vehicle built-in's key answers at once. Any other type is walked over the account's types: an
+ * account's customised copy carries its built-in's key (#546) but may sit under Vehicle, and the
+ * thing's type ref doesn't say whether it is the built-in itself or a copy.
+ */
 export function useIsVehicle(thing: Pick<ThingView, 'type'>, accountId: string): boolean {
   const builtin = thing.type?.builtinKey ? builtinIsVehicle(thing.type.builtinKey) : false;
-  const needTypes = !builtin && !!thing.type && !thing.type.builtinKey;
+  const needTypes = !builtin && !!thing.type;
   const types = useTypes(needTypes ? accountId : '');
   if (builtin) return true;
   if (!needTypes) return false;
