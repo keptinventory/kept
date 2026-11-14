@@ -728,11 +728,13 @@ export async function placeContents(
   }
 
   const sort = query.sort ?? 'name';
-  // Grouped by type: typed things first, by built-in key or name, untyped ones last. By tag: under
-  // the first tag A to Z, untagged ones last (things/tag-sql.ts).
+  // Grouped by type: typed things first, by name or built-in key, then the type's id, so a
+  // customised copy and its built-in, same key, stay apart (#546); untyped ones last. By tag:
+  // under the first tag A to Z, untagged ones last (things/tag-sql.ts).
   const g =
     query.group === 'type'
-      ? `CASE WHEN ty.id IS NULL THEN '1' ELSE '0' || coalesce(${typeKeySql('ty')}, lower(ty.name)) END`
+      ? `CASE WHEN ty.id IS NULL THEN '1'
+              ELSE '0' || coalesce(lower(ty.name), ${typeKeySql('ty')}) || ' ' || ty.id::text END`
       : query.group === 'tag'
         ? tagGroupSql('t.id')
         : `''`;

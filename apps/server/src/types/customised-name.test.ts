@@ -169,19 +169,23 @@ describe('a customised built-in type keeps its name (#546)', () => {
     expect(got.filterNames.types).toEqual(['Netzwerkgerät']);
   });
 
-  it('the map, the graph, the phone’s snapshot and a share link carry the built-in key', async () => {
+  it('the map’s rows carry the built-in key, not the parent’s', async () => {
     // The map draws only things in rooms; its rows are read as the map reads them.
     const scope = { userId: ibrahim.userId, mfa: false };
     const mapRows = await withScope(db.pools.app, scope, (_tx, client) =>
       thingRows(client, home.id),
     );
     expect(mapRows.find((x) => x.id === router)?.type_key).toBe('network_device');
+  });
+
+  it('the graph carries the built-in key, not the parent’s', async () => {
     const graph = ok(
       await call(t, `/api/v1/locations/${home.id}/graph`, { as: ibrahim }),
-    ) as unknown as {
-      things: { id: string; typeKey: string | null }[];
-    };
+    ) as unknown as { things: { id: string; typeKey: string | null }[] };
     expect(graph.things.find((x) => x.id === router)?.typeKey).toBe('network_device');
+  });
+
+  it('the phone’s snapshot names the copy by the built-in key', async () => {
     const snap = ok(await call(t, '/api/v1/sync/snapshot', { as: ibrahim })) as unknown as {
       types: { items?: { id: string; builtinKey: string | null; name: string }[] };
     };
@@ -189,12 +193,55 @@ describe('a customised built-in type keeps its name (#546)', () => {
       builtinKey: 'network_device',
       name: 'network_device',
     });
-    const [shared] = await own<{ doc: { type: TypeRef } }>(
-      db,
-      'SELECT kept.share_thing_json(t) AS doc FROM public.things t WHERE t.id = $1',
-      [router],
-    );
-    expect(shared?.doc.type).toMatchObject({ name: null, builtinKey: 'network_device' });
+  });
+
+  it('a share link’s page names the type', async () => {
+    const made = await call(t, `/api/v1/locations/${home.id}/share-links`, {
+      as: ibrahim,
+      body: { thingId: router },
+    });
+    expect(made.statusCode, made.body).toBe(201);
+    const token = new URL((made.json() as { url: string }).url).pathname.slice('/s/'.length);
+    const res = await t.app.inject({ method: 'GET', url: `/api/v1/shared/${token}` });
+    expect(res.statusCode, res.body).toBe(200);
+    expect((res.json() as { thing: { type: TypeRef } }).thing.type).toEqual({
+      icon: 'lucide:router',
+      name: null,
+      builtinKey: 'network_device',
+    });
+  });
+
+  it('a place grouped by type keeps the copy and the built-in apart, page after page', async () => {
+    // A thing can still be on the built-in itself (typed through the API); by name it falls
+    // between two things on the copy.
+    const attic = (await createThing(t, ibrahim, home, { name: 'Attic switch', typeId: copy })).id;
+    const garage = (await createThing(t, ibrahim, home, { name: 'Garage modem', typeId: builtin }))
+      .id;
+    const seen: { id: string; typeId: string | null }[] = [];
+    let cursor: string | null = null;
+    for (let i = 0; i < 20; i++) {
+      const page = ok(
+        await call(
+          t,
+          `/api/v1/places/${home.unplacedId}/contents?group=type&limit=1${
+            cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''
+          }`,
+          { as: ibrahim },
+        ),
+      ) as unknown as {
+        things: { items: { id: string; type: TypeRef }[]; next_cursor: string | null };
+      };
+      seen.push(...page.things.items.map((x) => ({ id: x.id, typeId: x.type?.id ?? null })));
+      cursor = page.things.next_cursor;
+      if (!cursor) break;
+    }
+    expect(cursor).toBeNull();
+    const ids = seen.map((x) => x.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual(expect.arrayContaining([router, attic, garage]));
+    // Each type's things come together: a type seen once never comes back after another.
+    const runs = seen.map((x) => x.typeId).filter((x, i, all) => i === 0 || all[i - 1] !== x);
+    expect(new Set(runs).size).toBe(runs.length);
   });
 
   it('a copy renamed by hand shows its own name everywhere', async () => {
