@@ -180,7 +180,7 @@ test('the filter strip keeps one row at 375 px in every language', async ({ brow
   const location = await p.locator('a[href^="/loc/"]').first().getAttribute('href');
   expect(location).toBeTruthy();
   const rows: string[] = [];
-  for (const lang of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
+  for (const lang of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh']) {
     // The page-level script runs after the session's, so this language wins for this page.
     const page = await ctx.newPage();
     await page.addInitScript((l) => localStorage.setItem('kept.locale', l), lang);

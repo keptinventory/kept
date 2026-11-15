@@ -22,6 +22,7 @@ describe('the catalogues', () => {
     ['es', 'Tabla', 'Enlace del manual'],
     ['uk', 'Таблиця', 'Посилання на інструкцію'],
     ['vi', 'Bảng', 'Liên kết sách hướng dẫn'],
+    ['zh', '表格', '说明书链接'],
   ])('%s writes the layout and the manual link for what they are', (locale, table, manual) => {
     const words = entries(locale);
     expect(words.get('Table')).toBe(table);

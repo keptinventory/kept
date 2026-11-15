@@ -925,7 +925,7 @@ export type InsuranceReportBody = {
   /** Needs a rate for every pair, else 409 `rate_missing` with `missing`. */
   reportCurrency?: string;
   include?: { photos?: boolean };
-  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
   digits?: 'western' | 'eastern';
 };
 export type InsuranceReportCreated = ReportCreated;
@@ -939,7 +939,7 @@ export type InsuranceCsvParams = ({ locationId: string } | { incidentId: string 
 /** POST /api/v1/claim-packs. Without `acknowledged` → 400 (D158). */
 export type CreateClaimPackBody = {
   scope: { incidentId: string } | { locationId: string; thingIds: string[] };
-  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
   digits?: 'western' | 'eastern';
   acknowledged: true;
 };

@@ -130,8 +130,38 @@ export const BOX_WORDS: readonly string[] = Object.freeze([
   'cestas',
   'canasta',
   'canastas',
+  // Simplified Chinese
+  '箱',
+  '号箱',
+  '纸箱',
+  '收纳箱',
+  '储物箱',
+  '整理箱',
+  '周转箱',
+  '搬家箱',
+  '塑料箱',
+  '木箱',
+  '收纳盒',
+  '储物盒',
+  '收纳筐',
+  '收纳篮',
 ]);
 const BOX_WORD_SET = new Set(BOX_WORDS);
+const ZH_BOX_SUFFIXES = [
+  '纸箱',
+  '收纳箱',
+  '储物箱',
+  '整理箱',
+  '周转箱',
+  '搬家箱',
+  '塑料箱',
+  '木箱',
+  '收纳盒',
+  '储物盒',
+  '收纳筐',
+  '收纳篮',
+  '号箱',
+] as const;
 
 /** A box word followed by one of these isn't a box: "caja registradora" is a till (#474). */
 const NOT_A_BOX_AFTER: Readonly<Record<string, readonly string[]>> = Object.freeze({
@@ -153,6 +183,8 @@ export function looksLikeBox(name: string): boolean {
     previous = raw;
     // Arabic's article: "الصندوق" is "صندوق".
     if (raw.startsWith('ال') && BOX_WORD_SET.has(raw.slice(2))) return true;
+    // Unspaced Chinese compounds: "厨房收纳箱", "1号纸箱", "2号箱", but not "冰箱" or "抽屉".
+    if (ZH_BOX_SUFFIXES.some((s) => raw.endsWith(s))) return true;
   }
   return false;
 }

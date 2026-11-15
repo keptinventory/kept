@@ -26,6 +26,7 @@ import { NOTIFY_MESSAGES } from './messages-notify.js';
 import { TRANSPARENCY_MESSAGES } from './messages-transparency.js';
 import { UK, UK_CHROME } from './messages-uk.js';
 import { VI, VI_CHROME } from './messages-vi.js';
+import { ZH, ZH_CHROME } from './messages-zh.js';
 
 export type { Chrome, Message, MessageContext } from './message-kit.js';
 
@@ -35,7 +36,7 @@ export type { Chrome, Message, MessageContext } from './message-kit.js';
 // error, so a new mail kind can't ship untranslated. The test checks every kind renders in each.
 // English and Arabic live here; every other language in messages-<locale>.ts.
 
-export const MAIL_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
+export const MAIL_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'] as const;
 export type MailLocale = (typeof MAIL_LOCALES)[number];
 
 /** The mail language for a BCP 47 tag (`ar-EG` → `ar`, `fr-CA` → `fr`); English for anything else. */
@@ -1035,6 +1036,7 @@ export const MESSAGES: Record<MailLocale, Table> = {
   it: { ...IT, ...NOTIFY_MESSAGES.it, ...TRANSPARENCY_MESSAGES.it },
   uk: { ...UK, ...NOTIFY_MESSAGES.uk, ...TRANSPARENCY_MESSAGES.uk },
   vi: { ...VI, ...NOTIFY_MESSAGES.vi, ...TRANSPARENCY_MESSAGES.vi },
+  zh: { ...ZH, ...NOTIFY_MESSAGES.zh, ...TRANSPARENCY_MESSAGES.zh },
 };
 
 export const CHROME: Record<MailLocale, Chrome> = {
@@ -1056,6 +1058,7 @@ export const CHROME: Record<MailLocale, Chrome> = {
   it: IT_CHROME,
   uk: UK_CHROME,
   vi: VI_CHROME,
+  zh: ZH_CHROME,
 };
 
 /** What `mail` says in `locale`. */

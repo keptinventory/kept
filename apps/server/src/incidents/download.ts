@@ -14,7 +14,7 @@ import { tokenHash } from './claim-pack.js';
 // language: a link that never existed says the same, so a guess learns nothing. The token is
 // redacted from the request log (http/logger.ts), and only its sha256 is ever stored.
 
-const LANGS = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
+const LANGS = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'] as const;
 type Lang = (typeof LANGS)[number];
 
 const EXPIRED: Record<Lang, { title: string; body: string }> = {
@@ -49,6 +49,10 @@ const EXPIRED: Record<Lang, { title: string; body: string }> = {
   vi: {
     title: 'Liên kết này đã hết hạn',
     body: 'Hãy xin liên kết mới từ người đã chia sẻ nó.',
+  },
+  zh: {
+    title: '此链接已过期',
+    body: '请向分享此链接的人索取新链接。',
   },
 };
 

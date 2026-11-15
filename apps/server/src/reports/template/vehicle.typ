@@ -19,7 +19,7 @@
   ink: rgb("#1C1B19"), ink2: rgb("#55524C"), ink3: rgb("#6B675F"), amber: rgb("#F0B03A"),
   amber-ink: rgb("#2E2100"), danger: rgb("#B42318"), dots: rgb("#A8A399"),
 )
-#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic") }
+#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans", "IBM Plex Sans SC") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic", "IBM Plex Sans SC") }
 #let mono = "IBM Plex Mono"
 #let sfx = (w) => if w == 600 { " SmBld" } else if w == 500 { " Medm" } else { "" }
 #let W(w) = sans.map(f => f + sfx(w))
@@ -37,7 +37,7 @@
   text(font: mono + " SmBld", size: 9pt, tracking: 0.6pt, fill: c.amber-ink, dir: ltr, id))
 // The plate: its own island, in the direction it is written in, so its letters keep their order.
 #let plate(p, dir) = box(stroke: 1.2pt + c.ink, radius: 3pt, inset: (x: 3mm, y: 1.5mm),
-  text(font: ("IBM Plex Sans Arabic SmBld", "IBM Plex Sans SmBld"), size: 13pt, dir: if dir == "rtl" { rtl } else { ltr }, p))
+  text(font: ("IBM Plex Sans Arabic SmBld", "IBM Plex Sans SmBld", "IBM Plex Sans SC SmBld"), size: 13pt, dir: if dir == "rtl" { rtl } else { ltr }, p))
 #let vin(v) = box(text(font: mono, size: 10pt, dir: ltr, v))
 
 // ---- Cover.

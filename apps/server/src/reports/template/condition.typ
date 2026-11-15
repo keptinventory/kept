@@ -24,7 +24,7 @@
   poor: (fill: rgb("#FDF3DC"), ink: rgb("#8A5700")),
   damaged: (fill: rgb("#FDECEA"), ink: c.danger),
 )
-#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic") }
+#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans", "IBM Plex Sans SC") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic", "IBM Plex Sans SC") }
 #let sfx = (w) => if w == 600 { " SmBld" } else if w == 500 { " Medm" } else { "" }
 #let W(w) = sans.map(f => f + sfx(w))
 #let numpat = if d.digits == "arab" { "١" } else { "1" }

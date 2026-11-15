@@ -296,6 +296,37 @@ const WORDS: Record<MailLocale, Words> = {
       footnote: 'Các kênh khác của bạn không bị ảnh hưởng.',
     },
   },
+  zh: {
+    where: '位置',
+    open: '在 Kept 中打开',
+    openKept: '打开 Kept',
+    digestSubject: (count, day) => `Kept：${day} 共有 ${count}`,
+    digestIntro: (day) => `截至 ${day} 即将到期与待处理的事项：`,
+    reminderFootnote: (url) =>
+      `你收到此邮件是因为你已启用此类提醒。可在「设置 → 我的 → 通知」中调整接收项：${url}`,
+    digestFootnote: (url) =>
+      `此每日摘要会在你设定的时间每天发送一次。可在「设置 → 我的 → 通知」中更改：${url}`,
+    role: { admin: '管理员', member: '成员', viewer: '访客' },
+    ended: {
+      subject: (member, location) => `${member} 对「${location}」的访问权限已到期`,
+      body: (member, location, role, day) =>
+        `${member} 作为${role}对「${location}」的访问权限已于设定的截止日期（${day}）结束。`,
+      footnote: '作为地点所有者你会收到此通知。如需重新授权，请在地点设置中再次发送邀请。',
+    },
+    test: {
+      subject: 'Kept：测试通知',
+      body: '这是你在「设置 → 我的 → 通知」中发送的测试邮件。你选择通过邮件接收的提醒将发送至此邮箱。',
+      footnote: '没有更改其他任何设置。',
+    },
+    failing: {
+      subject: 'Kept：你的 Webhook 无响应',
+      body: (name) =>
+        `Kept 在过去约一天内尝试向你的 Webhook ${name} 投递提醒，但始终未收到响应，目前提醒无法送达该地址。`,
+      next: '请检查地址是否正确以及接收端是否正常运行，然后在「设置 → 我的 → 通知」中发送测试通知。',
+      action: '打开通知设置',
+      footnote: '你的其他通知渠道不受影响。',
+    },
+  },
 };
 
 /** The headline and the "where" line of one reminder, in `locale`. */
@@ -384,6 +415,15 @@ const SUMMARY: Record<MailLocale, SummaryWords> = {
     action: 'Mở mức sử dụng AI',
     footnote:
       'Bạn nhận được thông báo này mỗi tháng một lần về AI do tài khoản hoặc khóa riêng của bạn trả tiền. Tắt nó trong Cài đặt → Tôi → Thông báo.',
+  },
+  zh: {
+    subject: (month) => `Kept：${month} AI 用量月报`,
+    line: (month, calls, tokens, cost) =>
+      `${month} AI 用量：${calls} 次调用，${tokens} token${cost ? `，约 ${cost}` : ''}。`,
+    unknown: (n) => `另有 ${n} 次调用未配置单价，因此未计入费用。`,
+    action: '查看 AI 用量',
+    footnote:
+      '针对由你的账户或自有密钥计费的 AI 调用，每月发送一次此摘要。可在「设置 → 我的 → 通知」中关闭。',
   },
 };
 
@@ -481,4 +521,5 @@ export const NOTIFY_MESSAGES: Record<MailLocale, NotifyTable> = {
   it: table('it'),
   uk: table('uk'),
   vi: table('vi'),
+  zh: table('zh'),
 };

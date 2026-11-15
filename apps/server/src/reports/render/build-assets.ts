@@ -6,7 +6,7 @@ import { packageRoot } from '../../package-root.js';
 import { buildFonts, fontDir } from './fonts.js';
 
 // The report's build step (D201), run by `pnpm --filter @kept/server build` after tsc:
-// - the eight TTFs, converted from the @ibm/plex-* devDependencies into assets/fonts (fonts.ts);
+// - the eleven TTFs, converted from the @ibm/plex-* devDependencies into assets/fonts (fonts.ts);
 // - the files tsc doesn't emit, copied beside the compiled modules that load them: the child
 //   renderer (child.mjs, plain JavaScript), the Typst templates (report.typ, insurance.typ,
 //   vehicle.typ, email.typ, condition.typ, move.typ), and the PDF text

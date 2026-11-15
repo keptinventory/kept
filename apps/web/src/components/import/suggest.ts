@@ -83,6 +83,11 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'sản phẩm',
     'tên sản phẩm',
     'mặt hàng',
+    '名称',
+    '物品名称',
+    '物品',
+    '商品名称',
+    '品名',
   ],
   quantity: [
     'quantity',
@@ -106,6 +111,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'к-сть',
     'số lượng',
     'sl',
+    '数量',
+    '件数',
   ],
   brand: [
     'brand',
@@ -131,6 +138,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'hãng',
     'nhãn hiệu',
     'nhà sản xuất',
+    '品牌',
+    '厂商',
+    '制造商',
   ],
   model: [
     'model',
@@ -147,6 +157,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'kiểu máy',
     'mã model',
     'mô hình',
+    '型号',
+    '规格型号',
   ],
   serial: [
     'serial',
@@ -171,6 +183,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'số sê-ri',
     'số seri',
     'số serial',
+    '序列号',
+    '机身编号',
   ],
   barcode: [
     'barcode',
@@ -188,8 +202,21 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'штрихкод',
     'штрих код',
     'mã vạch',
+    '条形码',
+    '条码',
   ],
-  colour: ['colour', 'color', 'لون', 'couleur', 'farbe', 'colore', 'колір', 'màu sắc', 'màu'],
+  colour: [
+    'colour',
+    'color',
+    'لون',
+    'couleur',
+    'farbe',
+    'colore',
+    'колір',
+    'màu sắc',
+    'màu',
+    '颜色',
+  ],
   condition: [
     'condition',
     'state',
@@ -203,6 +230,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'стан',
     'tình trạng',
     'trạng thái',
+    '成色',
+    '状况',
+    '状态',
   ],
   notes: [
     'notes',
@@ -238,6 +268,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'ghi chú',
     'mô tả',
     'nhận xét',
+    '备注',
+    '说明',
+    '描述',
   ],
   tags: [
     'tags',
@@ -260,6 +293,7 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'thẻ',
     'nhãn',
     'từ khóa',
+    '标签',
   ],
   place_path: [
     'place',
@@ -296,6 +330,11 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'địa điểm',
     'phòng',
     'nơi để',
+    '位置',
+    '存放位置',
+    '所在位置',
+    '房间',
+    '位置路径',
   ],
   type: [
     'type',
@@ -313,6 +352,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'категорія',
     'loại',
     'danh mục',
+    '类型',
+    '分类',
+    '类别',
   ],
   aliases: [
     'aliases',
@@ -331,6 +373,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'псевдоніми',
     'tên khác',
     'bí danh',
+    '别名',
+    '其他名称',
   ],
   purchased_on: [
     'purchase date',
@@ -358,6 +402,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'придбано',
     'дата придбання',
     'ngày mua',
+    '购买日期',
+    '购入日期',
   ],
   vendor: [
     'vendor',
@@ -391,6 +437,10 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'người bán',
     'cửa hàng',
     'nơi mua',
+    '商家',
+    '店铺',
+    '购买渠道',
+    '卖家',
   ],
   price: [
     'price',
@@ -418,6 +468,10 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'giá',
     'giá mua',
     'chi phí',
+    '价格',
+    '购买价格',
+    '单价',
+    '金额',
   ],
   currency: [
     'currency',
@@ -430,6 +484,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'divisa',
     'валюта',
     'tiền tệ',
+    '币种',
+    '货币',
   ],
   manual_url: [
     'manual',
@@ -452,6 +508,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'посібник користувача',
     'sách hướng dẫn',
     'hướng dẫn',
+    '说明书',
+    '说明书链接',
+    '使用手册',
   ],
   legacy_code: [
     'code',
@@ -482,6 +541,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'mã',
     'mã tài sản',
     'số kiểm kê',
+    '资产编号',
+    '原编号',
+    '旧编码',
   ],
   own_code: [
     'own code',
@@ -503,6 +565,9 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'мій код',
     'mã của tôi',
     'mã riêng',
+    '自有编码',
+    '自定义编码',
+    '我的编码',
   ],
   source_id: [
     'id',
@@ -520,6 +585,8 @@ const WORDS: Record<Exclude<MappableField, `custom.${string}` | 'ignore'>, strin
     'ідентифікатор',
     'mã định danh',
     'tham chiếu',
+    '来源编号',
+    '外部id',
   ],
 };
 

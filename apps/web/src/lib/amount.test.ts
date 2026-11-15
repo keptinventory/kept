@@ -18,7 +18,18 @@ describe('amount fields read and write by the reader’s language (#474)', () =>
     expect(amountText('1234.5', 'ar-u-nu-arab')).toBe('١٢٣٤٫٥');
     expect(amountText(null, 'de')).toBe('');
     expect(amountText('not money', 'de')).toBe('not money');
-    for (const tag of ['ar-u-nu-arab', 'ar-u-nu-latn', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
+    for (const tag of [
+      'ar-u-nu-arab',
+      'ar-u-nu-latn',
+      'de',
+      'en',
+      'es',
+      'fr',
+      'it',
+      'uk',
+      'vi',
+      'zh',
+    ]) {
       for (const amount of ['0.5', '1.234', '12.345', '1234', '12345.6789']) {
         expect([tag, readAmount(amountText(amount, tag), tag)]).toEqual([tag, amount]);
       }

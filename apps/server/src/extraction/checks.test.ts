@@ -113,6 +113,10 @@ describe("an alias in its language's script", () => {
     ['1234', 'en', false], // digits alone are no script
     ['дрель', 'ru', true],
     ['drill', 'ru', false],
+    ['电钻', 'zh', true],
+    ['LED 显示器', 'zh', true],
+    ['drill', 'zh', false],
+    ['iPhone 手机', 'zh', false],
     ['anything', 'xx', true], // a language the table doesn't know isn't checked
   ])('%s in %s: %s', (alias, lang, want) => {
     expect(inLanguageScript(alias, lang)).toBe(want);
@@ -223,6 +227,8 @@ describe('placeholders and VIN formats seen in real runs', () => {
       'KHONG BAO HANH',
       'Без гарантії',
       'Không bảo hành',
+      '无保修',
+      '不含保修。',
     ]) {
       expect(terms(text).dropped, text).toEqual([
         { path: 'warranty_terms_printed', reason: 'not_terms' },
@@ -241,6 +247,8 @@ describe('placeholders and VIN formats seen in real runs', () => {
       'Garantía de 2 años',
       'Гарантія 2 роки',
       'Bảo hành 2 năm',
+      '整机保修 2 年',
+      '全国联保一年',
     ]) {
       expect(terms(text).fields.warrantyTermsPrinted?.value, text).toBe(text);
     }

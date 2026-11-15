@@ -269,6 +269,34 @@ const WORDS: Record<MailLocale, Words> = {
     },
     providers: { ...NAMES, openai_compatible: 'máy chủ tương thích với OpenAI' },
   },
+  zh: {
+    oidcOn: {
+      subject: (name) => `Kept 上的 ${name} 登录配置已变更`,
+      body: (name) =>
+        `运行此 Kept 的管理员更改了通过 ${name} 登录的配置。你的密码、通行密钥及邮件登录链接仍可照常使用。`,
+    },
+    oidcOff: {
+      subject: 'Kept 已关闭外部账号登录',
+      body: '运行此 Kept 的管理员已关闭外部账号登录。请使用密码、通行密钥或邮件登录链接进行登录。',
+    },
+    oidcFootnote:
+      '每当登录方式发生变更时，所有在此拥有账户的成员都会收到通知。如果出乎你的意料，请向运行此 Kept 的管理员确认。',
+    smtp: {
+      subject: (sender) => `Kept 现通过 ${sender} 发送邮件`,
+      body: (sender) =>
+        `运行此 Kept 的管理员更改了发信配置。正如本封邮件一样，今后系统邮件将由 ${sender} 发出。`,
+      footnote:
+        '每当发信地址发生变更时，所有在此拥有账户的成员都会收到通知。如果收到自称来自 Kept 但发件人不同的邮件，请勿点击其中的链接。',
+    },
+    ai: {
+      subject: (provider) => `Kept 的默认 AI 服务商现已改为 ${provider}`,
+      body: (provider) =>
+        `运行此 Kept 的管理员已将默认 AI 服务商更改为 ${provider}。凡使用此服务器默认 AI 的地点，你发送给 AI 的内容（照片、收据和提问）现将发往 ${provider}。`,
+      action: '打开 AI 设置',
+      footnote: 'AI 设置中列出了你每个地点所使用的服务商，地点所有者也可单独改选其他服务商。',
+    },
+    providers: { ...NAMES, openai_compatible: 'OpenAI 兼容服务端' },
+  },
 };
 
 function table(locale: MailLocale): TransparencyTable {
@@ -308,4 +336,5 @@ export const TRANSPARENCY_MESSAGES: Record<MailLocale, TransparencyTable> = {
   it: table('it'),
   uk: table('uk'),
   vi: table('vi'),
+  zh: table('zh'),
 };

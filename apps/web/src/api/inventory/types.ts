@@ -1692,7 +1692,7 @@ export type InventoryReportBody = {
     includeTrashed?: boolean;
   };
   include?: { photos?: boolean; qr?: boolean; money?: boolean };
-  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
   digits?: 'western' | 'eastern';
   /** 1.3 (D228): also mail the PDF to me when it's done. */
   email?: boolean;

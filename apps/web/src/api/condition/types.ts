@@ -89,6 +89,6 @@ export type ConditionPdfBody = {
   reportId: string;
   compareWith?: string;
   include?: { photos?: boolean };
-  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
   digits?: 'western' | 'eastern';
 };

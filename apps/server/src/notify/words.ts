@@ -187,6 +187,14 @@ const ES_DOCS: Record<string, string> = {
   lease: 'El arrendamiento',
   contract: 'El contrato',
 };
+const ZH_DOCS: Record<string, string> = {
+  registration: '登记证',
+  insurance: '保险单',
+  licence: '牌照许可',
+  inspection: '年检记录',
+  lease: '租赁合同',
+  contract: '合同',
+};
 
 const EN = words(
   'en',
@@ -573,6 +581,53 @@ const ES = words(
   },
 );
 
+const ZH = words(
+  'zh-CN',
+  (f, day) => (f.sourceType === 'registration' ? `需在 ${day} 前` : `于 ${day}`),
+  (v) => `达到 ${v} 时`,
+  {
+    schedule: {
+      any: (n, w, f) => `「${n}」的${f.title ?? '保养计划'}${w}到期`,
+      overdue: (n, w, f) => `「${n}」的${f.title ?? '保养计划'}已${w}逾期`,
+    },
+    warranty: {
+      any: (n, w, f) => `「${n}」${provider(f, (p) => `（${p}）`)}的保修${w}到期`,
+    },
+    registration: {
+      any: (n, w, f) => `「${n}」${provider(f, (p) => `（${p}）`)}的保修${w}完成注册`,
+    },
+    document: {
+      any: (n, w, f) => `「${n}」的${docTitle(f, ZH_DOCS, '文档')}${w}到期`,
+      overdue: (n, w, f) => `「${n}」的${docTitle(f, ZH_DOCS, '文档')}已${w}过期`,
+    },
+    loan: { any: (n, w) => `「${n}」应${w}归还` },
+    thing_expiry: {
+      any: (n, w) => `「${n}」${w}到期`,
+      overdue: (n, w) => `「${n}」已${w}过期`,
+    },
+    stock: { any: (n, w) => `「${n}」库存${w}偏低` },
+    reading_stale: {
+      any: stale(
+        'zh-CN',
+        { distance: '里程表', hours: '计时表', custom: '表计' },
+        (l) => `「${l}」`,
+        (m, n, day) => `「${n}」上的${m}上次记录读数是在 ${day}`,
+        (m, n, w) => `「${n}」上的${m}${w}需要更新读数`,
+      ),
+    },
+  },
+  {
+    schedule: (f) => f.title ?? '待办保养',
+    warranty: () => '保修到期',
+    registration: () => '注册保修',
+    document: (f) => docTitle(f, ZH_DOCS, '文档到期'),
+    loan: () => '待归还',
+    thing_expiry: () => '物品到期',
+    reading_stale: () => '需更新读数',
+    stock: () => '库存偏低',
+  },
+);
+
 export const REMINDER_WORDS: Record<MailLocale, ReminderWords> = {
   ar: AR,
   de: DE,
@@ -582,6 +637,7 @@ export const REMINDER_WORDS: Record<MailLocale, ReminderWords> = {
   it: IT,
   uk: UK,
   vi: VI,
+  zh: ZH,
 };
 
 /** The calendar event's title and a push notification's: "Boiler service, Kitchen". */
@@ -622,4 +678,5 @@ export const REMINDER_COUNT: Record<MailLocale, (n: number) => string> = {
     }
   },
   vi: (n) => `${n} lời nhắc`,
+  zh: (n) => `${n} 条提醒`,
 };

@@ -60,10 +60,10 @@ describe('compareCatalogues', () => {
 });
 
 describe('the languages the app ships', () => {
-  it('requires all eight in the config', () => {
-    expect(missingLocales(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'])).toEqual([]);
-    expect(missingLocales(['en', 'ar'])).toEqual(['de', 'es', 'fr', 'it', 'uk', 'vi']);
-    expect(missingLocales(['ar', 'de', 'en', 'fr', 'it'])).toEqual(['es', 'uk', 'vi']);
+  it('requires all nine in the config', () => {
+    expect(missingLocales(['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'])).toEqual([]);
+    expect(missingLocales(['en', 'ar'])).toEqual(['de', 'es', 'fr', 'it', 'uk', 'vi', 'zh']);
+    expect(missingLocales(['ar', 'de', 'en', 'fr', 'it'])).toEqual(['es', 'uk', 'vi', 'zh']);
   });
 
   it('flags a translation that drops a placeholder, a tag or a plural', () => {

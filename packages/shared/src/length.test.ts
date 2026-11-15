@@ -91,7 +91,19 @@ describe('formatRoomSideField: the field’s number', () => {
 });
 
 /** Every display a field makes, read back, in every UI language and both Arabic digit sets. */
-const LOCALES = ['en', 'fr', 'de', 'it', 'vi', 'uk', 'es', 'ar-u-nu-arab', 'ar-u-nu-latn'];
+const LOCALES = [
+  'en',
+  'fr',
+  'de',
+  'it',
+  'vi',
+  'uk',
+  'es',
+  'zh',
+  'zh-CN',
+  'ar-u-nu-arab',
+  'ar-u-nu-latn',
+];
 
 describe('a field’s own display reads back (1.14.4 final review)', () => {
   it('for every room side from 50 cm to 100 m', () => {
