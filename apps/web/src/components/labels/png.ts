@@ -21,7 +21,7 @@ import {
   LABEL_SANS,
   PLACE_INK,
 } from './layout';
-import { loadQr, qrMatrix } from './qr';
+import { currentQrContent, loadQr, qrMatrix, qrValue } from './qr';
 
 export const PNG_DPI = 300;
 
@@ -165,13 +165,14 @@ export async function labelPngs(
   const [encode] = await Promise.all([loadQr(), loadLabelFaces()]);
   const { width, height } = labelPixelSize(stock);
   const files: File[] = [];
+  const content = currentQrContent();
   for (const label of labels) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('no 2d canvas');
-    drawLabel(ctx, stock, label, qrMatrix(encode, label.url));
+    drawLabel(ctx, stock, label, qrMatrix(encode, qrValue(label, content)));
     const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/png'));
     if (!blob) throw new Error('canvas.toBlob gave nothing');
     files.push(new File([blob], `kept-${label.code}.png`, { type: 'image/png' }));

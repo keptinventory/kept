@@ -11,6 +11,7 @@ import { useLingui } from '@lingui/react/macro';
 import { ChoiceCards } from '@/components/ui/segmented';
 import { useFormat } from '@/lib/format';
 import { useUnitSystem } from '@/lib/units';
+import { type QrContent, setQrContent, useQrContent } from './qr';
 
 const STOCK_KEY = 'kept.labels.stock';
 export const DEFAULT_STOCK = 'a4_24_70x37';
@@ -93,6 +94,26 @@ export function StockPicker({
         const { title, detail } = text(s);
         return { id: s.key, title, body: detail };
       })}
+    />
+  );
+}
+
+/** What the QR holds (qr.ts): the link any phone camera opens, or the code alone, smaller. */
+export function QrContentPicker() {
+  const { t } = useLingui();
+  return (
+    <ChoiceCards<QrContent>
+      label={t`The QR code holds`}
+      value={useQrContent()}
+      onChange={setQrContent}
+      options={[
+        { id: 'link', title: t`The link`, body: t`Any phone camera opens it.` },
+        {
+          id: 'code',
+          title: t`The code only`,
+          body: t`A smaller QR code. Scan it with Kept’s scanner.`,
+        },
+      ]}
     />
   );
 }
