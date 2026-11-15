@@ -89,10 +89,17 @@ jobs:
           SOURCE: ${{ github.server_url }}/${{ github.repository }}
         run: |
           docker buildx create --use --name fork-image
-          # shellcheck disable=SC2086  # TAGS is "-t a -t b"
-          docker buildx build --platform "$PLATFORMS" --target runtime \
-            --build-arg "VERSION=$VERSION" --build-arg "REVISION=$GITHUB_SHA" \
-            --build-arg "SOURCE=$SOURCE" \
-            --cache-from "type=registry,ref=$IMAGE:buildcache" \
-            --cache-to "type=registry,ref=$IMAGE:buildcache,mode=max,ignore-error=true" \
-            $TAGS --push .
+          # A fetch the Dockerfile makes (Debian, postgresql.org, the npm registry) can time out,
+          # as in scripts/release/build.sh: up to three attempts; buildx keeps the layers an attempt finished.
+          for attempt in 1 2 3; do
+            # shellcheck disable=SC2086  # TAGS is "-t a -t b"
+            docker buildx build --platform "$PLATFORMS" --target runtime \
+              --build-arg "VERSION=$VERSION" --build-arg "REVISION=$GITHUB_SHA" \
+              --build-arg "SOURCE=$SOURCE" \
+              --cache-from "type=registry,ref=$IMAGE:buildcache" \
+              --cache-to "type=registry,ref=$IMAGE:buildcache,mode=max,ignore-error=true" \
+              $TAGS --push . && exit 0
+            echo "::warning::build attempt $attempt failed"
+            sleep 30
+          done
+          exit 1
