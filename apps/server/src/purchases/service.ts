@@ -1,4 +1,4 @@
-import { AmountError, can, newId, parseAmount, type Role } from '@kept/shared';
+import { can, newId, type Role } from '@kept/shared';
 import type { FastifyRequest } from 'fastify';
 import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
@@ -8,6 +8,7 @@ import type { Scope, Tx } from '../db/scope.js';
 import { assertClientId, checkVersion } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
+import { amountIn, currencyIn, moneyOff, requireEnabled, todayIn } from '../money/input.js';
 import { type Gate, gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import {
@@ -69,9 +70,6 @@ const IN_USE_HINT =
 
 const actor = (scope: Scope) => actorOf(scope);
 
-/** Writing money where the caller's gate hides it (the money module is off here): 409. */
-const moneyOff = () => new AppError('module_off', 409, 'Money is turned off for this location.');
-
 type Access = { role: Role; gate: Gate };
 
 /** 404 unless the caller sees the location; 403 unless they may change purchases there. */
@@ -82,53 +80,8 @@ async function editAccess(ctx: Ctx, locationId: string): Promise<Access> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Input
+// Input: amountIn, currencyIn, requireEnabled and todayIn are money/input.ts's.
 // ---------------------------------------------------------------------------------------------
-
-/** An amount as typed, in canonical form; 400 naming the field when it isn't one. */
-function amountIn(raw: string, where: string): string {
-  try {
-    return parseAmount(raw);
-  } catch (err) {
-    if (err instanceof AmountError) {
-      throw invalid(`Check ${where}: a decimal amount of at most 4 decimals, e.g. 1250.50.`);
-    }
-    throw err;
-  }
-}
-
-/** An ISO 4217 code, upper-cased. "$" gets its own hint: it is USD or CAD, never a default. */
-function currencyIn(raw: string, where: string): string {
-  const code = raw.trim();
-  if (code.includes('$')) {
-    throw invalid(`Check ${where}: “$” can be USD or CAD. Pick one.`);
-  }
-  if (!/^[A-Za-z]{3}$/.test(code)) {
-    throw invalid(`Check ${where}: a three-letter currency code, e.g. EGP.`);
-  }
-  return code.toUpperCase();
-}
-
-/** 400 unless the currency is enabled on this server (D168). */
-async function requireEnabled(client: pg.ClientBase, code: string, where: string): Promise<void> {
-  const { rowCount } = await client.query(
-    'SELECT 1 FROM public.currencies WHERE code = $1 AND enabled',
-    [code],
-  );
-  if (!rowCount) throw invalid(`Check ${where}: use a currency that is turned on.`);
-}
-
-/** Today in the location's time zone, `YYYY-MM-DD`. */
-async function todayIn(client: pg.ClientBase, locationId: string): Promise<string> {
-  const { rows } = await client.query<{ today: string }>(
-    `SELECT (now() AT TIME ZONE l.timezone)::date::text AS today
-       FROM public.locations l WHERE l.id = $1`,
-    [locationId],
-  );
-  const today = rows[0]?.today;
-  if (!today) throw notFound();
-  return today;
-}
 
 async function checkPurchasedOn(client: pg.ClientBase, locationId: string, on: string) {
   if (on > (await todayIn(client, locationId))) {

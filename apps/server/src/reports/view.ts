@@ -1,7 +1,15 @@
 import { formatMoney, printedCode } from '@kept/shared';
 import type { Gathered, GatheredThing, ReportOptions } from './gather.js';
 import { type ReportLabels, type ReportLocale, templateLabels, wordsFor } from './labels.js';
-import { colonOf, dirOf, intlLocaleOf, numberingOf, pathSeparatorOf, sepOf } from './locale.js';
+import {
+  colonOf,
+  dirOf,
+  intlLocaleOf,
+  numberingOf,
+  pathSeparatorOf,
+  safeTimeZone,
+  sepOf,
+} from './locale.js';
 
 // The report's data as the Typst template reads it (template/report.typ, `/data.json`). Every
 // string is final here: numbers, money and dates are formatted with Intl in the report's
@@ -135,15 +143,6 @@ function formatters(options: ReportOptions, timeZone: string) {
     money: (amount: string, currency: string) =>
       formatMoney(amount, currency, { locale: options.locale, digits: options.digits }),
   };
-}
-
-function safeTimeZone(tz: string): string {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: tz });
-    return tz;
-  } catch {
-    return 'UTC';
-  }
 }
 
 /** Builds the template's data from what gather() read. */

@@ -1,5 +1,5 @@
 import type { ReportLocale } from '../labels.js';
-import { dirOf, intlLocaleOf, numberingOf, sepOf } from '../locale.js';
+import { dirOf, intlLocaleOf, numberingOf, safeTimeZone, sepOf } from '../locale.js';
 import { PDF_WORDS } from '../words/index.js';
 import type { GatheredMove, MoveReportOptions } from './gather.js';
 
@@ -43,15 +43,6 @@ export type MoveViewContext = {
   /** Which boxes' QR codes were written to the job directory (by container id). */
   withQr: ReadonlySet<string>;
 };
-
-function safeTimeZone(tz: string): string {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: tz });
-    return tz;
-  } catch {
-    return 'UTC';
-  }
-}
 
 /** Builds the template's data from what gatherMove() read. */
 export function buildMoveView(

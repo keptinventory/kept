@@ -1,6 +1,6 @@
 import { displayConsumption, type FuelUnit, formatMoney, printedCode } from '@kept/shared';
 import { type ReportLocale, wordsFor } from '../labels.js';
-import { colonOf, dirOf, intlLocaleOf, numberingOf, sepOf } from '../locale.js';
+import { colonOf, dirOf, intlLocaleOf, numberingOf, safeTimeZone, sepOf } from '../locale.js';
 import { PDF_WORDS, type VehicleWords } from '../words/index.js';
 import type { GatheredVehicle, VehicleReportOptions } from './gather.js';
 
@@ -89,15 +89,6 @@ export type VehicleViewContext = {
 };
 
 const ARABIC = /[؀-ۿ]/;
-
-function safeTimeZone(tz: string): string {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: tz });
-    return tz;
-  } catch {
-    return 'UTC';
-  }
-}
 
 /** Builds the template's data from what gatherVehicle() read. */
 export function buildVehicleView(

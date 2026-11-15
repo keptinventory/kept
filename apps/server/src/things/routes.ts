@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { undoRoutes } from '../audit/undo.js';
 import type { KeptApp } from '../http/app.js';
-import { requireIfMatch } from '../http/conventions.js';
+import { optionalIfMatch, requireIfMatch } from '../http/conventions.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { listExportRoutes } from '../lists/routes.js';
@@ -78,11 +78,6 @@ import { LinkSchema, ThingRowSchema, ThingViewSchema, viewOf } from './view.js';
 // move-routes.ts, and the spreadsheet view (D250: GET /things/sheet, POST /things/bulk-edit,
 // /things/bulk-trash) in sheet-routes.ts, both registered from here; meters, files,
 // secrets and trash have their own modules.
-
-/** An If-Match the client may send (split, not-here: the web may send none). */
-function optionalIfMatch(req: FastifyRequest): number | null {
-  return req.headers['if-match'] === undefined ? null : requireIfMatch(req);
-}
 
 const Page = z.object({ items: z.array(ThingRowSchema), next_cursor: z.string().nullable() });
 

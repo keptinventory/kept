@@ -4,7 +4,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import type { Pools } from '../db/pools.js';
 import { withScope } from '../db/scope.js';
-import { AppError, invalid, notFound } from '../http/errors.js';
+import { invalid, notFound } from '../http/errors.js';
 
 // Input rules the step-4 money and warranty routes share (T8, T9): amounts, currencies and dates
 // as purchases read them (purchases/service.ts; D136, D168, D172, D189), today in a location's
@@ -61,8 +61,7 @@ export async function todayIn(client: pg.ClientBase, locationId: string): Promis
 export const Day = z.iso.date();
 
 /** Writing money where the caller's gate hides it (the money module is off there): 409. */
-export const moneyOff = () =>
-  new AppError('module_off', 409, 'Money is turned off for this location.');
+export { moneyOff } from '../things/validate.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
