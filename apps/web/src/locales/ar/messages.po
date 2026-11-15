@@ -29320,3 +29320,23 @@ msgstr "يفعّله المالك أو المشرف من «ما الذي تتا�
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "العدّ متوقف هنا: تعرض هذه القائمة فحوص الصناديق."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "يحمل رمز QR"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "الرابط"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "تفتحه كاميرا أي هاتف."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "الرمز فقط"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "رمز QR أصغر. امسحه بماسح Kept."

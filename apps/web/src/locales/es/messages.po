@@ -29320,3 +29320,23 @@ msgstr "Un propietario o administrador los activa en «Qué seguir» de una ubic
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Los conteos están desactivados aquí: esta lista muestra las revisiones de caja."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "El código QR contiene"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "El enlace"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Lo abre la cámara de cualquier teléfono."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "Solo el código"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "Un código QR más pequeño. Escanéalo con el escáner de Kept."
