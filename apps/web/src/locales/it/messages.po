@@ -29320,3 +29320,23 @@ msgstr "Un proprietario o un amministratore li attiva in «Cosa monitorare» di 
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "I conteggi sono disattivati qui: questo elenco mostra i controlli scatola."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "Il codice QR contiene"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "Il link"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Lo apre la fotocamera di qualsiasi telefono."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "Solo il codice"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "Un codice QR più piccolo. Scansionalo con lo scanner di Kept."

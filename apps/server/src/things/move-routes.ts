@@ -1,10 +1,9 @@
-import type { FastifyRequest } from 'fastify';
 import type pg from 'pg';
 import { rateLimited } from '../auth/http.js';
 import { limiterKey, reserveInWindow } from '../auth/sign-in-limiter.js';
 import type { Scope, Tx } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
-import { requireIfMatch } from '../http/conventions.js';
+import { optionalIfMatch } from '../http/conventions.js';
 import type { InventoryDeps } from '../http/routes.js';
 import { scopedRead, scopedWrite } from '../http/write.js';
 import { guardOnLoan } from '../lending/guard.js';
@@ -30,11 +29,6 @@ import { Params } from './validate.js';
 // POST /api/v1/things/move {thingIds (≤200), to, quantity?} → {moved}; If-Match optional, for
 //                                                            one thing only (else 400)
 // POST /api/v1/things/:id/empty-into {to}                  → {moved}
-
-/** If-Match when the client sent one: a one-thing move takes it (security review #25). */
-function optionalIfMatch(req: FastifyRequest): number | null {
-  return req.headers['if-match'] === undefined ? null : requireIfMatch(req);
-}
 
 export async function moveRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;

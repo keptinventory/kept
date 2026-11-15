@@ -39,3 +39,13 @@ export const colonOf = (locale: ReportLocale): string => (locale === 'fr' ? ' :
 /** The plural form `n` takes in `locale` (Arabic's six, Ukrainian's four, one in Vietnamese). */
 export const pluralOf = (locale: ReportLocale, n: number): Intl.LDMLPluralRule =>
   new Intl.PluralRules(locale).select(n);
+
+/** `tz` when the runtime knows the zone, else UTC: a report never fails on a stored zone. */
+export function safeTimeZone(tz: string): string {
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: tz });
+    return tz;
+  } catch {
+    return 'UTC';
+  }
+}

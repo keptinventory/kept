@@ -14,10 +14,10 @@ import { z } from 'zod';
 import { actorOf } from '../audit/actor.js';
 import { audited, auditedMany } from '../audit/audited.js';
 import type { FieldClass } from '../audit/classes.js';
-import { lastChangedBy, undoableUntil } from '../audit/undo.js';
+import { requireRowVersion, undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
 import { enqueueEmbed, enqueueEmbeds } from '../embeddings/job.js';
-import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
+import { assertClientId, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { AppError, forbidden, invalid, notFound } from '../http/errors.js';
 import { filterOf, isNot, lowerIds, matchOf } from '../http/list-filters.js';
 import type { JobQueue } from '../jobs/queue.js';
@@ -163,23 +163,6 @@ export async function requireRole(
   return role;
 }
 
-/** Throws 412 (D156) with the fields the request touched and who changed the row since. */
-async function requireVersion(
-  client: pg.ClientBase,
-  thing: LiveThing,
-  expected: number,
-  fields: readonly string[],
-): Promise<void> {
-  if (thing.row_version === expected) return;
-  const name = await lastChangedBy(client, thing.location_id, { type: 'thing', id: thing.id });
-  checkVersion(
-    { rowVersion: thing.row_version },
-    expected,
-    fields,
-    name ? { displayName: name } : null,
-  );
-}
-
 /** 412 unless the live thing `id` is at row version `expected` (If-Match on routes addressed by
  * a body of ids, such as a one-thing move). */
 export async function requireThingVersion(
@@ -188,7 +171,7 @@ export async function requireThingVersion(
   expected: number,
   fields: readonly string[] = ['thingIds'],
 ): Promise<void> {
-  await requireVersion(client, await liveThing(client, id), expected, fields);
+  await requireRowVersion(client, 'thing', await liveThing(client, id), expected, fields);
 }
 
 /** Where a MoveTarget is, within `locationId`: a live place or a live thing there. 404 for one
@@ -622,7 +605,7 @@ export async function writeThingUpdate(
 ): Promise<void> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.edit');
-  await requireVersion(client, thing, expected, Object.keys(body));
+  await requireRowVersion(client, 'thing', thing, expected, Object.keys(body));
   const gate = await gateFor(tx, thing.location_id, scope);
   const before = (await readImage(client, id)) as ThingImage;
 
@@ -895,7 +878,7 @@ export async function setLifecycle(
 ): Promise<ThingView> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.edit');
-  await requireVersion(client, thing, expected, Object.keys(body));
+  await requireRowVersion(client, 'thing', thing, expected, Object.keys(body));
   const gate = await gateFor(tx, thing.location_id, scope);
   const before = (await readImage(client, id)) as ThingImage;
 
@@ -998,7 +981,8 @@ export async function markNotHere(
 ): Promise<ThingView> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.mark-seen');
-  if (expected !== null) await requireVersion(client, thing, expected, ['locationUncertain']);
+  if (expected !== null)
+    await requireRowVersion(client, 'thing', thing, expected, ['locationUncertain']);
   const before = await readImage(client, id);
   await client.query('UPDATE public.things SET location_uncertain = true WHERE id = $1', [id]);
   const after = await readImage(client, id);
@@ -1098,7 +1082,7 @@ export async function splitThing(
 ): Promise<{ originalId: string; newId: string }> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.edit');
-  if (expected !== null) await requireVersion(client, thing, expected, ['quantity']);
+  if (expected !== null) await requireRowVersion(client, 'thing', thing, expected, ['quantity']);
   const caps = await typeCapabilities(client, thing.type_id);
   if (caps.includes('serialized') || caps.includes('metered') || thing.has_meters) {
     throw invalid("This is counted one by one, so it can't be split.");
@@ -1249,7 +1233,7 @@ export async function convertToPlace(
 ): Promise<{ placeId: string }> {
   const { client, tx, scope } = ctx;
   const thing = await writableThing(client, id, 'things.delete-permanently');
-  await requireVersion(client, thing, expected, ['convert']);
+  await requireRowVersion(client, 'thing', thing, expected, ['convert']);
   const discards = await conversionLosses(client, id);
   if (discards.length > 0 && !body.discard) {
     throw new AppError(

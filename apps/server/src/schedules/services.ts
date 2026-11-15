@@ -9,7 +9,7 @@ import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
 import type { FieldClass } from '../audit/classes.js';
-import { lastChangedBy, undoableUntil } from '../audit/undo.js';
+import { lastChangedBy, requireRowVersion, undoableUntil } from '../audit/undo.js';
 import { createAttachment } from '../files/attachments.js';
 import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { AppError, conflict, invalid, notFound } from '../http/errors.js';
@@ -222,17 +222,6 @@ async function changeableService(ctx: Ctx, id: string): Promise<ServiceRow> {
     mine ? 'logs.edit-own' : 'logs.edit-delete-others',
   );
   return serviceRow(ctx.client, id, true);
-}
-
-async function requireVersion(
-  client: pg.ClientBase,
-  row: ServiceRow,
-  expected: number,
-  fields: readonly string[],
-): Promise<void> {
-  if (row.row_version === expected) return;
-  const by = await lastChangedBy(client, row.location_id, { type: 'service_record', id: row.id });
-  checkVersion({ rowVersion: row.row_version }, expected, fields, by ? { displayName: by } : null);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -625,7 +614,7 @@ export async function confirmService(
   const { client } = ctx;
   const row = await changeableService(ctx, id);
   if (row.review_state !== 'draft') throw conflict('This service is already logged.');
-  await requireVersion(client, row, expected, ['reviewState']);
+  await requireRowVersion(client, 'service_record', row, expected, ['reviewState']);
   const locationId = row.location_id;
   if (body.servicedOn > (await todayIn(client, locationId))) {
     throw invalid('Check body.servicedOn: the day it was done, not in the future.');
@@ -746,7 +735,7 @@ export async function updateService(
   const fields = (Object.keys(body) as (keyof UpdateServiceInput)[]).filter(
     (k) => body[k] !== undefined,
   );
-  await requireVersion(client, row, expected, fields);
+  await requireRowVersion(client, 'service_record', row, expected, fields);
   if (fields.length === 0) return serviceView(ctx, id);
   const before = await serviceImage(client, row);
   const locationId = row.location_id;
@@ -864,7 +853,7 @@ type AttachmentImage = {
 export async function deleteService(ctx: Ctx, id: string, expected: number): Promise<void> {
   const { client } = ctx;
   const row = await changeableService(ctx, id);
-  await requireVersion(client, row, expected, []);
+  await requireRowVersion(client, 'service_record', row, expected, []);
   const image = await serviceImage(client, row);
   const { rows: attachments } = await client.query<AttachmentImage>(
     `SELECT id, file_id, url, role, sort, name FROM public.attachments WHERE service_record_id = $1

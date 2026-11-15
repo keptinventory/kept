@@ -2,10 +2,10 @@ import { type FuelUnit, isDateFilterValue, newId, pricePerUnit } from '@kept/sha
 import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
-import { lastChangedBy, undoableUntil } from '../audit/undo.js';
+import { requireRowVersion, undoableUntil } from '../audit/undo.js';
 import { createAttachment } from '../files/attachments.js';
 import { MONEY_ROLES } from '../files/views.js';
-import { assertClientId, checkVersion, decodeCursor, encodeCursor } from '../http/conventions.js';
+import { assertClientId, decodeCursor, encodeCursor } from '../http/conventions.js';
 import { invalid, notFound } from '../http/errors.js';
 import { attachProof } from '../meters/proofs.js';
 import { createReading, updateReading } from '../meters/service.js';
@@ -313,17 +313,6 @@ async function changeableEntry(ctx: Ctx, id: string): Promise<EntryRecord> {
   return entryRecord(ctx.client, id, true);
 }
 
-async function requireVersion(
-  client: pg.ClientBase,
-  row: EntryRecord,
-  expected: number,
-  fields: readonly string[],
-): Promise<void> {
-  if (row.row_version === expected) return;
-  const by = await lastChangedBy(client, row.location_id, { type: FUEL_ENTITY, id: row.id });
-  checkVersion({ rowVersion: row.row_version }, expected, fields, by ? { displayName: by } : null);
-}
-
 // ---------------------------------------------------------------------------------------------
 // Create
 // ---------------------------------------------------------------------------------------------
@@ -475,7 +464,7 @@ export async function updateFuel(
   const { client } = ctx;
   const row = await changeableEntry(ctx, id);
   const fields = FIELDS.filter((k) => body[k] !== undefined);
-  await requireVersion(client, row, expected, fields);
+  await requireRowVersion(client, FUEL_ENTITY, row, expected, fields);
   if (fields.length === 0) return fuelRow(ctx, id);
   const before = imageOf(row);
   const locationId = row.location_id;
@@ -631,7 +620,7 @@ export type HeldReading = {
 export async function deleteFuel(ctx: Ctx, id: string, expected: number): Promise<{ undo: Undo }> {
   const { client } = ctx;
   const row = await changeableEntry(ctx, id);
-  await requireVersion(client, row, expected, []);
+  await requireRowVersion(client, FUEL_ENTITY, row, expected, []);
   const image = imageOf(row);
   const attachments = await heldAttachments(client, 'fuel_entry_id', id);
   if (row.cost !== null || attachments.some((a) => (MONEY_ROLES as string[]).includes(a.role))) {

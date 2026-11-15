@@ -1,7 +1,7 @@
 /**
  * One printed label (D120, D134), the only way a label is drawn in HTML: the print sheet uses it
  * at its millimetre size, and the builder's sheet preview uses the same component, scaled down.
- * The QR of `<public-url>/l/<code>` with its quiet zone, the code large in Plex Mono, then the
+ * The QR of `<public-url>/l/<code>`, or of the code alone (qr.ts), with its quiet zone, the code large in Plex Mono, then the
  * name and where it lives. Always black on white, whatever the theme: it is paper. The code is
  * the chip's printed form (7KQ‑4MZ, a non-breaking hyphen) and stays left to right in every
  * language (D143); the name and place take their own direction (`dir=auto`) and the browser
@@ -21,7 +21,7 @@ import { useMemo } from 'react';
 import type { LabelCellContent } from '@/api/capture/types';
 import { FIT_LINE_HEIGHT, type FittedText, fitLabel, type TextMeasure } from './fit';
 import { CODE_TRACKING, cellMetrics, LABEL_MONO, LABEL_SANS, mm, PLACE_INK } from './layout';
-import { type Encode, qrMatrix, qrPath } from './qr';
+import { type Encode, qrMatrix, qrPath, qrValue, useQrContent } from './qr';
 
 export function LabelCell({
   label,
@@ -37,11 +37,12 @@ export function LabelCell({
   measure: TextMeasure;
 }) {
   const m = cellMetrics(stock);
+  const value = qrValue(label, useQrContent());
   const qr = useMemo(() => {
     if (!encode || m.qr === 0) return null;
-    const matrix = qrMatrix(encode, label.url);
+    const matrix = qrMatrix(encode, value);
     return { d: qrPath(matrix), n: matrix.length };
-  }, [encode, label.url, m.qr]);
+  }, [encode, value, m.qr]);
   const fit = useMemo(
     () => fitLabel(stock, { name: label.name, path: label.path }, measure),
     [stock, label.name, label.path, measure],
