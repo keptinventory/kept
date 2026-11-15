@@ -11,6 +11,7 @@ const LANGUAGES = [
 ];
 /** One more language: its names come from Intl, so nothing here needs an entry for it. */
 const WITH_UKRAINIAN = [...LANGUAGES, { id: 'uk', name: 'Українська' }];
+const WITH_CHINESE = [...LANGUAGES, { id: 'zh', name: '简体中文' }];
 
 function find(query: string, interfaceTag = 'en', languages = LANGUAGES): string[] {
   return findLanguages(languageSearch(languages, interfaceTag), query).map((l) => l.id);
@@ -49,6 +50,10 @@ describe('findLanguages', () => {
   it('finds by the start of a name, for a language the list did not have before', () => {
     expect(find('ukr', 'en', WITH_UKRAINIAN)).toEqual(['uk']);
     expect(find('укр', 'en', WITH_UKRAINIAN)).toEqual(['uk']);
+    expect(find('中文', 'en', WITH_CHINESE)).toEqual(['zh']);
+    expect(find('简体', 'en', WITH_CHINESE)).toEqual(['zh']);
+    expect(find('chinese', 'en', WITH_CHINESE)).toEqual(['zh']);
+    expect(find('simplified', 'en', WITH_CHINESE)).toEqual(['zh']);
     expect(find('ger')).toEqual(['de']);
     expect(find('viet')).toEqual(['vi']);
   });

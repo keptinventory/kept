@@ -673,6 +673,17 @@ describe('the readable copy', () => {
     expect(index).toContain('Copia legible');
   });
 
+  it('takes a Simplified Chinese reader’s export, and writes its readable copy in Chinese (#532)', async () => {
+    const { id, outcome } = await exported(ibrahim, {
+      scope: { locationId: home.id },
+      options: { locale: 'zh', pdf: false, history: false },
+    });
+    expect(outcome.status, JSON.stringify(outcome)).toBe('done');
+    const index = text(await zipOf(id), 'readable/index.html');
+    expect(index).toContain('<html lang="zh" dir="ltr">');
+    expect(index).toContain('可读副本');
+  });
+
   it('holds more than the report cap, says why there is no PDF, and lists every thing', async () => {
     const big = await createLocation(t, db, ibrahim, 'essentials', 'Warehouse');
     await own(

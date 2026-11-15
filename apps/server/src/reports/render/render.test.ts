@@ -106,11 +106,11 @@ async function jobDir(n: number): Promise<string> {
 }
 
 describe('fonts', () => {
-  it('converts the eight faces the template asks for, WOFF to TTF byte-exact', async () => {
+  it('converts the eleven faces the template asks for, WOFF to TTF byte-exact', async () => {
     const { readFile } = await import('node:fs/promises');
     const { existsSync } = await import('node:fs');
     await (await import('./fonts.js')).ensureFonts();
-    expect(FONT_FILES).toHaveLength(8);
+    expect(FONT_FILES).toHaveLength(11);
     for (const f of FONT_FILES) expect(existsSync(path.join(fontDir(), f)), f).toBe(true);
     const ttf = await readFile(path.join(fontDir(), 'IBMPlexSansArabic-Regular.ttf'));
     expect(ttf.readUInt32BE(0)).toBe(0x00010000); // TrueType

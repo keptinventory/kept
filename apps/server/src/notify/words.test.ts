@@ -27,6 +27,7 @@ const NAMES: Record<MailLocale, { thing: string; path: string; location: string 
   it: { thing: 'Trapano', path: 'Garage › Scaffale', location: 'Casa' },
   uk: { thing: 'Дриль', path: 'Гараж › Полиця', location: 'Дім' },
   vi: { thing: 'Máy khoan', path: 'Nhà xe › Kệ', location: 'Nhà' },
+  zh: { thing: '电钻', path: '车库 › 置物架', location: '家' },
 };
 
 function facts(locale: MailLocale, f: Partial<ReminderFacts>): ReminderFacts {
@@ -162,6 +163,8 @@ describe('reminder wording', () => {
     expect(REMINDER_COUNT.de(2)).toBe('2 Erinnerungen');
     expect(REMINDER_COUNT.vi(1)).toBe('1 lời nhắc');
     expect(REMINDER_COUNT.vi(5)).toBe('5 lời nhắc');
+    expect(REMINDER_COUNT.zh(1)).toBe('1 条提醒');
+    expect(REMINDER_COUNT.zh(5)).toBe('5 条提醒');
     expect(REMINDER_COUNT.es(1)).toBe('1 recordatorio');
     expect(REMINDER_COUNT.es(2)).toBe('2 recordatorios');
     // Ukrainian: 1 and 21 take one form, 2 to 4 another that reads the same, 5 and 11 the third.

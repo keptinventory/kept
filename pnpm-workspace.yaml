@@ -7,6 +7,7 @@ allowBuilds:
   '@ibm/plex-mono': false
   '@ibm/plex-sans': false
   '@ibm/plex-sans-arabic': false
+  '@ibm/plex-sans-sc': false
   esbuild: true
 minimumReleaseAgeExclude:
   - '@types/node@26.6.3'

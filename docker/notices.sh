@@ -18,6 +18,7 @@ node /notices/bin/third-party-notices.mjs \
   --restic-version "$(restic version | cut -d' ' -f2)" \
   --extra "IBM Plex Sans (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexSans-OFL.txt" \
   --extra "IBM Plex Sans Arabic (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexSansArabic-OFL.txt" \
+  --extra "IBM Plex Sans SC (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexSansSC-OFL.txt" \
   --extra "IBM Plex Mono (the inventory report's font)|OFL-1.1|/notices/fonts/IBMPlexMono-OFL.txt" \
   --extra "Poly Haven models (the location map's furniture, plants and AC units)|CC0-1.0|/notices/map-models-NOTICE.txt" \
   --version "$1" --arch "$2" \

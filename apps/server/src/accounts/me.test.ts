@@ -196,7 +196,7 @@ describe('GET /api/v1/me', () => {
       ).rowCount,
     ).toBe(1);
 
-    for (const locale of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
+    for (const locale of ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh']) {
       const ok = await call(t, '/api/v1/me', { as: me, method: 'PATCH', body: { locale } });
       expect(ok.statusCode, locale).toBe(200);
     }

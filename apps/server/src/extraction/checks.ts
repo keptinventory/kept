@@ -175,7 +175,7 @@ const cap = (s: string, max: number) => s.trim().slice(0, max).trim();
 
 /** What a model writes instead of leaving a field out (a real run, 2026-09-29: "N/A" at 0.95). */
 const PLACEHOLDER =
-  /^(?:n\/?a|none|null|nil|unknown|not (?:printed|shown|visible|available|applicable)|no warranty(?: terms)?|-+|—|غير متوفر|لا يوجد)$/i;
+  /^(?:n\/?a|none|null|nil|unknown|not (?:printed|shown|visible|available|applicable)|no warranty(?: terms)?|-+|—|غير متوفر|لا يوجد|无|未知|未标明)$/i;
 
 /**
  * Warranty terms (D55) must be about a warranty: the evaluation run (Groq, 2026-09-29) kept
@@ -184,9 +184,10 @@ const PLACEHOLDER =
  * word in one of Kept's languages; "no warranty" in any of them, and text that talks about
  * the model or its instructions, are not terms.
  */
-const WARRANTY_WORD = /warrant|guarant|ضمان|garanti|gewahrleist|garanzi|гаранті|bao hanh/;
+const WARRANTY_WORD =
+  /warrant|guarant|ضمان|garanti|gewahrleist|garanzi|гаранті|bao hanh|保修|质保|联保|三包/;
 const WARRANTY_NONE =
-  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewahrleistung)|senza garanzia|sin garantia|no hay garantia|без гарантіі|немає гарантіі|khong (?:co )?bao hanh)[.!]?$/;
+  /^(?:none(?: printed)?|no (?:warranty|guarantee)(?: terms)?(?: printed)?|without (?:a )?(?:warranty|guarantee)|بدون ضمان|لا يوجد ضمان|sans garantie|ohne (?:garantie|gewahrleistung)|senza garanzia|sin garantia|no hay garantia|без гарантіі|немає гарантіі|khong (?:co )?bao hanh|无保修|没有保修|无质保|不含保修|不提供保修)[.。!！]?$/;
 const PROMPT_ECHO = /\b(?:the model|instructions?|this field|leave it out|json)\b/i;
 
 /** Lower case with the marks off, so terms read the same in capitals, typed without accents, or in
@@ -290,14 +291,16 @@ const SCRIPT_OF: Readonly<Record<string, Script>> = Object.freeze({
   bg: 'Cyrillic',
   el: 'Greek',
   he: 'Hebrew',
+  zh: 'Han',
 });
-type Script = 'Latin' | 'Arabic' | 'Cyrillic' | 'Greek' | 'Hebrew';
+type Script = 'Latin' | 'Arabic' | 'Cyrillic' | 'Greek' | 'Hebrew' | 'Han';
 const IN_SCRIPT: Readonly<Record<Script, RegExp>> = {
   Latin: /\p{Script=Latin}/u,
   Arabic: /\p{Script=Arabic}/u,
   Cyrillic: /\p{Script=Cyrillic}/u,
   Greek: /\p{Script=Greek}/u,
   Hebrew: /\p{Script=Hebrew}/u,
+  Han: /\p{Script=Han}/u,
 };
 const LETTER = /\p{L}/u;
 /** Letters no script owns: the Arabic tatweel, the Japanese long mark… */

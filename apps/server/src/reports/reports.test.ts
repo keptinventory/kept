@@ -473,6 +473,12 @@ describe('the report job and GET /api/v1/reports/:id', () => {
     }
     expect(itText).toContain('1.250,50 EGP');
     expect(itText).not.toContain('Inventory report');
+    const zh = await report(ann, { scope: { locationId: home.id }, locale: 'zh' });
+    await out('report-zh.pdf', zh.pdf);
+    const zhText = pdfText(zh.pdf);
+    for (const s of ['物品清单报告', '目录', '序列号： SN-TV-0001', tvCode]) {
+      expect(zhText, s).toContain(s);
+    }
   });
 
   it('includes ended and trashed things only when asked', async () => {

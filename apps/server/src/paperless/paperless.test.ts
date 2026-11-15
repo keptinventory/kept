@@ -339,6 +339,10 @@ describe('the Paperless client', () => {
     expect(kindOf('Bảo hành máy khoan', [])).toBe('warranty_doc');
     expect(kindOf('Sách hướng dẫn', [])).toBe('manual');
     expect(kindOf('Biên lai', [])).toBe('receipt');
+    expect(kindOf('冰箱电子发票', [])).toBe('invoice');
+    expect(kindOf('电钻保修卡', [])).toBe('warranty_doc');
+    expect(kindOf('洗衣机说明书', [])).toBe('manual');
+    expect(kindOf('超市购物小票', [])).toBe('receipt');
   });
 
   it("doesn't take one syllable of a Vietnamese word for the word", () => {

@@ -23,7 +23,7 @@
   amber-ink: rgb("#2E2100"), amber-text: rgb("#8A5700"), danger: rgb("#B42318"),
   dots: rgb("#A8A399"),
 )
-#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic") }
+#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans", "IBM Plex Sans SC") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic", "IBM Plex Sans SC") }
 #let mono = "IBM Plex Mono"
 #let sfx = (w) => if w == 600 { " SmBld" } else if w == 500 { " Medm" } else { "" }
 #let W(w) = sans.map(f => f + sfx(w))

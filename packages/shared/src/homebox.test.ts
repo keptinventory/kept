@@ -131,6 +131,11 @@ describe('looksLikeBox', () => {
     'Thùng đồ',
     'Giỏ đồ chơi',
     'Vật chứa xanh',
+    '箱 01',
+    '1号箱',
+    '纸箱 2',
+    '厨房收纳箱',
+    '玩具收纳筐',
   ])('reads %s as a box', (name) => {
     expect(looksLikeBox(name)).toBe(true);
   });
@@ -168,6 +173,10 @@ describe('looksLikeBox', () => {
     'Tủ',
     'Vật dụng',
     'Phòng chứa',
+    '厨房',
+    '抽屉 2', // a drawer
+    '冰箱', // a fridge, not a box
+    '保险箱', // a safe
   ])('reads %s as a place', (name) => {
     expect(looksLikeBox(name)).toBe(false);
   });

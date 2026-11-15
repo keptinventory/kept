@@ -5,11 +5,12 @@ import path from 'node:path';
 import { inflateSync } from 'node:zlib';
 import { packageRoot } from '../../package-root.js';
 
-// The report's fonts (D201): IBM Plex Sans, Sans Arabic and Mono, the fonts the web
-// ships. Typst reads only TTF/OTF, and IBM publishes Plex on npm as WOFF/WOFF2 only, so the eight
+// The report's fonts (D201): IBM Plex Sans, Sans Arabic, Sans SC and Mono.
+// Typst reads only TTF/OTF, and IBM publishes Plex on npm as WOFF/WOFF2 only, so the eleven
 // faces the template uses are converted at build time (`pnpm --filter @kept/server build` runs
 // build-assets.ts) from the pinned devDependencies @ibm/plex-sans@1.1.0,
-// @ibm/plex-sans-arabic@1.1.0 and @ibm/plex-mono@2.5.0 into `assets/fonts/`, with the OFL text.
+// @ibm/plex-sans-arabic@1.1.0, @ibm/plex-sans-sc@1.1.0 and @ibm/plex-mono@2.5.0 into
+// `assets/fonts/`, with the OFL text.
 // They are generated, not committed: the repository stays free of binaries, the versions are the
 // lockfile's, and check-licences.mjs sees them like any dependency. The image copies the
 // directory (Dockerfile); in the repo, a test or a dev server that finds it empty generates it
@@ -19,6 +20,7 @@ import { packageRoot } from '../../package-root.js';
 const FACES = [
   ['@ibm/plex-sans', 'IBMPlexSans', ['Regular', 'Medium', 'SemiBold']],
   ['@ibm/plex-sans-arabic', 'IBMPlexSansArabic', ['Regular', 'Medium', 'SemiBold']],
+  ['@ibm/plex-sans-sc', 'IBMPlexSansSC', ['Regular', 'Medium', 'SemiBold']],
   ['@ibm/plex-mono', 'IBMPlexMono', ['Regular', 'SemiBold']],
 ] as const;
 
@@ -94,7 +96,7 @@ export function woffToSfnt(woff: Buffer): Buffer {
 
 const hasAll = (dir: string) => FONT_FILES.every((f) => existsSync(path.join(dir, f)));
 
-/** Converts the eight faces from the @ibm/plex-* packages into `dir`, with the OFL text. Each
+/** Converts the eleven faces from the @ibm/plex-* packages into `dir`, with the OFL text. Each
  * file is written under a temp name and renamed, so a reader never sees half a font. */
 export async function buildFonts(dir: string = fontDir()): Promise<void> {
   const require = createRequire(import.meta.url);
@@ -102,8 +104,11 @@ export async function buildFonts(dir: string = fontDir()): Promise<void> {
   for (const [pkg, base, weights] of FACES) {
     const root = path.dirname(require.resolve(`${pkg}/package.json`));
     for (const w of weights) {
+      const direct = path.join(root, 'fonts', 'complete', 'woff', `${base}-${w}.woff`);
       const woff = await readFile(
-        path.join(root, 'fonts', 'complete', 'woff', `${base}-${w}.woff`),
+        existsSync(direct)
+          ? direct
+          : path.join(root, 'fonts', 'complete', 'woff', 'hinted', `${base}-${w}.woff`),
       );
       const dest = path.join(dir, `${base}-${w}.ttf`);
       const tmp = `${dest}.${process.pid}.tmp`;
@@ -116,7 +121,7 @@ export async function buildFonts(dir: string = fontDir()): Promise<void> {
 
 let ready: Promise<string> | null = null;
 
-/** The font directory, with the eight TTFs in it: generated once from node_modules when missing
+/** The font directory, with the eleven TTFs in it: generated once from node_modules when missing
  * (the repo), a FontsMissingError when they can't be (an image built without them). */
 export function ensureFonts(dir: string = fontDir()): Promise<string> {
   if (hasAll(dir)) return Promise.resolve(dir);

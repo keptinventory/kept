@@ -7,10 +7,10 @@ import {
 } from './builtin-names.js';
 import { BUILTIN_TYPES } from './builtin-types.js';
 
-const MORE = ['de', 'es', 'fr', 'it', 'uk', 'vi'] as const;
+const MORE = ['de', 'es', 'fr', 'it', 'uk', 'vi', 'zh'] as const;
 
 describe('built-in names in every language that has them', () => {
-  it('names every built-in type and field in French, German, Italian, Spanish, Ukrainian and Vietnamese', () => {
+  it('names every built-in type and field in French, German, Italian, Simplified Chinese, Spanish, Ukrainian and Vietnamese', () => {
     const typeKeys = BUILTIN_TYPES.map((t) => t.key).sort();
     const fieldKeys = [...new Set(BUILTIN_TYPES.flatMap((t) => t.fields.map((f) => f.key)))].sort();
     expect(Object.keys(BUILTIN_TYPE_NAMES_MORE).sort()).toEqual(typeKeys);
@@ -35,6 +35,8 @@ describe('built-in names in every language that has them', () => {
     expect(builtinTypeName('furniture', 'es')).toBe('Muebles');
     expect(builtinTypeName('furniture', 'vi')).toBe('Nội thất');
     expect(builtinFieldName('voltage', 'vi')).toBe('Điện áp');
+    expect(builtinTypeName('furniture', 'zh')).toBe('家具');
+    expect(builtinFieldName('voltage', 'zh')).toBe('电压');
     expect(builtinTypeName('no_such_type', 'it')).toBeUndefined();
     expect(builtinFieldName('no_such_field', 'en')).toBeUndefined();
   });

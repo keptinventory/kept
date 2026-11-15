@@ -103,6 +103,7 @@ describe('the PDF words', () => {
           !k.startsWith('vehicle.units.') && k !== 'vehicle.mpg()' && k !== 'vehicle.miPerKwh()',
       ),
       vi: shared,
+      zh: shared,
     };
     for (const l of REPORT_LOCALES) {
       const words = leaves(PDF_WORDS[l]);
@@ -152,11 +153,13 @@ describe('the PDF words', () => {
     ]);
     expect([1, 2].map((n) => count('it', n))).toEqual(['1 oggetto', '2 oggetti']);
     expect([1, 2].map((n) => count('vi', n))).toEqual(['1 đồ vật', '2 đồ vật']);
+    expect([1, 2].map((n) => count('zh', n))).toEqual(['1 件物品', '2 件物品']);
   });
 
   it('takes the language of a tag, and English for one Kept doesn’t speak', () => {
     expect(reportLocaleOf('fr-CA')).toBe('fr');
     expect(reportLocaleOf('uk_UA')).toBe('uk');
+    expect(reportLocaleOf('zh-CN')).toBe('zh');
     expect(reportLocaleOf('AR-eg')).toBe('ar');
     expect(reportLocaleOf('pt-BR')).toBe('en');
     expect(reportLocaleOf(null)).toBe('en');
@@ -562,6 +565,11 @@ describe('the views', () => {
     expect(fr.places.find((p) => p.pathText === 'Hall')?.count).toBe('2 objets');
     expect(inventory('uk').places.find((p) => p.pathText === 'Hall')?.count).toBe('2 речі');
     expect(inventory('uk').generatedLine).toMatch(/^Створено: Bruce, 26 вересня 2026/);
+    const zh = inventory('zh');
+    expect(zh.colon).toBe('：');
+    expect(zh.labels.title).toBe('物品清单报告');
+    expect(zh.filters).toContain('位置：Kitchen, Hall');
+    expect(zh.places.find((p) => p.pathText === 'Hall')?.count).toBe('2 件物品');
     const ins = insurance('es');
     expect(ins.labels.title).toBe('Reporte de seguro');
     expect(ins.incident).toEqual({

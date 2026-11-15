@@ -462,7 +462,7 @@ export type VehicleHistoryReportBody = {
   from?: string;
   to?: string;
   include?: { costs?: boolean; proofPhotos?: boolean; fuel?: boolean; documents?: boolean };
-  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+  locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
   digits?: 'western' | 'eastern';
 };
 export type VehicleHistoryReportCreated = ReportCreated;

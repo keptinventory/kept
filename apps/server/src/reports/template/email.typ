@@ -6,7 +6,7 @@
 // an Arabic receipt reads right to left.
 #let d = json("/data.json")
 #let c = (paper: rgb("#FBFAF7"), ink: rgb("#1C1B19"), ink2: rgb("#55524C"), line: rgb("#DEDBD3"))
-#let sans = ("IBM Plex Sans", "IBM Plex Sans Arabic")
+#let sans = ("IBM Plex Sans", "IBM Plex Sans Arabic", "IBM Plex Sans SC")
 
 #set document(title: d.subject)
 #set text(font: sans, size: 9.5pt, fill: c.ink, hyphenate: false)

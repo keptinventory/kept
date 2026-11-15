@@ -279,6 +279,9 @@ importers:
       '@ibm/plex-sans-arabic':
         specifier: 1.1.0
         version: 1.1.0
+      '@ibm/plex-sans-sc':
+        specifier: 1.1.0
+        version: 1.1.0
       '@modelcontextprotocol/client':
         specifier: 2.3.1
         version: 2.3.1
@@ -1573,6 +1576,9 @@ packages:
 
   '@ibm/plex-sans-arabic@1.1.0':
     resolution: {integrity: sha512-u8wIS6szLAOFvlBjCFZmtpKIqbhuIuniG2N0J+sio8vV6INH58hP0t0QNYrSl9SZtCv2Fwb4oQGuZJY3kJ4+QA==}
+
+  '@ibm/plex-sans-sc@1.1.0':
+    resolution: {integrity: sha512-IkhORwgw/CrsUss7uW9Rj6KKSsGQoIyIaNWjjju/7sV7SYS3yk0c/DgZN/leIG3Co5lN/X4Or/sQaL+SdvmSIg==}
 
   '@ibm/plex-sans@1.1.0':
     resolution: {integrity: sha512-WPgvO6Yfj2w5YbhyAr1tv95RUz4LRJlqN+CmYvBglabXteufP1D1E9BABMde+ZIKdRbFJDoKF5eQzfhpnbgZcQ==}
@@ -7270,6 +7276,10 @@ snapshots:
       '@ibm/telemetry-js': 1.11.0
 
   '@ibm/plex-sans-arabic@1.1.0':
+    dependencies:
+      '@ibm/telemetry-js': 1.11.0
+
+  '@ibm/plex-sans-sc@1.1.0':
     dependencies:
       '@ibm/telemetry-js': 1.11.0
 

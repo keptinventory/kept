@@ -297,6 +297,8 @@ describe('formatAmount round-trips through parseAmount in every language (#474)'
     'it',
     'uk',
     'vi',
+    'zh',
+    'zh-CN',
   ];
   const amounts = ['0', '0.5', '1.234', '12.345', '1234', '12345.6789', '999999999999.9999'];
   it.each(tags)('%s', (locale) => {
