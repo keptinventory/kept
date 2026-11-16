@@ -29320,3 +29320,23 @@ msgstr "An owner or admin turns them on in a location's What to track."
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Counts are off here: this lists the box checks."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "The QR code holds"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "The link"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Any phone camera opens it."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "The code only"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "A smaller QR code. Scan it with Kept’s scanner."

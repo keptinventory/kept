@@ -29320,3 +29320,23 @@ msgstr "Ein Eigentümer oder Admin schaltet sie unter „Was erfasst wird“ ein
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Zählungen sind hier aus: Diese Liste zeigt die Kistenchecks."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "Der QR-Code enthält"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "Den Link"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Jede Handykamera öffnet ihn."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "Nur den Code"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "Ein kleinerer QR-Code. Scanne ihn mit dem Scanner von Kept."
