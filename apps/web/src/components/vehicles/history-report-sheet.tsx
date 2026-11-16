@@ -18,7 +18,7 @@ import { isApiError } from '@/api/client';
 import { vehiclesApi } from '@/api/vehicles/queries';
 import type { VehicleHistoryReportBody } from '@/api/vehicles/types';
 import { DocumentIcon } from '@/components/icons';
-import { LanguageSelect } from '@/components/languages';
+import { LanguageSelect, SERVER_LANGUAGES } from '@/components/languages';
 import { Notice, useErrorText } from '@/components/page';
 import { ReportProgress, reportFilenameOf } from '@/components/reports/progress';
 import { accessOf } from '@/components/schedules/access';
@@ -30,7 +30,7 @@ import { DialogFooter } from '@/components/ui/dialog';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
 import { useOnline } from '@/lib/online';
-import { type Locale, usePrefs } from '@/lib/prefs';
+import { type ServerLocale, serverLocale, usePrefs } from '@/lib/prefs';
 
 /** The shared PDF's name (inferred: the server's `filenameOf` names only the inventory and
  * insurance kinds so far; T15 decides the vehicle one). */
@@ -82,7 +82,7 @@ function ReportForm({ onClose }: { onClose: () => void }) {
   const [photos, setPhotos] = useState(true);
   const [fuel, setFuel] = useState(fuelOn);
   const [documents, setDocuments] = useState(true);
-  const [locale, setLocale] = useState<Locale>(prefs.locale);
+  const [locale, setLocale] = useState<ServerLocale>(serverLocale(prefs.locale));
   const [error, setError] = useState<string | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
 
@@ -211,7 +211,12 @@ function ReportForm({ onClose }: { onClose: () => void }) {
           )}
         </p>
       </fieldset>
-      <LanguageSelect label={t`Language`} value={locale} onChange={setLocale} />
+      <LanguageSelect
+        label={t`Language`}
+        value={locale}
+        onChange={setLocale}
+        languages={SERVER_LANGUAGES}
+      />
       {start.error ? <Notice tone="danger">{startError(start.error)}</Notice> : null}
       {online ? null : (
         <p className="m-0 text-small text-ink-2">

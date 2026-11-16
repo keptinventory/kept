@@ -11,13 +11,13 @@ import { useState } from 'react';
 import { isApiError } from '@/api/client';
 import { movingApi } from '@/api/moving/queries';
 import type { ContentsSheetsBody, Move } from '@/api/moving/types';
-import { LanguageSelect } from '@/components/languages';
+import { LanguageSelect, SERVER_LANGUAGES } from '@/components/languages';
 import { Notice, useErrorText } from '@/components/page';
 import { ReportProgress, reportFilenameOf } from '@/components/reports/progress';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { useOnline } from '@/lib/online';
-import { type Locale, usePrefs } from '@/lib/prefs';
+import { type ServerLocale, serverLocale, usePrefs } from '@/lib/prefs';
 import { SheetsPrinted } from './sheets-printed';
 
 const filename = reportFilenameOf('contents-sheets');
@@ -34,7 +34,7 @@ export default function SheetsForm({ onClose, move, containerIds }: SheetsFormPr
   const prefs = usePrefs();
   const online = useOnline();
   const errorText = useErrorText();
-  const [locale, setLocale] = useState<Locale>(prefs.locale);
+  const [locale, setLocale] = useState<ServerLocale>(serverLocale(prefs.locale));
   const [runId, setRunId] = useState<string | null>(null);
   const body = (): ContentsSheetsBody => ({
     moveId: move.id,
@@ -94,7 +94,12 @@ export default function SheetsForm({ onClose, move, containerIds }: SheetsFormPr
           <Trans>Add a box first.</Trans>
         </Notice>
       ) : null}
-      <LanguageSelect label={t`Language`} value={locale} onChange={setLocale} />
+      <LanguageSelect
+        label={t`Language`}
+        value={locale}
+        onChange={setLocale}
+        languages={SERVER_LANGUAGES}
+      />
       {start.error ? <Notice tone="danger">{startError(start.error)}</Notice> : null}
       {online ? null : (
         <p className="m-0 text-small text-ink-2">

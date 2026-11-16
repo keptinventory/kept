@@ -4,7 +4,7 @@
  */
 import { BUILTIN_TYPES, builtinType } from './builtin-types.js';
 
-export type BuiltinNameLocale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+export type BuiltinNameLocale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
 type More = {
   readonly de: string;
   readonly es: string;
@@ -12,6 +12,7 @@ type More = {
   readonly it: string;
   readonly uk: string;
   readonly vi: string;
+  readonly zh: string;
 };
 
 export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
@@ -22,6 +23,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Dispositivo',
     uk: 'Пристрій',
     vi: 'Thiết bị',
+    zh: '设备',
   },
   furniture: {
     de: 'Möbel',
@@ -30,6 +32,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Mobili',
     uk: 'Меблі',
     vi: 'Nội thất',
+    zh: '家具',
   },
   appliance: {
     de: 'Haushaltsgerät',
@@ -38,6 +41,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Elettrodomestico',
     uk: 'Побутова техніка',
     vi: 'Đồ gia dụng',
+    zh: '家电',
   },
   large_appliance: {
     de: 'Großgerät',
@@ -46,6 +50,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Grande elettrodomestico',
     uk: 'Велика побутова техніка',
     vi: 'Đồ gia dụng lớn',
+    zh: '大家电',
   },
   small_appliance: {
     de: 'Kleingerät',
@@ -54,6 +59,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Piccolo elettrodomestico',
     uk: 'Дрібна побутова техніка',
     vi: 'Đồ gia dụng nhỏ',
+    zh: '小家电',
   },
   electronics: {
     de: 'Elektronik',
@@ -62,6 +68,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Elettronica',
     uk: 'Електроніка',
     vi: 'Đồ điện tử',
+    zh: '电子设备',
   },
   phone: {
     de: 'Telefon',
@@ -70,6 +77,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Telefono',
     uk: 'Телефон',
     vi: 'Điện thoại',
+    zh: '手机',
   },
   tablet: {
     de: 'Tablet',
@@ -78,6 +86,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Tablet',
     uk: 'Планшет',
     vi: 'Máy tính bảng',
+    zh: '平板电脑',
   },
   computer: {
     de: 'Computer',
@@ -86,6 +95,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Computer',
     uk: 'Комп’ютер',
     vi: 'Máy tính',
+    zh: '电脑',
   },
   tv_display: {
     de: 'TV / Bildschirm',
@@ -94,6 +104,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'TV / schermo',
     uk: 'Телевізор / екран',
     vi: 'TV / màn hình',
+    zh: '电视 / 显示屏',
   },
   network_device: {
     de: 'Netzwerkgerät',
@@ -102,6 +113,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Dispositivo di rete',
     uk: 'Мережевий пристрій',
     vi: 'Thiết bị mạng',
+    zh: '网络设备',
   },
   camera: {
     de: 'Kamera',
@@ -110,6 +122,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Fotocamera',
     uk: 'Камера',
     vi: 'Máy ảnh',
+    zh: '相机',
   },
   console: {
     de: 'Spielkonsole',
@@ -118,8 +131,9 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Console',
     uk: 'Ігрова консоль',
     vi: 'Máy chơi game',
+    zh: '游戏主机',
   },
-  cable: { de: 'Kabel', es: 'Cable', fr: 'Câble', it: 'Cavo', uk: 'Кабель', vi: 'Cáp' },
+  cable: { de: 'Kabel', es: 'Cable', fr: 'Câble', it: 'Cavo', uk: 'Кабель', vi: 'Cáp', zh: '线缆' },
   charger: {
     de: 'Ladegerät / Netzteil',
     es: 'Cargador / fuente de alimentación',
@@ -127,6 +141,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Caricatore / alimentatore',
     uk: 'Зарядний пристрій / блок живлення',
     vi: 'Bộ sạc / nguồn',
+    zh: '充电器 / 电源',
   },
   tool: {
     de: 'Werkzeug',
@@ -135,6 +150,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Attrezzo',
     uk: 'Інструмент',
     vi: 'Dụng cụ',
+    zh: '工具',
   },
   power_tool: {
     de: 'Elektrowerkzeug',
@@ -143,6 +159,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Elettroutensile',
     uk: 'Електроінструмент',
     vi: 'Dụng cụ điện',
+    zh: '电动工具',
   },
   box_bin: {
     de: 'Kiste / Box',
@@ -151,6 +168,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Scatola / contenitore',
     uk: 'Коробка / контейнер',
     vi: 'Hộp / thùng',
+    zh: '箱 / 盒',
   },
   safe: {
     de: 'Tresor',
@@ -159,6 +177,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Cassaforte',
     uk: 'Сейф',
     vi: 'Két sắt',
+    zh: '保险柜',
   },
   vehicle: {
     de: 'Fahrzeug',
@@ -167,9 +186,10 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Veicolo',
     uk: 'Транспортний засіб',
     vi: 'Xe',
+    zh: '车辆',
   },
-  car: { de: 'Auto', es: 'Coche', fr: 'Voiture', it: 'Auto', uk: 'Автомобіль', vi: 'Ô tô' },
-  motorbike: { de: 'Motorrad', es: 'Moto', fr: 'Moto', it: 'Moto', uk: 'Мотоцикл', vi: 'Xe máy' },
+  car: { de: 'Auto', es: 'Coche', fr: 'Voiture', it: 'Auto', uk: 'Автомобіль', vi: 'Ô tô', zh: '汽车' },
+  motorbike: { de: 'Motorrad', es: 'Moto', fr: 'Moto', it: 'Moto', uk: 'Мотоцикл', vi: 'Xe máy', zh: '摩托车' },
   bicycle: {
     de: 'Fahrrad',
     es: 'Bicicleta',
@@ -177,6 +197,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Bicicletta',
     uk: 'Велосипед',
     vi: 'Xe đạp',
+    zh: '自行车',
   },
   generator: {
     de: 'Stromerzeuger',
@@ -185,6 +206,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Generatore',
     uk: 'Генератор',
     vi: 'Máy phát điện',
+    zh: '发电机',
   },
   safety_equipment: {
     de: 'Sicherheitsausrüstung',
@@ -193,6 +215,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Dispositivi di sicurezza',
     uk: 'Засоби безпеки',
     vi: 'Thiết bị an toàn',
+    zh: '安全设备',
   },
   fire_extinguisher: {
     de: 'Feuerlöscher',
@@ -201,6 +224,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Estintore',
     uk: 'Вогнегасник',
     vi: 'Bình chữa cháy',
+    zh: '灭火器',
   },
   first_aid_kit: {
     de: 'Erste-Hilfe-Set',
@@ -209,6 +233,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Kit di pronto soccorso',
     uk: 'Аптечка першої допомоги',
     vi: 'Hộp sơ cứu',
+    zh: '急救箱',
   },
   smoke_detector: {
     de: 'Rauchmelder',
@@ -217,6 +242,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Rilevatore di fumo',
     uk: 'Детектор диму',
     vi: 'Cảm biến khói',
+    zh: '烟雾报警器',
   },
   child_car_seat: {
     de: 'Kindersitz',
@@ -225,6 +251,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Seggiolino auto',
     uk: 'Дитяче автокрісло',
     vi: 'Ghế ô tô trẻ em',
+    zh: '儿童安全座椅',
   },
   valuables: {
     de: 'Wertsachen',
@@ -233,6 +260,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Oggetti di valore',
     uk: 'Цінні речі',
     vi: 'Đồ giá trị',
+    zh: '贵重物品',
   },
   collectible: {
     de: 'Sammlerstück',
@@ -241,6 +269,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Oggetto da collezione',
     uk: 'Колекційний предмет',
     vi: 'Đồ sưu tầm',
+    zh: '收藏品',
   },
   consumables: {
     de: 'Verbrauchsmaterial',
@@ -249,6 +278,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Materiali di consumo',
     uk: 'Витратні матеріали',
     vi: 'Vật tư tiêu hao',
+    zh: '耗材',
   },
   batteries: {
     de: 'Batterien',
@@ -257,6 +287,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Batterie',
     uk: 'Батарейки',
     vi: 'Pin',
+    zh: '电池',
   },
   filters: {
     de: 'Filter',
@@ -265,6 +296,7 @@ export const BUILTIN_TYPE_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Filtri',
     uk: 'Фільтри',
     vi: 'Bộ lọc',
+    zh: '滤芯',
   },
 };
 
@@ -276,6 +308,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Sistema operativo',
     uk: 'Операційна система',
     vi: 'Hệ điều hành',
+    zh: '操作系统',
   },
   os_version: {
     de: 'Systemversion',
@@ -284,6 +317,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Versione del sistema',
     uk: 'Версія системи',
     vi: 'Phiên bản hệ điều hành',
+    zh: '系统版本',
   },
   firmware: {
     de: 'Firmware',
@@ -292,6 +326,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Firmware',
     uk: 'Мікропрограма',
     vi: 'Firmware',
+    zh: '固件',
   },
   mac_address: {
     de: 'MAC-Adresse',
@@ -300,6 +335,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Indirizzo MAC',
     uk: 'MAC-адреса',
     vi: 'Địa chỉ MAC',
+    zh: 'MAC 地址',
   },
   linked_account: {
     de: 'Verknüpftes Konto oder Login',
@@ -308,6 +344,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Account collegato o login',
     uk: 'Пов’язаний обліковий запис або логін',
     vi: 'Tài khoản liên kết hoặc đăng nhập',
+    zh: '关联账户或登录',
   },
   material: {
     de: 'Material',
@@ -316,6 +353,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Materiale',
     uk: 'Матеріал',
     vi: 'Chất liệu',
+    zh: '材质',
   },
   dimensions: {
     de: 'Abmessungen',
@@ -324,8 +362,9 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Dimensioni',
     uk: 'Розміри',
     vi: 'Kích thước',
+    zh: '尺寸',
   },
-  imei: { de: 'IMEI', es: 'IMEI', fr: 'IMEI', it: 'IMEI', uk: 'IMEI', vi: 'IMEI' },
+  imei: { de: 'IMEI', es: 'IMEI', fr: 'IMEI', it: 'IMEI', uk: 'IMEI', vi: 'IMEI', zh: 'IMEI' },
   imei_2: {
     de: 'Zweite IMEI',
     es: 'Segundo IMEI',
@@ -333,6 +372,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Secondo IMEI',
     uk: 'Другий IMEI',
     vi: 'IMEI thứ hai',
+    zh: '第二 IMEI',
   },
   storage: {
     de: 'Speicher',
@@ -341,9 +381,10 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Memoria',
     uk: 'Пам’ять',
     vi: 'Bộ nhớ',
+    zh: '存储',
   },
-  cpu: { de: 'CPU', es: 'CPU', fr: 'CPU', it: 'CPU', uk: 'CPU', vi: 'CPU' },
-  ram: { de: 'RAM', es: 'RAM', fr: 'RAM', it: 'RAM', uk: 'RAM', vi: 'RAM' },
+  cpu: { de: 'CPU', es: 'CPU', fr: 'CPU', it: 'CPU', uk: 'CPU', vi: 'CPU', zh: 'CPU' },
+  ram: { de: 'RAM', es: 'RAM', fr: 'RAM', it: 'RAM', uk: 'RAM', vi: 'RAM', zh: '内存' },
   licence_key: {
     de: 'Lizenzschlüssel',
     es: 'Clave de licencia',
@@ -351,6 +392,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Chiave di licenza',
     uk: 'Ліцензійний ключ',
     vi: 'Khóa giấy phép',
+    zh: '许可证密钥',
   },
   screen_size: {
     de: 'Bildschirmgröße',
@@ -359,6 +401,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Dimensioni schermo',
     uk: 'Розмір екрана',
     vi: 'Kích thước màn hình',
+    zh: '屏幕尺寸',
   },
   wifi_password: {
     de: 'Wi-Fi-Passwort',
@@ -367,6 +410,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Password Wi-Fi',
     uk: 'Пароль Wi-Fi',
     vi: 'Mật khẩu Wi-Fi',
+    zh: 'Wi-Fi 密码',
   },
   connector_a: {
     de: 'Stecker A',
@@ -375,6 +419,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Connettore A',
     uk: 'Роз’єм A',
     vi: 'Cổng kết nối A',
+    zh: '接口 A',
   },
   connector_b: {
     de: 'Stecker B',
@@ -383,6 +428,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Connettore B',
     uk: 'Роз’єм B',
     vi: 'Cổng kết nối B',
+    zh: '接口 B',
   },
   length: {
     de: 'Länge',
@@ -391,6 +437,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Lunghezza',
     uk: 'Довжина',
     vi: 'Độ dài',
+    zh: '长度',
   },
   wattage: {
     de: 'Leistung',
@@ -399,6 +446,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Potenza',
     uk: 'Потужність',
     vi: 'Công suất',
+    zh: '功率',
   },
   connector: {
     de: 'Stecker',
@@ -407,6 +455,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Connettore',
     uk: 'Роз’єм',
     vi: 'Cổng kết nối',
+    zh: '接口',
   },
   voltage: {
     de: 'Spannung',
@@ -415,6 +464,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Tensione',
     uk: 'Напруга',
     vi: 'Điện áp',
+    zh: '电压',
   },
   battery_platform: {
     de: 'Akkusystem',
@@ -423,6 +473,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Piattaforma batteria',
     uk: 'Тип акумулятора',
     vi: 'Nền tảng pin',
+    zh: '电池平台',
   },
   combination: {
     de: 'Kombination',
@@ -431,8 +482,9 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Combinazione',
     uk: 'Комбінація',
     vi: 'Mã tổ hợp',
+    zh: '转盘锁密码',
   },
-  vin: { de: 'VIN', es: 'VIN', fr: 'VIN', it: 'VIN', uk: 'VIN', vi: 'VIN' },
+  vin: { de: 'VIN', es: 'VIN', fr: 'VIN', it: 'VIN', uk: 'VIN', vi: 'VIN', zh: 'VIN' },
   plate: {
     de: 'Kennzeichen',
     es: 'Matrícula',
@@ -440,6 +492,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Targa',
     uk: 'Номерний знак',
     vi: 'Biển số',
+    zh: '车牌号',
   },
   frame_number: {
     de: 'Rahmennummer',
@@ -448,6 +501,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Numero di telaio',
     uk: 'Номер рами',
     vi: 'Số khung',
+    zh: '车架号',
   },
   appraisal_value: {
     de: 'Schätzwert',
@@ -456,6 +510,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Valore di stima',
     uk: 'Оціночна вартість',
     vi: 'Giá trị thẩm định',
+    zh: '估值',
   },
   appraisal_date: {
     de: 'Datum der Schätzung',
@@ -464,6 +519,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Data della stima',
     uk: 'Дата оцінки',
     vi: 'Ngày thẩm định',
+    zh: '估值日期',
   },
   edition: {
     de: 'Ausgabe',
@@ -472,6 +528,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Edizione',
     uk: 'Видання',
     vi: 'Phiên bản',
+    zh: '版次',
   },
   condition_grade: {
     de: 'Erhaltungsgrad',
@@ -480,6 +537,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Stato di conservazione',
     uk: 'Стан збереження',
     vi: 'Xếp hạng tình trạng',
+    zh: '品相等级',
   },
   provenance_notes: {
     de: 'Notizen zur Herkunft',
@@ -488,8 +546,9 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Note sulla provenienza',
     uk: 'Примітки про походження',
     vi: 'Ghi chú xuất xứ',
+    zh: '来源备注',
   },
-  size: { de: 'Größe', es: 'Formato', fr: 'Format', it: 'Formato', uk: 'Формат', vi: 'Kích thước' },
+  size: { de: 'Größe', es: 'Formato', fr: 'Format', it: 'Formato', uk: 'Формат', vi: 'Kích thước', zh: '尺码' },
   chemistry: {
     de: 'Zellchemie',
     es: 'Química',
@@ -497,6 +556,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Chimica',
     uk: 'Тип елемента',
     vi: 'Thành phần hóa học',
+    zh: '电池化学体系',
   },
   fits: {
     de: 'Passend für',
@@ -505,6 +565,7 @@ export const BUILTIN_FIELD_NAMES_MORE: Readonly<Record<string, More>> = {
     it: 'Compatibile con',
     uk: 'Сумісний із',
     vi: 'Tương thích với',
+    zh: '适配对象',
   },
 };
 
