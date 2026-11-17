@@ -71,7 +71,6 @@ export const SERVER_LANGUAGES: readonly Language<ServerLocale>[] = LANGUAGES.fil
   (l): l is Language<ServerLocale> => serverLocale(l.id) === l.id,
 );
 
-
 /** A 3:2 flag, decorative: the language's name always sits beside it. */
 export function LanguageFlag({ locale, className }: { locale: Locale; className?: string }) {
   const Flag = FLAGS[locale];
