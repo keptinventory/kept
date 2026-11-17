@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { portabilityApi, portabilityKeys } from '@/api/portability/queries';
 import type { ExportOptions, ExportRun } from '@/api/portability/types';
 import type { LocationSummary } from '@/api/types';
-import { LanguageSelect } from '@/components/languages';
+import { LanguageSelect, SERVER_LANGUAGES } from '@/components/languages';
 import { Notice } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
@@ -29,7 +29,7 @@ import { servedOverHttp } from '@/lib/https';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
 import { useMyDataLocation, usePersonalName } from '@/lib/personal-name';
-import { type Digits, type Locale, usePrefs } from '@/lib/prefs';
+import { type Digits, type Locale, serverLocale, usePrefs } from '@/lib/prefs';
 import { useExportErrorText } from './labels';
 import { type Passphrase, PassphraseFields, passphraseReady } from './passphrase-field';
 
@@ -93,7 +93,7 @@ export function ExportSheet({
     aiCalls: true,
     readable: true,
     pdf: true,
-    locale: prefs.locale,
+    locale: serverLocale(prefs.locale),
     digits: prefs.digits,
     ...startOptions,
   });
@@ -203,8 +203,9 @@ export function ExportSheet({
             <div className="grid gap-3">
               <LanguageSelect
                 label={t`The readable copy's language`}
-                value={(options.locale as Locale) ?? 'en'}
+                value={serverLocale((options.locale ?? 'en') as Locale)}
                 onChange={(locale) => set({ locale })}
+                languages={SERVER_LANGUAGES}
               />
               {options.locale === 'ar' ? (
                 <Segmented<Digits>

@@ -40,7 +40,7 @@ import { canShareFiles, downloadsWork, shareFiles } from '@/lib/files';
 import { sep, useBytes, useFormat } from '@/lib/format';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
-import { usePrefs } from '@/lib/prefs';
+import { serverLocale, usePrefs } from '@/lib/prefs';
 import { downloadsAreOff } from '@/try/files';
 import { TRY } from '@/try/flag';
 import type { ReportSearch } from './insurance-report';
@@ -155,7 +155,7 @@ function StartPack({ scope, what }: { scope: CreateClaimPackBody['scope']; what:
     try {
       const created = await householdApi.createClaimPack({
         scope,
-        locale: prefs.locale,
+        locale: serverLocale(prefs.locale),
         digits: prefs.digits,
         acknowledged: true,
       });

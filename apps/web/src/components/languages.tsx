@@ -8,6 +8,7 @@
 
 import { findLanguages, languageSearch } from '@kept/shared';
 import { useLingui } from '@lingui/react/macro';
+import CN from 'country-flag-icons/react/3x2/CN';
 import DE from 'country-flag-icons/react/3x2/DE';
 import EG from 'country-flag-icons/react/3x2/EG';
 import ES from 'country-flag-icons/react/3x2/ES';
@@ -18,14 +19,21 @@ import UA from 'country-flag-icons/react/3x2/UA';
 import VN from 'country-flag-icons/react/3x2/VN';
 import { useMemo, useState } from 'react';
 import type { Key } from 'react-aria-components';
-import { directionOf, LOCALES, type Locale, localeOfTag } from '@/lib/prefs';
+import {
+  directionOf,
+  LOCALES,
+  type Locale,
+  localeOfTag,
+  type ServerLocale,
+  serverLocale,
+} from '@/lib/prefs';
 import { cn } from '@/lib/utils';
 import { Combobox, ComboboxItem } from './ui/combobox';
 
 type Flag = typeof GB;
 
 /** `label` is the list's text value, for screen readers and the box: the name in itself. */
-export type Language = { id: Locale; name: string; label: string };
+export type Language<T extends Locale = Locale> = { id: T; name: string; label: string };
 
 /** Each language's name in itself, so a reader finds theirs whatever the interface says. */
 export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
@@ -37,6 +45,7 @@ export const LANGUAGE_NAMES: Readonly<Record<Locale, string>> = {
   it: 'Italiano',
   uk: 'Українська',
   vi: 'Tiếng Việt',
+  zh: '简体中文',
 };
 
 const FLAGS: Readonly<Record<Locale, Flag>> = {
@@ -48,6 +57,7 @@ const FLAGS: Readonly<Record<Locale, Flag>> = {
   it: IT,
   uk: UA,
   vi: VN,
+  zh: CN,
 };
 
 export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({
@@ -55,6 +65,11 @@ export const LANGUAGES: readonly Language[] = LOCALES.map((id) => ({
   name: LANGUAGE_NAMES[id],
   label: LANGUAGE_NAMES[id],
 }));
+
+/** The languages the server writes mail, PDFs and readable copies in; see `serverLocale`. */
+export const SERVER_LANGUAGES: readonly Language<ServerLocale>[] = LANGUAGES.filter(
+  (l): l is Language<ServerLocale> => serverLocale(l.id) === l.id,
+);
 
 /** A 3:2 flag, decorative: the language's name always sits beside it. */
 export function LanguageFlag({ locale, className }: { locale: Locale; className?: string }) {
@@ -81,14 +96,14 @@ export function LanguageName({ locale }: { locale: Locale }) {
 }
 
 /** A Combobox filter for the languages (#450): the matcher the docs site's menu uses too. */
-function useLanguageFilter() {
+function useLanguageFilter(languages: readonly Language[]) {
   const { i18n } = useLingui();
   return useMemo(() => {
-    const search = languageSearch(LANGUAGES, i18n.locale);
+    const search = languageSearch(languages, i18n.locale);
     // React Aria hands the filter an item's text value, and own names are unique.
     return (ownName: string, query: string) =>
       findLanguages(search, query).some((language) => language.name === ownName);
-  }, [i18n.locale]);
+  }, [languages, i18n.locale]);
 }
 
 function LanguageItem({ item }: { item: Language }) {
@@ -96,42 +111,47 @@ function LanguageItem({ item }: { item: Language }) {
 }
 
 /**
- * The interface language: one choice (Settings → Me, the sign-in pages). Typing only filters the
- * list: the language changes when one is chosen, and a box left empty or with anything else in it
- * goes back to the current language's name. The box's direction stays the page's, so its text
- * doesn't jump sides when typing starts; the name's letters still run the right way.
+ * A language choice. The interface language (Settings → Me, the sign-in pages) offers every
+ * catalogue language; the report and export pickers pass `SERVER_LANGUAGES`, the languages the
+ * server writes mail, PDFs and readable copies in. Typing only filters the list: the language
+ * changes when one is chosen, and a box left empty or with anything else in it goes back to the
+ * current language's name. The box's direction stays the page's, so its text doesn't jump sides
+ * when typing starts; the name's letters still run the right way.
  */
-export function LanguageSelect({
+export function LanguageSelect<T extends Locale = Locale>({
   label,
   value,
   onChange,
+  languages = LANGUAGES as readonly Language<T>[],
   compact = false,
   className,
 }: {
   label: string;
-  value: Locale;
+  value: T;
   /** A promise says the change is still happening; it mustn't reject (say what went wrong here). */
-  onChange: (locale: Locale) => unknown;
+  onChange: (locale: T) => unknown;
+  /** The choices; defaults to every catalogue language. */
+  languages?: readonly Language<T>[];
   /** No visible label and a small box (the sign-in header); the label stays accessible. */
   compact?: boolean;
   className?: string;
 }) {
-  const filter = useLanguageFilter();
+  const filter = useLanguageFilter(languages as readonly Language[]);
   // The list closes when the selection changes, and a language can take a moment to load, or fail
   // to. Until then the box holds the choice; if the value doesn't follow, it goes back to the value.
-  const [choosing, setChoosing] = useState<Locale | null>(null);
+  const [choosing, setChoosing] = useState<T | null>(null);
   const shown = choosing ?? value;
   return (
-    <Combobox<Language>
+    <Combobox<Language<T>>
       {...(compact ? { 'aria-label': label } : { label })}
-      items={LANGUAGES}
+      items={languages}
       defaultFilter={filter}
       selectedKey={shown}
       onSelectionChange={(key) => {
         // A cleared box reports no selection: that isn't a choice.
         if (key == null || key === value) return;
-        setChoosing(key as Locale);
-        void Promise.resolve(onChange(key as Locale)).finally(() => setChoosing(null));
+        setChoosing(key as T);
+        void Promise.resolve(onChange(key as T)).finally(() => setChoosing(null));
       }}
       showsChoice
       leading={<LanguageFlag locale={shown} />}
@@ -163,7 +183,7 @@ export function LanguagesMultiSelect({
   isDisabled?: boolean;
 }) {
   const { t } = useLingui();
-  const filter = useLanguageFilter();
+  const filter = useLanguageFilter(LANGUAGES);
   const chosen = new Set(value.map(localeOfTag).filter((l): l is Locale => l !== null));
   const change = (keys: Key[]) => {
     const next = new Set(keys as Locale[]);
