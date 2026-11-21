@@ -64,6 +64,11 @@ describe('the vehicles mock', () => {
   });
 
   it('lists the vehicles in use: the Corolla fresh, the Elantra stale, the generator unknown', async () => {
+    // The fixtures' fills and the oil change's anchor are fixed dates, and "fresh", "stale" and the
+    // estimated next due are measured from today: on a fixed day, as the costs tests below are.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-10T09:00:00.000Z'));
+    use();
     const page = await api.vehicles();
     const byId = new Map(page.items.map((r) => [r.thing.id, r]));
     expect([...byId.keys()].sort()).toEqual(
