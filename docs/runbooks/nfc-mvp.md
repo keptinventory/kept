@@ -5,6 +5,9 @@ Kept's existing PostgreSQL server. A box is a Kept thing with the Box / Bin type
 Captures, photographs, PDFs, label codes and AI suggestions use Kept's original
 records and permissions.
 
+Use the [playtest cards](../test_scenarios/README.md) for exploratory browser
+and Simulator checks on disposable inventory.
+
 ## Development and installation
 
 1. Follow [local setup](../../CONTRIBUTING.md#set-up) with Node 24, the pinned pnpm,
