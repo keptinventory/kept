@@ -1289,6 +1289,13 @@
       "when": 1795420800022,
       "tag": "0183_visual_search_doors",
       "breakpoints": true
+    },
+    {
+      "idx": 184,
+      "version": "7",
+      "when": 1795443876068,
+      "tag": "0184_visual_distinct_path_ties",
+      "breakpoints": true
     }
   ]
 }

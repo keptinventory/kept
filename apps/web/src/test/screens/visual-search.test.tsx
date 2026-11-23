@@ -1,6 +1,10 @@
-import type { VisualSearchCoverage, VisualSearchMatch } from '@kept/shared';
+import {
+  VISUAL_IMAGE_MAX_BYTES,
+  type VisualSearchCoverage,
+  type VisualSearchMatch,
+} from '@kept/shared';
 import { screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
 import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS } from '@/api/mock/fixtures';
@@ -91,5 +95,62 @@ describe('visual search in the search screen', () => {
     });
     expect(mock.lastCall('POST', p.search)?.body).toEqual({ inputId: id });
     await waitFor(() => expect(mock.lastCall('DELETE', p.inputById(id))).toBeDefined());
+  });
+
+  it.each([
+    { size: 0, message: 'This file is empty.' },
+    { size: VISUAL_IMAGE_MAX_BYTES + 1, message: /Choose a photo up to/ },
+  ])(
+    'clears the previous results when rejecting a $size-byte replacement photo',
+    async ({ size, message }) => {
+      const { user, mock, container } = await renderApp('/search?q=hdmi', {
+        setup(mock) {
+          mock.on('GET', p.status, () => coverage);
+          mock.on('POST', p.search, () => ({ outcome: 'matches', coverage, matches: [match] }));
+        },
+      });
+      await user.click(await screen.findByRole('button', { name: 'Find in photos' }));
+      await screen.findByRole('list', { name: 'Possible photo matches' });
+      const chooser = container.querySelector<HTMLInputElement>('input[type="file"][accept]');
+      if (!chooser) throw new Error('Expected the photo chooser');
+      const invalid = new File([], 'replacement.png', { type: 'image/png' });
+      Object.defineProperty(invalid, 'size', { value: size });
+      await user.upload(chooser, invalid);
+      expect(await screen.findByText(message)).toBeVisible();
+      expect(
+        screen.queryByRole('list', { name: 'Possible photo matches' }),
+      ).not.toBeInTheDocument();
+      expect(mock.lastCall('POST', p.input)).toBeUndefined();
+      expect(screen.getByRole('button', { name: 'Search with a photo' })).toBeEnabled();
+    },
+  );
+
+  it('releases a photo handle that arrives after the user cancels the upload', async () => {
+    const upload = Promise.withResolvers<void>();
+    const { user, mock, container } = await renderApp('/search', {
+      setup(mock) {
+        mock.on('GET', p.status, () => coverage);
+        mock.on('POST', p.input, async () => {
+          await upload.promise;
+          return reply(201, { inputId: id, expiresAt: match.capturedAt });
+        });
+        mock.on('DELETE', p.inputById(id), () => reply(204));
+      },
+    });
+    vi.stubGlobal('fetch', (async (input, init) => {
+      const response = await mock.fetch(input, init);
+      init?.signal?.throwIfAborted();
+      return response;
+    }) satisfies typeof fetch);
+    await screen.findByRole('button', { name: 'Search with a photo' });
+    const chooser = container.querySelector<HTMLInputElement>('input[type="file"][accept]');
+    if (!chooser) throw new Error('Expected the photo chooser');
+    await user.upload(chooser, photo);
+    await waitFor(() => expect(mock.lastCall('POST', p.input)).toBeDefined());
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByRole('button', { name: 'Search with a photo' })).toBeEnabled();
+    upload.resolve();
+    await waitFor(() => expect(mock.lastCall('DELETE', p.inputById(id))).toBeDefined());
+    expect(mock.lastCall('POST', p.search)).toBeUndefined();
   });
 });

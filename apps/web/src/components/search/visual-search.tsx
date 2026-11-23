@@ -103,22 +103,30 @@ function VisualActions({ text, locationIds }: { text: string; locationIds: strin
 
   async function run(query: { text: string } | { image: File }) {
     active.current?.abort();
-    const work = new AbortController();
-    active.current = work;
-    setBusy(true);
+    active.current = null;
     setResult(undefined);
     setEvidence(undefined);
     setError(undefined);
+    if ('image' in query && (query.image.size === 0 || query.image.size > VISUAL_IMAGE_MAX_BYTES)) {
+      setBusy(false);
+      setError(
+        query.image.size === 0
+          ? t`This file is empty.`
+          : t`Choose a photo up to ${fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)} MB.`,
+      );
+      return;
+    }
+    const work = new AbortController();
+    active.current = work;
+    setBusy(true);
     const scope = locationIds ? { locationIds } : {};
     let inputId: string | undefined;
     try {
+      // Let the upload return its handle even after cancellation so we can release it.
       const input =
         'text' in query
           ? query
-          : {
-              inputId: (await visualSearchApi.upload(query.image, locationIds, work.signal))
-                .inputId,
-            };
+          : { inputId: (await visualSearchApi.upload(query.image, locationIds)).inputId };
       if ('inputId' in input) inputId = input.inputId;
       if (work.signal.aborted) return;
       const answer = await visualSearchApi.search({ ...input, ...scope }, work.signal);
@@ -150,12 +158,7 @@ function VisualActions({ text, locationIds }: { text: string; locationIds: strin
           acceptedFileTypes={IMAGE_TYPES}
           onSelect={(files) => {
             const image = files?.[0];
-            if (!image) return;
-            if (image.size > VISUAL_IMAGE_MAX_BYTES) {
-              setError(t`Choose a photo up to ${fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)} MB.`);
-              return;
-            }
-            void run({ image });
+            if (image) void run({ image });
           }}
         >
           <Button variant="secondary" isDisabled={busy}>

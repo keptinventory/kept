@@ -21,6 +21,7 @@ import {
   ok,
   own,
 } from '../../test/things.js';
+import { withScope } from '../db/scope.js';
 import { indexVisualAttachment } from './job.js';
 import { localVisualProvider, type VisualProvider } from './provider.js';
 
@@ -253,6 +254,73 @@ it('isolates photo inputs across principals, separates ambiguous locations, and 
   } finally {
     clock.mockRestore();
   }
+});
+
+it('keeps close evidence from another box when one box fills the result limit', async () => {
+  const loc = await createLocation(app, db, owner, 'household', 'Shared shelf');
+  // Distinct containers may have identical names. Their IDs decide recorded location.
+  const first = await makeBox(loc, 'Spare parts');
+  const other = await makeBox(loc, 'Spare parts');
+  for (let n = 0; n < 21; n += 1) {
+    const record = await attach(loc, await photo('red', n), `Part ${n}`, first.id);
+    await expect(index(record.attachment.id)).resolves.toBe('stored');
+  }
+  const alternate = await attach(loc, await photo('red', 21), 'Another part', other.id);
+  const nearTie = vector(0);
+  nearTie[0] = 0.98;
+  nearTie[1] = Math.sqrt(1 - 0.98 ** 2);
+  await expect(
+    index(alternate.attachment.id, owner, { ...fake, encodeImage: async () => nearTie }),
+  ).resolves.toBe('stored');
+
+  const uploaded = await input(await photo('red', 22), loc.id);
+  expect(uploaded.statusCode, uploaded.body).toBe(201);
+  const { inputId } = uploaded.json<VisualSearchInputResponse>();
+  for (const query of [{ inputId }, { text: 'mug', locationIds: [loc.id] }]) {
+    const single = await search({ ...query, limit: 1 });
+    expect(single.statusCode, single.body).toBe(200);
+    expect(single.json()).toMatchObject({ outcome: 'ambiguous', matches: [expect.any(Object)] });
+
+    for (const limit of [2, 20]) {
+      const response = await search({ ...query, limit });
+      expect(response.statusCode, response.body).toBe(200);
+      const result = response.json<VisualSearchResult>();
+      expect(result.outcome).toBe('ambiguous');
+      expect(result.matches).toHaveLength(limit);
+      expect(result.matches[0]?.path.at(-1)?.id).toBe(first.id);
+      expect(result.matches).toContainEqual(
+        expect.objectContaining({
+          thingId: alternate.item.id,
+          fileId: alternate.file.id,
+          attachmentId: alternate.attachment.id,
+          path: expect.arrayContaining([{ id: other.id, name: 'Spare parts' }]),
+        }),
+      );
+    }
+  }
+
+  const legacy = await withScope(
+    db.pools.app,
+    { userId: owner.userId, mfa: false },
+    (_tx, client) =>
+      client.query<{ thing_id: string }>(
+        'SELECT thing_id FROM kept.visual_matches($1, $2, $3, 0.58, 2)',
+        [[loc.id], fake.generation, JSON.stringify(vector(0))],
+      ),
+  );
+  expect(legacy.rows).toHaveLength(2);
+  expect(legacy.rows.map(({ thing_id }) => thing_id)).not.toContain(alternate.item.id);
+
+  nearTie[0] = 0.9;
+  nearTie[1] = Math.sqrt(1 - 0.9 ** 2);
+  await own(db, 'UPDATE public.visual_embeddings SET embedding = $1 WHERE attachment_id = $2', [
+    JSON.stringify(nearTie),
+    alternate.attachment.id,
+  ]);
+  const clear = (await search({ inputId, limit: 2 })).json<VisualSearchResult>();
+  expect(clear.outcome).toBe('matches');
+  expect(clear.matches).toHaveLength(2);
+  expect(clear.matches.every((match) => match.path.at(-1)?.id === first.id)).toBe(true);
 });
 
 it('refuses oversized and non-image query inputs before using inference', async () => {

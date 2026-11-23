@@ -453,6 +453,10 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.visual_current(uuid,uuid,uuid,text,text)': { roles: APP, definer: true },
   'kept.visual_store(uuid,uuid,uuid,text,text,vector)': { roles: APP, definer: true },
   'kept.visual_matches(uuid[],text,vector,real,integer)': { roles: APP, definer: true },
+  'kept.visual_matches(uuid[],text,vector,real,integer,double precision)': {
+    roles: APP,
+    definer: true,
+  },
   'kept.visual_attachment_changed()': { roles: NOBODY, definer: true },
   // (0099) The backfill's mark, kept_system's alone (security review S4), and the live locations
   // it visits; the editor's job's backlog row for its one thing.
@@ -2306,6 +2310,12 @@ const PROBES: Probe[] = [
   {
     name: 'visual_matches',
     sql: `SELECT * FROM kept.visual_matches(ARRAY[$1::uuid], 'visual-probe', $2::vector, 0.2, 10)`,
+    args: (_i, t) => [t.locationId, JSON.stringify([1, ...Array<number>(511).fill(0)])],
+    viewer: 'empty',
+  },
+  {
+    name: 'visual_matches with distinct path ranking',
+    sql: `SELECT * FROM kept.visual_matches(ARRAY[$1::uuid], 'visual-probe', $2::vector, 0.2, 10, 0.035)`,
     args: (_i, t) => [t.locationId, JSON.stringify([1, ...Array<number>(511).fill(0)])],
     viewer: 'empty',
   },

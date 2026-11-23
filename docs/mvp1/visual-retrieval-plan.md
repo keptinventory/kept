@@ -29,6 +29,13 @@ Run ordinary search, text-semantic search, full-image vectors, and full-image pl
 
 A match includes the record and location IDs, current containment path, source attachment and file, capture date and the cosine score used for ranking. The browser shows possible matches and recorded locations. It requests a fresh display URL from Kept's existing authorized media route when someone opens evidence. Results keep the best photo for each record. The page handles no close match, incomplete indexing, ambiguity and unavailable inference. Photo search applies location scope, and the usual search filters continue to apply to ordinary results. Searching creates no inventory records.
 
+The ranking checks for close alternatives across distinct recorded paths before
+applying the result limit. When several results are requested, one result can
+show the strongest close alternative even if one box would otherwise fill the
+list. A limit of one still reports ambiguity and returns the leading record.
+Canceling a photo query stops the search and releases the temporary input when
+the upload returns its handle.
+
 ## Run the first slice
 
 Start the [pinned loopback OpenCLIP sidecar](../../scripts/visual-retrieval/README.md#opt-in-local-encoder) and opt in on the server and worker. A location owner or admin can enqueue existing eligible photos with the scoped reindex route. Newly attached eligible photos use the durable jobs. The Search page adds **Find in photos** for the description in its search box and **Search with a photo** for a new query image when a generation is configured.

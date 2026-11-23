@@ -215,15 +215,16 @@ export class VisualQueries {
         }
         const current = await visualLocations(client, admitted);
         const coverage = await visualCoverage(client, provider.generation, current);
-        const matches = await visualMatches(
+        const { matches, ambiguous } = await visualMatches(
           client,
           provider.generation,
           current,
           vector,
           input ? PHOTO_MIN_SCORE : TEXT_MIN_SCORE,
           Math.max(limit, 2),
+          AMBIGUITY_MARGIN,
         );
-        return this.result(coverage, matches, limit);
+        return this.result(coverage, matches, limit, ambiguous);
       });
     } finally {
       release();
@@ -234,16 +235,11 @@ export class VisualQueries {
     coverage: VisualSearchResult['coverage'],
     matches: VisualSearchResult['matches'],
     limit: number,
+    ambiguous = false,
   ): VisualSearchResult {
-    const [first, second] = matches;
-    const ambiguous =
-      first &&
-      second &&
-      first.score - second.score < AMBIGUITY_MARGIN &&
-      first.path.map(({ id }) => id).join('/') !== second.path.map(({ id }) => id).join('/');
     const outcome = ambiguous
       ? 'ambiguous'
-      : first
+      : matches.length > 0
         ? 'matches'
         : coverage.pending + coverage.failed + coverage.paused > 0
           ? 'partial_coverage'
