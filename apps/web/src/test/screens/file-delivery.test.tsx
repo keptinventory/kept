@@ -408,9 +408,9 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
     const opened = vi.spyOn(window, 'open').mockImplementation(() => null);
     on({ ua: MAC, shares: true });
     const { user, fetched } = await render(`/t/${T.tv}?tab=paperwork`);
-    await user.click(await screen.findByRole('button', { name: 'Open Manual', exact: true }));
+    await user.click(await screen.findByRole('button', { name: /^Open Manual$/ }));
     await waitFor(() => expect(opened).toHaveBeenCalledWith(ORIGINAL, '_blank', 'noopener'));
-    expect(screen.queryByRole('button', { name: 'Share Manual', exact: true })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Share Manual$/ })).toBeNull();
     expect(fetched).toEqual([]);
   });
 
@@ -418,11 +418,11 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
     const opened = vi.spyOn(window, 'open').mockImplementation(() => null);
     const share = on({ ua: IPHONE, standalone: true, shares: true });
     const { user, fetched } = await render(`/t/${T.tv}?tab=paperwork`);
-    const button = await screen.findByRole('button', { name: 'Share Manual', exact: true });
+    const button = await screen.findByRole('button', { name: /^Share Manual$/ });
     await waitFor(() => expect(button).not.toHaveAttribute('data-pending'));
     // Fetched ahead: for the manual, and for the same PDF as the purchase's receipt.
     await waitFor(() => expect(fetched).toEqual([ORIGINAL, ORIGINAL]));
-    expect(screen.queryByRole('button', { name: 'Open Manual', exact: true })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Open Manual$/ })).toBeNull();
     await user.click(button);
     expect(share).toHaveBeenCalledTimes(1);
     const file = share.mock.calls[0]?.[0].files?.[0];
@@ -458,7 +458,7 @@ describe('an uploaded original (a receipt, a manual, a place attachment)', () =>
     const opened = vi.spyOn(window, 'open').mockImplementation(() => null);
     on({ ua: IPHONE, standalone: true });
     const { user, fetched } = await render(`/t/${T.tv}?tab=paperwork`);
-    await user.click(await screen.findByRole('button', { name: 'Share Manual', exact: true }));
+    await user.click(await screen.findByRole('button', { name: /^Share Manual$/ }));
     expect(
       await screen.findByText("This file can't be shared from the installed app"),
     ).toBeInTheDocument();
