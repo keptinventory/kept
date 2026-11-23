@@ -17,6 +17,7 @@ export function Rooms({
   cache,
   connection,
   online,
+  recent,
   onOpen,
   onCreated,
   onClose,
@@ -25,6 +26,7 @@ export function Rooms({
   cache: InventoryCache;
   connection: Connection;
   online: boolean;
+  recent: string[];
   onOpen: (target: Target) => void;
   onCreated: (target: Target) => void;
   onClose: () => void;
@@ -40,6 +42,9 @@ export function Rooms({
   const [locationId, setLocationId] = useState(locations[0]?.id ?? null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
+  const boxes = recent.flatMap((id) =>
+    cache.things.filter((thing) => thing.id === id && thing.isContainer),
+  );
   const rooms = cache.places.filter((place) => place.kindKey === 'room' && !place.isUnplaced);
 
   async function create() {
@@ -118,6 +123,27 @@ export function Rooms({
         >
           <Trans>Create room</Trans>
         </Button>
+      )}
+      {boxes.length > 0 && (
+        <section className="grid gap-2">
+          <h3 className="font-semibold">
+            <Trans>Recently opened boxes</Trans>
+          </h3>
+          <ul className="grid gap-2">
+            {boxes.map((box) => (
+              <li key={box.id}>
+                <Button
+                  variant="secondary"
+                  className="kept-phone-row"
+                  onPress={() => onOpen({ kind: 'thing', id: box.id, locationId: box.locationId })}
+                >
+                  <bdi>{box.name ?? t`Untitled`}</bdi>
+                  <bdi className="text-small">{inventoryPath(cache, box).join(' › ')}</bdi>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       {rooms.length ? (
         <ul className="grid gap-2">

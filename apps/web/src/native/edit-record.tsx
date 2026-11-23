@@ -1,4 +1,4 @@
-import { CONDITIONS } from '@kept/shared';
+import { AMOUNT_STRING, CONDITIONS, NATIVE_INVENTORY_PAYLOAD_VERSION, newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { ApiError } from '@/api/client';
@@ -17,12 +17,18 @@ import { useConditionLabels } from '@/components/things/labels';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/components/ui/confirm';
 import { inputClass } from '@/components/ui/field';
+import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { usePlatform } from './adapters';
 import type { Connection } from './bridge';
 import { type Destination, DestinationPicker } from './destination';
 import type { InventoryCache } from './inventory';
-import { isAuthRefusal, isRestoreEpochMismatch } from './outbox';
+import {
+  ensureCaptureCompatible,
+  isAuthRefusal,
+  isRestoreEpochMismatch,
+  ReplayError,
+} from './outbox';
 
 export function EditRecord({
   connection,
@@ -40,7 +46,7 @@ export function EditRecord({
   cache: InventoryCache;
   thing?: ThingView;
   place?: PlaceView;
-  mode: 'edit' | 'move' | 'actions';
+  mode: 'edit' | 'move' | 'correct' | 'actions';
   onClose: () => void;
   onChanged: () => void;
   onMoved: (destination: Destination) => void;
@@ -60,6 +66,14 @@ export function EditRecord({
   const [destination, setDestination] = useState<Destination>();
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [moveKey, setMoveKey] = useState(newId);
+  const [removeKey] = useState(newId);
+  const correcting = mode === 'correct';
+  const amount = quantity ? Number(quantity) : undefined;
+  const badAmount =
+    amount !== undefined &&
+    (!AMOUNT_STRING.test(quantity) || amount <= 0 || amount > Number(thing?.quantity));
   if (!row) return null;
 
   async function run(work: () => Promise<void>) {
@@ -75,6 +89,8 @@ export function EditRecord({
         setStatus(
           t`This record changed while you were editing. Close and reopen it to see the latest version.`,
         );
+      } else if (error instanceof ReplayError && error.reason === 'compatibility_hold') {
+        setStatus(t`Update this Kept server to use this action.`);
       } else setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -117,19 +133,22 @@ export function EditRecord({
   }
 
   function move() {
-    if (!thing || !destination) return;
+    if (!thing || !destination || (!correcting && badAmount)) return;
     const to = destination;
     return run(async () => {
+      if (correcting)
+        await ensureCaptureCompatible(connection, adapters, NATIVE_INVENTORY_PAYLOAD_VERSION);
       const body: MoveBody = {
         thingIds: [thing.id],
         to: to.kind === 'box' ? { containerId: to.id } : { placeId: to.id },
+        ...(correcting ? { intent: 'correct' } : amount === undefined ? {} : { quantity: amount }),
       };
       const preview = await adapters.transport.request<MovePreview>(
         connection,
         inventoryPaths.movePreview,
         { method: 'POST', body },
       );
-      if (preview.crossLocation || thing.loanLine) {
+      if (preview.crossLocation || thing.loanLine || amount !== undefined) {
         const warning = preview.losesSight.length
           ? t`${preview.losesSight.length} people will lose access to this record after the move.`
           : '';
@@ -147,8 +166,46 @@ export function EditRecord({
       await adapters.transport.request(connection, inventoryPaths.move, {
         method: 'POST',
         body: thing.loanLine ? { ...body, onLoan: 'confirm' } : body,
+        idempotencyKey: moveKey,
+        ifMatch: rowVersion,
       });
-      onMoved(to);
+      if (amount !== undefined && amount < Number(thing.quantity)) onChanged();
+      else onMoved(to);
+    });
+  }
+
+  function remove() {
+    if (!thing) return;
+    const placeId = cache.locations.find(
+      (location) => location.id === thing.locationId,
+    )?.unplacedPlaceId;
+    if (!placeId || thing.placeId === placeId) return;
+    return run(async () => {
+      if (
+        !(await confirm({
+          title: t`Remove without a destination?`,
+          body: thing.loanLine
+            ? t`This item is currently on loan.`
+            : t`This record will be available in Unplaced.`,
+          confirmLabel: t`Remove`,
+          cancelLabel: t`Cancel`,
+        }))
+      )
+        return;
+      await ensureCaptureCompatible(connection, adapters, NATIVE_INVENTORY_PAYLOAD_VERSION);
+      const body: MoveBody = {
+        thingIds: [thing.id],
+        to: { placeId },
+        intent: 'remove',
+        ...(thing.loanLine ? { onLoan: 'confirm' } : {}),
+      };
+      await adapters.transport.request(connection, inventoryPaths.move, {
+        method: 'POST',
+        body,
+        idempotencyKey: removeKey,
+        ifMatch: rowVersion,
+      });
+      onChanged();
     });
   }
 
@@ -237,49 +294,34 @@ export function EditRecord({
                   onChange={(event) => setValues({ ...values, notes: event.currentTarget.value })}
                 />
               </label>
-              <label className="grid gap-1 text-small font-semibold">
-                <Trans>Type</Trans>
-                <select
-                  className={inputClass}
-                  value={values.typeId ?? ''}
-                  disabled={busy}
-                  onChange={(event) =>
-                    setValues({ ...values, typeId: event.currentTarget.value || null })
-                  }
-                >
-                  <option value="">
-                    <Trans>No type</Trans>
-                  </option>
-                  {cache.types.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1 text-small font-semibold">
-                <Trans>Condition</Trans>
-                <select
-                  className={inputClass}
-                  value={values.condition ?? ''}
-                  disabled={busy}
-                  onChange={(event) =>
-                    setValues({
-                      ...values,
-                      condition: (event.currentTarget.value as Condition) || null,
-                    })
-                  }
-                >
-                  <option value="">
-                    <Trans>Unspecified</Trans>
-                  </option>
-                  {CONDITIONS.map((condition) => (
-                    <option key={condition} value={condition}>
-                      {conditions[condition]}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                label={t`Type`}
+                selectedKey={values.typeId ?? 'none'}
+                isDisabled={busy}
+                items={[{ id: 'none', name: t`No type` }, ...cache.types]}
+                onSelectionChange={(key) =>
+                  setValues({ ...values, typeId: !key || key === 'none' ? null : String(key) })
+                }
+              >
+                {(option) => <SelectItem id={option.id}>{option.name}</SelectItem>}
+              </Select>
+              <Select
+                label={t`Condition`}
+                selectedKey={values.condition ?? 'none'}
+                isDisabled={busy}
+                items={[
+                  { id: 'none', name: t`Unspecified` },
+                  ...CONDITIONS.map((id) => ({ id, name: conditions[id] })),
+                ]}
+                onSelectionChange={(key) =>
+                  setValues({
+                    ...values,
+                    condition: key && key !== 'none' ? (key as Condition) : null,
+                  })
+                }
+              >
+                {(option) => <SelectItem id={option.id}>{option.name}</SelectItem>}
+              </Select>
             </>
           ) : (
             <TextField
@@ -295,21 +337,49 @@ export function EditRecord({
           </Button>
         </form>
       )}
-      {mode === 'move' && (
+      {(mode === 'move' || correcting) && (
         <div className="grid gap-3">
           <DestinationPicker
             cache={cache}
             value={destination}
-            onChange={setDestination}
+            onChange={(value) => {
+              setDestination(value);
+              setMoveKey(newId());
+            }}
             disabled={busy}
             exclude={thing?.id}
+            onlyLocation={correcting ? thing?.locationId : undefined}
           />
+          {!correcting &&
+            thing &&
+            !thing.isContainer &&
+            !thing.serial &&
+            !thing.meters.length &&
+            Number(thing.quantity) > 1 && (
+              <TextField
+                label={t`Quantity to move`}
+                value={quantity}
+                description={t`Leave blank to move the entire entry.`}
+                isDisabled={busy}
+                isInvalid={badAmount}
+                errorMessage={
+                  badAmount ? t`Enter a quantity within the recorded amount.` : undefined
+                }
+                onChange={(value) => {
+                  setQuantity(value);
+                  setMoveKey(newId());
+                }}
+                inputProps={{ inputMode: 'decimal' }}
+              />
+            )}
           <Button
-            isDisabled={!destination || destination.id === (thing?.containerId ?? thing?.placeId)}
+            isDisabled={
+              badAmount || !destination || destination.id === (thing?.containerId ?? thing?.placeId)
+            }
             isPending={busy}
             onPress={() => void move()}
           >
-            <Trans>Move</Trans>
+            {correcting ? t`Correct location` : t`Move`}
           </Button>
         </div>
       )}
@@ -321,6 +391,14 @@ export function EditRecord({
           <Button variant="secondary" isDisabled={busy} onPress={() => void mark(false)}>
             <Trans>Not here</Trans>
           </Button>
+          {thing &&
+            thing.placeId !==
+              cache.locations.find((location) => location.id === thing.locationId)
+                ?.unplacedPlaceId && (
+              <Button variant="secondary" isDisabled={busy} onPress={() => void remove()}>
+                <Trans>Remove without a destination</Trans>
+              </Button>
+            )}
           <Button variant="secondary" isDisabled={busy} onPress={() => void trash()}>
             <Trans>Move to Trash</Trans>
           </Button>

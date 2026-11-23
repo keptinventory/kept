@@ -91,6 +91,7 @@ const AttachmentViewSchema = z.object({
   subject: AttachmentSubjectSchema,
   name: z.string().nullable(),
   createdBy: z.object({ displayName: z.string() }),
+  createdAt: z.iso.datetime().optional(),
   rowVersion: z.number(),
 });
 

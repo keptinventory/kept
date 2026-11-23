@@ -85,6 +85,7 @@ export type AttachmentView = {
   /** A purchase's receipt whose file is also the thing's own under Paperwork (#348). */
   alsoInPaperwork?: true;
   createdBy: { displayName: string };
+  createdAt?: string;
   /** For PATCH's If-Match (D156). Not in the web contract's type yet; additive. */
   rowVersion: number;
 };
@@ -208,13 +209,14 @@ export type AttachmentRow = { [C in SubjectColumn]: string | null } & {
   name: string | null;
   sort: number;
   created_by: string;
+  created_at: Date;
   row_version: number;
   display_name: string | null;
 };
 
 export const ATTACHMENT_SELECT = `SELECT a.id, a.location_id, a.file_id, a.url,
        ${SUBJECT_COLUMNS.map(([c]) => `a.${c}`).join(', ')},
-       a.role, a.name, a.sort, a.created_by, a.row_version, up.display_name
+       a.role, a.name, a.sort, a.created_by, a.created_at, a.row_version, up.display_name
   FROM public.attachments a
   LEFT JOIN public.user_profiles up ON up.user_id = a.created_by`;
 
@@ -258,6 +260,7 @@ export async function attachmentViews(
         subject: subjectOf(r),
         name: r.name,
         createdBy: { displayName: r.display_name ?? '' },
+        createdAt: r.created_at.toISOString(),
         rowVersion: r.row_version,
       };
     }),

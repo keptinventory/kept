@@ -314,6 +314,7 @@ export type CaptureExtras = {
   createdVia?: 'app' | 'import';
   captureBatchId?: string;
   captureReviewOnly?: boolean;
+  observedAt?: Date;
   fieldStatus?: Record<string, unknown>;
   /** The caller checked the client id already (a sync op's 90-day window). */
   idChecked?: boolean;
@@ -437,9 +438,9 @@ export async function insertThing(
                                 brand_id, model, serial, barcode, colour, condition, notes,
                                 aliases, belongs_to_person_id, purchase_line_id, manual_url,
                                 expires_on, expiry_lead_days, custom, created_via, review_state,
-                                field_status, capture_batch_id, acquired_from, capture_review_only)
+                                field_status, capture_batch_id, acquired_from, capture_review_only, last_seen_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
-             $19, $20, $21, $25, $22, $23, $24, $26, $27)`,
+             $19, $20, $21, $25, $22, $23, $24, $26, $27, coalesce($28::timestamptz, now()))`,
     [
       id,
       locationId,
@@ -468,6 +469,7 @@ export async function insertThing(
       extras.createdVia ?? 'app',
       body.acquiredFrom ?? null,
       extras.captureReviewOnly ?? false,
+      extras.observedAt ?? null,
     ],
   );
   if (body.tagIds?.length) await setTags(client, locationId, id, body.tagIds);

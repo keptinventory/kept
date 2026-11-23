@@ -32,6 +32,7 @@ export const MIN_PAYLOAD_VERSION = 1;
 
 /** Negotiated separately so a native capture cannot be parsed as an ordinary v1 operation on rollback. */
 export const NATIVE_CAPTURE_PAYLOAD_VERSION = 2;
+export const NATIVE_INVENTORY_PAYLOAD_VERSION = 3;
 export const NativeCaptureCapabilitiesSchema = z.object({
   contractVersion: z.literal(1),
   capturePayloadVersions: z.array(z.number().int().positive()),
@@ -143,6 +144,7 @@ export const CreateThingPayload = z.strictObject({
   note: z.string().trim().min(1).max(500).optional(),
   /** A named box capture keeps image interpretations in the review inbox. */
   reviewSuggestions: z.literal(true).optional(),
+  captureIntent: z.enum(['record', 'add']).optional(),
   meterId: uuid.optional(),
   barcode: z.string().trim().min(1).max(64).optional(),
   /** A serial number or asset tag read by the scanner (a GS1 code's serial, a Code 39 tag). */

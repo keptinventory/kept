@@ -30201,3 +30201,131 @@ msgstr "{name} se retiró de esta caja"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "{name} se restauró en esta caja"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "Acción"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "Añadir contenido"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "Añadir documentos"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "Se añadieron documentos a {name}"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "Asignar etiqueta"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "Nombre de la caja (opcional)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "Se comprobó {name} y no se indicaron cambios"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "¿Confirmar que el contenido sigue igual?"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "Confirma que comprobaste todas las entradas de esta caja."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "Contenido comprobado, sin cambios"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "Corregir ubicación"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "Se corrigió la ubicación registrada de {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "Crear etiquetas en blanco"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "Editar fotos y archivos"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "Introduce una cantidad que no supere la registrada."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "Etiquetas por hoja tamaño carta"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "Última comprobación directa: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "Déjalo en blanco para mover toda la entrada."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "Ubicación desconocida"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "Imprimir hojas de etiquetas"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "Cantidad que se va a mover"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "Registrar el contenido existente"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "¿Quitar este archivo adjunto?"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "Retirar sin indicar un destino"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "¿Retirar sin indicar un destino?"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "Se retiró {name} sin registrar el destino"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "Reimprimir hoja de etiquetas"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "Guardar documentos"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "Este registro aparecerá en «Sin ubicar»."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "Actualiza este servidor Kept para usar esta acción."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "Usar como portada"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "Cajas abiertas recientemente"

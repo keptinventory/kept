@@ -62,6 +62,22 @@ const tape = (width: number, length: number, qr: boolean): LabelStock => ({
   qr,
 });
 
+/** US Letter cut sheets with room to write beside each QR. */
+const letterWritable = (cols: number, rows: number): LabelStock => ({
+  key: `letter_writable_${cols * rows}`,
+  names: {
+    en: `Letter, ${cols * rows} writable labels`,
+    ar: `Letter، ‏${cols * rows} ملصقًا للكتابة`,
+  },
+  page: { w: 215.9, h: 279.4 },
+  cols,
+  rows,
+  cell: { w: 190.5 / cols, h: 254 / rows },
+  gap: { x: 0, y: 0 },
+  margin: { top: 12.7, left: 12.7 },
+  content: 'full',
+});
+
 export const LABEL_STOCKS: readonly LabelStock[] = Object.freeze([
   roll('thermal_50x30', 50, 30, 'Thermal 50 × 30 mm', 'حراري 50 × 30 مم'),
   roll('thermal_40x30', 40, 30, 'Thermal 40 × 30 mm', 'حراري 40 × 30 مم'),
@@ -103,6 +119,9 @@ export const LABEL_STOCKS: readonly LabelStock[] = Object.freeze([
     margin: { top: 12.7, left: 4.7625 },
     content: 'full',
   },
+  letterWritable(2, 4),
+  letterWritable(2, 6),
+  letterWritable(3, 8),
 ]);
 
 export function labelStock(key: string): LabelStock {

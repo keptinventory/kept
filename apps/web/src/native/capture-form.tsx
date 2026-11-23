@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { TextField as AriaTextField, FileTrigger, Label, TextArea } from 'react-aria-components';
 import { Button } from '@/components/ui/button';
 import { inputClass } from '@/components/ui/field';
+import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { sep, useBytes } from '@/lib/format';
 import { usePlatform } from './adapters';
@@ -56,6 +57,9 @@ export function CaptureForm({
   const formatBytes = useBytes();
   const [destination, setDestination] = useState(() => box ?? (cache && defaultDestination(cache)));
   const photosOnly = destination?.kind === 'photos';
+  const documentsOnly = destination?.kind === 'documents';
+  const evidenceOnly = photosOnly || documentsOnly;
+  const [intent, setIntent] = useState<'record' | 'add'>('record');
   const [batchId] = useState(newId);
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
@@ -77,7 +81,7 @@ export function CaptureForm({
     quantity !== '' && (!AMOUNT_STRING.test(quantity) || Number(quantity) <= 0);
 
   const canSave =
-    destination && (photosOnly ? files.length > 0 : !!name.trim() && !quantityInvalid);
+    destination && (evidenceOnly ? files.length > 0 : !!name.trim() && !quantityInvalid);
   const pendingById = new Map(pending.map((entry) => [entry.capture.id, entry]));
   const batchPendingCount = batchEntryIds.filter((id) => {
     const entry = pendingById.get(id);
@@ -135,12 +139,13 @@ export function CaptureForm({
         connection,
         {
           locationId: destination.locationId,
-          ...(photosOnly
+          ...(evidenceOnly
             ? { attachToThingId: destination.id }
             : destination.kind === 'place'
               ? { placeId: destination.id }
               : { boxId: destination.id }),
-          name: photosOnly ? destination.name : name.trim(),
+          name: evidenceOnly ? destination.name : name.trim(),
+          ...(!evidenceOnly ? { captureIntent: intent } : {}),
           ...(note.trim() ? { note: note.trim() } : {}),
           ...(quantity ? { quantity } : {}),
           batchId,
@@ -177,9 +182,11 @@ export function CaptureForm({
         <p className="text-label font-semibold uppercase tracking-wide text-ink-2">
           {photosOnly
             ? t`Record photos`
-            : box && box.kind !== 'place'
-              ? t`Adding to box`
-              : t`Capture inventory`}
+            : documentsOnly
+              ? t`Add documents`
+              : box && box.kind !== 'place'
+                ? t`Adding to box`
+                : t`Capture inventory`}
         </p>
         {box && (
           <h2 className="text-title font-semibold">
@@ -233,8 +240,20 @@ export function CaptureForm({
             disabled={busy}
           />
         )}
-        {!photosOnly && (
+        {!evidenceOnly && (
           <>
+            <Select
+              label={t`Action`}
+              selectedKey={intent}
+              isDisabled={busy}
+              items={[
+                { id: 'record', label: t`Record existing contents` },
+                { id: 'add', label: t`Add contents` },
+              ]}
+              onSelectionChange={(key) => setIntent(key === 'add' ? 'add' : 'record')}
+            >
+              {(option) => <SelectItem id={option.id}>{option.label}</SelectItem>}
+            </Select>
             <TextField
               label={t`Description`}
               placeholder={t`Holiday decorations`}
@@ -261,24 +280,28 @@ export function CaptureForm({
           </>
         )}
         <div className="flex flex-wrap gap-2">
-          <FileTrigger
-            acceptedFileTypes={['image/*']}
-            defaultCamera="environment"
-            onSelect={(list) => choose(list, 'photo')}
-          >
-            <Button variant="secondary" isDisabled={busy}>
-              <Trans>Take a photo</Trans>
-            </Button>
-          </FileTrigger>
-          <FileTrigger
-            acceptedFileTypes={['image/*']}
-            allowsMultiple
-            onSelect={(list) => choose(list, 'photo')}
-          >
-            <Button variant="secondary" isDisabled={busy}>
-              <Trans>Choose photos</Trans>
-            </Button>
-          </FileTrigger>
+          {!documentsOnly && (
+            <>
+              <FileTrigger
+                acceptedFileTypes={['image/*']}
+                defaultCamera="environment"
+                onSelect={(list) => choose(list, 'photo')}
+              >
+                <Button variant="secondary" isDisabled={busy}>
+                  <Trans>Take a photo</Trans>
+                </Button>
+              </FileTrigger>
+              <FileTrigger
+                acceptedFileTypes={['image/*']}
+                allowsMultiple
+                onSelect={(list) => choose(list, 'photo')}
+              >
+                <Button variant="secondary" isDisabled={busy}>
+                  <Trans>Choose photos</Trans>
+                </Button>
+              </FileTrigger>
+            </>
+          )}
           {!photosOnly && (
             <FileTrigger
               acceptedFileTypes={['application/pdf', '.pdf']}
@@ -326,9 +349,11 @@ export function CaptureForm({
         <Button type="submit" isPending={busy} isDisabled={!canSave}>
           {photosOnly
             ? t`Save photos`
-            : box && box.kind !== 'place'
-              ? t`Save to box`
-              : t`Save capture`}
+            : documentsOnly
+              ? t`Save documents`
+              : box && box.kind !== 'place'
+                ? t`Save to box`
+                : t`Save capture`}
         </Button>
       </form>
       <p role="status" className="text-ink-2">
@@ -341,27 +366,31 @@ export function CaptureForm({
 export function NewBoxForm({
   connection,
   cache,
+  place,
   onClose,
   onCreated,
 }: {
   connection: Connection;
   cache: InventoryCache;
+  place?: { id: string; name: string; locationId: string };
   onClose: () => void;
   onCreated: (id: string, locationId: string) => void;
 }) {
   const { t } = useLingui();
   const adapters = usePlatform();
   const [name, setName] = useState('');
-  const [target, setTarget] = useState(() => defaultDestination(cache));
+  const [target, setTarget] = useState<Destination | undefined>(() =>
+    place ? { ...place, kind: 'place' } : defaultDestination(cache),
+  );
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
 
   async function submit() {
-    if (!target || !name.trim() || busy) return;
+    if (!target || busy) return;
     setBusy(true);
     setStatus('');
     try {
-      const result = await createBox(connection, cache, target, name.trim(), adapters);
+      const result = await createBox(connection, cache, target, name.trim() || t`Box`, adapters);
       onCreated(result.id, result.locationId);
     } catch {
       setStatus(t`Could not create the box. Check your connection and selected location.`);
@@ -386,7 +415,7 @@ export function NewBoxForm({
         }}
       >
         <TextField
-          label={t`Box name`}
+          label={t`Box name (optional)`}
           value={name}
           onChange={setName}
           inputProps={{ maxLength: 200 }}
@@ -399,7 +428,7 @@ export function NewBoxForm({
           disabled={busy}
           placesOnly
         />
-        <Button type="submit" isPending={busy} isDisabled={!name.trim() || !target}>
+        <Button type="submit" isPending={busy} isDisabled={!target}>
           <Trans>Create box</Trans>
         </Button>
       </form>

@@ -241,6 +241,8 @@ export function useSummary() {
       'place.move': () => t`Moved ${name}`,
       'place.reorder': () => t`Put the places in ${name} in a new order`,
       'thing.move.in': () => t`Moved in from another location`,
+      'thing.move.corrected': () => t`Corrected the recorded location of ${name}`,
+      'thing.move.removed': () => t`Removed ${name}, destination not recorded`,
       'thing.move.out': () => t`Moved ${name} to another location`,
       'thing.trash': () => t`Trashed ${name}`,
       'place.trash': () => t`Trashed ${name}`,
@@ -270,6 +272,8 @@ export function useSummary() {
       'thing.stock_return': () => t`Put ${name} back from a service of ${service}`,
       undo: () => t`Undid a change to ${name}`,
       'thing.capture.attach': () => t`Added a photo to ${name}`,
+      'thing.capture.recorded': () => t`Recorded ${name}`,
+      'thing.capture.documents': () => t`Added documents to ${name}`,
       'thing.capture.named': () => t`Added ${name}`,
       // Step 2 onwards: what used to fall back to the action's words.
       'brand.create': () => t`Brand added`,
@@ -470,6 +474,7 @@ export function useSummary() {
       'thing.reextract': () => t`Read the photo of ${name} again`,
       'thing.merge': () => t`Merged a duplicate into ${name}`,
       'place.arrange': () => t`Arranged the map`,
+      'box.check.unchanged': () => t`Checked ${name}, no changes reported`,
       'box.check': () => t`Checked what is in ${name}`,
       'scan.session': () => {
         const found = fmt.num(count);

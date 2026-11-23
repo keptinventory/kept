@@ -2,6 +2,7 @@ import { pathToFileURL } from 'node:url';
 import {
   CreateThingPayload,
   NATIVE_CAPTURE_PAYLOAD_VERSION,
+  NATIVE_INVENTORY_PAYLOAD_VERSION,
   NativeCaptureCapabilitiesSchema,
   newId,
   PAYLOAD_VERSION,
@@ -52,7 +53,55 @@ async function nativeSession() {
   return { cookie, 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
 }
 
-const oldCreateThing = CreateThingPayload.omit({ reviewSuggestions: true });
+it('replays versioned recording intent once and keeps the device capture time in history', async () => {
+  const headers = { ...(await nativeSession()), origin: t.publicUrl };
+  const takenAt = new Date(Date.now() - 3_600_000).toISOString();
+  const item = captureOp(
+    home.id,
+    { placeId: home.unplacedId },
+    {
+      name: 'Assorted cables',
+      reviewSuggestions: true,
+      captureIntent: 'record',
+    },
+    { payloadVersion: NATIVE_INVENTORY_PAYLOAD_VERSION, takenAt },
+  );
+  const send = (ops = [item]) =>
+    t.app.inject({
+      method: 'POST',
+      url: syncUrl,
+      headers,
+      remoteAddress: freshIp(),
+      payload: { clientVersion: CLIENT_VERSION, ops },
+    });
+  const first = await send();
+  expect(first.statusCode, first.body).toBe(200);
+  expect(first.json().results[0]).toMatchObject({
+    outcome: 'applied',
+    entity: { id: item.payload.id },
+  });
+  expect((await send()).json()).toEqual(first.json());
+  const view = await t.app.inject({
+    method: 'GET',
+    url: `/api/v1/things/${item.payload.id}`,
+    headers,
+  });
+  expect(view.json()).toMatchObject({ lastSeenAt: takenAt });
+  const history = await t.app.inject({
+    method: 'GET',
+    url: `/api/v1/things/${item.payload.id}/history`,
+    headers,
+  });
+  expect(history.statusCode, history.body).toBe(200);
+  expect(history.json().items).toEqual([
+    expect.objectContaining({
+      summaryKey: 'thing.capture.recorded',
+      diff: expect.objectContaining({ captured_at: expect.objectContaining({ after: takenAt }) }),
+    }),
+  ]);
+});
+
+const oldCreateThing = CreateThingPayload.omit({ reviewSuggestions: true, captureIntent: true });
 
 async function rollbackServer(): Promise<FastifyInstance> {
   const build = process.env.KEPT_TEST_ROLLBACK_SERVER;

@@ -22249,3 +22249,131 @@ msgstr "Đã bỏ {name} khỏi hộp này"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "Đã khôi phục {name} vào hộp này"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "Thao tác"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "Thêm đồ vào hộp"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "Thêm tài liệu"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "Đã thêm tài liệu vào {name}"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "Gán nhãn"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "Tên hộp (không bắt buộc)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "Đã kiểm tra {name}, không ghi nhận thay đổi"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "Xác nhận đồ trong hộp vẫn như cũ?"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "Xác nhận bạn đã kiểm tra mọi mục trong danh sách của hộp này."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "Đã kiểm tra, đồ trong hộp vẫn như cũ"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "Sửa vị trí"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "Đã sửa vị trí ghi nhận của {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "Tạo nhãn trống"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "Chỉnh sửa ảnh và tệp"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "Nhập số lượng không vượt quá số đã ghi."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "Số nhãn trên mỗi tờ US Letter"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "Lần xác nhận trực tiếp gần nhất: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "Để trống để chuyển toàn bộ mục."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "Không rõ vị trí"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "In tờ nhãn"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "Số lượng cần chuyển"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "Ghi nhận đồ đang có"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "Gỡ tệp đính kèm này?"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "Lấy ra mà không ghi nơi đến"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "Lấy ra mà không ghi nơi đến?"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "Đã lấy {name} ra, chưa ghi nơi đến"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "In lại tờ nhãn"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "Lưu tài liệu"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "Hồ sơ này sẽ xuất hiện trong mục Chưa xếp chỗ."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "Cập nhật máy chủ Kept này để dùng thao tác đó."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "Dùng làm ảnh bìa"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "Các hộp đã mở gần đây"

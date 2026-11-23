@@ -30201,3 +30201,131 @@ msgstr "أُزيل {name} من هذا الصندوق"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "أُعيد {name} إلى هذا الصندوق"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "الإجراء"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "إضافة محتويات"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "إضافة مستندات"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "أُضيفت مستندات إلى {name}"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "تعيين الملصق"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "اسم الصندوق (اختياري)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "تم فحص {name} ولم يُبلّغ عن تغييرات"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "تأكيد عدم تغيّر المحتويات؟"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "أكّد أنك تحققت من كل عنصر مدرج في هذا الصندوق."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "تم التحقق من المحتويات دون تغييرات"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "تصحيح الموقع"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "صُحّح الموقع المسجل لـ {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "إنشاء ملصقات فارغة"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "تعديل الصور والملفات"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "أدخل كمية لا تتجاوز الكمية المسجلة."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "عدد الملصقات لكل ورقة Letter"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "آخر تحقق مباشر: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "اترك الحقل فارغًا لنقل الإدخال كله."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "الموقع غير معروف"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "طباعة أوراق الملصقات"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "الكمية المراد نقلها"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "تسجيل المحتويات الموجودة"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "إزالة هذا المرفق؟"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "إزالة العنصر دون تحديد وجهة"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "إزالة العنصر دون تحديد وجهة؟"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "أُزيل {name} ولم تُسجّل وجهته"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "إعادة طباعة ورقة الملصقات"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "حفظ المستندات"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "سيظهر هذا السجل ضمن العناصر بلا مكان محدد."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "حدّث خادم Kept لاستخدام هذا الإجراء."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "استخدام كصورة غلاف"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "الصناديق التي فُتحت مؤخرًا"

@@ -6,6 +6,7 @@ import {
   isV7,
   MIN_PAYLOAD_VERSION,
   NATIVE_CAPTURE_PAYLOAD_VERSION,
+  NATIVE_INVENTORY_PAYLOAD_VERSION,
   type OpKind,
   type OpPayload,
   PAYLOAD_VERSION,
@@ -40,7 +41,10 @@ export const PAYLOAD_WINDOW: PayloadWindow = Object.freeze({
 
 /** Identifies the native v2 envelope. `parsedPayload` checks the required review flag. */
 export function usesNativeCaptureVersion(item: Pick<QueueItem, 'op' | 'payloadVersion'>): boolean {
-  return item.payloadVersion === NATIVE_CAPTURE_PAYLOAD_VERSION && item.op === 'create_thing';
+  return (
+    item.op === 'create_thing' &&
+    [NATIVE_CAPTURE_PAYLOAD_VERSION, NATIVE_INVENTORY_PAYLOAD_VERSION].includes(item.payloadVersion)
+  );
 }
 
 /**
@@ -75,7 +79,14 @@ export function parsedPayload<K extends OpKind>(
 ): OpPayload<K> | null {
   if (usesNativeCaptureVersion({ op, payloadVersion })) {
     const parsed = CreateThingPayload.safeParse(payload);
-    return parsed.success && parsed.data.reviewSuggestions === true
+    const hasIntent = payloadVersion === NATIVE_INVENTORY_PAYLOAD_VERSION;
+    return parsed.success &&
+      parsed.data.reviewSuggestions === true &&
+      (hasIntent
+        ? !!parsed.data.captureIntent &&
+          !parsed.data.attachToThingId &&
+          parsed.data.mode === 'thing'
+        : parsed.data.captureIntent === undefined)
       ? (parsed.data as OpPayload<K>)
       : null;
   }
@@ -89,7 +100,9 @@ export function parsedPayload<K extends OpKind>(
     throw err;
   }
   const parsed = parseOpPayload(op, current);
-  return parsed.success ? (parsed.data as OpPayload<K>) : null;
+  return parsed.success && (op !== 'create_thing' || !('captureIntent' in parsed.data))
+    ? (parsed.data as OpPayload<K>)
+    : null;
 }
 
 /** The ledger's key format (sync_ops_key_chk, 0035). A key outside it is answered `invalid` and

@@ -257,7 +257,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
           if (capabilitiesOverride) return capabilitiesOverride(_conn) as T;
           return {
             contractVersion: 1,
-            capturePayloadVersions: [2],
+            capturePayloadVersions: [2, 3],
             account: _conn.account,
             epoch: _conn.epoch,
           } as T;
@@ -1108,7 +1108,7 @@ describe('KeptPhone mobile workflows', () => {
 
     // Reopen synced item, open remote original attachment, and edit AI suggestion.
     await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
-    await user.click(await screen.findByRole('button', { name: 'Holiday decorations' }));
+    await user.click(await screen.findByRole('button', { name: /^Holiday decorations/ }));
 
     await user.click(await screen.findByRole('button', { name: 'manual.pdf' }));
     expect(env.events.openedRemote).toHaveLength(1);

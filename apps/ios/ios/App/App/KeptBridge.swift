@@ -472,6 +472,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "takeLink", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "shareLabelPdf", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "shareLabelSheet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openHeldMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "exportHeldCapture", returnType: CAPPluginReturnPromise)
@@ -934,26 +935,105 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                     withAttributes: [.font: UIFont.monospacedSystemFont(ofSize: 9, weight: .regular),
                                      .paragraphStyle: paragraph, .foregroundColor: UIColor.black])
             }
-            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-label-\(UUID())", isDirectory: true)
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
-                attributes: [.protectionKey: FileProtectionType.complete])
-            let file = folder.appendingPathComponent("Kept-\(code).pdf")
-            do {
-                try data.write(to: file, options: [.atomic, .completeFileProtection])
-            } catch {
-                try? FileManager.default.removeItem(at: folder)
-                throw error
-            }
-            let activity = UIActivityViewController(activityItems: [file], applicationActivities: nil)
-            activity.popoverPresentationController?.sourceView = controller.view
-            activity.popoverPresentationController?.sourceRect = CGRect(
-                x: controller.view.bounds.midX, y: controller.view.bounds.midY, width: 1, height: 1)
-            activity.completionWithItemsHandler = { _, _, _, _ in
-                try? FileManager.default.removeItem(at: folder)
-            }
-            controller.present(activity, animated: true)
+            try self.shareProtectedPDF(data, filename: "Kept-\(code).pdf", from: controller)
             call.resolve()
         }
+    }
+
+    @objc func shareLabelSheet(_ call: CAPPluginCall) {
+        run(call) {
+            let connection = try self.requireConnection(call)
+            guard let columns = call.getInt("columns"), let rows = call.getInt("rows"),
+                  (columns == 2 && (rows == 4 || rows == 6)) || (columns == 3 && rows == 8),
+                  let entries = call.getArray("labels", JSObject.self), !entries.isEmpty,
+                  entries.count <= columns * rows,
+                  let controller = self.bridge?.viewController,
+                  controller.viewIfLoaded?.window != nil, controller.presentedViewController == nil
+            else { throw KeptNativeError.invalidRequest }
+
+            let ci = CIContext()
+            let labels = try entries.map { entry -> (code: String, name: String, image: CGImage) in
+                guard let url = entry["url"] as? String, url.utf8.count <= 512,
+                      case .approved(let code) = NFCLabelValidation.validate(urlText: url, expectedOrigin: connection.origin),
+                      let filter = CIFilter(name: "CIQRCodeGenerator")
+                else { throw KeptNativeError.invalidRequest }
+                filter.setValue(Data(url.utf8), forKey: "inputMessage")
+                filter.setValue("M", forKey: "inputCorrectionLevel")
+                guard let symbol = filter.outputImage,
+                      let image = ci.createCGImage(symbol, from: symbol.extent)
+                else { throw KeptNativeError.invalidRequest }
+                return (code, String((entry["name"] as? String ?? "").prefix(200)), image)
+            }
+
+            // US Letter with a half-inch margin on each edge, matching the server's writable stock.
+            let page = CGRect(x: 0, y: 0, width: 612, height: 792)
+            let margin: CGFloat = 36
+            let width = (page.width - 2 * margin) / CGFloat(columns)
+            let height = (page.height - 2 * margin) / CGFloat(rows)
+            let data = UIGraphicsPDFRenderer(bounds: page).pdfData { context in
+                context.beginPage()
+                let cg = context.cgContext
+                cg.setFillColor(UIColor.white.cgColor)
+                cg.fill(page)
+                cg.interpolationQuality = .none
+                let textStyle = NSMutableParagraphStyle()
+                textStyle.lineBreakMode = .byTruncatingTail
+
+                for (index, label) in labels.enumerated() {
+                    let x = margin + CGFloat(index % columns) * width
+                    let y = margin + CGFloat(index / columns) * height
+                    let frame = CGRect(x: x, y: y, width: width, height: height)
+                    cg.setStrokeColor(UIColor.lightGray.cgColor)
+                    cg.setLineWidth(0.5)
+                    cg.stroke(frame)
+
+                    let targetWidth = min(height - 8, width * 0.48)
+                    let module = max(1, floor(targetWidth / CGFloat(label.image.width + 8)))
+                    let qrWidth = CGFloat(label.image.width) * module
+                    let symbolFrame = CGRect(x: x + 4 + 4 * module, y: y + floor((height - qrWidth) / 2),
+                                             width: qrWidth, height: qrWidth)
+                    UIImage(cgImage: label.image).draw(in: symbolFrame)
+
+                    let textX = symbolFrame.maxX + 4 * module + 4
+                    let textWidth = frame.maxX - textX - 9
+                    (label.code as NSString).draw(in: CGRect(x: textX, y: y + 11, width: textWidth, height: 17),
+                        withAttributes: [.font: UIFont.monospacedSystemFont(ofSize: 11, weight: .semibold),
+                                         .paragraphStyle: textStyle, .foregroundColor: UIColor.black])
+                    (label.name as NSString).draw(in: CGRect(x: textX, y: y + 30, width: textWidth, height: 16),
+                        withAttributes: [.font: UIFont.systemFont(ofSize: 10),
+                                         .paragraphStyle: textStyle, .foregroundColor: UIColor.black])
+                    for mark in [0.65, 0.84] {
+                        let lineY = y + height * mark
+                        cg.move(to: CGPoint(x: textX, y: lineY))
+                        cg.addLine(to: CGPoint(x: frame.maxX - 9, y: lineY))
+                        cg.strokePath()
+                    }
+                }
+            }
+            try self.shareProtectedPDF(data, filename: "Kept-label-sheet.pdf", from: controller)
+            call.resolve()
+        }
+    }
+
+    @MainActor private func shareProtectedPDF(_ data: Data, filename: String, from controller: UIViewController) throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-label-\(UUID())", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
+            attributes: [.protectionKey: FileProtectionType.complete])
+        let file = folder.appendingPathComponent(filename)
+        do {
+            try data.write(to: file, options: [.atomic, .completeFileProtection])
+        } catch {
+            try? FileManager.default.removeItem(at: folder)
+            throw error
+        }
+        let activity = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+        activity.popoverPresentationController?.sourceView = controller.view
+        activity.popoverPresentationController?.sourceRect = CGRect(
+            x: controller.view.bounds.midX, y: controller.view.bounds.midY, width: 1, height: 1)
+        activity.completionWithItemsHandler = { _, _, _, _ in
+            try? FileManager.default.removeItem(at: folder)
+        }
+        controller.present(activity, animated: true)
     }
 
     @objc func openPendingMedia(_ call: CAPPluginCall) {

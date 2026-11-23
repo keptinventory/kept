@@ -159,6 +159,55 @@ describe('POST /api/v1/sync/ops', () => {
     });
   });
 
+  it('records a placement correction and a removal without changing the last direct sighting', async () => {
+    const room = await place(db, home, 'Workshop');
+    const box = (
+      await createThing(t, ibrahim, home, {
+        name: 'Tool bin',
+        typeId: await builtinType(db, 'box_bin'),
+      })
+    ).id;
+    const item = await createThing(t, ibrahim, home, { name: 'Drill', containerId: box });
+    const before = await thingOf(item.id);
+    const act = (body: object, rowVersion: number) =>
+      call(t, '/api/v1/things/move', {
+        as: ibrahim,
+        body: { thingIds: [item.id], ...body },
+        headers: { 'if-match': String(rowVersion) },
+      });
+    ok(await act({ intent: 'correct', to: { placeId: room } }, Number(item.rowVersion)));
+    const updated = ok(await call(t, `/api/v1/things/${item.id}`, { as: ibrahim }));
+    const removal = await act(
+      { intent: 'remove', to: { placeId: home.unplacedId } },
+      Number(updated.rowVersion),
+    );
+    ok(removal);
+    const removed = ok(await call(t, `/api/v1/things/${item.id}`, { as: ibrahim }));
+    expect(removed).toMatchObject({
+      placeId: home.unplacedId,
+      locationUncertain: true,
+      lastKnownPath: ['Workshop'],
+    });
+    expect((await thingOf(item.id))?.last_seen_at).toEqual(before?.last_seen_at);
+    const page = ok(await call(t, `/api/v1/things/${item.id}/history`, { as: ibrahim }));
+    expect(
+      (page.items as { summaryKey: string }[])
+        .slice(0, 2)
+        .map((event: { summaryKey: string }) => event.summaryKey),
+    ).toEqual(['thing.move.removed', 'thing.move.corrected']);
+    ok(
+      await call(t, `/api/v1/audit/${removal.headers['x-kept-audit-event']}/undo`, {
+        as: ibrahim,
+        body: {},
+      }),
+    );
+    expect(ok(await call(t, `/api/v1/things/${item.id}`, { as: ibrahim }))).toMatchObject({
+      placeId: room,
+      locationUncertain: false,
+    });
+    expect((await thingOf(item.id))?.last_seen_at).toEqual(before?.last_seen_at);
+  });
+
   it('applies a queued capture as the caller, audits it, and answers its short ID', async () => {
     const shelf = await place(db, home, 'Shelf A');
     const item = captureOp(home.id, { placeId: shelf }, { name: 'Step ladder' });
@@ -198,7 +247,7 @@ describe('POST /api/v1/sync/ops', () => {
     const item = captureOp(home.id, { unplaced: true });
     const res = await syncOps(t, louis, [
       captureOp(home.id, { unplaced: true }),
-      { ...item, payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION + 1 },
+      { ...item, payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION + 2 },
     ]);
     expect(res.statusCode).toBe(409);
     expect(res.json()).toMatchObject({ code: 'server_outdated' });

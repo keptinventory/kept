@@ -806,6 +806,7 @@ export type ThingView = ThingRow & {
   acquiredFrom: string | null;
   provenanceNotes: string | null;
   locationUncertain: boolean;
+  lastKnownPath?: string[];
   reviewState: 'draft' | 'confirmed';
   fieldStatus: Record<string, { state: 'extracted' | 'confirmed' | 'manual'; confidence?: number }>;
   fields: ResolvedField[];
@@ -1046,6 +1047,7 @@ export type MoveBody = {
   thingIds: string[];
   to: MoveTarget;
   quantity?: number;
+  intent?: 'remove' | 'correct';
   /** 1.14: move it although it is with someone (asked first). */
   onLoan?: 'confirm';
 };
@@ -1257,6 +1259,7 @@ export type AttachmentView = {
   /** #348: a purchase's receipt whose file is also the thing's own (Paperwork, a warranty). */
   alsoInPaperwork?: true;
   createdBy: ActorRef;
+  createdAt?: string;
   /** For PATCH /api/v1/attachments/:id (If-Match). */
   rowVersion: number;
 };

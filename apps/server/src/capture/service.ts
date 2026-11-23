@@ -112,6 +112,8 @@ export type CaptureOptions = {
   /** `op` has checked the client id against its own 90-day window; `online` checks
    * it here (±7 days). */
   via: 'online' | 'op';
+  takenAt?: Date;
+  captureIntent?: 'record' | 'add';
 };
 
 export type CaptureResult = {
@@ -448,7 +450,13 @@ export async function capture(
       : await targetOf(client, locationId, input.target);
 
   const ai = fileIds.length > 0 ? await aiCaptureState(tx, client, locationId, role) : 'off';
-  const base = { mode: input.mode, batch_id: batchId, file_ids: allFileIds };
+  const base = {
+    mode: input.mode,
+    batch_id: batchId,
+    file_ids: allFileIds,
+    ...(opts.takenAt ? { captured_at: opts.takenAt.toISOString() } : {}),
+    ...(opts.captureIntent ? { capture_intent: opts.captureIntent } : {}),
+  };
 
   switch (input.mode) {
     case 'room':
@@ -483,7 +491,13 @@ export async function capture(
       actor: actorOf(scope),
       action: 'thing.capture',
       entity: { type: 'thing', id: thing.id },
-      after: { ...base, capture_id: id, attachment_ids: attachments },
+      after: {
+        ...base,
+        capture_id: id,
+        attachment_ids: attachments,
+        photo_count: fileIds.length,
+        document_count: documentIds.length,
+      },
       rootThingId: thing.id,
       subjects: [thing.id],
       requestId: ctx.requestId,
@@ -533,6 +547,7 @@ export async function capture(
       draft: named === null,
       captureBatchId: batchId,
       captureReviewOnly: input.reviewSuggestions ?? false,
+      ...(opts.captureIntent ? { observedAt: opts.takenAt } : {}),
       fieldStatus: name ? { name: { state: 'manual' } } : {},
       idChecked: true,
       audit: {

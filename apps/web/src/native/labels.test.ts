@@ -235,7 +235,7 @@ describe('approvedLabel and resolveLabel', () => {
 
     expect(
       await resolveLabel(connection, baseCache, 'BNK001', 'qr', undefined, false, adapters),
-    ).toEqual({ status: 'unassigned' });
+    ).toEqual({ status: 'unassigned', claim: { code: 'BNK001', locationId: 'loc-1' } });
 
     const ambiguous = await resolveLabel(
       connection,

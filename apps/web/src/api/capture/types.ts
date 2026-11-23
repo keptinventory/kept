@@ -609,6 +609,7 @@ export type BoxCheckBody = {
   id: string;
   lines: { thingId: string; expectedQty: string; foundQty: string }[];
   foundElsewhereIds?: string[];
+  unchanged?: true;
 };
 export type BoxCheckResult = {
   boxCheckId: string;

@@ -209,8 +209,10 @@ async function undoMove(args: UndoArgs): Promise<void> {
     place_id: string | null;
     container_id: string | null;
     deleted_at: Date | null;
+    location_uncertain: boolean;
+    last_seen_at: Date | null;
   }>(
-    `SELECT location_id, place_id, container_id, deleted_at FROM public.things
+    `SELECT location_id, place_id, container_id, deleted_at, location_uncertain, last_seen_at FROM public.things
       WHERE id = $1 FOR UPDATE`,
     [thingId],
   );
@@ -222,7 +224,16 @@ async function undoMove(args: UndoArgs): Promise<void> {
     container_id: now.container_id,
     location_id: now.location_id,
   };
-  const moved = ['place_id', 'container_id', 'location_id'].filter((f) => f in diff);
+  const intent = diff.placement_intent?.after;
+  if (intent === 'correct' || intent === 'remove') {
+    if ((now.last_seen_at?.toISOString() ?? null) !== (diff.placement_seen_at?.after ?? null)) {
+      await refuseIfChanged(args, ['last_seen_at']);
+    }
+    current.location_uncertain = now.location_uncertain;
+  }
+  const moved = ['place_id', 'container_id', 'location_id', 'location_uncertain'].filter(
+    (f) => f in diff,
+  );
   const relevant = Object.fromEntries(moved.map((f) => [f, diff[f] as object]));
   await refuseIfChanged(args, changedSince(relevant, current));
   const before = (f: string) =>
@@ -242,6 +253,14 @@ async function undoMove(args: UndoArgs): Promise<void> {
       locationId: before('location_id') as string,
       placeId: before('place_id'),
       containerId: before('container_id'),
+      ...(intent === 'correct' || intent === 'remove'
+        ? {
+            placement: {
+              intent,
+              uncertain: (diff.location_uncertain?.before ?? now.location_uncertain) === true,
+            },
+          }
+        : {}),
     },
     {
       locationId: event.locationId,

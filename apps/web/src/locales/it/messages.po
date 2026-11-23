@@ -30201,3 +30201,131 @@ msgstr "{name} è stato rimosso da questa scatola"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "{name} è stato ripristinato in questa scatola"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "Azione"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "Aggiungi contenuto"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "Aggiungi documenti"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "Aggiunti documenti a {name}"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "Assegna etichetta"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "Nome della scatola (facoltativo)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "Controllato {name}, nessuna modifica segnalata"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "Confermi che il contenuto è invariato?"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "Conferma di aver controllato tutte le voci elencate in questa scatola."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "Contenuto controllato, invariato"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "Correggi posizione"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "Corretta la posizione registrata di {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "Crea etichette vuote"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "Modifica foto e file"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "Inserisci una quantità che non superi quella registrata."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "Etichette per foglio US Letter"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "Ultima conferma diretta: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "Lascia vuoto per spostare l’intera voce."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "Posizione sconosciuta"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "Stampa fogli di etichette"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "Quantità da spostare"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "Registra il contenuto esistente"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "Rimuovere questo allegato?"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "Rimuovi senza indicare una destinazione"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "Rimuovere senza indicare una destinazione?"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "{name} rimosso senza registrare la destinazione"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "Ristampa il foglio di etichette"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "Salva documenti"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "La scheda sarà disponibile in «Senza posizione»."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "Aggiorna questo server Kept per usare l’azione."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "Usa come copertina"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "Scatole aperte di recente"

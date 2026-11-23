@@ -7,7 +7,7 @@ export type Destination = {
   id: string;
   locationId: string;
   name: string;
-  kind?: 'box' | 'place' | 'photos';
+  kind?: 'box' | 'place' | 'photos' | 'documents';
 };
 
 export function writableLocations(cache: InventoryCache) {
@@ -51,6 +51,7 @@ export function DestinationPicker({
   onChange,
   disabled,
   placesOnly,
+  onlyLocation,
   exclude,
 }: {
   cache: InventoryCache;
@@ -58,12 +59,15 @@ export function DestinationPicker({
   onChange: (destination: Destination | undefined) => void;
   disabled?: boolean;
   placesOnly?: boolean;
+  onlyLocation?: string;
   exclude?: string;
 }) {
   const { t } = useLingui();
   const locations = writableLocations(cache);
   const [locationId, setLocationId] = useState(value?.locationId);
-  const location = locations.find((entry) => entry.id === locationId) ?? locations[0];
+  const location =
+    locations.find((entry) => entry.id === (onlyLocation ?? locationId)) ??
+    (onlyLocation ? undefined : locations[0]);
   const boxes = placesOnly ? [] : cache.things.filter((thing) => thing.isContainer);
   const byId = new Map(boxes.map((box) => [box.id, box]));
   const excluded = new Set(exclude ? [exclude] : []);
@@ -91,17 +95,19 @@ export function DestinationPicker({
     }));
   return (
     <div className="grid gap-3">
-      <LocationPicker
-        cache={cache}
-        value={location?.id ?? null}
-        disabled={disabled}
-        onChange={(id) => {
-          setLocationId(id);
-          const next = locations.find((entry) => entry.id === id);
-          const room = cache.places.find((entry) => entry.id === next?.unplacedPlaceId);
-          onChange(room ? { ...room, kind: 'place' } : undefined);
-        }}
-      />
+      {!onlyLocation && (
+        <LocationPicker
+          cache={cache}
+          value={location?.id ?? null}
+          disabled={disabled}
+          onChange={(id) => {
+            setLocationId(id);
+            const next = locations.find((entry) => entry.id === id);
+            const room = cache.places.find((entry) => entry.id === next?.unplacedPlaceId);
+            onChange(room ? { ...room, kind: 'place' } : undefined);
+          }}
+        />
+      )}
       <Select
         label={placesOnly ? t`Room or place` : t`Room or box`}
         items={options}

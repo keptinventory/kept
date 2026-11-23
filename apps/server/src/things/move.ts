@@ -68,6 +68,7 @@ export const MoveBody = z.object({
   thingIds: ThingIds,
   to: MoveTarget,
   quantity: z.number().positive().max(999_999_999).multipleOf(0.001).optional(),
+  intent: z.enum(['correct', 'remove']).optional(),
   /** 1.14: move it although it is with someone (lending/guard.ts). */
   onLoan: z.literal('confirm').optional(),
 });
@@ -142,10 +143,12 @@ type Moving = {
   place_id: string | null;
   container_id: string | null;
   path: string[];
+  location_uncertain: boolean;
+  last_seen_at: Date | null;
 };
 
 const MOVING_COLUMNS = `t.id, t.location_id, l.owner_account_id, t.place_id, t.container_id,
-  coalesce((SELECT array_agg(s->>'name' ORDER BY n)
+  t.location_uncertain, t.last_seen_at, coalesce((SELECT array_agg(s->>'name' ORDER BY n)
               FROM jsonb_array_elements(kept.path_of(t.place_id, t.container_id))
                    WITH ORDINALITY AS x(s, n)), '{}') AS path`;
 
@@ -509,6 +512,8 @@ async function blobKeysOf(
   return keys;
 }
 
+type Placement = { intent: 'correct' | 'remove'; uncertain: boolean };
+
 type Applied = {
   crossAccount: boolean;
   registries: Created[];
@@ -525,6 +530,7 @@ async function applyMove(
   client: pg.ClientBase,
   things: Moving[],
   target: Target,
+  placement?: Placement,
 ): Promise<Applied> {
   const staying = things.filter((t) => t.location_id === target.locationId).map((t) => t.id);
   const leaving = things.filter((t) => t.location_id !== target.locationId);
@@ -534,9 +540,10 @@ async function applyMove(
     try {
       await client.query(
         `UPDATE public.things
-            SET place_id = $2, container_id = $3, location_uncertain = false, last_seen_at = now()
+            SET place_id = $2, container_id = $3, location_uncertain = $4,
+                last_seen_at = CASE WHEN $5 THEN last_seen_at ELSE now() END
           WHERE id = ANY ($1::uuid[])`,
-        [staying, target.placeId, target.containerId],
+        [staying, target.placeId, target.containerId, placement?.uncertain ?? false, !!placement],
       );
     } catch (err) {
       const pg = pgErrorOf(err);
@@ -599,6 +606,7 @@ async function moveAndAudit(
   target: Target,
   undo?: UndoWriter,
   undoable = true,
+  placement?: Placement,
 ): Promise<boolean> {
   const { client, scope } = ctx;
   const ids = things.map((t) => t.id);
@@ -609,7 +617,7 @@ async function moveAndAudit(
   if (moving.length === 0) return false;
   const movedIds = moving.map((t) => t.id);
 
-  const applied = await applyMove(client, moving, target);
+  const applied = await applyMove(client, moving, target, placement);
 
   const after = new Map((await movingThings(client, movedIds)).map((t) => [t.id, t]));
   const contents = await contentsOf(client, movedIds);
@@ -622,6 +630,7 @@ async function moveAndAudit(
     place_id: t.place_id,
     container_id: t.container_id,
     path: t.path,
+    ...(placement ? { location_uncertain: t.location_uncertain } : {}),
   });
   const events: AuditEventInput[] = [];
   for (const before of moving) {
@@ -631,7 +640,15 @@ async function moveAndAudit(
       action: 'thing.move' as const,
       entity: { type: 'thing', id: before.id },
       before: image(before),
-      after: image(now),
+      after: {
+        ...image(now),
+        ...(placement
+          ? {
+              placement_intent: placement.intent,
+              placement_seen_at: before.last_seen_at?.toISOString() ?? null,
+            }
+          : {}),
+      },
       rootThingId: before.id,
       subjects: [before.id, ...(contents.get(before.id) ?? [])],
       requestId: ctx.requestId,
@@ -723,7 +740,12 @@ export type UndoWriter = {
 export async function moveBackForUndo(
   ctx: Ctx,
   thingId: string,
-  back: { locationId: string; placeId: string | null; containerId: string | null },
+  back: {
+    locationId: string;
+    placeId: string | null;
+    containerId: string | null;
+    placement?: Placement;
+  },
   undo: UndoWriter,
 ): Promise<void> {
   const { client } = ctx;
@@ -756,7 +778,7 @@ export async function moveBackForUndo(
   await requireWritableTarget(client, target);
   const things = await movingThings(client, [thingId]);
   await requireWritableSources(client, things);
-  const moved = await moveAndAudit(ctx, things, target, undo);
+  const moved = await moveAndAudit(ctx, things, target, undo, true, back.placement);
   if (!moved) {
     throw new AppError('conflict', 409, "Can't undo: where it was is no longer there.");
   }
@@ -789,6 +811,28 @@ export async function moveThings(
     await requireThingVersion(client, ids[0] as string, expected);
   }
 
+  let placement: Placement | undefined;
+  if (body.intent) {
+    if (
+      expected === null ||
+      things.length !== 1 ||
+      body.quantity !== undefined ||
+      things[0]?.location_id !== target.locationId
+    ) {
+      throw invalid(
+        'Changing a recorded placement requires the current version of one item in this location.',
+      );
+    }
+    if (body.intent === 'remove') {
+      const { rowCount } = await client.query(
+        'SELECT 1 FROM public.places WHERE id = $1 AND location_id = $2 AND is_unplaced',
+        [target.placeId, target.locationId],
+      );
+      if (!rowCount) throw invalid('A removal without a destination must go to Unplaced.');
+    }
+    placement = { intent: body.intent, uncertain: body.intent === 'remove' };
+  }
+
   if (body.quantity !== undefined) {
     // Part of a quantity moves as a new thing split from it first (D10); all of it, as itself.
     const whole = await liveThing(client, ids[0] as string);
@@ -798,7 +842,7 @@ export async function moveThings(
       things = await movingThings(client, ids);
     }
   }
-  await moveAndAudit(ctx, things, target, undefined, opts.undoable !== false);
+  await moveAndAudit(ctx, things, target, undefined, opts.undoable !== false, placement);
   return { moved: ids };
 }
 

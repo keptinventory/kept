@@ -1,12 +1,20 @@
+import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useRef, useState } from 'react';
 import { capturePaths } from '@/api/capture/paths';
-import type { ExtractionsResponse, InboxItem, InboxPage, Suggestion } from '@/api/capture/types';
+import type {
+  BoxCheckBody,
+  ExtractionsResponse,
+  InboxItem,
+  InboxPage,
+  Suggestion,
+} from '@/api/capture/types';
 import { ApiError } from '@/api/client';
-import { qs } from '@/api/inventory/paths';
-import type { AttachmentView, PlaceView, ThingView } from '@/api/inventory/types';
+import { inventoryPaths, qs } from '@/api/inventory/paths';
+import type { AttachmentView, Page, PlaceView, ThingRow, ThingView } from '@/api/inventory/types';
 import { useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm';
 import { TextField } from '@/components/ui/text-field';
 import { usePlatform } from './adapters';
 import type { Connection } from './bridge';
@@ -18,6 +26,7 @@ import {
   loadDetail,
   loadPlace,
   pendingForRecord,
+  previewUrl,
   type RecordDetail,
 } from './inventory';
 import type { LabelBox } from './label-panel';
@@ -195,6 +204,7 @@ export function RecordScreen({
   online = true,
   onClose,
   onOpen,
+  onCreateBox,
   onCapture,
   onLabel,
   onCache,
@@ -209,6 +219,7 @@ export function RecordScreen({
   online?: boolean;
   onClose: () => void;
   onOpen: (target: Target) => void;
+  onCreateBox: () => void;
   onCapture: (destination: Destination, location: string) => void;
   onLabel: (mode: 'find' | 'enroll', box: OpenBox) => void;
   onCache: (detail: RecordDetail) => void;
@@ -218,6 +229,7 @@ export function RecordScreen({
   const { t } = useLingui();
   const adapters = usePlatform();
   const errorText = useErrorText();
+  const confirm = useConfirm();
   const [detail, setDetail] = useState<{ thing: ThingView; attachments: AttachmentView[] }>();
   const [place, setPlace] = useState<PlaceView>();
   const [unavailable, setUnavailable] = useState(false);
@@ -225,7 +237,11 @@ export function RecordScreen({
   const [status, setStatus] = useState('');
   const [request, setRequest] = useState(0);
   const [openingMedia, setOpeningMedia] = useState<string>();
-  const [editor, setEditor] = useState<'edit' | 'move' | 'actions'>();
+  const [editor, setEditor] = useState<'edit' | 'move' | 'correct' | 'actions'>();
+  const [editingFiles, setEditingFiles] = useState(false);
+  const [changing, setChanging] = useState(false);
+  const [checkId, setCheckId] = useState(newId);
+  const [childRows, setChildRows] = useState<ThingRow[]>([]);
   const describe = useRef(errorText);
   describe.current = errorText;
   const authErrorRef = useRef(onAuthError);
@@ -331,22 +347,112 @@ export function RecordScreen({
       ? { id: row.id, name, locationId: row.locationId, shortCode: row.shortCode }
       : null;
 
+  const browsable = !!box || target.kind === 'place';
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refresh thumbnails after record mutations.
+  useEffect(() => {
+    if (!online || !browsable) return;
+    let current = true;
+    const filter = target.kind === 'place' ? { placeId: target.id } : { containerId: target.id };
+    void adapters.transport
+      .request<Page<ThingRow>>(connection, inventoryPaths.things + qs({ ...filter, limit: 100 }))
+      .then((page) => {
+        if (current) setChildRows(page.items);
+      })
+      .catch((error: unknown) => {
+        if (!current) return;
+        setChildRows([]);
+        if (isAuthRefusal(error)) authErrorRef.current?.('expired');
+        else if (isRestoreEpochMismatch(error)) authErrorRef.current?.('restored');
+      });
+    return () => {
+      current = false;
+    };
+  }, [adapters, browsable, connection, online, request, target]);
+
   function changed() {
     setEditor(undefined);
     setRequest((value) => value + 1);
     onInventoryChanged();
   }
 
-  function photoUrl(url: string | null | undefined) {
-    if (!online || !url) return undefined;
+  async function update(work: () => Promise<void>) {
+    if (changing) return;
+    setChanging(true);
+    setStatus('');
     try {
-      const preview = new URL(url, connection.origin);
-      return preview.protocol === 'https:' && !preview.username && !preview.password
-        ? preview.href
-        : undefined;
-    } catch {
-      return undefined;
+      await work();
+    } catch (error) {
+      if (isAuthRefusal(error)) onAuthError?.('expired');
+      else if (isRestoreEpochMismatch(error)) onAuthError?.('restored');
+      else setStatus(errorText(error));
+    } finally {
+      setChanging(false);
     }
+  }
+
+  function checkContents() {
+    if (!box) return;
+    const id = box.id;
+    const body: BoxCheckBody = {
+      id: checkId,
+      unchanged: true,
+      lines: children.map((child) => ({
+        thingId: child.id,
+        expectedQty: child.quantity,
+        foundQty: child.quantity,
+      })),
+    };
+    return update(async () => {
+      if (
+        !(await confirm({
+          title: t`Confirm contents unchanged?`,
+          body: t`Confirm that you checked every listed entry in this bin.`,
+          confirmLabel: t`Confirm`,
+          cancelLabel: t`Cancel`,
+        }))
+      )
+        return;
+      await adapters.transport.request(connection, capturePaths.thingBoxCheck(id), {
+        method: 'POST',
+        body,
+        idempotencyKey: checkId,
+      });
+      setCheckId(newId());
+      changed();
+    });
+  }
+
+  function editAttachment(attachment: AttachmentView, cover: boolean) {
+    return update(async () => {
+      if (cover) {
+        const sort =
+          Math.min(
+            0,
+            ...(detail?.attachments ?? [])
+              .filter(({ role }) => role === 'photo')
+              .map((item) => item.sort),
+          ) - 1;
+        await adapters.transport.request(connection, inventoryPaths.attachment(attachment.id), {
+          method: 'PATCH',
+          ifMatch: attachment.rowVersion,
+          body: { sort },
+        });
+      } else {
+        if (
+          !(await confirm({
+            title: t`Remove this attachment?`,
+            confirmLabel: t`Remove`,
+            cancelLabel: t`Cancel`,
+            destructive: true,
+          }))
+        )
+          return;
+        await adapters.transport.request(connection, inventoryPaths.attachment(attachment.id), {
+          method: 'DELETE',
+        });
+      }
+      changed();
+    });
   }
 
   async function openRemoteFile(
@@ -391,6 +497,8 @@ export function RecordScreen({
     }
   }
 
+  const unknown = thing?.locationUncertain && thing.path.some((step) => step.isUnplaced);
+  const cover = online && previewUrl(thing?.thumbUrl, connection.origin);
   return (
     <section className="grid gap-5">
       <Button className="justify-self-start" variant="ghost" onPress={onClose}>
@@ -406,13 +514,37 @@ export function RecordScreen({
             </h2>
             {path && (
               <p className="text-ink-2">
-                {'locationUncertain' in row && row.locationUncertain && (
+                {unknown ? (
                   <>
-                    <Trans>Last known location</Trans>{' '}
+                    <Trans>Location unknown</Trans>{' '}
                   </>
+                ) : (
+                  'locationUncertain' in row &&
+                  row.locationUncertain && (
+                    <>
+                      <Trans>Last known location</Trans>{' '}
+                    </>
+                  )
                 )}
                 <bdi>{path}</bdi>
               </p>
+            )}
+            {unknown && !!thing?.lastKnownPath?.length && (
+              <p className="text-ink-2">
+                <Trans>Last known location</Trans>{' '}
+                <bdi>{[locationName, ...thing.lastKnownPath].filter(Boolean).join(' › ')}</bdi>
+              </p>
+            )}
+            {'lastSeenAt' in row && row.lastSeenAt && (
+              <p className="text-small text-ink-2">{t`Last directly confirmed: ${new Date(row.lastSeenAt).toLocaleString()}`}</p>
+            )}
+            {cover && (
+              <img
+                alt=""
+                src={cover}
+                referrerPolicy="no-referrer"
+                className="max-h-48 w-full rounded-lg object-cover"
+              />
             )}
             {'shortCode' in row && row.shortCode && (
               <p className="text-small text-ink-2">
@@ -451,12 +583,25 @@ export function RecordScreen({
                 <Trans>Add to this room</Trans>
               </Button>
             )}
+            {online && canEdit && place && !place.isUnplaced && (
+              <Button variant="secondary" onPress={onCreateBox}>
+                <Trans>Create box</Trans>
+              </Button>
+            )}
             {canEdit && target.kind === 'thing' && (
               <Button
                 variant="secondary"
                 onPress={() => onCapture({ ...target, name, kind: 'photos' }, path)}
               >
                 <Trans>Add photos</Trans>
+              </Button>
+            )}
+            {canEdit && thing && (
+              <Button
+                variant="secondary"
+                onPress={() => onCapture({ ...target, name, kind: 'documents' }, path)}
+              >
+                <Trans>Add documents</Trans>
               </Button>
             )}
             {online && canEdit && (thing || place) && (
@@ -469,6 +614,11 @@ export function RecordScreen({
                     <Button variant="secondary" onPress={() => setEditor('move')}>
                       <Trans>Move</Trans>
                     </Button>
+                    {editor === 'actions' && (
+                      <Button variant="secondary" onPress={() => setEditor('correct')}>
+                        <Trans>Correct location</Trans>
+                      </Button>
+                    )}
                     <Button variant="secondary" onPress={() => setEditor('actions')}>
                       <Trans>More actions</Trans>
                     </Button>
@@ -564,6 +714,15 @@ export function RecordScreen({
               </ul>
             </section>
           )}
+          {online && canEdit && attachments.length > 0 && (
+            <Button
+              variant="ghost"
+              className="justify-self-start"
+              onPress={() => setEditingFiles((value) => !value)}
+            >
+              {editingFiles ? t`Done` : t`Edit photos and files`}
+            </Button>
+          )}
           {(['photo', 'other'] as const).map((group) => {
             const entries = attachments.filter(
               (attachment) => (attachment.role === 'photo') === (group === 'photo'),
@@ -583,7 +742,10 @@ export function RecordScreen({
                     const original = (detail?.attachments ?? place?.attachments)?.find(
                       (entry) => entry.id === attachment.id,
                     );
-                    const thumbnail = group === 'photo' && photoUrl(original?.file?.thumbUrl);
+                    const thumbnail =
+                      online &&
+                      group === 'photo' &&
+                      previewUrl(original?.file?.thumbUrl, connection.origin);
                     const preview = group === 'photo' && !canEdit;
                     return (
                       <li key={attachment.id}>
@@ -617,6 +779,36 @@ export function RecordScreen({
                             <bdi>{label}</bdi>
                           </span>
                         )}
+                        {original?.createdAt && (
+                          <time
+                            dateTime={original.createdAt}
+                            className="block text-small text-ink-2"
+                          >
+                            {new Date(original.createdAt).toLocaleString()}
+                          </time>
+                        )}
+                        {original && editingFiles && canEdit && online && (
+                          <div className="flex flex-wrap gap-1">
+                            {thing && original.role === 'photo' && original.file && (
+                              <Button
+                                variant="ghost"
+                                size="small"
+                                isDisabled={changing}
+                                onPress={() => void editAttachment(original, true)}
+                              >
+                                <Trans>Use as cover</Trans>
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="small"
+                              isDisabled={changing}
+                              onPress={() => void editAttachment(original, false)}
+                            >
+                              <Trans>Remove</Trans>
+                            </Button>
+                          </div>
+                        )}
                       </li>
                     );
                   })}
@@ -629,6 +821,16 @@ export function RecordScreen({
               <h3 className="font-semibold">
                 <Trans>Contents</Trans>
               </h3>
+              {box && online && canEdit && !cache?.truncated && children.length <= 500 && (
+                <Button
+                  className="my-2"
+                  variant="secondary"
+                  isPending={changing}
+                  onPress={() => void checkContents()}
+                >
+                  <Trans>Contents checked, unchanged</Trans>
+                </Button>
+              )}
               {children.length === 0 && childPlaces.length === 0 ? (
                 <p className="text-ink-2">
                   <Trans>No cached contents.</Trans>
@@ -657,7 +859,28 @@ export function RecordScreen({
                           onOpen({ id: child.id, kind: 'thing', locationId: child.locationId })
                         }
                       >
+                        {online &&
+                          (() => {
+                            const image = previewUrl(
+                              childRows.find((hit) => hit.id === child.id)?.thumbUrl,
+                              connection.origin,
+                            );
+                            return (
+                              image && (
+                                <img
+                                  alt=""
+                                  src={image}
+                                  loading="lazy"
+                                  referrerPolicy="no-referrer"
+                                  className="kept-thumb"
+                                />
+                              )
+                            );
+                          })()}
                         <bdi>{child.name ?? t`Untitled`}</bdi>
+                        {Number(child.quantity) > 1 && (
+                          <span className="text-small">{t`Quantity: ${child.quantity}`}</span>
+                        )}
                       </Button>
                     </li>
                   ))}
@@ -672,6 +895,17 @@ export function RecordScreen({
               cache={cache}
               target={target}
               container={!!box}
+              canEdit={!!canEdit}
+              attachments={detail?.attachments ?? place?.attachments ?? []}
+              onOpen={onOpen}
+              onOpenPhoto={(attachment) => {
+                if (canEdit || attachment.file?.displayUrl)
+                  void openRemoteFile(attachment, !canEdit);
+              }}
+              onChanged={() => {
+                setRequest((value) => value + 1);
+                onInventoryChanged();
+              }}
               onAuthError={onAuthError}
             />
           )}

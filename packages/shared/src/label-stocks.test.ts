@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { cellsFor, hasQr, isSheet, isTape, LABEL_STOCKS, labelStock } from './label-stocks.js';
 
 describe('LABEL_STOCKS', () => {
-  it('has the ten stocks, in order', () => {
+  it('has the supported stocks, in order', () => {
     expect(LABEL_STOCKS.map((s) => s.key)).toEqual([
       'thermal_50x30',
       'thermal_40x30',
@@ -14,6 +14,9 @@ describe('LABEL_STOCKS', () => {
       'a4_24_70x37',
       'a4_65_38x21',
       'letter_30_67x25',
+      'letter_writable_8',
+      'letter_writable_12',
+      'letter_writable_24',
     ]);
   });
 

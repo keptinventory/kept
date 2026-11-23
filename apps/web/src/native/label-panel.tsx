@@ -11,6 +11,7 @@ import { TextField } from '@/components/ui/text-field';
 import { isolate } from '@/lib/bidi';
 import { usePlatform } from './adapters';
 import type { Connection, FindTagEvent, TagReading } from './bridge';
+import { ClaimBinLabel } from './claim-bin-label';
 import type { InventoryCache } from './inventory';
 import {
   describeTargetFromCache,
@@ -61,6 +62,7 @@ export function LabelPanel({
   const [finding, setFinding] = useState(false);
   const [findPausedState, setFindPausedState] = useState<'timeout' | 'interrupted' | null>(null);
   const [camera, setCamera] = useState(false);
+  const [claim, setClaim] = useState<{ code: string; locationId: string }>();
   const [typed, setTyped] = useState('');
   const [status, setStatus] = useState('');
   const [candidates, setCandidates] = useState<ScanCandidate[]>([]);
@@ -272,6 +274,7 @@ export function LabelPanel({
   );
 
   async function read(text: string, mode: 'qr' | 'nfc', format?: string) {
+    setClaim(undefined);
     const result = await resolveLabel(connection, cache, text, mode, format, false, adapters);
     if (!live.current) return;
     if (action === 'find') {
@@ -290,8 +293,10 @@ export function LabelPanel({
     if (result.status === 'foreign') setStatus(t`This tag belongs to a different Kept server.`);
     else if (result.status === 'malformed')
       setStatus(t`This tag does not contain a Kept label URL.`);
-    else if (result.status === 'unassigned') setStatus(t`This label has not been assigned.`);
-    else if (result.status === 'not_kept') setStatus(t`Not a Kept label.`);
+    else if (result.status === 'unassigned') {
+      setStatus(t`This label has not been assigned.`);
+      setClaim(result.claim);
+    } else if (result.status === 'not_kept') setStatus(t`Not a Kept label.`);
     else if (result.status === 'unresolved') setStatus(t`This label could not be checked offline.`);
     else setStatus(t`This label is unavailable in your Kept.`);
   }
@@ -500,6 +505,17 @@ export function LabelPanel({
             </p>
           )}
         </div>
+      )}
+      {action === 'identify' && cache && claim && (
+        <ClaimBinLabel
+          key={claim.code}
+          connection={connection}
+          cache={cache}
+          code={claim.code}
+          locationId={claim.locationId}
+          onOpen={onOpen}
+          onAuthError={onAuthError}
+        />
       )}
       {action === 'enroll' ? (
         <>

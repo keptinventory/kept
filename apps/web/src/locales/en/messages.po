@@ -30201,3 +30201,131 @@ msgstr "{name} removed from this box"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "{name} restored to this box"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "Action"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "Add contents"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "Add documents"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "Added documents to {name}"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "Assign label"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "Box name (optional)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "Checked {name}, no changes reported"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "Confirm contents unchanged?"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "Confirm that you checked every listed entry in this bin."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "Contents checked, unchanged"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "Correct location"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "Corrected the recorded location of {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "Create blank labels"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "Edit photos and files"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "Enter a quantity within the recorded amount."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "Labels per US Letter sheet"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "Last directly confirmed: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "Leave blank to move the entire entry."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "Location unknown"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "Print label sheets"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "Quantity to move"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "Record existing contents"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "Remove this attachment?"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "Remove without a destination"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "Remove without a destination?"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "Removed {name}, destination not recorded"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "Reprint label sheet"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "Save documents"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "This record will be available in Unplaced."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "Update this Kept server to use this action."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "Use as cover"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "Recently opened boxes"

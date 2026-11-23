@@ -66,6 +66,10 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'thing.lifecycle': (p) =>
     p.lifecycle ? `Marked ${p.name} as ${words(p.lifecycle)}` : `Changed the status of ${p.name}`,
   'thing.move': (p) => `Moved ${p.name}`,
+  'thing.move.corrected': (p) => `Corrected the recorded location of ${p.name}`,
+  'thing.move.removed': (p) => `Removed ${p.name}, destination not recorded`,
+  'thing.capture.recorded': (p) => `Recorded ${p.name}`,
+  'box.check.unchanged': (p) => `Checked ${p.name}, no changes reported`,
   'thing.move.in': () => 'Moved in from another location',
   'thing.move.out': (p) => `Moved ${p.name} to another location`,
   'thing.trash': (p) => `Trashed ${p.name}`,
@@ -106,6 +110,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'attachment.delete': (p) => `Removed a file from ${p.name}`,
   // A capture that added a photo to a thing that was already there, or named one without a photo.
   'thing.capture.attach': (p) => `Added a photo to ${p.name}`,
+  'thing.capture.documents': (p) => `Added documents to ${p.name}`,
   'thing.capture.named': (p) => `Added ${p.name}`,
   'report.generate.condition': (p) => `Made a condition report for ${p.name}`,
   'report.generate.move': (p) => `Made a moving report for ${p.name}`,
@@ -519,6 +524,16 @@ function keyOf(event: RenderedAuditEvent, ctx: SummaryContext): SummaryKey {
   }
   if (event.undo_of) return 'undo';
   switch (action) {
+    case 'thing.move': {
+      const intent = afterOf(event, 'placement_intent');
+      return intent === 'remove'
+        ? 'thing.move.removed'
+        : intent === 'correct'
+          ? 'thing.move.corrected'
+          : action;
+    }
+    case 'box.check':
+      return afterOf(event, 'contents_unchanged') === true ? 'box.check.unchanged' : action;
     // D236: the stock went back up (the line shrank or went, the service was deleted or undone).
     case 'thing.stock_use': {
       const q = plainOf(event, 'quantity');
@@ -527,7 +542,13 @@ function keyOf(event: RenderedAuditEvent, ctx: SummaryContext): SummaryKey {
     case 'thing.capture': {
       if (event.diff?.reading_id || event.diff?.meter_id) return 'thing.capture.reading';
       // A photo added to a thing that was there already: the row has no thing of its own.
-      if (event.diff?.attachment_ids && !event.diff?.name) return 'thing.capture.attach';
+      if (event.diff?.attachment_ids && !event.diff?.name)
+        return afterOf(event, 'photo_count') === 0
+          ? 'thing.capture.documents'
+          : 'thing.capture.attach';
+      const intent = afterOf(event, 'capture_intent');
+      if (intent === 'record') return 'thing.capture.recorded';
+      if (intent === 'add') return 'thing.capture.named';
       const files = afterOf(event, 'file_ids');
       return Array.isArray(files) && files.length === 0 ? 'thing.capture.named' : action;
     }

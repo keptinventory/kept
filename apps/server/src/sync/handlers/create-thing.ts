@@ -14,7 +14,10 @@ import { requireLive, targetRef } from './common.js';
 // the capture standing with its own code and a `label_claim` inbox item: the op answers
 // `needs_review` / `already_claimed` with that item (D112).
 
-export const createThing: Handler<'create_thing'> = async (ctx, { locationId, payload }) => {
+export const createThing: Handler<'create_thing'> = async (
+  ctx,
+  { locationId, payload, takenAt },
+) => {
   const refs = [targetRef(payload.target as { placeId?: string; containerId?: string })].filter(
     (r) => r !== null,
   );
@@ -22,7 +25,8 @@ export const createThing: Handler<'create_thing'> = async (ctx, { locationId, pa
   const gone = await requireLive(ctx.client, refs, locationId);
   if (gone) return gone;
 
-  const out = await capture(ctx, { ...payload, locationId }, { via: 'op' });
+  const { captureIntent, ...input } = payload;
+  const out = await capture(ctx, { ...input, locationId }, { via: 'op', takenAt, captureIntent });
   const entity: Entity | undefined = out.thing
     ? { type: 'thing', id: out.thing.id, shortCode: out.thing.shortCode }
     : out.purchaseId

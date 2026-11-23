@@ -36,6 +36,17 @@ export type InventoryCache = {
   details: Record<string, RecordDetail>;
 };
 
+export function previewUrl(url: string | null | undefined, origin: string): string | undefined {
+  if (!url) return;
+  try {
+    const preview = new URL(url, origin);
+    if (preview.protocol === 'https:' && !preview.username && !preview.password)
+      return preview.href;
+  } catch {
+    /* An unavailable derivative falls back to the record name. */
+  }
+}
+
 const searchTerms = (value: string | null | undefined) => queryWords(value ?? '');
 
 export function localInventorySearch(cache: InventoryCache, query: string): SnapThing[] {

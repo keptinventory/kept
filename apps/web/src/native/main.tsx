@@ -30,10 +30,12 @@ import {
   inventoryPath,
   loadInventory,
   localInventorySearch,
+  previewUrl,
   type RecordDetail,
   readInventory,
 } from './inventory';
 import { FIND_TARGET_KEY, type LabelBox, LabelPanel } from './label-panel';
+import { LabelSheets } from './label-sheets';
 import { resolveLabel, type Target } from './labels';
 import {
   canRetarget,
@@ -59,8 +61,10 @@ import './native.css';
 type Screen =
   | { kind: 'home' }
   | { kind: 'record'; target: Target; backToRooms?: boolean }
-  | { kind: 'new' }
+  | { kind: 'new'; place?: Target }
   | { kind: 'rooms' }
+  | { kind: 'unplaced' }
+  | { kind: 'labelSheets' }
   | { kind: 'trash' }
   | { kind: 'capture'; destination?: Destination; location?: string; back?: Target }
   | { kind: 'identify' }
@@ -72,25 +76,45 @@ type PersistedFindTarget = LabelBox;
 function ThingList({
   items,
   onOpen,
+  origin,
 }: {
-  items: { id: string; name: string | null; locationId: string; path: string }[];
+  items: {
+    id: string;
+    name: string | null;
+    locationId: string;
+    path: string;
+    thumbUrl?: string | null;
+  }[];
+  origin?: string;
   onOpen: (target: Target) => void;
 }) {
   const { t } = useLingui();
   return (
     <ul className="grid gap-2">
-      {items.map((thing) => (
-        <li key={thing.id}>
-          <Button
-            variant="secondary"
-            className="kept-phone-row"
-            onPress={() => onOpen({ id: thing.id, kind: 'thing', locationId: thing.locationId })}
-          >
-            <bdi className="text-body">{thing.name ?? t`Untitled`}</bdi>
-            {thing.path && <bdi className="font-normal text-small text-ink-2">{thing.path}</bdi>}
-          </Button>
-        </li>
-      ))}
+      {items.map((thing) => {
+        const image = origin && previewUrl(thing.thumbUrl, origin);
+        return (
+          <li key={thing.id}>
+            <Button
+              variant="secondary"
+              className="kept-phone-row"
+              onPress={() => onOpen({ id: thing.id, kind: 'thing', locationId: thing.locationId })}
+            >
+              {image && (
+                <img
+                  alt=""
+                  src={image}
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  className="kept-thumb"
+                />
+              )}
+              <bdi className="text-body">{thing.name ?? t`Untitled`}</bdi>
+              {thing.path && <bdi className="font-normal text-small text-ink-2">{thing.path}</bdi>}
+            </Button>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -229,6 +253,8 @@ export function Inventory({
   const [completions, setCompletions] = useState<Record<string, CompletionState>>({});
   const [held, setHeld] = useState<PendingCapture[]>([]);
   const [stats, setStats] = useState<StorageStats>();
+  const [recentBoxes, setRecentBoxes] = useState<string[]>([]);
+  const recentRef = useRef<string[]>([]);
   const [savedFindTarget, setSavedFindTarget] = useState<PersistedFindTarget>();
   const [retargetingId, setRetargetingId] = useState<string>();
   const [retargetBoxId, setRetargetBoxId] = useState<string | null>(null);
@@ -242,7 +268,18 @@ export function Inventory({
   const running = useRef<Promise<void> | null>(null);
   const mounted = useRef(true);
   const goHome = () => setScreen({ kind: 'home' });
-  const open = (target: Target) => setScreen({ kind: 'record', target });
+  const open = (target: Target, backToRooms = false) => {
+    setScreen({ kind: 'record', target, backToRooms });
+    if (
+      target.kind !== 'thing' ||
+      !cacheRef.current?.things.find((item) => item.id === target.id)?.isContainer
+    )
+      return;
+    const next = [target.id, ...recentRef.current.filter((id) => id !== target.id)].slice(0, 6);
+    recentRef.current = next;
+    setRecentBoxes(next);
+    void adapters.outbox.setValue(connection, 'recentBoxes', JSON.stringify(next)).catch(() => {});
+  };
 
   const display = useCallback((next: InventoryCache | undefined) => {
     cacheRef.current = next;
@@ -358,6 +395,20 @@ export function Inventory({
       .getValue(connection, FIND_TARGET_KEY)
       .then((raw) => {
         if (raw && mounted.current) setSavedFindTarget(JSON.parse(raw) as PersistedFindTarget);
+      })
+      .catch(() => {});
+    void adapters.outbox
+      .getValue(connection, 'recentBoxes')
+      .then((raw) => {
+        if (!raw || !mounted.current || recentRef.current.length) return;
+        const saved: unknown = JSON.parse(raw);
+        if (Array.isArray(saved)) {
+          const ids = saved
+            .filter((value): value is string => typeof value === 'string')
+            .slice(0, 6);
+          recentRef.current = ids;
+          setRecentBoxes(ids);
+        }
       })
       .catch(() => {});
     void refresh();
@@ -921,6 +972,20 @@ export function Inventory({
             </Button>
             <Button
               variant="secondary"
+              isDisabled={!cache}
+              onPress={() => setScreen({ kind: 'unplaced' })}
+            >
+              <Trans>Unplaced</Trans>
+            </Button>
+            <Button
+              variant="secondary"
+              isDisabled={!cache || !online}
+              onPress={() => setScreen({ kind: 'labelSheets' })}
+            >
+              <Trans>Print label sheets</Trans>
+            </Button>
+            <Button
+              variant="secondary"
               isDisabled={!online}
               onPress={() => setScreen({ kind: 'batches' })}
             >
@@ -946,8 +1011,17 @@ export function Inventory({
           <h2 className="text-title font-semibold">
             {query.trim() ? t`Search results` : t`Boxes`}
           </h2>
-          <ThingList items={things} onOpen={open} />
-          {found?.places.map((place) => (
+          <ThingList items={things} onOpen={open} origin={online ? connection.origin : undefined} />
+          {(
+            found?.places ??
+            (query.trim() && cachedSearch
+              ? (cache?.places.filter(
+                  (place) =>
+                    !place.isUnplaced &&
+                    place.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+                ) ?? [])
+              : [])
+          ).map((place) => (
             <Button
               key={place.id}
               variant="secondary"
@@ -1015,6 +1089,7 @@ export function Inventory({
           onClose={screen.backToRooms ? () => setScreen({ kind: 'rooms' }) : goHome}
           onOpen={open}
           onCache={cacheDetail}
+          onCreateBox={() => setScreen({ kind: 'new', place: screen.target })}
           onCapture={(destination, location) =>
             setScreen({ kind: 'capture', destination, location, back: screen.target })
           }
@@ -1029,7 +1104,8 @@ export function Inventory({
         <NewBoxForm
           connection={connection}
           cache={cache}
-          onClose={goHome}
+          place={cache.places.find((entry) => entry.id === screen.place?.id)}
+          onClose={() => (screen.place ? open(screen.place, true) : goHome())}
           onCreated={(id, locationId) => {
             open({ id, locationId, kind: 'thing' });
             void refresh();
@@ -1041,8 +1117,9 @@ export function Inventory({
           connection={connection}
           cache={cache}
           online={online}
+          recent={recentBoxes}
           onClose={goHome}
-          onOpen={(target) => setScreen({ kind: 'record', target, backToRooms: true })}
+          onOpen={(target) => open(target, true)}
           onCreated={(target) => {
             setScreen({ kind: 'record', target, backToRooms: true });
             void refresh();
@@ -1068,7 +1145,10 @@ export function Inventory({
           connection={connection}
           cache={cache}
           action="identify"
-          onOpen={open}
+          onOpen={(target) => {
+            open(target);
+            if (online) void refresh();
+          }}
           onClose={goHome}
           onAuthError={onSignOut}
         />
@@ -1091,6 +1171,35 @@ export function Inventory({
           }
           onAuthError={onSignOut}
         />
+      )}
+      {screen.kind === 'labelSheets' && cache && (
+        <LabelSheets
+          connection={connection}
+          cache={cache}
+          onClose={goHome}
+          onAuthError={onSignOut}
+        />
+      )}
+      {screen.kind === 'unplaced' && cache && (
+        <section className="grid gap-3">
+          <Button variant="ghost" className="justify-self-start" onPress={goHome}>
+            <Trans>Back</Trans>
+          </Button>
+          <h2 className="text-title font-semibold">
+            <Trans>Unplaced</Trans>
+          </h2>
+          <ThingList
+            onOpen={open}
+            items={cache.things
+              .filter(
+                (thing) =>
+                  thing.placeId ===
+                  cache.locations.find((location) => location.id === thing.locationId)
+                    ?.unplacedPlaceId,
+              )
+              .map((thing) => ({ ...thing, path: inventoryPath(cache, thing).join(' › ') }))}
+          />
+        </section>
       )}
       {screen.kind === 'trash' && (
         <Trash

@@ -9,8 +9,8 @@ See the [NFC runbook](../../docs/runbooks/nfc-mvp.md) for the integrated setup a
 
 - Use **Capture inventory** to pick a room or box, enter the item, and add original photos and PDFs. Capture works offline with a cached destination. Open **Rooms** to browse rooms or create a room while connected.
 - Open a bin or item and choose **Add photos** to record its appearance without changing the inventory. The **Photos** section shows available previews and opens the authorized file. **Edit** changes the record, **Move** changes its location, and **More actions** includes **Seen here**, **Not here**, and **Move to Trash**. Restore an item from **Trash** on the home screen.
-- Use **Scan QR or NFC** to open an existing label. To print a bin label, open **QR and NFC label**, then **Share QR label PDF**. The 3 × 2 inch PDF uses the bin’s existing HTTPS label and opens in the iOS share sheet.
-- **History** shows who performed a recorded action and when the server logged it. A photo observation is separate from adding, moving, or removing inventory. Bin history includes direct contents changes with recorded bin IDs. A record marked **Not here** keeps its last known location visible.
+- Use **Scan QR or NFC** to open an existing label. To print a bin label, open **QR and NFC label**, then **Share QR label PDF**. The 3 × 2 inch PDF uses the bin’s existing HTTPS label and opens in the iOS share sheet. Use **Print label sheets** for writable 8-, 12- or 24-label US Letter sheets. Scan a blank label to assign it to a new or existing box.
+- **History** shows who performed a recorded action and when the server logged it. Capture records existing contents by default. Change **Action** to **Add contents** when you put something in. **Add photos** logs an observation. Use **Contents checked, unchanged** after checking every direct entry. **More actions** includes recording a location correction or removing an item to **Unplaced**. Bin history includes direct contents changes with recorded bin IDs. A record marked **Not here** keeps its last known location visible.
 
 ---
 

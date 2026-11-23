@@ -5,6 +5,7 @@ import {
   type CompletionState,
   type Connection,
   type FindTagEvent,
+  type LabelSheet,
   type NativeRequestOptions,
   native,
   nativeRequest,
@@ -88,6 +89,7 @@ export type PlatformMedia = {
     input: { thing?: string; file: string; mime: string; variant?: 'display' },
   ): Promise<void>;
   openPending(connection: Connection, input: { id: string; file: string }): Promise<void>;
+  shareLabelSheet?(connection: Connection, input: LabelSheet): Promise<void>;
   shareLabelPdf(connection: Connection, input: { url: string; name: string }): Promise<void>;
   openHeld(
     connection: Connection,
@@ -285,6 +287,9 @@ export const capacitorAdapters: PlatformAdapters = {
     },
     openPending(connection, input) {
       return native.openPendingMedia({ context: connection.id, ...input });
+    },
+    shareLabelSheet(connection, input) {
+      return native.shareLabelSheet({ context: connection.id, ...input });
     },
     shareLabelPdf(connection, input) {
       return native.shareLabelPdf({ context: connection.id, ...input });

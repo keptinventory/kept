@@ -1,5 +1,6 @@
 import {
   type DropReason,
+  NATIVE_CAPTURE_PAYLOAD_VERSION,
   newId,
   type OpKind,
   OUTCOMES,
@@ -244,6 +245,7 @@ async function applyOne(
       if (
         prior.payload_version === PAYLOAD_VERSION &&
         usesNativeVersion &&
+        item.payloadVersion === NATIVE_CAPTURE_PAYLOAD_VERSION &&
         prior.request_hash === requestHash({ ...item, payloadVersion: PAYLOAD_VERSION }) &&
         parsedPayload(item.op, item.payloadVersion, item.payload, opts.window)
       ) {

@@ -10,7 +10,7 @@ import {
   undoConflict,
 } from '../audit/undo.js';
 import { assertClientId, encodeCursor, type PageRequest } from '../http/conventions.js';
-import { invalid, notFound } from '../http/errors.js';
+import { conflict, invalid, notFound } from '../http/errors.js';
 import { enqueueReindex } from '../search/jobs.js';
 import { type Ctx, requireRole, splitThing, writableThing } from '../things/service.js';
 
@@ -47,6 +47,7 @@ export const BoxCheckBody = z.strictObject({
     .array(z.strictObject({ thingId: z.uuid(), expectedQty: Decimal, foundQty: Decimal }))
     .max(MAX_LINES),
   foundElsewhereIds: z.array(z.uuid()).max(200).optional(),
+  unchanged: z.literal(true).optional(),
 });
 export type BoxCheckBody = z.infer<typeof BoxCheckBody>;
 
@@ -134,7 +135,25 @@ export async function boxCheck(
   if (elsewhere.some((x) => lineIds.includes(x) || x === boxId)) {
     throw invalid('foundElsewhereIds: things that are not already lines, nor the box itself.');
   }
-  if (lines.length === 0 && elsewhere.length === 0) throw invalid('Nothing was counted.');
+  if (body.unchanged) {
+    if (elsewhere.length || lines.some((l) => l.expected !== l.found)) {
+      throw invalid('An unchanged check cannot add or remove contents.');
+    }
+    await client.query('SELECT id FROM public.things WHERE id = $1 FOR UPDATE', [boxId]);
+    const { rows: children } = await client.query<{ id: string; quantity: string }>(
+      'SELECT id, quantity FROM public.things WHERE container_id = $1 AND deleted_at IS NULL ORDER BY id FOR UPDATE',
+      [boxId],
+    );
+    const counted = new Map(lines.map((line) => [line.thingId, line.expected]));
+    if (
+      children.length !== lines.length ||
+      children.some((child) => counted.get(child.id) !== Number(child.quantity))
+    ) {
+      throw conflict('Box contents changed. Reopen the box before checking it.');
+    }
+  } else if (lines.length === 0 && elsewhere.length === 0) {
+    throw invalid('Nothing was counted.');
+  }
 
   const before = await statesOf(client, [...lineIds, ...elsewhere]);
   for (const l of lines) {
@@ -238,6 +257,7 @@ export async function boxCheck(
     after: {
       state: Object.fromEntries(touched.map((x) => [x, stateOf(after.get(x) as Row)])),
       box_check_id: id,
+      ...(body.unchanged ? { contents_unchanged: true } : {}),
       split: result.split,
       moved_in: moved,
     },

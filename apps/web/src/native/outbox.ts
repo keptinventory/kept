@@ -1,6 +1,7 @@
 import {
   CreateThingPayload,
   KEPT_VERSION,
+  NATIVE_INVENTORY_PAYLOAD_VERSION,
   newId,
   PAYLOAD_VERSION,
   type SyncOpsResponse,
@@ -22,6 +23,7 @@ export type DraftFields = {
   boxId?: string;
   placeId?: string;
   attachToThingId?: string;
+  captureIntent?: 'record' | 'add';
   name: string;
   note?: string;
   quantity?: string;
@@ -97,6 +99,7 @@ export function isAuthRefusal(error: unknown): boolean {
 export async function ensureCaptureCompatible(
   connection: Connection,
   adapters: PlatformAdapters = capacitorAdapters,
+  version = NATIVE_CAPTURE_PAYLOAD_VERSION,
 ): Promise<CaptureCapabilities> {
   let caps: unknown;
   try {
@@ -137,7 +140,7 @@ export async function ensureCaptureCompatible(
     caps !== null &&
     (caps as CaptureCapabilities).contractVersion === NATIVE_CONTRACT_VERSION &&
     Array.isArray((caps as CaptureCapabilities).capturePayloadVersions) &&
-    (caps as CaptureCapabilities).capturePayloadVersions.includes(NATIVE_CAPTURE_PAYLOAD_VERSION) &&
+    (caps as CaptureCapabilities).capturePayloadVersions.includes(version) &&
     (caps as CaptureCapabilities).account === connection.account &&
     (caps as CaptureCapabilities).epoch === connection.epoch;
   if (!valid) throw new ReplayError('compatibility_hold');
@@ -242,8 +245,11 @@ export async function replayCapture(
   adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<void> {
   // Contract v1: negotiate before uploading files or submitting capture mutations.
-  await ensureCaptureCompatible(connection, adapters);
   const fields = draftFields(capture);
+  const required = fields.captureIntent
+    ? NATIVE_INVENTORY_PAYLOAD_VERSION
+    : NATIVE_CAPTURE_PAYLOAD_VERSION;
+  await ensureCaptureCompatible(connection, adapters, required);
   const uploadedFiles: { fileId: string; role: 'photo' | 'document'; sha256: string }[] = [];
 
   for (const { file, sha256 } of capture.files) {
@@ -276,6 +282,7 @@ export async function replayCapture(
       ? { attachToThingId: fields.attachToThingId }
       : {
           reviewSuggestions: true,
+          captureIntent: fields.captureIntent,
           name: fields.name,
           note: fields.note,
           quantity: fields.quantity,
@@ -295,9 +302,7 @@ export async function replayCapture(
             clientVersion: KEPT_VERSION,
             // Contract v1: native review captures are payload v2; a stored v1 draft
             // sends the same body and identifiers as v2 (server handles exact replays).
-            payloadVersion: fields.attachToThingId
-              ? PAYLOAD_VERSION
-              : NATIVE_CAPTURE_PAYLOAD_VERSION,
+            payloadVersion: fields.attachToThingId ? PAYLOAD_VERSION : required,
             clientId: capture.id,
             idempotencyKey: fields.attemptId ?? capture.id,
             op: 'create_thing',
@@ -481,6 +486,7 @@ export function heldCaptureExport(
       ...(locationName ? { locationName } : {}),
     },
     name: fields.name,
+    ...(fields.captureIntent ? { captureIntent: fields.captureIntent } : {}),
     ...(fields.note ? { note: fields.note } : {}),
     ...(fields.quantity ? { quantity: fields.quantity } : {}),
     ...(fields.batchId ? { batchId: fields.batchId } : {}),

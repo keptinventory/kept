@@ -271,6 +271,7 @@ export type ThingView = ThingRow & {
   acquiredFrom: string | null;
   provenanceNotes: string | null;
   locationUncertain: boolean;
+  lastKnownPath?: string[];
   reviewState: 'draft' | 'confirmed';
   fieldStatus: Record<string, unknown>;
   fields: ResolvedFieldView[];
@@ -406,6 +407,19 @@ export async function viewOf(
   const rack = await thingRackOf(client, r);
 
   const row = await rowOf(files, await rowThumbKeys(client, files, [r]), r);
+  const lastKnownPath =
+    row.path.some((step) => step.isUnplaced) && r.location_uncertain
+      ? (
+          await client.query<{ path: unknown }>(
+            `SELECT diff->'path'->'before' AS path FROM public.audit_events
+        WHERE location_id = $1 AND entity_id = $2 AND action = 'thing.move'
+          AND diff->'placement_intent'->>'after' = 'remove' AND undo_of IS NULL
+          AND diff->'place_id'->>'after' = $3
+        ORDER BY at DESC, id DESC LIMIT 1`,
+            [r.location_id, r.id, r.place_id],
+          )
+        ).rows[0]?.path
+      : undefined;
   const ended =
     r.lifecycle === 'in_use'
       ? null
@@ -444,6 +458,9 @@ export async function viewOf(
     acquiredFrom: r.acquired_from,
     provenanceNotes: r.provenance_notes,
     locationUncertain: r.location_uncertain,
+    ...(Array.isArray(lastKnownPath)
+      ? { lastKnownPath: lastKnownPath.filter((part): part is string => typeof part === 'string') }
+      : {}),
     reviewState: r.review_state as 'draft' | 'confirmed',
     fieldStatus: r.field_status ?? {},
     fields,
@@ -997,6 +1014,7 @@ export const ThingViewSchema = ThingRowSchema.extend({
   acquiredFrom: z.string().nullable(),
   provenanceNotes: z.string().nullable(),
   locationUncertain: z.boolean(),
+  lastKnownPath: z.array(z.string()).optional(),
   reviewState: z.enum(['draft', 'confirmed']),
   fieldStatus: z.record(z.string(), z.unknown()),
   fields: z.array(ResolvedFieldSchema),

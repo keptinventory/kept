@@ -32184,3 +32184,131 @@ msgstr "{name} вилучено з цієї коробки"
 #: src/native/record-history.tsx
 msgid "{name} restored to this box"
 msgstr "{name} відновлено в цій коробці"
+
+#: src/native/capture-form.tsx
+msgid "Action"
+msgstr "Дія"
+
+#: src/native/capture-form.tsx
+msgid "Add contents"
+msgstr "Додати вміст"
+
+#: src/native/capture-form.tsx
+msgid "Add documents"
+msgstr "Додати документи"
+
+#: src/components/history/labels.ts
+msgid "Added documents to {name}"
+msgstr "До {name} додано документи"
+
+#: src/native/claim-bin-label.tsx
+msgid "Assign label"
+msgstr "Призначити етикетку"
+
+#: src/native/capture-form.tsx
+msgid "Box name (optional)"
+msgstr "Назва коробки (необов’язково)"
+
+#: src/components/history/labels.ts
+msgid "Checked {name}, no changes reported"
+msgstr "Перевірено {name}, змін не зафіксовано"
+
+#: src/native/record.tsx
+msgid "Confirm contents unchanged?"
+msgstr "Підтвердити, що вміст не змінився?"
+
+#: src/native/record.tsx
+msgid "Confirm that you checked every listed entry in this bin."
+msgstr "Підтвердьте, що перевірили кожну перелічену позицію в цій коробці."
+
+#: src/native/record.tsx
+msgid "Contents checked, unchanged"
+msgstr "Вміст перевірено, змін немає"
+
+#: src/native/edit-record.tsx
+msgid "Correct location"
+msgstr "Виправити місце"
+
+#: src/components/history/labels.ts
+msgid "Corrected the recorded location of {name}"
+msgstr "Виправлено записане місце для {name}"
+
+#: src/native/label-sheets.tsx
+msgid "Create blank labels"
+msgstr "Створити порожні етикетки"
+
+#: src/native/record.tsx
+msgid "Edit photos and files"
+msgstr "Змінити фото й файли"
+
+#: src/native/edit-record.tsx
+msgid "Enter a quantity within the recorded amount."
+msgstr "Введіть кількість, що не перевищує записану."
+
+#: src/native/label-sheets.tsx
+msgid "Labels per US Letter sheet"
+msgstr "Етикеток на аркуші US Letter"
+
+#: src/native/record.tsx
+msgid "Last directly confirmed: {0}"
+msgstr "Останнє безпосереднє підтвердження: {0}"
+
+#: src/native/edit-record.tsx
+msgid "Leave blank to move the entire entry."
+msgstr "Залиште порожнім, щоб перемістити весь запис."
+
+#: src/native/record.tsx
+msgid "Location unknown"
+msgstr "Місце невідоме"
+
+#: src/native/label-sheets.tsx
+msgid "Print label sheets"
+msgstr "Друкувати аркуші етикеток"
+
+#: src/native/edit-record.tsx
+msgid "Quantity to move"
+msgstr "Кількість для переміщення"
+
+#: src/native/capture-form.tsx
+msgid "Record existing contents"
+msgstr "Записати наявний вміст"
+
+#: src/native/record.tsx
+msgid "Remove this attachment?"
+msgstr "Вилучити це вкладення?"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination"
+msgstr "Вилучити без зазначення місця призначення"
+
+#: src/native/edit-record.tsx
+msgid "Remove without a destination?"
+msgstr "Вилучити без зазначення місця призначення?"
+
+#: src/components/history/labels.ts
+msgid "Removed {name}, destination not recorded"
+msgstr "Вилучено {name} без запису місця призначення"
+
+#: src/native/label-sheets.tsx
+msgid "Reprint label sheet"
+msgstr "Передрукувати аркуш етикеток"
+
+#: src/native/capture-form.tsx
+msgid "Save documents"
+msgstr "Зберегти документи"
+
+#: src/native/edit-record.tsx
+msgid "This record will be available in Unplaced."
+msgstr "Цей запис буде доступний у розділі «Без місця»."
+
+#: src/native/edit-record.tsx
+msgid "Update this Kept server to use this action."
+msgstr "Оновіть цей сервер Kept, щоб скористатися цією дією."
+
+#: src/native/record.tsx
+msgid "Use as cover"
+msgstr "Зробити обкладинкою"
+
+#: src/native/rooms.tsx
+msgid "Recently opened boxes"
+msgstr "Нещодавно відкриті коробки"

@@ -113,6 +113,25 @@ beforeAll(async () => {
   boxType = await builtinType(db, 'box_bin');
 });
 
+it('confirms all current direct contents and refuses a stale unchanged check', async () => {
+  const location = await createLocation(t, db, ibrahim, 'household', 'Checked contents');
+  const p = await packedBox(location, ibrahim);
+  const before = await rowOf(p.inBag.id);
+  const lines = [p.torch, p.rope, p.cables, p.bag].map((item) => ({
+    thingId: item.id,
+    expectedQty: String(item.quantity),
+    foundQty: String(item.quantity),
+  }));
+  const stale = await check(ibrahim, p.box.id, { unchanged: true, lines: lines.slice(1) });
+  expect(stale.statusCode, stale.body).toBe(409);
+  const response = await check(ibrahim, p.box.id, { unchanged: true, lines });
+  expect(response.statusCode, response.body).toBe(200);
+  expect(response.json().seen).toEqual(expect.arrayContaining(lines.map((line) => line.thingId)));
+  expect(await rowOf(p.inBag.id)).toEqual(before);
+  const history = await call(t, `/api/v1/things/${p.box.id}/history?kind=changes`, { as: ibrahim });
+  expect(history.json().items[0]).toMatchObject({ summaryKey: 'box.check.unchanged' });
+});
+
 afterAll(async () => {
   await t.app.close();
 });

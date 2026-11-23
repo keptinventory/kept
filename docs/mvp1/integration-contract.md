@@ -1,6 +1,6 @@
 # Kept native capture integration contract
 
-Contract version **2** · 2026-11-23
+Contract version **3** · 2026-11-23
 
 This contract applies to the bundled iPhone app using the existing Kept server, session, uploads and sync ledger. The ordinary browser queue continues to send payload version 1.
 
@@ -14,20 +14,26 @@ This contract applies to the bundled iPhone app using the existing Kept server, 
 - The capture-capability response keeps its own `contractVersion: 1`. Before **each** replay attempt, including manual retry after being offline, send `GET /api/v1/native/capture-capabilities` with that session and both headers. HTTP 200, `Cache-Control: no-store` body:
 
   ```json
-  {"contractVersion":1,"capturePayloadVersions":[2],"account":"<user UUID>","epoch":"<restore UUID>"}
+  {"contractVersion":1,"capturePayloadVersions":[2,3],"account":"<user UUID>","epoch":"<restore UUID>"}
   ```
 
-  Verify the version, that the supported list contains 2, and that both context fields match. Check on the configured origin before the first upload or capture mutation. Keep the result for that attempt only. Treat missing route (404), non-contract response (including an HTML fallback), or missing supported version as recoverable server incompatibility. Retain the queued record, its request key and original files and retry negotiation when service returns or the server is upgraded. An already authenticated phone still negotiates.
+  Verify the capability response version, that the supported list contains the operation’s required version, and that both context fields match. Check on the configured origin before the first upload or capture mutation. Keep the result for that attempt only. Treat missing route (404), non-contract response (including an HTML fallback), or missing supported version as recoverable server incompatibility. Retain the queued record, its request key and original files and retry negotiation when service returns or the server is upgraded. An already authenticated phone still negotiates.
 
   A pre-negotiation native server may answer 401 on the missing route because its context hook runs before the 404. On capability 401, check `GET /api/v1/me` with the same session and context before prompting for sign-in. An authenticated 200 on `/me` means recoverable incompatibility. A 401 there requires re-authentication. A network error, rate limit or server failure remains retryable.
 
 ## Replay and confirmation
 
 - Upload with `PUT /api/v1/files/:fileId` using the existing upload query and headers, including native context and `X-Kept-Sha256`. On HTTP 200/201 use the returned canonical `id` and verify `sha256` and `bytes`; on deduplication the returned ID can differ from the requested ID. Keep upload identities stable across retries.
-- Send `POST /api/v1/sync/ops` with the existing `{clientVersion, ops:[…]}` envelope. New named entries use `op: "create_thing"`, `payloadVersion: 2`, `target: {containerId}` or `target: {placeId}`, `reviewSuggestions: true`, and file roles `photo` or `document`. Keep the thing ID, client ID, operation key, timestamp and payload stable across retries. A v1 draft made by the earlier native client can send the same body and identifiers as v2. The server recognizes exact legacy-v1 ledger replays under the original key. Existing terminal outcomes retain their meaning.
+- Send `POST /api/v1/sync/ops` with the existing `{clientVersion, ops:[…]}` envelope. New named entries with an explicit observation or addition use `op: "create_thing"`, `payloadVersion: 3`, `captureIntent: "record" | "add"`, `target: {containerId}` or `target: {placeId}`, `reviewSuggestions: true`, and file roles `photo` or `document`. Keep the thing ID, client ID, operation key, timestamp and payload stable across retries. Stored native drafts without capture intent still use version 2. A v1 draft made by the earlier native client can send its original body and identifiers as v2. The server recognizes exact legacy-v1 ledger replays under the original key. Existing terminal outcomes retain their meaning.
 - A photo observation still negotiates capability before uploads. It uses the existing `create_thing` operation with `payloadVersion: 1`, `mode: "thing"`, `attachToThingId`, `target: {unplaced: true}` and `photo` files. The draft UUID identifies this observation and the sync result points to the existing thing. The server appends photos without editing fields or containment.
-- Version 2 is scoped to native review capture. Kept continues serving ordinary v1 operations and v1 snapshots. A v1-only server rejects v2 at the batch boundary with HTTP 409 `server_outdated` before writing an operation result. This also protects the ledger if the server changes after negotiation.
+- Versions 2 and 3 require native context. Kept continues serving ordinary v1 operations and v1 snapshots. A server that lacks the requested version rejects the envelope with HTTP 409 `server_outdated` before writing an operation result. This also protects the ledger if the server changes after negotiation.
 - Completion requires the matching sync result (`results[]` entry with the original `clientId` and `idempotencyKey`, `outcome: "applied"`, and `entity: {type: "thing", id: "<record UUID>", shortCode?: string | null}`). The expected entity is the new record for a named capture and `attachToThingId` for an observation. Confirm every original against the paginated `items` from `GET /api/v1/things/:id/attachments?limit=100` by attachment role, file `sha256` and `bytes`. A replayed result counts once when the phone durably completes its local entry. Until then retain the local queue entry and originals. Authorized original access uses `POST /api/v1/files/:id/url` and the returned short-lived download URL.
+
+## Bin actions
+
+- The unchanged check uses `POST /api/v1/things/:id/box-check` with `unchanged: true` and the full set of direct inventory lines, with identical expected and found quantities. A stale set is rejected. A successful check confirms the listed records and leaves nested contents’ direct sightings alone.
+- Location edits use `POST /api/v1/things/move`. A physical move can include a partial quantity. `intent: "correct"` changes recorded placement within the same location without a fresh sighting. `intent: "remove"` moves the record to that location’s Unplaced area and marks it uncertain. Both require the current row version and server support for version 3. The audit records the prior path and supports undo.
+- Native label sheets use the existing blank label batch and claim routes. The 8, 12 and 24 label US Letter stocks have writable space and use the same stable short IDs as scanning. Reprint reads the saved batch and preserves every encoded identity.
 
 ## Failure and recovery
 

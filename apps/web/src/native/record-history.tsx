@@ -1,7 +1,8 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { inventoryPaths, qs } from '@/api/inventory/paths';
-import type { HistoryEvent, Page } from '@/api/inventory/types';
+import type { AttachmentView, HistoryEvent, Page } from '@/api/inventory/types';
+import { useSummary } from '@/components/history/labels';
 import { useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { isolate } from '@/lib/bidi';
@@ -17,17 +18,28 @@ export function RecordHistory({
   cache,
   target,
   container,
+  canEdit,
+  attachments,
+  onOpenPhoto,
+  onOpen,
+  onChanged,
   onAuthError,
 }: {
   connection: Connection;
   cache: InventoryCache | undefined;
   target: Target;
   container: boolean;
+  canEdit: boolean;
+  attachments: AttachmentView[];
+  onOpenPhoto: (attachment: AttachmentView) => void;
+  onOpen: (target: Target) => void;
+  onChanged: () => void;
   onAuthError?: (reason: 'expired' | 'restored') => void;
 }) {
   const { t } = useLingui();
   const adapters = usePlatform();
   const errorText = useErrorText();
+  const formatSummary = useSummary();
   const [page, setPage] = useState<Page<HistoryEvent>>();
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
@@ -58,6 +70,24 @@ export function RecordHistory({
     }
   }
 
+  async function undo(id: string) {
+    setBusy(true);
+    setStatus('');
+    try {
+      await adapters.transport.request(connection, inventoryPaths.undo(id), {
+        method: 'POST',
+        body: {},
+      });
+      onChanged();
+    } catch (error) {
+      if (isAuthRefusal(error)) onAuthError?.('expired');
+      else if (isRestoreEpochMismatch(error)) onAuthError?.('restored');
+      else setStatus(errorText(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function summary(event: HistoryEvent) {
     const mode = event.diff?.mode;
     if (
@@ -69,6 +99,14 @@ export function RecordHistory({
     )
       return t`Photo added to the record. Inventory unchanged.`;
     const name = isolate(event.summaryParams.name ?? t`Item`);
+    if (
+      event.summaryKey === 'thing.move.removed' ||
+      event.summaryKey === 'thing.move.corrected' ||
+      event.summaryKey === 'box.check.unchanged' ||
+      event.summaryKey === 'undo'
+    )
+      return formatSummary(event);
+    if (event.summaryKey === 'thing.capture.recorded') return t`Recorded ${name}`;
     if (container && event.entity.id !== target.id) {
       const parent = event.diff?.container_id;
       if (parent && 'before' in parent && event.action === 'thing.move') {
@@ -99,7 +137,7 @@ export function RecordHistory({
       )
         return t`${name} added to this box`;
     }
-    return event.summary;
+    return formatSummary(event);
   }
 
   function recordedPath(event: HistoryEvent, side: 'before' | 'after') {
@@ -139,6 +177,29 @@ export function RecordHistory({
               {page.items.map((event) => {
                 const before = recordedPath(event, 'before');
                 const after = recordedPath(event, 'after');
+                const evidence = event.diff?.attachment_ids;
+                const fileIds = event.diff?.file_ids;
+                const attached = evidence && 'after' in evidence ? evidence.after : null;
+                const files = fileIds && 'after' in fileIds ? fileIds.after : null;
+                const photos = attachments.filter(
+                  (entry) =>
+                    entry.role === 'photo' &&
+                    entry.file &&
+                    ((Array.isArray(attached) && attached.includes(entry.id)) ||
+                      (!attached &&
+                        event.entity.id === target.id &&
+                        Array.isArray(files) &&
+                        files.includes(entry.file.id))),
+                );
+                const captured = event.diff?.captured_at;
+                const related =
+                  event.entity.id !== target.id && event.entity.type === 'thing'
+                    ? cache?.things.find((item) => item.id === event.entity.id)
+                    : undefined;
+                const at =
+                  captured && 'after' in captured && typeof captured.after === 'string'
+                    ? captured.after
+                    : event.at;
                 return (
                   <li
                     key={event.id}
@@ -155,7 +216,7 @@ export function RecordHistory({
                       </p>
                     )}
                     <p className="text-small text-ink-2">
-                      <time dateTime={event.at}>{new Date(event.at).toLocaleString()}</time>
+                      <time dateTime={at}>{new Date(at).toLocaleString()}</time>
                       {event.actor.displayName && (
                         <>
                           {sep()}
@@ -163,6 +224,42 @@ export function RecordHistory({
                         </>
                       )}
                     </p>
+                    {photos.map((photo) => (
+                      <Button
+                        key={photo.id}
+                        variant="secondary"
+                        size="small"
+                        onPress={() => onOpenPhoto(photo)}
+                      >
+                        <bdi>{photo.name ?? t`Photograph`}</bdi>
+                      </Button>
+                    ))}
+                    {related && (
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onPress={() =>
+                          onOpen({ kind: 'thing', id: related.id, locationId: related.locationId })
+                        }
+                      >
+                        <Trans>Open</Trans> <bdi>{related.name ?? t`Untitled`}</bdi>
+                      </Button>
+                    )}
+                    {canEdit &&
+                      !event.undone &&
+                      !event.undo_of &&
+                      event.undoable_until &&
+                      Date.parse(event.undoable_until) > Date.now() &&
+                      ['thing.move', 'thing.trash', 'box.check'].includes(event.action) && (
+                        <Button
+                          variant="ghost"
+                          size="small"
+                          isPending={busy}
+                          onPress={() => void undo(event.id)}
+                        >
+                          <Trans>Undo</Trans>
+                        </Button>
+                      )}
                   </li>
                 );
               })}

@@ -60,6 +60,12 @@ export class StorageFullError extends Error {
 }
 
 type NativeResponse = { status: number; body: string };
+export type LabelSheet = {
+  columns: number;
+  rows: number;
+  labels: { url: string; name?: string }[];
+};
+
 type NativeKept = {
   connection(): Promise<Connection | Record<string, never>>;
   connect(input: { address: string }): Promise<Connection>;
@@ -107,6 +113,7 @@ type NativeKept = {
     mime: string;
     variant?: 'display';
   }): Promise<void>;
+  shareLabelSheet(input: LabelSheet & { context: string }): Promise<void>;
   shareLabelPdf(input: { context: string; url: string; name: string }): Promise<void>;
   openPendingMedia(input: { context: string; id: string; file: string }): Promise<void>;
   openHeldMedia(input: {

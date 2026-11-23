@@ -15,14 +15,9 @@ export type ScanCandidate = Extract<
 export type ReadResult =
   | { status: 'resolved'; target: Target; cached: boolean }
   | { status: 'ambiguous'; candidates: ScanCandidate[] }
+  | { status: 'unassigned'; claim?: { code: string; locationId: string } }
   | {
-      status:
-        | 'malformed'
-        | 'foreign'
-        | 'unassigned'
-        | 'unresolved'
-        | 'not_in_your_kept'
-        | 'not_kept';
+      status: 'malformed' | 'foreign' | 'unresolved' | 'not_in_your_kept' | 'not_kept';
     };
 
 export function approvedLabel(text: string, origin: string) {
@@ -217,7 +212,12 @@ export async function resolveLabel(
       case 'open':
         return { status: 'resolved', target: response.target, cached: false };
       case 'claim':
-        return { status: 'unassigned' };
+        return {
+          status: 'unassigned',
+          ...(parsed.kind === 'kept'
+            ? { claim: { code: parsed.code, locationId: response.locationId } }
+            : {}),
+        };
       case 'legacy_ambiguous':
         return { status: 'ambiguous', candidates: response.candidates };
       case 'not_kept':

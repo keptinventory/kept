@@ -297,7 +297,7 @@ describe('Kept for iPhone sign-in', () => {
     expect(capability.headers['cache-control']).toBe('no-store');
     expect(capability.json()).toEqual({
       contractVersion: 1,
-      capturePayloadVersions: [2],
+      capturePayloadVersions: [2, 3],
       account,
       epoch,
     });
