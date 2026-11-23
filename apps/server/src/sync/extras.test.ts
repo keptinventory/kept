@@ -150,6 +150,10 @@ beforeAll(async () => {
   // A kettle with only a manual; a thing with nothing to keep.
   kettle = await thing(home, 'Kettle');
   docs.kettle = await attach(home, ibrahim, { thing_id: kettle }, 'document', 300);
+  await own('UPDATE public.attachments SET name = $1 WHERE id = $2', [
+    'Kettle care guide',
+    docs.kettle.attachmentId,
+  ]);
   bare = await thing(home, 'Spoon');
 
   // Garage (money and warranties off): a mower with a manual and a warranty card.
@@ -184,7 +188,9 @@ describe('GET /api/v1/sync/extras', () => {
     const receipt = item?.documents.find((d) => d.attachmentId === docs.receipt?.attachmentId);
     expect(receipt).toMatchObject({ kind: 'receipt', mime: 'application/pdf', bytes: 500 });
     expect(receipt?.sha256).toMatch(/^[0-9a-f]{64}$/);
-    expect(attachmentIds(itemOf(page, kettle))).toEqual([docs.kettle?.attachmentId]);
+    expect(itemOf(page, kettle)?.documents).toMatchObject([
+      { attachmentId: docs.kettle?.attachmentId, title: 'Kettle care guide' },
+    ]);
     // Nothing to keep: left out.
     expect(itemOf(page, bare)).toBeUndefined();
     // The documents within the per-file cap, each once: not the huge manual.

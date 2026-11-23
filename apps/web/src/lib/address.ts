@@ -23,6 +23,7 @@ import { useEffect } from 'react';
 import { captureApi } from '@/api/capture/queries';
 import { ApiError } from '@/api/client';
 import { currentOffline } from '@/offline/open';
+import { useOffline } from '@/offline/provider';
 
 export type AddressKind = 'thing' | 'place';
 
@@ -88,8 +89,11 @@ export function knownAddress(qc: QueryClient, kind: AddressKind, param: string):
 export function useAddress(kind: AddressKind, param: string): Address {
   const uuid = isUuid(param);
   const code = uuid ? '' : normaliseInputCode(param);
+  const deviceReady = useOffline() !== null;
   const query = useQuery({
-    queryKey: addressKey(kind, code),
+    // On a cold start the route can render before IndexedDB opens. Look up the
+    // code again as soon as the device's inventory becomes available.
+    queryKey: [...addressKey(kind, code), deviceReady],
     queryFn: async () => {
       if (!isShortCode(code)) throw notFound();
       const id = await resolveAddress(kind, code);

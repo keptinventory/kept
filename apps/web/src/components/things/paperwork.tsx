@@ -15,7 +15,7 @@ import { useMemo, useState } from 'react';
 import { thingApi, useInvalidateThing, useThingAttachments } from '@/api/inventory/thing-api';
 import type { AttachmentRole, AttachmentView, Page } from '@/api/inventory/types';
 import type { PaperlessLink } from '@/api/paperless/types';
-import { DocumentIcon, PencilIcon, ShareIcon, TrashIcon } from '@/components/icons';
+import { DocumentIcon, PencilIcon, TrashIcon } from '@/components/icons';
 import { ListSurface } from '@/components/list-surface';
 import { EmptyState, Row, Section, useErrorText } from '@/components/page';
 import {
@@ -29,6 +29,7 @@ import {
   mayChangeAttachment,
   RenameFileSheet,
 } from '@/components/paperwork/rename-sheet';
+import { FileOpenButton } from '@/components/paperwork/rows';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { useConfirm } from '@/components/ui/confirm';
@@ -38,7 +39,6 @@ import { firstOf, useListState } from '@/lib/url-state';
 import { useThingCtx } from './context';
 import { WarrantiesBlock } from './household-lazy';
 import { useRoleLabels } from './labels';
-import { useAttachmentFile } from './purchase-section';
 import { UploadButton } from './upload';
 
 /** A row of the Paperwork list: a file in Kept, or a document linked from Paperless. */
@@ -174,7 +174,6 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
   const { t } = useLingui();
   const fmt = useFormat();
   const roles = useRoleLabels();
-  const file = useAttachmentFile(a);
   const confirm = useConfirm();
   const errorText = useErrorText();
   const invalidate = useInvalidateThing();
@@ -222,16 +221,12 @@ function AttachmentRow({ attachment: a }: { attachment: AttachmentView }) {
       }
       trailing={
         <span className="flex gap-1">
-          <Button variant="secondary" size="small" isPending={file.pending} onPress={file.press}>
-            {file.mode === 'share' ? (
-              <>
-                <ShareIcon className="size-4" />
-                <Trans>Share</Trans>
-              </>
-            ) : (
-              <Trans>Open</Trans>
-            )}
-          </Button>
+          <FileOpenButton
+            attachment={a}
+            original={can('attachments.add')}
+            thingId={thing.id}
+            what={title}
+          />
           {mayChangeAttachment(a, role, me) ? (
             <Button
               variant="ghost"

@@ -90,8 +90,8 @@ async function documentsOf(
   const out = new Map<string, SyncExtraDocument[]>();
   if (thingIds.length === 0 || !WRITERS.has(gate.role)) return out;
   const { rows } = await client.query<Doc>(
-    `SELECT s.thing_id, a.id AS attachment_id, a.file_id, a.role, d.title, f.mime, f.bytes,
-            f.sha256::text AS sha256
+    `SELECT s.thing_id, a.id AS attachment_id, a.file_id, a.role,
+            coalesce(d.title, a.name) AS title, f.mime, f.bytes, f.sha256::text AS sha256
        FROM public.attachments a
        JOIN public.files f ON f.id = a.file_id
        LEFT JOIN public.warranties w ON w.id = a.warranty_id

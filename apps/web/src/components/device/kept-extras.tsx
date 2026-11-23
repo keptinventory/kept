@@ -38,6 +38,7 @@ export function KeptExtras({ thingId }: { thingId: string }) {
   const kept = useQuery({
     queryKey: ['device', 'kept', thingId, key !== null],
     enabled: on && db !== null,
+    networkMode: 'always',
     gcTime: 0,
     queryFn: async (): Promise<
       { locked: true } | { locked: false; extra: SyncExtra; documents: KeptDocument[] } | null
@@ -140,26 +141,34 @@ export function KeptExtras({ thingId }: { thingId: string }) {
       </dl>
       {documents.length > 0 ? (
         <List>
-          {documents.map((doc) => (
-            <li key={doc.attachmentId}>
-              <Row
-                leading={<DocumentIcon />}
-                title={doc.title ? <bdi>{doc.title}</bdi> : roles[doc.kind]}
-                subtitle={
-                  doc.tooLarge
-                    ? t`Too large to keep offline (${size(doc.bytes)})`
-                    : `${roles[doc.kind]}${f.sep}${size(doc.bytes)}`
-                }
-                trailing={
-                  doc.tooLarge ? null : (
-                    <Button size="small" variant="secondary" onPress={() => void open(doc)}>
-                      <Trans>Open</Trans>
-                    </Button>
-                  )
-                }
-              />
-            </li>
-          ))}
+          {documents.map((doc) => {
+            const what = doc.title ?? roles[doc.kind];
+            return (
+              <li key={doc.attachmentId}>
+                <Row
+                  leading={<DocumentIcon />}
+                  title={<bdi>{what}</bdi>}
+                  subtitle={
+                    doc.tooLarge
+                      ? t`Too large to keep offline (${size(doc.bytes)})`
+                      : `${roles[doc.kind]}${f.sep}${size(doc.bytes)}`
+                  }
+                  trailing={
+                    doc.tooLarge ? null : (
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        aria-label={t`Open ${what}`}
+                        onPress={() => void open(doc)}
+                      >
+                        <Trans>Open</Trans>
+                      </Button>
+                    )
+                  }
+                />
+              </li>
+            );
+          })}
         </List>
       ) : null}
     </Section>

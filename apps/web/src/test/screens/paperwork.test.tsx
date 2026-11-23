@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { HOUSEHOLD_IDS } from '@/api/household/mock/state';
 import { householdPaths as hp } from '@/api/household/paths';
 import { INV_IDS } from '@/api/inventory/mock/fixtures';
+import { inventoryPaths } from '@/api/inventory/paths';
 import { IDS, type MockState, ownerScenario } from '@/api/mock/fixtures';
 import { findHeading, renderApp } from '../app';
 import { expectLogicalOnly } from '../render';
@@ -91,6 +92,38 @@ describe('/paperwork', () => {
     await screen.findByRole('list');
     expect(document.documentElement.dir).toBe('rtl');
     expectLogicalOnly();
+  });
+});
+
+describe('paperwork on a thing', () => {
+  it('names each file’s open action so it can be identified by keyboard and assistive technology', async () => {
+    const open = vi.fn();
+    vi.stubGlobal('open', open);
+    const thingId = INV_IDS.thing.cableBox;
+    const documents = ['Invoice', 'Assembly instructions'].map((name, sort) => ({
+      id: `document-${sort}`,
+      role: 'document',
+      name,
+      sort,
+      file: null,
+      url: `https://example.test/document-${sort}.pdf`,
+      subject: { thingId },
+      createdBy: { displayName: 'Ibrahim' },
+      rowVersion: 1,
+    }));
+    const { user } = await renderApp(`/t/${thingId}?tab=paperwork`, {
+      setup(mock) {
+        mock.on('GET', inventoryPaths.thingAttachments(thingId), () => ({
+          items: documents,
+          nextCursor: null,
+        }));
+      },
+    });
+    expect(await screen.findByRole('button', { name: 'Open Invoice' })).toBeVisible();
+    const instructions = screen.getByRole('button', { name: 'Open Assembly instructions' });
+    instructions.focus();
+    await user.keyboard('{Enter}');
+    expect(open).toHaveBeenCalledWith(documents[1]?.url, '_blank', 'noopener');
   });
 });
 
