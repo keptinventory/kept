@@ -9,7 +9,13 @@ import {
 import type pg from 'pg';
 import { z } from 'zod';
 import type { Scope, Tx } from '../db/scope.js';
-import { CALL_COLUMNS, type CallRow, CallSummary, callSummaryOf } from '../extraction/routes.js';
+import {
+  CALL_COLUMNS,
+  type CallRow,
+  CallSummary,
+  callSummaryOf,
+  EXTRACTION_CALL_JOIN,
+} from '../extraction/routes.js';
 import { type PageRequest, pageOf } from '../http/conventions.js';
 import { forbidden, invalid } from '../http/errors.js';
 import { requireCan, requireMembership } from '../locations/access.js';
@@ -551,7 +557,7 @@ export async function itemsOf(
       `SELECT e.id, e.status, e.status_reason, e.paused_until, e.mode, e.result, ${CALL_COLUMNS}
          FROM public.extractions e
          JOIN public.locations l ON l.id = e.location_id
-         LEFT JOIN public.llm_calls c ON c.id = e.llm_call_id AND c.at >= e.created_at
+         ${EXTRACTION_CALL_JOIN}
         WHERE e.id = ANY ($1::uuid[])`,
       [extractionIds],
     );

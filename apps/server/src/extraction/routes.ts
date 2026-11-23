@@ -315,6 +315,10 @@ export const CALL_COLUMNS = `c.id AS call_id, c.model, c.provider_kind, c.input_
             (SELECT oa.user_id FROM public.owner_accounts oa
               WHERE oa.id = c.paying_account_id) AS payer_account_user_id`;
 
+// Keep partition pruning while allowing for clock skew between the app and PostgreSQL.
+export const EXTRACTION_CALL_JOIN = `LEFT JOIN public.llm_calls c
+  ON c.id = e.llm_call_id AND c.at >= e.created_at - interval '1 minute'`;
+
 /**
  * The AI line of an attempt, or null without a visible ledger row. Money
  * follows the gate, unless the caller is the one who paid. Shared with the inbox view.
@@ -391,7 +395,7 @@ export async function listExtractions(
             e.applied, e.location_id, ${CALL_COLUMNS}
        FROM public.extractions e
        JOIN public.locations l ON l.id = e.location_id
-       LEFT JOIN public.llm_calls c ON c.id = e.llm_call_id AND c.at >= e.created_at
+       ${EXTRACTION_CALL_JOIN}
       WHERE e.thing_id = $1
          OR e.attachment_id IN (SELECT a.id FROM public.attachments a WHERE a.thing_id = $1)
          OR e.meter_id IN (SELECT m.id FROM public.meters m WHERE m.thing_id = $1)

@@ -1378,6 +1378,16 @@ describe('re-extraction and the AI line', () => {
     );
     expect(thing).toEqual({ name: 'Drill driver', brand_id: null });
 
+    // The database can be slightly ahead of the app clock that stamps a model call.
+    await own(
+      db,
+      `UPDATE public.extractions e
+          SET created_at = GREATEST(e.created_at, c.at + interval '250 milliseconds')
+         FROM public.llm_calls c
+        WHERE e.id = $1 AND c.id = e.llm_call_id`,
+      [extractionId],
+    );
+
     // The AI line: the owner sees the ledger row with its cost; the viewer, no row of hers.
     const mine = ok(
       await call(t, `/api/v1/things/${thingId}/extractions`, { as: ibrahim, method: 'GET' }),
