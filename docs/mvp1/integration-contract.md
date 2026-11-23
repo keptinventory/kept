@@ -1,14 +1,17 @@
 # Kept native capture integration contract
 
-Contract version **1** · 2026-11-22
+Contract version **2** · 2026-11-23
 
 This contract applies to the bundled iPhone app using the existing Kept server, session, uploads and sync ledger. The ordinary browser queue continues to send payload version 1.
 
 ## Session and capability
 
-- Open `GET /native/connect?challenge=<PKCE-S256>&state=<state>` in system browser authentication. Kept's existing sign-in and MFA return to consent. Consent `POST /native/connect` redirects with HTTP 303 to `kept-nfc://auth/callback?code=<code>&state=<state>`. Verify state and exchange the single-use code with `POST /api/v1/native/exchange` and JSON `{"code":"…","verifier":"…"}`. HTTP 200 sets a first-party session cookie and returns `{"account":"<user UUID>","epoch":"<restore UUID>"}`.
+- New iPhone sessions require native **Sign in with Apple**. Generate independent 32-byte random PKCE verifier and callback state values, encoded as unpadded base64url. Set the Apple request nonce to the unpadded base64url SHA-256 of `kept-native-apple-v1\n<canonical origin>\n<PKCE-S256 challenge>`, with literal line feeds between fields.
+- Send `POST /api/v1/native/apple` with the exact Kept `Origin` header and no cookie. The JSON body is `{"identityToken":"<Apple JWT>","verifier":"<PKCE verifier>","state":"<callback state>"}`. Kept checks the Apple signature, issuer, iPhone bundle audience, age, expiry and nonce, then consumes the nonce and returns HTTP 200 `{"appleToken":"<opaque continuation>"}` with `Cache-Control: no-store`. Start a new Apple authorization after an expired or consumed proof. A server missing this route requires an upgrade for new iPhone sign-ins.
+- Open `GET /native/connect?appleToken=<opaque continuation>` in the system browser authentication window. The continuation is valid for ten minutes on the same server and restore epoch. A linked Apple subject selects its existing Kept account. Finish Kept MFA when enabled. First-time linking requires a fresh browser sign-in to the existing Kept account and explicit approval showing both email addresses. Apple relay addresses are supported. A matching email never links accounts automatically. Browser sign-in methods remain available for ordinary browser use and first-time linking.
+- Consent `POST /native/connect` sends the same `appleToken` as a form field, plus `confirmLink=yes` when explicitly linking. The one-time approval redirects with HTTP 303 to `kept-nfc://auth/callback?code=<code>&state=<state>`. Validate callback and state, then exchange the code within two minutes with `POST /api/v1/native/exchange` and JSON `{"code":"…","verifier":"…"}`. HTTP 200 sets a first-party session cookie and returns `{"account":"<user UUID>","epoch":"<restore UUID>"}`. The app stores the session in Keychain. Existing Kept iPhone sessions remain valid under their normal expiry and revocation rules.
 - Fix the server origin to the selected connection. Use its session cookie and send `X-Kept-Native-Account: <account>` and `X-Kept-Native-Epoch: <epoch>` on native API requests. The account value identifies the signed-in user. The epoch identifies the current database generation.
-- Before **each** replay attempt, including manual retry after being offline, send `GET /api/v1/native/capture-capabilities` with that session and both headers. HTTP 200, `Cache-Control: no-store` body:
+- The capture-capability response keeps its own `contractVersion: 1`. Before **each** replay attempt, including manual retry after being offline, send `GET /api/v1/native/capture-capabilities` with that session and both headers. HTTP 200, `Cache-Control: no-store` body:
 
   ```json
   {"contractVersion":1,"capturePayloadVersions":[2],"account":"<user UUID>","epoch":"<restore UUID>"}

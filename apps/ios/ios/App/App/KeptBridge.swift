@@ -20,6 +20,7 @@ struct KeptConnection: Codable, Equatable {
     let account: String
     let epoch: String
     let cookie: String
+    let appleUser: String?
 
     var id: String {
         [origin.absoluteString, account, epoch].joined(separator: "|")
@@ -31,7 +32,8 @@ struct KeptConnection: Codable, Equatable {
 }
 
 enum KeptNativeError: LocalizedError {
-    case invalidServer, missingSession, invalidRequest, signInFailed, busy, keychain, storage, previewUnavailable
+    case invalidServer, missingSession, invalidRequest, signInFailed, appleSignInUnsupported
+    case busy, keychain, storage, previewUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -39,6 +41,7 @@ enum KeptNativeError: LocalizedError {
         case .missingSession: return "Sign in to this Kept account again."
         case .invalidRequest: return "The app could not prepare this Kept request."
         case .signInFailed: return "Kept could not finish connecting this iPhone. Sign in again."
+        case .appleSignInUnsupported: return "Update this Kept server to sign in with Apple."
         case .busy: return "Finish the current sign-in and try again."
         case .keychain: return "The iPhone could not save or read the session in Keychain."
         case .storage: return "Kept could not save on this iPhone. Check available storage and try again."
@@ -199,12 +202,59 @@ enum KeptHTTP {
 }
 
 @MainActor
-final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProviding {
+final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProviding,
+    ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding
+{
+    private var appleController: ASAuthorizationController?
+    private var appleResult: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?
+    private var connecting = false
     private var browser: ASWebAuthenticationSession?
     private weak var window: UIWindow?
 
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         window ?? ASPresentationAnchor()
+    }
+
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        window ?? ASPresentationAnchor()
+    }
+
+    func authorizationController(
+        controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        guard controller === appleController else { return }
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+            finishApple(.failure(KeptNativeError.signInFailed))
+            return
+        }
+        finishApple(.success(credential))
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        guard controller === appleController else { return }
+        finishApple(.failure(error))
+    }
+
+    private func finishApple(_ result: Result<ASAuthorizationAppleIDCredential, Error>) {
+        let continuation = appleResult
+        appleResult = nil
+        appleController = nil
+        continuation?.resume(with: result)
+    }
+
+    private func authorizeWithApple(nonce: String) async throws -> ASAuthorizationAppleIDCredential {
+        try await withCheckedThrowingContinuation { continuation in
+            let request = ASAuthorizationAppleIDProvider().createRequest()
+            request.requestedScopes = [.email]
+            request.nonce = nonce
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            appleResult = continuation
+            appleController = controller
+            controller.performRequests()
+            NativeAuthDiagnostics.log.notice("Apple authorization started")
+        }
     }
 
     private func randomToken() throws -> String {
@@ -239,16 +289,40 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
     }
 
     func connect(origin: URL, window: UIWindow) async throws -> KeptConnection {
-        guard browser == nil else { throw KeptNativeError.busy }
+        guard !connecting else { throw KeptNativeError.busy }
+        connecting = true
         self.window = window
+        defer {
+            connecting = false
+            browser = nil
+        }
         let verifier = try randomToken()
         let state = try randomToken()
         let challenge = base64URL(Data(SHA256.hash(data: Data(verifier.utf8))))
+        let nonceInput = "kept-native-apple-v1\n\(origin.absoluteString)\n\(challenge)"
+        let nonce = base64URL(Data(SHA256.hash(data: Data(nonceInput.utf8))))
+        let credential = try await authorizeWithApple(nonce: nonce)
+        guard let bytes = credential.identityToken,
+              let identityToken = String(data: bytes, encoding: .utf8)
+        else { throw KeptNativeError.signInFailed }
+        NativeAuthDiagnostics.log.notice("Apple credential received")
+        var proof = try KeptHTTP.request(origin, path: "/api/v1/native/apple", method: "POST")
+        proof.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        proof.httpBody = try JSONSerialization.data(withJSONObject: [
+            "identityToken": identityToken, "verifier": verifier, "state": state
+        ])
+        let (proofData, proofResponse) = try await KeptHTTP.send(proof)
+        NativeAuthDiagnostics.log.notice("Apple verification response status \(proofResponse.statusCode, privacy: .public)")
+        if proofResponse.statusCode == 404 || proofResponse.statusCode == 405 {
+            throw KeptNativeError.appleSignInUnsupported
+        }
+        guard proofResponse.statusCode == 200 else { throw KeptNativeError.signInFailed }
+        struct AppleProof: Decodable { let appleToken: String }
+        let apple = try JSONDecoder().decode(AppleProof.self, from: proofData)
         var start = URLComponents(url: origin.appendingPathComponent("native/connect"), resolvingAgainstBaseURL: false)
-        start?.queryItems = [URLQueryItem(name: "challenge", value: challenge), URLQueryItem(name: "state", value: state)]
+        start?.queryItems = [URLQueryItem(name: "appleToken", value: apple.appleToken)]
         guard let url = start?.url else { throw KeptNativeError.invalidServer }
 
-        defer { browser = nil }
         let callback: URL = try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "kept-nfc") { callback, error in
                 if let callback {
@@ -309,7 +383,9 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         }
         let context = try JSONDecoder().decode(Context.self, from: data)
         NativeAuthDiagnostics.log.notice("Native exchange session extracted")
-        return KeptConnection(origin: origin, account: context.account, epoch: context.epoch, cookie: cookie)
+        return KeptConnection(
+            origin: origin, account: context.account, epoch: context.epoch, cookie: cookie, appleUser: credential.user
+        )
     }
 }
 
@@ -431,12 +507,35 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    private func appleCredentialWasRevoked(_ user: String) async -> Bool {
+        await withCheckedContinuation { continuation in
+            ASAuthorizationAppleIDProvider().getCredentialState(forUserID: user) { state, error in
+                continuation.resume(returning: error == nil && (state == .revoked || state == .notFound))
+            }
+        }
+    }
+
     @objc func connection(_ call: CAPPluginCall) {
         run(call) {
-            if let connection = try KeptKeychain.read() {
-                NativeAuthDiagnostics.log.notice("Native session loaded from Keychain")
-                call.resolve(connection.view)
-            } else { call.resolve([:]) }
+            guard let connection = try KeptKeychain.read() else {
+                call.resolve([:])
+                return
+            }
+            if let user = connection.appleUser, await self.appleCredentialWasRevoked(user) {
+                if try KeptKeychain.read() == connection {
+                    try KeptKeychain.delete()
+                    try? await self.store.use { try $0.clearCache(context: connection.id) }
+                    let request = try KeptHTTP.request(
+                        connection.origin, path: "/api/v1/auth/sign-out", method: "POST", connection: connection
+                    )
+                    Task { _ = try? await KeptHTTP.send(request) }
+                    NativeAuthDiagnostics.log.notice("Apple credential no longer authorized")
+                }
+                call.resolve([:])
+                return
+            }
+            NativeAuthDiagnostics.log.notice("Native session loaded from Keychain")
+            call.resolve(connection.view)
         }
     }
 
@@ -452,6 +551,12 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                 connection = try await self.signIn.connect(origin: origin, window: window)
             } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
                 call.reject("Sign-in cancelled.", "sign_in_cancelled")
+                return
+            } catch let error as ASAuthorizationError where error.code == .canceled {
+                call.reject("Sign-in cancelled.", "sign_in_cancelled")
+                return
+            } catch KeptNativeError.appleSignInUnsupported {
+                call.reject(KeptNativeError.appleSignInUnsupported.localizedDescription, "apple_sign_in_unsupported")
                 return
             }
             do {

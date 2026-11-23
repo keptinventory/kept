@@ -342,10 +342,7 @@ describe('redactUrl()', () => {
     ['/a?token=x', '/a?token=[redacted]'],
     ['/a?invite_token=x&b=2', '/a?invite_token=[redacted]&b=2'],
     ['/a?code=123456', '/a?code=[redacted]'],
-    [
-      '/native/connect?challenge=pkce&state=nonce',
-      '/native/connect?challenge=[redacted]&state=[redacted]',
-    ],
+    ['/native/connect?appleToken=ticket', '/native/connect?appleToken=[redacted]'],
     ['/signin?next=%2Fnative%2Fconnect%3Fstate%3Dnonce', '/signin?next=[redacted]'],
     ['/a?page=2', '/a?page=2'],
     // Invite tokens in the path: the preview and accept routes.

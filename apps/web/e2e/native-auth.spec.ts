@@ -7,17 +7,13 @@ import { freshCode } from './totp';
 
 const kit = signInKit(SIGN_IN_INSTANCE, { phone: 50, desktop: 60 });
 
-test('the iPhone consent handoff preserves the browser MFA and issues a revocable session', async ({
-  browser,
-  playwright,
-}) => {
+test('a browser MFA session alone cannot sign in to Kept for iPhone', async ({ browser }) => {
   test.setTimeout(120_000);
   // MFA stays enabled after this test. Use a fresh login so concurrent specs and retries start clean.
   const login = await kit.createPasswordLogin(
     test.info().project.name === 'phone' ? 'Alfred' : 'Bruce',
   );
   const { context, page } = await kit.newPerson(browser);
-  const native = await playwright.request.newContext({ baseURL: kit.BASE });
   try {
     await kit.signInWithPassword(page, login);
     await expect(page).toHaveURL(/\/$/);
@@ -35,48 +31,29 @@ test('the iPhone consent handoff preserves the browser MFA and issues a revocabl
     const verifier = randomBytes(32).toString('base64url');
     const challenge = createHash('sha256').update(verifier).digest('base64url');
     const state = randomBytes(32).toString('base64url');
-    const connect = `/native/connect?${new URLSearchParams({ challenge, state })}`;
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': kit.nextAddress() });
-    await page.goto(connect);
-    await expect(page).toHaveURL(/\/signin\?next=/);
+    await page.goto('/signin');
     await page.getByLabel('Email or username', { exact: true }).fill(login);
     await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-    await expect(page).toHaveURL(/\/signin\/two-factor\?next=/);
+    await expect(page).toHaveURL(/\/signin\/two-factor/);
     await page.getByLabel('6-digit code').fill(await freshCode(page, secret, login));
     await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(page.getByRole('heading', { name: 'Connect Kept for iPhone' })).toBeVisible();
-    const response = page.waitForResponse(
-      (r) => r.url() === `${kit.BASE}/native/connect` && r.request().method() === 'POST',
-    );
-    await page.getByRole('button', { name: `Continue as ${login}` }).click();
-    const consent = await response;
-    expect(consent.status()).toBe(303);
-    const callback = new URL(consent.headers().location ?? '');
-    expect(`${callback.protocol}//${callback.host}${callback.pathname}`).toBe(
-      'kept-nfc://auth/callback',
-    );
-    expect(callback.searchParams.get('state')).toBe(state);
+    await expect(page).toHaveURL(/\/$/);
 
-    const exchanged = await native.post('/api/v1/native/exchange', {
+    const approval = await context.request.post('/native/connect', {
       headers: { origin: kit.BASE },
-      data: { code: callback.searchParams.get('code'), verifier },
+      form: { challenge, state },
+      maxRedirects: 0,
     });
-    expect(exchanged.status()).toBe(200);
-    const sessions = await native.get('/api/v1/me/sessions');
-    const body = (await sessions.json()) as { sessions: Array<{ id: string; current: boolean }> };
-    expect(body.sessions.find((session) => session.current)).toMatchObject({
-      userAgent: 'Kept for iPhone',
-      secondFactor: true,
-    });
-    const device = body.sessions.find((session) => session.current);
-    const revoked = await context.request.delete(`/api/v1/me/sessions/${device?.id}`, {
-      headers: { origin: kit.BASE },
-    });
-    expect(revoked.status()).toBe(204);
-    expect((await native.get('/api/v1/me')).status()).toBe(401);
+    expect(approval.status()).toBe(400);
+    expect(approval.headers().location).toBeUndefined();
+    const sessions = await context.request.get('/api/v1/me/sessions');
+    expect(sessions.ok()).toBe(true);
+    expect((await sessions.json()).sessions).not.toContainEqual(
+      expect.objectContaining({ userAgent: 'Kept for iPhone' }),
+    );
   } finally {
-    await native.dispose();
     await context.close();
   }
 });

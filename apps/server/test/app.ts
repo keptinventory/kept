@@ -19,6 +19,7 @@ export type TestApp = {
 
 export type TestAppOptions = {
   publicUrl?: string;
+  nativeAppleKeys?: Parameters<typeof buildApp>[0]['nativeAppleKeys'];
   rateLimitEnabled?: boolean;
   /** Better Auth's own Origin check, as in production (Better Auth turns it off under tests). */
   authOriginCheck?: boolean;
@@ -100,6 +101,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     },
     pools: db.pools as Pools,
     auth,
+    ...(opts.nativeAppleKeys ? { nativeAppleKeys: opts.nativeAppleKeys } : {}),
     mailer: {
       send: async (m) => {
         mail.push(m);

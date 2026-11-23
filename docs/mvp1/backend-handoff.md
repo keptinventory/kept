@@ -144,3 +144,22 @@ KEPT_TEST_WORKERS=2 KEPT_VISUAL_ENCODER_URL=http://127.0.0.1:8798 \
 ```
 
 The [visual retrieval results](visual-retrieval-plan.md#first-slice-evidence) separate limited smoke performance from household qualification. The [iOS handoff](ios-handoff.md) separates browser, simulator and physical results. The branch is for local integration and acceptance evidence.
+
+## Apple-only iPhone authentication after `a3f05d64`
+
+Kept verifies Apple's signed native identity token for `info.keptinventory.nfc` and consumes the origin-bound nonce once. Browser approval requires the short-lived Apple continuation. Initial linking requires a fresh Kept session and explicit consent. Kept stores the Apple subject on the existing account and drops the identity token after verification. Returning users retain Kept MFA, active sessions and revocation. Browser accounts and native capture payload negotiation keep their existing contracts. [Authentication contract v2](integration-contract.md#session-and-capability).
+
+- Focused PostgreSQL tests exercise Apple JWT verification with a fixture signing key, first-link and returning-user flows, MFA, revoke and unlink, expired or replayed proof and stale restore epochs. Capture replay keeps its previous compatibility fixture.
+- Playwright on desktop and phone viewport confirms browser sign-in with MFA still works and that a browser session alone cannot authorize an iPhone session. Apple's system sheet requires signed-device verification.
+- The disposable local-storage NFC restore test passed with PostgreSQL 18.6 and Restic 0.19.1. It exercised Apple proof and exchange after restore with the same fixture signing key, verified originals, containment and label resolution, and rejected the stale epoch. The existing R2 evidence comes from the earlier drill above.
+
+Run the focused backend and browser checks using Node 24, the pinned pnpm, and the disposable development database.
+
+```sh
+corepack pnpm exec vitest run --project @kept/server \
+  apps/server/src/auth/native.test.ts apps/server/src/sync/native-compat.test.ts
+corepack pnpm --filter '@kept/server...' build
+corepack pnpm --filter @kept/web build
+KEPT_E2E_INSTANCES=signIn corepack pnpm --filter @kept/web e2e native-auth.spec.ts \
+  --project desktop --project phone
+```

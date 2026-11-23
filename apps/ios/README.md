@@ -56,7 +56,7 @@ pnpm --filter @kept/ios sync
 pnpm --filter @kept/ios open
 ```
 
-Note: When running native PKCE sign-in (`ASWebAuthenticationSession`) against a local dev server, also build the ordinary server web bundle (`pnpm --filter @kept/web build`) so the server can serve `/signin`, `/signin/two-factor`, and `/native/connect`.
+Build the ordinary server web bundle (`pnpm --filter @kept/web build`) for Apple linking and Kept MFA. Use a server build that supports [the Apple sign-in contract](../../docs/mvp1/integration-contract.md#session-and-capability).
 
 ### 3. Build & Launch on iOS Simulator
 
@@ -89,9 +89,10 @@ xcrun simctl launch <SIMULATOR_UDID> info.keptinventory.nfc
 1. Open `apps/ios/ios/App/App.xcodeproj` in Xcode (Xcode 26+ recommended, deployment target iOS 15.0+).
 2. Select target **App** → **Signing & Capabilities**:
    - Choose your Apple Developer Team (`<TEAM_ID>`).
-   - Keep bundle identifier `info.keptinventory.nfc` (or set a unique team-scoped bundle ID matching your provisioning profile).
+   - Use bundle identifier `info.keptinventory.nfc`. Kept verifies this exact Apple token audience.
+   - Enable **Sign in with Apple** on that App ID in Apple Developer and refresh the development and distribution provisioning profiles. The server verifies the native identity token using Apple's public keys. This flow requires no Services ID, Apple callback URL or Apple private key. [Apple capability setup](https://developer.apple.com/help/account/identifiers/enable-app-capabilities/#enable-sign-in-with-apple).
    - Confirm **Near Field Communication Tag Reading** capability is enabled (maps to `com.apple.developer.nfc.readersession.formats` = `NDEF` in `App/KeptNFC.entitlements`).
-   - Confirm **Keychain Sharing** / default app keychain access works for `KeptKeychain` (`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`).
+   - Confirm **Keychain Sharing** / default app keychain access works for `KeptKeychain` (`kSecAttrAccessibleWhenUnlockedThisDeviceOnly`).
 
 ### Entitlements (`KeptNFC.entitlements` vs `KeptNFC-AssociatedDomains.entitlements`)
 

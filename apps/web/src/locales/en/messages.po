@@ -30041,3 +30041,19 @@ msgstr "View stored photo"
 #: src/components/history/labels.ts
 msgid "Visual search indexing requested"
 msgstr "Visual search indexing requested"
+
+#: src/components/history/labels.ts
+msgid "Linked Apple sign-in for iPhone"
+msgstr "Linked Apple sign-in for iPhone"
+
+#: src/native/main.tsx
+msgid "Sign in with Apple"
+msgstr "Sign in with Apple"
+
+#: src/components/sign-in-methods.tsx
+msgid "Sign in with Apple for iPhone"
+msgstr "Sign in with Apple for iPhone"
+
+#: src/native/main.tsx
+msgid "Update this Kept server to sign in with Apple."
+msgstr "Update this Kept server to sign in with Apple."

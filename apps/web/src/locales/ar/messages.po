@@ -30041,3 +30041,19 @@ msgstr "اعرض الصورة المحفوظة"
 #: src/components/history/labels.ts
 msgid "Visual search indexing requested"
 msgstr "طُلبت فهرسة البحث في الصور"
+
+#: src/components/history/labels.ts
+msgid "Linked Apple sign-in for iPhone"
+msgstr "تم ربط تسجيل الدخول باستخدام Apple لـ iPhone"
+
+#: src/native/main.tsx
+msgid "Sign in with Apple"
+msgstr "تسجيل الدخول باستخدام Apple"
+
+#: src/components/sign-in-methods.tsx
+msgid "Sign in with Apple for iPhone"
+msgstr "تسجيل الدخول باستخدام Apple لـ iPhone"
+
+#: src/native/main.tsx
+msgid "Update this Kept server to sign in with Apple."
+msgstr "حدّث خادم Kept هذا لتسجيل الدخول باستخدام Apple."

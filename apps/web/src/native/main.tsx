@@ -20,7 +20,7 @@ import { NativePlatformProvider, usePlatform } from './adapters';
 import {
   type CompletionState,
   type Connection,
-  isSignInCancelled,
+  nativeErrorCode,
   type StorageStats,
 } from './bridge';
 import { CaptureForm, NewBoxForm } from './capture-form';
@@ -1072,11 +1072,16 @@ export function KeptPhone() {
       setConnection(next);
       setAddress(next.origin);
     } catch (error) {
-      setStatus(
-        isSignInCancelled(error)
-          ? t`Sign-in cancelled.`
-          : t`Could not connect to Kept. Check the server address and try again.`,
-      );
+      switch (nativeErrorCode(error)) {
+        case 'sign_in_cancelled':
+          setStatus(t`Sign-in cancelled.`);
+          break;
+        case 'apple_sign_in_unsupported':
+          setStatus(t`Update this Kept server to sign in with Apple.`);
+          break;
+        default:
+          setStatus(t`Could not connect to Kept. Check the server address and try again.`);
+      }
     } finally {
       setBusy(false);
     }
@@ -1146,7 +1151,7 @@ export function KeptPhone() {
               }}
             />
             <Button type="submit" isPending={busy} isDisabled={!address.trim()}>
-              <Trans>Sign in</Trans>
+              <Trans>Sign in with Apple</Trans>
             </Button>
           </form>
         </>

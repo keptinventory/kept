@@ -263,6 +263,7 @@ export const AUDIT_ACTIONS = [
   'session.native_connected',
   'session.revoke',
   'share_link.create',
+  'sign_in.apple_linked',
   'sign_in.unlink',
   'share_link.revoke',
   'tag.create',

@@ -1,12 +1,12 @@
 import { spawn } from 'node:child_process';
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { chmod, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { KEPT_VERSION, NATIVE_CAPTURE_PAYLOAD_VERSION, newId } from '@kept/shared';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
-import { jar, type TestApp, testApp } from '../../test/app.js';
+import { type TestApp, testApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import {
   fixture,
@@ -16,6 +16,7 @@ import {
   uniqueJpeg,
   upload,
 } from '../../test/files.js';
+import { connectNativeApple, nativeAppleKeys } from '../../test/native-apple.js';
 import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { type TestPgTools, testPgTools } from '../../test/pg-tools.js';
 import { asOwner } from '../../test/tenancy.js';
@@ -204,7 +205,10 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   files = await testFiles();
-  t = await peopleApp(db, { files: { ...files, blobs: r2Drill?.source ?? files.blobs } });
+  t = await peopleApp(db, {
+    nativeAppleKeys,
+    files: { ...files, blobs: r2Drill?.source ?? files.blobs },
+  });
   ibrahim = await person(t, db, 'ibrahim');
   garage = await createLocation(t, db, ibrahim, 'household', 'Garage');
   for (const name of ['Drill', 'Ladder', 'Toolbox'])
@@ -796,28 +800,7 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
     name: 'Holiday box',
     typeId: await builtinType(db, 'box_bin'),
   });
-  async function connect(app: TestApp) {
-    const verifier = randomBytes(32).toString('base64url');
-    const approval = await app.app.inject({
-      method: 'POST',
-      url: '/native/connect',
-      headers: {
-        origin: app.publicUrl,
-        cookie: ibrahim.cookie,
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      payload: new URLSearchParams({
-        challenge: createHash('sha256').update(verifier).digest('base64url'),
-        state: randomBytes(32).toString('base64url'),
-      }).toString(),
-    });
-    expect(approval.statusCode, approval.body).toBe(303);
-    const code = new URL(String(approval.headers.location)).searchParams.get('code');
-    const exchange = await call(app, '/api/v1/native/exchange', { body: { code, verifier } });
-    expect(exchange.statusCode, exchange.body).toBe(200);
-    return { ...exchange.json<{ account: string; epoch: string }>(), cookie: jar(exchange) };
-  }
-  const { account, epoch, cookie } = await connect(t);
+  const { account, epoch, cookie } = await connectNativeApple(t, ibrahim);
   expect(account).toBe(ibrahim.userId);
   const native = { cookie };
   const headers = { 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
@@ -1020,10 +1003,11 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
     }
     const recovered = await testApp(restoredDb, {
       publicUrl: t.publicUrl,
+      nativeAppleKeys,
       files: { ...restored, blobs: restoredBlobs },
     });
     restoredApp = recovered;
-    const renewed = await connect(recovered);
+    const renewed = await connectNativeApple(recovered, ibrahim);
     expect(renewed.account).toBe(account);
     expect(renewed.epoch).not.toBe(epoch);
     const currentHeaders = { ...headers, 'x-kept-native-epoch': renewed.epoch };

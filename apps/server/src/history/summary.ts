@@ -359,6 +359,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'passkey.rename': () => 'Renamed a passkey',
   'passkey.remove': () => 'Removed a passkey',
   'passkey.add': () => 'Added a passkey',
+  'sign_in.apple_linked': () => 'Linked Apple sign-in for iPhone',
   'sign_in.unlink': () => 'Unlinked an outside sign-in',
   'two_factor.setup': () => 'Started setting up two-factor',
   'two_factor.enable': () => 'Turned on two-factor',

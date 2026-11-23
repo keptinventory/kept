@@ -532,6 +532,7 @@ export function useSummary() {
       'passkey.rename': () => t`Renamed a passkey`,
       'passkey.remove': () => t`Removed a passkey`,
       'passkey.add': () => t`Added a passkey`,
+      'sign_in.apple_linked': () => t`Linked Apple sign-in for iPhone`,
       'sign_in.unlink': () => t`Unlinked an outside sign-in`,
       'two_factor.setup': () => t`Started setting up two-factor`,
       'two_factor.enable': () => t`Turned on two-factor`,

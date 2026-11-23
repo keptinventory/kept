@@ -32024,3 +32024,19 @@ msgstr "Переглянути збережене фото"
 #: src/components/history/labels.ts
 msgid "Visual search indexing requested"
 msgstr "Запитано індексування для візуального пошуку"
+
+#: src/components/history/labels.ts
+msgid "Linked Apple sign-in for iPhone"
+msgstr "Вхід з Apple для iPhone прив’язано"
+
+#: src/native/main.tsx
+msgid "Sign in with Apple"
+msgstr "Увійти з Apple"
+
+#: src/components/sign-in-methods.tsx
+msgid "Sign in with Apple for iPhone"
+msgstr "Увійти з Apple на iPhone"
+
+#: src/native/main.tsx
+msgid "Update this Kept server to sign in with Apple."
+msgstr "Оновіть цей сервер Kept, щоб увійти з Apple."

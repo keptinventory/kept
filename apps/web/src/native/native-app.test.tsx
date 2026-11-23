@@ -805,14 +805,15 @@ describe('KeptPhone mobile workflows', () => {
     const connect = vi
       .spyOn(env.adapters.credentials, 'connect')
       .mockRejectedValueOnce({ code: 'sign_in_cancelled' })
-      .mockRejectedValueOnce({ code: 'network' });
+      .mockRejectedValueOnce({ code: 'network' })
+      .mockRejectedValueOnce({ code: 'apple_sign_in_unsupported' });
     const user = userEvent.setup();
     env.renderApp();
 
     const address = 'https://kept.example.com';
     const serverField = await screen.findByLabelText('Kept server address');
     await user.type(serverField, address);
-    const signIn = screen.getByRole('button', { name: 'Sign in' });
+    const signIn = screen.getByRole('button', { name: 'Sign in with Apple' });
     await user.click(signIn);
     expect(await screen.findByRole('status')).toHaveTextContent('Sign-in cancelled.');
     expect(serverField).toHaveValue(address);
@@ -824,8 +825,14 @@ describe('KeptPhone mobile workflows', () => {
     );
 
     await user.click(signIn);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Update this Kept server to sign in with Apple.',
+    );
+    expect(serverField).toHaveValue(address);
+
+    await user.click(signIn);
     expect(await screen.findByRole('button', { name: /Winter Box/i })).toBeInTheDocument();
-    expect(connect).toHaveBeenCalledTimes(3);
+    expect(connect).toHaveBeenCalledTimes(4);
     expect(connect).toHaveBeenLastCalledWith(address);
   });
 
@@ -917,7 +924,7 @@ describe('KeptPhone mobile workflows', () => {
 
     const serverField = await screen.findByLabelText('Kept server address');
     await user.type(serverField, 'https://kept.example.com');
-    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    await user.click(screen.getByRole('button', { name: 'Sign in with Apple' }));
 
     const winterBoxBtn = await screen.findByRole('button', { name: /Winter Box/i });
     expect(winterBoxBtn).toHaveTextContent('Home › Garage');

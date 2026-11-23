@@ -10,6 +10,7 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
+import type { JWTVerifyGetKey } from 'jose';
 import { accountDeletionRoutes } from '../accounts/deletion.js';
 import { meRoutes } from '../accounts/me.js';
 import { signUpRoutes } from '../accounts/sign-up.js';
@@ -109,6 +110,8 @@ export type AppOptions = {
   /** Better Auth (auth/auth.ts), mounted at /api/v1/auth/*. Without it no request has a
    * session, so every 'required' route answers 401 (tests of the bare skeleton). */
   auth?: Auth | null;
+  /** Substitute the Apple JWKS in integration fixtures. */
+  nativeAppleKeys?: JWTVerifyGetKey;
   /** Outgoing mail for Kept's own flows (email change). Defaults to logging that it is due. */
   mailer?: Mailer;
   /** Called for every request that got a scope: ensureAccount's cached check. */
@@ -396,7 +399,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     const publicUrl = opts.env.KEPT_PUBLIC_URL;
     const mailer = opts.mailer ?? logMailer(app.log);
     const jobs = opts.jobs ?? null;
-    await nativeAuthRoutes(app, auth, publicUrl);
+    await nativeAuthRoutes(app, auth, publicUrl, opts.nativeAppleKeys);
     await authRoutes(app, {
       auth,
       pools: opts.pools,

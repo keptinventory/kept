@@ -1,6 +1,6 @@
 /**
  * Settings → Me → Sign-in methods (1.2, D176, D226): link or unlink the instance's OIDC provider
- * and Google. Shown only when one of them is configured. Linking leaves for the provider and comes
+ * and Google, plus unlinking the Apple Account connected from iPhone. Linking leaves for the provider and comes
  * back to Settings (`?via=…&error=…` when it failed, put in words by OidcError); it needs a
  * sign-in in the last ten minutes (`SESSION_NOT_FRESH`): the section then offers "Sign in again".
  * Unlinking is Kept's DELETE /api/v1/me/linked/:id behind confirm-it's-you (ReauthSheet: the
@@ -52,13 +52,13 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
   const methods = useQuery({
     queryKey: methodsKey,
     queryFn: listSignInMethods,
-    enabled: outside.length > 0,
   });
+  const apple = methods.data?.find((method) => method.providerId === 'apple');
   // Whether the account has a password: the unlink sheet asks for it then.
   const security = useQuery({
     queryKey: keys.signIn,
     queryFn: getSignInSecurity,
-    enabled: outside.length > 0,
+    enabled: outside.length > 0 || Boolean(apple),
   });
 
   const refused = (e: unknown) => {
@@ -75,7 +75,7 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
     onSuccess: ({ url }) => leave.to(url),
     onError: refused,
   });
-  if (outside.length === 0) return null;
+  if (outside.length === 0 && !apple) return null;
   // On one of KEPT_EXTRA_ADDRESSES (D275).
   const main = mainAddressElsewhere();
   const failedName =
@@ -101,6 +101,32 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
         <LoadingRows rows={outside.length} label={t`Loading your sign-in methods`} />
       ) : (
         <List>
+          {apple && (
+            <li>
+              <Row
+                leading={
+                  <IconTile>
+                    <KeyIcon />
+                  </IconTile>
+                }
+                title={<Trans>Sign in with Apple for iPhone</Trans>}
+                subtitle={
+                  <Pill tone="ok">
+                    <Trans>Linked</Trans>
+                  </Pill>
+                }
+                trailing={
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onPress={() => setUnlinking({ id: apple.id, name: 'Apple' })}
+                  >
+                    <Trans>Unlink</Trans>
+                  </Button>
+                }
+              />
+            </li>
+          )}
           {outside.map(({ provider, name }) => {
             const linked = methods.data?.find((m) => m.providerId === provider);
             return (
@@ -151,7 +177,7 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
           })}
         </List>
       )}
-      {main ? (
+      {main && outside.length > 0 ? (
         <p className="m-0 text-small text-ink-2">
           <Trans>
             To link one, go to <MainAddress main={main} />: outside sign-ins come back to that
@@ -174,12 +200,14 @@ export function SignInMethods({ error, via }: { error?: string; via?: OutsidePro
           }}
         />
       ) : null}
-      <p className="m-0 text-small text-ink-3">
-        <Trans>
-          Once linked, that account signs you in here. Kept never links one because the email
-          matches.
-        </Trans>
-      </p>
+      {outside.length > 0 && (
+        <p className="m-0 text-small text-ink-3">
+          <Trans>
+            Once linked, that account signs you in here. Kept never links one because the email
+            matches.
+          </Trans>
+        </p>
+      )}
     </Section>
   );
 }

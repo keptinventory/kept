@@ -6,6 +6,7 @@ import type pg from 'pg';
 import { endRefreshTokens } from '../oauth/refresh-tokens.js';
 import { requestClientIp } from './client-ip.js';
 import { isUndeliverableEmail } from './emails.js';
+import { APPLE_PROVIDER } from './native-apple.js';
 import {
   clearSignInFailures,
   limiterKey,
@@ -832,6 +833,11 @@ export async function claimUnverifiedAccount(
       [userId],
     );
     await client.query('DELETE FROM auth.passkey WHERE user_id = $1', [userId]);
+    // An Apple link added before the mailbox was claimed must not survive account recovery.
+    await client.query('DELETE FROM auth.account WHERE user_id = $1 AND provider_id = $2', [
+      userId,
+      APPLE_PROVIDER,
+    ]);
     await client.query('DELETE FROM auth.two_factor WHERE user_id = $1', [userId]);
     // A new authenticator app staged by "Set up again" goes too.
     await client.query(

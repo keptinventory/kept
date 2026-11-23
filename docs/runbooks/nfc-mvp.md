@@ -14,8 +14,8 @@ and Simulator checks on disposable inventory.
    and the development Compose services. Start with a disposable database and file
    store. Run `pnpm --filter @kept/server kept migrate` to apply the native
    capture migrations through 0181.
-   Build the ordinary web app because the iPhone's system sign-in window opens
-   the server's existing web sign-in and MFA pages.
+   Build the ordinary web app to serve first-time Apple linking and Kept MFA in
+   the iPhone's system authentication window.
 
    ```sh
    pnpm --filter @kept/web build
@@ -35,15 +35,18 @@ and Simulator checks on disposable inventory.
    ```
 
 3. For physical testing, select your development team in Xcode and use a bundle
-   ID and provisioning profile with Near Field Communication Tag Reading.
+   ID and provisioning profile with Near Field Communication Tag Reading and
+   [Sign in with Apple](../../apps/ios/README.md#xcode-signing--bundle-identifier).
    Keep the test server private and set `KEPT_PUBLIC_URL` to the exact
    trusted HTTPS origin the phone uses. Follow the
    [HTTPS setup guidance](../../CONTRIBUTING.md#on-a-phone-https)
    to make the server reachable from the phone. Leave the Capacitor endpoint
    settings empty so the app continues to load its bundled assets.
 
-4. Enter the server origin on the iPhone. Complete Kept's browser sign-in and
-   MFA and approve “Connect Kept for iPhone.” The one-time PKCE exchange creates
+4. Enter the server origin on the iPhone and choose **Sign in with Apple**.
+   On first use, sign in to the existing Kept account, confirm the two account
+   addresses and approve the link. Returning users complete any required Kept MFA
+   and approve “Connect Kept for iPhone.” The one-time PKCE exchange creates
    a separate first-party Kept session in Keychain. It appears in Kept's active
    sessions and follows the normal account and media permissions. Sign out
    before changing servers or accounts. An offline sign-out clears local session
@@ -229,9 +232,10 @@ pnpm exec vitest run --project @kept/server apps/server/src/auth/native.test.ts 
 
 For the shared sign-in fixture regression, run both
 `e2e/native-auth.spec.ts` and `e2e/sign-in-security.spec.ts` against the
-`signIn` instance. Each consent attempt creates its own password account
-in the disposable database before enabling MFA. The passkey scenario
-uses its own seeded account.
+`signIn` instance. The native-auth browser check verifies that browser MFA
+alone cannot create a native session. The server's `auth/native.test.ts`
+exercises native exchange using RS256 identity tokens signed by a test issuer
+key. The browser passkey scenario uses its own account.
 
 ## Physical-device acceptance
 
@@ -240,7 +244,7 @@ type, and observed behavior for each test.
 
 | Scenario | Physical test |
 | --- | --- |
-| Sign-in and session | On the signed phone build, complete browser sign-in, MFA and consent. Verify the app returns to the signed-in view and a native session appears in Kept's active sessions. Reopen the app after a force-quit and verify session access. |
+| Sign-in and session | On the signed phone build, sign in with Apple and link an existing Kept account. On a second sign-in, verify Kept MFA and consent without a browser password prompt. Verify the authorized inventory request and active native session, force-quit and reopen. Exercise cancellation, unlinking and same-owner held-work access. |
 | Manual capture | Add “Holiday decorations” with notes, two photos and a PDF. Reopen and view the originals. |
 | AI independence | Save while AI is disabled or unavailable, then enable a mock provider and edit a suggestion before accepting it. |
 | NFC and QR | Scan both identifiers for the same box. Test an inaccessible, retired, malformed, and foreign-origin identifier. |

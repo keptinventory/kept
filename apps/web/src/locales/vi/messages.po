@@ -22089,3 +22089,19 @@ msgstr "Xem ảnh đã lưu"
 #: src/components/history/labels.ts
 msgid "Visual search indexing requested"
 msgstr "Đã yêu cầu lập chỉ mục tìm kiếm hình ảnh"
+
+#: src/components/history/labels.ts
+msgid "Linked Apple sign-in for iPhone"
+msgstr "Đã liên kết đăng nhập bằng Apple cho iPhone"
+
+#: src/native/main.tsx
+msgid "Sign in with Apple"
+msgstr "Đăng nhập bằng Apple"
+
+#: src/components/sign-in-methods.tsx
+msgid "Sign in with Apple for iPhone"
+msgstr "Đăng nhập bằng Apple trên iPhone"
+
+#: src/native/main.tsx
+msgid "Update this Kept server to sign in with Apple."
+msgstr "Hãy cập nhật máy chủ Kept này để đăng nhập bằng Apple."

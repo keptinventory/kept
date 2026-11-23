@@ -30041,3 +30041,19 @@ msgstr "Voir la photo enregistrée"
 #: src/components/history/labels.ts
 msgid "Visual search indexing requested"
 msgstr "Indexation pour la recherche visuelle demandée"
+
+#: src/components/history/labels.ts
+msgid "Linked Apple sign-in for iPhone"
+msgstr "Connexion avec Apple associée pour iPhone"
+
+#: src/native/main.tsx
+msgid "Sign in with Apple"
+msgstr "Se connecter avec Apple"
+
+#: src/components/sign-in-methods.tsx
+msgid "Sign in with Apple for iPhone"
+msgstr "Se connecter avec Apple sur iPhone"
+
+#: src/native/main.tsx
+msgid "Update this Kept server to sign in with Apple."
+msgstr "Mettez ce serveur Kept à jour pour vous connecter avec Apple."

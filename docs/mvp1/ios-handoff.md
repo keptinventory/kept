@@ -80,6 +80,14 @@ The integration at `c70ca90a`, based on `9755d52a`, adds stage and status diagno
 
 Physical G1 and G2 still require an unlocked phone and operator interaction. On build 3, follow the sign-in and camera/PDF acceptance steps on the disposable server, then exercise force-quit, reboot, reconnect, original-file verification and context changes. The offline outbox reopen and scope checks were exercised in Swift tests. The complete disconnected capture, preview, reboot and replay sequence still needs device evidence. Repeat NFC tag programming, readback, NFC/QR Identify, Find and failure cases with the listed tags. The programmer compares NDEF contents across scans. Identical contents can be presented by different tags. [Physical-device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance).
 
+## Apple-only iPhone sign-in
+
+This increment starts from `a3f05d64` on `main`. The bundled app opens the native Apple sheet, verifies the identity through Kept, then uses the existing consent, PKCE exchange and Keychain session. First use links an existing account through Kept's browser sign-in and explicit consent. Returning iPhone users sign in with Apple and complete Kept MFA when enabled. Existing Keychain sessions continue under their original expiry and revocation rules. The app checks the Apple credential on cold launch for new Apple sessions. Credentials and full callback URLs stay out of diagnostics.
+
+The bundled iOS assets and Capacitor sync built. Xcode 27.2 compiled the app for Simulator and arm64 device with signing disabled. The 16 Swift package tests and the 11 focused native web screen tests passed. These checks exercised local behavior, including the retry message for a server lacking Apple sign-in. The paired iPhone was offline and the local provisioning profile for this bundle ID lacks the Apple sign-in entitlement. Apple-signed authentication, revocation through Apple's settings and the callback have yet to be exercised on a signed device.
+
+Enable Sign in with Apple for `info.keptinventory.nfc`, refresh the signing profile and build against an HTTPS Kept server that implements [contract v2](integration-contract.md#session-and-capability). For G1, link an account with Hide My Email, sign out, sign back in with Apple and Kept MFA, verify the native session and authorized inventory request, then force-quit and relaunch. Exercise cancellation, Kept unlink and Apple credential revocation, plus the capture and durability cases in the [device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance).
+
 ## Remaining limitations
 
 - Held-work reconciliation/adoption into a restored server is intentionally unimplemented (bounded review, preview, metadata+originals Share Sheet export, and explicit discard only).

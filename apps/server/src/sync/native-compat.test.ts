@@ -1,4 +1,3 @@
-import { createHash, randomBytes } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import {
   CreateThingPayload,
@@ -10,7 +9,7 @@ import {
 } from '@kept/shared';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, expect, it } from 'vitest';
-import { jar, type TestApp } from '../../test/app.js';
+import type { TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import {
   fixture,
@@ -20,7 +19,8 @@ import {
   uniqueJpeg,
   upload,
 } from '../../test/files.js';
-import { call, freshIp, type Person, peopleApp, person } from '../../test/people.js';
+import { connectNativeApple, nativeAppleKeys } from '../../test/native-apple.js';
+import { freshIp, type Person, peopleApp, person } from '../../test/people.js';
 import { CLIENT_VERSION, captureOp } from '../../test/sync-ops.js';
 import { builtinType, createLocation, createThing, type Loc, own } from '../../test/things.js';
 
@@ -37,7 +37,7 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   files = await testFiles();
-  t = await peopleApp(db, { files });
+  t = await peopleApp(db, { files, nativeAppleKeys });
   owner = await person(t, db, 'native-owner');
   home = await createLocation(t, db, owner, 'household');
 });
@@ -48,26 +48,8 @@ afterAll(async () => {
 });
 
 async function nativeSession() {
-  const verifier = randomBytes(32).toString('base64url');
-  const approval = await t.app.inject({
-    method: 'POST',
-    url: '/native/connect',
-    headers: {
-      origin: t.publicUrl,
-      cookie: owner.cookie,
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    payload: new URLSearchParams({
-      challenge: createHash('sha256').update(verifier).digest('base64url'),
-      state: randomBytes(32).toString('base64url'),
-    }).toString(),
-  });
-  expect(approval.statusCode, approval.body).toBe(303);
-  const code = new URL(String(approval.headers.location)).searchParams.get('code');
-  const exchanged = await call(t, '/api/v1/native/exchange', { body: { code, verifier } });
-  expect(exchanged.statusCode, exchanged.body).toBe(200);
-  const { account, epoch } = exchanged.json<{ account: string; epoch: string }>();
-  return { cookie: jar(exchanged), 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
+  const { account, epoch, cookie } = await connectNativeApple(t, owner);
+  return { cookie, 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
 }
 
 const oldCreateThing = CreateThingPayload.omit({ reviewSuggestions: true });
