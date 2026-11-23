@@ -22,7 +22,7 @@ The working branch began clean. The starting commit guarded native presentation 
 - **AI history** · The full extraction file reproduced a missing AI ledger line on the starting and integration revisions. PostgreSQL's clock was about 95 ms ahead of Node locally. The history and inbox share a ledger join that tolerates this skew while keeping its timestamp bound. The regression places the recorded ledger time 250 ms before the extraction row and verifies that the owner can still see the call and its cost.
 - **Offline documents** · The existing IndexedDB staging tests cover a failed PDF replacement keeping the previous published bytes, cleanup when an offline copy is cleared, and revocation while fetching. Browser sync and search use their existing paths. [Browser regression](../../apps/web/src/offline/extras.test.ts).
 
-These changes follow the capture/review and preserve-originals requirements in the [design](../plans/kept_nfc_software_design.md) and [implementation plan](../plans/kept_nfc_implementation_plan.md). The companion [backup runbook](../runbooks/backup-restore.md) governs local and external storage, and the [NFC runbook](../runbooks/nfc-mvp.md) links the physical-device evidence still required.
+These changes follow the capture, review and original-file requirements in the [approved NFC design and implementation plan](../kept_nfc_software_design.docx). The [backup runbook](../runbooks/backup-restore.md) governs local and external storage. The [NFC runbook](../runbooks/nfc-mvp.md) lists the physical-device acceptance checks.
 
 The backend changes cover `apps/server/src/auth/native.ts`, `sync/`, `capture/service.ts`, `things/service.ts`, `extraction/`, `inbox/view.ts`, `db/schema/things.ts`, migrations 0180/0181 and their metadata, and `backup/backup.test.ts`. The shared changes are in `packages/shared/src/sync.ts` and the web capture paths module. CI and runbook changes are in `.github/workflows/mvp1-ios.yml`, this evidence directory and `docs/runbooks/nfc-mvp.md`. The native changes are listed in the iOS handoff.
 
@@ -121,4 +121,26 @@ The earlier tested revision could prompt for sign-in when a pre-negotiation serv
 
 The later G1 run also signed and launched a Release build on the physical iPhone. See the [gate record](status.md#g1-device-evidence) for verified stages and outstanding device checks. Production deployment and production data were outside the backend handoff.
 
-The next implementation milestone is [production visual retrieval for R10 and R11](visual-retrieval-plan.md).
+## CI repairs after `9755d52a`
+
+GitHub runs `45132213093` and `45133311792` reported three remaining failures. The two unit failures reproduced on Node 24.22.3 and pnpm 11.23.0. The native React rows now use Kept's locale-aware separator. The Corolla test evaluates the dated sample history on October 10, 2026, the scenario date used by the other fixed-history checks. After enough time passes, the 90-day rate window can legitimately lose the older readings and stop estimating the service date. The estimate assertion and shared scheduling rules remain in force.
+
+The hosted Playwright trace showed a successful password request followed by `/signin/two-factor`. Both the desktop passkey scenario and the native consent scenario used the same seeded account. Native consent intentionally enables MFA. The sequential desktop run reproduced the collision after consent passed. Each native consent attempt now creates a separate password account using the existing test seed app against the disposable Playwright database. The combined run passed all six consent, passkey and TOTP lifecycle scenarios in the desktop and phone-sized browser projects. [Hosted CI at `19427e2b`](https://github.com/e3742526/kept-nfc/actions/runs/45132213093) · [Hosted CI at `9755d52a`](https://github.com/e3742526/kept-nfc/actions/runs/45133311792).
+
+## Visual retrieval and integration on `c70ca90a`
+
+The increment starts at `9755d52a`. Commit `aadf815c` repairs the CI fixtures, `e2f8d94c` adds opt-in visual retrieval for text and photo queries, and `c70ca90a` adds redacted native authentication diagnostics. Hosted results above apply to the earlier commits. The following checks ran locally with Node 24.22.3, pnpm 11.23.0 and disposable PostgreSQL 18.6.
+
+- The 136 focused web tests cover ordinary search, visual search with stored evidence, photo-input release, separators, the vehicle fixture, history, and native adapters. The built browser ran both visual journeys against Fastify, PostgreSQL, the durable worker and the pinned encoder, including an actual signed evidence preview.
+- The 11 visual server tests cover the provider and both retrieval paths, including one run against the real local encoder. They exercise current containment, indexing across changes, deletion and revocation, and query-photo isolation, cancellation and expiry. Another 184 focused server tests passed for environment validation, migrations through the test harness, row-level isolation, audit routes, portable exports, native authentication and rollback compatibility. The rollback test used the compiled `8d890f96` server.
+- Workspace typecheck and lint, catalogue extraction parity, the configuration reference check, schema drift and dependency licences passed. The server, web and documentation builds passed, including the docs site's link check. The selected real Restic and PostgreSQL local-storage backup regression passed again. The prior R2 test evidence is recorded above.
+
+Opt in and repeat the real visual check with the [encoder setup and corpus commands](../../scripts/visual-retrieval/README.md#real-encoder-smoke-with-independent-image-exposures).
+
+```sh
+KEPT_TEST_WORKERS=2 KEPT_VISUAL_ENCODER_URL=http://127.0.0.1:8798 \
+  KEPT_TEST_VISUAL_FIXTURES=.tmp/kept-visual/coil-fixtures/manifest.json \
+  pnpm exec vitest run --project @kept/server apps/server/src/visual-search
+```
+
+The [visual retrieval results](visual-retrieval-plan.md#first-slice-evidence) separate limited smoke performance from household qualification. The [iOS handoff](ios-handoff.md) separates browser, simulator and physical results. The branch is for local integration and acceptance evidence.

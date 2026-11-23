@@ -35,6 +35,10 @@ password and deduplicated:
 - **With S3 file storage** the files stay in the bucket. Keep an independent copy of the objects,
   preserving their keys, and test restoring that copy into an empty destination. Enable bucket
   versioning where the provider supports it. Kept checks S3 versioning on each backup run.
+- The whole-instance database dump can contain derived visual vectors. Portable location exports
+  omit them. Restore the originals and reindex eligible photos if the index is missing or the
+  model generation changes. Temporary visual query photos and vectors are kept in memory and
+  outside both backup formats.
 - **Not in the backup:** `KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET` and retired keys. They are in the
   recovery kit (`kept admin recovery-kit`); without them a restore brings back everything except
   secret values and AI keys.

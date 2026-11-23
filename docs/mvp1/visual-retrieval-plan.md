@@ -1,8 +1,8 @@
-# Next milestone · production visual retrieval
+# Visual retrieval implementation and qualification
 
 **R10** Words retrieve objects visible in stored image pixels even when omitted from all text.
 **R11** A new photograph retrieves likely recorded locations with stored visual evidence.
-Both remain open. Keep ordinary search, exact identifiers and text-semantic search available while this milestone ships.
+The first whole-image slice gives both journeys the same encoder and index. Qualification remains open for both requirements. Ordinary search, exact identifiers and text-semantic search remain available on the Search page.
 
 ## Qualify on household fixtures
 
@@ -17,15 +17,35 @@ Run ordinary search, text-semantic search, full-image vectors, and full-image pl
 3. Use deletion, replacement and moves to invalidate the old source generation. Jobs recheck hash, attachment and location on commit, so an in-flight index cannot resurrect old results. Cross-location moves re-evaluate authorization at the destination. Revocation filters results, coverage, counts and new media URLs immediately on the server. Use the current canonical containment path in results. Rebuild derived vectors from surviving originals after restore.
 4. Bound image bytes, decoded pixels, regions and per-account processing. Use a private, principal-scoped temporary object for query photos, with a proposed 15-minute maximum lifetime and deletion after encoding or cancellation. Keep a short-lived query vector for retry within that lifetime. Exclude query photos and vectors from inventory, backups, export, analytics, logs and model training. Expire them on schedule and invalidate them on access revocation.
 
-## Proposed interfaces
+## Whole-image interfaces
 
-| Interface | Proposed behavior |
+| Interface | First slice |
 | --- | --- |
-| `POST /api/v1/visual-search/input` | Bounded private image upload. Returns `{inputId, expiresAt}`. Owner credentials and the permitted search scope bind the input. |
-| `POST /api/v1/visual-search` | Accepts exactly one of `text` or `inputId`, with optional normalized crop, authorized location IDs and bounded limit. Returns `{outcome, coverage, matches}`. |
-| `GET /api/v1/visual-search/status` | Returns the active generation, and ready, pending, failed and paused counts visible in the requested scope. |
-| `POST /api/v1/admin/visual-search/reindex` | Scoped, audited and idempotent job request tied to an approved model generation. |
+| `POST /api/v1/visual-search/input` | Accepts raw JPEG, PNG or WebP up to 8 MiB and 20 megapixels with optional comma-separated `locationIds`. Returns `{inputId, expiresAt}`. The server encodes the bytes in memory and retains only the vector, bound to the signed-in user, session and authorized locations for at most 15 minutes. |
+| `DELETE /api/v1/visual-search/input/:id` | Clears the caller's input immediately. Repeat calls return 204. |
+| `POST /api/v1/visual-search` | Accepts exactly one of `text` or `inputId`, optional `locationIds` and a limit of 1–20. Returns `{outcome, coverage, matches}`. Photo queries can narrow the scope bound at upload. The current generation indexes and queries whole images. |
+| `GET /api/v1/visual-search/status` | Returns `generation` and scoped `ready`, `pending`, `failed` and `paused` counts. An unconfigured server returns a null generation. |
+| `POST /api/v1/admin/visual-search/reindex` | A signed-in location owner or admin submits `{locationId}`. Each audited call enqueues a bounded batch for the configured generation and returns `{queued}`. |
 
-A match includes its record and location IDs, current containment path, source attachment, capture date and optional normalized region. Use Kept's authorized media route to open evidence. Group several photos of the same item or box. Show multiple plausible locations with distinct evidence when matches are ambiguous. Distinguish `no_close_match`, `partial_coverage` and `unavailable`; offer narrower phrasing, a new viewpoint or ordinary search as appropriate. Label locations as recorded. Searching has no inventory side effects.
+A match includes the record and location IDs, current containment path, source attachment and file, capture date and the cosine score used for ranking. The browser shows possible matches and recorded locations. It requests a fresh display URL from Kept's existing authorized media route when someone opens evidence. Results keep the best photo for each record. The page handles no close match, incomplete indexing, ambiguity and unavailable inference. Photo search applies location scope, and the usual search filters continue to apply to ordinary results. Searching creates no inventory records.
 
-Implement indexing and permission/lifecycle tests first, then ship the words-to-pixels and photo-query slices against the same generation. Qualify both before closing G3 or G6. Keep this milestone ahead of custom fields, public sharing, new MCP features and provider migration. [Design](../plans/kept_nfc_software_design.md) · [Implementation plan](../plans/kept_nfc_implementation_plan.md).
+## Run the first slice
+
+Start the [pinned loopback OpenCLIP sidecar](../../scripts/visual-retrieval/README.md#opt-in-local-encoder) and opt in on the server and worker. A location owner or admin can enqueue existing eligible photos with the scoped reindex route. Newly attached eligible photos use the durable jobs. The Search page adds **Find in photos** for the description in its search box and **Search with a photo** for a new query image when a generation is configured.
+
+Whole-image indexing currently covers eligible JPEG, PNG and WebP photo attachments. It skips documents, drafts, in-review attachments and sources outside the size limits. Viewers cannot query vectors derived from originals. In a cross-location move or photo replacement, live source checks make the previous vector ineligible. Reindex the destination if a replacement vector is pending. Temporary photo queries use process memory and can expire sooner if the process restarts. Use the same application process for upload and search in a multi-replica setup.
+
+## First-slice evidence
+
+The disposable Fastify and PostgreSQL integration indexed five out of five COIL-20 photos in distinct fixture boxes. The search words were absent from the associated records and ordinary lexical search returned no matching record. Photo queries used separately captured turntable exposures. The portable corpus includes similar cups and toy vehicles in different recorded locations. [Encoder setup and corpus commands](../../scripts/visual-retrieval/README.md#real-encoder-smoke-with-independent-image-exposures).
+
+| Measure | Caption-omitted text | Independently exposed photo |
+| --- | --- | --- |
+| Recall@1 | 5/6 | 5/5 |
+| Recall@5 | 6/6 | 5/5 |
+| Absent queries without a match | 2/2 | 1/2 |
+| API round trip on `e2f8d94c` | 34.7–95.3 ms | 66.0–113.8 ms including upload and encoding |
+
+The five-photo upload, attachment and indexing path took 0.84–1.42 seconds in two focused runs. The encoder process used about 589 MiB resident memory on Apple Silicon after the small smoke run. The 375 px Chromium check used the built app and its running durable worker. One attachment became searchable 1.02–1.47 seconds after the attach request across two runs. Both browser query modes returned the same recorded box, an authorized signed preview loaded, and the query handle was released.
+
+The absent cat figurine returned the rubber duck as a false positive. The small turntable corpus does not qualify household accuracy, abstention, throughput or latency at scale. Keep G3 and G6 pending. Assess the provisional scores on the approved independent household cohorts before applying them to pilot acceptance. [Approved NFC design and implementation plan](../kept_nfc_software_design.docx).

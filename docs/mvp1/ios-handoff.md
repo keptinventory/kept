@@ -67,8 +67,21 @@ The initial signing check above preceded provisioning. The later signed Kept NFC
 
 G1 remains pending. Complete the native session exchange, camera and PDF access, Keychain persistence and outbox durability across force-quit and reboot. Record the tested build and outcomes in the [gate record](status.md) while following the [physical-device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance).
 
+## November 23 authentication follow-up
+
+The integration at `c70ca90a`, based on `9755d52a`, adds stage and status diagnostics in Kept NFC 1.0 build 3. Use subsystem `info.keptinventory.nfc` and category `NativeAuth` in Console. Browser start, completion, callback validation, the native exchange, Keychain and the first successful API response each produce a separate event. A custom-scheme delivery to the scene produces a separate observation. Authentication inputs and request details stay out of these events. The exchange and callback rules are the existing contract.
+
+| Evidence | Result |
+| --- | --- |
+| iOS 27.0 Simulator, iPhone 17 Pro, diagnostic build 3 | The actual system browser session completed password, TOTP and consent against the disposable HTTPS Fastify server. The completion handler received the callback, state validation accepted it, the exchange returned HTTP 200, Keychain saved the session and an authorized API request returned 200. The disposable database reported one unexpired native session with MFA. Terminating and relaunching the app loaded the session from Keychain and produced another authorized response. Dismissing the browser delivered cancellation code 1, after which a fresh retry completed. |
+| Simulator online capture | Selected two JPEGs in Photos and one PDF in Files, then saved **Holiday decorations** with notes under **Cable box**. The UI reported **Synced: 1**. The disposable database contained one matching record with roles `photo`, `photo`, `document` and review-only policy, with zero active AI providers. The stored originals matched all three input files and their database SHA-256 values at 956, 611 and 327 bytes. Reopening each attachment through Kept downloaded the original into Quick Look with identical bytes. |
+| Physical iPhone 17 Pro, iOS 27.2.1 | The prior build 2 attempt reached consent and the server received no exchange. Build 3 compiled as an Apple Development-signed arm64 Release app with NDEF entitlement, passed signature verification, installed and read back as build 3. CoreDevice rejected foreground launch while the device was locked. The cause of the earlier physical handoff failure remains undetermined. |
+| Focused automation | The bundled iOS web build and Capacitor sync passed. The 16 Swift package and 25 native web tests passed. Xcode 27.2 built and launched the ad hoc signed Debug simulator app and built the development-signed Release device app. |
+
+Physical G1 and G2 still require an unlocked phone and operator interaction. On build 3, follow the sign-in and camera/PDF acceptance steps on the disposable server, then exercise force-quit, reboot, reconnect, original-file verification and context changes. The offline outbox reopen and scope checks were exercised in Swift tests. The complete disconnected capture, preview, reboot and replay sequence still needs device evidence. Repeat NFC tag programming, readback, NFC/QR Identify, Find and failure cases with the listed tags. The programmer compares NDEF contents across scans. Identical contents can be presented by different tags. [Physical-device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance).
+
 ## Remaining limitations
 
 - Held-work reconciliation/adoption into a restored server is intentionally unimplemented (bounded review, preview, metadata+originals Share Sheet export, and explicit discard only).
 - End-to-end tests against a real rolled-back/upgraded HTTP server live in the server suite (`apps/server/src/sync/native-compat.test.ts`); phone UI rolled-back/401-probe flows were verified with fake transport doubles.
-- Existing-record editing and production visual retrieval remain follow-on work, unchanged.
+- Existing-record editing remains follow-on work. Browser visual search and the remaining held-out qualification are tracked in the [visual retrieval plan](visual-retrieval-plan.md).

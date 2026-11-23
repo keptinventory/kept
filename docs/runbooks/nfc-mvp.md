@@ -75,8 +75,9 @@ on a small tag. The payload is one NDEF URI record containing
 - Open the box and use **QR and NFC label**. **Inspect NFC tag** checks the
   current label assignment, writability and NDEF capacity. An occupied tag
   requires an explicit overwrite. Hold the same tag near the phone again
-  to write it. The app checks the existing contents again immediately before
-  the write, then reads the written payload back to verify it.
+  to write it. The app compares the NDEF contents observed in the two scan
+  sessions, then reads the written payload back to verify it. Different tags
+  can present the same NDEF contents, including two blank tags.
 - To replace a missing or damaged tag, enroll a new tag using the same box
   label. This preserves existing QR labels and any tags still carrying the
   same link. Kept has no per-tag revocation when several physical copies
@@ -222,6 +223,12 @@ pnpm exec vitest run --project @kept/server apps/server/src/auth/native.test.ts 
   apps/server/src/sync/native-compat.test.ts apps/server/src/sync/ordering.test.ts \
   apps/server/src/extraction/extraction.test.ts apps/server/src/scan/scan.test.ts
 ```
+
+For the shared sign-in fixture regression, run both
+`e2e/native-auth.spec.ts` and `e2e/sign-in-security.spec.ts` against the
+`signIn` instance. Each consent attempt creates its own password account
+in the disposable database before enabling MFA. The passkey scenario
+uses its own seeded account.
 
 ## Physical-device acceptance
 
