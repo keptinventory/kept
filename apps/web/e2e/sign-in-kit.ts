@@ -6,6 +6,7 @@
  * believe X-Forwarded-For, serve.mjs `--trust-proxy`), and the instance's database as kept_auth
  * for the few fixtures no screen makes.
  */
+import { randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import {
@@ -111,17 +112,63 @@ export function signInKit(instance: Instance, addressBase: { phone: number; desk
     await expect(page).toHaveURL(/\/signin/);
   }
 
-  /** The instance's database (serve.mjs logs `database <name> migrated`), as kept_auth. */
+  function fixtureDatabase(): string {
+    const log = readFileSync(`${stateDirOf(instance)}server.log`, 'utf8');
+    const name = /database (kept_e2e_\w+) migrated/.exec(log)?.[1];
+    const prefix = `kept_e2e_${instance.name.replaceAll('-', '_')}_`;
+    if (!name?.startsWith(prefix)) throw new Error(`${instance.name}: no fixture database found`);
+    return name;
+  }
+
+  const databaseUrl = (role: 'kept_app' | 'kept_auth' | 'kept_system', database: string) =>
+    `postgres://${role}:${role}@localhost:5452/${database}`;
+
+  /** One new login per attempt for journeys that leave MFA enabled on their account. */
+  async function createPasswordLogin(displayName: string): Promise<string> {
+    const name = fixtureDatabase();
+    const load = (module: string) =>
+      import(new URL(`../../server/dist/${module}`, import.meta.url).href);
+    const [{ createPools, closePools }, { buildSeedApp }] = await Promise.all([
+      load('db/pools.js'),
+      load('seed/index.js'),
+    ]);
+    const pools = createPools({
+      KEPT_DATABASE_URL: databaseUrl('kept_app', name),
+      KEPT_AUTH_DATABASE_URL: databaseUrl('kept_auth', name),
+      KEPT_SYSTEM_DATABASE_URL: databaseUrl('kept_system', name),
+    });
+    try {
+      const seed = await buildSeedApp(
+        { KEPT_PUBLIC_URL: BASE, KEPT_AUTH_SECRET: randomBytes(32).toString('base64url') },
+        pools,
+      );
+      try {
+        const email = `native-consent-${randomUUID()}@kept.test`;
+        const response = await seed.inject({
+          method: 'POST',
+          url: '/api/v1/auth/sign-up',
+          headers: { origin: BASE, 'accept-language': 'en' },
+          remoteAddress: nextAddress(),
+          payload: { email, displayName, password: PASSWORD },
+        });
+        expect(response.statusCode, 'create disposable consent account').toBe(202);
+        return email;
+      } finally {
+        await seed.close();
+      }
+    } finally {
+      await closePools(pools);
+    }
+  }
+
+  /** The instance's database, as kept_auth, for fixtures without a corresponding UI. */
   async function asAuth<T>(
     fn: (q: (sql: string, values: unknown[]) => Promise<{ rows: unknown[] }>) => Promise<T>,
   ): Promise<T> {
-    const log = readFileSync(`${stateDirOf(instance)}server.log`, 'utf8');
-    const name = /database (kept_e2e_\w+) migrated/.exec(log)?.[1];
-    if (!name) throw new Error(`${instance.name}: no database line in its log`);
     // pg is the server's dependency, not the web app's.
     const pg = createRequire(new URL('../../server/package.json', import.meta.url))('pg');
     const client = new pg.Client({
-      connectionString: `postgres://kept_auth:kept_auth@localhost:5452/${name}`,
+      connectionString: databaseUrl('kept_auth', fixtureDatabase()),
     });
     await client.connect();
     try {
@@ -131,5 +178,5 @@ export function signInKit(instance: Instance, addressBase: { phone: number; desk
     }
   }
 
-  return { BASE, nextAddress, newPerson, signInWithPassword, signOut, asAuth };
+  return { BASE, nextAddress, newPerson, signInWithPassword, signOut, createPasswordLogin, asAuth };
 }

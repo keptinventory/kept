@@ -14,7 +14,7 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { i18n, startLocale } from '@/i18n/i18n';
 import { isolate } from '@/lib/bidi';
-import { useBytes } from '@/lib/format';
+import { sep, useBytes } from '@/lib/format';
 import { watchSystemTheme } from '@/lib/prefs';
 import { NativePlatformProvider, usePlatform } from './adapters';
 import type { CompletionState, Connection, StorageStats } from './bridge';
@@ -658,7 +658,10 @@ export function Inventory({
                     <p className="text-ink-2">
                       <bdi>{boxName}</bdi>
                       {entry.capture.files.length > 0 && (
-                        <> · {t`Files: ${entry.capture.files.length}`}</>
+                        <>
+                          {sep()}
+                          {t`Files: ${entry.capture.files.length}`}
+                        </>
                       )}
                     </p>
                     {entry.failure && <p className="text-danger">{failureText(entry.failure)}</p>}
@@ -767,17 +770,20 @@ export function Inventory({
                       <bdi>{boxName}</bdi>
                       {fields.note && (
                         <>
-                          {' · '}
+                          {sep()}
                           <bdi>{fields.note}</bdi>
                         </>
                       )}
                       {entry.capture.files.length > 0 && (
-                        <> · {t`Files: ${entry.capture.files.length}`}</>
+                        <>
+                          {sep()}
+                          {t`Files: ${entry.capture.files.length}`}
+                        </>
                       )}
                     </p>
                     {entry.capture.files.map(({ file, sha256 }) => (
                       <p key={file.id} className="break-all text-ink-2">
-                        <bdi>{file.name}</bdi> ({formatBytes(file.bytes)}) · SHA-256{' '}
+                        <bdi>{file.name}</bdi> ({formatBytes(file.bytes)}){sep()}SHA-256{' '}
                         <bdi className="ltr">{sha256}</bdi>
                       </p>
                     ))}

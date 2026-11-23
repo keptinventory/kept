@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { inputClass } from '@/components/ui/field';
 import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
-import { useBytes } from '@/lib/format';
+import { sep, useBytes } from '@/lib/format';
 import { usePlatform } from './adapters';
 import { type CompletionState, type Connection, StorageFullError } from './bridge';
 import { createBox, type InventoryCache, inventoryPath } from './inventory';
@@ -276,7 +276,9 @@ export function CaptureForm({
                   <div className="grid min-w-0 gap-0.5">
                     <bdi className="break-words font-medium">{file.name}</bdi>
                     <span className="text-small text-ink-2">
-                      {role === 'photo' ? t`Photo` : t`PDF document`} · {formatBytes(file.size)}
+                      {role === 'photo' ? t`Photo` : t`PDF document`}
+                      {sep()}
+                      {formatBytes(file.size)}
                     </span>
                   </div>
                 </div>

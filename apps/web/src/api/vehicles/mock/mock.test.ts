@@ -64,6 +64,10 @@ describe('the vehicles mock', () => {
   });
 
   it('lists the vehicles in use: the Corolla fresh, the Elantra stale, the generator unknown', async () => {
+    // Evaluate the mix of dated Corolla history and relative fixtures on the scenario's day.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-10T09:00:00.000Z'));
+    use();
     const page = await api.vehicles();
     const byId = new Map(page.items.map((r) => [r.thing.id, r]));
     expect([...byId.keys()].sort()).toEqual(

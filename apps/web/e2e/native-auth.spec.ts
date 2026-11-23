@@ -12,7 +12,10 @@ test('the iPhone consent handoff preserves the browser MFA and issues a revocabl
   playwright,
 }) => {
   test.setTimeout(120_000);
-  const login = test.info().project.name === 'phone' ? 'alfred@kept.test' : 'bruce@kept.test';
+  // MFA stays enabled after this test. Use a fresh login so concurrent specs and retries start clean.
+  const login = await kit.createPasswordLogin(
+    test.info().project.name === 'phone' ? 'Alfred' : 'Bruce',
+  );
   const { context, page } = await kit.newPerson(browser);
   const native = await playwright.request.newContext({ baseURL: kit.BASE });
   try {
