@@ -9,7 +9,7 @@ root `package.json` pins pnpm with `packageManager`, so `corepack enable` gives 
 ## 1. Install and hook up
 
 ```sh
-pnpm install
+pnpm install --frozen-lockfile
 git config core.hooksPath .githooks
 ```
 
@@ -47,7 +47,9 @@ the S3 driver, add `--profile s3` and set `KEPT_STORAGE=s3` and the commented `K
 ## 3. The environment
 
 ```sh
-cp .env.example .env
+test -f .env || cp .env.example .env
+export KEPT_DATA_DIR="$PWD/.tmp/kept-dev/data"
+export KEPT_CONFIG_DIR="$PWD/.tmp/kept-dev/config"
 set -a; . ./.env; set +a
 ```
 
@@ -64,7 +66,8 @@ Three things `.env.example` leaves to you:
   refuses a cookie-bearing write whose `Origin` isn't the public URL's, and links and QR codes are
   built from it.
 - **`KEPT_DATA_DIR` and `KEPT_CONFIG_DIR`** default to `/data` and `/config`, the container's
-  volumes. Point them at writable directories on your machine. With `KEPT_SECRET_KEY` and
+  volumes. The exports above use writable directories in the checkout's ignored `.tmp/`
+  directory. Run them from the checkout root. With `KEPT_SECRET_KEY` and
   `KEPT_AUTH_SECRET` unset, the server generates both into `KEPT_CONFIG_DIR` on first start;
   `pnpm --filter @kept/server kept admin gen-key` prints a key if you'd rather set one.
 - **The AI mock.** Uncomment `KEPT_AI_MOCK=1` and every AI call is answered by `ai/mock.ts`
@@ -89,8 +92,8 @@ pnpm --filter @kept/server kept admin seed --scenario households
 
 The `households` scenario creates the sample cast and their households: people, places, things
 with photos, purchases and history, warranties, loans, documents, and the Garage's car with six
-months of readings, fills and services. The accounts' shared password is in the README's
-"Development" section. The other scenario, `bench`, is the 10,000-thing load fixture for
+months of readings, fills and services. The [contributor guide](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md#something-to-look-at)
+lists the accounts' shared password. The other scenario, `bench`, is the 10,000-thing load fixture for
 [the RLS benchmark](https://github.com/keptinventory/kept/blob/main/apps/server/bench/rls.bench.ts).
 The seed refuses to run with `NODE_ENV=production`.
 
@@ -100,7 +103,7 @@ The server serves the built web app, so build it once, then start the server in 
 
 ```sh
 pnpm --filter @kept/web build
-pnpm --filter @kept/server dev
+KEPT_PUBLIC_URL=http://localhost:8080 pnpm --filter @kept/server dev
 ```
 
 `dev` runs `tsx watch src/main.ts`. It listens on **8080** (`KEPT_PORT` changes it) and serves
@@ -137,10 +140,10 @@ worker clones its own from it on the development Postgres, and drops it afterwar
 
 ## Testing on a phone
 
-The camera, offline capture, installing to the home screen and push need a secure context:
-`localhost` counts, a LAN address over plain HTTP doesn't. The README's "Testing on a phone
-(HTTPS)" section shows two ways to put HTTPS in front of port 8080 (a Tailscale certificate, or
-mkcert with a TLS proxy). Set `KEPT_PUBLIC_URL` to the HTTPS address the phone opens.
+The camera, offline capture, installing to the home screen and push need a secure context.
+`localhost` counts. On a LAN, use the [contributor guide's phone setup](https://github.com/keptinventory/kept/blob/main/CONTRIBUTING.md#on-a-phone-https)
+to put HTTPS in front of port 8080 with a Tailscale certificate or mkcert and a TLS proxy.
+Set `KEPT_PUBLIC_URL` to the HTTPS address the phone opens.
 
 ## Tearing down
 

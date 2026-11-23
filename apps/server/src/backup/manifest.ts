@@ -73,12 +73,12 @@ export async function countRows(
   client: pg.ClientBase,
   tables: readonly { name: string; ident: string }[],
 ): Promise<Record<string, number>> {
-  const out: Record<string, number> = {};
-  for (const t of tables) {
-    const { rows } = await client.query<{ n: string }>(`SELECT count(*) AS n FROM ${t.ident}`);
-    out[t.name] = Number(rows[0]?.n ?? 0);
+  const counts: Record<string, number> = {};
+  for (const table of tables) {
+    const { rows } = await client.query<{ n: string }>(`SELECT count(*) AS n FROM ${table.ident}`);
+    counts[table.name] = Number(rows[0]?.n ?? 0);
   }
-  return out;
+  return counts;
 }
 
 /** Every blob key the rows reference: originals (with the SHA-256 the upload checked) and their
@@ -117,8 +117,9 @@ export async function hashBlob(
   const hash = createHash('sha256');
   let bytes = 0;
   for await (const chunk of await blobs.stream(key)) {
-    hash.update(chunk as Buffer);
-    bytes += (chunk as Buffer).length;
+    const buffer = chunk as Buffer;
+    hash.update(buffer);
+    bytes += buffer.length;
   }
   return { sha256: hash.digest('hex'), bytes };
 }

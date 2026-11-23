@@ -38,10 +38,12 @@ On the docs site:
 
 ```sh
 git clone https://github.com/keptinventory/kept.git && cd kept
-pnpm install
+pnpm install --frozen-lockfile
 git config core.hooksPath .githooks                # the commit-msg hook (no AI attribution)
 docker compose -f compose.dev.yaml up -d --wait    # Postgres on 5452, Mailpit on 8025 (UI) and 1025 (SMTP)
-cp .env.example .env                               # development values only
+test -f .env || cp .env.example .env                # development values only
+export KEPT_DATA_DIR="$PWD/.tmp/kept-dev/data"      # writable, ignored on macOS and Linux
+export KEPT_CONFIG_DIR="$PWD/.tmp/kept-dev/config"
 set -a; . ./.env; set +a                           # export them into this shell
 pnpm --filter @kept/server kept migrate            # runs the migrations as kept_owner
 ```
@@ -51,6 +53,10 @@ Its Postgres is `pgvector/pgvector` on **localhost:5452** (user and password `po
 four Kept logins made by `docker/initdb/`; Mailpit catches every mail at <http://localhost:8025>.
 `docker compose -f compose.dev.yaml --profile s3 up -d --wait` adds RustFS, an S3-compatible
 store on 9452, for the S3 storage driver.
+
+On macOS, start your container runtime before running Compose. If you give the checkout a
+separate Compose project with `docker compose -p <project> -f compose.dev.yaml`, use the same name
+for subsequent `ps`, `up`, and `down` commands. The host ports still need to be free.
 
 ### Something to look at
 

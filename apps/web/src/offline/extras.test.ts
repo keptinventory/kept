@@ -11,9 +11,12 @@ import {
   type SyncExtraDocument,
   type SyncExtrasPage,
 } from '@kept/shared';
+import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeIdb, makeDexieStore } from '@/test/dexie';
 import { firstPage } from '@/test/store-contract';
+import { removeLock } from './app-lock-db';
+import { dbName, V5_STORES } from './db';
 import type { DexieStore } from './dexie-store';
 import {
   documentBlob,
@@ -24,7 +27,7 @@ import {
   keepLocation,
   tooLargeOf,
 } from './extras';
-import { createLock, sha256Hex } from './lock';
+import { createLock, sealJson, sha256Hex } from './lock';
 import { clearCache } from './wipe';
 
 const HOME = '01926f00-0000-7000-8000-00000000b002';
@@ -152,6 +155,38 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('keeping a location', () => {
+  it('opens a v6 offline copy after upgrading the database for staged downloads', async () => {
+    const userId = newId();
+    const idb = fakeIdb();
+    const v6 = new Dexie(dbName(userId), idb);
+    v6.version(6).stores(V5_STORES);
+    const extra = items[HOME]?.[1];
+    if (!extra) throw new Error('missing kettle fixture');
+    const kept = {
+      locationId: HOME,
+      state: 'ready',
+      things: 1,
+      documents: 0,
+      bytes: 0,
+      tooLarge: 0,
+      updatedAt: 1,
+    };
+    await v6.table('keptOffline').put(kept);
+    await v6.table('extras').put({
+      thingId: KETTLE,
+      locationId: HOME,
+      run: 'previous',
+      sealed: await sealJson(key, `extra:${KETTLE}`, extra),
+    });
+    v6.close();
+
+    const upgraded = makeDexieStore(userId, idb).db;
+    expect(await extraOf(upgraded, key, KETTLE)).toEqual({ extra, documents: [] });
+    expect(await upgraded.keptOffline.get(HOME)).toEqual(kept);
+    expect(await upgraded.extraDocDownloads.count()).toBe(0);
+    upgraded.close();
+  });
+
   it('stores money and documents sealed, and opens them with the key', async () => {
     const progress: number[] = [];
     const row = await keepLocation(store.db, key, HOME, fake.api, (p) => progress.push(p.done));
@@ -239,6 +274,60 @@ describe('keeping a location', () => {
     expect((await store.db.keptOffline.get(HOME))?.documents).toBe(1);
   });
 
+  it('keeps the last complete download readable when a later page fails, then replaces it on retry', async () => {
+    const previous = await keepLocation(store.db, key, HOME, fake.api);
+    const before = await extraOf(store.db, key, TV);
+    const replacement = await doc('New TV manual', 'UPDATED-MANUAL');
+    const item = items[HOME]?.[0];
+    if (!item) throw new Error('missing TV fixture');
+    const updated = { ...item, purchase: null, documents: [replacement.d] };
+    items[HOME]?.splice(0, 1, updated);
+    fake.files.set(replacement.d.fileId, replacement.content);
+    const failing: ExtrasApi = {
+      ...fake.api,
+      page: async (locationId, cursor) => {
+        if (cursor) {
+          expect(await extraOf(store.db, key, TV)).toEqual(before);
+          throw new Error('connection lost');
+        }
+        return fake.api.page(locationId, cursor);
+      },
+    };
+
+    await expect(keepLocation(store.db, key, HOME, failing)).rejects.toThrow('connection lost');
+    expect(await extraOf(store.db, key, TV)).toEqual(before);
+    expect(await documentBlob(store.db, key, replacement.d.attachmentId)).toBeNull();
+    expect(await store.db.extraDocDownloads.count()).toBe(0);
+    expect(await store.db.keptOffline.get(HOME)).toEqual({ ...previous, state: 'failed' });
+
+    const ready = await keepLocation(store.db, key, HOME, fake.api);
+    expect(ready).toMatchObject({ state: 'ready', things: 2, documents: 1 });
+    expect(ready.bytes).toBe(replacement.d.bytes);
+    expect(await extraOf(store.db, key, TV)).toMatchObject({
+      extra: updated,
+      documents: [{ attachmentId: replacement.d.attachmentId }],
+    });
+    expect(await documentBlob(store.db, key, manual.d.attachmentId)).toBeNull();
+    expect(await store.db.extraDocDownloads.count()).toBe(0);
+  });
+
+  it('keeps the previous publication when a write fails during publication', async () => {
+    const previous = await keepLocation(store.db, key, HOME, fake.api);
+    const before = await extraOf(store.db, key, TV);
+    const item = items[HOME]?.[0];
+    if (!item) throw new Error('missing TV fixture');
+    items[HOME] = [{ ...item, purchase: null }];
+    const put = vi.spyOn(store.db.extraDocs, 'put').mockRejectedValueOnce(new Error('disk error'));
+    try {
+      await expect(keepLocation(store.db, key, HOME, fake.api)).rejects.toThrow('disk error');
+    } finally {
+      put.mockRestore();
+    }
+    expect(await extraOf(store.db, key, TV)).toEqual(before);
+    expect(await store.db.keptOffline.get(HOME)).toEqual({ ...previous, state: 'failed' });
+    expect(await store.db.extraDocDownloads.count()).toBe(0);
+  });
+
   it('refuses past the device’s cap and names what is kept', async () => {
     await store.db.keptOffline.put({
       locationId: GARAGE,
@@ -259,6 +348,26 @@ describe('keeping a location', () => {
 });
 
 describe('what removes it', () => {
+  it.each([
+    ['switching it off', () => dropLocation(store.db, HOME)],
+    ['clearing the cache on a 401', () => clearCache(store.db)],
+    ['revoking the location', () => store.applySnapshot(firstPage({ revokedLocationIds: [HOME] }))],
+    ['removing the app lock', () => removeLock(store.db)],
+  ] as const)('does not republish a pending download after %s', async (_name, remove) => {
+    const api: ExtrasApi = {
+      ...fake.api,
+      page: async (locationId, cursor) => {
+        if (cursor) await remove();
+        return fake.api.page(locationId, cursor);
+      },
+    };
+    await expect(keepLocation(store.db, key, HOME, api)).rejects.toThrow();
+    expect(await store.db.keptOffline.get(HOME)).toBeUndefined();
+    expect(await store.db.extras.count()).toBe(0);
+    expect(await store.db.extraDocs.count()).toBe(0);
+    expect(await store.db.extraDocDownloads.count()).toBe(0);
+  });
+
   it('the toggle going off', async () => {
     await keepLocation(store.db, key, HOME, fake.api);
     await dropLocation(store.db, HOME);

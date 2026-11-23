@@ -12,7 +12,7 @@
  * - **An explicit sign-out** (after its confirm), and a discarded orphan: the whole database.
  */
 import Dexie, { type DexieOptions } from 'dexie';
-import { dbName, KeptDb, type MetaKey } from './db';
+import { dbName, EXTRAS_TABLES, KeptDb, type MetaKey } from './db';
 import { UNANSWERED } from './store';
 
 /** Meta the kept queue still needs after a 401: whether persistence was granted (V11). */
@@ -33,9 +33,7 @@ export async function clearCache(db: KeptDb): Promise<void> {
     db.shared,
     // Step 8: what "keep this location available offline" holds goes too (D181). The app lock
     // stays: it is the person's own, and their next sign-in on this phone keeps it.
-    db.extras,
-    db.extraDocs,
-    db.keptOffline,
+    ...EXTRAS_TABLES.map((table) => db[table]),
     // 1.12: a scan session in progress names the things it read.
     db.scanSessions,
     db.scanReads,
@@ -99,8 +97,9 @@ export async function orphans(
   const factory = (options?.indexedDB ?? (globalThis.indexedDB as unknown)) as Factory;
   const ids = new Set<string>();
   try {
-    for (const d of (await factory.databases?.()) ?? [])
-      if (d.name?.startsWith('kept-')) ids.add(d.name.slice('kept-'.length));
+    for (const { name } of (await factory.databases?.()) ?? []) {
+      if (name?.startsWith('kept-')) ids.add(name.slice('kept-'.length));
+    }
   } catch {
     // Can't list: the remembered id is all there is.
   }
@@ -110,13 +109,13 @@ export async function orphans(
   for (const id of ids) {
     const db = new KeptDb(id, options);
     try {
-      const open = (await db.queue.toArray()).filter((e) => UNANSWERED.has(e.state));
-      const seqs = new Set(open.map((e) => e.seq));
+      const pending = (await db.queue.toArray()).filter((entry) => UNANSWERED.has(entry.state));
+      const pendingSeqs = new Set(pending.map((entry) => entry.seq));
       const photos = await db.blobs
-        .filter((b) => b.kind === 'original' && seqs.has(b.queueSeq))
+        .filter((blob) => blob.kind === 'original' && pendingSeqs.has(blob.queueSeq))
         .count();
-      const captures = open.filter((e) => e.op === 'create_thing').length;
-      out.push({ userId: id, captures, photos, others: open.length - captures });
+      const captures = pending.filter((entry) => entry.op === 'create_thing').length;
+      out.push({ userId: id, captures, photos, others: pending.length - captures });
     } finally {
       db.close();
     }

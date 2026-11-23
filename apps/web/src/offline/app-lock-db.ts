@@ -7,7 +7,7 @@
  * offline store opens (offline/db.ts v4), never another person's.
  */
 import type { DexieOptions } from 'dexie';
-import { KeptDb } from './db';
+import { EXTRAS_TABLES, KeptDb } from './db';
 import type { LockRecord } from './lock';
 import { clearCache } from './wipe';
 
@@ -34,11 +34,10 @@ export async function saveLock(db: KeptDb, record: LockRecord): Promise<void> {
 
 /** The lock goes off: the lock and everything kept offline go (keep offline needs the lock). */
 export async function removeLock(db: KeptDb): Promise<void> {
-  await db.transaction('rw', db.lock, db.extras, db.extraDocs, db.keptOffline, async () => {
+  const tables = EXTRAS_TABLES.map((table) => db[table]);
+  await db.transaction('rw', [db.lock, ...tables], async () => {
     await db.lock.clear();
-    await db.extras.clear();
-    await db.extraDocs.clear();
-    await db.keptOffline.clear();
+    for (const table of tables) await table.clear();
   });
 }
 

@@ -70,6 +70,11 @@ latest reading, open loan), short IDs and legacy codes. Never secrets or people'
 Money and documents come only for a location the device keeps offline, behind the app lock
 (D159, D181), through `GET /api/v1/sync/extras`.
 
+A refresh stages encrypted documents and publishes the location's new copy and totals in one
+IndexedDB transaction. The last complete copy stays readable if a download fails. Reusing an
+unchanged document needs no download, while a changed document needs temporary storage until
+the refresh finishes. Removing offline access also cancels any pending refresh for it.
+
 | Limit | Value | Where |
 |---|---|---|
 | Things per person in the snapshot | 20,000; past it the page says `truncated` | `SYNC_LIMITS.snapshotThings` |

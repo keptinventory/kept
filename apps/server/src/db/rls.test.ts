@@ -200,14 +200,14 @@ describe('location scope', () => {
   });
 
   it('lets an owner soft-delete a location through kept.delete_location(), and restore it', async () => {
-    const [deleted0] = await q<{ purge_after: Date }>(
+    // Compare against the clock in the same Postgres transaction. The test runner can be on
+    // the host while Postgres is in a VM with a slightly different clock.
+    const grace = await q<{ full_grace_period: boolean }>(
       as(a.userId),
-      'SELECT kept.delete_location($1) AS purge_after',
+      "SELECT kept.delete_location($1) = now() + interval '30 days' AS full_grace_period",
       [a.locationId],
     );
-    const days = ((deleted0?.purge_after.getTime() ?? 0) - Date.now()) / 86_400_000;
-    expect(days).toBeGreaterThan(29.9);
-    expect(days).toBeLessThanOrEqual(30);
+    expect(grace).toEqual([{ full_grace_period: true }]);
     expect(await q(as(a.userId), 'SELECT id FROM public.locations')).toEqual([]);
     // The owner still finds it, for the restore screen; nobody else does.
     const deleted = await q<{ id: string; name: string }>(

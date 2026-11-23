@@ -61,12 +61,15 @@ export async function readManifest(archive: OpenArchive): Promise<ExportManifest
     throw new ArchiveError('unsupported_version', `version ${head.version}`);
   }
   const manifest = await archive.json(EXPORT_PATHS.manifest, ManifestSchema);
-  // Each original's entry names its own id (`files/<id>.<ext>`); one that doesn't is refused.
+  // The import indexes originals by normalized ID. Refuse ambiguous entries before that map
+  // can replace one file with another.
+  const fileIds = new Set<string>();
   for (const f of manifest.files) {
     f.id = f.id.toLowerCase();
-    if (EXPORT_FILE_PATH.exec(f.path)?.[1] !== f.id) {
+    if (fileIds.has(f.id) || EXPORT_FILE_PATH.exec(f.path)?.[1] !== f.id) {
       throw new ArchiveContentError(EXPORT_PATHS.manifest, 'schema');
     }
+    fileIds.add(f.id);
   }
   manifest.location.id = manifest.location.id.toLowerCase();
   manifest.exportId = manifest.exportId.toLowerCase();

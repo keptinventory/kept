@@ -1,7 +1,7 @@
 /**
  * "Keep this location available offline" on the device (D159, D181):
  * fetch a location's extras (GET /api/v1/sync/extras, server sync/extras.ts), encrypt them under
- * the app lock's data key (offline/lock.ts) and keep them in IndexedDB (offline/db.ts v4).
+ * the app lock's data key (offline/lock.ts) and keep them in IndexedDB (offline/db.ts).
  * Loaded lazily with Dexie; nothing of it is in the entry chunk.
  *
  * - **Never the Cache API** (D181): a document's bytes come from its five-minute signed URL
@@ -14,8 +14,9 @@
  * - **Caps** (KEEP_OFFLINE): a document over `fileBytes` is listed, not stored ("too large to keep
  *   offline"); the device's total over `deviceBytes` refuses before the download (from the
  *   estimate) and stops one that grows past it: `KeepOfflineTooLarge` names what is kept.
- * - **A refresh** writes every row with a new run id, keeps a document whose hash hasn't changed
- *   without fetching it again, then removes the rows the run didn't write.
+ * - **A refresh** stages encrypted documents in IndexedDB and keeps the small thing rows in
+ *   memory. One transaction publishes the rows and totals after the download succeeds. It reuses
+ *   unchanged document bodies and leaves the previous download readable if the refresh fails.
  * - Removed when the toggle goes off (`dropLocation`), on any 401 and after ten wrong PINs
  *   (wipe.ts clearCache), for a revoked location (dexie-store.ts applySnapshot), and with the
  *   whole database on sign-out.
@@ -27,7 +28,13 @@ import {
   type SyncExtrasEstimate,
   type SyncExtrasPage,
 } from '@kept/shared';
-import { type ExtraDocRow, KeptDb, type KeptOfflineRow } from './db';
+import {
+  EXTRAS_TABLES,
+  type ExtraDocDownloadRow,
+  type ExtraRow,
+  KeptDb,
+  type KeptOfflineRow,
+} from './db';
 import { randomBytes, seal, sealJson, sha256Hex, unseal, unsealJson } from './lock';
 
 /** What keeping a location needs from the network; the screens pass the real API. */
@@ -114,132 +121,194 @@ export async function keepLocation(
   onProgress?: (p: KeepProgress) => void,
 ): Promise<KeptOfflineRow> {
   const fetchBytes = api.fetchBytes ?? defaultFetch;
-  const others = await othersOf(db, locationId);
-  const elsewhere = others.reduce((n, r) => n + r.bytes, 0);
-  const estimate = await api.estimate(locationId);
-  if (elsewhere + estimate.totalBytes > KEEP_OFFLINE.deviceBytes) {
-    throw tooLarge(others, elsewhere + estimate.totalBytes);
-  }
-  const previous = await db.keptOffline.get(locationId);
-  const row: KeptOfflineRow = {
-    locationId,
-    state: 'downloading',
-    things: previous?.things ?? 0,
-    documents: previous?.documents ?? 0,
-    bytes: previous?.bytes ?? 0,
-    tooLarge: previous?.tooLarge ?? 0,
-    updatedAt: previous?.updatedAt ?? null,
-  };
-  await db.keptOffline.put(row);
-
-  // What is already kept: a document whose hash hasn't changed isn't fetched again.
-  const have = new Map<string, { sha256: string; stored: boolean }>();
-  for (const d of await db.extraDocs.where('locationId').equals(locationId).toArray()) {
-    try {
-      const meta = await unsealJson<DocMeta>(key, docId(d.attachmentId), d.meta);
-      have.set(d.attachmentId, { sha256: meta.sha256, stored: d.body !== null });
-    } catch {
-      // Sealed under another key (a lock set up again): fetched afresh.
-    }
-  }
-
   const run = Array.from(randomBytes(8), (b) => b.toString(16).padStart(2, '0')).join('');
+  const staged = db.extraDocDownloads.where('locationId').equals(locationId);
+  const previous = await db.transaction(
+    'rw',
+    db.meta,
+    db.keptOffline,
+    db.extraDocDownloads,
+    async () => {
+      if (await db.meta.get('lockedAt')) throw new Error('the offline cache is locked');
+      const current = await db.keptOffline.get(locationId);
+      await staged.delete(); // Clear an interrupted or superseded download for this location.
+      await db.keptOffline.put({ ...summary('downloading', current), downloadId: run });
+      return current;
+    },
+  );
+
+  const things: ExtraRow[] = [];
   const totals = { things: 0, documents: 0, bytes: 0, tooLarge: 0 };
-  let done = 0;
-  onProgress?.({ done, total: estimate.totalBytes });
+  let estimateAccepted = false;
   try {
+    const others = await othersOf(db, locationId);
+    const elsewhere = others.reduce((n, r) => n + r.bytes, 0);
+    const estimate = await api.estimate(locationId);
+    if (elsewhere + estimate.totalBytes > KEEP_OFFLINE.deviceBytes) {
+      throw tooLarge(others, elsewhere + estimate.totalBytes);
+    }
+    estimateAccepted = true;
+    onProgress?.({ done: 0, total: estimate.totalBytes });
     let cursor: string | undefined;
     for (;;) {
       const page = await api.page(locationId, cursor);
       for (const item of page.items) {
-        await keepItem(item);
+        totals.things += 1;
+        things.push({
+          thingId: item.thingId,
+          locationId,
+          run,
+          sealed: await sealJson(key, extraId(item.thingId), item),
+        });
+        for (const doc of item.documents) {
+          const stagedDoc = await downloadDocument(doc, item.thingId, others, elsewhere);
+          await db.transaction('rw', db.keptOffline, db.extraDocDownloads, async () => {
+            await requireActiveDownload();
+            await db.extraDocDownloads.put(stagedDoc);
+          });
+          totals.documents += 1;
+          if (doc.bytes > KEEP_OFFLINE.fileBytes) {
+            totals.tooLarge += 1;
+          } else {
+            totals.bytes += stagedDoc.bytes;
+            onProgress?.({
+              done: totals.bytes,
+              total: Math.max(estimate.totalBytes, totals.bytes),
+            });
+          }
+        }
       }
       if (!page.next_cursor) break;
       cursor = page.next_cursor;
     }
-    await db.transaction('rw', db.extras, db.extraDocs, async () => {
-      await db.extras
-        .where('locationId')
-        .equals(locationId)
-        .filter((r) => r.run !== run)
-        .delete();
-      await db.extraDocs
-        .where('locationId')
-        .equals(locationId)
-        .filter((r) => r.run !== run)
-        .delete();
-    });
-    const ready: KeptOfflineRow = { locationId, state: 'ready', ...totals, updatedAt: Date.now() };
-    await db.keptOffline.put(ready);
-    return ready;
+    return await db.transaction(
+      'rw',
+      EXTRAS_TABLES.map((table) => db[table]),
+      async () => {
+        await requireActiveDownload();
+        // Another location may have finished downloading while this one fetched files.
+        const kept = await othersOf(db, locationId);
+        const needed = kept.reduce((n, r) => n + r.bytes, totals.bytes);
+        if (needed > KEEP_OFFLINE.deviceBytes) throw tooLarge(kept, needed);
+
+        await db.extras.bulkPut(things);
+        // Move one document at a time so there is no need to load every encrypted body into memory.
+        for (const id of await staged.primaryKeys()) {
+          const pending = await db.extraDocDownloads.get(id);
+          if (!pending) throw new Error('a staged offline document is missing');
+          const { cachedRun, ...doc } = pending;
+          if (cachedRun !== undefined) {
+            const cached = await db.extraDocs.get(doc.attachmentId);
+            if (!cached?.body || cached.locationId !== locationId || cached.run !== cachedRun) {
+              throw new Error('a cached offline document changed during the download');
+            }
+            doc.body = cached.body;
+          }
+          await db.extraDocDownloads.delete(id);
+          await db.extraDocs.put(doc);
+        }
+        const fromPreviousRun = (row: { run: string }) => row.run !== run;
+        await db.extras.where('locationId').equals(locationId).filter(fromPreviousRun).delete();
+        await db.extraDocs.where('locationId').equals(locationId).filter(fromPreviousRun).delete();
+        const ready: KeptOfflineRow = {
+          locationId,
+          state: 'ready',
+          ...totals,
+          updatedAt: Date.now(),
+        };
+        await db.keptOffline.put(ready);
+        return ready;
+      },
+    );
   } catch (e) {
-    await db.keptOffline.put({ ...row, state: 'failed' });
+    await db
+      .transaction('rw', db.keptOffline, db.extraDocDownloads, async () => {
+        if ((await db.keptOffline.get(locationId))?.downloadId !== run) return;
+        await staged.delete();
+        if (estimateAccepted || previous?.state === 'downloading') {
+          await db.keptOffline.put(summary('failed', previous));
+        } else if (previous) {
+          await db.keptOffline.put(previous);
+        } else {
+          await db.keptOffline.delete(locationId);
+        }
+      })
+      .catch(() => {
+        // Preserve the original failure. A retry or cache removal can also clear the staged rows.
+      });
     throw e;
   }
 
-  async function keepItem(item: SyncExtra) {
-    totals.things += 1;
-    await db.extras.put({
-      thingId: item.thingId,
+  function summary(state: 'downloading' | 'failed', kept?: KeptOfflineRow): KeptOfflineRow {
+    return {
       locationId,
-      run,
-      sealed: await sealJson(key, extraId(item.thingId), item),
-    });
-    for (const doc of item.documents) {
-      totals.documents += 1;
-      const meta: DocMeta = { ...doc, thingId: item.thingId };
-      const sealedMeta = await sealJson(key, docId(doc.attachmentId), meta);
-      const base = {
-        attachmentId: doc.attachmentId,
-        locationId,
-        thingId: item.thingId,
-        run,
-        meta: sealedMeta,
-      };
-      if (doc.bytes > KEEP_OFFLINE.fileBytes) {
-        totals.tooLarge += 1;
-        await db.extraDocs.put({ ...base, bytes: 0, body: null });
-        continue;
-      }
-      const kept = have.get(doc.attachmentId);
-      if (kept?.stored && kept.sha256 === doc.sha256) {
-        await db.extraDocs.update(doc.attachmentId, { run, meta: sealedMeta });
-      } else {
-        if (elsewhere + totals.bytes + doc.bytes > KEEP_OFFLINE.deviceBytes) {
-          throw tooLarge(others, elsewhere + totals.bytes + doc.bytes);
-        }
-        const { url } = await api.fileUrl(doc.fileId, item.thingId);
-        const bytes = await fetchBytes(url);
-        if ((await sha256Hex(bytes)) !== doc.sha256) throw new KeepOfflineCorrupt(doc.attachmentId);
-        const row: ExtraDocRow = {
-          ...base,
-          bytes: bytes.byteLength,
-          body: await seal(key, bodyId(doc.attachmentId), bytes),
-        };
-        await db.extraDocs.put(row);
-      }
-      totals.bytes += doc.bytes;
-      done += doc.bytes;
-      onProgress?.({ done, total: Math.max(estimate.totalBytes, done) });
+      state,
+      things: kept?.things ?? 0,
+      documents: kept?.documents ?? 0,
+      bytes: kept?.bytes ?? 0,
+      tooLarge: kept?.tooLarge ?? 0,
+      updatedAt: kept?.updatedAt ?? null,
+    };
+  }
+
+  async function requireActiveDownload() {
+    if ((await db.keptOffline.get(locationId))?.downloadId !== run) {
+      throw new Error('the offline download was cancelled');
     }
+  }
+
+  async function downloadDocument(
+    doc: SyncExtraDocument,
+    thingId: string,
+    others: { locationId: string; bytes: number }[],
+    elsewhere: number,
+  ): Promise<ExtraDocDownloadRow> {
+    const { attachmentId } = doc;
+    const meta: DocMeta = { ...doc, thingId };
+    const row: ExtraDocDownloadRow = {
+      attachmentId,
+      locationId,
+      thingId,
+      run,
+      meta: await sealJson(key, docId(attachmentId), meta),
+      bytes: 0,
+      body: null,
+    };
+    if (doc.bytes > KEEP_OFFLINE.fileBytes) return row;
+
+    const needed = elsewhere + totals.bytes + doc.bytes;
+    if (needed > KEEP_OFFLINE.deviceBytes) throw tooLarge(others, needed);
+    // Read just this document. An unchanged body stays in place until publication.
+    const cached = await db.extraDocs.get(attachmentId);
+    if (cached?.body && cached.locationId === locationId) {
+      const cachedMeta = await unsealJson<DocMeta>(key, docId(attachmentId), cached.meta).catch(
+        () => null,
+      );
+      if (cachedMeta?.sha256 === doc.sha256) {
+        return { ...row, bytes: cached.bytes, cachedRun: cached.run };
+      }
+    }
+
+    const { url } = await api.fileUrl(doc.fileId, thingId);
+    const bytes = await fetchBytes(url);
+    if ((await sha256Hex(bytes)) !== doc.sha256) throw new KeepOfflineCorrupt(attachmentId);
+    return { ...row, bytes: bytes.byteLength, body: await seal(key, bodyId(attachmentId), bytes) };
   }
 }
 
 /** The toggle goes off: everything kept for the location goes. */
 export async function dropLocation(db: KeptDb, locationId: string): Promise<void> {
-  await db.transaction('rw', db.extras, db.extraDocs, db.keptOffline, async () => {
-    await db.extras.where('locationId').equals(locationId).delete();
-    await db.extraDocs.where('locationId').equals(locationId).delete();
-    await db.keptOffline.delete(locationId);
+  const tables = EXTRAS_TABLES.map((table) => db[table]);
+  await db.transaction('rw', tables, async () => {
+    for (const table of tables) await table.where('locationId').equals(locationId).delete();
   });
 }
 
 /** Everything kept, every location (the app lock turned off). */
 export async function dropAll(db: KeptDb): Promise<void> {
-  await db.transaction('rw', db.extras, db.extraDocs, db.keptOffline, async () => {
-    await db.extras.clear();
-    await db.extraDocs.clear();
-    await db.keptOffline.clear();
+  const tables = EXTRAS_TABLES.map((table) => db[table]);
+  await db.transaction('rw', tables, async () => {
+    for (const table of tables) await table.clear();
   });
 }
 
@@ -249,10 +318,15 @@ export async function extraOf(
   key: CryptoKey,
   thingId: string,
 ): Promise<{ extra: SyncExtra; documents: KeptDocument[] } | null> {
-  const row = await db.extras.get(thingId);
-  if (!row) return null;
+  const kept = await db.transaction('r', db.extras, db.extraDocs, async () => {
+    const row = await db.extras.get(thingId);
+    if (!row) return null;
+    const docs = await db.extraDocs.where('thingId').equals(thingId).toArray();
+    return { row, docs };
+  });
+  if (!kept) return null;
+  const { row, docs } = kept;
   const extra = await unsealJson<SyncExtra>(key, extraId(thingId), row.sealed);
-  const docs = await db.extraDocs.where('thingId').equals(thingId).toArray();
   const documents: KeptDocument[] = [];
   for (const d of docs) {
     const meta = await unsealJson<DocMeta>(key, docId(d.attachmentId), d.meta);

@@ -619,6 +619,50 @@ describe('resuming and refusing', () => {
     }
   });
 
+  it('refuses duplicate file IDs after case normalization before importing any rows', async () => {
+    const forged = await forgeKeptExport(db, {
+      userId: ibrahim.userId,
+      locationId: home.id,
+      files,
+      mutate: (manifest) => {
+        const original = manifest.files[0];
+        if (!original) throw new Error('missing exported photo fixture');
+        manifest.files.push({ ...original, id: original.id.toUpperCase() });
+      },
+    });
+    try {
+      const target = await newTarget('Home, duplicate file ID');
+      const runId = await stageKeptRun(db, files, forged, {
+        userId: alfred.userId,
+        locationId: target.id,
+      });
+      const archive = await openKeptArchive(files.blobs, runId, forged.bytes);
+      try {
+        await expect(readManifest(archive)).rejects.toMatchObject({
+          entry: EXPORT_PATHS.manifest,
+          problem: 'schema',
+        });
+      } finally {
+        archive.close();
+      }
+      await runKeptImport(deps(), scopeOf(alfred), runId);
+      expect(await runOf(runId)).toMatchObject({
+        status: 'failed',
+        error: 'archive_invalid',
+        progress: 0,
+      });
+      for (const table of ['things', 'files', 'attachments']) {
+        expect(
+          await count(`SELECT count(*) AS n FROM public.${table} WHERE location_id = $1`, [
+            target.id,
+          ]),
+        ).toBe(0);
+      }
+    } finally {
+      await forged.cleanup();
+    }
+  });
+
   it('refuses a newer export, and a hostile archive', async () => {
     const forged = await forgeKeptExport(db, {
       userId: ibrahim.userId,

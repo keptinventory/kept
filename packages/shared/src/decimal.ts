@@ -28,7 +28,8 @@ export function fromScaled(value: bigint, dp: number, scale: number = SCALE): st
   const rounded =
     dp >= scale ? value * TEN ** BigInt(dp - scale) : roundDiv(value, TEN ** BigInt(scale - dp));
   const digits = rounded.toString().padStart(dp + 1, '0');
-  const int = dp === 0 ? digits : digits.slice(0, -dp);
-  const frac = dp === 0 ? '' : digits.slice(-dp).replace(/0+$/, '');
-  return frac ? `${int}.${frac}` : int;
+  if (dp === 0) return digits;
+  const whole = digits.slice(0, -dp);
+  const fraction = digits.slice(-dp).replace(/0+$/, '');
+  return fraction ? `${whole}.${fraction}` : whole;
 }

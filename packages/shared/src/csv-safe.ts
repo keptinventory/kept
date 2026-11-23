@@ -10,7 +10,7 @@
  */
 
 /** The byte-order mark a CSV starts with, so a spreadsheet reads it as UTF-8. */
-export const CSV_BOM = '﻿';
+export const CSV_BOM = '\uFEFF';
 
 /** Rows are joined with CRLF (RFC 4180). */
 export const CSV_EOL = '\r\n';
@@ -36,5 +36,5 @@ export function csvLine(cells: readonly CsvValue[]): string {
 
 /** A whole CSV: the BOM, then each row and a CRLF after it. */
 export function csvDocument(rows: readonly (readonly CsvValue[])[]): string {
-  return CSV_BOM + rows.map((r) => csvLine(r) + CSV_EOL).join('');
+  return CSV_BOM + rows.map((row) => csvLine(row) + CSV_EOL).join('');
 }

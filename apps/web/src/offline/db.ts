@@ -34,7 +34,7 @@ import {
 } from './store';
 
 /** The schema version. Raise it with a new `this.version(n).stores(…)` block, never edit v1. */
-export const DB_VERSION = 6;
+export const DB_VERSION = 7;
 
 /** v1's tables and indexes, unchanged in v2. */
 export const V1_STORES = {
@@ -89,8 +89,14 @@ export const V5_STORES = {
   scanReads: '[sessionId+key], sessionId',
 };
 
+/** v7 stages encrypted document rows while a location's previous download stays readable. */
+const V7_STORES = {
+  ...V5_STORES,
+  extraDocDownloads: '[locationId+attachmentId], locationId',
+};
+
 /** The keep-offline tables: a 401, ten wrong PINs and a location's toggle going off empty them. */
-export const EXTRAS_TABLES = ['extras', 'extraDocs', 'keptOffline'] as const;
+export const EXTRAS_TABLES = ['extras', 'extraDocs', 'extraDocDownloads', 'keptOffline'] as const;
 
 /**
  * The snapshot's copy: what a refused cursor (DexieStore.resetSnapshot) and the v2 and v6
@@ -164,10 +170,14 @@ export type ExtraDocRow = {
   meta: Sealed;
   body: Sealed | null;
 };
+/** A staged document can reuse the encrypted body from a specific published run. */
+export type ExtraDocDownloadRow = ExtraDocRow & { cachedRun?: string };
 /** A location kept offline on this device (v4). */
 export type KeptOfflineRow = {
   locationId: string;
   state: 'downloading' | 'ready' | 'failed';
+  /** Identifies the in-progress download. Removing the summary also cancels that download. */
+  downloadId?: string;
   things: number;
   documents: number;
   /** Stored bytes of its documents. */
@@ -233,6 +243,7 @@ export class KeptDb extends Dexie {
   declare lock: Table<LockRow, 'device'>;
   declare extras: Table<ExtraRow, string>;
   declare extraDocs: Table<ExtraDocRow, string>;
+  declare extraDocDownloads: Table<ExtraDocDownloadRow, [string, string]>;
   declare keptOffline: Table<KeptOfflineRow, string>;
   declare scanSessions: Table<ScanSessionRow, string>;
   declare scanReads: Table<ScanReadRow, [string, string]>;
@@ -279,6 +290,7 @@ export class KeptDb extends Dexie {
         for (const table of SNAPSHOT_TABLES) await tx.table(table).clear();
         await tx.table('meta').bulkDelete([...SNAPSHOT_META_KEYS]);
       });
+    this.version(7).stores(V7_STORES);
   }
 }
 

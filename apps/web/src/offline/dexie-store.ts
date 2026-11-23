@@ -103,6 +103,7 @@ export class DexieStore implements SyncStore {
           db.meta,
           db.extras,
           db.extraDocs,
+          db.extraDocDownloads,
           db.keptOffline,
         ],
         async () => {
@@ -158,6 +159,7 @@ export class DexieStore implements SyncStore {
             // What was kept offline there goes too (D159, D181).
             await db.extras.where('locationId').equals(loc).delete();
             await db.extraDocs.where('locationId').equals(loc).delete();
+            await db.extraDocDownloads.where('locationId').equals(loc).delete();
             await db.keptOffline.delete(loc);
           }
           // A code claimed since the thing's row was sent shows on it, and finds it (shownCodeOf);

@@ -327,10 +327,11 @@ describe('parseScan: GS1 codes', () => {
 
 describe('GS1 element strings', () => {
   const GS = '\u001d';
+  const elementString = `01040063813339311727123110LOT7${GS}21K7Q2X9`;
   it.each([
-    ['plain, the GTIN first', `010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
-    ['with a leading separator', `${GS}010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
-    ['after ]d2', `]d2010400638133393117271231` + `10LOT7${GS}21K7Q2X9`],
+    ['plain, the GTIN first', elementString],
+    ['with a leading separator', `${GS}${elementString}`],
+    ['after ]d2', `]d2${elementString}`],
     ['in brackets', '(01)04006381333931(17)271231(10)LOT7(21)K7Q2X9'],
   ])('%s', (_how, text) => {
     expect(parseGs1(text)).toEqual({
