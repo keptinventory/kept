@@ -55,7 +55,7 @@ public struct NFCLabelValidation {
     }
 }
 
-/// Suppresses rapid duplicate reads of the same physical tag while allowing immediate reads of other tags.
+/// Suppresses consecutive reads with the same NDEF contents during the cooldown.
 public struct NFCRepeatDebouncer {
     public let window: TimeInterval
     private var lastFingerprint: String?

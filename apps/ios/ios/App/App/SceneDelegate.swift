@@ -14,11 +14,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let url = connectionOptions.userActivities.first?.webpageURL {
             KeptLinks.accept(url)
         }
+        logAuthenticationURLDelivery(connectionOptions.urlContexts)
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        logAuthenticationURLDelivery(URLContexts)
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
+    }
+
+    private func logAuthenticationURLDelivery(_ contexts: Set<UIOpenURLContext>) {
+        if contexts.contains(where: { $0.url.scheme == "kept-nfc" }) {
+            NativeAuthDiagnostics.log.notice("Authentication scheme delivered to scene")
+        }
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {

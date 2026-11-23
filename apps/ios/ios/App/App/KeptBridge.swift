@@ -3,6 +3,7 @@ import Capacitor
 import CryptoKit
 import Foundation
 import KeptNativeStore
+import OSLog
 import QuickLook
 import Security
 import UIKit
@@ -111,6 +112,11 @@ private final class RejectRedirects: NSObject, URLSessionTaskDelegate {
     ) {
         completionHandler(nil)
     }
+}
+
+// Only fixed stages and status codes. Auth inputs, URLs and error descriptions can contain secrets.
+enum NativeAuthDiagnostics {
+    static let log = Logger(subsystem: "info.keptinventory.nfc", category: "NativeAuth")
 }
 
 enum KeptHTTP {
@@ -245,13 +251,27 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         defer { browser = nil }
         let callback: URL = try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "kept-nfc") { callback, error in
-                if let callback { continuation.resume(returning: callback) }
-                else { continuation.resume(throwing: error ?? KeptNativeError.signInFailed) }
+                if let callback {
+                    NativeAuthDiagnostics.log.notice("Browser callback delivered")
+                    continuation.resume(returning: callback)
+                } else {
+                    if let browserError = error as? ASWebAuthenticationSessionError {
+                        NativeAuthDiagnostics.log.notice("Browser callback ended with code \(browserError.code.rawValue, privacy: .public)")
+                    } else {
+                        NativeAuthDiagnostics.log.error("Browser callback missing")
+                    }
+                    continuation.resume(throwing: error ?? KeptNativeError.signInFailed)
+                }
             }
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = true
             browser = session
-            if !session.start() { continuation.resume(throwing: KeptNativeError.signInFailed) }
+            if session.start() {
+                NativeAuthDiagnostics.log.notice("Browser session started")
+            } else {
+                NativeAuthDiagnostics.log.error("Browser session could not start")
+                continuation.resume(throwing: KeptNativeError.signInFailed)
+            }
         }
         guard let answer = URLComponents(url: callback, resolvingAgainstBaseURL: false),
               answer.scheme == "kept-nfc", answer.host == "auth", answer.path == "/callback",
@@ -259,17 +279,36 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
               let fields = answer.queryItems, fields.count == 2,
               fields.first(where: { $0.name == "state" })?.value == state,
               let code = fields.first(where: { $0.name == "code" })?.value
-        else { throw KeptNativeError.signInFailed }
+        else {
+            NativeAuthDiagnostics.log.error("Browser callback rejected")
+            throw KeptNativeError.signInFailed
+        }
+        NativeAuthDiagnostics.log.notice("Browser callback accepted")
 
         var request = try KeptHTTP.request(origin, path: "/api/v1/native/exchange", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: ["code": code, "verifier": verifier])
-        let (data, response) = try await KeptHTTP.send(request)
+        NativeAuthDiagnostics.log.notice("Native exchange started")
+        let data: Data
+        let response: HTTPURLResponse
+        do {
+            (data, response) = try await KeptHTTP.send(request)
+        } catch let error as URLError {
+            NativeAuthDiagnostics.log.error("Native exchange transport code \(error.code.rawValue, privacy: .public)")
+            throw error
+        } catch {
+            NativeAuthDiagnostics.log.error("Native exchange ended without an HTTP response")
+            throw error
+        }
+        NativeAuthDiagnostics.log.notice("Native exchange response status \(response.statusCode, privacy: .public)")
         struct Context: Decodable { let account: String; let epoch: String }
-        guard response.statusCode == 200,
-              let cookie = extractSessionCookie(from: response, origin: origin)
-        else { throw KeptNativeError.signInFailed }
+        guard response.statusCode == 200 else { throw KeptNativeError.signInFailed }
+        guard let cookie = extractSessionCookie(from: response, origin: origin) else {
+            NativeAuthDiagnostics.log.error("Native exchange session cookie missing")
+            throw KeptNativeError.signInFailed
+        }
         let context = try JSONDecoder().decode(Context.self, from: data)
+        NativeAuthDiagnostics.log.notice("Native exchange session extracted")
         return KeptConnection(origin: origin, account: context.account, epoch: context.epoch, cookie: cookie)
     }
 }
@@ -347,6 +386,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "exportHeldCapture", returnType: CAPPluginReturnPromise)
     ]
     @MainActor private lazy var signIn = NativeSignIn()
+    @MainActor private var loggedAuthorizedRequest = false
     private let store = NativeOutbox()
     @MainActor private var nfc: KeptNFC?
     @MainActor private var findGate = NFCFindSessionGate()
@@ -393,8 +433,10 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
 
     @objc func connection(_ call: CAPPluginCall) {
         run(call) {
-            if let connection = try KeptKeychain.read() { call.resolve(connection.view) }
-            else { call.resolve([:]) }
+            if let connection = try KeptKeychain.read() {
+                NativeAuthDiagnostics.log.notice("Native session loaded from Keychain")
+                call.resolve(connection.view)
+            } else { call.resolve([:]) }
         }
     }
 
@@ -406,7 +448,14 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             else { throw KeptNativeError.invalidServer }
             let origin = try KeptHTTP.origin(address)
             let connection = try await self.signIn.connect(origin: origin, window: window)
-            try KeptKeychain.write(connection)
+            do {
+                try KeptKeychain.write(connection)
+            } catch {
+                NativeAuthDiagnostics.log.error("Native session Keychain save failed")
+                throw error
+            }
+            self.loggedAuthorizedRequest = false
+            NativeAuthDiagnostics.log.notice("Native session saved to Keychain")
             call.resolve(connection.view)
         }
     }
@@ -415,6 +464,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         run(call) {
             let connection = try KeptKeychain.read()
             try KeptKeychain.delete()
+            self.loggedAuthorizedRequest = false
             var revoked = true
             if let connection {
                 try? await self.store.use { try $0.clearCache(context: connection.id) }
@@ -443,6 +493,10 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             }
             let (data, response) = try await KeptHTTP.send(request)
             guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
+            if !self.loggedAuthorizedRequest && (200..<300).contains(response.statusCode) {
+                self.loggedAuthorizedRequest = true
+                NativeAuthDiagnostics.log.notice("First authorized API response status \(response.statusCode, privacy: .public)")
+            }
             call.resolve(["status": response.statusCode, "body": String(decoding: data, as: UTF8.self)])
         }
     }
