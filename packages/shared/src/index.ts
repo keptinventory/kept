@@ -13,6 +13,7 @@ export * from './csv-import.js';
 export * from './csv-safe.js';
 export * from './currencies.js';
 export * from './currency-marks.js';
+export * from './device-labels.js';
 export * from './embeddings.js';
 export * from './errors.js';
 export * from './extraction.js';
