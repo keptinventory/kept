@@ -10,18 +10,20 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { usePlatform } from './adapters';
 import type { Connection } from './bridge';
-import type { Destination } from './capture-form';
+import type { Destination } from './destination';
+import { EditRecord } from './edit-record';
 import {
   type InventoryCache,
   inventoryPath,
   loadDetail,
   loadPlace,
-  pendingForBox,
+  pendingForRecord,
   type RecordDetail,
 } from './inventory';
 import type { LabelBox } from './label-panel';
 import type { Target } from './labels';
 import { draftFields, isAuthRefusal, isRestoreEpochMismatch, type PendingCapture } from './outbox';
+import { RecordHistory } from './record-history';
 
 export type OpenBox = Destination & LabelBox;
 
@@ -196,6 +198,7 @@ export function RecordScreen({
   onCapture,
   onLabel,
   onCache,
+  onInventoryChanged,
   onAuthError,
 }: {
   connection: Connection;
@@ -206,9 +209,10 @@ export function RecordScreen({
   online?: boolean;
   onClose: () => void;
   onOpen: (target: Target) => void;
-  onCapture: (box: OpenBox, location: string) => void;
+  onCapture: (destination: Destination, location: string) => void;
   onLabel: (mode: 'find' | 'enroll', box: OpenBox) => void;
   onCache: (detail: RecordDetail) => void;
+  onInventoryChanged: () => void;
   onAuthError?: (reason: 'expired' | 'restored') => void;
 }) {
   const { t } = useLingui();
@@ -221,6 +225,7 @@ export function RecordScreen({
   const [status, setStatus] = useState('');
   const [request, setRequest] = useState(0);
   const [openingMedia, setOpeningMedia] = useState<string>();
+  const [editor, setEditor] = useState<'edit' | 'move' | 'actions'>();
   const describe = useRef(errorText);
   describe.current = errorText;
   const authErrorRef = useRef(onAuthError);
@@ -230,7 +235,9 @@ export function RecordScreen({
       ? cache?.things.find((item) => item.id === target.id)
       : cache?.places.find((item) => item.id === target.id);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: accepting a suggestion refreshes the record.
+  const boxPending = pendingForRecord(pending, target.id);
+  const pendingCount = boxPending.length;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reload after local writes and outbox completion.
   useEffect(() => {
     let current = true;
     setCachedNotice(false);
@@ -291,7 +298,7 @@ export function RecordScreen({
     return () => {
       current = false;
     };
-  }, [adapters, connection, onCache, request, target]);
+  }, [adapters, connection, onCache, online, pendingCount, request, target]);
 
   const thing = detail?.thing;
   const row = thing ?? place ?? cached;
@@ -309,7 +316,10 @@ export function RecordScreen({
         ? item.containerId === target.id
         : item.placeId === target.id && !item.containerId,
     ) ?? [];
-  const boxPending = target.kind === 'thing' ? pendingForBox(pending, target.id) : [];
+  const childPlaces =
+    target.kind === 'place'
+      ? (cache?.places.filter((item) => item.parentId === target.id) ?? [])
+      : [];
   const canEdit = cache?.locations.some(
     (location) => location.id === target.locationId && location.role !== 'viewer',
   );
@@ -321,7 +331,28 @@ export function RecordScreen({
       ? { id: row.id, name, locationId: row.locationId, shortCode: row.shortCode }
       : null;
 
-  async function openRemoteFile(attachment: Pick<AttachmentView, 'id' | 'file'>) {
+  function changed() {
+    setEditor(undefined);
+    setRequest((value) => value + 1);
+    onInventoryChanged();
+  }
+
+  function photoUrl(url: string | null | undefined) {
+    if (!online || !url) return undefined;
+    try {
+      const preview = new URL(url, connection.origin);
+      return preview.protocol === 'https:' && !preview.username && !preview.password
+        ? preview.href
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async function openRemoteFile(
+    attachment: Pick<AttachmentView, 'id' | 'file'>,
+    preview?: boolean,
+  ) {
     if (!attachment.file) return;
     setOpeningMedia(attachment.id);
     setStatus('');
@@ -330,6 +361,7 @@ export function RecordScreen({
         ...(target.kind === 'thing' ? { thing: target.id } : {}),
         file: attachment.file.id,
         mime: attachment.file.mime,
+        ...(preview ? { variant: 'display' } : {}),
       });
     } catch (error) {
       if (isAuthRefusal(error)) {
@@ -374,6 +406,11 @@ export function RecordScreen({
             </h2>
             {path && (
               <p className="text-ink-2">
+                {'locationUncertain' in row && row.locationUncertain && (
+                  <>
+                    <Trans>Last known location</Trans>{' '}
+                  </>
+                )}
                 <bdi>{path}</bdi>
               </p>
             )}
@@ -408,6 +445,59 @@ export function RecordScreen({
               )}
             </div>
           )}
+          <div className="flex flex-wrap gap-2">
+            {canEdit && target.kind === 'place' && (
+              <Button onPress={() => onCapture({ ...target, name, kind: 'place' }, path)}>
+                <Trans>Add to this room</Trans>
+              </Button>
+            )}
+            {canEdit && target.kind === 'thing' && (
+              <Button
+                variant="secondary"
+                onPress={() => onCapture({ ...target, name, kind: 'photos' }, path)}
+              >
+                <Trans>Add photos</Trans>
+              </Button>
+            )}
+            {online && canEdit && (thing || place) && (
+              <>
+                <Button variant="secondary" onPress={() => setEditor('edit')}>
+                  <Trans>Edit</Trans>
+                </Button>
+                {thing && (
+                  <>
+                    <Button variant="secondary" onPress={() => setEditor('move')}>
+                      <Trans>Move</Trans>
+                    </Button>
+                    <Button variant="secondary" onPress={() => setEditor('actions')}>
+                      <Trans>More actions</Trans>
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+          {editor && online && canEdit && cache && (
+            <EditRecord
+              key={editor}
+              connection={connection}
+              cache={cache}
+              thing={thing}
+              place={place}
+              mode={editor}
+              onClose={() => setEditor(undefined)}
+              onChanged={changed}
+              onMoved={(destination) => {
+                changed();
+                onOpen({ ...target, locationId: destination.locationId });
+              }}
+              onTrashed={() => {
+                onInventoryChanged();
+                onClose();
+              }}
+              onAuthError={onAuthError}
+            />
+          )}
           {notes && (
             <section>
               <h3 className="font-semibold">
@@ -421,7 +511,7 @@ export function RecordScreen({
           {boxPending.length > 0 && (
             <section className="grid gap-2 rounded-lg border border-line bg-surface p-3">
               <h3 className="font-semibold">
-                <Trans>Pending in this box</Trans>
+                <Trans>Pending captures</Trans>
               </h3>
               <ul className="grid gap-2">
                 {boxPending.map((entry) => {
@@ -474,50 +564,90 @@ export function RecordScreen({
               </ul>
             </section>
           )}
-          {attachments.length > 0 && (
-            <section>
-              <h3 className="font-semibold">
-                <Trans>Photographs and documents</Trans>
-              </h3>
-              <ul className="mt-2 grid gap-2">
-                {attachments.map((attachment) => {
-                  const label =
-                    attachment.name ?? (attachment.role === 'photo' ? t`Photograph` : t`Document`);
-                  const remoteList = detail?.attachments ?? place?.attachments;
-                  const original = remoteList?.find((entry) => entry.id === attachment.id);
-                  return (
-                    <li key={attachment.id}>
-                      {original?.file ? (
-                        <Button
-                          variant="secondary"
-                          isPending={openingMedia === attachment.id}
-                          isDisabled={openingMedia !== undefined && openingMedia !== attachment.id}
-                          onPress={() => void openRemoteFile(original)}
-                        >
-                          <bdi>{label}</bdi>
-                        </Button>
-                      ) : (
-                        <span className="text-ink-2">
-                          <bdi>{label}</bdi>
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
+          {(['photo', 'other'] as const).map((group) => {
+            const entries = attachments.filter(
+              (attachment) => (attachment.role === 'photo') === (group === 'photo'),
+            );
+            if (!entries.length) return null;
+            return (
+              <section key={group}>
+                <h3 className="font-semibold">
+                  {group === 'photo' ? t`Photos` : t`Documents and files`}
+                </h3>
+                <ul
+                  className={group === 'photo' ? 'mt-2 grid grid-cols-2 gap-2' : 'mt-2 grid gap-2'}
+                >
+                  {entries.map((attachment) => {
+                    const label =
+                      attachment.name ?? (group === 'photo' ? t`Photograph` : t`Document`);
+                    const original = (detail?.attachments ?? place?.attachments)?.find(
+                      (entry) => entry.id === attachment.id,
+                    );
+                    const thumbnail = group === 'photo' && photoUrl(original?.file?.thumbUrl);
+                    const preview = group === 'photo' && !canEdit;
+                    return (
+                      <li key={attachment.id}>
+                        {original?.file && online && (!preview || original.file.displayUrl) ? (
+                          <Button
+                            variant="secondary"
+                            className={
+                              group === 'photo'
+                                ? 'grid w-full min-w-0 justify-items-start gap-2 p-2 text-start'
+                                : ''
+                            }
+                            isPending={openingMedia === attachment.id}
+                            isDisabled={
+                              openingMedia !== undefined && openingMedia !== attachment.id
+                            }
+                            onPress={() => void openRemoteFile(original, preview)}
+                          >
+                            {thumbnail && (
+                              <img
+                                alt=""
+                                src={thumbnail}
+                                loading="lazy"
+                                referrerPolicy="no-referrer"
+                                className="aspect-square w-full rounded object-cover"
+                              />
+                            )}
+                            <bdi className="break-all">{label}</bdi>
+                          </Button>
+                        ) : (
+                          <span className="text-ink-2">
+                            <bdi>{label}</bdi>
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            );
+          })}
           {(box || target.kind === 'place') && (
             <section>
               <h3 className="font-semibold">
                 <Trans>Contents</Trans>
               </h3>
-              {children.length === 0 ? (
+              {children.length === 0 && childPlaces.length === 0 ? (
                 <p className="text-ink-2">
                   <Trans>No cached contents.</Trans>
                 </p>
               ) : (
                 <ul className="mt-2 grid gap-2">
+                  {childPlaces.map((child) => (
+                    <li key={child.id}>
+                      <Button
+                        variant="secondary"
+                        className="w-full justify-start text-start"
+                        onPress={() =>
+                          onOpen({ id: child.id, kind: 'place', locationId: child.locationId })
+                        }
+                      >
+                        <bdi>{child.name}</bdi>
+                      </Button>
+                    </li>
+                  ))}
                   {children.map((child) => (
                     <li key={child.id}>
                       <Button
@@ -534,6 +664,16 @@ export function RecordScreen({
                 </ul>
               )}
             </section>
+          )}
+          {online && (thing || place) && (
+            <RecordHistory
+              key={request}
+              connection={connection}
+              cache={cache}
+              target={target}
+              container={!!box}
+              onAuthError={onAuthError}
+            />
           )}
           {thing && canEdit && detail.attachments.some((entry) => entry.role === 'photo') && (
             <SuggestionForm

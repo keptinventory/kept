@@ -4,15 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { TextField as AriaTextField, FileTrigger, Label, TextArea } from 'react-aria-components';
 import { Button } from '@/components/ui/button';
 import { inputClass } from '@/components/ui/field';
-import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { sep, useBytes } from '@/lib/format';
 import { usePlatform } from './adapters';
 import { type CompletionState, type Connection, StorageFullError } from './bridge';
-import { createBox, type InventoryCache, inventoryPath } from './inventory';
+import { type Destination, DestinationPicker, defaultDestination } from './destination';
+import { createBox, type InventoryCache } from './inventory';
 import { mobileFileLimit, type PendingCapture, type SelectedOriginal, saveOnPhone } from './outbox';
 
-export type Destination = { id: string; locationId: string; name: string };
 type ChosenFile = SelectedOriginal & { key: string; previewUrl?: string };
 
 function createPreviewUrl(file: File): string | undefined {
@@ -34,6 +33,7 @@ export function CaptureForm({
   connection,
   box,
   location,
+  cache,
   pending = [],
   completions = {},
   syncing = false,
@@ -41,8 +41,9 @@ export function CaptureForm({
   onSave,
 }: {
   connection: Connection;
-  box: Destination;
-  location: string;
+  box?: Destination;
+  location?: string;
+  cache?: InventoryCache;
   pending?: readonly PendingCapture[];
   /** Durable terminal states; only `synced` counts as synchronized. */
   completions?: Readonly<Record<string, CompletionState>>;
@@ -53,6 +54,8 @@ export function CaptureForm({
   const { t } = useLingui();
   const adapters = usePlatform();
   const formatBytes = useBytes();
+  const [destination, setDestination] = useState(() => box ?? (cache && defaultDestination(cache)));
+  const photosOnly = destination?.kind === 'photos';
   const [batchId] = useState(newId);
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
@@ -73,6 +76,8 @@ export function CaptureForm({
   const quantityInvalid =
     quantity !== '' && (!AMOUNT_STRING.test(quantity) || Number(quantity) <= 0);
 
+  const canSave =
+    destination && (photosOnly ? files.length > 0 : !!name.trim() && !quantityInvalid);
   const pendingById = new Map(pending.map((entry) => [entry.capture.id, entry]));
   const batchPendingCount = batchEntryIds.filter((id) => {
     const entry = pendingById.get(id);
@@ -122,16 +127,20 @@ export function CaptureForm({
   }
 
   async function save() {
-    if (busy || !name.trim() || quantityInvalid) return;
+    if (busy || !canSave || !destination) return;
     setBusy(true);
     setStatus('');
     try {
       const savedId = await saveOnPhone(
         connection,
         {
-          locationId: box.locationId,
-          boxId: box.id,
-          name: name.trim(),
+          locationId: destination.locationId,
+          ...(photosOnly
+            ? { attachToThingId: destination.id }
+            : destination.kind === 'place'
+              ? { placeId: destination.id }
+              : { boxId: destination.id }),
+          name: photosOnly ? destination.name : name.trim(),
           ...(note.trim() ? { note: note.trim() } : {}),
           ...(quantity ? { quantity } : {}),
           batchId,
@@ -166,11 +175,17 @@ export function CaptureForm({
       </Button>
       <header className="grid gap-1 rounded-lg border border-line bg-surface p-3">
         <p className="text-label font-semibold uppercase tracking-wide text-ink-2">
-          <Trans>Adding to box</Trans>
+          {photosOnly
+            ? t`Record photos`
+            : box && box.kind !== 'place'
+              ? t`Adding to box`
+              : t`Capture inventory`}
         </p>
-        <h2 className="text-title font-semibold">
-          <bdi>{box.name}</bdi>
-        </h2>
+        {box && (
+          <h2 className="text-title font-semibold">
+            <bdi>{box.name}</bdi>
+          </h2>
+        )}
         {location && (
           <p className="text-small text-ink-2">
             <bdi>{location}</bdi>
@@ -210,29 +225,41 @@ export function CaptureForm({
           void save();
         }}
       >
-        <TextField
-          label={t`Description`}
-          placeholder={t`Holiday decorations`}
-          value={name}
-          onChange={setName}
-          isDisabled={busy}
-          inputProps={{ maxLength: 200 }}
-        />
-        <AriaTextField className="grid gap-1" value={note} onChange={setNote} isDisabled={busy}>
-          <Label className="text-small font-semibold">
-            <Trans>Notes</Trans>
-          </Label>
-          <TextArea className={inputClass} maxLength={500} rows={3} />
-        </AriaTextField>
-        <TextField
-          label={t`Quantity (optional)`}
-          value={quantity}
-          onChange={setQuantity}
-          isDisabled={busy}
-          isInvalid={quantityInvalid}
-          errorMessage={quantityInvalid ? t`Enter a quantity greater than zero.` : undefined}
-          inputProps={{ inputMode: 'decimal', maxLength: 17 }}
-        />
+        {cache && !box && (
+          <DestinationPicker
+            cache={cache}
+            value={destination}
+            onChange={setDestination}
+            disabled={busy}
+          />
+        )}
+        {!photosOnly && (
+          <>
+            <TextField
+              label={t`Description`}
+              placeholder={t`Holiday decorations`}
+              value={name}
+              onChange={setName}
+              isDisabled={busy}
+              inputProps={{ maxLength: 200 }}
+            />
+            <AriaTextField className="grid gap-1" value={note} onChange={setNote} isDisabled={busy}>
+              <Label className="text-small font-semibold">
+                <Trans>Notes</Trans>
+              </Label>
+              <TextArea className={inputClass} maxLength={500} rows={3} />
+            </AriaTextField>
+            <TextField
+              label={t`Quantity (optional)`}
+              value={quantity}
+              onChange={setQuantity}
+              isDisabled={busy}
+              isInvalid={quantityInvalid}
+              errorMessage={quantityInvalid ? t`Enter a quantity greater than zero.` : undefined}
+              inputProps={{ inputMode: 'decimal', maxLength: 17 }}
+            />
+          </>
+        )}
         <div className="flex flex-wrap gap-2">
           <FileTrigger
             acceptedFileTypes={['image/*']}
@@ -252,15 +279,17 @@ export function CaptureForm({
               <Trans>Choose photos</Trans>
             </Button>
           </FileTrigger>
-          <FileTrigger
-            acceptedFileTypes={['application/pdf', '.pdf']}
-            allowsMultiple
-            onSelect={(list) => choose(list, 'document')}
-          >
-            <Button variant="secondary" isDisabled={busy}>
-              <Trans>Attach PDF</Trans>
-            </Button>
-          </FileTrigger>
+          {!photosOnly && (
+            <FileTrigger
+              acceptedFileTypes={['application/pdf', '.pdf']}
+              allowsMultiple
+              onSelect={(list) => choose(list, 'document')}
+            >
+              <Button variant="secondary" isDisabled={busy}>
+                <Trans>Attach PDF</Trans>
+              </Button>
+            </FileTrigger>
+          )}
         </div>
         {files.length > 0 && (
           <ul className="grid gap-2">
@@ -294,8 +323,12 @@ export function CaptureForm({
             ))}
           </ul>
         )}
-        <Button type="submit" isPending={busy} isDisabled={!name.trim() || quantityInvalid}>
-          <Trans>Save to box</Trans>
+        <Button type="submit" isPending={busy} isDisabled={!canSave}>
+          {photosOnly
+            ? t`Save photos`
+            : box && box.kind !== 'place'
+              ? t`Save to box`
+              : t`Save capture`}
         </Button>
       </form>
       <p role="status" className="text-ink-2">
@@ -319,14 +352,9 @@ export function NewBoxForm({
   const { t } = useLingui();
   const adapters = usePlatform();
   const [name, setName] = useState('');
-  const [locationId, setLocation] = useState<string | null>(null);
-  const [placeId, setPlace] = useState<string | null>(null);
+  const [target, setTarget] = useState(() => defaultDestination(cache));
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
-  const locations = cache.locations.filter((location) => location.role !== 'viewer');
-  const location = locations.find((entry) => entry.id === locationId) ?? locations[0];
-  const places = cache.places.filter((place) => place.locationId === location?.id);
-  const target = places.find((place) => place.id === (placeId ?? location?.unplacedPlaceId));
 
   async function submit() {
     if (!target || !name.trim() || busy) return;
@@ -364,38 +392,13 @@ export function NewBoxForm({
           inputProps={{ maxLength: 200 }}
           isDisabled={busy}
         />
-        <Select
-          label={t`Location`}
-          items={locations}
-          selectedKey={location?.id ?? null}
-          onSelectionChange={(key) => {
-            setLocation(key === null ? null : String(key));
-            setPlace(null);
-          }}
-          isDisabled={busy}
-        >
-          {(item) => (
-            <SelectItem id={item.id} textValue={item.name}>
-              <bdi>{item.name}</bdi>
-            </SelectItem>
-          )}
-        </Select>
-        <Select
-          label={t`Place`}
-          items={places}
-          selectedKey={target?.id ?? null}
-          onSelectionChange={(key) => setPlace(key === null ? null : String(key))}
-          isDisabled={busy}
-        >
-          {(place) => {
-            const path = [...inventoryPath(cache, place).slice(1), place.name].join(' › ');
-            return (
-              <SelectItem id={place.id} textValue={path}>
-                <bdi>{path}</bdi>
-              </SelectItem>
-            );
-          }}
-        </Select>
+        <DestinationPicker
+          cache={cache}
+          value={target}
+          onChange={setTarget}
+          disabled={busy}
+          placesOnly
+        />
         <Button type="submit" isPending={busy} isDisabled={!name.trim() || !target}>
           <Trans>Create box</Trans>
         </Button>

@@ -504,6 +504,23 @@ export function LabelPanel({
       {action === 'enroll' ? (
         <>
           {url && <QrCode value={url} label={t`Kept QR label`} />}
+          {url?.startsWith('https://') && box && (
+            <Button
+              variant="secondary"
+              className="justify-self-start"
+              isDisabled={busy}
+              onPress={() => {
+                setBusy(true);
+                setStatus('');
+                void adapters.media
+                  .shareLabelPdf(connection, { url, name: box.name })
+                  .catch((error: unknown) => setStatus(errorText(error)))
+                  .finally(() => setBusy(false));
+              }}
+            >
+              <Trans>Share QR label PDF</Trans>
+            </Button>
+          )}
           {canEnroll && url?.startsWith('https://') && (
             <div className="flex flex-wrap gap-2">
               <Button isPending={busy} onPress={() => void inspect()}>

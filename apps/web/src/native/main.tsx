@@ -24,6 +24,7 @@ import {
   type StorageStats,
 } from './bridge';
 import { CaptureForm, NewBoxForm } from './capture-form';
+import type { Destination } from './destination';
 import {
   type InventoryCache,
   inventoryPath,
@@ -50,14 +51,18 @@ import {
   retryCapture,
   syncOutbox,
 } from './outbox';
-import { type OpenBox, RecordScreen } from './record';
+import { RecordScreen } from './record';
+import { Rooms } from './rooms';
+import { Trash } from './trash';
 import './native.css';
 
 type Screen =
   | { kind: 'home' }
-  | { kind: 'record'; target: Target }
+  | { kind: 'record'; target: Target; backToRooms?: boolean }
   | { kind: 'new' }
-  | { kind: 'capture'; box: OpenBox; location: string }
+  | { kind: 'rooms' }
+  | { kind: 'trash' }
+  | { kind: 'capture'; destination?: Destination; location?: string; back?: Target }
   | { kind: 'identify' }
   | { kind: 'find' | 'enroll'; box: LabelBox }
   | { kind: 'batches' };
@@ -270,11 +275,13 @@ export function Inventory({
   );
 
   const failureText = useCallback(
-    (reason: string | undefined): string => {
+    (reason: string, fields: ReturnType<typeof draftFields>): string => {
       switch (reason) {
         case 'target_trashed':
         case 'target_missing':
-          return t`The destination box is missing or in Trash. Move this capture to another box or discard it.`;
+          return fields.boxId
+            ? t`The destination box is missing or in Trash. Move this capture to another box or discard it.`
+            : t`Could not sync this capture automatically. Retry or review it.`;
         case 'not_permitted':
         case 'location_revoked':
           return t`You no longer have write permission in that box’s location.`;
@@ -285,7 +292,9 @@ export function Inventory({
         case 'checksum_mismatch':
           return t`An uploaded file did not match its saved checksum. Retry or review the capture.`;
         case 'attachments_unconfirmed':
-          return t`The entry was created, but an attachment could not be verified yet. Retry to confirm.`;
+          return fields.attachToThingId
+            ? t`Could not sync this capture automatically. Retry or review it.`
+            : t`The entry was created, but an attachment could not be verified yet. Retry to confirm.`;
         case 'compatibility_hold':
           return t`This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed.`;
         default:
@@ -563,8 +572,6 @@ export function Inventory({
     onSignOut();
   }
 
-  const backToBox = (box: OpenBox) =>
-    open({ id: box.id, kind: 'thing', locationId: box.locationId });
   const currentBoxes = cache?.things.filter((thing) => thing.isContainer) ?? [];
   const editableBoxes = currentBoxes.filter((box) =>
     cache?.locations.some((loc) => loc.id === box.locationId && loc.role !== 'viewer'),
@@ -654,7 +661,10 @@ export function Inventory({
               {pending.map((entry) => {
                 const fields = draftFields(entry.capture);
                 const boxName =
-                  cache?.things.find((item) => item.id === fields.boxId)?.name ?? t`Box`;
+                  cache?.things.find((item) => item.id === (fields.attachToThingId ?? fields.boxId))
+                    ?.name ??
+                  cache?.places.find((item) => item.id === fields.placeId)?.name ??
+                  t`Destination`;
                 return (
                   <li
                     key={entry.capture.id}
@@ -683,7 +693,9 @@ export function Inventory({
                         </>
                       )}
                     </p>
-                    {entry.failure && <p className="text-danger">{failureText(entry.failure)}</p>}
+                    {entry.failure && (
+                      <p className="text-danger">{failureText(entry.failure, fields)}</p>
+                    )}
                     {entry.capture.files.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {entry.capture.files.map(({ file }) => {
@@ -797,8 +809,11 @@ export function Inventory({
             <ul className="grid gap-2">
               {held.map((entry) => {
                 const fields = draftFields(entry.capture);
-                const cachedBoxName = cache?.things.find((item) => item.id === fields.boxId)?.name;
-                const boxName = cachedBoxName ?? `${t`Box`} (${fields.boxId})`;
+                const destinationId = fields.attachToThingId ?? fields.boxId ?? fields.placeId;
+                const boxName =
+                  cache?.things.find((item) => item.id === destinationId)?.name ??
+                  cache?.places.find((item) => item.id === destinationId)?.name ??
+                  destinationId;
                 return (
                   <li
                     key={`${entry.capture.context ?? ''}:${entry.capture.id}`}
@@ -873,6 +888,20 @@ export function Inventory({
         <section className="grid gap-4">
           <div className="flex flex-wrap gap-2">
             <Button
+              isDisabled={!cache?.locations.some((location) => location.role !== 'viewer')}
+              onPress={() => setScreen({ kind: 'capture' })}
+            >
+              <Trans>Capture inventory</Trans>
+            </Button>
+            <Button
+              variant="secondary"
+              isDisabled={!cache}
+              onPress={() => setScreen({ kind: 'rooms' })}
+            >
+              <Trans>Rooms</Trans>
+            </Button>
+            <Button
+              variant="secondary"
               isDisabled={
                 !online || !cache?.locations.some((location) => location.role !== 'viewer')
               }
@@ -881,7 +910,14 @@ export function Inventory({
               <Trans>Create box</Trans>
             </Button>
             <Button variant="secondary" onPress={() => setScreen({ kind: 'identify' })}>
-              <Trans>Identify a label</Trans>
+              <Trans>Scan QR or NFC</Trans>
+            </Button>
+            <Button
+              variant="secondary"
+              isDisabled={!online}
+              onPress={() => setScreen({ kind: 'trash' })}
+            >
+              <Trans>Trash</Trans>
             </Button>
             <Button
               variant="secondary"
@@ -976,10 +1012,15 @@ export function Inventory({
           pending={pending}
           syncing={working}
           online={online}
-          onClose={goHome}
+          onClose={screen.backToRooms ? () => setScreen({ kind: 'rooms' }) : goHome}
           onOpen={open}
           onCache={cacheDetail}
-          onCapture={(box, location) => setScreen({ kind: 'capture', box, location })}
+          onCapture={(destination, location) =>
+            setScreen({ kind: 'capture', destination, location, back: screen.target })
+          }
+          onInventoryChanged={() => {
+            void refresh();
+          }}
           onLabel={(kind, box) => setScreen({ kind, box })}
           onAuthError={onSignOut}
         />
@@ -995,15 +1036,30 @@ export function Inventory({
           }}
         />
       )}
+      {screen.kind === 'rooms' && cache && (
+        <Rooms
+          connection={connection}
+          cache={cache}
+          online={online}
+          onClose={goHome}
+          onOpen={(target) => setScreen({ kind: 'record', target, backToRooms: true })}
+          onCreated={(target) => {
+            setScreen({ kind: 'record', target, backToRooms: true });
+            void refresh();
+          }}
+          onAuthError={onSignOut}
+        />
+      )}
       {screen.kind === 'capture' && (
         <CaptureForm
           connection={connection}
-          box={screen.box}
+          box={screen.destination}
+          cache={cache}
           location={screen.location}
           pending={pending}
           completions={completions}
           syncing={working}
-          onClose={() => backToBox(screen.box)}
+          onClose={() => (screen.back ? open(screen.back) : goHome())}
           onSave={savedLocally}
         />
       )}
@@ -1034,6 +1090,18 @@ export function Inventory({
             open({ id: screen.box.id, kind: 'thing', locationId: screen.box.locationId })
           }
           onAuthError={onSignOut}
+        />
+      )}
+      {screen.kind === 'trash' && (
+        <Trash
+          connection={connection}
+          cache={cache}
+          onClose={goHome}
+          onAuthError={onSignOut}
+          onRestored={(target) => {
+            open(target);
+            void refresh();
+          }}
         />
       )}
       {screen.kind === 'batches' && (

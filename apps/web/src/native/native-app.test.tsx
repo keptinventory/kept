@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { capturePaths } from '@/api/capture/paths';
 import { ApiError } from '@/api/client';
+import { inventoryPaths } from '@/api/inventory/paths';
 import { paths } from '@/api/paths';
 import { ConfirmProvider } from '@/components/ui/confirm';
 import { activateLocale, i18n } from '@/i18n/i18n';
@@ -13,6 +14,7 @@ import {
   type Capture,
   type Connection,
   type FindTagEvent,
+  type NativeRequestOptions,
   type PendingCapture,
   StorageFullError,
   type TagReading,
@@ -38,6 +40,19 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
   const locId = '33333333-3333-7333-8333-333333333333';
   const placeId = '44444444-4444-7444-8444-444444444444';
 
+  const garage = {
+    id: placeId,
+    locationId: locId,
+    parentId: null,
+    name: 'Garage',
+    kindKey: 'room',
+    isUnplaced: false,
+    deleted: false,
+    rowVersion: 1,
+    path: [],
+    attachments: [],
+  };
+  const rooms = [garage];
   const outboxByContext = new Map<string, PendingCapture[]>();
   const cacheByContext = new Map<string, string>();
   const kvByContext = new Map<string, Map<string, string>>();
@@ -46,6 +61,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       boxId,
       {
         id: boxId,
+        rowVersion: 1,
         locationId: locId,
         shortCode: '7KQ4MZ',
         labelPrinted: true,
@@ -188,6 +204,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     exportedHeld: [] as Array<{ heldContext: string; id: string; metadata: string }>,
     uploadedFiles: [] as Array<{ id: string; file: string; location: string }>,
     disconnected: 0,
+    sharedLabelPdfs: [] as { url: string; name: string }[],
   };
 
   const getQueue = (ctx: string) => {
@@ -232,7 +249,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       async request<T>(
         _conn: Connection,
         path: string,
-        options?: { method?: string; body?: unknown },
+        options?: NativeRequestOptions,
       ): Promise<T> {
         if (!online) throw new ApiError(0, 'offline', 'Offline');
 
@@ -267,20 +284,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
               items: [{ id: 'type-box', builtinKey: 'box_bin', name: 'Box', isContainer: true }],
             },
             changes: {
-              places: [
-                {
-                  id: placeId,
-                  locationId: locId,
-                  parentId: null,
-                  name: 'Garage',
-                  kindKey: 'room',
-                  isUnplaced: false,
-                  sortOrder: 0,
-                  shortCode: null,
-                  labelPrinted: false,
-                  deleted: false,
-                },
-              ],
+              places: rooms,
               things: [...serverThings.values()].map((t) => ({
                 id: t.id,
                 locationId: locId,
@@ -326,6 +330,15 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
             revokedLocationIds: [],
           } as T;
         }
+        if (path === inventoryPaths.locationPlaces(locId) && options?.method === 'POST') {
+          const body = options.body as { id: string; name: string; kindKey: string };
+          expect(options.idempotencyKey).toBe(body.id);
+          const room = { ...garage, ...body };
+          rooms.push(room);
+          return room as T;
+        }
+        const room = rooms.find((entry) => inventoryPaths.place(entry.id) === path);
+        if (room) return room as T;
         if (path === capturePaths.syncOps) {
           const body = options?.body as {
             ops: Array<{
@@ -336,7 +349,8 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
                 name?: string;
                 note?: string;
                 quantity?: string;
-                target: { containerId?: string };
+                target: { containerId?: string; placeId?: string };
+                attachToThingId?: string;
                 files: Array<{ fileId: string; role: string }>;
               };
             }>;
@@ -350,57 +364,58 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
                 reason: forceDropReason,
               };
             }
-            const createdId = op.payload.id;
-            serverThings.set(createdId, {
-              id: createdId,
-              locationId: locId,
-              shortCode: '4CD5EF',
-              labelPrinted: false,
-              name: op.payload.name ?? null,
-              typeId: null,
-              placeId: null,
-              containerId: op.payload.target.containerId ?? boxId,
-              quantity: Number(op.payload.quantity ?? 1),
-              lifecycle: 'in_use',
-              derivedState: [],
-              path: [
-                { id: placeId, name: 'Garage' },
-                { id: boxId, name: 'Winter Box' },
-              ],
-              containerThumbUrl: null,
-              thumbUrl: null,
-              lastSeenAt: null,
-              isContainer: false,
-              tags: [],
-              brand: null,
-              model: null,
-              serial: null,
-              barcode: null,
-              colour: null,
-              condition: null,
-              notes: op.payload.note ?? null,
-              aliases: {},
-              belongsTo: null,
-              manualUrl: null,
-              expiresOn: null,
-              expiryLeadDays: null,
-              ended: null,
-              acquiredFrom: null,
-              provenanceNotes: null,
-              locationUncertain: false,
-              reviewState: 'confirmed',
-              fieldStatus: {},
-              fields: [],
-              custom: {},
-              archivedCustom: {},
-              secrets: [],
-              contentsCount: 0,
-              purchase: null,
-              photos: [],
-              attachmentsCount: op.payload.files.length,
-              meters: [],
-              links: [],
-            });
+            const createdId = op.payload.attachToThingId ?? op.payload.id;
+            if (!op.payload.attachToThingId)
+              serverThings.set(createdId, {
+                id: createdId,
+                locationId: locId,
+                shortCode: '4CD5EF',
+                labelPrinted: false,
+                name: op.payload.name ?? null,
+                typeId: null,
+                placeId: op.payload.target.placeId ?? null,
+                containerId: op.payload.target.containerId ?? null,
+                quantity: Number(op.payload.quantity ?? 1),
+                lifecycle: 'in_use',
+                derivedState: [],
+                path: [
+                  { id: placeId, name: 'Garage' },
+                  ...(op.payload.target.containerId ? [{ id: boxId, name: 'Winter Box' }] : []),
+                ],
+                containerThumbUrl: null,
+                thumbUrl: null,
+                lastSeenAt: null,
+                isContainer: false,
+                tags: [],
+                brand: null,
+                model: null,
+                serial: null,
+                barcode: null,
+                colour: null,
+                condition: null,
+                notes: op.payload.note ?? null,
+                aliases: {},
+                belongsTo: null,
+                manualUrl: null,
+                expiresOn: null,
+                expiryLeadDays: null,
+                ended: null,
+                acquiredFrom: null,
+                provenanceNotes: null,
+                locationUncertain: false,
+                reviewState: 'confirmed',
+                fieldStatus: {},
+                fields: [],
+                custom: {},
+                archivedCustom: {},
+                secrets: [],
+                contentsCount: 0,
+                purchase: null,
+                photos: [],
+                attachmentsCount: op.payload.files.length,
+                meters: [],
+                links: [],
+              });
             attachmentsByThing.set(
               createdId,
               op.payload.files.map((f, index) => {
@@ -476,6 +491,29 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
           }
           return { outcome: 'not_in_your_kept' } as T;
         }
+        if (path === inventoryPaths.thingNotHere(boxId)) {
+          const box = serverThings.get(boxId);
+          expect(options?.ifMatch).toBe(box?.rowVersion);
+          if (box) box.locationUncertain = true;
+          return box as T;
+        }
+        if (path.startsWith(inventoryPaths.thingHistory(boxId))) {
+          return {
+            items: [
+              {
+                id: 'history-1',
+                at: '2026-11-22T20:00:00Z',
+                entity: { type: 'thing', id: boxId },
+                actor: { displayName: 'Ibrahim' },
+                action: 'thing.capture',
+                summaryKey: 'thing.capture.attach',
+                summaryParams: {},
+                diff: { mode: { after: 'thing', before: null, class: 'plain' } },
+              },
+            ],
+            next_cursor: null,
+          } as T;
+        }
         if (path.startsWith('/api/v1/things/')) {
           const attMatch = /^\/api\/v1\/things\/([^/]+)\/attachments/.exec(path);
           if (attMatch?.[1]) {
@@ -485,6 +523,10 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
           if (detailMatch?.[1]) {
             const thing = serverThings.get(detailMatch[1]);
             if (!thing) throw new ApiError(404, 'not_found', 'Not found');
+            if (options?.method === 'PATCH') {
+              expect(options.ifMatch).toBe(thing.rowVersion);
+              Object.assign(thing, options.body, { rowVersion: Number(thing.rowVersion) + 1 });
+            }
             return thing as T;
           }
         }
@@ -700,6 +742,9 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       },
     },
     media: {
+      async shareLabelPdf(_conn, input) {
+        events.sharedLabelPdfs.push(input);
+      },
       async openRemote(_conn, input) {
         events.openedRemote.push(input);
       },
@@ -747,6 +792,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     boxId,
     spareBoxId,
     renderApp,
+    rooms,
     setOnline: (value: boolean) => {
       online = value;
     },
@@ -800,6 +846,97 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
 }
 
 describe('KeptPhone mobile workflows', () => {
+  it('creates a room and captures an item there from the home destination picker', async () => {
+    const origin = 'https://kept.example.com';
+    const env = createFakeEnvironment({
+      initialConnection: {
+        id: `${origin}|ibrahim|epoch-1`,
+        origin,
+        account: 'ibrahim',
+        epoch: 'epoch-1',
+      },
+    });
+    const user = userEvent.setup();
+    env.renderApp();
+    await user.click(await screen.findByRole('button', { name: 'Rooms' }));
+    await user.click(screen.getByRole('button', { name: 'Create room' }));
+    await user.type(screen.getByRole('textbox', { name: 'Room name' }), 'Attic');
+    await user.click(screen.getByRole('button', { name: 'Create room' }));
+    expect(await screen.findByRole('heading', { name: 'Attic' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(screen.getByRole('button', { name: 'Capture inventory' }));
+    await user.click(screen.getByRole('button', { name: /Room or box/ }));
+    await user.click(await screen.findByRole('option', { name: 'Attic' }));
+    await user.type(screen.getByRole('textbox', { name: 'Description' }), 'Winter gloves');
+    await user.click(screen.getByRole('button', { name: 'Save capture' }));
+    expect(await screen.findByText('Synced: 1')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Done' }));
+    await user.click(screen.getByRole('button', { name: 'Rooms' }));
+    await user.click(screen.getByRole('button', { name: /Attic/ }));
+    expect(await screen.findByRole('button', { name: 'Winter gloves' })).toBeInTheDocument();
+  });
+
+  it('adds photos to a bin without a new item and shares its existing label URL', async () => {
+    const origin = 'https://kept.example.com';
+    const env = createFakeEnvironment({
+      initialConnection: {
+        id: `${origin}|ibrahim|epoch-1`,
+        origin,
+        account: 'ibrahim',
+        epoch: 'epoch-1',
+      },
+    });
+    const user = userEvent.setup();
+    env.renderApp();
+    await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
+    await user.click(screen.getByRole('button', { name: 'Add photos' }));
+    expect(screen.queryByRole('textbox', { name: 'Description' })).not.toBeInTheDocument();
+    const picker = document.querySelectorAll<HTMLInputElement>('input[type="file"]')[1];
+    if (!picker) throw new Error('Expected photo picker');
+    await user.upload(picker, new File(['image bytes'], 'bin.jpg', { type: 'image/jpeg' }));
+    await user.click(screen.getByRole('button', { name: 'Save photos' }));
+    expect(await screen.findByText('Synced: 1')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Done' }));
+    await user.click(await screen.findByRole('button', { name: 'photo.jpg' }));
+    expect(env.events.openedRemote.at(-1)?.thing).toBe(env.boxId);
+    expect(screen.getByText('No cached contents.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'QR and NFC label' }));
+    await user.click(screen.getByRole('button', { name: 'Share QR label PDF' }));
+    expect(env.events.sharedLabelPdfs).toEqual([{ url: `${origin}/l/7KQ4MZ`, name: 'Winter Box' }]);
+  });
+
+  it('edits a bin in place and shows the last known location and photo history', async () => {
+    const origin = 'https://kept.example.com';
+    const env = createFakeEnvironment({
+      initialConnection: {
+        id: `${origin}|ibrahim|epoch-1`,
+        origin,
+        account: 'ibrahim',
+        epoch: 'epoch-1',
+      },
+    });
+    const user = userEvent.setup();
+    env.renderApp();
+    await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
+    await user.click(await screen.findByRole('button', { name: 'Edit' }));
+    const name = screen.getByRole('textbox', { name: 'Name' });
+    await user.clear(name);
+    await user.type(name, 'Holiday bin');
+    await user.click(screen.getByRole('button', { name: /^Save$/ }));
+    expect(await screen.findByRole('heading', { name: 'Holiday bin' })).toBeInTheDocument();
+    expect(screen.getByText('Top shelf')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'More actions' }));
+    await user.click(screen.getByRole('button', { name: 'Not here' }));
+    expect(await screen.findByText(/Last known location/)).toHaveTextContent('Home › Garage');
+    await user.click(screen.getByRole('button', { name: 'View history' }));
+    expect(
+      await screen.findByText('Photo added to the record. Inventory unchanged.'),
+    ).toBeInTheDocument();
+  });
+
   it('keeps the address and allows retry after the browser sign-in sheet is cancelled', async () => {
     const env = createFakeEnvironment();
     const connect = vi
@@ -956,7 +1093,7 @@ describe('KeptPhone mobile workflows', () => {
 
     // Pending capture and pending original preview work inside the box before sync.
     await user.click(screen.getByRole('button', { name: 'Done' }));
-    expect(await screen.findByText('Pending in this box')).toBeInTheDocument();
+    expect(await screen.findByText('Pending captures')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'packing-guide.pdf' }));
     expect(env.events.openedPending).toHaveLength(1);
 

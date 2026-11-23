@@ -145,6 +145,7 @@ export type HistoryQuery = z.infer<typeof HistoryQuery>;
  * both by default, newest first in one list. */
 export const ThingHistoryQuery = HistoryQuery.extend({
   kind: z.enum(['all', 'changes', 'ai']).default('all'),
+  contents: z.literal('1').optional(),
 });
 export type ThingHistoryQuery = z.infer<typeof ThingHistoryQuery>;
 
@@ -846,7 +847,7 @@ export async function thingHistory(
   client: pg.ClientBase,
   scope: Scope,
   thingId: string,
-  query: HistoryQuery & { kind?: ThingHistoryQuery['kind'] },
+  query: HistoryQuery & Pick<Partial<ThingHistoryQuery>, 'kind' | 'contents'>,
 ): Promise<HistoryPage> {
   const { rows: found } = await client.query<{ location_id: string }>(
     'SELECT location_id FROM public.things WHERE id = $1',
@@ -882,17 +883,29 @@ async function thingChanges(
   thingId: string,
   ids: string[],
   merged: { id: string; name: string | null }[],
-  query: HistoryQuery,
+  query: HistoryQuery & Pick<Partial<ThingHistoryQuery>, 'contents'>,
 ): Promise<HistoryPage> {
   const where = new Where();
-  where.add(
-    (v) => `e.location_id IS NOT NULL AND (
+  where.add((v) => {
+    const container = query.contents ? v(thingId) : null;
+    return `e.location_id IS NOT NULL AND (
       (e.entity_type IN ('thing', 'place') AND e.entity_id = ANY (${v(ids)}::uuid[]))
       OR e.root_thing_id = ANY (${v(ids)}::uuid[])
       OR EXISTS (SELECT 1 FROM public.audit_event_subjects s
                   WHERE s.event_id = e.id AND s.event_at = e.at
-                    AND s.thing_id = ANY (${v(ids)}::uuid[])))`,
-  );
+                    AND s.thing_id = ANY (${v(ids)}::uuid[]))
+      ${
+        container
+          ? `OR (e.entity_type = 'thing' AND (
+        (e.action IN ('thing.create', 'thing.capture', 'thing.move')
+          AND e.diff->'container_id'->>'after' = ${container}::text)
+        OR (e.action = 'thing.move' AND e.diff->'container_id'->>'before' = ${container}::text)
+        OR (e.action = 'thing.trash' AND e.diff->'removed_from_container_id'->>'after' = ${container}::text)
+        OR (e.action = 'thing.restore' AND e.diff->'restored_to_container_id'->>'after' = ${container}::text)
+      ))`
+          : ''
+      })`;
+  });
   const page = await eventsPage(tx, client, scope, where, query);
   if (merged.length === 0 || page.items.length === 0) return page;
 

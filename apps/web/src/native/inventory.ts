@@ -82,10 +82,11 @@ export function inventoryPath(cache: InventoryCache, record: SnapThing | SnapPla
   return parts;
 }
 
-export function pendingForBox(pending: readonly PendingCapture[], boxId: string): PendingCapture[] {
+export function pendingForRecord(pending: readonly PendingCapture[], id: string): PendingCapture[] {
   return pending.filter((entry) => {
     try {
-      return draftFields(entry.capture).boxId === boxId;
+      const fields = draftFields(entry.capture);
+      return (fields.attachToThingId ?? fields.boxId ?? fields.placeId) === id;
     } catch {
       return false;
     }
@@ -201,7 +202,7 @@ export async function loadPlace(
 export async function createBox(
   connection: Connection,
   cache: InventoryCache,
-  destination: SnapPlace,
+  destination: Pick<SnapPlace, 'id' | 'locationId'>,
   name: string,
   adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<ThingView> {

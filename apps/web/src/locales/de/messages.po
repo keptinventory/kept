@@ -30057,3 +30057,147 @@ msgstr "Mit Apple auf dem iPhone anmelden"
 #: src/native/main.tsx
 msgid "Update this Kept server to sign in with Apple."
 msgstr "Aktualisiere diesen Kept-Server, um dich mit Apple anzumelden."
+
+#: src/native/record.tsx
+msgid "Add to this room"
+msgstr "Diesem Raum hinzufügen"
+
+#: src/native/edit-record.tsx
+msgid "Any contents will stay in inventory and move to this box’s current location."
+msgstr "Der Inhalt bleibt im Inventar und wird an den aktuellen Standort dieser Box verschoben."
+
+#: src/native/capture-form.tsx
+msgid "Capture inventory"
+msgstr "Inventar erfassen"
+
+#: src/native/rooms.tsx
+msgid "Create room"
+msgstr "Raum erstellen"
+
+#: src/native/main.tsx
+msgid "Destination"
+msgstr "Ziel"
+
+#: src/native/record.tsx
+msgid "Documents and files"
+msgstr "Dokumente und Dateien"
+
+#: src/native/trash.tsx
+msgid "First page"
+msgstr "Erste Seite"
+
+#: src/native/record-history.tsx
+msgid "Hide history"
+msgstr "Verlauf ausblenden"
+
+#: src/native/record.tsx
+msgid "Last known location"
+msgstr "Letzter bekannter Standort"
+
+#: src/native/edit-record.tsx
+msgid "Manual URL"
+msgstr "Link zur Anleitung"
+
+#: src/native/edit-record.tsx
+msgid "Move to Trash?"
+msgstr "In den Papierkorb verschieben?"
+
+#: src/native/edit-record.tsx
+msgid "Move to {0}?"
+msgstr "Nach {0} verschieben?"
+
+#: src/native/trash.tsx
+msgid "Next page"
+msgstr "Nächste Seite"
+
+#: src/native/record-history.tsx
+msgid "No history yet."
+msgstr "Noch kein Verlauf."
+
+#: src/native/rooms.tsx
+msgid "No rooms yet."
+msgstr "Noch keine Räume."
+
+#: src/native/record-history.tsx
+msgid "Photo added to the record. Inventory unchanged."
+msgstr "Foto zum Eintrag hinzugefügt. Das Inventar bleibt unverändert."
+
+#: src/native/capture-form.tsx
+msgid "Record photos"
+msgstr "Fotos dokumentieren"
+
+#: src/native/edit-record.tsx
+msgid "Room name"
+msgstr "Raumname"
+
+#: src/native/destination.tsx
+msgid "Room or box"
+msgstr "Raum oder Box"
+
+#: src/native/capture-form.tsx
+msgid "Room or place"
+msgstr "Raum oder Platz"
+
+#: src/native/capture-form.tsx
+msgid "Save capture"
+msgstr "Erfassung speichern"
+
+#: src/native/capture-form.tsx
+msgid "Save photos"
+msgstr "Fotos speichern"
+
+#: src/native/main.tsx
+msgid "Scan QR or NFC"
+msgstr "QR oder NFC scannen"
+
+#: src/native/edit-record.tsx
+msgid "Seen here"
+msgstr "Hier gesehen"
+
+#: src/native/label-panel.tsx
+msgid "Share QR label PDF"
+msgstr "QR-Etikett als PDF teilen"
+
+#: src/native/edit-record.tsx
+msgid "This item is currently on loan."
+msgstr "Dieser Gegenstand ist gerade ausgeliehen."
+
+#: src/native/edit-record.tsx
+msgid "This record changed while you were editing. Close and reopen it to see the latest version."
+msgstr "Dieser Eintrag wurde während der Bearbeitung geändert. Schließen und öffnen Sie ihn erneut, um die aktuelle Version zu sehen."
+
+#: src/native/trash.tsx
+msgid "Trash is empty."
+msgstr "Der Papierkorb ist leer."
+
+#: src/native/edit-record.tsx
+msgid "Unspecified"
+msgstr "Nicht angegeben"
+
+#: src/native/record-history.tsx
+msgid "View history"
+msgstr "Verlauf anzeigen"
+
+#: src/native/edit-record.tsx
+msgid "{0} people will lose access to this record after the move."
+msgstr "Nach dem Verschieben verlieren {0} Personen den Zugriff auf diesen Eintrag."
+
+#: src/native/record-history.tsx
+msgid "{name} added to this box"
+msgstr "{name} wurde dieser Box hinzugefügt"
+
+#: src/native/record-history.tsx
+msgid "{name} moved into this box"
+msgstr "{name} wurde in diese Box gelegt"
+
+#: src/native/record-history.tsx
+msgid "{name} moved out of this box"
+msgstr "{name} wurde aus dieser Box genommen"
+
+#: src/native/record-history.tsx
+msgid "{name} removed from this box"
+msgstr "{name} wurde aus dieser Box entfernt"
+
+#: src/native/record-history.tsx
+msgid "{name} restored to this box"
+msgstr "{name} wurde in dieser Box wiederhergestellt"

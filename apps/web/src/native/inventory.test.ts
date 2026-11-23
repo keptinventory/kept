@@ -6,7 +6,7 @@ import {
   inventoryPath,
   loadInventory,
   localInventorySearch,
-  pendingForBox,
+  pendingForRecord,
 } from './inventory';
 
 const connection: Connection = {
@@ -276,6 +276,6 @@ describe('inventory snapshot, path, and offline search', () => {
         },
       },
     ];
-    expect(pendingForBox(entries, 'box-1').map((e) => e.capture.id)).toEqual(['c-1']);
+    expect(pendingForRecord(entries, 'box-1').map((e) => e.capture.id)).toEqual(['c-1']);
   });
 });

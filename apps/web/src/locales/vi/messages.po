@@ -22105,3 +22105,147 @@ msgstr "Đăng nhập bằng Apple trên iPhone"
 #: src/native/main.tsx
 msgid "Update this Kept server to sign in with Apple."
 msgstr "Hãy cập nhật máy chủ Kept này để đăng nhập bằng Apple."
+
+#: src/native/record.tsx
+msgid "Add to this room"
+msgstr "Thêm vào phòng này"
+
+#: src/native/edit-record.tsx
+msgid "Any contents will stay in inventory and move to this box’s current location."
+msgstr "Đồ bên trong vẫn nằm trong kho và sẽ được chuyển đến vị trí hiện tại của hộp."
+
+#: src/native/capture-form.tsx
+msgid "Capture inventory"
+msgstr "Ghi nhận đồ đạc"
+
+#: src/native/rooms.tsx
+msgid "Create room"
+msgstr "Tạo phòng"
+
+#: src/native/main.tsx
+msgid "Destination"
+msgstr "Nơi đến"
+
+#: src/native/record.tsx
+msgid "Documents and files"
+msgstr "Tài liệu và tệp"
+
+#: src/native/trash.tsx
+msgid "First page"
+msgstr "Trang đầu tiên"
+
+#: src/native/record-history.tsx
+msgid "Hide history"
+msgstr "Ẩn lịch sử"
+
+#: src/native/record.tsx
+msgid "Last known location"
+msgstr "Vị trí được biết gần nhất"
+
+#: src/native/edit-record.tsx
+msgid "Manual URL"
+msgstr "Liên kết hướng dẫn"
+
+#: src/native/edit-record.tsx
+msgid "Move to Trash?"
+msgstr "Chuyển vào thùng rác?"
+
+#: src/native/edit-record.tsx
+msgid "Move to {0}?"
+msgstr "Di chuyển đến {0}?"
+
+#: src/native/trash.tsx
+msgid "Next page"
+msgstr "Trang tiếp theo"
+
+#: src/native/record-history.tsx
+msgid "No history yet."
+msgstr "Chưa có lịch sử."
+
+#: src/native/rooms.tsx
+msgid "No rooms yet."
+msgstr "Chưa có phòng nào."
+
+#: src/native/record-history.tsx
+msgid "Photo added to the record. Inventory unchanged."
+msgstr "Đã thêm ảnh vào hồ sơ. Kho đồ không thay đổi."
+
+#: src/native/capture-form.tsx
+msgid "Record photos"
+msgstr "Ghi nhận bằng ảnh"
+
+#: src/native/edit-record.tsx
+msgid "Room name"
+msgstr "Tên phòng"
+
+#: src/native/destination.tsx
+msgid "Room or box"
+msgstr "Phòng hoặc hộp"
+
+#: src/native/capture-form.tsx
+msgid "Room or place"
+msgstr "Phòng hoặc vị trí"
+
+#: src/native/capture-form.tsx
+msgid "Save capture"
+msgstr "Lưu mục vừa ghi"
+
+#: src/native/capture-form.tsx
+msgid "Save photos"
+msgstr "Lưu ảnh"
+
+#: src/native/main.tsx
+msgid "Scan QR or NFC"
+msgstr "Quét QR hoặc NFC"
+
+#: src/native/edit-record.tsx
+msgid "Seen here"
+msgstr "Đã thấy ở đây"
+
+#: src/native/label-panel.tsx
+msgid "Share QR label PDF"
+msgstr "Chia sẻ nhãn QR dạng PDF"
+
+#: src/native/edit-record.tsx
+msgid "This item is currently on loan."
+msgstr "Món đồ này hiện đang được cho mượn."
+
+#: src/native/edit-record.tsx
+msgid "This record changed while you were editing. Close and reopen it to see the latest version."
+msgstr "Hồ sơ này đã thay đổi trong lúc bạn sửa. Hãy đóng rồi mở lại để xem phiên bản mới nhất."
+
+#: src/native/trash.tsx
+msgid "Trash is empty."
+msgstr "Thùng rác trống."
+
+#: src/native/edit-record.tsx
+msgid "Unspecified"
+msgstr "Chưa xác định"
+
+#: src/native/record-history.tsx
+msgid "View history"
+msgstr "Xem lịch sử"
+
+#: src/native/edit-record.tsx
+msgid "{0} people will lose access to this record after the move."
+msgstr "Sau khi di chuyển, {0} người sẽ mất quyền truy cập vào hồ sơ này."
+
+#: src/native/record-history.tsx
+msgid "{name} added to this box"
+msgstr "Đã thêm {name} vào hộp này"
+
+#: src/native/record-history.tsx
+msgid "{name} moved into this box"
+msgstr "Đã chuyển {name} vào hộp này"
+
+#: src/native/record-history.tsx
+msgid "{name} moved out of this box"
+msgstr "Đã chuyển {name} ra khỏi hộp này"
+
+#: src/native/record-history.tsx
+msgid "{name} removed from this box"
+msgstr "Đã bỏ {name} khỏi hộp này"
+
+#: src/native/record-history.tsx
+msgid "{name} restored to this box"
+msgstr "Đã khôi phục {name} vào hộp này"

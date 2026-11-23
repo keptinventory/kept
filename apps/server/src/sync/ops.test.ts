@@ -84,6 +84,81 @@ afterAll(async () => {
 
 describe('POST /api/v1/sync/ops', () => {
   // catalogue: POST /api/v1/sync/ops
+  it('shows box intake, a photo-only observation, moves and removal in inventory history', async () => {
+    const typeId = await builtinType(db, 'box_bin');
+    const box = (await createThing(t, ibrahim, home, { name: 'Intake bin', typeId })).id;
+    const other = (await createThing(t, ibrahim, home, { name: 'Storage bin', typeId })).id;
+    const entry = captureOp(home.id, { containerId: box }, { name: 'Decorations' });
+    expect((await sent(t, louis, [entry]))[0]?.outcome).toBe('applied');
+    const id = entry.payload.id;
+    const original = await uniqueJpeg();
+    const file = await up(louis, original);
+    const before = await thingOf(id);
+    const observation = captureOp(
+      home.id,
+      { unplaced: true },
+      {
+        attachToThingId: id,
+        files: [{ fileId: file.id, role: 'photo', sha256: sha256(original) }],
+      },
+    );
+    const [first] = await sent(t, louis, [observation]);
+    expect(first).toMatchObject({ outcome: 'applied', entity: { id, type: 'thing' } });
+    expect((await sent(t, louis, [observation]))[0]).toMatchObject({
+      outcome: 'applied',
+      entity: { id },
+    });
+    expect(await thingOf(id)).toEqual(before);
+    expect(await thingOf(observation.payload.id)).toBeUndefined();
+    expect(
+      await own(db, 'SELECT role FROM public.attachments WHERE thing_id = $1 AND file_id = $2', [
+        id,
+        file.id,
+      ]),
+    ).toEqual([{ role: 'photo' }]);
+
+    const photoHistory = ok(
+      await call(t, `/api/v1/things/${id}/history?kind=changes`, { as: louis }),
+    );
+    expect(photoHistory.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          summaryKey: 'thing.capture.attach',
+          actor: expect.objectContaining({ id: louis.userId }),
+        }),
+      ]),
+    );
+    ok(
+      await call(t, '/api/v1/things/move', {
+        as: louis,
+        body: { thingIds: [id], to: { containerId: other } },
+      }),
+    );
+    ok(await call(t, `/api/v1/things/${id}/trash`, { as: ibrahim, body: {} }));
+    const contents = async (boxId: string) => {
+      const history = ok(
+        await call(t, `/api/v1/things/${boxId}/history?kind=changes&contents=1`, { as: talia }),
+      );
+      return (history.items as { action: string; entity: { id: string }; diff: unknown }[]).filter(
+        (item) => item.entity.id === id,
+      );
+    };
+    expect((await contents(box)).map((event) => event.action)).toEqual([
+      'thing.move',
+      'thing.capture',
+    ]);
+    expect((await contents(other)).map((event) => event.action)).toEqual([
+      'thing.trash',
+      'thing.move',
+    ]);
+    expect((await contents(other))[1]?.diff).toMatchObject({
+      path: {
+        before: expect.arrayContaining(['Intake bin']),
+        after: expect.arrayContaining(['Storage bin']),
+      },
+    });
+  });
+
   it('applies a queued capture as the caller, audits it, and answers its short ID', async () => {
     const shelf = await place(db, home, 'Shelf A');
     const item = captureOp(home.id, { placeId: shelf }, { name: 'Step ladder' });

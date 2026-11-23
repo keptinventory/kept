@@ -30057,3 +30057,147 @@ msgstr "تسجيل الدخول باستخدام Apple لـ iPhone"
 #: src/native/main.tsx
 msgid "Update this Kept server to sign in with Apple."
 msgstr "حدّث خادم Kept هذا لتسجيل الدخول باستخدام Apple."
+
+#: src/native/record.tsx
+msgid "Add to this room"
+msgstr "إضافة إلى هذه الغرفة"
+
+#: src/native/edit-record.tsx
+msgid "Any contents will stay in inventory and move to this box’s current location."
+msgstr "ستبقى المحتويات في الجرد وتنتقل إلى الموقع الحالي لهذا الصندوق."
+
+#: src/native/capture-form.tsx
+msgid "Capture inventory"
+msgstr "إضافة إلى الجرد"
+
+#: src/native/rooms.tsx
+msgid "Create room"
+msgstr "إنشاء غرفة"
+
+#: src/native/main.tsx
+msgid "Destination"
+msgstr "الوجهة"
+
+#: src/native/record.tsx
+msgid "Documents and files"
+msgstr "المستندات والملفات"
+
+#: src/native/trash.tsx
+msgid "First page"
+msgstr "الصفحة الأولى"
+
+#: src/native/record-history.tsx
+msgid "Hide history"
+msgstr "إخفاء السجل"
+
+#: src/native/record.tsx
+msgid "Last known location"
+msgstr "آخر موقع معروف"
+
+#: src/native/edit-record.tsx
+msgid "Manual URL"
+msgstr "رابط دليل الاستخدام"
+
+#: src/native/edit-record.tsx
+msgid "Move to Trash?"
+msgstr "نقل إلى سلة المهملات؟"
+
+#: src/native/edit-record.tsx
+msgid "Move to {0}?"
+msgstr "نقل إلى {0}؟"
+
+#: src/native/trash.tsx
+msgid "Next page"
+msgstr "الصفحة التالية"
+
+#: src/native/record-history.tsx
+msgid "No history yet."
+msgstr "لا يوجد سجل بعد."
+
+#: src/native/rooms.tsx
+msgid "No rooms yet."
+msgstr "لا توجد غرف بعد."
+
+#: src/native/record-history.tsx
+msgid "Photo added to the record. Inventory unchanged."
+msgstr "أُضيفت صورة إلى السجل. لم يتغير الجرد."
+
+#: src/native/capture-form.tsx
+msgid "Record photos"
+msgstr "توثيق بالصور"
+
+#: src/native/edit-record.tsx
+msgid "Room name"
+msgstr "اسم الغرفة"
+
+#: src/native/destination.tsx
+msgid "Room or box"
+msgstr "الغرفة أو الصندوق"
+
+#: src/native/capture-form.tsx
+msgid "Room or place"
+msgstr "الغرفة أو المكان"
+
+#: src/native/capture-form.tsx
+msgid "Save capture"
+msgstr "حفظ الإدخال"
+
+#: src/native/capture-form.tsx
+msgid "Save photos"
+msgstr "حفظ الصور"
+
+#: src/native/main.tsx
+msgid "Scan QR or NFC"
+msgstr "مسح رمز QR أو NFC"
+
+#: src/native/edit-record.tsx
+msgid "Seen here"
+msgstr "تمت رؤيته هنا"
+
+#: src/native/label-panel.tsx
+msgid "Share QR label PDF"
+msgstr "مشاركة ملصق QR بصيغة PDF"
+
+#: src/native/edit-record.tsx
+msgid "This item is currently on loan."
+msgstr "هذا العنصر مُعار حاليًا."
+
+#: src/native/edit-record.tsx
+msgid "This record changed while you were editing. Close and reopen it to see the latest version."
+msgstr "تغيّر هذا السجل أثناء تعديله. أغلقه وافتحه مجددًا لعرض أحدث نسخة."
+
+#: src/native/trash.tsx
+msgid "Trash is empty."
+msgstr "سلة المهملات فارغة."
+
+#: src/native/edit-record.tsx
+msgid "Unspecified"
+msgstr "غير محدد"
+
+#: src/native/record-history.tsx
+msgid "View history"
+msgstr "عرض السجل"
+
+#: src/native/edit-record.tsx
+msgid "{0} people will lose access to this record after the move."
+msgstr "سيفقد {0} أشخاص حق الوصول إلى هذا السجل بعد نقله."
+
+#: src/native/record-history.tsx
+msgid "{name} added to this box"
+msgstr "أُضيف {name} إلى هذا الصندوق"
+
+#: src/native/record-history.tsx
+msgid "{name} moved into this box"
+msgstr "نُقل {name} إلى هذا الصندوق"
+
+#: src/native/record-history.tsx
+msgid "{name} moved out of this box"
+msgstr "نُقل {name} من هذا الصندوق"
+
+#: src/native/record-history.tsx
+msgid "{name} removed from this box"
+msgstr "أُزيل {name} من هذا الصندوق"
+
+#: src/native/record-history.tsx
+msgid "{name} restored to this box"
+msgstr "أُعيد {name} إلى هذا الصندوق"

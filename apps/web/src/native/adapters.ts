@@ -5,6 +5,7 @@ import {
   type CompletionState,
   type Connection,
   type FindTagEvent,
+  type NativeRequestOptions,
   native,
   nativeRequest,
   networkError,
@@ -21,11 +22,7 @@ export type PlatformCredentials = {
 };
 
 export type PlatformTransport = {
-  request<T>(
-    connection: Connection,
-    path: string,
-    options?: { method?: string; body?: unknown; ifMatch?: number },
-  ): Promise<T>;
+  request<T>(connection: Connection, path: string, options?: NativeRequestOptions): Promise<T>;
   uploadOriginal(
     connection: Connection,
     input: { id: string; file: string; location: string; uploadId?: string },
@@ -88,9 +85,10 @@ export type PlatformFeedback = {
 export type PlatformMedia = {
   openRemote(
     connection: Connection,
-    input: { thing?: string; file: string; mime: string },
+    input: { thing?: string; file: string; mime: string; variant?: 'display' },
   ): Promise<void>;
   openPending(connection: Connection, input: { id: string; file: string }): Promise<void>;
+  shareLabelPdf(connection: Connection, input: { url: string; name: string }): Promise<void>;
   openHeld(
     connection: Connection,
     input: { heldContext: string; id: string; file: string },
@@ -287,6 +285,9 @@ export const capacitorAdapters: PlatformAdapters = {
     },
     openPending(connection, input) {
       return native.openPendingMedia({ context: connection.id, ...input });
+    },
+    shareLabelPdf(connection, input) {
+      return native.shareLabelPdf({ context: connection.id, ...input });
     },
     openHeld(connection, input) {
       return native.openHeldMedia({ context: connection.id, ...input });

@@ -32040,3 +32040,147 @@ msgstr "Увійти з Apple на iPhone"
 #: src/native/main.tsx
 msgid "Update this Kept server to sign in with Apple."
 msgstr "Оновіть цей сервер Kept, щоб увійти з Apple."
+
+#: src/native/record.tsx
+msgid "Add to this room"
+msgstr "Додати до цієї кімнати"
+
+#: src/native/edit-record.tsx
+msgid "Any contents will stay in inventory and move to this box’s current location."
+msgstr "Усе, що всередині, залишиться в інвентарі й буде переміщене до поточного місця цієї коробки."
+
+#: src/native/capture-form.tsx
+msgid "Capture inventory"
+msgstr "Додати до інвентарю"
+
+#: src/native/rooms.tsx
+msgid "Create room"
+msgstr "Створити кімнату"
+
+#: src/native/main.tsx
+msgid "Destination"
+msgstr "Місце призначення"
+
+#: src/native/record.tsx
+msgid "Documents and files"
+msgstr "Документи й файли"
+
+#: src/native/trash.tsx
+msgid "First page"
+msgstr "Перша сторінка"
+
+#: src/native/record-history.tsx
+msgid "Hide history"
+msgstr "Приховати історію"
+
+#: src/native/record.tsx
+msgid "Last known location"
+msgstr "Останнє відоме місце"
+
+#: src/native/edit-record.tsx
+msgid "Manual URL"
+msgstr "Посилання на інструкцію"
+
+#: src/native/edit-record.tsx
+msgid "Move to Trash?"
+msgstr "Перемістити до кошика?"
+
+#: src/native/edit-record.tsx
+msgid "Move to {0}?"
+msgstr "Перемістити до {0}?"
+
+#: src/native/trash.tsx
+msgid "Next page"
+msgstr "Наступна сторінка"
+
+#: src/native/record-history.tsx
+msgid "No history yet."
+msgstr "Історії ще немає."
+
+#: src/native/rooms.tsx
+msgid "No rooms yet."
+msgstr "Кімнат ще немає."
+
+#: src/native/record-history.tsx
+msgid "Photo added to the record. Inventory unchanged."
+msgstr "Фото додано до запису. Інвентар не змінився."
+
+#: src/native/capture-form.tsx
+msgid "Record photos"
+msgstr "Зафіксувати фото"
+
+#: src/native/edit-record.tsx
+msgid "Room name"
+msgstr "Назва кімнати"
+
+#: src/native/destination.tsx
+msgid "Room or box"
+msgstr "Кімната або коробка"
+
+#: src/native/capture-form.tsx
+msgid "Room or place"
+msgstr "Кімната або місце"
+
+#: src/native/capture-form.tsx
+msgid "Save capture"
+msgstr "Зберегти запис"
+
+#: src/native/capture-form.tsx
+msgid "Save photos"
+msgstr "Зберегти фото"
+
+#: src/native/main.tsx
+msgid "Scan QR or NFC"
+msgstr "Сканувати QR або NFC"
+
+#: src/native/edit-record.tsx
+msgid "Seen here"
+msgstr "Помічено тут"
+
+#: src/native/label-panel.tsx
+msgid "Share QR label PDF"
+msgstr "Поділитися PDF з QR-етикеткою"
+
+#: src/native/edit-record.tsx
+msgid "This item is currently on loan."
+msgstr "Цей предмет зараз у позичальника."
+
+#: src/native/edit-record.tsx
+msgid "This record changed while you were editing. Close and reopen it to see the latest version."
+msgstr "Цей запис змінився під час редагування. Закрийте й відкрийте його знову, щоб побачити останню версію."
+
+#: src/native/trash.tsx
+msgid "Trash is empty."
+msgstr "Кошик порожній."
+
+#: src/native/edit-record.tsx
+msgid "Unspecified"
+msgstr "Не вказано"
+
+#: src/native/record-history.tsx
+msgid "View history"
+msgstr "Переглянути історію"
+
+#: src/native/edit-record.tsx
+msgid "{0} people will lose access to this record after the move."
+msgstr "Після переміщення доступ до запису втратять {0} осіб."
+
+#: src/native/record-history.tsx
+msgid "{name} added to this box"
+msgstr "{name} додано до цієї коробки"
+
+#: src/native/record-history.tsx
+msgid "{name} moved into this box"
+msgstr "{name} переміщено до цієї коробки"
+
+#: src/native/record-history.tsx
+msgid "{name} moved out of this box"
+msgstr "{name} переміщено з цієї коробки"
+
+#: src/native/record-history.tsx
+msgid "{name} removed from this box"
+msgstr "{name} вилучено з цієї коробки"
+
+#: src/native/record-history.tsx
+msgid "{name} restored to this box"
+msgstr "{name} відновлено в цій коробці"

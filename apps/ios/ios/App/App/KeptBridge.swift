@@ -1,5 +1,6 @@
 import AuthenticationServices
 import Capacitor
+import CoreImage
 import CryptoKit
 import Foundation
 import KeptNativeStore
@@ -470,6 +471,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "nonMatchFeedback", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takeLink", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "shareLabelPdf", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openHeldMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "exportHeldCapture", returnType: CAPPluginReturnPromise)
@@ -614,6 +616,10 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             }
             if let rowVersion = call.getString("ifMatch") {
                 request.setValue(rowVersion, forHTTPHeaderField: "If-Match")
+            }
+            if let key = call.getString("idempotencyKey") {
+                guard UUID(uuidString: key) != nil else { throw KeptNativeError.invalidRequest }
+                request.setValue(key, forHTTPHeaderField: "Idempotency-Key")
             }
             let (data, response) = try await KeptHTTP.send(request)
             guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
@@ -858,11 +864,12 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                   let controller = self.bridge?.viewController,
                   let mime = call.getString("mime"), let ext = Self.mimeExtensions[mime]
             else { throw KeptNativeError.invalidRequest }
+            let variant = call.getString("variant") == "display" ? "display" : "original"
             let query = thing.flatMap { $0.isEmpty ? nil : "?thingId=\($0)" } ?? ""
             var request = try KeptHTTP.request(connection.origin, path: "/api/v1/files/\(file)/url\(query)",
                                                method: "POST", connection: connection)
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = Data(#"{"variant":"original"}"#.utf8)
+            request.httpBody = Data("{\"variant\":\"\(variant)\"}".utf8)
             let (data, response) = try await KeptHTTP.send(request)
             struct Link: Decodable { let url: String }
             guard response.statusCode == 200 else { throw KeptNativeError.invalidRequest }
@@ -874,7 +881,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-preview-\(UUID())", isDirectory: true)
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
                                                     attributes: [.protectionKey: FileProtectionType.complete])
-            let target = folder.appendingPathComponent("Kept original.\(ext)")
+            let target = folder.appendingPathComponent(variant == "display" ? "Kept preview.jpg" : "Kept original.\(ext)")
             do {
                 try FileManager.default.moveItem(at: downloaded, to: target)
                 try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
@@ -883,6 +890,68 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                 try? FileManager.default.removeItem(at: folder)
                 throw error
             }
+            call.resolve()
+        }
+    }
+
+    @objc func shareLabelPdf(_ call: CAPPluginCall) {
+        run(call) {
+            let connection = try self.requireConnection(call)
+            guard let url = call.getString("url"), url.utf8.count <= 512,
+                  case .approved(let code) = NFCLabelValidation.validate(urlText: url, expectedOrigin: connection.origin),
+                  let name = call.getString("name"),
+                  let controller = self.bridge?.viewController,
+                  controller.viewIfLoaded?.window != nil, controller.presentedViewController == nil,
+                  let qr = CIFilter(name: "CIQRCodeGenerator")
+            else { throw KeptNativeError.invalidRequest }
+            qr.setValue(Data(url.utf8), forKey: "inputMessage")
+            qr.setValue("M", forKey: "inputCorrectionLevel")
+            guard let image = qr.outputImage,
+                  let codeImage = CIContext().createCGImage(image, from: image.extent)
+            else { throw KeptNativeError.invalidRequest }
+
+            // A single 3 × 2 inch label with a four-module quiet zone.
+            let page = CGRect(x: 0, y: 0, width: 216, height: 144)
+            let module = floor(116 / CGFloat(codeImage.width + 8))
+            guard module >= 1 else { throw KeptNativeError.invalidRequest }
+            let width = CGFloat(codeImage.width) * module
+            let symbol = CGRect(x: (page.width - width) / 2, y: 4 * module, width: width, height: width)
+            let data = UIGraphicsPDFRenderer(bounds: page).pdfData { context in
+                context.beginPage()
+                UIColor.white.setFill()
+                context.fill(page)
+                let cg = context.cgContext
+                cg.interpolationQuality = .none
+                UIImage(cgImage: codeImage).draw(in: symbol)
+                let paragraph = NSMutableParagraphStyle()
+                paragraph.alignment = .center
+                paragraph.lineBreakMode = .byTruncatingTail
+                let y = symbol.maxY + 4 * module
+                (String(name.prefix(200)) as NSString).draw(in: CGRect(x: 12, y: y, width: 192, height: 14),
+                    withAttributes: [.font: UIFont.systemFont(ofSize: 10, weight: .semibold),
+                                     .paragraphStyle: paragraph, .foregroundColor: UIColor.black])
+                (code as NSString).draw(in: CGRect(x: 12, y: y + 13, width: 192, height: 12),
+                    withAttributes: [.font: UIFont.monospacedSystemFont(ofSize: 9, weight: .regular),
+                                     .paragraphStyle: paragraph, .foregroundColor: UIColor.black])
+            }
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-label-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
+                attributes: [.protectionKey: FileProtectionType.complete])
+            let file = folder.appendingPathComponent("Kept-\(code).pdf")
+            do {
+                try data.write(to: file, options: [.atomic, .completeFileProtection])
+            } catch {
+                try? FileManager.default.removeItem(at: folder)
+                throw error
+            }
+            let activity = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+            activity.popoverPresentationController?.sourceView = controller.view
+            activity.popoverPresentationController?.sourceRect = CGRect(
+                x: controller.view.bounds.midX, y: controller.view.bounds.midY, width: 1, height: 1)
+            activity.completionWithItemsHandler = { _, _, _, _ in
+                try? FileManager.default.removeItem(at: folder)
+            }
+            controller.present(activity, animated: true)
             call.resolve()
         }
     }

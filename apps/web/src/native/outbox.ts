@@ -19,7 +19,9 @@ export type SelectedOriginal = { file: File; role: 'photo' | 'document' };
 
 export type DraftFields = {
   locationId: string;
-  boxId: string;
+  boxId?: string;
+  placeId?: string;
+  attachToThingId?: string;
   name: string;
   note?: string;
   quantity?: string;
@@ -166,7 +168,10 @@ export function draftFields(capture: Capture): StoredFields {
 }
 
 export function canRetarget(entry: PendingCapture): boolean {
-  return entry.failure === 'target_trashed' || entry.failure === 'target_missing';
+  return (
+    (entry.failure === 'target_trashed' || entry.failure === 'target_missing') &&
+    !draftFields(entry.capture).attachToThingId
+  );
 }
 
 function base64(bytes: Uint8Array): string {
@@ -257,15 +262,24 @@ export async function replayCapture(
     }
   }
 
+  const subject = fields.attachToThingId ?? capture.id;
   const payload = CreateThingPayload.parse({
     id: capture.id,
     batchId: fields.batchId,
-    target: { containerId: fields.boxId },
+    target: fields.boxId
+      ? { containerId: fields.boxId }
+      : fields.placeId
+        ? { placeId: fields.placeId }
+        : { unplaced: true },
     mode: 'thing',
-    reviewSuggestions: true,
-    name: fields.name,
-    note: fields.note,
-    quantity: fields.quantity,
+    ...(fields.attachToThingId
+      ? { attachToThingId: fields.attachToThingId }
+      : {
+          reviewSuggestions: true,
+          name: fields.name,
+          note: fields.note,
+          quantity: fields.quantity,
+        }),
     files: uploadedFiles,
   });
 
@@ -281,7 +295,9 @@ export async function replayCapture(
             clientVersion: KEPT_VERSION,
             // Contract v1: native review captures are payload v2; a stored v1 draft
             // sends the same body and identifiers as v2 (server handles exact replays).
-            payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION,
+            payloadVersion: fields.attachToThingId
+              ? PAYLOAD_VERSION
+              : NATIVE_CAPTURE_PAYLOAD_VERSION,
             clientId: capture.id,
             idempotencyKey: fields.attemptId ?? capture.id,
             op: 'create_thing',
@@ -300,28 +316,28 @@ export async function replayCapture(
     result.clientId !== capture.id ||
     result.idempotencyKey !== expectedKey ||
     result.entity?.type !== 'thing' ||
-    result.entity?.id !== capture.id
+    result.entity?.id !== subject
   ) {
     throw new ReplayError(result?.reason ?? 'needs_review');
   }
 
   if (capture.files.length) {
-    const attached = await adapters.transport.request<Page<AttachmentView>>(
-      connection,
-      `${inventoryPaths.thingAttachments(capture.id)}${qs({ limit: 100 })}`,
+    const remaining = new Set(
+      capture.files.map(({ file, sha256 }) => `${file.role}:${file.bytes}:${sha256}`),
     );
-    for (const { file, sha256 } of capture.files) {
-      if (
-        !attached.items.some(
-          (entry) =>
-            entry.role === file.role &&
-            entry.file?.sha256 === sha256 &&
-            entry.file.bytes === file.bytes,
-        )
-      ) {
-        throw new ReplayError('attachments_unconfirmed');
+    let cursor: string | undefined;
+    do {
+      const page: Page<AttachmentView> = await adapters.transport.request(
+        connection,
+        `${inventoryPaths.thingAttachments(subject)}${qs({ limit: 100, cursor })}`,
+      );
+      for (const { role, file } of page.items) {
+        if (file) remaining.delete(`${role}:${file.bytes}:${file.sha256}`);
       }
-    }
+      if (page.next_cursor === cursor) break;
+      cursor = page.next_cursor ?? undefined;
+    } while (cursor && remaining.size);
+    if (remaining.size) throw new ReplayError('attachments_unconfirmed');
   }
 
   await adapters.outbox.complete(connection, capture.id);
@@ -399,6 +415,7 @@ export async function retargetCapture(
   const next = JSON.stringify({
     ...fields,
     boxId: destination.id,
+    placeId: undefined,
     locationId: destination.locationId,
     attemptId: newId(),
     uploadIds,
@@ -457,6 +474,8 @@ export function heldCaptureExport(
     heldContext: entry.capture.context ?? null,
     destination: {
       boxId: fields.boxId,
+      ...(fields.placeId ? { placeId: fields.placeId } : {}),
+      ...(fields.attachToThingId ? { thingId: fields.attachToThingId } : {}),
       ...(boxName ? { boxName } : {}),
       locationId: fields.locationId,
       ...(locationName ? { locationName } : {}),

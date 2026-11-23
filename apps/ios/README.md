@@ -5,6 +5,13 @@ Bundled Capacitor iOS client with native Swift storage, Keychain credentials, Co
 
 See the [NFC runbook](../../docs/runbooks/nfc-mvp.md) for the integrated setup and the [gate record](../../docs/mvp1/status.md) for device results.
 
+## Inventory on iPhone
+
+- Use **Capture inventory** to pick a room or box, enter the item, and add original photos and PDFs. Capture works offline with a cached destination. Open **Rooms** to browse rooms or create a room while connected.
+- Open a bin or item and choose **Add photos** to record its appearance without changing the inventory. The **Photos** section shows available previews and opens the authorized file. **Edit** changes the record, **Move** changes its location, and **More actions** includes **Seen here**, **Not here**, and **Move to Trash**. Restore an item from **Trash** on the home screen.
+- Use **Scan QR or NFC** to open an existing label. To print a bin label, open **QR and NFC label**, then **Share QR label PDF**. The 3 × 2 inch PDF uses the bin’s existing HTTPS label and opens in the iOS share sheet.
+- **History** shows who performed a recorded action and when the server logged it. A photo observation is separate from adding, moving, or removing inventory. Bin history includes direct contents changes with recorded bin IDs. A record marked **Not here** keeps its last known location visible.
+
 ---
 
 ## Architecture

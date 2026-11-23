@@ -70,6 +70,7 @@ type NativeKept = {
     method: string;
     body?: string;
     ifMatch?: string;
+    idempotencyKey?: string;
   }): Promise<NativeResponse>;
   outbox(input: { context: string; action: string } & Record<string, string | number>): Promise<{
     data?: string;
@@ -99,7 +100,14 @@ type NativeKept = {
   matchFeedback(input: { context: string; announcement?: string }): Promise<void>;
   nonMatchFeedback(input: { context: string; announcement?: string }): Promise<void>;
   takeLink(input: { context: string }): Promise<{ url?: string }>;
-  openMedia(input: { context: string; thing?: string; file: string; mime: string }): Promise<void>;
+  openMedia(input: {
+    context: string;
+    thing?: string;
+    file: string;
+    mime: string;
+    variant?: 'display';
+  }): Promise<void>;
+  shareLabelPdf(input: { context: string; url: string; name: string }): Promise<void>;
   openPendingMedia(input: { context: string; id: string; file: string }): Promise<void>;
   openHeldMedia(input: {
     context: string;
@@ -151,10 +159,17 @@ export async function unwrap<T>(answer: NativeResponse): Promise<T> {
   return (answer.body ? JSON.parse(answer.body) : undefined) as T;
 }
 
+export type NativeRequestOptions = {
+  method?: string;
+  body?: unknown;
+  ifMatch?: number;
+  idempotencyKey?: string;
+};
+
 export async function nativeRequest<T>(
   connection: Connection,
   path: string,
-  options: { method?: string; body?: unknown; ifMatch?: number } = {},
+  options: NativeRequestOptions = {},
 ): Promise<T> {
   const answer = await native
     .request({
@@ -163,6 +178,7 @@ export async function nativeRequest<T>(
       method: options.method ?? 'GET',
       ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
       ...(options.ifMatch === undefined ? {} : { ifMatch: String(options.ifMatch) }),
+      ...(options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : {}),
     })
     .catch(networkError);
   return unwrap<T>(answer);

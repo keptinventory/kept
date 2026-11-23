@@ -173,6 +173,7 @@ export async function trashThing(c: Ctx, id: string, body: TrashBody): Promise<T
       contents: direct > 0 ? (body?.contents ?? null) : null,
       trashed: trashed.length,
       moved: moved.length,
+      ...(thing.container_id ? { removed_from_container_id: thing.container_id } : {}),
       // Where the contents went, so undo can put back what is still there (#30): each came out
       // of this container.
       ...(movedTo ? { moved_ids: moved, moved_to: movedTo } : {}),
@@ -248,7 +249,14 @@ export async function restoreThing(c: Ctx, id: string): Promise<RestoreResult> {
     action: 'thing.restore',
     entity: { type: 'thing', id },
     before: { deleted_at: seen.deleted_at, trash_batch_id: batch },
-    after: { deleted_at: null, trash_batch_id: null, restored: restored.length },
+    after: {
+      deleted_at: null,
+      trash_batch_id: null,
+      restored: restored.length,
+      ...(seen.container_id && !orphans.some((row) => row.id === id)
+        ? { restored_to_container_id: seen.container_id }
+        : {}),
+    },
     rootThingId: id,
     subjects: restored.filter((x) => x !== id),
     requestId: c.requestId,
