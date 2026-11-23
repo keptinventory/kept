@@ -15,10 +15,15 @@ export type Capture = {
   id: string;
   payload: string;
   takenAt: string;
+  /** Native context (`origin|account|epoch`) that owns this capture, when reported. */
+  context?: string;
   files: { file: OriginalMeta; sha256: string }[];
 };
 
 export type PendingCapture = { capture: Capture; failure?: string };
+
+/** Only `synced` means server-confirmed; disappearance alone proves nothing. */
+export type CompletionState = 'synced' | 'discarded';
 
 export type StorageStats = {
   pendingCount: number;
@@ -38,6 +43,8 @@ export type TagReading = {
 
 export type FindTagEvent = {
   status: 'read' | 'blank' | 'malformed' | 'unsupported' | 'repeated';
+  /** Scan-session identity minted by React for one Find run; stale sessions must be ignored. */
+  sessionId?: string;
   url?: string;
   fingerprint?: string;
   occupied?: boolean;
@@ -81,15 +88,25 @@ type NativeKept = {
     fingerprint?: string;
     messages: Record<string, string>;
   }): Promise<TagReading>;
-  startFind(input: { context: string; messages: Record<string, string> }): Promise<TagReading>;
-  continueFind(input: { context: string; message?: string }): Promise<void>;
-  finishFind(input: { context: string; message?: string }): Promise<void>;
-  cancelTag(): Promise<void>;
+  startFind(input: {
+    context: string;
+    sessionId: string;
+    messages: Record<string, string>;
+  }): Promise<TagReading & { sessionId?: string }>;
+  continueFind(input: { context: string; sessionId: string; message?: string }): Promise<void>;
+  finishFind(input: { context: string; sessionId: string; message?: string }): Promise<void>;
+  cancelTag(input?: { sessionId?: string }): Promise<void>;
   matchFeedback(input: { context: string; announcement?: string }): Promise<void>;
   nonMatchFeedback(input: { context: string; announcement?: string }): Promise<void>;
   takeLink(input: { context: string }): Promise<{ url?: string }>;
   openMedia(input: { context: string; thing?: string; file: string; mime: string }): Promise<void>;
   openPendingMedia(input: { context: string; id: string; file: string }): Promise<void>;
+  openHeldMedia(input: {
+    context: string;
+    heldContext: string;
+    id: string;
+    file: string;
+  }): Promise<void>;
   addListener(event: 'keptLink', callback: () => void): Promise<PluginListenerHandle>;
   addListener(
     event: 'nfcFind',

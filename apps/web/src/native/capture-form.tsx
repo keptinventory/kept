@@ -8,7 +8,7 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
 import { useBytes } from '@/lib/format';
 import { usePlatform } from './adapters';
-import { type Connection, StorageFullError } from './bridge';
+import { type CompletionState, type Connection, StorageFullError } from './bridge';
 import { createBox, type InventoryCache, inventoryPath } from './inventory';
 import { mobileFileLimit, type PendingCapture, type SelectedOriginal, saveOnPhone } from './outbox';
 
@@ -35,6 +35,7 @@ export function CaptureForm({
   box,
   location,
   pending = [],
+  completions = {},
   syncing = false,
   onClose,
   onSave,
@@ -43,6 +44,8 @@ export function CaptureForm({
   box: Destination;
   location: string;
   pending?: readonly PendingCapture[];
+  /** Durable terminal states; only `synced` counts as synchronized. */
+  completions?: Readonly<Record<string, CompletionState>>;
   syncing?: boolean;
   onClose: () => void;
   onSave: () => void;
@@ -75,7 +78,11 @@ export function CaptureForm({
   const batchFailedCount = batchEntryIds.filter((id) =>
     Boolean(pendingById.get(id)?.failure),
   ).length;
-  const batchSyncedCount = batchEntryIds.length - batchPendingCount;
+  // Truthful sync state: an entry counts as synced only with an explicit durable
+  // `synced` completion (server confirmed record + attachments). Disappearing
+  // from the pending queue — discard, failure cleanup, refresh races — never does.
+  const batchSyncedCount = batchEntryIds.filter((id) => completions[id] === 'synced').length;
+  const batchDiscardedCount = batchEntryIds.filter((id) => completions[id] === 'discarded').length;
 
   function choose(source: FileList | null, role: SelectedOriginal['role']) {
     if (!source) return;
@@ -183,6 +190,9 @@ export function CaptureForm({
             <span className="kept-badge kept-badge-danger">
               {t`Needs attention: ${batchFailedCount}`}
             </span>
+          )}
+          {batchDiscardedCount > 0 && (
+            <span className="kept-badge">{t`Discarded: ${batchDiscardedCount}`}</span>
           )}
         </div>
       )}

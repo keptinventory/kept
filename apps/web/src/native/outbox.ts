@@ -44,7 +44,84 @@ export const ACTION_REQUIRED_FAILURES = new Set([
   'validation',
   'payload_too_large',
   'checksum_mismatch',
+  // Older/rolled-back server that cannot accept this capture shape. Held, never
+  // retried in a loop and never fixed by stripping fields such as reviewSuggestions.
+  'compatibility_hold',
 ]);
+
+const COMPATIBILITY_CODES = new Set([
+  'unsupported_capability',
+  'capability_missing',
+  'capabilities_missing',
+  'version_mismatch',
+  'unsupported_payload',
+  'unsupported_operation',
+  'server_outdated',
+  'client_outdated',
+]);
+
+/** Integration contract v1 (docs/mvp1/integration-contract.md). */
+export const NATIVE_CONTRACT_VERSION = 1;
+export const NATIVE_CAPTURE_PAYLOAD_VERSION = 2;
+export const captureCapabilitiesPath = capturePaths.nativeCaptureCapabilities;
+
+export type CaptureCapabilities = {
+  contractVersion: number;
+  capturePayloadVersions: number[];
+  account: string;
+  epoch: string;
+};
+
+/**
+ * Negotiate capture compatibility before any upload or capture mutation (contract v1).
+ * A missing/older endpoint is a recoverable hold: queue, identity and originals stay put.
+ */
+export async function ensureCaptureCompatible(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<CaptureCapabilities> {
+  let caps: unknown;
+  try {
+    caps = await adapters.transport.request<unknown>(connection, captureCapabilitiesPath);
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
+    if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
+      throw error;
+    }
+    if (error instanceof ApiError && error.status >= 500) throw error;
+    // 404/405 from an older server, or an unparseable non-contract body.
+    throw new ReplayError('compatibility_hold');
+  }
+  const valid =
+    typeof caps === 'object' &&
+    caps !== null &&
+    (caps as CaptureCapabilities).contractVersion === NATIVE_CONTRACT_VERSION &&
+    Array.isArray((caps as CaptureCapabilities).capturePayloadVersions) &&
+    (caps as CaptureCapabilities).capturePayloadVersions.includes(NATIVE_CAPTURE_PAYLOAD_VERSION) &&
+    (caps as CaptureCapabilities).account === connection.account &&
+    (caps as CaptureCapabilities).epoch === connection.epoch;
+  if (!valid) throw new ReplayError('compatibility_hold');
+  return caps as CaptureCapabilities;
+}
+
+/** True when a server response signals an older/incompatible server rather than bad data. */
+export function isCompatibilityFailure(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false;
+  if (error.status === 426 || error.status === 501) return true;
+  const serverCode = error.serverCode ?? '';
+  if (COMPATIBILITY_CODES.has(serverCode) || COMPATIBILITY_CODES.has(error.code)) return true;
+  if (error.status === 404 || error.status === 405) {
+    return /capabilit|compat|negotiat/i.test(`${error.message} ${error.hint ?? ''} ${serverCode}`);
+  }
+  // A strict older schema rejecting the capture payload (e.g. unknown reviewSuggestions)
+  // is a compatibility hold, not a terminal invalid operation: keep the payload intact.
+  if (error.code === 'validation' || serverCode.includes('validation')) {
+    return /reviewSuggestions|unknown|unrecognized|unsupported/i.test(
+      `${error.message} ${error.hint ?? ''} ${JSON.stringify(error.details)}`,
+    );
+  }
+  return false;
+}
 
 export function draftFields(capture: Capture): StoredFields {
   return JSON.parse(capture.payload) as StoredFields;
@@ -121,6 +198,8 @@ export async function replayCapture(
   capture: Capture,
   adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<void> {
+  // Contract v1: negotiate before uploading files or submitting capture mutations.
+  await ensureCaptureCompatible(connection, adapters);
   const fields = draftFields(capture);
   const uploadedFiles: { fileId: string; role: 'photo' | 'document'; sha256: string }[] = [];
 
@@ -162,7 +241,9 @@ export async function replayCapture(
         ops: [
           {
             clientVersion: KEPT_VERSION,
-            payloadVersion: fields.version,
+            // Contract v1: native review captures are payload v2; a stored v1 draft
+            // sends the same body and identifiers as v2 (server handles exact replays).
+            payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION,
             clientId: capture.id,
             idempotencyKey: fields.attemptId ?? capture.id,
             op: 'create_thing',
@@ -175,7 +256,14 @@ export async function replayCapture(
     },
   );
   const result = response.results[0];
-  if (result?.outcome !== 'applied' || result.entity?.id !== capture.id) {
+  const expectedKey = fields.attemptId ?? capture.id;
+  if (
+    result?.outcome !== 'applied' ||
+    result.clientId !== capture.id ||
+    result.idempotencyKey !== expectedKey ||
+    result.entity?.type !== 'thing' ||
+    result.entity?.id !== capture.id
+  ) {
     throw new ReplayError(result?.reason ?? 'needs_review');
   }
 
@@ -202,6 +290,7 @@ export async function replayCapture(
 }
 
 function classifyFailure(error: unknown): string {
+  if (isCompatibilityFailure(error)) return 'compatibility_hold';
   if (error instanceof ReplayError) return error.reason;
   if (error instanceof ApiError) return error.code;
   return 'retry';
@@ -288,7 +377,57 @@ export async function discardCapture(
   id: string,
   adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<void> {
-  await adapters.outbox.complete(connection, id);
+  // Distinct durable state from a server-confirmed sync; never reuse `complete`.
+  await adapters.outbox.discard(connection, id);
+}
+
+export function getCompletions(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<Record<string, import('./bridge').CompletionState>> {
+  return adapters.outbox.completions(connection);
+}
+
+export function listHeldCaptures(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<PendingCapture[]> {
+  return adapters.outbox.listHeld(connection);
+}
+
+export async function discardHeldCapture(
+  connection: Connection,
+  entry: PendingCapture,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<void> {
+  const heldContext = entry.capture.context;
+  if (!heldContext) throw new ReplayError('needs_review');
+  await adapters.outbox.discardHeld(connection, heldContext, entry.capture.id);
+}
+
+/** Metadata + integrity hashes for one held capture, safe to share for manual recovery. */
+export function heldCaptureExport(entry: PendingCapture) {
+  const fields = draftFields(entry.capture);
+  return {
+    captureId: entry.capture.id,
+    takenAt: entry.capture.takenAt,
+    heldContext: entry.capture.context ?? null,
+    destination: { boxId: fields.boxId, locationId: fields.locationId },
+    name: fields.name,
+    ...(fields.note ? { note: fields.note } : {}),
+    ...(fields.quantity ? { quantity: fields.quantity } : {}),
+    ...(fields.batchId ? { batchId: fields.batchId } : {}),
+    failure: entry.failure ?? null,
+    files: entry.capture.files.map(({ file, sha256 }) => ({
+      fileId: file.id,
+      name: file.name,
+      mime: file.mime,
+      role: file.role,
+      bytes: file.bytes,
+      sha256,
+    })),
+    note: 'Automatic replay is paused because this capture predates a server restore. Verify the SHA-256 hashes before importing the originals elsewhere.',
+  };
 }
 
 export function getOutboxStats(

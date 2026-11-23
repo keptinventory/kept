@@ -17,7 +17,7 @@ import { isolate } from '@/lib/bidi';
 import { useBytes } from '@/lib/format';
 import { watchSystemTheme } from '@/lib/prefs';
 import { NativePlatformProvider, usePlatform } from './adapters';
-import type { Connection, StorageStats } from './bridge';
+import type { CompletionState, Connection, StorageStats } from './bridge';
 import { CaptureForm, NewBoxForm } from './capture-form';
 import {
   type InventoryCache,
@@ -32,8 +32,12 @@ import { resolveLabel, type Target } from './labels';
 import {
   canRetarget,
   discardCapture,
+  discardHeldCapture,
   draftFields,
+  getCompletions,
   getOutboxStats,
+  heldCaptureExport,
+  listHeldCaptures,
   type PendingCapture,
   retargetCapture,
   retryCapture,
@@ -202,6 +206,8 @@ export function Inventory({
   const [cache, setCache] = useState<InventoryCache>();
   const cacheRef = useRef<InventoryCache | undefined>(undefined);
   const [pending, setPending] = useState<PendingCapture[]>([]);
+  const [completions, setCompletions] = useState<Record<string, CompletionState>>({});
+  const [held, setHeld] = useState<PendingCapture[]>([]);
   const [stats, setStats] = useState<StorageStats>();
   const [savedFindTarget, setSavedFindTarget] = useState<PersistedFindTarget>();
   const [retargetingId, setRetargetingId] = useState<string>();
@@ -223,13 +229,17 @@ export function Inventory({
   }, []);
 
   const refreshPendingState = useCallback(async () => {
-    const [queue, outboxStats] = await Promise.all([
+    const [queue, outboxStats, done, heldEntries] = await Promise.all([
       adapters.outbox.list(connection),
       getOutboxStats(connection, adapters),
+      getCompletions(connection, adapters).catch(() => ({}) as Record<string, CompletionState>),
+      listHeldCaptures(connection, adapters).catch(() => [] as PendingCapture[]),
     ]);
     if (!mounted.current) return;
     setPending(queue);
     setStats(outboxStats);
+    setCompletions(done);
+    setHeld(heldEntries);
   }, [adapters, connection]);
 
   const cacheDetail = useCallback(
@@ -260,6 +270,8 @@ export function Inventory({
           return t`An uploaded file did not match its saved checksum. Retry or review the capture.`;
         case 'attachments_unconfirmed':
           return t`The entry was created, but an attachment could not be verified yet. Retry to confirm.`;
+        case 'compatibility_hold':
+          return t`This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed.`;
         default:
           return t`Could not sync this capture automatically. Retry or review it.`;
       }
@@ -464,6 +476,30 @@ export function Inventory({
         return false;
       }
     });
+  }
+
+  async function confirmDiscardHeld(entry: PendingCapture) {
+    const fields = draftFields(entry.capture);
+    const ok = await confirm({
+      title: t`Discard held ${isolate(fields.name)}?`,
+      body: t`This held capture and its originals on this iPhone will be deleted. This cannot be undone.`,
+      confirmLabel: t`Discard`,
+      destructive: true,
+    });
+    if (!ok) return;
+    await discardHeldCapture(connection, entry, adapters);
+    await refreshPendingState();
+  }
+
+  function exportHeld(entry: PendingCapture) {
+    const data = heldCaptureExport(entry);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `kept-held-${entry.capture.id}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function confirmDiscard(entry: PendingCapture) {
@@ -686,6 +722,85 @@ export function Inventory({
             </ul>
           </section>
         )}
+        {held.length > 0 && (
+          <section
+            className="grid gap-3 rounded-lg border border-line bg-surface p-3"
+            aria-label={t`Held captures from before a restore`}
+          >
+            <p className="font-semibold">{t`Held captures: ${held.length}`}</p>
+            <p className="text-small text-ink-2">
+              <Trans>
+                These captures were saved before this Kept server was restored, so automatic replay
+                is paused to avoid creating duplicates. They stay on this iPhone until you export or
+                discard them. Saved on device does not mean backed up.
+              </Trans>
+            </p>
+            <ul className="grid gap-2">
+              {held.map((entry) => {
+                const fields = draftFields(entry.capture);
+                const boxName =
+                  cache?.things.find((item) => item.id === fields.boxId)?.name ?? t`Box`;
+                return (
+                  <li
+                    key={`${entry.capture.context ?? ''}:${entry.capture.id}`}
+                    className="grid gap-2 rounded-lg bg-sunken p-3 text-small"
+                  >
+                    <span className="font-semibold">
+                      <bdi>{fields.name}</bdi>
+                    </span>
+                    <p className="text-ink-2">
+                      <bdi>{boxName}</bdi>
+                      {fields.note && (
+                        <>
+                          {' · '}
+                          <bdi>{fields.note}</bdi>
+                        </>
+                      )}
+                      {entry.capture.files.length > 0 && (
+                        <> · {t`Files: ${entry.capture.files.length}`}</>
+                      )}
+                    </p>
+                    {entry.capture.files.map(({ file, sha256 }) => (
+                      <p key={file.id} className="break-all text-ink-2">
+                        <bdi>{file.name}</bdi> · SHA-256 <bdi className="ltr">{sha256}</bdi>
+                      </p>
+                    ))}
+                    <div className="flex flex-wrap gap-2">
+                      {entry.capture.files.map(({ file }) => (
+                        <Button
+                          key={file.id}
+                          size="small"
+                          variant="secondary"
+                          onPress={() =>
+                            void adapters.media
+                              .openHeld(connection, {
+                                heldContext: entry.capture.context ?? '',
+                                id: entry.capture.id,
+                                file: file.id,
+                              })
+                              .catch(() => setStatus(t`Could not open this held original.`))
+                          }
+                        >
+                          {t`Preview ${isolate(file.name)}`}
+                        </Button>
+                      ))}
+                      <Button size="small" variant="secondary" onPress={() => exportHeld(entry)}>
+                        <Trans>Export details</Trans>
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="ghost"
+                        onPress={() => void confirmDiscardHeld(entry)}
+                      >
+                        <Trans>Discard</Trans>
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
       {screen.kind === 'home' && (
         <section className="grid gap-4">
@@ -819,6 +934,7 @@ export function Inventory({
           box={screen.box}
           location={screen.location}
           pending={pending}
+          completions={completions}
           syncing={working}
           onClose={() => backToBox(screen.box)}
           onSave={savedLocally}

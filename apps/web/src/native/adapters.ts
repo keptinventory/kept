@@ -2,6 +2,7 @@ import { createContext, createElement, type ReactNode, useContext } from 'react'
 import type { FileView } from '@/api/inventory/types';
 import {
   type Capture,
+  type CompletionState,
   type Connection,
   type FindTagEvent,
   native,
@@ -46,6 +47,10 @@ export type PlatformOutbox = {
   clearFailure(connection: Connection, id: string): Promise<void>;
   retarget(connection: Connection, id: string, payload: string): Promise<Capture>;
   complete(connection: Connection, id: string): Promise<void>;
+  discard(connection: Connection, id: string): Promise<void>;
+  completions(connection: Connection): Promise<Record<string, CompletionState>>;
+  listHeld(connection: Connection): Promise<PendingCapture[]>;
+  discardHeld(connection: Connection, heldContext: string, id: string): Promise<void>;
   stats(connection: Connection): Promise<StorageStats>;
   cached(connection: Connection): Promise<string | undefined>;
   saveCache(connection: Connection, data: string): Promise<void>;
@@ -67,11 +72,11 @@ export type PlatformNfc = {
   ): Promise<TagReading>;
   startFind(
     connection: Connection,
-    input: { messages: Record<string, string> },
-  ): Promise<TagReading>;
-  continueFind(connection: Connection, message?: string): Promise<void>;
-  finishFind(connection: Connection, message?: string): Promise<void>;
-  cancelTag(): Promise<void>;
+    input: { sessionId: string; messages: Record<string, string> },
+  ): Promise<TagReading & { sessionId?: string }>;
+  continueFind(connection: Connection, sessionId: string, message?: string): Promise<void>;
+  finishFind(connection: Connection, sessionId: string, message?: string): Promise<void>;
+  cancelTag(sessionId?: string): Promise<void>;
   onFindReading(callback: (reading: FindTagEvent) => void): Promise<() => Promise<void> | void>;
 };
 
@@ -86,6 +91,10 @@ export type PlatformMedia = {
     input: { thing?: string; file: string; mime: string },
   ): Promise<void>;
   openPending(connection: Connection, input: { id: string; file: string }): Promise<void>;
+  openHeld(
+    connection: Connection,
+    input: { heldContext: string; id: string; file: string },
+  ): Promise<void>;
 };
 
 export type PlatformLifecycle = {
@@ -184,6 +193,20 @@ export const capacitorAdapters: PlatformAdapters = {
     async complete(connection, id) {
       await callOutbox(connection, 'complete', { id });
     },
+    async discard(connection, id) {
+      await callOutbox(connection, 'discard', { id });
+    },
+    async completions(connection) {
+      const { data } = await callOutbox(connection, 'completions');
+      return data ? (JSON.parse(data) as Record<string, CompletionState>) : {};
+    },
+    async listHeld(connection) {
+      const { data } = await callOutbox(connection, 'heldList');
+      return data ? (JSON.parse(data) as PendingCapture[]) : [];
+    },
+    async discardHeld(connection, heldContext, id) {
+      await callOutbox(connection, 'heldDiscard', { heldContext, id });
+    },
     async stats(connection) {
       const { data } = await callOutbox(connection, 'stats');
       return data
@@ -218,20 +241,22 @@ export const capacitorAdapters: PlatformAdapters = {
     startFind(connection, input) {
       return native.startFind({ context: connection.id, ...input });
     },
-    continueFind(connection, message) {
+    continueFind(connection, sessionId, message) {
       return native.continueFind({
         context: connection.id,
+        sessionId,
         ...(message ? { message } : {}),
       });
     },
-    finishFind(connection, message) {
+    finishFind(connection, sessionId, message) {
       return native.finishFind({
         context: connection.id,
+        sessionId,
         ...(message ? { message } : {}),
       });
     },
-    cancelTag() {
-      return native.cancelTag();
+    cancelTag(sessionId) {
+      return native.cancelTag(sessionId ? { sessionId } : {});
     },
     async onFindReading(callback) {
       const handle = await native.addListener('nfcFind', callback);
@@ -258,6 +283,9 @@ export const capacitorAdapters: PlatformAdapters = {
     },
     openPending(connection, input) {
       return native.openPendingMedia({ context: connection.id, ...input });
+    },
+    openHeld(connection, input) {
+      return native.openHeldMedia({ context: connection.id, ...input });
     },
   },
   lifecycle: {

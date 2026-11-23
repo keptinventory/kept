@@ -29924,3 +29924,47 @@ msgstr "In dieser Erfassung gespeichert: {saved}"
 
 msgid "Found {name}."
 msgstr "{name} gefunden."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "Verworfen: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "Dieser Code gehört zu mehreren Einträgen, daher kann Kept nicht bestätigen, ob dies diese Box ist. Scannen Sie ein anderes Etikett."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "Dieser Kept-Server ist älter und kann diese Erfassung noch nicht annehmen. Ihr Eintrag und die Originale bleiben auf diesem iPhone – aktualisieren Sie Kept und versuchen Sie es erneut. Es wurde nichts geändert oder entfernt."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "Zurückgehaltenes {0} verwerfen?"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "Diese zurückgehaltene Erfassung und ihre Originale auf diesem iPhone werden gelöscht. Dies kann nicht rückgängig gemacht werden."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "Zurückgehaltene Erfassungen von vor einer Wiederherstellung"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "Zurückgehaltene Erfassungen: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "Diese Erfassungen wurden gespeichert, bevor dieser Kept-Server wiederhergestellt wurde, daher ist die automatische Wiedergabe pausiert, um Duplikate zu vermeiden. Sie bleiben auf diesem iPhone, bis Sie sie exportieren oder verwerfen. Auf dem Gerät gespeichert bedeutet nicht gesichert."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "Dieses zurückgehaltene Original konnte nicht geöffnet werden."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "Vorschau {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "Details exportieren"

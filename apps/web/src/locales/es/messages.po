@@ -29924,3 +29924,47 @@ msgstr "Registros guardados en este lote: {saved}"
 
 msgid "Found {name}."
 msgstr "Se encontró {name}."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "Descartados: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "Ese código coincide con varios elementos, por lo que Kept no puede confirmar si es esta caja. Escanee otra etiqueta."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "Este servidor Kept es más antiguo y aún no puede aceptar esta captura. Su entrada y los originales permanecen en este iPhone: actualice Kept y vuelva a intentarlo. No se cambió ni eliminó nada."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "¿Descartar el elemento retenido {0}?"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "Esta captura retenida y sus originales en este iPhone se eliminarán. Esto no se puede deshacer."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "Capturas retenidas de antes de una restauración"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "Capturas retenidas: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "Estas capturas se guardaron antes de que se restaurara este servidor Kept, por lo que la reproducción automática está en pausa para evitar duplicados. Permanecen en este iPhone hasta que las exporte o las descarte. Guardado en el dispositivo no significa que tenga copia de seguridad."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "No se pudo abrir este original retenido."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "Vista previa de {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "Exportar detalles"

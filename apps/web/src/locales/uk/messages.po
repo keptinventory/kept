@@ -31907,3 +31907,47 @@ msgstr "Збережено в цьому пакеті: {saved}"
 
 msgid "Found {name}."
 msgstr "Знайдено {name}."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "Відкинуто: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "Цей код відповідає кільком елементам, тому Kept не може підтвердити, чи це саме ця коробка. Відскануйте іншу мітку."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "Цей сервер Kept старіший і ще не може прийняти цей запис. Ваш запис і оригінали залишаються на цьому iPhone — оновіть Kept і повторіть спробу. Нічого не змінено й не видалено."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "Відкинути утримуваний елемент {0}?"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "Цей утримуваний запис і його оригінали на цьому iPhone буде видалено. Цю дію не можна скасувати."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "Утримувані записи з періоду до відновлення"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "Утримувані записи: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "Ці записи було збережено до відновлення цього сервера Kept, тому автоматичне відтворення призупинено, щоб уникнути дублікатів. Вони залишаються на цьому iPhone, доки ви їх не експортуєте чи не відкинете. Збережено на пристрої не означає, що є резервна копія."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "Не вдалося відкрити цей утримуваний оригінал."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "Перегляд {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "Експортувати деталі"

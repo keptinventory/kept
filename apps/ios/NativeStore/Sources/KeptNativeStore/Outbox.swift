@@ -36,6 +36,13 @@ public struct OutboxEntry: Codable, Equatable {
     public let failure: String?
 }
 
+/// Durable terminal state for a capture: only `synced` means the server confirmed
+/// the record and its original attachments. `discarded` is a deliberate local deletion.
+public enum CompletionState: String, Codable, Equatable {
+    case synced
+    case discarded
+}
+
 public struct StorageStats: Codable, Equatable {
     public let pendingCount: Int
     public let pendingBytes: Int
@@ -139,6 +146,14 @@ public final class Outbox {
                 key TEXT NOT NULL,
                 value TEXT NOT NULL,
                 PRIMARY KEY (context, key)
+            )
+            """)
+        try sql("""
+            CREATE TABLE IF NOT EXISTS completions (
+                context TEXT NOT NULL,
+                id TEXT NOT NULL,
+                state TEXT NOT NULL,
+                PRIMARY KEY (context, id)
             )
             """)
         try repair()
@@ -323,7 +338,21 @@ public final class Outbox {
     }
 
     public func complete(context: String, id: String) throws {
+        try finish(context: context, id: id, state: .synced)
+    }
+
+    /// Deliberate local deletion. Recorded distinctly from a server-confirmed sync so
+    /// disappearance from the pending queue is never mistaken for synchronization.
+    public func discard(context: String, id: String) throws {
+        try finish(context: context, id: id, state: .discarded)
+    }
+
+    private func finish(context: String, id: String, state: CompletionState) throws {
         let folder = try captureFolder(context: context, id: id, staged: false)
+        try sql("""
+            INSERT INTO completions (context, id, state) VALUES (?, ?, ?)
+            ON CONFLICT (context, id) DO UPDATE SET state = EXCLUDED.state
+            """, [context, id.lowercased(), state.rawValue])
         // Record confirmation durably before removing file bytes. Repair never reopens a
         // completed capture even if the app stops before file cleanup finishes.
         try sql("UPDATE captures SET completed = 1 WHERE context = ? AND id = ?", [context, id.lowercased()])
@@ -332,6 +361,42 @@ public final class Outbox {
             catch { return }
         }
         try sql("DELETE FROM captures WHERE context = ? AND id = ? AND completed = 1", [context, id.lowercased()])
+    }
+
+    public func completions(context: String) throws -> [String: CompletionState] {
+        let rows = try query("SELECT id, state FROM completions WHERE context = ?", [context]) { row in
+            (try string(row, 0), try string(row, 1))
+        }
+        var result: [String: CompletionState] = [:]
+        for (id, raw) in rows {
+            if let state = CompletionState(rawValue: raw) { result[id] = state }
+        }
+        return result
+    }
+
+    // MARK: Held-work recovery (post-restore)
+
+    /// Contexts are `origin|account|epoch`. Held work shares the configured origin and
+    /// canonical account with the current session but carries an older epoch, so the
+    /// ordinary epoch guard correctly refuses automatic replay. Email alone never proves
+    /// identity: only the authenticated session's canonical account is compared.
+    public static func isHeldContext(_ candidate: String, current: String) -> Bool {
+        guard candidate != current else { return false }
+        let held = candidate.split(separator: "|", omittingEmptySubsequences: false)
+        let active = current.split(separator: "|", omittingEmptySubsequences: false)
+        guard held.count == 3, active.count == 3 else { return false }
+        return held[0] == active[0] && held[1] == active[1] && held[2] != active[2]
+    }
+
+    public func heldContexts(current: String) throws -> [String] {
+        let contexts = try query(
+            "SELECT DISTINCT context FROM captures WHERE completed = 0", []
+        ) { row in try string(row, 0) }
+        return contexts.filter { Self.isHeldContext($0, current: current) }
+    }
+
+    public func heldEntries(current: String) throws -> [OutboxEntry] {
+        try heldContexts(current: current).flatMap { try pending(context: $0) }
     }
 
     public func cache(context: String) throws -> String? {

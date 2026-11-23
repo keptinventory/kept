@@ -1,3 +1,4 @@
+import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '@/api/client';
@@ -70,6 +71,16 @@ export function LabelPanel({
   const inFlight = useRef(false);
   const alreadyAlerted = useRef(false);
   const live = useRef(true);
+  const findSessionId = useRef<string | null>(null);
+  const findGeneration = useRef(0);
+  const invalidateFindSession = useCallback(() => {
+    findGeneration.current += 1;
+    findSessionId.current = null;
+  }, []);
+  const isCurrentFindSession = useCallback(
+    (sessionId: string) => live.current && findSessionId.current === sessionId,
+    [],
+  );
   const url = box?.shortCode ? labelUrl(connection.origin, box.shortCode) : null;
   const messages = {
     scan: t`Hold the top of your iPhone near one NFC tag.`,
@@ -83,9 +94,36 @@ export function LabelPanel({
     live.current = true;
     return () => {
       live.current = false;
-      void adapters.nfc.cancelTag().catch(() => {});
+      const sessionId = findSessionId.current ?? undefined;
+      invalidateFindSession();
+      void adapters.nfc.cancelTag(sessionId).catch(() => {});
     };
-  }, [adapters]);
+  }, [adapters, invalidateFindSession]);
+
+  // Backgrounding ends the native reader; drop the React generation so a late
+  // resolution or native event from that run cannot act on a later session.
+  useEffect(() => {
+    let remove: (() => Promise<void> | void) | undefined;
+    let cancelled = false;
+    void adapters.lifecycle
+      .onAppStateChange(({ active }) => {
+        if (active || !findSessionId.current) return;
+        const sessionId = findSessionId.current;
+        invalidateFindSession();
+        setFinding(false);
+        setFindPausedState('interrupted');
+        void adapters.nfc.cancelTag(sessionId).catch(() => {});
+      })
+      .then((fn) => {
+        if (cancelled) void fn();
+        else remove = fn;
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      void remove?.();
+    };
+  }, [adapters, invalidateFindSession]);
 
   // Persist the active Find target across restarts so timeouts/relaunch keep the selected target.
   useEffect(() => {
@@ -150,8 +188,8 @@ export function LabelPanel({
         }
         case 'ambiguous':
           return {
-            text: t`That code matches multiple items, not this box.`,
-            verifyDifferent: true,
+            text: t`That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag.`,
+            verifyDifferent: false,
           };
         case 'foreign':
           return { text: t`This tag belongs to a different Kept server.`, verifyDifferent: false };
@@ -195,8 +233,9 @@ export function LabelPanel({
   }
 
   const handleFindResult = useCallback(
-    async (result: ReadResult, continuousNfc: boolean) => {
+    async (result: ReadResult, continuousNfc: boolean, sessionId?: string) => {
       if (!live.current) return;
+      if (continuousNfc && (!sessionId || !isCurrentFindSession(sessionId))) return;
       if (box && isTarget(result, box.id)) {
         setMatched(true);
         setFindPausedState(null);
@@ -206,21 +245,26 @@ export function LabelPanel({
           alreadyAlerted.current = true;
           void adapters.feedback.match(connection, announcement).catch(() => {});
         }
-        if (continuousNfc) {
-          await adapters.nfc.finishFind(connection, announcement).catch(() => {});
+        if (continuousNfc && sessionId) {
+          if (!isCurrentFindSession(sessionId)) return;
+          await adapters.nfc.finishFind(connection, sessionId, announcement).catch(() => {});
         }
         return;
       }
+      // Unknown, inaccessible and ambiguous results are never target matches and
+      // must not be presented as a definitively different box.
       const { text, verifyDifferent } = nonMatchText(result);
+      if (continuousNfc && sessionId && !isCurrentFindSession(sessionId)) return;
       setStatus(text);
-      if (verifyDifferent || result.status !== 'unresolved') {
+      if (verifyDifferent || (result.status !== 'unresolved' && result.status !== 'ambiguous')) {
         void adapters.feedback.nonMatch(connection, text).catch(() => {});
       }
-      if (continuousNfc) {
-        await adapters.nfc.continueFind(connection, text).catch(() => {});
+      if (continuousNfc && sessionId) {
+        if (!isCurrentFindSession(sessionId)) return;
+        await adapters.nfc.continueFind(connection, sessionId, text).catch(() => {});
       }
     },
-    [adapters, box, connection, nonMatchText, t],
+    [adapters, box, connection, isCurrentFindSession, nonMatchText, t],
   );
 
   async function read(text: string, mode: 'qr' | 'nfc', format?: string) {
@@ -261,9 +305,18 @@ export function LabelPanel({
     return run(async () => {
       alreadyAlerted.current = false;
       setFindPausedState(null);
-      let sessionActive = false;
+      // Mint a fresh scan-session identity for this run and invalidate any prior one.
+      invalidateFindSession();
+      const sessionId = newId();
+      findSessionId.current = sessionId;
+      const generation = findGeneration.current;
+      const isCurrent = () =>
+        live.current &&
+        findSessionId.current === sessionId &&
+        findGeneration.current === generation;
       const remove = await adapters.nfc.onFindReading((event: FindTagEvent) => {
-        if (!sessionActive || !live.current) return;
+        if (!isCurrent()) return;
+        if (event.sessionId && event.sessionId !== sessionId) return;
         if (event.status === 'repeated') {
           setStatus(t`Same tag scanned again. Move to another box.`);
           return;
@@ -276,35 +329,40 @@ export function LabelPanel({
           const message = nfcStatus(event);
           setStatus(message);
           void adapters.feedback.nonMatch(connection, message).catch(() => {});
-          void adapters.nfc.continueFind(connection, message).catch(() => {});
+          void adapters.nfc.continueFind(connection, sessionId, message).catch(() => {});
           return;
         }
         if (event.status === 'read' && event.url) {
           void resolveLabel(connection, cache, event.url, 'nfc', undefined, false, adapters)
             .then((resolved) => {
-              // The server may answer after this NFC session ends or another one starts.
-              if (sessionActive) return handleFindResult(resolved, true);
+              // The server may answer after this session ends or another starts:
+              // only the still-current session may act on the result.
+              if (isCurrent()) return handleFindResult(resolved, true, sessionId);
             })
             .catch((error: unknown) => {
-              if (!sessionActive || !live.current) return;
+              if (!isCurrent()) return;
               if (error instanceof ApiError && error.status === 401) {
                 onAuthError?.('expired');
-                void adapters.nfc.cancelTag().catch(() => {});
+                void adapters.nfc.cancelTag(sessionId).catch(() => {});
                 return;
               }
               const message = errorText(error);
               setStatus(message);
-              void adapters.nfc.continueFind(connection, message).catch(() => {});
+              void adapters.nfc.continueFind(connection, sessionId, message).catch(() => {});
             });
         }
       });
 
       try {
-        if (!live.current) return;
-        sessionActive = true;
+        if (!isCurrent()) return;
         setFinding(true);
-        const terminal = await adapters.nfc.startFind(connection, { messages });
+        const terminal = await adapters.nfc.startFind(connection, { sessionId, messages });
         if (!live.current) return;
+        if (terminal.sessionId && terminal.sessionId !== sessionId) return;
+        if (findSessionId.current !== sessionId) return;
+        // This session has terminated natively; invalidate before surfacing state
+        // so no in-flight resolution from it can act afterwards.
+        invalidateFindSession();
         if (terminal.status === 'matched') {
           setMatched(true);
         } else if (terminal.status === 'timeout' || terminal.status === 'interrupted') {
@@ -318,7 +376,7 @@ export function LabelPanel({
           setStatus(nfcStatus(terminal));
         }
       } finally {
-        sessionActive = false;
+        if (findSessionId.current === sessionId) invalidateFindSession();
         if (live.current) setFinding(false);
         await remove();
       }
@@ -500,7 +558,14 @@ export function LabelPanel({
               </Button>
             )}
             {finding && (
-              <Button variant="secondary" onPress={() => void adapters.nfc.cancelTag()}>
+              <Button
+                variant="secondary"
+                onPress={() => {
+                  const sessionId = findSessionId.current ?? undefined;
+                  invalidateFindSession();
+                  void adapters.nfc.cancelTag(sessionId).catch(() => {});
+                }}
+              >
                 <Trans>Stop scanning</Trans>
               </Button>
             )}

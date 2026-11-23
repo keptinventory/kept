@@ -29924,3 +29924,47 @@ msgstr "عدد الإدخالات المحفوظة في هذه الدفعة: {sa
 
 msgid "Found {name}."
 msgstr "عُثر على {name}."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "تم تجاهلها: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "يطابق هذا الرمز أكثر من عنصر واحد، لذا لا يمكن لـ Kept تأكيد ما إذا كان هذا هو هذا الصندوق. امسح علامة أخرى."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "خادم Kept هذا أقدم ولا يمكنه قبول هذا الالتقاط بعد. تبقى إدخالك والأصول على هذا iPhone — قم بترقية Kept ثم أعد المحاولة. لم يتم تغيير أو إزالة أي شيء."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "تجاهل العنصر المحتجَز {0}؟"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "سيتم حذف هذا الالتقاط المحتجَز وأصوله على هذا iPhone. لا يمكن التراجع عن هذا."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "الالتقاطات المحتجَزة من قبل الاستعادة"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "الالتقاطات المحتجَزة: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "تم حفظ هذه الالتقاطات قبل استعادة خادم Kept هذا، لذا تم إيقاف إعادة التشغيل التلقائي مؤقتًا لتجنب إنشاء نسخ مكررة. تبقى على هذا iPhone حتى تقوم بتصديرها أو تجاهلها. الحفظ على الجهاز لا يعني النسخ الاحتياطي."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "تعذر فتح هذا الأصل المحتجَز."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "معاينة {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "تصدير التفاصيل"

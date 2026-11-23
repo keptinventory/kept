@@ -17,6 +17,8 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
     private let mode: Mode
     private let messages: [String: String]
     private let onEvent: ((JSObject) -> Void)?
+    /// Scan-session identity for `.find`; echoed in every event/result so stale work is droppable.
+    let sessionId: String?
     private var result: ((JSObject) -> Void)?
     private var session: NFCNDEFReaderSession?
     private var processing = false
@@ -25,13 +27,21 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
     init(
         mode: Mode,
         messages: [String: String],
+        sessionId: String? = nil,
         onEvent: ((JSObject) -> Void)? = nil,
         result: @escaping (JSObject) -> Void
     ) {
         self.mode = mode
         self.messages = messages
+        self.sessionId = sessionId
         self.onEvent = onEvent
         self.result = result
+    }
+
+    private func event(_ data: JSObject) {
+        var payload = data
+        if let sessionId { payload["sessionId"] = sessionId }
+        onEvent?(payload)
     }
 
     func start() {
@@ -81,6 +91,7 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
         self.result = nil
         var answer = data
         answer["status"] = state
+        if let sessionId { answer["sessionId"] = sessionId }
         if state == "written", let message = messages["written"] {
             session?.alertMessage = message
         } else if state == "matched", let message = messages["matched"], !(session?.alertMessage.isEmpty == false) {
@@ -131,7 +142,7 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
                 }
                 guard status != .notSupported else {
                     if case .find = self.mode {
-                        self.onEvent?(["status": "unsupported"])
+                        self.event(["status": "unsupported"])
                     } else {
                         self.finish("unsupported")
                     }
@@ -191,7 +202,7 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
             finish(existing != nil ? "read" : records.isEmpty ? "blank" : "malformed", metadata)
         case .find:
             guard debouncer.shouldAccept(fingerprint: fingerprint) else {
-                onEvent?(["status": "repeated", "fingerprint": fingerprint])
+                event(["status": "repeated", "fingerprint": fingerprint])
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
                     guard let self, self.session === session, self.result != nil else { return }
                     self.processing = false
@@ -200,7 +211,7 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
                 return
             }
             metadata["status"] = existing != nil ? "read" : records.isEmpty ? "blank" : "malformed"
-            onEvent?(metadata)
+            event(metadata)
         case .inspect(let url):
             guard let payload = NFCNDEFPayload.wellKnownTypeURIPayload(url: url) else {
                 finish("malformed")

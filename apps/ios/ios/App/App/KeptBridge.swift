@@ -342,7 +342,8 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "nonMatchFeedback", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takeLink", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openHeldMedia", returnType: CAPPluginReturnPromise)
     ]
     @MainActor private lazy var signIn = NativeSignIn()
     private let store = NativeOutbox()
@@ -483,6 +484,21 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                 case "complete":
                     guard let id = call.getString("id") else { throw KeptNativeError.invalidRequest }
                     try store.complete(context: context, id: id)
+                case "discard":
+                    guard let id = call.getString("id") else { throw KeptNativeError.invalidRequest }
+                    try store.discard(context: context, id: id)
+                case "completions":
+                    let states = try store.completions(context: context)
+                    let raw = states.mapValues { $0.rawValue }
+                    return ["data": String(decoding: try JSONEncoder().encode(raw), as: UTF8.self)]
+                case "heldList":
+                    let held = try store.heldEntries(current: context)
+                    return ["data": String(decoding: try JSONEncoder().encode(held), as: UTF8.self)]
+                case "heldDiscard":
+                    guard let id = call.getString("id"), let heldContext = call.getString("heldContext"),
+                          Outbox.isHeldContext(heldContext, current: context)
+                    else { throw KeptNativeError.invalidRequest }
+                    try store.discard(context: heldContext, id: id)
                 case "stats":
                     let stats = try store.stats(context: context)
                     return ["data": String(decoding: try JSONEncoder().encode(stats), as: UTF8.self)]
@@ -571,10 +587,13 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         run(call) {
             _ = try self.requireConnection(call)
             guard self.nfc == nil else { call.resolve(["status": "busy"]); return }
+            guard let sessionId = call.getString("sessionId"), !sessionId.isEmpty, sessionId.count <= 64
+            else { throw KeptNativeError.invalidRequest }
             let messages = call.getObject("messages")?.compactMapValues { $0 as? String } ?? [:]
             self.nfc = KeptNFC(
                 mode: .find,
                 messages: messages,
+                sessionId: sessionId,
                 onEvent: { [weak self] event in
                     self?.notifyListeners("nfcFind", data: event)
                 },
@@ -587,9 +606,16 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    /// True only when the call targets the live Find session (or carries no identity, legacy).
+    @MainActor private func isCurrentFind(_ call: CAPPluginCall) -> Bool {
+        guard let sessionId = call.getString("sessionId") else { return true }
+        return nfc?.sessionId == sessionId
+    }
+
     @objc func continueFind(_ call: CAPPluginCall) {
         run(call) {
             _ = try self.requireConnection(call)
+            guard self.isCurrentFind(call) else { call.resolve(); return }
             self.nfc?.continuePolling(alertMessage: call.getString("message"))
             call.resolve()
         }
@@ -598,6 +624,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     @objc func finishFind(_ call: CAPPluginCall) {
         run(call) {
             _ = try self.requireConnection(call)
+            guard self.isCurrentFind(call) else { call.resolve(); return }
             self.nfc?.finishFind(alertMessage: call.getString("message"))
             call.resolve()
         }
@@ -605,6 +632,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
 
     @objc func cancelTag(_ call: CAPPluginCall) {
         run(call) {
+            guard self.isCurrentFind(call) else { call.resolve(); return }
             self.nfc?.cancel()
             call.resolve()
         }
@@ -682,6 +710,36 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
                                                     attributes: [.protectionKey: FileProtectionType.complete])
             let target = folder.appendingPathComponent("Kept pending.\(ext)")
+            do {
+                try FileManager.default.copyItem(at: sourceURL, to: target)
+                try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
+                try self.preview.present(target, from: controller)
+            } catch {
+                try? FileManager.default.removeItem(at: folder)
+                throw error
+            }
+            call.resolve()
+        }
+    }
+
+    @objc func openHeldMedia(_ call: CAPPluginCall) {
+        run(call) {
+            let connection = try self.requireConnection(call)
+            guard let heldContext = call.getString("heldContext"),
+                  Outbox.isHeldContext(heldContext, current: connection.id),
+                  let id = call.getString("id"), UUID(uuidString: id) != nil,
+                  let file = call.getString("file"), UUID(uuidString: file) != nil,
+                  let controller = self.bridge?.viewController
+            else { throw KeptNativeError.invalidRequest }
+            let (sourceURL, original) = try await self.store.use {
+                try $0.original(context: heldContext, draft: id, file: file)
+            }
+            guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
+            let ext = Self.mimeExtensions[original.file.mime] ?? "dat"
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-preview-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
+                                                    attributes: [.protectionKey: FileProtectionType.complete])
+            let target = folder.appendingPathComponent("Kept held.\(ext)")
             do {
                 try FileManager.default.copyItem(at: sourceURL, to: target)
                 try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)

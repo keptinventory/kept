@@ -29924,3 +29924,47 @@ msgstr "Entries saved in this batch: {saved}"
 
 msgid "Found {name}."
 msgstr "Found {name}."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "Discarded: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "Discard held {0}?"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "Held captures from before a restore"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "Held captures: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "Could not open this held original."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "Preview {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "Export details"

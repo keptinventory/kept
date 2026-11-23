@@ -21972,3 +21972,47 @@ msgstr "Số mục đã lưu trong đợt này: {saved}"
 
 msgid "Found {name}."
 msgstr "Đã tìm thấy {name}."
+
+#: src/native/capture-form.tsx
+msgid "Discarded: {batchDiscardedCount}"
+msgstr "Đã loại bỏ: {batchDiscardedCount}"
+
+#: src/native/label-panel.tsx
+msgid "That code matches more than one item, so Kept cannot confirm whether it is this box. Scan another tag."
+msgstr "Mã đó khớp với nhiều mục, vì vậy Kept không thể xác nhận đó có phải hộp này không. Hãy quét thẻ khác."
+
+#: src/native/main.tsx
+msgid "This Kept server is older and cannot accept this capture yet. Your entry and originals stay on this iPhone — upgrade Kept, then retry. Nothing was changed or removed."
+msgstr "Máy chủ Kept này cũ hơn và chưa thể chấp nhận bản ghi này. Mục và bản gốc vẫn ở trên iPhone này — hãy nâng cấp Kept rồi thử lại. Không có gì bị thay đổi hoặc xóa."
+
+#: src/native/main.tsx
+msgid "Discard held {0}?"
+msgstr "Loại bỏ mục đang giữ {0}?"
+
+#: src/native/main.tsx
+msgid "This held capture and its originals on this iPhone will be deleted. This cannot be undone."
+msgstr "Bản ghi đang giữ này và các bản gốc của nó trên iPhone này sẽ bị xóa. Không thể hoàn tác."
+
+#: src/native/main.tsx
+msgid "Held captures from before a restore"
+msgstr "Các bản ghi bị giữ từ trước khi khôi phục"
+
+#: src/native/main.tsx
+msgid "Held captures: {0}"
+msgstr "Bản ghi bị giữ: {0}"
+
+#: src/native/main.tsx
+msgid "These captures were saved before this Kept server was restored, so automatic replay is paused to avoid creating duplicates. They stay on this iPhone until you export or discard them. Saved on device does not mean backed up."
+msgstr "Các bản ghi này đã được lưu trước khi máy chủ Kept này được khôi phục, vì vậy việc phát lại tự động bị tạm dừng để tránh trùng lặp. Chúng vẫn ở trên iPhone này cho đến khi bạn xuất hoặc loại bỏ. Đã lưu trên thiết bị không có nghĩa là đã sao lưu."
+
+#: src/native/main.tsx
+msgid "Could not open this held original."
+msgstr "Không thể mở bản gốc đang giữ này."
+
+#: src/native/main.tsx
+msgid "Preview {0}"
+msgstr "Xem trước {0}"
+
+#: src/native/main.tsx
+msgid "Export details"
+msgstr "Xuất chi tiết"
