@@ -3,10 +3,10 @@ import { createHash, randomBytes } from 'node:crypto';
 import { chmod, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { KEPT_VERSION, newId, PAYLOAD_VERSION } from '@kept/shared';
+import { KEPT_VERSION, NATIVE_CAPTURE_PAYLOAD_VERSION, newId } from '@kept/shared';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
-import { jar, type TestApp } from '../../test/app.js';
+import { jar, type TestApp, testApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
 import {
   fixture,
@@ -19,11 +19,10 @@ import {
 import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { type TestPgTools, testPgTools } from '../../test/pg-tools.js';
 import { asOwner } from '../../test/tenancy.js';
-import { builtinType, createLocation, createThing, type Loc } from '../../test/things.js';
+import { builtinType, createLocation, createThing, type Loc, own } from '../../test/things.js';
 import type { AlertDeps } from '../alerts/alerts.js';
 import { withScope } from '../db/scope.js';
 import { systemJobs } from '../jobs/system.js';
-import { resolveScan } from '../scan/resolve.js';
 import { originalKey } from '../storage/blob-store.js';
 import { backupCron } from './config.js';
 import { EXPORT_SKIPPED, runExport } from './export.js';
@@ -702,27 +701,30 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
     name: 'Holiday box',
     typeId: await builtinType(db, 'box_bin'),
   });
-  const verifier = randomBytes(32).toString('base64url');
-  const approval = await t.app.inject({
-    method: 'POST',
-    url: '/native/connect',
-    headers: {
-      origin: t.publicUrl,
-      cookie: ibrahim.cookie,
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    payload: new URLSearchParams({
-      challenge: createHash('sha256').update(verifier).digest('base64url'),
-      state: randomBytes(32).toString('base64url'),
-    }).toString(),
-  });
-  expect(approval.statusCode, approval.body).toBe(303);
-  const code = new URL(String(approval.headers.location)).searchParams.get('code');
-  const exchange = await call(t, '/api/v1/native/exchange', { body: { code, verifier } });
-  expect(exchange.statusCode, exchange.body).toBe(200);
-  const { account, epoch } = exchange.json<{ account: string; epoch: string }>();
+  async function connect(app: TestApp) {
+    const verifier = randomBytes(32).toString('base64url');
+    const approval = await app.app.inject({
+      method: 'POST',
+      url: '/native/connect',
+      headers: {
+        origin: app.publicUrl,
+        cookie: ibrahim.cookie,
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      payload: new URLSearchParams({
+        challenge: createHash('sha256').update(verifier).digest('base64url'),
+        state: randomBytes(32).toString('base64url'),
+      }).toString(),
+    });
+    expect(approval.statusCode, approval.body).toBe(303);
+    const code = new URL(String(approval.headers.location)).searchParams.get('code');
+    const exchange = await call(app, '/api/v1/native/exchange', { body: { code, verifier } });
+    expect(exchange.statusCode, exchange.body).toBe(200);
+    return { ...exchange.json<{ account: string; epoch: string }>(), cookie: jar(exchange) };
+  }
+  const { account, epoch, cookie } = await connect(t);
   expect(account).toBe(ibrahim.userId);
-  const native = { cookie: jar(exchange) };
+  const native = { cookie };
   const headers = { 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
   const staleHeaders = { ...headers, 'x-kept-native-epoch': newId() };
   const originals = [
@@ -768,7 +770,7 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
   const captureId = newId();
   const operation = {
     clientVersion: KEPT_VERSION,
-    payloadVersion: PAYLOAD_VERSION,
+    payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION,
     clientId: captureId,
     idempotencyKey: captureId,
     locationId: garage.id,
@@ -808,6 +810,24 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
   expect((await sync(operation)).json()).toMatchObject({
     results: [{ outcome: 'dropped', reason: 'idempotency_mismatch' }],
   });
+  const trashed = await createThing(t, ibrahim, garage, {
+    name: 'Trashed box',
+    typeId: await builtinType(db, 'box_bin'),
+  });
+  const trashedBox = await call(t, `/api/v1/things/${trashed.id}/trash`, {
+    as: ibrahim,
+    body: {},
+  });
+  expect(trashedBox.statusCode, trashedBox.body).toBe(200);
+  expect(
+    (
+      await sync({
+        ...missingDestination,
+        idempotencyKey: newId(),
+        payload: { ...operation.payload, target: { containerId: trashed.id } },
+      })
+    ).json(),
+  ).toMatchObject({ results: [{ outcome: 'dropped', reason: 'target_trashed' }] });
   const corrected = { ...operation, idempotencyKey: newId() };
   const first = await sync(corrected);
   expect(first.statusCode, first.body).toBe(200);
@@ -826,6 +846,7 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
     const file = await t.app.inject({ url: link.json<{ url: string }>().url });
     expect(file.statusCode).toBe(200);
     expect(file.headers['content-type']).toBe(original.mime);
+    expect(file.rawPayload.length).toBe(original.bytes.length);
     expect(sha256(file.rawPayload)).toBe(sha256(original.bytes));
   }
 
@@ -845,11 +866,16 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
   expect(backup.status).toBe('ok');
   const ownerUrl = await emptyDatabase('native_mvp');
   const restored = await testFiles();
-  const appUrl = new URL(ownerUrl);
-  appUrl.username = 'kept_app';
-  appUrl.password = 'kept_app';
-  const restoredPool = new pg.Pool({ connectionString: appUrl.href });
-  const restoredOwner = new pg.Client({ connectionString: ownerUrl });
+  const restoredUrls = { ...db.urls, owner: ownerUrl };
+  function poolFor(role: 'app' | 'auth' | 'system') {
+    const url = new URL(db.urls[role]);
+    url.pathname = new URL(ownerUrl).pathname;
+    restoredUrls[role] = url.href;
+    return new pg.Pool({ connectionString: url.href });
+  }
+  const pools = { app: poolFor('app'), auth: poolFor('auth'), system: poolFor('system') };
+  const restoredDb = { ...db, urls: restoredUrls, pools };
+  let restoredApp: TestApp | undefined;
   try {
     const report = await runResticRestore({
       ownerUrl,
@@ -869,23 +895,74 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
       const stored = await hashBlob(restored.blobs, originalKey(garage.id, original.fileId));
       expect(stored.sha256).toBe(sha256(original.bytes));
     }
-    await restoredOwner.connect();
-    const restoredEpoch = await restoredOwner.query(
-      "SELECT value FROM auth.verification WHERE id = 'kept-native-sync-epoch'",
-    );
-    expect(restoredEpoch.rows).toHaveLength(1);
-    expect(restoredEpoch.rows).not.toEqual([{ value: epoch }]);
+    const recovered = await testApp(restoredDb, { publicUrl: t.publicUrl, files: restored });
+    restoredApp = recovered;
+    const renewed = await connect(recovered);
+    expect(renewed.account).toBe(account);
+    expect(renewed.epoch).not.toBe(epoch);
+    const currentHeaders = { ...headers, 'x-kept-native-epoch': renewed.epoch };
+    const oldContext = { ...headers, cookie: renewed.cookie };
+    const staleCapability = await recovered.app.inject({
+      url: '/api/v1/native/capture-capabilities',
+      headers: oldContext,
+    });
+    expect(staleCapability.statusCode, staleCapability.body).toBe(409);
+    expect(staleCapability.json()).toMatchObject({ reason: 'restore_epoch_mismatch' });
+    const pendingId = newId();
+    const refused = await call(recovered, '/api/v1/sync/ops', {
+      as: renewed,
+      headers,
+      body: {
+        clientVersion: KEPT_VERSION,
+        ops: [
+          {
+            ...operation,
+            clientId: pendingId,
+            idempotencyKey: pendingId,
+            payload: { ...operation.payload, id: pendingId },
+          },
+        ],
+      },
+    });
+    expect(refused.statusCode, refused.body).toBe(409);
+    expect(
+      await own(restoredDb, 'SELECT 1 FROM public.sync_ops WHERE idempotency_key = $1', [
+        pendingId,
+      ]),
+    ).toEqual([]);
+    const refusedUpload = await upload(recovered, renewed, garage.id, pdf.bytes, {
+      cls: pdf.cls,
+      contentType: pdf.mime,
+      headers,
+    });
+    expect(refusedUpload.statusCode, refusedUpload.body).toBe(409);
 
-    await withScope(restoredPool, { userId: ibrahim.userId, mfa: false }, async (_tx, client) => {
-      const resolved = await resolveScan(
-        client,
-        { text: label },
-        { lookupEnabled: async () => false },
+    const resolved = await call(recovered, '/api/v1/scan/resolve', {
+      as: renewed,
+      headers: currentHeaders,
+      body: { text: label },
+    });
+    expect(resolved.json()).toMatchObject({
+      outcome: 'open',
+      target: { kind: 'thing', id: box.id, locationId: garage.id },
+    });
+    for (const original of originals) {
+      const link = await call(
+        recovered,
+        `/api/v1/files/${original.fileId}/url?thingId=${captureId}`,
+        {
+          as: renewed,
+          headers: currentHeaders,
+          body: { variant: 'original' },
+        },
       );
-      expect(resolved).toMatchObject({
-        outcome: 'open',
-        target: { kind: 'thing', id: box.id, locationId: garage.id },
-      });
+      expect(link.statusCode, link.body).toBe(200);
+      const file = await recovered.app.inject({ url: link.json<{ url: string }>().url });
+      expect(file.statusCode, file.body).toBe(200);
+      expect(file.rawPayload.length).toBe(original.bytes.length);
+      expect(sha256(file.rawPayload)).toBe(sha256(original.bytes));
+    }
+    await withScope(pools.app, { userId: account, mfa: false }, async (_tx, client) => {
       const record = await client.query(
         'SELECT container_id, name, notes FROM public.things WHERE id = $1',
         [captureId],
@@ -902,8 +979,8 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
       );
     });
   } finally {
-    await restoredOwner.end().catch(() => {});
-    await restoredPool.end();
+    await restoredApp?.app.close();
+    await Promise.all(Object.values(pools).map((pool) => pool.end()));
     await restored.cleanup();
   }
 });
