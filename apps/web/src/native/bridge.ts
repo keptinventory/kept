@@ -3,6 +3,29 @@ import { ApiError, toApiError } from '@/api/client';
 
 export type Connection = { id: string; origin: string; account: string; epoch: string };
 
+export type OriginalMeta = {
+  id: string;
+  name: string;
+  mime: string;
+  role: 'photo' | 'document';
+  bytes: number;
+};
+
+export type Capture = {
+  id: string;
+  payload: string;
+  takenAt: string;
+  files: { file: OriginalMeta; sha256: string }[];
+};
+
+export type PendingCapture = { capture: Capture; failure?: string };
+
+export type StorageStats = {
+  pendingCount: number;
+  pendingBytes: number;
+  cacheBytes: number;
+};
+
 export type TagReading = {
   status: string;
   url?: string;
@@ -12,6 +35,22 @@ export type TagReading = {
   capacity?: number;
   required?: number;
 };
+
+export type FindTagEvent = {
+  status: 'read' | 'blank' | 'malformed' | 'unsupported' | 'repeated';
+  url?: string;
+  fingerprint?: string;
+  occupied?: boolean;
+  writable?: boolean;
+  capacity?: number;
+};
+
+export class StorageFullError extends Error {
+  constructor(message = 'Your iPhone storage is full. Free up space and try again.') {
+    super(message);
+    this.name = 'StorageFullError';
+  }
+}
 
 type NativeResponse = { status: number; body: string };
 type NativeKept = {
@@ -41,18 +80,38 @@ type NativeKept = {
     fingerprint?: string;
     messages: Record<string, string>;
   }): Promise<TagReading>;
+  startFind(input: { context: string; messages: Record<string, string> }): Promise<TagReading>;
+  continueFind(input: { context: string; message?: string }): Promise<void>;
+  finishFind(input: { context: string; message?: string }): Promise<void>;
   cancelTag(): Promise<void>;
-  matchFeedback(input: { context: string }): Promise<void>;
+  matchFeedback(input: { context: string; announcement?: string }): Promise<void>;
+  nonMatchFeedback(input: { context: string; announcement?: string }): Promise<void>;
   takeLink(input: { context: string }): Promise<{ url?: string }>;
-  openMedia(input: { context: string; thing: string; file: string; mime: string }): Promise<void>;
+  openMedia(input: { context: string; thing?: string; file: string; mime: string }): Promise<void>;
+  openPendingMedia(input: { context: string; id: string; file: string }): Promise<void>;
   addListener(event: 'keptLink', callback: () => void): Promise<PluginListenerHandle>;
+  addListener(
+    event: 'nfcFind',
+    callback: (reading: FindTagEvent) => void,
+  ): Promise<PluginListenerHandle>;
+  addListener(
+    event: 'appState',
+    callback: (state: { active: boolean }) => void,
+  ): Promise<PluginListenerHandle>;
 };
 
 export const native = registerPlugin<NativeKept>('KeptNative');
 
 export function networkError(error: unknown): never {
-  if (error && typeof error === 'object' && 'code' in error && error.code === 'network') {
-    throw new ApiError(0, 'offline', 'Needs a connection');
+  if (error && typeof error === 'object' && 'code' in error) {
+    if (error.code === 'network') {
+      throw new ApiError(0, 'offline', 'Needs a connection');
+    }
+    if (error.code === 'storage_full') {
+      const message =
+        'message' in error && typeof error.message === 'string' ? error.message : undefined;
+      throw new StorageFullError(message);
+    }
   }
   throw error;
 }

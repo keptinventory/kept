@@ -1,42 +1,81 @@
 import { AMOUNT_STRING, newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TextField as AriaTextField, FileTrigger, Label, TextArea } from 'react-aria-components';
 import { Button } from '@/components/ui/button';
 import { inputClass } from '@/components/ui/field';
 import { Select, SelectItem } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
-import type { Connection } from './bridge';
+import { useBytes } from '@/lib/format';
+import { usePlatform } from './adapters';
+import { type Connection, StorageFullError } from './bridge';
 import { createBox, type InventoryCache, inventoryPath } from './inventory';
-import { mobileFileLimit, type SelectedOriginal, saveOnPhone } from './outbox';
+import { mobileFileLimit, type PendingCapture, type SelectedOriginal, saveOnPhone } from './outbox';
 
 export type Destination = { id: string; locationId: string; name: string };
-type ChosenFile = SelectedOriginal & { key: string };
+type ChosenFile = SelectedOriginal & { key: string; previewUrl?: string };
+
+function createPreviewUrl(file: File): string | undefined {
+  if (typeof URL.createObjectURL !== 'function') return undefined;
+  try {
+    return URL.createObjectURL(file);
+  } catch {
+    return undefined;
+  }
+}
+
+function revokePreviewUrl(url: string | undefined): void {
+  if (url && typeof URL.revokeObjectURL === 'function') {
+    URL.revokeObjectURL(url);
+  }
+}
 
 export function CaptureForm({
   connection,
   box,
   location,
+  pending = [],
+  syncing = false,
   onClose,
   onSave,
 }: {
   connection: Connection;
   box: Destination;
   location: string;
+  pending?: readonly PendingCapture[];
+  syncing?: boolean;
   onClose: () => void;
   onSave: () => void;
 }) {
   const { t } = useLingui();
+  const adapters = usePlatform();
+  const formatBytes = useBytes();
   const [batchId] = useState(newId);
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
   const [quantity, setQuantity] = useState('');
   const [files, setFiles] = useState<ChosenFile[]>([]);
-  const [saved, setSaved] = useState(0);
+  const [batchEntryIds, setBatchEntryIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
+  const previewUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      for (const url of previewUrlsRef.current) revokePreviewUrl(url);
+      previewUrlsRef.current = [];
+    };
+  }, []);
+
   const quantityInvalid =
     quantity !== '' && (!AMOUNT_STRING.test(quantity) || Number(quantity) <= 0);
+
+  const pendingById = new Map(pending.map((entry) => [entry.capture.id, entry]));
+  const batchPendingCount = batchEntryIds.filter((id) => pendingById.has(id)).length;
+  const batchFailedCount = batchEntryIds.filter((id) =>
+    Boolean(pendingById.get(id)?.failure),
+  ).length;
+  const batchSyncedCount = batchEntryIds.length - batchPendingCount;
 
   function choose(source: FileList | null, role: SelectedOriginal['role']) {
     if (!source) return;
@@ -49,7 +88,23 @@ export function CaptureForm({
       return;
     }
     setStatus('');
-    setFiles((current) => [...current, ...items.map((file) => ({ file, role, key: newId() }))]);
+    const next: ChosenFile[] = items.map((file) => {
+      const previewUrl = role === 'photo' ? createPreviewUrl(file) : undefined;
+      if (previewUrl) previewUrlsRef.current.push(previewUrl);
+      return { file, role, key: newId(), ...(previewUrl ? { previewUrl } : {}) };
+    });
+    setFiles((current) => [...current, ...next]);
+  }
+
+  function removeFile(key: string) {
+    setFiles((current) => {
+      const target = current.find((item) => item.key === key);
+      if (target?.previewUrl) {
+        revokePreviewUrl(target.previewUrl);
+        previewUrlsRef.current = previewUrlsRef.current.filter((u) => u !== target.previewUrl);
+      }
+      return current.filter((item) => item.key !== key);
+    });
   }
 
   async function save() {
@@ -57,7 +112,7 @@ export function CaptureForm({
     setBusy(true);
     setStatus('');
     try {
-      await saveOnPhone(
+      const savedId = await saveOnPhone(
         connection,
         {
           locationId: box.locationId,
@@ -68,16 +123,23 @@ export function CaptureForm({
           batchId,
         },
         files,
+        adapters,
       );
-      setSaved((count) => count + 1);
+      for (const item of files) revokePreviewUrl(item.previewUrl);
+      previewUrlsRef.current = [];
+      setBatchEntryIds((ids) => [...ids, savedId]);
       setName('');
       setNote('');
       setQuantity('');
       setFiles([]);
       setStatus(t`Saved on device.`);
       onSave();
-    } catch {
-      setStatus(t`Kept could not save on this iPhone. Check available storage and try again.`);
+    } catch (error) {
+      setStatus(
+        error instanceof StorageFullError
+          ? t`Your iPhone storage is full. Free up space and try again.`
+          : t`Kept could not save on this iPhone. Check available storage and try again.`,
+      );
     } finally {
       setBusy(false);
     }
@@ -88,17 +150,41 @@ export function CaptureForm({
       <Button className="justify-self-start" variant="ghost" isDisabled={busy} onPress={onClose}>
         <Trans>Done</Trans>
       </Button>
-      <header>
-        <h2 className="text-title font-semibold">
-          <Trans>Add to this box</Trans>
-        </h2>
-        <p className="font-semibold">
-          <bdi>{box.name}</bdi>
+      <header className="grid gap-1 rounded-lg border border-line bg-surface p-3">
+        <p className="text-label font-semibold uppercase tracking-wide text-ink-2">
+          <Trans>Adding to box</Trans>
         </p>
-        <p className="text-ink-2">{location}</p>
+        <h2 className="text-title font-semibold">
+          <bdi>{box.name}</bdi>
+        </h2>
+        {location && (
+          <p className="text-small text-ink-2">
+            <bdi>{location}</bdi>
+          </p>
+        )}
       </header>
-      {saved > 0 && (
-        <p className="text-small text-ink-2">{t`Entries saved in this batch: ${saved}`}</p>
+      {batchEntryIds.length > 0 && (
+        <div
+          className="flex flex-wrap items-center gap-2 rounded-lg bg-sunken px-3 py-2 text-small"
+          role="status"
+        >
+          <span>{t`Entries in this batch: ${batchEntryIds.length}`}</span>
+          {batchSyncedCount > 0 && (
+            <span className="kept-badge kept-badge-ok">{t`Synced: ${batchSyncedCount}`}</span>
+          )}
+          {batchPendingCount > 0 && (
+            <span className="kept-badge kept-badge-warn">
+              {syncing
+                ? t`Syncing: ${batchPendingCount}`
+                : t`Saved on device: ${batchPendingCount}`}
+            </span>
+          )}
+          {batchFailedCount > 0 && (
+            <span className="kept-badge kept-badge-danger">
+              {t`Needs attention: ${batchFailedCount}`}
+            </span>
+          )}
+        </div>
       )}
       <form
         className="grid gap-4"
@@ -161,13 +247,27 @@ export function CaptureForm({
         </div>
         {files.length > 0 && (
           <ul className="grid gap-2">
-            {files.map(({ file, key }) => (
-              <li className="flex items-center justify-between gap-3" key={key}>
-                <bdi className="min-w-0 break-words">{file.name}</bdi>
+            {files.map(({ file, key, role, previewUrl }) => (
+              <li
+                className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface p-2"
+                key={key}
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  {previewUrl && (
+                    <img src={previewUrl} alt="" className="kept-thumb" loading="lazy" />
+                  )}
+                  <div className="grid min-w-0 gap-0.5">
+                    <bdi className="break-words font-medium">{file.name}</bdi>
+                    <span className="text-small text-ink-2">
+                      {role === 'photo' ? t`Photo` : t`PDF document`} · {formatBytes(file.size)}
+                    </span>
+                  </div>
+                </div>
                 <Button
                   variant="ghost"
+                  size="small"
                   isDisabled={busy}
-                  onPress={() => setFiles((current) => current.filter((item) => item.key !== key))}
+                  onPress={() => removeFile(key)}
                 >
                   <Trans>Remove</Trans>
                 </Button>
@@ -198,6 +298,7 @@ export function NewBoxForm({
   onCreated: (id: string, locationId: string) => void;
 }) {
   const { t } = useLingui();
+  const adapters = usePlatform();
   const [name, setName] = useState('');
   const [locationId, setLocation] = useState<string | null>(null);
   const [placeId, setPlace] = useState<string | null>(null);
@@ -213,7 +314,7 @@ export function NewBoxForm({
     setBusy(true);
     setStatus('');
     try {
-      const result = await createBox(connection, cache, target, name.trim());
+      const result = await createBox(connection, cache, target, name.trim(), adapters);
       onCreated(result.id, result.locationId);
     } catch {
       setStatus(t`Could not create the box. Check your connection and selected location.`);

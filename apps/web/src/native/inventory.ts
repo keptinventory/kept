@@ -14,8 +14,9 @@ import { inventoryPaths, qs } from '@/api/inventory/paths';
 import type { AttachmentView, Page, PlaceView, ThingView } from '@/api/inventory/types';
 import { matchesAll, queryWords } from '@/offline/local-search';
 import { codesKey, legacyCodesByThing, termsOf } from '@/offline/store';
-import { type Connection, nativeRequest } from './bridge';
-import { readStored, storage } from './outbox';
+import { capacitorAdapters, type PlatformAdapters } from './adapters';
+import type { Connection } from './bridge';
+import { draftFields, type PendingCapture } from './outbox';
 
 export type RecordDetail = {
   id: string;
@@ -53,7 +54,10 @@ export function localInventorySearch(cache: InventoryCache, query: string): Snap
         [
           ...termsOf(thing, byThing.get(codesKey(thing))),
           ...searchTerms(detail?.notes),
-          ...(detail?.attachments.flatMap((attachment) => searchTerms(attachment.name)) ?? []),
+          ...(detail?.attachments.flatMap((attachment) => [
+            ...searchTerms(attachment.name),
+            ...searchTerms(attachment.name?.replace(/[-_.]+/g, ' ')),
+          ]) ?? []),
         ],
         words,
       );
@@ -78,12 +82,29 @@ export function inventoryPath(cache: InventoryCache, record: SnapThing | SnapPla
   return parts;
 }
 
-export async function readInventory(connection: Connection): Promise<InventoryCache | undefined> {
-  return readStored<InventoryCache>(connection, 'cached');
+export function pendingForBox(pending: readonly PendingCapture[], boxId: string): PendingCapture[] {
+  return pending.filter((entry) => {
+    try {
+      return draftFields(entry.capture).boxId === boxId;
+    } catch {
+      return false;
+    }
+  });
 }
 
-export async function loadInventory(connection: Connection): Promise<InventoryCache> {
-  const old = await readInventory(connection);
+export async function readInventory(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<InventoryCache | undefined> {
+  const raw = await adapters.outbox.cached(connection);
+  return raw ? (JSON.parse(raw) as InventoryCache) : undefined;
+}
+
+export async function loadInventory(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<InventoryCache> {
+  const old = await readInventory(connection, adapters);
   const places = new Map<string, SnapPlace>();
   const things = new Map<string, SnapThing>();
   const codes = new Map<string, SnapCode>();
@@ -91,7 +112,7 @@ export async function loadInventory(connection: Connection): Promise<InventoryCa
   let cursor: string | undefined;
 
   for (let round = 0; round < 200; round++) {
-    const page: SnapshotPage = await nativeRequest(
+    const page: SnapshotPage = await adapters.transport.request(
       connection,
       `${capturePaths.syncSnapshot}${qs({ cursor, limit: 1000 })}`,
     );
@@ -142,7 +163,7 @@ export async function loadInventory(connection: Connection): Promise<InventoryCa
           }),
         ),
       };
-      await storage(connection, 'saveCache', { data: JSON.stringify(next) });
+      await adapters.outbox.saveCache(connection, JSON.stringify(next));
       return next;
     }
     if (page.nextCursor === cursor) break;
@@ -154,13 +175,14 @@ export async function loadInventory(connection: Connection): Promise<InventoryCa
 export async function loadDetail(
   connection: Connection,
   id: string,
+  adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<{
   thing: ThingView;
   attachments: AttachmentView[];
 }> {
   const [thing, page] = await Promise.all([
-    nativeRequest<ThingView>(connection, inventoryPaths.thing(id)),
-    nativeRequest<Page<AttachmentView>>(
+    adapters.transport.request<ThingView>(connection, inventoryPaths.thing(id)),
+    adapters.transport.request<Page<AttachmentView>>(
       connection,
       `${inventoryPaths.thingAttachments(id)}${qs({ limit: 100 })}`,
     ),
@@ -168,8 +190,12 @@ export async function loadDetail(
   return { thing, attachments: page.items };
 }
 
-export async function loadPlace(connection: Connection, id: string): Promise<PlaceView> {
-  return nativeRequest(connection, inventoryPaths.place(id));
+export async function loadPlace(
+  connection: Connection,
+  id: string,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<PlaceView> {
+  return adapters.transport.request(connection, inventoryPaths.place(id));
 }
 
 export async function createBox(
@@ -177,10 +203,11 @@ export async function createBox(
   cache: InventoryCache,
   destination: SnapPlace,
   name: string,
+  adapters: PlatformAdapters = capacitorAdapters,
 ): Promise<ThingView> {
   const type = cache.types.find((entry) => entry.builtinKey === 'box_bin' && entry.isContainer);
   if (!type) throw new ApiError(400, 'validation', 'This Kept has no Box type.');
-  return nativeRequest(connection, inventoryPaths.things, {
+  return adapters.transport.request(connection, inventoryPaths.things, {
     method: 'POST',
     body: {
       id: newId(),

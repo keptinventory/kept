@@ -23,8 +23,58 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.125rem;
-  padding: 0.625rem 0.875rem;
+  padding-block: 0.625rem;
+  padding-inline: 0.875rem;
   background: var(--surface);
   text-align: start;
   overflow-wrap: anywhere;
+}
+
+.kept-thumb {
+  inline-size: 3rem;
+  block-size: 3rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.kept-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding-block: 0.125rem;
+  padding-inline: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.kept-badge-ok {
+  background: color-mix(in srgb, var(--ok) 15%, var(--surface));
+  color: var(--ok);
+}
+
+.kept-badge-warn {
+  background: color-mix(in srgb, var(--warn) 16%, var(--surface));
+  color: var(--warn);
+}
+
+.kept-badge-danger {
+  background: color-mix(in srgb, var(--danger) 15%, var(--surface));
+  color: var(--danger);
+}
+
+.kept-match-card {
+  border: 2px solid var(--ok);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+  padding-block: 1rem;
+  padding-inline: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kept-phone :is(*, *::before, *::after) {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+  }
 }

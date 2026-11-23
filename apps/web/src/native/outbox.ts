@@ -5,21 +5,19 @@ import {
   PAYLOAD_VERSION,
   type SyncOpsResponse,
 } from '@kept/shared';
+import { z } from 'zod';
 import { capturePaths } from '@/api/capture/paths';
 import { ApiError } from '@/api/client';
 import { inventoryPaths, qs } from '@/api/inventory/paths';
-import type { AttachmentView, FileView, Page } from '@/api/inventory/types';
-import { type Connection, native, nativeRequest, networkError, unwrap } from './bridge';
+import type { AttachmentView, Page } from '@/api/inventory/types';
+import { capacitorAdapters, type PlatformAdapters } from './adapters';
+import type { Capture, Connection, OriginalMeta, PendingCapture, StorageStats } from './bridge';
+
+export type { Capture, OriginalMeta, PendingCapture, StorageStats };
 
 export type SelectedOriginal = { file: File; role: 'photo' | 'document' };
-type OriginalMeta = {
-  id: string;
-  name: string;
-  mime: string;
-  role: SelectedOriginal['role'];
-  bytes: number;
-};
-type DraftFields = {
+
+export type DraftFields = {
   locationId: string;
   boxId: string;
   name: string;
@@ -28,29 +26,28 @@ type DraftFields = {
   batchId?: string;
 };
 type StoredFields = DraftFields & { version: number };
-type Capture = {
-  id: string;
-  payload: string;
-  takenAt: string;
-  files: { file: OriginalMeta; sha256: string }[];
-};
-export type PendingCapture = { capture: Capture; failure?: string };
+
 const chunkBytes = 256 * 1024;
 export const mobileFileLimit = 25 * 1024 * 1024;
 
-export const storage = (
-  connection: Connection,
-  action: string,
-  fields: Record<string, string | number> = {},
-) => native.outbox({ context: connection.id, action, ...fields });
+// The integration agent extends CreateThingPayload in @kept/shared with reviewSuggestions;
+// extending locally keeps this branch type-safe against HEAD while emitting the agreed wire shape.
+const NativeCreateThingPayload = CreateThingPayload.extend({
+  reviewSuggestions: z.literal(true).optional(),
+});
 
-export async function readStored<T>(
-  connection: Connection,
-  action: 'list' | 'cached',
-): Promise<T | undefined> {
-  const { data } = await storage(connection, action);
-  return data === undefined ? undefined : (JSON.parse(data) as T);
-}
+/** Failures requiring user action (move target, discard, etc.) rather than silent auto-retry. */
+export const ACTION_REQUIRED_FAILURES = new Set([
+  'target_trashed',
+  'target_missing',
+  'not_permitted',
+  'location_revoked',
+  'unsupported_media_type',
+  'idempotency_mismatch',
+  'validation',
+  'payload_too_large',
+  'checksum_mismatch',
+]);
 
 export function draftFields(capture: Capture): StoredFields {
   return JSON.parse(capture.payload) as StoredFields;
@@ -68,7 +65,8 @@ export async function saveOnPhone(
   connection: Connection,
   fields: DraftFields,
   files: SelectedOriginal[],
-): Promise<void> {
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<string> {
   if (
     files.length > 20 ||
     files.some(({ file }) => file.size <= 0 || file.size > mobileFileLimit)
@@ -88,7 +86,7 @@ export async function saveOnPhone(
       const fileId = newId();
       for (let offset = 0; offset < file.size; offset += chunkBytes) {
         const bytes = new Uint8Array(await file.slice(offset, offset + chunkBytes).arrayBuffer());
-        await storage(connection, 'stage', { id, file: fileId, offset, data: base64(bytes) });
+        await adapters.outbox.stage(connection, { id, file: fileId, offset, data: base64(bytes) });
       }
       originals.push({
         id: fileId,
@@ -98,9 +96,15 @@ export async function saveOnPhone(
         bytes: file.size,
       });
     }
-    await storage(connection, 'save', { id, takenAt, payload, files: JSON.stringify(originals) });
+    await adapters.outbox.save(connection, {
+      id,
+      takenAt,
+      payload,
+      files: JSON.stringify(originals),
+    });
+    return id;
   } catch (error) {
-    await storage(connection, 'abort', { id }).catch(() => {});
+    await adapters.outbox.abort(connection, id).catch(() => {});
     throw error;
   }
 }
@@ -111,9 +115,28 @@ export class ReplayError extends Error {
   }
 }
 
-export async function replayCapture(connection: Connection, capture: Capture): Promise<void> {
+export async function replayCapture(
+  connection: Connection,
+  capture: Capture,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<void> {
   const fields = draftFields(capture);
-  const payload = CreateThingPayload.parse({
+  const uploadedFiles: { fileId: string; role: 'photo' | 'document'; sha256: string }[] = [];
+
+  for (const { file, sha256 } of capture.files) {
+    const uploaded = await adapters.transport.uploadOriginal(connection, {
+      id: capture.id,
+      file: file.id,
+      location: fields.locationId,
+    });
+    if (uploaded.sha256 !== sha256 || uploaded.bytes !== file.bytes) {
+      throw new ReplayError('checksum_mismatch');
+    }
+    // On a per-location dedupe hit (`deduplicatedFrom`), `uploaded.id` is the canonical server file id.
+    uploadedFiles.push({ fileId: uploaded.id, role: file.role, sha256 });
+  }
+
+  const payload = NativeCreateThingPayload.parse({
     id: capture.id,
     batchId: fields.batchId,
     target: { containerId: fields.boxId },
@@ -122,49 +145,38 @@ export async function replayCapture(connection: Connection, capture: Capture): P
     name: fields.name,
     note: fields.note,
     quantity: fields.quantity,
-    files: capture.files.map(({ file, sha256 }) => ({ fileId: file.id, role: file.role, sha256 })),
+    files: uploadedFiles,
   });
 
-  for (const { file, sha256 } of capture.files) {
-    const uploaded = await native
-      .uploadOriginal({
-        context: connection.id,
-        id: capture.id,
-        file: file.id,
-        location: fields.locationId,
-      })
-      .catch(networkError)
-      .then((answer) => unwrap<FileView>(answer));
-    if (uploaded.sha256 !== sha256 || uploaded.bytes !== file.bytes) {
-      throw new ReplayError('checksum_mismatch');
-    }
-  }
-
-  const response = await nativeRequest<SyncOpsResponse>(connection, capturePaths.syncOps, {
-    method: 'POST',
-    body: {
-      clientVersion: KEPT_VERSION,
-      ops: [
-        {
-          clientVersion: KEPT_VERSION,
-          payloadVersion: fields.version,
-          clientId: capture.id,
-          idempotencyKey: capture.id,
-          op: 'create_thing',
-          takenAt: capture.takenAt,
-          locationId: fields.locationId,
-          payload,
-        },
-      ],
+  const response = await adapters.transport.request<SyncOpsResponse>(
+    connection,
+    capturePaths.syncOps,
+    {
+      method: 'POST',
+      body: {
+        clientVersion: KEPT_VERSION,
+        ops: [
+          {
+            clientVersion: KEPT_VERSION,
+            payloadVersion: fields.version,
+            clientId: capture.id,
+            idempotencyKey: capture.id,
+            op: 'create_thing',
+            takenAt: capture.takenAt,
+            locationId: fields.locationId,
+            payload,
+          },
+        ],
+      },
     },
-  });
+  );
   const result = response.results[0];
   if (result?.outcome !== 'applied' || result.entity?.id !== capture.id) {
     throw new ReplayError(result?.reason ?? 'needs_review');
   }
 
   if (capture.files.length) {
-    const attached = await nativeRequest<Page<AttachmentView>>(
+    const attached = await adapters.transport.request<Page<AttachmentView>>(
       connection,
       `${inventoryPaths.thingAttachments(capture.id)}${qs({ limit: 100 })}`,
     );
@@ -182,32 +194,92 @@ export async function replayCapture(connection: Connection, capture: Capture): P
     }
   }
 
-  await storage(connection, 'complete', { id: capture.id });
+  await adapters.outbox.complete(connection, capture.id);
 }
 
-export async function syncOutbox(connection: Connection): Promise<number> {
-  const queue = await readStored<PendingCapture[]>(connection, 'list');
+function classifyFailure(error: unknown): string {
+  if (error instanceof ReplayError) return error.reason;
+  if (error instanceof ApiError) return error.code;
+  return 'retry';
+}
+
+export async function syncOutbox(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+  options: { includeFailed?: boolean } = {},
+): Promise<number> {
+  const queue = await adapters.outbox.list(connection);
   let count = 0;
-  for (const entry of queue ?? []) {
+  for (const entry of queue) {
+    if (!options.includeFailed && entry.failure && ACTION_REQUIRED_FAILURES.has(entry.failure)) {
+      continue;
+    }
     try {
-      await replayCapture(connection, entry.capture);
+      await replayCapture(connection, entry.capture, adapters);
       count++;
     } catch (error) {
       if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
-      const reason =
-        error instanceof ReplayError
-          ? error.reason
-          : error instanceof ApiError
-            ? error.code
-            : 'retry';
-      await storage(connection, 'failed', { id: entry.capture.id, reason });
-      if (
-        error instanceof ApiError &&
-        (error.status >= 500 || error.status === 429 || error.status === 409)
-      ) {
+      if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
+        throw error;
+      }
+      const reason = classifyFailure(error);
+      await adapters.outbox.failed(connection, entry.capture.id, reason);
+      if (error instanceof ApiError && (error.status >= 500 || error.status === 429)) {
         throw error;
       }
     }
   }
   return count;
+}
+
+export async function retryCapture(
+  connection: Connection,
+  id: string,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<boolean> {
+  const queue = await adapters.outbox.list(connection);
+  const entry = queue.find((item) => item.capture.id === id);
+  if (!entry) return false;
+  try {
+    await adapters.outbox.clearFailure(connection, id);
+    await replayCapture(connection, entry.capture, adapters);
+    return true;
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
+    if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
+      throw error;
+    }
+    await adapters.outbox.failed(connection, id, classifyFailure(error));
+    return false;
+  }
+}
+
+export async function retargetCapture(
+  connection: Connection,
+  capture: Capture,
+  destination: { id: string; locationId: string },
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<Capture> {
+  const fields = draftFields(capture);
+  const next = JSON.stringify({
+    ...fields,
+    boxId: destination.id,
+    locationId: destination.locationId,
+  });
+  return adapters.outbox.retarget(connection, capture.id, next);
+}
+
+export async function discardCapture(
+  connection: Connection,
+  id: string,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<void> {
+  await adapters.outbox.complete(connection, id);
+}
+
+export function getOutboxStats(
+  connection: Connection,
+  adapters: PlatformAdapters = capacitorAdapters,
+): Promise<StorageStats> {
+  return adapters.outbox.stats(connection);
 }
