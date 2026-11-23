@@ -121,7 +121,9 @@ msgid "{0, plural, =0 {no fields} one {# field} other {# fields}}"
 msgstr "{0, plural, =0 {немає полів} one {# поле} few {# поля} many {# полів} other {# поля}}"
 
 #. placeholder {0}: l.views
+#. placeholder {0}: link.views
 #: src/components/sharelinks/list.tsx
+#: src/i18n/uk-plurals.test.ts
 msgid "{0, plural, =0 {Not opened yet} one {Opened once} other {Opened # times}}"
 msgstr "{0, plural, =0 {Ще не відкривали} =1 {Відкрито один раз} one {Відкрито # раз} few {Відкрито # рази} many {Відкрито # разів} other {Відкрито # рази}}"
 
@@ -382,6 +384,11 @@ msgstr "{0, plural, one {# ціну запропоновано з перелік
 msgid "{0, plural, one {# purchase} other {# purchases}}"
 msgstr "{0, plural, one {# покупка} few {# покупки} many {# покупок} other {# покупки}}"
 
+#. placeholder {0}: p.readings
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# reading changes} other {# readings change}}"
+msgstr "{0, plural, one {Зміниться # показник} few {Зміняться # показники} many {Зміниться # показників} other {Зміниться # показника}}"
+
 #. placeholder {0}: report.roomCount
 #. placeholder {0}: sum.rooms
 #: src/components/condition/reports-screen.tsx
@@ -404,6 +411,11 @@ msgstr "{0, plural, one {# рядок не збережено} few {# рядки
 #: src/components/scan/scan-screen.tsx
 msgid "{0, plural, one {# scan from while you were offline} other {# scans from while you were offline}}"
 msgstr "{0, plural, one {# сканування, зроблене, поки ви були офлайн} few {# сканування, зроблені, поки ви були офлайн} many {# сканувань, зроблених, поки ви були офлайн} other {# сканування, зроблені, поки ви були офлайн}}"
+
+#. placeholder {0}: p.schedules
+#: src/components/vehicles/change-unit.tsx
+msgid "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
+msgstr "{0, plural, one {Зміниться # графік на ньому} few {Зміняться # графіки на ньому} many {Зміниться # графіків на ньому} other {Зміниться # графіка на ньому}}"
 
 #. placeholder {0}: c.seen
 #: src/components/boxcheck/box-check-screen.tsx
@@ -532,8 +544,10 @@ msgstr "{0, plural, one {Завершено # річ} few {Завершено # 
 msgid "{0, plural, one {event in the history} other {events in the history}}"
 msgstr "{0, plural, one {подія в історії} few {події в історії} many {подій в історії} other {події в історії}}"
 
+#. placeholder {0}: every.months
 #. placeholder {0}: s.everyMonths
 #: src/components/schedules/labels.tsx
+#: src/i18n/uk-plurals.test.ts
 msgid "{0, plural, one {Every month} other {Every # months}}"
 msgstr "{0, plural, =1 {Щомісяця} one {Кожні # місяць} few {Кожні # місяці} many {Кожні # місяців} other {Кожні # місяці}}"
 
@@ -1150,6 +1164,10 @@ msgid "{0}× {1}"
 msgstr "{0}× {1}"
 
 #: src/components/labels/stock-picker.tsx
+msgid "{a} × {b} in"
+msgstr "{a} × {b} дюйма"
+
+#: src/components/labels/stock-picker.tsx
 msgid "{a} × {b} mm"
 msgstr "{a} × {b} мм"
 
@@ -1291,6 +1309,10 @@ msgstr "{cols} × {rows}, кожна {cell} · лише QR і код"
 msgid "{column} goes to"
 msgstr "{column} потрапляє до"
 
+#: src/components/places/trash-contents-dialog.tsx
+msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
+msgstr "{compartments, plural, one {Його # відділення потрапить до кошика разом із ним і повернеться разом із ним під час відновлення.} few {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} many {Його # відділень потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} other {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.}}"
+
 #: src/routes/_print/labels.$batchId.tsx
 msgid "{count, plural, one {# blank label} other {# blank labels}}"
 msgstr "{count, plural, one {# порожня етикетка} few {# порожні етикетки} many {# порожніх етикеток} other {# порожні етикетки}}"
@@ -1326,6 +1348,10 @@ msgstr "{count, plural, one {# позичено іншим} few {# позиче�
 #: src/components/services/invoice-suggestions.tsx
 msgid "{count, plural, one {# line} other {# lines}}"
 msgstr "{count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядки}}"
+
+#: src/components/import/labels.ts
+msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
+msgstr "{count, plural, one {# посилання зберігає назву з Homebox: Kept не зміг отримати її з Paperless.} few {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} many {# посилань зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} other {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.}}"
 
 #: src/graph/words.ts
 msgid "{count, plural, one {# low on stock} other {# low on stock}}"
@@ -1499,6 +1525,7 @@ msgid "{createdName} is ready"
 msgstr "{createdName} готово"
 
 #: src/components/reports/claim-pack.tsx
+#: src/routes/_app/admin.status.tsx
 msgid "{d, plural, one {# day} other {# days}}"
 msgstr "{d, plural, one {# день} few {# дні} many {# днів} other {# дні}}"
 
@@ -1591,6 +1618,10 @@ msgstr "Група {group}"
 #: src/components/registries/field-list.tsx
 msgid "{group} group · shared by {shared}"
 msgstr "Група {group} · від {shared}"
+
+#: src/routes/_app/admin.status.tsx
+msgid "{h, plural, one {# hour} other {# hours}}"
+msgstr "{h, plural, one {# година} few {# години} many {# годин} other {# години}}"
 
 #: src/components/ai/usage-totals.tsx
 msgid "{held, plural, one {# held back by Kept} other {# held back by Kept}}"
@@ -1808,6 +1839,10 @@ msgstr "{n, plural, one {# фото} few {# фото} many {# фото} other {#
 msgid "{n, plural, one {# place in it} other {# places in it}}"
 msgstr "{n, plural, one {# місце в ньому} few {# місця в ньому} many {# місць у ньому} other {# місця в ньому}}"
 
+#: src/components/vehicles/change-unit.tsx
+msgid "{n, plural, one {# reading converted} other {# readings converted}}"
+msgstr "{n, plural, one {Перераховано # показник} few {Перераховано # показники} many {Перераховано # показників} other {Перераховано # показника}}"
+
 #: src/components/home/recent-activity.tsx
 msgid "{n, plural, one {# reading needs a look} other {# readings need a look}}"
 msgstr "{n, plural, one {# показник потребує уваги} few {# показники потребують уваги} many {# показників потребують уваги} other {# показники потребують уваги}}"
@@ -1950,6 +1985,10 @@ msgstr "{name} більше не може підключитися до вашо
 #: src/components/moving/box-screen.tsx
 msgid "{name} goes to {where}"
 msgstr "{name} розміщується в {where}"
+
+#: src/components/places/rack.tsx
+msgid "{name} in {rackName}"
+msgstr "{name} у {rackName}"
 
 #: src/components/places/convert-dialog.tsx
 msgid "{name} is a box now"
@@ -2256,9 +2295,41 @@ msgstr "{total, plural, one {# рядок} few {# рядки} many {# рядкі
 msgid "{typed} {unit} is lower than {before} {unit} on {on}. Readings can't go down: check the digits, or record that the meter was replaced."
 msgstr "{typed} {unit} нижче, ніж {before} {unit} за {on}. Показники не можуть зменшуватися: перевірте цифри або зафіксуйте, що лічильник замінено."
 
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the front."
+msgstr "{u} зайнято: {name}, спереду."
+
+#: src/components/places/rack.tsx
+msgid "{u} is taken by {name} at the rear."
+msgstr "{u} зайнято: {name}, ззаду."
+
 #: src/components/sync-status.tsx
 msgid "{unexplained, plural, one {# change needs a look} other {# changes need a look}}"
 msgstr "{unexplained, plural, one {# зміна потребує уваги} few {# зміни потребують уваги} many {# змін потребують уваги} other {# зміни потребують уваги}}"
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
+msgstr "{units, plural, one {# юніт, U1 знизу} few {# юніти, U1 знизу} many {# юнітів, U1 знизу} other {# юніта, U1 знизу}}"
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
+msgstr "{units, plural, one {# юніт, U1 згори} few {# юніти, U1 згори} many {# юнітів, U1 згори} other {# юніта, U1 згори}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
+msgstr "{units, plural, one {Настінна стійка, #U} few {Настінна стійка, #U} many {Настінна стійка, #U} other {Настінна стійка, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
+msgstr "{units, plural, one {Стійка 10 дюймів, #U} few {Стійка 10 дюймів, #U} many {Стійка 10 дюймів, #U} other {Стійка 10 дюймів, #U}}"
+
+#: src/components/places/furniture.tsx
+msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
+msgstr "{units, plural, one {Стійка 19 дюймів, #U} few {Стійка 19 дюймів, #U} many {Стійка 19 дюймів, #U} other {Стійка 19 дюймів, #U}}"
+
+#: src/components/places/rack.tsx
+msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
+msgstr "{units, plural, one {Не вміщується: стійка заввишки # юніт.} few {Не вміщується: стійка заввишки # юніти.} many {Не вміщується: стійка заввишки # юнітів.} other {Не вміщується: стійка заввишки # юніта.}}"
 
 #: src/components/filters/strip.tsx
 msgid "{unnamed, plural, one {and # more} other {and # more}}"
@@ -2319,6 +2390,13 @@ msgstr "Чек від {v}"
 #: src/components/inbox/currency-item.tsx
 msgid "{vendor} receipt"
 msgstr "Чек від {vendor}"
+
+#: src/assistant/confirm-card.tsx
+#: src/map/card.tsx
+#: src/map/floor-plan/panel.tsx
+#: src/map/map-view.tsx
+msgid "{w} × {d}"
+msgstr "{w} × {d}"
 
 #: src/assistant/confirm-card.tsx
 #: src/map/card.tsx
@@ -2468,6 +2546,12 @@ msgid "{who}'s monthly token limit reached"
 msgstr "Досягнуто місячного ліміту токенів {who}"
 
 #: src/components/labels/stock-picker.tsx
+#: src/components/labels/tape-title.test.ts
+msgid "{width} in tape"
+msgstr "Стрічка {width} дюйма"
+
+#: src/components/labels/stock-picker.tsx
+#: src/components/labels/tape-title.test.ts
 msgid "{width} mm tape"
 msgstr "Стрічка {width} мм"
 
@@ -2513,6 +2597,11 @@ msgstr "<0>{0}</0> · {when}"
 #: src/components/mailin/mailbox-settings.tsx
 msgid "<0>{0}</0> · folder <1>{1}</1>"
 msgstr "<0>{0}</0> · тека <1>{1}</1>"
+
+#. placeholder {0}: place.name
+#: src/components/places/trash-contents-dialog.tsx
+msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
+msgstr "Усередині <0>{0}</0> та його відділень — {inside}. Що з ними зробити?"
 
 #. placeholder {0}: conflict.by
 #: src/assistant/confirm-card.tsx
@@ -2575,6 +2664,10 @@ msgstr "<0>{0}</0>: його речі перестануть відкриват�
 msgid "<0>{entity}</0> was trashed by <1>{by}</1>."
 msgstr "<0>{entity}</0> переміщено в кошик: <1>{by}</1>."
 
+#: src/components/export/export-sheet.tsx
+msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
+msgstr "<0>{hiddenName}</0> приховано, тому її немає в цьому файлі. Щоб експортувати її, виберіть її в розділі «Експортувати локацію»."
+
 #: src/components/ai/model-picker.tsx
 msgid "<0>{model}</0> is no longer offered by {provName}. Pick another."
 msgstr "<0>{model}</0> більше не пропонує {provName}. Виберіть інший."
@@ -2590,6 +2683,10 @@ msgstr "<0>{name}</0> · <1>{meterLabel}</1> (<2>{unit}</2>)"
 #: src/components/two-factor-hidden.tsx
 msgid "<0>{name}</0> asks for two-factor"
 msgstr "<0>{name}</0> вимагає двофакторну автентифікацію"
+
+#: src/routes/_app/loc.$id.tsx
+msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
+msgstr "<0>{name}</0> приховано з вашого меню, «Головної», списків і пошуку. Це посилання все одно її відкриває."
 
 #: src/routes/_app/loc.$id.tsx
 msgid "<0>{name}</0> is yours alone: it has no members, invites or share links. Move a thing into a shared home when it becomes shared."
@@ -2612,8 +2709,20 @@ msgid "<0>{payer}</0>'s account (the server's key would have been next)"
 msgstr "Обліковий запис <0>{payer}</0> (наступним був би ключ сервера)"
 
 #: src/components/ai/call-detail.tsx
+msgid "<0>{payer}</0>'s personal key"
+msgstr "Особистий ключ <0>{payer}</0>"
+
+#: src/components/ai/call-detail.tsx
 msgid "<0>{payer}</0>'s personal key (their account's key would have been next)"
 msgstr "Особистий ключ <0>{payer}</0> (наступним був би ключ його облікового запису)"
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
+msgstr "<0>{personal}</0> показано, бо це ваша єдина локація. Її знову буде приховано, коли у вас з’явиться інша."
+
+#: src/components/hide-personal.tsx
+msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
+msgstr "<0>{personal}</0> — ваша єдина локація, тому вона залишається. Спочатку додайте іншу або приєднайтеся до іншої."
 
 #: src/components/export/export-sheet.tsx
 msgid "<0>{personal}</0> with its files, your profile and preferences, and the AI calls you made. Locations you own are exported one by one."
@@ -2650,6 +2759,10 @@ msgstr "<0>{room}</0> — це…"
 #: src/map/map-view.tsx
 msgid "<0>{room}</0> isn’t on a floor yet. Move it into a floor to put it on one."
 msgstr "<0>{room}</0> ще не на поверсі. Перемістіть його на поверх, щоб розмістити на ньому."
+
+#: src/map/map-view.tsx
+msgid "<0>{room}</0>, from the plan, not added, {w} by {d}"
+msgstr "<0>{room}</0>, з плану, не додана, {w} на {d}"
 
 #: src/map/map-view.tsx
 msgid "<0>{room}</0>, from the plan, not added, {w} by {d} metres"
@@ -3234,10 +3347,6 @@ msgstr "Назва місця довша за {max} символів; збере
 msgid "A price needs a currency."
 msgstr "Ціні потрібна валюта."
 
-#: src/components/import/labels.ts
-msgid "A purchase needs a date; kept in the notes."
-msgstr "Покупці потрібна дата; збережено в нотатках."
-
 #: src/components/notifications/settings/calendar.tsx
 msgid "A private link your calendar app subscribes to: what's due and what runs out, as all-day events, from a month back to 13 months ahead. Titles and dates only, never money."
 msgstr "Приватне посилання, на яке підписується ваш календар: що наближається за строком і що завершується, як події на весь день, від місяця назад до 13 місяців уперед. Лише назви й дати, ніколи гроші."
@@ -3249,6 +3358,10 @@ msgstr "Продукт"
 #: src/components/scan/barcode-sheet.tsx
 msgid "A product barcode"
 msgstr "Штрихкод продукту"
+
+#: src/components/import/labels.ts
+msgid "A purchase needs a date; kept in the notes."
+msgstr "Покупці потрібна дата; збережено в нотатках."
 
 #: src/components/import/labels.ts
 msgid "A purchase needs a price; kept in the notes."
@@ -3309,8 +3422,16 @@ msgid "A room holds {MAX_ROOM_PHOTOS} photos. Remove one to add another."
 msgstr "Кімната вміщує {MAX_ROOM_PHOTOS} фото. Вилучіть одне, щоб додати інше."
 
 #: src/components/places/room-size.tsx
+msgid "A room is at least {min} across."
+msgstr "Кімната має бути щонайменше {min} завширшки."
+
+#: src/components/places/room-size.tsx
 msgid "A room is at least {min} m across."
 msgstr "Кімната має бути щонайменше {min} м завширшки."
+
+#: src/components/places/room-size.tsx
+msgid "A room is at most {max} across."
+msgstr "Кімната має бути щонайбільше {max} завширшки."
 
 #: src/components/places/room-size.tsx
 msgid "A room is at most {max} m across."
@@ -4054,6 +4175,10 @@ msgstr "Додати до інциденту"
 msgid "Add to the type"
 msgstr "Додати до типу"
 
+#: src/native/record.tsx
+msgid "Add to this box"
+msgstr "Додати до цієї коробки"
+
 #: src/assistant/confirm-card.tsx
 msgid "Add warranty"
 msgstr "Додати гарантію"
@@ -4167,12 +4292,20 @@ msgstr "Додавання ключа доступу потребує входу
 msgid "Adding search words"
 msgstr "Додавання пошукових слів"
 
+#: src/native/capture-form.tsx
+msgid "Adding to box"
+msgstr "Додавання до коробки"
+
 #: src/components/history/labels.ts
 #: src/components/notifications/settings/channels.tsx
 #: src/components/registries/registry-edit-sheet.tsx
 #: src/components/registries/registry-page.tsx
 msgid "Address"
 msgstr "Адреса"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Addresses"
+msgstr "Адреси"
 
 #: src/lib/labels.ts
 msgid "Adds fuel, things you run out of, passwords and codes, moving house, and \"Connect ChatGPT or Claude\"."
@@ -4415,6 +4548,10 @@ msgstr "Налаштування ШІ"
 msgid "AI spending caps"
 msgstr "Ліміти витрат на ШІ"
 
+#: src/native/record.tsx
+msgid "AI suggestions are still waiting. Your entry is saved."
+msgstr "Пропозиції ШІ ще очікуються. Ваш запис збережено."
+
 #: src/components/ai/settings-page.tsx
 #: src/components/notifications/notification-row.tsx
 #: src/routes/_app/settings.ai.usage.tsx
@@ -4533,6 +4670,8 @@ msgstr "Усі гілки розмови"
 msgid "All types"
 msgstr "Усі типи"
 
+#: src/components/connections/home-assistant.tsx
+#: src/components/connections/token-create.tsx
 #: src/routes/oauth/consent.tsx
 msgid "Allow"
 msgstr "Дозволити"
@@ -4651,6 +4790,14 @@ msgstr "Ключ облікового запису"
 msgid "An app password, if your provider has them."
 msgstr "Пароль застосунку, якщо у вашого провайдера він є."
 
+#: src/native/main.tsx
+msgid "An attached file exceeds the server upload limit."
+msgstr "Прикріплений файл перевищує обмеження сервера."
+
+#: src/native/main.tsx
+msgid "An attached file format is not supported by Kept."
+msgstr "Kept не підтримує формат одного з прикріплених файлів."
+
 #: src/components/warranties/warranty-sheet.tsx
 msgid "An end date on or after the start."
 msgstr "Дата закінчення того самого дня або пізніша за дату початку."
@@ -4698,9 +4845,19 @@ msgstr "Власник або адміністратор фіксує тут к�
 msgid "An owner or admin turns it on in the location's settings, under What to track."
 msgstr "Власник або адміністратор вмикає його в налаштуваннях локації в розділі «Що відстежувати»."
 
+#: src/components/counts/count-page.tsx
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "An owner or admin turns them on in a location's What to track."
+msgstr "Власник або адміністратор вмикає їх у розділі «Що відстежувати» локації."
+
 #: src/routes/_app/schedules.tsx
 msgid "An owner or admin turns them on in the location's settings, under What to track."
 msgstr "Власник або адміністратор вмикає їх у налаштуваннях локації в розділі «Що відстежувати»."
+
+#: src/native/main.tsx
+msgid "An uploaded file did not match its saved checksum. Retry or review the capture."
+msgstr "Завантажений файл не збігається зі збереженою контрольною сумою. Повторіть спробу або перевірте запис."
 
 #. placeholder {0}: tokens(cap.used.tokens)
 #. placeholder {1}: tokens(cap.tokensPerMonth)
@@ -5158,6 +5315,10 @@ msgstr "За темпом останніх 30 днів: ~{0} токенів на
 msgid "Attach a job card or photo"
 msgstr "Додати замовлення на роботу або фото"
 
+#: src/native/capture-form.tsx
+msgid "Attach PDF"
+msgstr "Прикріпити PDF"
+
 #: src/components/warranties/warranty-sheet.tsx
 msgid "Attach the card or certificate"
 msgstr "Додати талон або сертифікат"
@@ -5215,6 +5376,10 @@ msgstr "Доступний"
 #: src/components/scan/claim-sheet.tsx
 #: src/components/whats-new.tsx
 #: src/lib/labels.ts
+#: src/native/capture-form.tsx
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+#: src/native/record.tsx
 #: src/routes/_app/locations.new.tsx
 #: src/routes/invite.tsx
 #: src/routes/setup.tsx
@@ -5424,6 +5589,11 @@ msgstr "Належить до {name}"
 msgid "Below this it's listed as low. Empty for no minimum."
 msgstr "Нижче цього воно позначене як «мало». Порожнє, якщо мінімуму немає."
 
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Beside the rails (0U)"
+msgstr "Поруч із рейками (0U)"
+
 #: src/components/search/results.tsx
 msgid "Best match first"
 msgstr "Спочатку найкращі збіги"
@@ -5567,6 +5737,7 @@ msgstr "Куплено"
 #: src/components/moving/box-screen.tsx
 #: src/components/moving/sheets.tsx
 #: src/components/sharelinks/words.tsx
+#: src/native/main.tsx
 msgid "Box"
 msgstr "Коробка"
 
@@ -5608,12 +5779,17 @@ msgstr "Перевірки коробок"
 msgid "Box inside · not opened"
 msgstr "Коробка всередині · не відкрито"
 
+#: src/native/capture-form.tsx
+msgid "Box name"
+msgstr "Назва коробки"
+
 #: src/components/history/labels.ts
 msgid "Box unpacked"
 msgstr "Коробку розпаковано"
 
 #: src/components/moving/move-screen.tsx
 #: src/graph/graph-view.tsx
+#: src/native/main.tsx
 #: src/routes/gallery.tsx
 msgid "Boxes"
 msgstr "Коробки"
@@ -5891,6 +6067,11 @@ msgstr "у кеші {0}"
 msgid "Cached input, per million (optional)"
 msgstr "Кешоване введення, на мільйон (необов’язково)"
 
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/main.tsx
+msgid "Cached inventory from {0}"
+msgstr "Кешований інвентар від {0}"
+
 #: src/components/device/keep-offline.tsx
 msgid "Calculating the download size…"
 msgstr "Розрахунок розміру завантаження…"
@@ -5934,6 +6115,15 @@ msgstr "Повернулося"
 msgid "came back {0}"
 msgstr "повернулося {0}"
 
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/thing-loans.tsx
+msgid "Came back damaged"
+msgstr "Повернулося пошкодженим"
+
+#: src/components/history/labels.ts
+msgid "Came back damaged from {person}"
+msgstr "Повернулося від {person} пошкодженим"
+
 #: src/components/history/labels.ts
 msgid "Came back from {person}"
 msgstr "Повернулося від {person}"
@@ -5942,6 +6132,7 @@ msgstr "Повернулося від {person}"
 msgid "Came back from {person}, {condition}"
 msgstr "Повернулося від {person}, {condition}"
 
+#: src/assistant/confirm-card.tsx
 #: src/components/things/overview.tsx
 msgid "Came from"
 msgstr "Походить з"
@@ -6072,6 +6263,7 @@ msgstr "Канадські долари (CAD)"
 #: src/components/places/merge-dialog.tsx
 #: src/components/places/move-picker.tsx
 #: src/components/places/place-fields.tsx
+#: src/components/places/rack.tsx
 #: src/components/places/sub-places.tsx
 #: src/components/places/trash-contents-dialog.tsx
 #: src/components/readings/log-reading-sheet.tsx
@@ -6111,6 +6303,7 @@ msgstr "Канадські долари (CAD)"
 #: src/components/things/trash.tsx
 #: src/components/tray/tray.tsx
 #: src/components/ui/confirm.tsx
+#: src/components/vehicles/change-unit.tsx
 #: src/components/vehicles/history-report-sheet.tsx
 #: src/components/vehicles/lubelogger-import.tsx
 #: src/components/vehicles/starter-schedules.tsx
@@ -6118,6 +6311,7 @@ msgstr "Канадські долари (CAD)"
 #: src/components/webhooks/edit.tsx
 #: src/map/map-view.tsx
 #: src/map/put-on.tsx
+#: src/native/main.tsx
 #: src/routes/_app/p.$id.tsx
 #: src/routes/_app/settings.location.$id.members.tsx
 #: src/routes/gallery.tsx
@@ -6246,6 +6440,8 @@ msgstr "По центру"
 #: src/assistant/confirm-card.tsx
 #: src/components/ai/caps.tsx
 #: src/components/moving/box-screen.tsx
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
 #: src/components/webhooks/list.tsx
 #: src/map/shapes.tsx
 #: src/routes/_app/settings.location.$id.members.tsx
@@ -6259,6 +6455,10 @@ msgstr "Змінити {code}"
 #: src/components/codes/own-codes.tsx
 msgid "Change {value}"
 msgstr "Змінити {value}"
+
+#: src/native/main.tsx
+msgid "Change box"
+msgstr "Змінити коробку"
 
 #: src/components/change-email.tsx
 msgid "Change email"
@@ -6338,6 +6538,12 @@ msgstr "Змінити тип"
 #: src/components/things/retype-sheet.tsx
 msgid "Change type"
 msgstr "Змінити тип"
+
+#: src/components/things/meters-section.tsx
+#: src/components/vehicles/change-unit.tsx
+#: src/components/vehicles/overview.tsx
+msgid "Change unit"
+msgstr "Змінити одиницю"
 
 #: src/components/webhooks/edit.tsx
 msgid "Change webhook"
@@ -6520,6 +6726,10 @@ msgstr "Перевірити доставку (Node.js)"
 #: src/components/scan/session/session-screen.tsx
 msgid "Check a place or a box: see what's there and what's missing. Viewers' counts aren't saved."
 msgstr "Перевірте місце або коробку: побачите, що там є і чого бракує. Підрахунки спостерігачів не зберігаються."
+
+#: src/native/record.tsx
+msgid "Check AI suggestions"
+msgstr "Перевірити пропозиції ШІ"
 
 #: src/components/codes/code-settings.tsx
 msgid "Check codes against a format rule"
@@ -6777,6 +6987,7 @@ msgid "Choose one of your shops"
 msgstr "Виберіть один зі своїх магазинів"
 
 #: src/components/capture/file-fallback.tsx
+#: src/native/capture-form.tsx
 msgid "Choose photos"
 msgstr "Виберіть фото"
 
@@ -6853,6 +7064,10 @@ msgstr "Виберіть речі"
 #: src/components/money/exchange-rates.tsx
 msgid "Choose two different currencies."
 msgstr "Виберіть дві різні валюти."
+
+#: src/native/capture-form.tsx
+msgid "Choose up to 20 files, each no larger than 25 MB."
+msgstr "Виберіть до 20 файлів розміром не більше 25 МБ кожен."
 
 #: src/components/reports/claim-pack.tsx
 msgid "Choose what goes in it"
@@ -7009,6 +7224,7 @@ msgstr "Claude Desktop"
 #: src/components/filters/panel.tsx
 #: src/components/sheet/editors.tsx
 #: src/components/sheet/sheet-view.tsx
+#: src/native/main.tsx
 msgid "Clear"
 msgstr "Очистити"
 
@@ -7031,6 +7247,10 @@ msgstr "Очистити пошук"
 #: src/components/inbox/bulk-bar.tsx
 msgid "Clear selection"
 msgstr "Зняти вибір"
+
+#: src/native/label-panel.tsx
+msgid "Clear target"
+msgstr "Очистити ціль"
 
 #: src/components/setup-code-help.tsx
 msgid "CLI guide"
@@ -7074,6 +7294,10 @@ msgstr "Закрити"
 msgid "Close box check"
 msgstr "Закрити перевірку коробки"
 
+#: src/native/label-panel.tsx
+msgid "Close camera"
+msgstr "Закрити камеру"
+
 #: src/assistant/panel.tsx
 msgid "Close panel"
 msgstr "Закрити панель"
@@ -7102,6 +7326,10 @@ msgstr "Комора"
 #: src/components/codes/own-codes.tsx
 msgid "Code"
 msgstr "Код"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
+msgstr "Код <0>{code}</0>. Перевірте, що Home Assistant показує той самий."
 
 #: src/components/scan/manual-code.tsx
 msgid "Code on the label"
@@ -7396,6 +7624,10 @@ msgstr "Підключити застосунок"
 msgid "Connect ChatGPT or Claude"
 msgstr "Підключити ChatGPT або Claude"
 
+#: src/components/connections/token-create.tsx
+msgid "Connect Home Assistant"
+msgstr "Під’єднати Home Assistant"
+
 #: src/routes/_app/help.tsx
 msgid "Connect other apps"
 msgstr "Підключити інші застосунки"
@@ -7407,6 +7639,18 @@ msgstr "Під’єднати Paperless-ngx"
 #: src/components/import/inspect-step.tsx
 msgid "Connect to Homebox (optional)"
 msgstr "Під’єднати до Homebox (необов’язково)"
+
+#: src/native/main.tsx
+msgid "Connect to Kept to review recent batches."
+msgstr "Підключіться до Kept, щоб переглянути останні партії."
+
+#: src/native/main.tsx
+msgid "Connect to your inventory"
+msgstr "Підключитися до вашого інвентарю"
+
+#: src/native/label-panel.tsx
+msgid "Connect to your Kept server over HTTPS to enroll NFC tags."
+msgstr "Підключіться до сервера Kept через HTTPS, щоб записати NFC-мітки."
 
 #: src/components/home/checklist.tsx
 msgid "Connected AI"
@@ -7526,6 +7770,7 @@ msgstr "Ширина вмісту"
 
 #: src/components/things/contents.tsx
 #: src/components/things/thing-screen.tsx
+#: src/native/record.tsx
 msgid "Contents"
 msgstr "Вміст"
 
@@ -7553,6 +7798,14 @@ msgstr "Аркуші вмісту"
 msgid "Continue"
 msgstr "Продовжити"
 
+#: src/native/main.tsx
+msgid "Continue finding"
+msgstr "Продовжити пошук"
+
+#: src/native/label-panel.tsx
+msgid "Continue scanning"
+msgstr "Продовжити сканування"
+
 #: src/routes/_app/help.tsx
 msgid "Continue the tour"
 msgstr "Продовжити ознайомлення"
@@ -7573,6 +7826,10 @@ msgstr "Перетворити й втратити це?"
 #: src/components/things/action-menu.tsx
 msgid "Convert anyway"
 msgstr "Усе одно перетворити"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Convert the readings"
+msgstr "Перерахувати показники"
 
 #: src/components/things/action-menu.tsx
 msgid "Convert to a room or spot"
@@ -7775,6 +8032,38 @@ msgstr "У цій локації витрати приховано"
 msgid "Costs:"
 msgstr "Вартість:"
 
+#: src/native/main.tsx
+msgid "Could not connect to Kept. Check the server address and try again."
+msgstr "Не вдалося підключитися до Kept. Перевірте адресу сервера та спробуйте ще раз."
+
+#: src/native/capture-form.tsx
+msgid "Could not create the box. Check your connection and selected location."
+msgstr "Не вдалося створити коробку. Перевірте з’єднання та вибране розташування."
+
+#: src/native/main.tsx
+msgid "Could not search Kept. Try again."
+msgstr "Не вдалося виконати пошук у Kept. Спробуйте ще раз."
+
+#: src/native/main.tsx
+msgid "Could not sign out."
+msgstr "Не вдалося вийти з облікового запису."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture automatically. Retry or review it."
+msgstr "Не вдалося автоматично синхронізувати цей запис. Повторіть спробу або перегляньте його."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture. Review the error below."
+msgstr "Не вдалося синхронізувати цей запис. Перевірте помилку нижче."
+
+#: src/native/main.tsx
+msgid "Could not sync. Pending captures are still on this iPhone."
+msgstr "Не вдалося синхронізувати. Незавершені записи залишаються на цьому iPhone."
+
+#: src/native/main.tsx
+msgid "Could not update the destination box."
+msgstr "Не вдалося оновити цільову коробку."
+
 #: src/components/things/create-sheet.tsx
 msgid "Couldn't add it"
 msgstr "Не вдалося додати"
@@ -7821,6 +8110,14 @@ msgstr "Не вдалося змінити теги"
 #: src/components/things/retype-sheet.tsx
 msgid "Couldn't change the type"
 msgstr "Не вдалося змінити тип"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Couldn't change the unit"
+msgstr "Не вдалося змінити одиницю"
+
+#: src/components/display-prefs.tsx
+msgid "Couldn't change the units"
+msgstr "Не вдалося змінити одиниці"
 
 #: src/components/reports/claim-pack.tsx
 msgid "Couldn't check on the claim pack"
@@ -8020,6 +8317,10 @@ msgstr "Не вдалося розпізнати це фото (провайде
 msgid "Couldn’t read this plan."
 msgstr "Не вдалося прочитати цей план."
 
+#: src/components/location-position.tsx
+msgid "Couldn't read where you are. Try again, or type it."
+msgstr "Не вдалося визначити, де ви. Спробуйте ще раз або введіть вручну."
+
 #: src/components/claims/claim-sheet.tsx
 #: src/components/documents/subject-paperwork.tsx
 #: src/components/fuel/fuel-tab.tsx
@@ -8054,6 +8355,7 @@ msgid "Couldn't save {label}"
 msgstr "Не вдалося зберегти {label}"
 
 #: src/components/counts/count-regularly.tsx
+#: src/components/hide-personal.tsx
 #: src/components/kits/kit-section.tsx
 #: src/components/registries/brand-logo.household.tsx
 #: src/components/schedules/schedule-sheet.tsx
@@ -8288,10 +8590,21 @@ msgstr "Рахую…"
 #: src/components/app-shell.tsx
 #: src/components/counts/counts-list.tsx
 #: src/components/counts/route-error.tsx
+#: src/lib/labels.ts
 #: src/routes/_app/counts.tsx
 #: src/routes/_app/loc.$id.tsx
 msgid "Counts"
 msgstr "Підрахунки"
+
+#: src/components/counts/count-page.tsx
+#: src/components/counts/counts-list.tsx
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off"
+msgstr "Підрахунки вимкнено"
+
+#: src/components/counts/counts-list.tsx
+msgid "Counts are off here: this lists the box checks."
+msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
 
 #: src/components/hints/hint-copy.ts
 msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
@@ -8352,6 +8665,10 @@ msgstr "Створити «<0>{typed}</0>»"
 msgid "Create {displayName}"
 msgstr "Створити {displayName}"
 
+#: src/native/capture-form.tsx
+msgid "Create a box"
+msgstr "Створити коробку"
+
 #: src/components/notifications/settings/calendar.tsx
 msgid "Create a link"
 msgstr "Створити посилання"
@@ -8372,6 +8689,11 @@ msgstr "Створити обліковий запис і приєднатися
 #: src/routes/invite.tsx
 msgid "Create an account and join"
 msgstr "Створіть обліковий запис і приєднайтеся"
+
+#: src/native/capture-form.tsx
+#: src/native/main.tsx
+msgid "Create box"
+msgstr "Створити коробку"
 
 #: src/routes/_app/settings.location.$id.invite.tsx
 msgid "Create invite link"
@@ -8493,6 +8815,11 @@ msgstr "поточний"
 msgid "Current value"
 msgstr "Поточне значення"
 
+#. placeholder {0}: isolate(existingOwner)
+#: src/native/label-panel.tsx
+msgid "Currently linked to: {0}"
+msgstr "Зараз прив’язано до: {0}"
+
 #: src/components/ai/usage-page.tsx
 msgid "Custom"
 msgstr "Власний"
@@ -8544,8 +8871,15 @@ msgstr "Щодня"
 msgid "Daily digest"
 msgstr "Щоденне зведення"
 
+#. placeholder {0}: num(p.maxPerDay.before)
+#. placeholder {1}: num(p.maxPerDay.after)
+#: src/components/vehicles/change-unit.tsx
+msgid "Daily limit: {0} becomes {1}"
+msgstr "Денний ліміт: {0} стає {1}"
+
 #: src/components/condition/labels.ts
 #: src/components/lending/handover-return.tsx
+#: src/components/lending/return-sheet.tsx
 msgid "Damaged"
 msgstr "Пошкоджено"
 
@@ -8645,7 +8979,16 @@ msgstr "Десятковий розділювач"
 msgid "Deck"
 msgstr "Тераса"
 
+#: src/components/connections/home-assistant.tsx
+msgid "Decline"
+msgstr "Відхилити"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Declined. Home Assistant gets nothing."
+msgstr "Відхилено. Home Assistant нічого не отримає."
+
 #: src/components/places/room-size.tsx
+#: src/map/floor-plan/panel.tsx
 #: src/map/size.tsx
 msgid "Decrease {label}"
 msgstr "Зменшити {label}"
@@ -8867,6 +9210,8 @@ msgstr "Доставки за останні 30 днів з’являються
 msgid "Deny"
 msgstr "Заборонити"
 
+#: src/components/places/rack.tsx
+#: src/map/floor-plan/panel.tsx
 #: src/map/size.tsx
 msgid "Depth"
 msgstr "Глибина"
@@ -8876,6 +9221,7 @@ msgid "Depth (m)"
 msgstr "Глибина (м)"
 
 #: src/components/history/labels.ts
+#: src/native/capture-form.tsx
 msgid "Description"
 msgstr "Опис"
 
@@ -8898,6 +9244,10 @@ msgstr "Настільна колонка"
 #: src/map/labels.ts
 msgid "Desktop PC"
 msgstr "Стаціонарний ПК"
+
+#: src/native/main.tsx
+msgid "Destination box"
+msgstr "Цільова коробка"
 
 #: src/components/history/labels.ts
 #: src/components/things/labels.ts
@@ -9021,9 +9371,15 @@ msgstr "Вимкнено"
 #: src/components/things/meters-section.tsx
 #: src/map/floor-plan/notices.tsx
 #: src/map/map-view.tsx
+#: src/native/main.tsx
 #: src/routes/_app/admin.jobs.tsx
 msgid "Discard"
 msgstr "Відхилити"
+
+#. placeholder {0}: isolate(fields.name)
+#: src/native/main.tsx
+msgid "Discard {0}?"
+msgstr "Видалити {0}?"
 
 #: src/components/inbox/bulk-bar.tsx
 msgid "Discard {count} drafts?"
@@ -9169,6 +9525,8 @@ msgstr "Docker Compose"
 
 #: src/components/things/labels.ts
 #: src/components/vehicles/words.tsx
+#: src/native/main.tsx
+#: src/native/record.tsx
 msgid "Document"
 msgstr "Документ"
 
@@ -9266,6 +9624,7 @@ msgstr "Не імпортувати"
 #: src/components/things/label-sheet.tsx
 #: src/components/webhooks/edit.tsx
 #: src/map/map-view.tsx
+#: src/native/capture-form.tsx
 #: src/routes/_app/help.tsx
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "Done"
@@ -9700,8 +10059,8 @@ msgid "Earlier"
 msgstr "Раніше"
 
 #: src/components/lending/thing-loans.tsx
-msgid "Earlier loans"
-msgstr "Раніші позики"
+#~ msgid "Earlier loans"
+#~ msgstr "Раніші позики"
 
 #: src/routes/_app/assistant.index.tsx
 msgid "Earlier this week"
@@ -9866,7 +10225,9 @@ msgstr "Надсилається вам електронною поштою: в�
 msgid "empty"
 msgstr "порожньо"
 
+#: src/components/places/rack.tsx
 #: src/components/places/rows.tsx
+#: src/map/rack-card.tsx
 msgid "Empty"
 msgstr "Порожньо"
 
@@ -9976,6 +10337,10 @@ msgstr "Введіть резервний код."
 msgid "Enter a host name only, like kept.home.example: no https:// and no port."
 msgstr "Введіть лише назву хоста, як-от kept.home.example: без https:// і без порту."
 
+#: src/components/location-position.tsx
+msgid "Enter a number from {from} to {to}."
+msgstr "Введіть число від {from} до {to}."
+
 #: src/components/things/meters-section.tsx
 msgid "Enter a number, 0 or more."
 msgstr "Введіть число, 0 або більше."
@@ -10002,6 +10367,10 @@ msgstr "Введіть число, як-от 60250."
 #: src/components/things/edit-form.tsx
 msgid "Enter a number."
 msgstr "Введіть число."
+
+#: src/native/capture-form.tsx
+msgid "Enter a quantity greater than zero."
+msgstr "Введіть кількість більшу за нуль."
 
 #: src/components/things/edit-form.tsx
 msgid "Enter a web address starting with https://."
@@ -10049,9 +10418,19 @@ msgstr "Введіть адресу електронної пошти або з�
 msgid "Enter an email address."
 msgstr "Введіть адресу електронної пошти."
 
+#: src/components/places/room-size.tsx
+#: src/map/floor-plan/panel.tsx
+#: src/map/height.tsx
+msgid "Enter feet and inches, like {example}."
+msgstr "Введіть фути й дюйми, як-от {example}."
+
 #: src/components/fuel/log-fuel-sheet.tsx
 msgid "Enter how much, like 40 or 38.5."
 msgstr "Введіть кількість, наприклад 40 або 38.5."
+
+#: src/map/size.tsx
+msgid "Enter inches, like {example}."
+msgstr "Введіть дюйми, як-от {example}."
 
 #: src/components/places/room-size.tsx
 #: src/map/height.tsx
@@ -10162,6 +10541,11 @@ msgstr "Введіть ім’я користувача."
 #: src/components/history/labels.ts
 msgid "Entered an import’s passphrase"
 msgstr "Введено парольну фразу для імпорту"
+
+#. placeholder {0}: batchEntryIds.length
+#: src/native/capture-form.tsx
+msgid "Entries in this batch: {0}"
+msgstr "Записів у цій партії: {0}"
 
 #: src/lib/labels.ts
 msgid "Essentials"
@@ -10282,6 +10666,10 @@ msgstr "Решта розділів: ваші модулі, журнал ауд�
 #: src/components/labels/batch-builder.tsx
 msgid "Every place in here with no printed label, the ones never labelled too: each gets its ID now."
 msgstr "Кожне місце тутешнє без надрукованої етикетки, включно з тими, що ніколи не позначалися: кожне отримає свій ID зараз."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
+msgstr "Кожен показник, зсув після заміни, денний ліміт і графіки цього одометра перераховуються в {toLabel}."
 
 #: src/components/search/palette.tsx
 msgid "Every result, with filters"
@@ -10637,8 +11025,13 @@ msgstr "Face ID або відбиток пальця не спрацював. В
 msgid "Face ID or fingerprint wasn’t set up"
 msgstr "Face ID або відбиток пальця не налаштовано"
 
+#: src/components/places/rack.tsx
+msgid "Faces"
+msgstr "Сторона"
+
 #: src/components/export/labels.ts
 #: src/components/ops/ops-words.ts
+#: src/native/main.tsx
 msgid "Failed"
 msgstr "Не вдалося"
 
@@ -10765,6 +11158,11 @@ msgstr "Тип файлу"
 msgid "File uploaded"
 msgstr "Файл завантажено"
 
+#. placeholder {0}: entry.capture.files.length
+#: src/native/main.tsx
+msgid "Files: {0}"
+msgstr "Файли: {0}"
+
 #: src/map/labels.ts
 msgid "Filing cabinet"
 msgstr "Картотека"
@@ -10838,6 +11236,10 @@ msgstr "Знайти бренд"
 #: src/components/filters/panel.tsx
 msgid "Find a filter"
 msgstr "Знайти фільтр"
+
+#: src/components/languages.tsx
+msgid "Find a language"
+msgstr "Знайти мову"
 
 #: src/components/ai/call-filters.tsx
 #: src/components/filters/registry.tsx
@@ -10947,6 +11349,11 @@ msgstr "Знаходити речі та додавати, переміщува�
 msgid "Find things and read what's recorded. No changes, no secret fields."
 msgstr "Знаходити речі та читати записане. Жодних змін, жодних секретних полів."
 
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Find this box"
+msgstr "Знайти цю коробку"
+
 #: src/components/home/quick-log.tsx
 msgid "Finding things with a meter"
 msgstr "Пошук речей із лічильником"
@@ -10960,6 +11367,7 @@ msgid "Finding things: rooms, boxes, labels and search."
 msgstr "Як знаходити речі: кімнати, коробки, етикетки та пошук."
 
 #: src/components/capture/place-chip.tsx
+#: src/components/location-position.tsx
 msgid "Finding where you are…"
 msgstr "Визначаємо ваше місцеположення…"
 
@@ -10992,6 +11400,10 @@ msgstr "Завершити налаштування"
 #: src/components/hints/hint-copy.ts
 msgid "Finish shows what was found and what's missing. Missing things stay as they are unless you choose."
 msgstr "«Завершити» показує, що знайдено та чого бракує. Речі, яких бракує, залишаються як є, якщо ви не оберете інакше."
+
+#: src/native/label-panel.tsx
+msgid "Finish the current NFC scan and try again."
+msgstr "Завершіть поточне сканування NFC та спробуйте ще раз."
 
 #: src/components/condition/report-screen.tsx
 msgid "Finish this report?"
@@ -11242,6 +11654,15 @@ msgstr "Знайдено"
 msgid "Found ({0})"
 msgstr "Знайдено ({0})"
 
+#. placeholder {0}: isolate(box.name)
+#: src/native/label-panel.tsx
+msgid "Found {0}."
+msgstr "Знайдено {0}."
+
+#: src/native/label-panel.tsx
+msgid "Found box."
+msgstr "Коробку знайдено."
+
 #. placeholder {0}: x.readBy
 #: src/components/scan/session/summary.tsx
 msgid "found by <0>{0}</0>"
@@ -11329,6 +11750,10 @@ msgstr "Від {from}"
 #: src/components/registries/field-list.tsx
 msgid "From {from} · inherited"
 msgstr "Від {from} · успадковано"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "From {fromLabel} to {toLabel}"
+msgstr "З {fromLabel} на {toLabel}"
 
 #: src/components/warranties/warranties-section.tsx
 msgid "from {started}"
@@ -11463,9 +11888,16 @@ msgstr "За ваші останні 30 днів, для дій, які ви в�
 msgid "from your own use once you've tried it"
 msgstr "із вашого власного використання, щойно ви його спробуєте"
 
+#: src/components/places/rack.tsx
 #: src/lib/labels.ts
+#: src/map/rack-card.tsx
 msgid "Front"
 msgstr "Перед"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/things/overview.tsx
+msgid "Front, half depth"
+msgstr "Спереду, на пів глибини"
 
 #: src/components/fuel/fuel-summary.tsx
 #: src/components/hints/hint-copy.ts
@@ -11515,6 +11947,12 @@ msgstr "Паливо, середнє за місяць"
 #: src/components/fuel/fuel-tab.tsx
 msgid "Full"
 msgstr "Повне"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Full depth"
+msgstr "На всю глибину"
 
 #: src/components/fuel/fuel-trends.tsx
 msgid "Full fill"
@@ -11604,6 +12042,10 @@ msgstr "Привласнено етикетку {name}"
 #: src/components/webhooks/words.tsx
 msgid "Gave up"
 msgstr "Припинено"
+
+#: src/components/places/rack.tsx
+msgid "Gear with no height sits beside the rails."
+msgstr "Обладнання без висоти кріпиться поруч із рейками."
 
 #: src/components/location-settings.tsx
 #: src/routes/_app/settings.location.$id.general.tsx
@@ -11753,6 +12195,14 @@ msgstr "Призначте їм місце"
 #: src/routes/gallery.tsx
 msgid "Given away"
 msgstr "Віддано"
+
+#: src/components/lending/taken-back-by.tsx
+msgid "Given back by"
+msgstr "Хто повернув"
+
+#: src/components/lending/thing-loans.tsx
+msgid "given back by <0>{taker}</0>"
+msgstr "повернув(-ла) <0>{taker}</0>"
 
 #. placeholder {0}: isolate(loan.person.name)
 #: src/components/lending/return-sheet.tsx
@@ -11905,6 +12355,14 @@ msgstr "Група"
 msgid "Had missing"
 msgstr "Були відсутні"
 
+#: src/components/places/rack.tsx
+msgid "Half depth"
+msgstr "На пів глибини"
+
+#: src/components/places/rack.tsx
+msgid "Half units only: 1, 1.5, 2 …"
+msgstr "Лише половинки юніта, як-от 1, 1,5 або 2."
+
 #: src/lib/labels.ts
 msgid "Hallway"
 msgstr "Коридор"
@@ -11962,6 +12420,7 @@ msgstr "Навушники"
 msgid "Headset"
 msgstr "Гарнітура"
 
+#: src/components/places/rack.tsx
 #: src/map/height.tsx
 #: src/map/size.tsx
 msgid "Height"
@@ -12006,6 +12465,10 @@ msgstr "Приховано в цій локації"
 #: src/components/history/timeline.tsx
 msgid "Hide"
 msgstr "Приховати"
+
+#: src/components/hide-personal.tsx
+msgid "Hide <0>{personal}</0>"
+msgstr "Приховати <0>{personal}</0>"
 
 #: src/components/home/checklist.tsx
 msgid "Hide Get started for good"
@@ -12068,14 +12531,35 @@ msgstr "Рядки історії опинилися поза місячним �
 msgid "Hold steady · fill the frame · original kept"
 msgstr "Тримайте нерухомо · заповніть кадр · оригінал збережено"
 
+#: src/native/label-panel.tsx
+msgid "Hold steady against the tag and try again."
+msgstr "Тримайте нерухомо біля мітки та спробуйте ще раз."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone close to one tag at a time."
+msgstr "Підносьте верхню частину iPhone до однієї мітки за раз."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone near one NFC tag."
+msgstr "Піднесіть верхню частину iPhone до однієї NFC-мітки."
+
+#: src/native/capture-form.tsx
+msgid "Holiday decorations"
+msgstr "Святкові прикраси"
+
 #: src/components/app-shell.tsx
 #: src/routes/_app/index.tsx
 msgid "Home"
 msgstr "Головна"
 
+#: src/components/connections/home-assistant.tsx
 #: src/components/vehicles/words.tsx
 msgid "Home Assistant"
 msgstr "Home Assistant"
+
+#: src/components/connections/home-assistant.tsx
+msgid "Home Assistant asks to connect"
+msgstr "Home Assistant просить під’єднатися"
 
 #: src/components/ops/status-tiles.tsx
 #: src/routes/_app/admin.backups.tsx
@@ -12089,6 +12573,18 @@ msgstr "Тут Home Assistant створює резервні копії Kept: �
 #: src/routes/_app/admin.backups.tsx
 msgid "Home Assistant backs up Kept: the database, photos and files, and Kept's keys. Take or schedule backups in Home Assistant → {place}."
 msgstr "Home Assistant створює резервні копії Kept: базу даних, фото й файли, а також ключі Kept. Створюйте резервні копії або плануйте їх у Home Assistant → {place}."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
+msgstr "Home Assistant сам завершить налаштування. Токен показано тут як Home Assistant."
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant is connected"
+msgstr "Home Assistant під’єднано"
+
+#: src/components/connections/token-create.tsx
+msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
+msgstr "Home Assistant читає Kept від вашого імені, у вибраних вами локаціях, і сам отримує свій токен: копіювати нічого не треба. Відкличте його тут будь-коли."
 
 #: src/components/filters/registry.tsx
 msgid "Homebox"
@@ -12205,6 +12701,10 @@ msgstr "Скільки повернулося"
 msgid "How many came back: 1 to {0}."
 msgstr "Скільки повернулося: від 1 до {0}."
 
+#: src/components/places/furniture.tsx
+msgid "How many rack units (U) high."
+msgstr "Скільки юнітів (U) заввишки."
+
 #: src/components/things/split-sheet.tsx
 msgid "How many to take off"
 msgstr "Скільки зняти"
@@ -12287,6 +12787,11 @@ msgstr "ID-чіп і статус"
 msgid "ID pending"
 msgstr "ID очікує"
 
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "Identify a label"
+msgstr "Розпізнати мітку"
+
 #: src/components/registries/type-editor.tsx
 msgid "Identity"
 msgstr "Ідентифікація"
@@ -12329,6 +12834,10 @@ msgstr "Зображення"
 #: src/components/mailin/mailbox-settings.tsx
 msgid "IMAP server"
 msgstr "IMAP-сервер"
+
+#: src/components/display-prefs.tsx
+msgid "Imperial"
+msgstr "Імперська"
 
 #: src/components/hints/hint-copy.ts
 #: src/components/on-demand-route-error.tsx
@@ -12501,6 +13010,10 @@ msgstr "Простими словами, для того, хто вводить 
 msgid "In progress"
 msgstr "У процесі"
 
+#: src/components/places/rack.tsx
+msgid "In rack units, halves allowed. 0 sits beside the rails."
+msgstr "У юнітах, можна половинки. 0 означає поруч із рейками."
+
 #: src/components/claims/labels.ts
 #: src/components/counts/count-page.tsx
 #: src/components/filters/registry.tsx
@@ -12532,6 +13045,11 @@ msgstr "У наборі"
 #: src/routes/_print/labels.$batchId.tsx
 msgid "In the print dialog choose your label printer and this label size."
 msgstr "У діалозі друку виберіть свій принтер для етикеток і цей розмір етикетки."
+
+#: src/assistant/confirm-card.tsx
+#: src/components/things/overview.tsx
+msgid "In the rack"
+msgstr "У стійці"
 
 #: src/components/connections/shortcut-recipe.tsx
 msgid "In the Shortcuts app, make a new Shortcut. Add <0>Ask for Input</0>, set to Number, with the prompt \"Odometer\"."
@@ -12645,6 +13163,7 @@ msgid "Incomplete kits"
 msgstr "Неповні набори"
 
 #: src/components/places/room-size.tsx
+#: src/map/floor-plan/panel.tsx
 #: src/map/size.tsx
 msgid "Increase {label}"
 msgstr "Збільшити {label}"
@@ -12720,6 +13239,10 @@ msgstr "«Аналітика» — частина розділу «Гроші».
 #: src/components/insights/insights-screen.tsx
 msgid "Insights shows the locations where Money is on. Pick another location."
 msgstr "«Аналітика» показує локації, де ввімкнено «Гроші». Оберіть іншу локацію."
+
+#: src/native/label-panel.tsx
+msgid "Inspect NFC tag"
+msgstr "Перевірити NFC-мітку"
 
 #: src/components/documents/labels.ts
 #: src/components/vehicles/words.tsx
@@ -12994,6 +13517,10 @@ msgstr "Це стосуватиметься всіх, з ким ним поді�
 msgid "It goes for everyone it's shared with. What it shows stays."
 msgstr "Це стосуватиметься всіх, з ким ним поділилися. Те, що воно показує, залишиться."
 
+#: src/components/vehicles/change-unit.tsx
+msgid "It goes in the history, and you can undo it."
+msgstr "Зміна потрапить в історію, і її можна скасувати."
+
 #: src/components/inbox/item-card.tsx
 msgid "It goes to the trash with its photos. You can restore it for 30 days."
 msgstr "Його буде переміщено в кошик разом із фото. Ви можете відновити його протягом 30 днів."
@@ -13080,6 +13607,10 @@ msgstr "Це не експорт, який може прочитати Kept. Е�
 #: src/components/places/offline-pages.tsx
 msgid "It isn't in this phone's copy. It opens when you're back online."
 msgstr "Його немає в копії цього телефону. Воно відкриється, коли ви знову будете онлайн."
+
+#: src/components/hide-personal.tsx
+msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
+msgstr "Вона зникне з меню, «Головної», списків і пошуку лише для вас. У ній нічого не зміниться, посилання на неї все одно її відкриватиме, а її нагадування й далі надходитимуть вам. Показати її знову можна тут будь-коли."
 
 #: src/components/things/move-sheet.tsx
 msgid "It leaves this location"
@@ -13300,6 +13831,10 @@ msgstr "Його етикетка є на фото"
 msgid "Its lines and invoice go too. Schedules it completed count from the service before. You can undo this."
 msgstr "Його рядки та чек теж зникнуть. Воно завершує кількість, виконану сервісним обслуговуванням раніше. Це можна скасувати."
 
+#: src/components/places/rack.tsx
+msgid "Its lowest unit, as the rack numbers them."
+msgstr "Його нижній юніт за нумерацією стійки."
+
 #: src/components/condition/report-screen.tsx
 msgid "Its note and photos go with it."
 msgstr "Його нотатка та фото зникнуть разом із ним."
@@ -13345,6 +13880,10 @@ msgstr "Його речі перейдуть до вибраного вами т
 #: src/components/import/target-step.tsx
 msgid "Its timezone and currency are this device's; change them later in Location settings."
 msgstr "Її часовий пояс і валюта — цього пристрою; змініть їх пізніше в налаштуваннях локації."
+
+#: src/components/places/rack.tsx
+msgid "Its top unit, as the rack numbers them."
+msgstr "Його верхній юніт за нумерацією стійки."
 
 #: src/components/places/compartments.tsx
 msgid "Its top went"
@@ -13474,6 +14013,10 @@ msgstr "Зберегти моє"
 #: src/components/delete-account.tsx
 msgid "Keep my account"
 msgstr "Залишити мій обліковий запис"
+
+#: src/native/record.tsx
+msgid "Keep my description"
+msgstr "Залишити мій опис"
 
 #: src/components/registries/contact-card.tsx
 msgid "Keep notes to 5,000 characters."
@@ -13696,6 +14239,14 @@ msgstr "Kept конвертує лише за курсом, який ви вве
 msgid "Kept converts totals only with a rate you entered here, for that pair or its inverse. It never estimates one, and never goes through a third currency: without a rate, totals stay per currency."
 msgstr "Kept конвертує підсумки лише за курсом, який ви ввели тут, для цієї пари або її оберненої. Він ніколи не оцінює його й ніколи не проходить через третю валюту: без курсу підсумки залишаються за валютами."
 
+#: src/native/main.tsx
+msgid "Kept could not read the saved session."
+msgstr "Kept не зміг прочитати збережену сесію."
+
+#: src/native/capture-form.tsx
+msgid "Kept could not save on this iPhone. Check available storage and try again."
+msgstr "Kept не зміг зберегти дані на цьому iPhone. Перевірте вільне місце та спробуйте ще раз."
+
 #: src/components/mailin/mailbox-settings.tsx
 #: src/components/paperless/connection-settings.tsx
 msgid "Kept couldn't connect"
@@ -13863,6 +14414,10 @@ msgstr "Kept на цьому пристрої"
 msgid "Kept opens from its own icon, full screen, and works offline."
 msgstr "Kept відкривається з власної іконки на весь екран і працює офлайн."
 
+#: src/native/label-panel.tsx
+msgid "Kept QR label"
+msgstr "QR-мітка Kept"
+
 #: src/routes/_app/admin.alerts.tsx
 msgid "Kept raises an alert here, and emails the instance admins at most once a day, when something on the server needs a person."
 msgstr "Kept показує тут попередження й надсилає адміністраторам сервера лист щонайбільше раз на день, коли щось на сервері потребує людини."
@@ -13908,6 +14463,10 @@ msgstr "Kept не надсилає електронних листів: ні п�
 #: src/map/floor-plan/start-sheet.tsx
 msgid "Kept sends the plan, without its location data, to <0>{name}</0>. It is deleted when you finish, unless you keep it."
 msgstr "Kept надсилає план, без даних про його локацію, до <0>{name}</0>. Його буде видалено після завершення, якщо ви його не збережете."
+
+#: src/native/main.tsx
+msgid "Kept server address"
+msgstr "Адреса сервера Kept"
 
 #: src/components/history/labels.ts
 msgid "Kept set up"
@@ -13964,6 +14523,10 @@ msgstr "Kept зберігає штрихкод і серійний номер р
 #: src/components/scan/barcode-sheet.tsx
 msgid "Kept stores the barcode with it."
 msgstr "Kept зберігає штрихкод разом із ним."
+
+#: src/native/label-panel.tsx
+msgid "Kept tag verified."
+msgstr "Мітку Kept перевірено."
 
 #: src/components/capture/share-arrival.tsx
 msgid "Kept takes photos and PDFs. Share those, or use Gallery."
@@ -14183,6 +14746,11 @@ msgstr "Етикетку заявлено для {label} на цьому тел�
 #: src/components/inbox/labels.ts
 msgid "Label claims"
 msgstr "Заявки на етикетки"
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Label code:"
+msgstr "Код мітки:"
 
 #: src/routes/_app/p.$id.tsx
 msgid "Label everything here"
@@ -14447,6 +15015,12 @@ msgstr "Наступні показники відраховуються від 
 msgid "Latest first"
 msgstr "Спочатку новіші"
 
+#. placeholder {0}: num(p.example.before)
+#. placeholder {1}: num(p.example.after)
+#: src/components/vehicles/change-unit.tsx
+msgid "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
+msgstr "Останній показник: {0} {fromLabel} стає {1} {toLabel}"
+
 #. placeholder {0}: fmt.day(meter.latest.takenAt)
 #: src/components/things/meters-section.tsx
 msgid "latest, {0}"
@@ -14455,6 +15029,10 @@ msgstr "останній, {0}"
 #: src/components/fuel/fuel-summary.tsx
 msgid "Latest:"
 msgstr "Останній:"
+
+#: src/components/location-position.tsx
+msgid "Latitude"
+msgstr "Широта"
 
 #: src/components/filters/display.tsx
 #: src/map/remembered.tsx
@@ -15126,6 +15704,7 @@ msgstr "Позики {name}, які завершилися"
 #: src/components/vehicles/list.tsx
 #: src/graph/card.tsx
 #: src/graph/words.ts
+#: src/native/capture-form.tsx
 #: src/routes/_app/assistant.index.tsx
 #: src/routes/_app/expiring.tsx
 #: src/routes/_app/lending.tsx
@@ -15136,6 +15715,7 @@ msgid "Location"
 msgstr "Локація"
 
 #: src/components/capture/place-chip.tsx
+#: src/components/location-position.tsx
 msgid "Location access is off for Kept in this browser's settings."
 msgstr "Доступ до геолокації для Kept вимкнено в налаштуваннях цього браузера."
 
@@ -15295,6 +15875,10 @@ msgstr "Довше за допустиму довжину назви магаз�
 #: src/components/warranties/warranties-section.tsx
 msgid "Longest cover"
 msgstr "Найдовше покриття"
+
+#: src/components/location-position.tsx
+msgid "Longitude"
+msgstr "Довгота"
 
 #: src/graph/floors-3d.tsx
 msgid "Look from higher"
@@ -16130,6 +16714,10 @@ msgstr "Лічильник видалено"
 msgid "Meter replaced"
 msgstr "Лічильник замінено"
 
+#: src/components/history/labels.ts
+msgid "Meter unit changed"
+msgstr "Одиницю лічильника змінено"
+
 #: src/components/registries/labels.ts
 msgid "Metered"
 msgstr "Лічильник"
@@ -16146,6 +16734,10 @@ msgstr "Лічильники"
 #: src/components/notifications/settings/kinds.tsx
 msgid "Meters not read lately"
 msgstr "Лічильники давно не зчитувалися"
+
+#: src/components/display-prefs.tsx
+msgid "Metric"
+msgstr "Метрична"
 
 #: src/map/labels.ts
 msgid "Microwave"
@@ -16380,6 +16972,10 @@ msgstr "Перемістити {names}"
 msgid "Move all here"
 msgstr "Перемістити все сюди"
 
+#: src/native/main.tsx
+msgid "Move and retry"
+msgstr "Перемістити та повторити"
+
 #: src/components/history/labels.ts
 msgid "Move changed"
 msgstr "Переїзд змінено"
@@ -16410,6 +17006,10 @@ msgstr "Усе одно перемістити"
 #: src/components/hints/hint-copy.ts
 msgid "Move it, lend it, print its label or move it to the Trash."
 msgstr "Перемістіть її, позичте, надрукуйте її етикетку або перемістіть її в кошик."
+
+#: src/native/label-panel.tsx
+msgid "Move other tags away and scan one tag."
+msgstr "Приберіть інші мітки й проскануйте лише одну."
 
 #: src/components/places/sub-places.tsx
 msgid "Move places up or down. Back to A to Z keeps this order for next time."
@@ -16451,6 +17051,7 @@ msgstr "Перемістити в кошик"
 
 #: src/components/sheet/sheet-view.tsx
 #: src/components/things/action-menu.tsx
+#: src/components/things/bulk-trash-lazy.tsx
 #: src/components/things/bulk-trash.tsx
 #: src/components/things/trash.tsx
 msgid "Move to Trash"
@@ -16597,6 +17198,10 @@ msgstr "Переїжджаєте в новий дім? Спочатку дода
 #: src/components/places/contents-list.tsx
 msgid "Moving…"
 msgstr "Переміщення…"
+
+#: src/native/label-panel.tsx
+msgid "Multiple records match this code. Choose one to open."
+msgstr "Кілька записів відповідають цьому коду. Виберіть один для відкриття."
 
 #: src/components/ai/settings-page.tsx
 msgid "My AI usage"
@@ -16763,6 +17368,7 @@ msgstr "Потрібно: {needs} · вимкнено в цій локації"
 #: src/components/consumables/stock-list.tsx
 #: src/components/consumables/stock.household.tsx
 #: src/components/counts/route-error.tsx
+#: src/components/display-prefs.tsx
 #: src/components/documents/document-sheets.tsx
 #: src/components/documents/subject-paperwork.tsx
 #: src/components/export/export-sheet.tsx
@@ -16889,8 +17495,13 @@ msgid "Needs an https public URL"
 msgstr "Потрібна публічна https-адреса"
 
 #: src/map/whats-in.tsx
+#: src/native/record.tsx
 msgid "Needs attention"
 msgstr "Потребує уваги"
+
+#: src/native/capture-form.tsx
+msgid "Needs attention: {batchFailedCount}"
+msgstr "Потребує уваги: {batchFailedCount}"
 
 #: src/routes/_app/settings.location.$id.invite.tsx
 msgid "Needs email set up on this server"
@@ -17062,6 +17673,10 @@ msgstr "Новий тип «{typeName}»"
 msgid "New type…"
 msgstr "Новий тип…"
 
+#: src/components/vehicles/change-unit.tsx
+msgid "New unit"
+msgstr "Нова одиниця"
+
 #: src/components/ai/prices.tsx
 msgid "New version"
 msgstr "Нова версія"
@@ -17129,6 +17744,10 @@ msgstr "Далі: {chapter}"
 msgid "Next: <0>{title}</0>"
 msgstr "Далі: <0>{title}</0>"
 
+#: src/native/label-panel.tsx
+msgid "NFC is unavailable on this device."
+msgstr "NFC недоступний на цьому пристрої."
+
 #: src/components/ops/ops-words.ts
 msgid "Nightly"
 msgstr "Щоночі"
@@ -17194,9 +17813,21 @@ msgstr "Резервних копій ще немає"
 msgid "No boxes yet"
 msgstr "Коробок поки немає"
 
+#: src/native/main.tsx
+msgid "No boxes yet."
+msgstr "Коробок ще немає."
+
 #: src/components/ai/caps.tsx
 msgid "No budget: the monthly caps above apply."
 msgstr "Без бюджету: діють місячні обмеження вище."
+
+#: src/native/record.tsx
+msgid "No cached contents."
+msgstr "Немає кешованого вмісту."
+
+#: src/native/main.tsx
+msgid "No capture batches yet."
+msgstr "Партій записів ще немає."
 
 #: src/components/connections/recent-changes.tsx
 msgid "No changes by connections"
@@ -17433,6 +18064,10 @@ msgstr "Немає збігу: цю назву додано як нового п
 msgid "No matches"
 msgstr "Немає збігів"
 
+#: src/native/main.tsx
+msgid "No matching inventory."
+msgstr "Відповідних записів не знайдено."
+
 #: src/components/services/log-service-sheet.tsx
 msgid "no matching line"
 msgstr "немає відповідного рядка"
@@ -17547,6 +18182,7 @@ msgstr "Показника ще немає"
 msgid "No readings yet"
 msgstr "Показників ще немає"
 
+#: src/components/vehicles/change-unit.tsx
 #: src/components/vehicles/readings-tab.tsx
 msgid "No readings yet."
 msgstr "Показників ще немає."
@@ -17830,6 +18466,10 @@ msgstr "Не поле типу цього рядка; збережено в но
 msgid "Not a Kept label"
 msgstr "Не етикетка Kept"
 
+#: src/native/label-panel.tsx
+msgid "Not a Kept label."
+msgstr "Це не мітка Kept."
+
 #: src/components/kits/kit-section.tsx
 msgid "Not a kit"
 msgstr "Не набір"
@@ -17871,8 +18511,13 @@ msgid "Not available in this browser"
 msgstr "Недоступно в цьому браузері"
 
 #: src/components/capture/place-chip.tsx
+#: src/components/location-position.tsx
 msgid "Not available on this device."
 msgstr "Недоступно на цьому пристрої."
+
+#: src/components/lending/thing-loans.tsx
+msgid "Not back yet"
+msgstr "Ще не повернуто"
 
 #: src/components/import/upload-step.tsx
 msgid "Not checked"
@@ -18035,6 +18680,12 @@ msgstr "Немає на цьому телефоні"
 msgid "Not on this phone. Kept checks it when you open it online."
 msgstr "Немає на цьому телефоні. Kept перевірить це, коли ви відкриєте його онлайн."
 
+#: src/assistant/confirm-card.tsx
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Not placed yet"
+msgstr "Ще не розміщено"
+
 #: src/routes/_app/labels.tsx
 msgid "Not printed"
 msgstr "Не надруковано"
@@ -18154,6 +18805,8 @@ msgstr "Нотатка (необов’язково)"
 #: src/components/things/edit-form.tsx
 #: src/components/things/lifecycle-sheet.tsx
 #: src/components/things/overview.tsx
+#: src/native/capture-form.tsx
+#: src/native/record.tsx
 msgid "Notes"
 msgstr "Нотатки"
 
@@ -18268,6 +18921,10 @@ msgstr "У локаціях, до яких ви належите, немає н�
 #: src/components/tray/tray.tsx
 msgid "Nothing in the tray. Pick things up from their menu, or scan them."
 msgstr "У лотку нічого немає. Підберіть речі з їхнього меню або відскануйте їх."
+
+#: src/native/main.tsx
+msgid "Nothing in this batch needs review."
+msgstr "У цій партії немає нічого для перевірки."
 
 #: src/map/map-view.tsx
 msgid "Nothing is added. The plan is deleted."
@@ -18523,6 +19180,10 @@ msgstr "номерний знак"
 msgid "Number, name or room"
 msgstr "Номер, назва або кімната"
 
+#: src/components/places/furniture.tsx
+msgid "Numbered from"
+msgstr "Нумерація від"
+
 #: src/components/things/meters-section.tsx
 #: src/components/vehicles/lubelogger-import.tsx
 msgid "Odometer"
@@ -18639,6 +19300,10 @@ msgstr "Офлайн пошук використовує слова, місце,
 #: src/components/moving/moves-screen.tsx
 msgid "Offline: these are the moves this phone has opened."
 msgstr "Офлайн: це переїзди, які цей телефон відкривав."
+
+#: src/native/main.tsx
+msgid "Offline. Changes stay on this iPhone until Kept is reachable."
+msgstr "Офлайн. Зміни зберігаються на цьому iPhone, доки Kept знову не буде доступний."
 
 #: src/components/history/labels.ts
 msgid "Offset"
@@ -18780,6 +19445,10 @@ msgstr "На стіні"
 #: src/map/card.tsx
 msgid "On the wall, {hangs} m up"
 msgstr "На стіні, на висоті {hangs} м"
+
+#: src/map/card.tsx
+msgid "On the wall, {hangs} up"
+msgstr "На стіні, на висоті {hangs}"
 
 #: src/components/places/offline-pages.tsx
 #: src/components/search/offline-results.tsx
@@ -18975,6 +19644,10 @@ msgstr "Залишилося лише {left} з {name}."
 msgid "Only {left} left."
 msgstr "Залишилося лише {left}."
 
+#: src/components/places/trash-contents-dialog.tsx
+msgid "Only {placeName} and its compartments go to the trash."
+msgstr "До кошика потраплять лише {placeName} та його відділення."
+
 #: src/components/import/labels.ts
 msgid "Only a consumable can have quantity 0; kept in the notes."
 msgstr "Кількість 0 може мати лише витратний матеріал; збережено в нотатках."
@@ -19036,6 +19709,10 @@ msgstr "Локацію експортують лише власники та а�
 msgid "Only owners and admins of this location can import into it."
 msgstr "Імпортувати в цю локацію можуть лише її власники та адміністратори."
 
+#: src/native/main.tsx
+msgid "Only part of your inventory is cached."
+msgstr "Кешовано лише частину вашого інвентарю."
+
 #: src/components/sync-status.tsx
 msgid "Only part of your Kept is on this phone."
 msgstr "На цьому телефоні є лише частина вашого Kept."
@@ -19088,6 +19765,10 @@ msgstr "Лише власник домашньої локації {who} або �
 #: src/components/registries/secret-policy-sheet.tsx
 msgid "Only the owner of a location sets its secret policies."
 msgstr "Лише власник локації встановлює її політики щодо секретів."
+
+#: src/components/vehicles/change-unit.tsx
+msgid "Only the unit's name changes. The readings stay as they are."
+msgstr "Змінюється лише назва одиниці. Показники лишаються як є."
 
 #: src/components/capture/reading-target.tsx
 msgid "Only things with a meter · tap to change"
@@ -19203,6 +19884,10 @@ msgstr "Розгорнути всі"
 msgid "Open Backups"
 msgstr "Відкрити «Резервні копії»"
 
+#: src/native/label-panel.tsx
+msgid "Open box"
+msgstr "Відкрити коробку"
+
 #: src/assistant/confirm-card.tsx
 msgid "Open claim"
 msgstr "Відкрити претензію"
@@ -19210,6 +19895,10 @@ msgstr "Відкрити претензію"
 #: src/components/connections/shortcut-recipe.tsx
 msgid "Open Connections"
 msgstr "Відкрити «З’єднання»"
+
+#: src/components/location-position.tsx
+msgid "Open in maps"
+msgstr "Відкрити на мапі"
 
 #: src/components/paperless/documents.tsx
 msgid "Open in Paperless"
@@ -19245,6 +19934,10 @@ msgstr "Відкрийте Kept раз, поки є з’єднання, щоб 
 #: src/components/capture/share-arrival.tsx
 msgid "Open Kept once, then share again"
 msgstr "Відкрийте Kept один раз, потім поділіться ще раз"
+
+#: src/native/label-panel.tsx
+msgid "Open label"
+msgstr "Відкрити мітку"
 
 #: src/components/agenda/agenda-row.tsx
 msgid "Open Lending"
@@ -19400,6 +20093,10 @@ msgstr "Відкрито"
 #: src/components/ops/backup-target-form.tsx
 msgid "Opened the repository with the saved password just now."
 msgstr "Щойно відкрив сховище збереженим паролем."
+
+#: src/native/record.tsx
+msgid "Opening inventory…"
+msgstr "Відкриття інвентарю…"
 
 #: src/routes/_app/capture.tsx
 #: src/routes/_app/scan.tsx
@@ -19628,7 +20325,12 @@ msgstr "Старше {unknownDays} днів"
 msgid "Over budget"
 msgstr "Понад бюджет"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, not renewed. <0/> makes it longer."
+msgstr "Через звичайний HTTP не подовжується. <0/> збільшує тривалість."
+
 #: src/components/home/checklist.tsx
+#: src/components/location-position.tsx
 msgid "Over plain HTTP, phones block the camera, installing Kept, push notifications and location."
 msgstr "Через звичайний HTTP телефони блокують камеру, встановлення Kept, push-сповіщення та геолокацію."
 
@@ -19640,8 +20342,13 @@ msgstr "Через звичайний HTTP телефони не встанов�
 msgid "Over plain HTTP, secret values stay out of the export. Each one is marked as left out, and the rest imports as usual."
 msgstr "Через звичайний HTTP секретні значення не входять в експорт. Кожне позначено як невключене, а решта імпортується як зазвичай."
 
+#: src/routes/_app/admin.status.tsx
+msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
+msgstr "Через звичайний HTTP, задано в <0/>. Подовжується під час використання."
+
 #: src/components/agenda/agenda-row.tsx
 #: src/components/home/attention.tsx
+#: src/components/lending/thing-loans.tsx
 #: src/components/schedules/labels.tsx
 #: src/components/vehicles/list.tsx
 #: src/routes/_app/lending.tsx
@@ -19655,6 +20362,10 @@ msgstr "Прострочені позики"
 #: src/components/vehicles/vehicle-tabs.tsx
 msgid "Overview"
 msgstr "Огляд"
+
+#: src/native/label-panel.tsx
+msgid "Overwrite NFC tag"
+msgstr "Перезаписати NFC-мітку"
 
 #: src/lib/labels.ts
 msgid "Owner"
@@ -19931,6 +20642,14 @@ msgstr "Ключі доступу"
 msgid "Passkeys need HTTPS. On a plain-HTTP address browsers don't offer them; put Kept on HTTPS to add one."
 msgstr "Ключі доступу потребують HTTPS. У браузерах на звичайній HTTP-адресі вони не пропонуються; переведіть Kept на HTTPS, щоб додати ключ."
 
+#: src/components/sign-in-security.household.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
+msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Додайте його там."
+
+#: src/routes/signin/index.tsx
+msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
+msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Тут скористайтеся паролем або посиланням з електронного листа."
+
 #: src/components/export/passphrase-field.tsx
 #: src/components/import/kept-choices.tsx
 msgid "Passphrase"
@@ -20038,6 +20757,29 @@ msgstr "Призупинено: бюджет ШІ вичерпано до {0}."
 msgid "Paused: the AI budget is used up."
 msgstr "Призупинено: бюджет ШІ вичерпано."
 
+#: src/native/capture-form.tsx
+msgid "PDF document"
+msgstr "Документ PDF"
+
+#: src/native/main.tsx
+msgid "Pending captures"
+msgstr "Очікувані записи"
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "Pending captures: {0}"
+msgstr "Очікувані записи: {0}"
+
+#. placeholder {0}: pending.length
+#. placeholder {1}: formatBytes(stats.pendingBytes)
+#: src/native/main.tsx
+msgid "Pending captures: {0} ({1})"
+msgstr "Очікувані записи: {0} ({1})"
+
+#: src/native/record.tsx
+msgid "Pending in this box"
+msgstr "Очікує в цій коробці"
+
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "Pending invites"
 msgstr "Очікувані запрошення"
@@ -20134,6 +20876,7 @@ msgstr "Телефон"
 #: src/components/ai/labels.ts
 #: src/components/things/labels.ts
 #: src/components/vehicles/words.tsx
+#: src/native/capture-form.tsx
 msgid "Photo"
 msgstr "Фото"
 
@@ -20181,6 +20924,10 @@ msgstr "Фото одометра"
 msgid "Photo or file"
 msgstr "Фото або файл"
 
+#: src/native/record.tsx
+msgid "Photograph"
+msgstr "Фотографія"
+
 #: src/map/card.tsx
 msgid "Photograph this room"
 msgstr "Сфотографувати цю кімнату"
@@ -20188,6 +20935,10 @@ msgstr "Сфотографувати цю кімнату"
 #: src/components/history/labels.ts
 msgid "Photographed {name} for Kept to list what is in it"
 msgstr "Сфотографовано {name}, щоб Kept перелічив, що в ньому"
+
+#: src/native/record.tsx
+msgid "Photographs and documents"
+msgstr "Фотографії та документи"
 
 #: src/components/places/contents-list.tsx
 msgid "photos"
@@ -20425,6 +21176,7 @@ msgstr "Позначки"
 #: src/components/places/offline-pages.tsx
 #: src/components/scan/claim-sheet.tsx
 #: src/components/sharelinks/words.tsx
+#: src/native/capture-form.tsx
 #: src/routes/_app/p.$id.tsx
 msgid "Place"
 msgstr "Місце"
@@ -20432,6 +21184,11 @@ msgstr "Місце"
 #: src/components/import/labels.ts
 msgid "Place (a path like Garage > Shelf A)"
 msgstr "Місце (шлях на кшталт Гараж > Полиця A)"
+
+#: src/components/places/rack.tsx
+#: src/components/things/overview.tsx
+msgid "Place it"
+msgstr "Розмістити"
 
 #: src/components/history/labels.ts
 msgid "Place kind added"
@@ -20457,6 +21214,10 @@ msgstr "Шаблони місць"
 #: src/components/import/csv-help.tsx
 msgid "Place: from the top down, separated by >, like Garage > Shelf A. Another separator can be chosen."
 msgstr "Місце: згори донизу, розділене символом >, як-от «Гараж > Полиця A». Можна вибрати інший роздільник."
+
+#: src/components/places/rack.tsx
+msgid "Placed {name}"
+msgstr "Розміщено: {name}"
 
 #: src/map/map-view.tsx
 msgid "Placed by Kept from room photos: move them where they stand."
@@ -20608,6 +21369,15 @@ msgstr "Порт"
 #: src/map/labels.ts
 msgid "Portable speaker"
 msgstr "Портативна колонка"
+
+#: src/components/history/labels.ts
+#: src/components/location-position.tsx
+msgid "Position"
+msgstr "Місцеположення"
+
+#: src/components/location-position.tsx
+msgid "Position removed"
+msgstr "Місцеположення прибрано"
 
 #: src/map/labels.ts
 msgid "Power strip"
@@ -21078,6 +21848,10 @@ msgstr "Повернути їх"
 msgid "Put them back with the rest"
 msgstr "Покладіть їх назад разом із рештою"
 
+#: src/native/record.tsx
+msgid "QR and NFC label"
+msgstr "Мітка QR та NFC"
+
 #: src/routes/_app/settings.location.$id.invite.tsx
 msgid "QR code for the invite link"
 msgstr "QR-код посилання із запрошенням"
@@ -21113,6 +21887,10 @@ msgstr "кількість"
 msgid "Quantity"
 msgstr "Кількість"
 
+#: src/native/capture-form.tsx
+msgid "Quantity (optional)"
+msgstr "Кількість (необов’язково)"
+
 #: src/components/sharelinks/shared-view.tsx
 msgid "Quantity {quantity}"
 msgstr "Кількість {quantity}"
@@ -21141,6 +21919,11 @@ msgstr "Кількість 0 у Homebox; надходить в архів."
 msgid "Quantity 0 in Homebox; it comes in as 1."
 msgstr "Кількість 0 у Homebox; надходить як 1."
 
+#. placeholder {0}: row.quantity
+#: src/native/record.tsx
+msgid "Quantity: {0}"
+msgstr "Кількість: {0}"
+
 #: src/routes/_app/admin.jobs.tsx
 msgid "Queued again"
 msgstr "Знову в черзі"
@@ -21152,6 +21935,15 @@ msgstr "Тихі години"
 #: src/components/notifications/settings/notification-settings.tsx
 msgid "Quiet hours can't start and end at the same time."
 msgstr "Тихі години не можуть починатися й закінчуватися одночасно."
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rack"
+msgstr "Стійка"
+
+#: src/assistant/confirm-card.tsx
+msgid "Rack units"
+msgstr "Юніти стійки"
 
 #: src/components/ai/resume-sheet.tsx
 msgid "Raise and resume"
@@ -21248,10 +22040,12 @@ msgstr "Читати та змінювати"
 msgid "read by <0>{0}</0>"
 msgstr "прочитав <0>{0}</0>"
 
+#. placeholder {0}: /** * The invoice, read by AI, on Log a service (the designs' * frame 65; D19, D131, D189). A draft service record's suggestions (the server's * `ServiceRecordV5.suggestions`): its lines, total, currency, vendor and date, shown violet and * dashed, never applied until the person says so: **Confirm all** takes them into the form, and * each line's **Edit** takes that one line into the typed lines to change it. * * Above them, the read's state: "Reading the invoice…" while the extraction runs, "Read by AI: 3 * lines, total matches" when it's done, or why there's nothing (it failed, AI is paused here). * A bare `$` (`currency_unclear`) suggests no currency: the form asks "US dollars or Canadian * dollars?" with neither chosen (D189). */ import { SERVICE_LINE_KINDS, type ServiceLineKind } from '@kept/shared'; import { plural } from '@lingui/core/macro'; import { Trans, useLingui } from '@lingui/react/macro'; import { useId } from 'react'; import type { ServiceRecordV5, SuggestedLine } from '@/api/vehicles/types'; import { SuggestedMark } from '@/components/inbox/suggested-field'; import { useMoney } from '@/components/things/values'; import { Button } from '@/components/ui/button'; import { useFormat } from '@/lib/format'; import { useServiceLineLabels } from './labels'; /** What a draft's read suggests, picked out of `suggestions`. */ export type InvoiceRead = { state: 'none' | 'reading' | 'read' | 'failed' | 'paused'; lines: SuggestedLine[]; total: string | null; currency: string | null; vendor: string | null; servicedOn: string | null; totalMismatch: boolean; currencyUnclear: boolean; }; const READING = new Set(['queued', 'running']); const PAUSED = new Set(['paused_budget', 'waiting_provider']); const isKind = (k: unknown): k is ServiceLineKind => typeof k === 'string' && (SERVICE_LINE_KINDS as readonly string[]).includes(k); /** The read of a draft, or `none` for a record without one. */ export function invoiceReadOf(rec: ServiceRecordV5 | null | undefined): InvoiceRead { const out: InvoiceRead = { state: 'none', lines: [], total: null, currency: null, vendor: null, servicedOn: null, totalMismatch: !!rec?.flags.includes('total_mismatch'), currencyUnclear: !!rec?.flags.includes('currency_unclear'), }; const ex = rec?.extraction; if (rec?.reviewState !== 'draft' || !ex) return out; if (READING.has(ex.status)) return { ...out, state: 'reading' }; if (PAUSED.has(ex.status)) return { ...out, state: 'paused' }; if (ex.status === 'failed') return { ...out, state: 'failed' }; if (ex.status !== 'succeeded') return out; out.state = 'read'; for (const s of rec.suggestions ?? []) { const v = s.value; if (s.field === 'line' && v && typeof v === 'object') { const l = v as Record<string, unknown>; if (typeof l.description !== 'string' || !l.description.trim()) continue; out.lines.push({ description: l.description, ...(isKind(l.kind) ? { kind: l.kind } : {}), ...(typeof l.quantity === 'string' ? { quantity: l.quantity } : {}), ...(typeof l.unitCost === 'string' ? { unitCost: l.unitCost } : {}), }); } else if (s.field === 'total' && typeof v === 'string') out.total = v; else if (s.field === 'currency' && typeof v === 'string') out.currency = v; else if (s.field === 'servicedOn' && typeof v === 'string') out.servicedOn = v; else if (s.field === 'vendor') { const name = typeof v === 'string' ? v : (v as { name?: unknown } | null)?.name; if (typeof name === 'string' && name.trim()) out.vendor = name; } } return out; } /** The read's state line, above the suggestions. */ export function InvoiceReadStatus({ read }: { read: InvoiceRead }) { const count = read.lines.length; if (read.state === 'none') return null; return ( <p role="status" className="m-0 text-small text-ink-2"> {read.state === 'reading' ? ( <Trans>Reading the invoice…</Trans> ) : read.state === 'failed' ? ( <Trans>Kept couldn't read the invoice. Type the lines.</Trans> ) : read.state === 'paused' ? ( <Trans> AI is paused here, so the invoice waits to be read. Type the lines, or come back later. </Trans> ) : count === 0 ? ( <Trans>Read by AI: no lines found. Type them.</Trans> ) : read.totalMismatch ? ( <Trans> Read by AI: {plural(count, { one: '# line', other: '# lines' })}, and they don't add up to the total </Trans> ) : ( <Trans> Read by AI: {plural(count, { one: '# line', other: '# lines' })}, total matches </Trans> )} </p> ); } /** * The suggested lines and total, violet and dashed (D131), with Confirm all and each line's Edit. * `pending` are the indexes of `read.lines` not yet taken into the form. */ export function InvoiceSuggestions({ read, pending, showMoney, onConfirmAll, onEditLine, }: { read: InvoiceRead; pending: readonly number[]; showMoney: boolean; onConfirmAll: () => void; onEditLine: (index: number) => void; }) { const { t } = useLingui(); const fmt = useFormat(); const money = useMoney(); const kinds = useServiceLineLabels(); if (read.state !== 'read' || pending.length === 0) return null; const amount = (a: string) => (read.currency ? money(a, read.currency) : fmt.num(Number(a))); const lineAmount = (l: SuggestedLine) => l.unitCost ? String(Number(l.unitCost) * Number(l.quantity || '1')) : null; return ( // biome-ignore lint/a11y/useSemanticElements: a labelled group of suggestions and their choices <div role="group" aria-label={t`Suggested line items from the invoice`} className="grid gap-2 rounded-[10px] border border-dashed border-violet bg-violet-soft/60 px-3 py-2.5" > <span className="inline-flex items-center gap-1 font-semibold text-[12.5px] text-violet"> <SuggestedMark className="size-3.5" /> <Trans>Suggested line items from the invoice</Trans> </span> <ul className="m-0 grid list-none gap-1.5 p-0"> {pending.map((i) => { const l = read.lines[i]; if (!l) return null; const a = showMoney ? lineAmount(l) : null; return ( <li key={i} className="grid grid-cols-[1fr_auto] items-start gap-x-3 gap-y-0.5"> <span className="font-medium text-ink [overflow-wrap:anywhere]"> <bdi dir="auto">{l.description}</bdi> {l.quantity && l.quantity !== '1' ? ( <span className="text-ink-2 tabular-nums"> {' '} <Trans>× {fmt.num(Number(l.quantity))}</Trans> </span> ) : null} </span> <span className="text-end tabular-nums">{a ? amount(a) : null}</span> <span className="text-small text-ink-2">{l.kind ? kinds[l.kind] : null}</span> <Button size="small" variant="ghost" className="justify-self-end" aria-label={t`Edit ${l.description}`} onPress={() => onEditLine(i)} > <Trans>Edit</Trans> </Button> </li> ); })} </ul> {showMoney && read.total ? ( <div className="flex justify-between gap-3 border-line border-t pt-1.5 font-semibold"> <span> <Trans>Total</Trans> </span> <span className="tabular-nums">{amount(read.total)}</span> </div> ) : null} <div className="flex flex-wrap gap-2"> <Button size="small" onPress={onConfirmAll}> <Trans>Confirm all</Trans> </Button> </div> </div> ); } /** A bare `$` on the invoice (D189): which dollars, with neither chosen. */ export function DollarQuestion({ value, onPick, }: { value: string | null; onPick: (code: 'USD' | 'CAD') => void; }) { const id = useId(); return ( // biome-ignore lint/a11y/useSemanticElements: two choices under one question <div role="group" aria-labelledby={id} className="grid gap-1.5"> <p id={id} className="m-0 text-small text-warn"> <Trans>The invoice shows $. Is it US dollars or Canadian dollars?</Trans> </p> <div className="flex flex-wrap gap-2"> <Button size="small" variant={value === 'USD' ? 'primary' : 'secondary'} aria-pressed={value === 'USD'} onPress={() => onPick('USD')} > <Trans>US dollars (USD)</Trans> </Button> <Button size="small" variant={value === 'CAD' ? 'primary' : 'secondary'} aria-pressed={value === 'CAD'} onPress={() => onPick('CAD')} > <Trans>Canadian dollars (CAD)</Trans> </Button> </div> </div> ); } 
 #: src/components/services/invoice-suggestions.tsx
 msgid "Read by AI: {0}, and they don't add up to the total"
 msgstr "ШІ зчитав: {0}, і вони не сходяться до підсумку"
 
+#. placeholder {0}: /** * The invoice, read by AI, on Log a service (the designs' * frame 65; D19, D131, D189). A draft service record's suggestions (the server's * `ServiceRecordV5.suggestions`): its lines, total, currency, vendor and date, shown violet and * dashed, never applied until the person says so: **Confirm all** takes them into the form, and * each line's **Edit** takes that one line into the typed lines to change it. * * Above them, the read's state: "Reading the invoice…" while the extraction runs, "Read by AI: 3 * lines, total matches" when it's done, or why there's nothing (it failed, AI is paused here). * A bare `$` (`currency_unclear`) suggests no currency: the form asks "US dollars or Canadian * dollars?" with neither chosen (D189). */ import { SERVICE_LINE_KINDS, type ServiceLineKind } from '@kept/shared'; import { plural } from '@lingui/core/macro'; import { Trans, useLingui } from '@lingui/react/macro'; import { useId } from 'react'; import type { ServiceRecordV5, SuggestedLine } from '@/api/vehicles/types'; import { SuggestedMark } from '@/components/inbox/suggested-field'; import { useMoney } from '@/components/things/values'; import { Button } from '@/components/ui/button'; import { useFormat } from '@/lib/format'; import { useServiceLineLabels } from './labels'; /** What a draft's read suggests, picked out of `suggestions`. */ export type InvoiceRead = { state: 'none' | 'reading' | 'read' | 'failed' | 'paused'; lines: SuggestedLine[]; total: string | null; currency: string | null; vendor: string | null; servicedOn: string | null; totalMismatch: boolean; currencyUnclear: boolean; }; const READING = new Set(['queued', 'running']); const PAUSED = new Set(['paused_budget', 'waiting_provider']); const isKind = (k: unknown): k is ServiceLineKind => typeof k === 'string' && (SERVICE_LINE_KINDS as readonly string[]).includes(k); /** The read of a draft, or `none` for a record without one. */ export function invoiceReadOf(rec: ServiceRecordV5 | null | undefined): InvoiceRead { const out: InvoiceRead = { state: 'none', lines: [], total: null, currency: null, vendor: null, servicedOn: null, totalMismatch: !!rec?.flags.includes('total_mismatch'), currencyUnclear: !!rec?.flags.includes('currency_unclear'), }; const ex = rec?.extraction; if (rec?.reviewState !== 'draft' || !ex) return out; if (READING.has(ex.status)) return { ...out, state: 'reading' }; if (PAUSED.has(ex.status)) return { ...out, state: 'paused' }; if (ex.status === 'failed') return { ...out, state: 'failed' }; if (ex.status !== 'succeeded') return out; out.state = 'read'; for (const s of rec.suggestions ?? []) { const v = s.value; if (s.field === 'line' && v && typeof v === 'object') { const l = v as Record<string, unknown>; if (typeof l.description !== 'string' || !l.description.trim()) continue; out.lines.push({ description: l.description, ...(isKind(l.kind) ? { kind: l.kind } : {}), ...(typeof l.quantity === 'string' ? { quantity: l.quantity } : {}), ...(typeof l.unitCost === 'string' ? { unitCost: l.unitCost } : {}), }); } else if (s.field === 'total' && typeof v === 'string') out.total = v; else if (s.field === 'currency' && typeof v === 'string') out.currency = v; else if (s.field === 'servicedOn' && typeof v === 'string') out.servicedOn = v; else if (s.field === 'vendor') { const name = typeof v === 'string' ? v : (v as { name?: unknown } | null)?.name; if (typeof name === 'string' && name.trim()) out.vendor = name; } } return out; } /** The read's state line, above the suggestions. */ export function InvoiceReadStatus({ read }: { read: InvoiceRead }) { const count = read.lines.length; if (read.state === 'none') return null; return ( <p role="status" className="m-0 text-small text-ink-2"> {read.state === 'reading' ? ( <Trans>Reading the invoice…</Trans> ) : read.state === 'failed' ? ( <Trans>Kept couldn't read the invoice. Type the lines.</Trans> ) : read.state === 'paused' ? ( <Trans> AI is paused here, so the invoice waits to be read. Type the lines, or come back later. </Trans> ) : count === 0 ? ( <Trans>Read by AI: no lines found. Type them.</Trans> ) : read.totalMismatch ? ( <Trans> Read by AI: {plural(count, { one: '# line', other: '# lines' })}, and they don't add up to the total </Trans> ) : ( <Trans> Read by AI: {plural(count, { one: '# line', other: '# lines' })}, total matches </Trans> )} </p> ); } /** * The suggested lines and total, violet and dashed (D131), with Confirm all and each line's Edit. * `pending` are the indexes of `read.lines` not yet taken into the form. */ export function InvoiceSuggestions({ read, pending, showMoney, onConfirmAll, onEditLine, }: { read: InvoiceRead; pending: readonly number[]; showMoney: boolean; onConfirmAll: () => void; onEditLine: (index: number) => void; }) { const { t } = useLingui(); const fmt = useFormat(); const money = useMoney(); const kinds = useServiceLineLabels(); if (read.state !== 'read' || pending.length === 0) return null; const amount = (a: string) => (read.currency ? money(a, read.currency) : fmt.num(Number(a))); const lineAmount = (l: SuggestedLine) => l.unitCost ? String(Number(l.unitCost) * Number(l.quantity || '1')) : null; return ( // biome-ignore lint/a11y/useSemanticElements: a labelled group of suggestions and their choices <div role="group" aria-label={t`Suggested line items from the invoice`} className="grid gap-2 rounded-[10px] border border-dashed border-violet bg-violet-soft/60 px-3 py-2.5" > <span className="inline-flex items-center gap-1 font-semibold text-[12.5px] text-violet"> <SuggestedMark className="size-3.5" /> <Trans>Suggested line items from the invoice</Trans> </span> <ul className="m-0 grid list-none gap-1.5 p-0"> {pending.map((i) => { const l = read.lines[i]; if (!l) return null; const a = showMoney ? lineAmount(l) : null; return ( <li key={i} className="grid grid-cols-[1fr_auto] items-start gap-x-3 gap-y-0.5"> <span className="font-medium text-ink [overflow-wrap:anywhere]"> <bdi dir="auto">{l.description}</bdi> {l.quantity && l.quantity !== '1' ? ( <span className="text-ink-2 tabular-nums"> {' '} <Trans>× {fmt.num(Number(l.quantity))}</Trans> </span> ) : null} </span> <span className="text-end tabular-nums">{a ? amount(a) : null}</span> <span className="text-small text-ink-2">{l.kind ? kinds[l.kind] : null}</span> <Button size="small" variant="ghost" className="justify-self-end" aria-label={t`Edit ${l.description}`} onPress={() => onEditLine(i)} > <Trans>Edit</Trans> </Button> </li> ); })} </ul> {showMoney && read.total ? ( <div className="flex justify-between gap-3 border-line border-t pt-1.5 font-semibold"> <span> <Trans>Total</Trans> </span> <span className="tabular-nums">{amount(read.total)}</span> </div> ) : null} <div className="flex flex-wrap gap-2"> <Button size="small" onPress={onConfirmAll}> <Trans>Confirm all</Trans> </Button> </div> </div> ); } /** A bare `$` on the invoice (D189): which dollars, with neither chosen. */ export function DollarQuestion({ value, onPick, }: { value: string | null; onPick: (code: 'USD' | 'CAD') => void; }) { const id = useId(); return ( // biome-ignore lint/a11y/useSemanticElements: two choices under one question <div role="group" aria-labelledby={id} className="grid gap-1.5"> <p id={id} className="m-0 text-small text-warn"> <Trans>The invoice shows $. Is it US dollars or Canadian dollars?</Trans> </p> <div className="flex flex-wrap gap-2"> <Button size="small" variant={value === 'USD' ? 'primary' : 'secondary'} aria-pressed={value === 'USD'} onPress={() => onPick('USD')} > <Trans>US dollars (USD)</Trans> </Button> <Button size="small" variant={value === 'CAD' ? 'primary' : 'secondary'} aria-pressed={value === 'CAD'} onPress={() => onPick('CAD')} > <Trans>Canadian dollars (CAD)</Trans> </Button> </div> </div> ); } 
 #: src/components/services/invoice-suggestions.tsx
 msgid "Read by AI: {0}, total matches"
 msgstr "ШІ зчитав: {0}, підсумок сходиться"
@@ -21440,6 +22234,10 @@ msgstr "Показники"
 msgid "Readings around it"
 msgstr "Показники поруч"
 
+#: src/components/history/labels.ts
+msgid "Readings converted"
+msgstr "Перераховані показники"
+
 #: src/routes/_app/expiring.tsx
 msgid "Readings due"
 msgstr "Показники мають строк"
@@ -21481,6 +22279,16 @@ msgstr "Готово {0}"
 #: src/components/scan/manual-code.tsx
 msgid "Ready to look up"
 msgstr "Готово до пошуку"
+
+#: src/components/places/rack.tsx
+#: src/map/rack-card.tsx
+msgid "Rear"
+msgstr "Зад"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/things/overview.tsx
+msgid "Rear, half depth"
+msgstr "Ззаду, на пів глибини"
 
 #. placeholder {0}: money(r.reasoningPerMtok, price.currency)
 #: src/components/ai/prices.tsx
@@ -21563,6 +22371,10 @@ msgstr "Нещодавня активність"
 #: src/routes/_app/labels.tsx
 msgid "Recent batches"
 msgstr "Останні партії"
+
+#: src/native/main.tsx
+msgid "Recent capture batches"
+msgstr "Останні партії записів"
 
 #: src/components/connections/recent-changes.tsx
 msgid "Recent changes by connections"
@@ -21709,6 +22521,10 @@ msgstr "Відхилена"
 msgid "Rejected {0}"
 msgstr "Відхилено {0}"
 
+#: src/components/vehicles/change-unit.tsx
+msgid "Relabel only"
+msgstr "Лише перейменувати"
+
 #: src/components/things/labels.ts
 msgid "Related to"
 msgstr "Пов’язано з"
@@ -21718,6 +22534,7 @@ msgid "Release"
 msgstr "Реліз"
 
 #: src/components/registries/type-editor.tsx
+#: src/components/things/bulk-trash-lazy.tsx
 #: src/pwa/update-prompt.tsx
 msgid "Reload"
 msgstr "Перезавантажити"
@@ -21791,6 +22608,7 @@ msgstr "Нагадування в Discord, Slack, Matrix, Signal та понад
 #: src/components/things/purchase-sheet.tsx
 #: src/components/vehicles/documents-tab.tsx
 #: src/components/warranties/warranty-sheet.tsx
+#: src/native/capture-form.tsx
 #: src/routes/_app/admin.admins.tsx
 #: src/routes/_app/admin.settings.tsx
 #: src/routes/_app/settings.location.$id.members.tsx
@@ -21873,6 +22691,10 @@ msgstr "Прибрати контекст сторінки"
 #: src/components/capture/room-tray.tsx
 msgid "Remove photo {0}"
 msgstr "Видалити фото {0}"
+
+#: src/components/location-position.tsx
+msgid "Remove position"
+msgstr "Прибрати місцеположення"
 
 #: src/routes/gallery.tsx
 msgid "Remove Selina from this home?"
@@ -22109,6 +22931,14 @@ msgstr "Поновити {name}"
 msgid "Renewed {name}"
 msgstr "Поновлено {name}"
 
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used."
+msgstr "Подовжується під час використання."
+
+#: src/routes/_app/admin.status.tsx
+msgid "Renewed as it is used. <0/> has no effect over HTTPS."
+msgstr "Подовжується під час використання. <0/> не діє через HTTPS."
+
 #: src/components/condition/reports-screen.tsx
 msgid "Renting? When you move in, walk through each room and record how you found it, with photos. Do the same when you move out, and print both side by side if the deposit is disputed."
 msgstr "Орендуєте? Коли заселяєтеся, пройдіться кожним кімнатою й зафіксуйте, у якому стані її застали, з фото. Так само зробіть під час виселення, і надрукуйте обидва акти поруч, якщо заставу оскаржують."
@@ -22188,6 +23018,12 @@ msgstr "Замінено"
 #: src/components/things/labels.ts
 msgid "Replaced by"
 msgstr "Замінено на"
+
+#. placeholder {0}: num(p.offset.before)
+#. placeholder {1}: num(p.offset.after)
+#: src/components/vehicles/change-unit.tsx
+msgid "Replacement offset: {0} becomes {1}"
+msgstr "Зсув після заміни: {0} стає {1}"
 
 #: src/components/things/labels.ts
 msgid "Replaces"
@@ -22344,6 +23180,10 @@ msgstr "Відновлення — це команда, а не кнопка: <0
 msgid "Results"
 msgstr "Результати"
 
+#: src/native/main.tsx
+msgid "Resumable Find target"
+msgstr "Збережена ціль пошуку"
+
 #: src/components/ai/ai-attention.tsx
 #: src/components/import/archive-run.tsx
 #: src/components/import/progress-step.tsx
@@ -22383,9 +23223,14 @@ msgstr "Повторено невдале завдання"
 
 #: src/components/inbox/item-card.tsx
 #: src/components/inbox/room-review.tsx
+#: src/native/main.tsx
 #: src/routes/_app/admin.jobs.tsx
 msgid "Retry"
 msgstr "Повторити"
+
+#: src/native/main.tsx
+msgid "Retry sync"
+msgstr "Повторити синхронізацію"
 
 #: src/assistant/confirm-card.tsx
 msgid "Return"
@@ -22741,6 +23586,10 @@ msgstr "Та сама назва"
 msgid "Same serial number. Merging keeps both histories."
 msgstr "Той самий серійний номер. Під час об’єднання зберігається історія обох."
 
+#: src/native/label-panel.tsx
+msgid "Same tag scanned again. Move to another box."
+msgstr "Ту саму мітку відскановано знову. Перейдіть до іншої коробки."
+
 #: src/assistant/conversation.tsx
 msgid "Sample answers in this demo: no AI is asked."
 msgstr "Приклади відповідей у цій демоверсії: ШІ не запитується."
@@ -22774,6 +23623,7 @@ msgstr "Супутникова антена"
 #: src/components/kits/kit-section.tsx
 #: src/components/lending/handover-return.tsx
 #: src/components/lending/thing-loans.tsx
+#: src/components/location-position.tsx
 #: src/components/mailin/mailbox-settings.tsx
 #: src/components/money/exchange-rates.tsx
 #: src/components/money/value-section.tsx
@@ -22784,6 +23634,7 @@ msgstr "Супутникова антена"
 #: src/components/paperwork/rename-sheet.tsx
 #: src/components/places/add-here-sheet.tsx
 #: src/components/places/place-fields.tsx
+#: src/components/places/rack.tsx
 #: src/components/registries/contact-card.tsx
 #: src/components/registries/field-sheet.tsx
 #: src/components/registries/place-kinds.tsx
@@ -22869,6 +23720,10 @@ msgstr "Зберегти показник"
 msgid "Save the details you type again and again, and share them with your locations. Start one here, or use Save as template on a thing."
 msgstr "Збережіть деталі, які вводите знову і знову, і поділіться ними зі своїми локаціями. Почніть тут або скористайтеся функцією «Зберегти як шаблон» на речі."
 
+#: src/native/capture-form.tsx
+msgid "Save to box"
+msgstr "Зберегти до коробки"
+
 #: src/components/filters/views.tsx
 msgid "Save view"
 msgstr "Зберегти вигляд"
@@ -22876,6 +23731,7 @@ msgstr "Зберегти вигляд"
 #: src/assistant/confirm-card.tsx
 #: src/components/codes/code-settings.tsx
 #: src/components/counts/count-regularly.tsx
+#: src/components/location-position.tsx
 #: src/components/notifications/settings/notification-settings.tsx
 #: src/components/places/place-fields.tsx
 #: src/components/scan/session/session-screen.tsx
@@ -22919,10 +23775,27 @@ msgstr "Збережено {saved}"
 msgid "Saved {trimmed}"
 msgstr "Збережено {trimmed}"
 
+#: src/native/main.tsx
+msgid "Saved Find target"
+msgstr "Збережена ціль пошуку"
+
 #: src/components/readings/log-reading-sheet.tsx
 #: src/components/things/meters-section.tsx
 msgid "Saved for review"
 msgstr "Збережено для перевірки"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Saved on device"
+msgstr "Збережено на пристрої"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device: {batchPendingCount}"
+msgstr "Збережено на пристрої: {batchPendingCount}"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device."
+msgstr "Збережено на пристрої."
 
 #: src/components/readings/log-reading-sheet.tsx
 msgid "Saved on this phone"
@@ -22971,6 +23844,11 @@ msgstr "Збережено, але фото не завантажилося"
 #: src/components/ops/backup-target-form.tsx
 msgid "Saved, never shown again"
 msgstr "Збережено, більше не показувати"
+
+#. placeholder {0}: batch.count
+#: src/native/main.tsx
+msgid "Saved: {0}"
+msgstr "Збережено: {0}"
 
 #: src/components/scan/session/summary.tsx
 msgid "Saved."
@@ -23023,6 +23901,10 @@ msgid "Scale from {room}’s size"
 msgstr "Масштаб від розміру {room}"
 
 #: src/map/floor-plan/panel.tsx
+msgid "Scale from the doors, taken as {door} wide: check one room"
+msgstr "Масштаб за дверима, взятими за {door} завширшки: перевірте одну кімнату"
+
+#: src/map/floor-plan/panel.tsx
 msgid "Scale from the doors, taken as 80 cm wide: check one room"
 msgstr "Масштаб за дверима, взятими за 80 см завширшки: перевірте одну кімнату"
 
@@ -23062,6 +23944,10 @@ msgstr "Сканувати ще раз"
 msgid "Scan another box"
 msgstr "Відсканувати іншу коробку"
 
+#: src/native/label-panel.tsx
+msgid "Scan cancelled."
+msgstr "Сканування скасовано."
+
 #: src/components/scan/scan-screen.tsx
 #: src/components/things/action-menu.tsx
 #: src/components/things/selection-bar.tsx
@@ -23081,6 +23967,14 @@ msgstr "Сканувати її етикетку"
 #: src/components/hints/hint-copy.ts
 msgid "Scan many at once"
 msgstr "Сканувати багато за раз"
+
+#: src/native/label-panel.tsx
+msgid "Scan NFC tag"
+msgstr "Сканувати NFC-мітку"
+
+#: src/native/label-panel.tsx
+msgid "Scan QR code"
+msgstr "Сканувати QR-код"
 
 #: src/components/moving/unpack-answer.tsx
 #: src/components/scan/barcode-sheet.tsx
@@ -23132,6 +24026,10 @@ msgstr "Сканують своїм телефоном"
 #: src/components/hints/hint-copy.ts
 msgid "Scanning"
 msgstr "Сканування"
+
+#: src/native/label-panel.tsx
+msgid "Scanning…"
+msgstr "Сканування…"
 
 #: src/components/history/labels.ts
 msgid "Schedule added"
@@ -23348,6 +24246,10 @@ msgstr "Шукати інциденти"
 msgid "Search index"
 msgstr "Пошуковий індекс"
 
+#: src/native/main.tsx
+msgid "Search inventory"
+msgstr "Пошук в інвентарі"
+
 #: src/components/vehicles/services-tab.tsx
 msgid "Search lines, vendor, notes"
 msgstr "Шукати рядки, продавця, примітки"
@@ -23401,6 +24303,10 @@ msgstr "Пошук шаблонів місць"
 #: src/components/places/sub-places.tsx
 msgid "Search places"
 msgstr "Пошук місць"
+
+#: src/native/main.tsx
+msgid "Search results"
+msgstr "Результати пошуку"
 
 #: src/components/things/pickers.tsx
 msgid "Search rooms, spots and boxes"
@@ -23630,6 +24536,10 @@ msgstr "Побачено"
 #: src/components/things/header.tsx
 msgid "Seen {0}"
 msgstr "Бачено {0}"
+
+#: src/components/places/rack.tsx
+msgid "Seen from"
+msgstr "Вигляд"
 
 #: src/assistant/confirm-card.tsx
 msgid "Seen it"
@@ -24283,6 +25193,11 @@ msgstr "Полиця {n}"
 msgid "Shelves"
 msgstr "Полиці"
 
+#: src/map/size.tsx
+msgctxt "how many shelves"
+msgid "Shelves"
+msgstr "Полиці"
+
 #: src/components/places/furniture.tsx
 #: src/map/labels.ts
 msgid "Shelving unit"
@@ -24372,6 +25287,10 @@ msgstr "Показати все"
 msgid "Show fewer"
 msgstr "Показати менше"
 
+#: src/routes/_app/loc.$id.tsx
+msgid "Show it again"
+msgstr "Показати знову"
+
 #: src/components/hints/show-me.tsx
 msgid "Show me"
 msgstr "Покажіть мені"
@@ -24417,6 +25336,11 @@ msgstr "Показати весь поверх"
 msgid "Show the whole house"
 msgstr "Показати весь будинок"
 
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/record.tsx
+msgid "Showing cached details from {0}"
+msgstr "Показано кешовані дані від {0}"
+
 #: src/components/registries/convert-field-sheet.household.tsx
 #: src/components/registries/field-sheet.tsx
 msgid "Shown next to the number, never converted: in, cm, W."
@@ -24426,6 +25350,7 @@ msgstr "Показується поруч із числом, без перера
 msgid "Sign {who} out everywhere?"
 msgstr "Завершити всі сеанси для {who}?"
 
+#: src/native/main.tsx
 #: src/routes/signin/index.tsx
 msgid "Sign in"
 msgstr "Увійти"
@@ -24483,6 +25408,7 @@ msgstr "Відтепер входьте з нової адреси. На всі�
 #: src/components/delete-account.tsx
 #: src/components/device/lock-screen.tsx
 #: src/components/sign-out.tsx
+#: src/native/main.tsx
 #: src/routes/_app/settings.index.tsx
 msgid "Sign out"
 msgstr "Вийти"
@@ -24519,10 +25445,18 @@ msgstr "Вийти на всіх інших пристроях?"
 msgid "Sign out others"
 msgstr "Завершити інші сеанси"
 
+#: src/native/main.tsx
+msgid "Sign out with unsynced captures?"
+msgstr "Вийти попри несинхронізовані записи?"
+
 #: src/components/sign-in-security.tsx
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "Sign-in and security"
 msgstr "Вхід і безпека"
+
+#: src/routes/_app/admin.status.tsx
+msgid "Sign-in length"
+msgstr "Тривалість входу"
 
 #: src/routes/_app/settings.two-factor.tsx
 msgid "Sign-in link sent. It works once, for 15 minutes."
@@ -24569,6 +25503,10 @@ msgstr "Завершено сеанс"
 msgid "Signed out of your other devices"
 msgstr "Ви вийшли на інших пристроях"
 
+#: src/native/main.tsx
+msgid "Signed out on this iPhone. Kept could not revoke the server session while offline."
+msgstr "Вихід виконано на цьому iPhone. Kept не зміг відкликати сесію сервера в офлайні."
+
 #: src/components/history/labels.ts
 msgid "Signed someone out everywhere"
 msgstr "Завершено сеанси користувача на всіх пристроях"
@@ -24598,6 +25536,10 @@ msgstr "З"
 #: src/components/ai/prices.tsx
 msgid "Since {0}"
 msgstr "Від {0}"
+
+#: src/components/lending/thing-loans.tsx
+msgid "since {from}"
+msgstr "з {from}"
 
 #: src/components/lending/loan-row.tsx
 msgid "Since {since} · due {due}"
@@ -24641,6 +25583,10 @@ msgstr "Розмір показує, скільки всередині. Торк
 #: src/map/floor-plan/panel.tsx
 msgid "Sizes from the plan: {n} of {m} rooms agree"
 msgstr "Розміри з плану: {n} з {m} кімнат збігаються"
+
+#: src/components/display-prefs.tsx
+msgid "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
+msgstr "Розміри на мапі, розміри етикеток, витрати пального й одометр нового транспорту. Збережене лишається як є."
 
 #: src/components/import/inspect-step.tsx
 #: src/components/places/unplaced-sort.tsx
@@ -25120,6 +26066,10 @@ msgstr "Додано початкові графіки"
 msgid "Starts"
 msgstr "Починається"
 
+#: src/components/places/rack.tsx
+msgid "Starts at"
+msgstr "Починається з"
+
 #: src/components/mailin/mailbox-settings.tsx
 msgid "STARTTLS (143)"
 msgstr "STARTTLS (143)"
@@ -25159,6 +26109,10 @@ msgstr "Статус"
 #: src/components/sheet/staging.tsx
 msgid "Stay"
 msgstr "Залишитися"
+
+#: src/native/main.tsx
+msgid "Stay signed in"
+msgstr "Залишитися в системі"
 
 #: src/components/sign-out.tsx
 msgid "Stay signed in and open Kept with a connection to finish syncing first."
@@ -25268,6 +26222,10 @@ msgstr "Перестати вимагати"
 msgid "Stop requiring two-factor for {name}?"
 msgstr "Перестати вимагати двофакторну автентифікацію для {name}?"
 
+#: src/native/label-panel.tsx
+msgid "Stop scanning"
+msgstr "Зупинити сканування"
+
 #: src/components/import/archive-step.tsx
 msgid "Stop the upload?"
 msgstr "Зупинити завантаження?"
@@ -25356,6 +26314,10 @@ msgstr "Запропоновано · прочитано з чека. Перев
 msgid "Suggested {fieldName}"
 msgstr "Запропоновано: {fieldName}"
 
+#: src/native/record.tsx
+msgid "Suggested description"
+msgstr "Запропонований опис"
+
 #: src/components/services/invoice-suggestions.tsx
 msgid "Suggested line items from the invoice"
 msgstr "Запропоновані рядки з рахунку"
@@ -25386,6 +26348,28 @@ msgstr "Перемикайтеся між тим, що додали ви, і т�
 #: src/components/sign-in-security.household.tsx
 msgid "Synced"
 msgstr "Синхронізовано"
+
+#. placeholder {0}: 1
+#: src/native/main.tsx
+msgid "Synced entries: {0}"
+msgstr "Синхронізовано записів: {0}"
+
+#: src/native/main.tsx
+msgid "Synced entries: {count}"
+msgstr "Синхронізовано записів: {count}"
+
+#: src/native/capture-form.tsx
+msgid "Synced: {batchSyncedCount}"
+msgstr "Синхронізовано: {batchSyncedCount}"
+
+#: src/native/capture-form.tsx
+msgid "Syncing: {batchPendingCount}"
+msgstr "Синхронізація: {batchPendingCount}"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Syncing…"
+msgstr "Синхронізація…"
 
 #: src/components/display-prefs.tsx
 msgid "System"
@@ -25518,6 +26502,7 @@ msgstr "Вилучити {title} із переїзду?"
 #: src/components/capture/capture-screen.tsx
 #: src/components/capture/file-fallback.tsx
 #: src/map/floor-plan/start-sheet.tsx
+#: src/native/capture-form.tsx
 msgid "Take a photo"
 msgstr "Зробити фото"
 
@@ -25532,6 +26517,10 @@ msgstr "Сфотографуйте або виберіть фото з гале�
 #: src/components/things/purchase-sheet.tsx
 msgid "Take it off"
 msgstr "Зняти його"
+
+#: src/components/places/rack.tsx
+msgid "Take it off its unit"
+msgstr "Зняти з юніта"
 
 #: src/components/moving/box-screen.tsx
 msgid "Take it out"
@@ -25617,6 +26606,15 @@ msgstr "Зробіть до {0} фото кімнати."
 #: src/components/history/labels.ts
 msgid "Taken"
 msgstr "Зроблено"
+
+#: src/assistant/confirm-card.tsx
+#: src/components/lending/taken-back-by.tsx
+msgid "Taken back by"
+msgstr "Хто прийняв"
+
+#: src/components/lending/thing-loans.tsx
+msgid "taken back by <0>{taker}</0>"
+msgstr "прийняв(-ла) <0>{taker}</0>"
 
 #: src/components/things/purchase-sheet.tsx
 msgid "Taken off the receipt"
@@ -25840,6 +26838,10 @@ msgstr "Цей код не збігся. Перевірте час на теле
 msgid "That code didn't match. Try the newest one your app shows."
 msgstr "Цей код не збігся. Спробуйте найновіший, який показує ваш застосунок."
 
+#: src/native/label-panel.tsx
+msgid "That code matches multiple items, not this box."
+msgstr "Цей код відповідає кільком речам, а не цій коробці."
+
 #: src/components/page.tsx
 msgid "That conflicts with a change someone else made. Reload and try again."
 msgstr "Це суперечить зміні, яку зробив хтось інший. Перезавантажте сторінку й спробуйте ще раз."
@@ -25888,6 +26890,11 @@ msgstr "Ця електронна пошта або ім’я користува
 #: src/components/mailin/mailbox-settings.tsx
 msgid "That folder doesn't exist in the mailbox."
 msgstr "Цієї теки немає в поштовій скриньці."
+
+#. placeholder {0}: isolate(other)
+#: src/native/label-panel.tsx
+msgid "That is {0}, not this box. Scan another tag."
+msgstr "Це {0}, а не ця коробка. Проскануйте іншу мітку."
 
 #: src/components/device/keep-offline.tsx
 msgid "That is more than this device can keep offline."
@@ -26085,6 +27092,10 @@ msgstr "Інструмент резервного копіювання не зм
 msgid "The backup tool failed. The server's log has the details."
 msgstr "Інструмент резервного копіювання не спрацював. Деталі — у журналі сервера."
 
+#: src/components/places/furniture.tsx
+msgid "The bottom"
+msgstr "Знизу"
+
 #: src/components/moving/box-screen.tsx
 msgid "The box and what's in it stay where they are."
 msgstr "Коробка і те, що в ній, залишаються там, де вони є."
@@ -26200,6 +27211,10 @@ msgstr "Дата у майбутньому; збережено в нотатка
 msgid "The dates in the file read more than one way (is 03/04 the 3rd of April or the 4th of March?). Check this one."
 msgstr "Дата у файлі читається неоднозначно (03/04 — це 3 квітня чи 4 березня?). Перевірте цю."
 
+#: src/native/main.tsx
+msgid "The destination box is missing or in Trash. Move this capture to another box or discard it."
+msgstr "Цільова коробка відсутня або у кошику. Перемістіть цей запис до іншої коробки або видаліть його."
+
 #: src/components/ops/ops-words.ts
 msgid "The dump was much smaller than the last good one. Older snapshots were kept."
 msgstr "Демп значно менший за останній успішний. Попередні знімки збережено."
@@ -26215,6 +27230,10 @@ msgstr "Електронна пошта на вашому обліковому �
 #: src/routes/auth/email-change.tsx
 msgid "The email-change link is missing its code. Open it straight from the email, or start again from Settings."
 msgstr "У посиланні для зміни електронної пошти немає коду. Відкрийте його прямо з листа або почніть спочатку з налаштувань."
+
+#: src/native/main.tsx
+msgid "The entry was created, but an attachment could not be verified yet. Retry to confirm."
+msgstr "Запис створено, але вкладення ще не вдалося перевірити. Повторіть спробу для підтвердження."
 
 #: src/components/codes/code-settings.tsx
 msgid "The example doesn't match the pattern."
@@ -26361,6 +27380,14 @@ msgstr "Рядки не сходяться із загальною сумою (�
 msgid "The link is missing its code. Open it straight from the message, or scan the QR code again."
 msgstr "У посиланні немає коду. Відкрийте його прямо з повідомлення або відскануйте QR-код ще раз."
 
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
+msgstr "Посилання відкривається на <0/> і виконує вхід там, а не на цій адресі. Не можете дістатися туди звідси? Скористайтеся паролем."
+
+#: src/routes/signin/index.tsx
+msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
+msgstr "Посилання відкривається на <0/>. Задайте новий пароль там, а потім увійдіть із ним тут."
+
 #: src/routes/_app/settings.location.$id.members.tsx
 msgid "The link stops working. Anyone who hasn't opened it yet will need a new one."
 msgstr "Посилання перестає працювати. Тим, хто ще не відкрив його, знадобиться нове."
@@ -26400,6 +27427,14 @@ msgstr "Поштова скринька відхилила ім’я корис�
 #: src/components/mailin/mailbox-settings.tsx
 msgid "The mailbox works"
 msgstr "Поштова скринька працює"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
+msgstr "Основна адреса, до якої прив’язані посилання, пошта й ключі доступу. Також задано в <0/>:"
+
+#: src/routes/_app/admin.status.tsx
+msgid "The main address. <0/> adds more."
+msgstr "Основна адреса. <0/> додає інші."
 
 #: src/components/warranties/warranty-sheet.tsx
 msgid "The maker, the shop or the insurer."
@@ -26474,6 +27509,14 @@ msgstr "Наступний нумерований код, {0}, не збігає
 #: src/components/codes/code-settings.tsx
 msgid "The next thing gets <0/>."
 msgstr "Наступна річ отримує <0/>."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Tap Continue scanning to keep looking."
+msgstr "Сканування NFC перервано. Натисніть «Продовжити сканування», щоб шукати далі."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Try again."
+msgstr "Сканування NFC перервано. Спробуйте ще раз."
 
 #: src/routes/_app/admin.alerts.tsx
 msgid "The nightly backup failed"
@@ -26567,6 +27610,12 @@ msgstr "Людині, яка керує цим сервером, потрібн�
 #: src/components/ai/paste-key.tsx
 msgid "The photo request wasn't sent: AI may be paused, or the provider refused the key."
 msgstr "Запит фото не надіслано: ШІ може бути призупинено, або провайдер відхилив ключ."
+
+#. placeholder {0}: num(r.value)
+#. placeholder {1}: num(converted)
+#: src/components/inbox/reading-review.tsx
+msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
+msgstr "На фото {seenUnit}, а цей одометр рахує в {unit}. {0} {seenUnit} — це {1} {unit}."
 
 #: src/components/inbox/room-review.tsx
 msgid "The photos are deleted. Drafts already made stay in the inbox."
@@ -26669,6 +27718,10 @@ msgstr "Покупка неповна; збережено в нотатках."
 msgid "The readable copy's language"
 msgstr "Мова копії для читання"
 
+#: src/components/vehicles/change-unit.tsx
+msgid "The readings were always in {toLabel}. Every value stays as it is."
+msgstr "Показники завжди були в {toLabel}. Кожне значення лишається як є."
+
 #: src/components/things/purchase-sheet.tsx
 msgid "The receipt and its other things stay as they are."
 msgstr "Чек та інші речі на ньому залишаються як є."
@@ -26713,6 +27766,18 @@ msgstr "У рядка немає типу, тож у нього немає по�
 msgid "The same as row {row}, so it's skipped."
 msgstr "Те саме, що й рядок {row}, тож пропущено."
 
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Tap Continue scanning to keep looking for this box."
+msgstr "Час сканування вичерпано. Натисніть «Продовжити сканування», щоб шукати далі."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Try again."
+msgstr "Час сканування вичерпано. Спробуйте ще раз."
+
+#: src/components/scan/scanner-view.tsx
+msgid "The scanner didn't start."
+msgstr "Сканер не запустився."
+
 #: src/components/import/kept-choices.tsx
 msgid "The secrets will be imported"
 msgstr "Секрети буде імпортовано"
@@ -26720,6 +27785,10 @@ msgstr "Секрети буде імпортовано"
 #: src/components/home/checklist.tsx
 msgid "the sender, for example <0>Kept <kept@example.org></0>"
 msgstr "відправник, наприклад <0>Kept <kept@example.org></0>"
+
+#: src/native/label-panel.tsx
+msgid "The server could not confirm this box’s label. Reopen the box and try again."
+msgstr "Сервер не зміг підтвердити мітку цієї коробки. Відкрийте коробку знову та спробуйте ще раз."
 
 #: src/components/inbox/labels.ts
 msgid "The server couldn't apply it."
@@ -26796,6 +27865,10 @@ msgstr "Назви нижче — такими Kept бачив їх востан
 #: src/components/connections/shortcut-recipe.tsx
 msgid "The token lives in the Shortcut"
 msgstr "Токен зберігається у швидкій команді"
+
+#: src/components/places/furniture.tsx
+msgid "The top"
+msgstr "Згори"
 
 #: src/components/inbox/receipt-review.tsx
 msgid "The total is a number, like 5800.00."
@@ -26889,6 +27962,10 @@ msgstr "Потім: {after}"
 #: src/components/things/split-sheet.tsx
 msgid "There are {0}. The ones you take off get their own row, keeping the same purchase."
 msgstr "Є {0}. Зняті отримують власний рядок, зберігаючи ту саму покупку."
+
+#: src/native/record.tsx
+msgid "There are no AI suggestions to review. Your entry is saved."
+msgstr "Немає пропозицій ШІ для перегляду. Ваш запис збережено."
 
 #: src/components/ops/status-tiles.tsx
 msgid "There is no good backup yet"
@@ -27176,10 +28253,6 @@ msgstr "Цей браузер не може намалювати карту. С�
 msgid "This browser can't open the camera here."
 msgstr "Цей браузер не може відкрити камеру тут."
 
-#: src/components/scan/scanner-view.tsx
-msgid "The scanner didn't start."
-msgstr "Сканер не запустився."
-
 #: src/components/notifications/settings/channels.tsx
 msgid "This browser can't receive notifications from Kept. Email still reaches you."
 msgstr "Цей браузер не може отримувати сповіщення від Kept. Електронна пошта все ще вас знайде."
@@ -27348,6 +28421,10 @@ msgstr "Це запрошення більше не діє."
 msgid "This invite no longer works. Ask {inviter} for a new one."
 msgstr "Це запрошення більше не діє. Попросіть {inviter} про нове."
 
+#: src/native/label-panel.tsx
+msgid "This is a different label. Scan another tag."
+msgstr "Це інша мітка. Проскануйте іншу мітку."
+
 #: src/components/import/archive-step.tsx
 #: src/components/import/mapping-step.tsx
 msgid "This is Homebox's spreadsheet export"
@@ -27386,6 +28463,14 @@ msgstr "Цей Kept налаштовано для іншої адреси. Ві�
 msgid "This Kept lets people in by invite. Ask someone who uses it to invite you, then join from the invite link."
 msgstr "Цей Kept впускає людей за запрошенням. Попросіть когось, хто ним користується, запросити вас, а потім приєднайтеся за посиланням-запрошенням."
 
+#: src/native/main.tsx
+msgid "This Kept was restored or replaced. Pending captures from the previous server state are held for review."
+msgstr "Цей сервер Kept було відновлено або замінено. Попередні несинхронізовані записи утримано для перевірки."
+
+#: src/components/ai/key-scope.tsx
+msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
+msgstr "Цей ключ оплачує всі домівки <0>{ownerName}</0>: <1>{list}</1>."
+
 #: src/components/ai/key-scope.tsx
 msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>. <2>{personal}</2> uses your personal key if you add one."
 msgstr "Цей ключ оплачує всі домівки <0>{ownerName}</0>: <1>{list}</1>. <2>{personal}</2> використовує ваш особистий ключ, якщо ви його додасте."
@@ -27393,6 +28478,23 @@ msgstr "Цей ключ оплачує всі домівки <0>{ownerName}</0>:
 #: src/components/ai/key-scope.tsx
 msgid "This key pays for the homes your account owns."
 msgstr "Цей ключ оплачує домогосподарства, які належать вашому обліковому запису."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline, so it is not confirmed as a different box."
+msgstr "Не вдалося перевірити цю мітку офлайн, тому не підтверджено, що це інша коробка."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline."
+msgstr "Не вдалося перевірити цю мітку офлайн."
+
+#: src/native/label-panel.tsx
+msgid "This label has not been assigned."
+msgstr "Цю мітку ще не призначено."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This label is unavailable in your Kept."
+msgstr "Ця мітка недоступна у вашому Kept."
 
 #: src/components/scan/claim-sheet.tsx
 msgid "This label isn't on anything yet. Use it for:"
@@ -27475,6 +28577,18 @@ msgstr "Це потребує захищеного (HTTPS) з’єднання �
 msgid "This needs a value."
 msgstr "Це потребує значення."
 
+#: src/native/label-panel.tsx
+msgid "This NFC tag is blank."
+msgstr "Ця NFC-мітка порожня."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is read-only. Try another tag."
+msgstr "Ця NFC-мітка доступна лише для читання. Спробуйте іншу."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is too small for the label URL."
+msgstr "Ця NFC-мітка замала для URL-адреси мітки."
+
 #: src/components/sheet/labels.ts
 msgid "This one is counted one by one: its quantity stays 1."
 msgstr "Ця річ лічиться поштучно: її кількість залишається 1."
@@ -27553,6 +28667,10 @@ msgstr "Цей звіт завершено, тому його не можна з
 msgid "This report isn't finished, and the PDF says so."
 msgstr "Цей звіт не завершено, і PDF про це повідомляє."
 
+#: src/components/connections/home-assistant.tsx
+msgid "This request has ended. Start again from Home Assistant."
+msgstr "Цей запит завершився. Почніть знову в Home Assistant."
+
 #: src/routes/oauth/consent.tsx
 msgid "This request isn't valid any more"
 msgstr "Цей запит більше не дійсний"
@@ -27608,6 +28726,35 @@ msgstr "Час входу минув. Почніть знову зі сторі�
 msgid "This step ticks itself the first time you open Kept from its icon."
 msgstr "Цей крок відмічається сам, коли ви вперше відкриєте Kept з його іконки."
 
+#: src/native/label-panel.tsx
+msgid "This tag already contains the verified Kept label."
+msgstr "Ця мітка вже містить перевірену мітку Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag already holds information. Writing will replace its contents."
+msgstr "Ця мітка вже містить дані. Запис замінить її вміст."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This tag belongs to a different Kept server."
+msgstr "Ця мітка належить іншому серверу Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not contain a Kept label URL."
+msgstr "Ця мітка не містить URL-адреси мітки Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not support NDEF."
+msgstr "Ця мітка не підтримує NDEF."
+
+#: src/native/label-panel.tsx
+msgid "This tag has changed. Inspect it again before writing."
+msgstr "Ця мітка змінилася. Перевірте її знову перед записом."
+
+#: src/native/label-panel.tsx
+msgid "This tag is blank and ready to write."
+msgstr "Ця мітка порожня й готова до запису."
+
 #: src/components/things/links.tsx
 msgid "This thing is…"
 msgstr "Ця річ…"
@@ -27619,6 +28766,10 @@ msgstr "Ця гілка розмови приватна для вас"
 #: src/components/import/labels.ts
 msgid "This type is counted one by one; kept in the notes."
 msgstr "Цей тип рахується по одному; збережено в нотатках."
+
+#: src/native/main.tsx
+msgid "This unsynced capture and its saved photos or documents on this iPhone will be deleted."
+msgstr "Цей несинхронізований запис і збережені на цьому iPhone фото чи документи буде видалено."
 
 #: src/components/vehicles/lubelogger-import.tsx
 msgid "this vehicle has no odometer"
@@ -27731,6 +28882,10 @@ msgstr "Для підтвердження: {list}"
 #: src/components/fuel/log-fuel-sheet.tsx
 msgid "To full"
 msgstr "До повного"
+
+#: src/components/sign-in-methods.tsx
+msgid "To link one, go to <0/>: outside sign-ins come back to that address."
+msgstr "Щоб прив’язати спосіб входу, перейдіть на <0/>: зовнішні входи повертаються на цю адресу."
 
 #: src/components/places/compartments.tsx
 msgid "To the left"
@@ -27846,6 +29001,10 @@ msgstr "Забагато спроб. Спробуйте ще раз за год�
 #: src/components/history/labels.ts
 msgid "Took {name} off {host}"
 msgstr "Прибрано {name} з {host}"
+
+#: src/components/places/rack.tsx
+msgid "Took {name} off its unit"
+msgstr "Знято з юніта: {name}"
 
 #: src/components/history/labels.ts
 msgid "Took {name} off the map"
@@ -27992,6 +29151,7 @@ msgstr "Перенесені в кошик речі та місця чекают
 #: src/components/import/archive-step.tsx
 #: src/components/page.tsx
 #: src/components/reports/progress.tsx
+#: src/components/scan/scanner-view.tsx
 #: src/map/floor-plan/notices.tsx
 msgid "Try again"
 msgstr "Спробуйте ще раз"
@@ -28362,6 +29522,7 @@ msgstr "Введіть частину назви, бренду, серійног
 #: src/components/scan/manual-code.tsx
 #: src/components/scan/outcome-sheet.tsx
 #: src/components/scan/scan-screen.tsx
+#: src/native/label-panel.tsx
 msgid "Type the code"
 msgstr "Введіть код"
 
@@ -28422,6 +29583,10 @@ msgstr "Розархівувати"
 #: src/components/home/attention.tsx
 msgid "Uncertain"
 msgstr "Не визначено"
+
+#: src/map/floor-plan/panel.tsx
+msgid "Under {smallest}: too small for the map."
+msgstr "Менше ніж {smallest}: замало для мапи."
 
 #: src/map/floor-plan/panel.tsx
 msgid "Under 50 cm: too small for the map."
@@ -28523,6 +29688,10 @@ msgstr "без групи"
 msgid "Unit"
 msgstr "Одиниця"
 
+#: src/components/vehicles/change-unit.tsx
+msgid "Unit changed to {toLabel}"
+msgstr "Одиницю змінено на {toLabel}"
+
 #: src/components/history/labels.ts
 msgid "Unit price"
 msgstr "Ціна за одиницю"
@@ -28534,6 +29703,15 @@ msgstr "Сполучене Королівство"
 #: src/components/display-prefs.tsx
 msgid "United States"
 msgstr "Сполучені Штати"
+
+#: src/components/display-prefs.tsx
+msgid "Units"
+msgstr "Одиниці"
+
+#: src/components/places/furniture.tsx
+msgctxt "rack"
+msgid "Units"
+msgstr "Юніти"
 
 #: src/routes/_app/settings.index.tsx
 msgid "Unknown device"
@@ -28737,6 +29915,9 @@ msgstr "Доки ви не введете код із нового застос�
 #: src/components/vehicles/list.tsx
 #: src/components/vehicles/overview.tsx
 #: src/components/vehicles/readings-tab.tsx
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+#: src/native/record.tsx
 msgid "Untitled"
 msgstr "Без назви"
 
@@ -28882,6 +30063,11 @@ msgstr "Долари США (USD)"
 msgid "US gallons"
 msgstr "Американські галони"
 
+#. placeholder {0}: num(converted)
+#: src/components/inbox/reading-review.tsx
+msgid "Use {0} {unit}"
+msgstr "Використати {0} {unit}"
+
 #: src/components/places/furniture.tsx
 #: src/components/templates/place-template-list.tsx
 msgid "Use {N} for the number, or {ROW} and {COL}."
@@ -28973,6 +30159,14 @@ msgstr "Використати новий застосунок"
 msgid "Use the system camera"
 msgstr "Скористатися системною камерою"
 
+#: src/native/record.tsx
+msgid "Use this description"
+msgstr "Використати цей опис"
+
+#: src/components/location-position.tsx
+msgid "Use where I am now"
+msgstr "Використати, де я зараз"
+
 #: src/components/history/labels.ts
 msgid "Used {name} in a service of {service}"
 msgstr "Використано {name} у сервісному обслуговуванні {service}"
@@ -28989,6 +30183,10 @@ msgstr "Використовується імпортом та API. Склада
 #: src/components/ai/key-scope.tsx
 msgid "Used for <0>{personal}</0>, your private threads, and questions that span owners."
 msgstr "Використовується для <0>{personal}</0>, ваших приватних ланцюжків і питань, які охоплюють власників."
+
+#: src/components/ai/key-scope.tsx
+msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
+msgstr "Використовується для ваших приватних ланцюжків, питань, які охоплюють власників, <0>{personal}</0> та локації, якою ви володієте й користуєтеся самі та яка не має ключа облікового запису."
 
 #: src/components/import/inspect-step.tsx
 msgid "Used once to read Homebox, never stored."
@@ -29196,6 +30394,10 @@ msgstr "Продавця об’єднано"
 msgid "Vendors"
 msgstr "Продавці"
 
+#: src/native/label-panel.tsx
+msgid "Verify tag now"
+msgstr "Перевірити мітку зараз"
+
 #: src/routes/_app/admin.status.tsx
 msgid "Version"
 msgstr "Версія"
@@ -29243,6 +30445,10 @@ msgstr "Лише перегляд ({0})"
 #: src/components/scan/session/session-screen.tsx
 msgid "View only here"
 msgstr "Лише перегляд тут"
+
+#: src/native/record.tsx
+msgid "View QR label"
+msgstr "Переглянути QR-мітку"
 
 #: src/lib/labels.ts
 msgid "Viewer"
@@ -29530,6 +30736,10 @@ msgid "Washing machine"
 msgstr "Пральна машина"
 
 #: src/map/labels.ts
+msgid "Water purifier"
+msgstr "Очищувач води"
+
+#: src/map/labels.ts
 msgid "Water tank"
 msgstr "Бак для води"
 
@@ -29772,6 +30982,10 @@ msgstr "Що може містити файл"
 #: src/components/import/stepper.tsx
 msgid "What the import will do"
 msgstr "Що зробить імпорт"
+
+#: src/components/vehicles/change-unit.tsx
+msgid "What to change"
+msgstr "Що змінити"
 
 #: src/components/scan/session/session-screen.tsx
 msgid "What to count"
@@ -30075,6 +31289,10 @@ msgstr "Хто може розкрити {name}"
 msgid "Who can see this location, and what each person can do"
 msgstr "Хто бачить цю локацію та що може робити кожен"
 
+#: src/components/lending/thing-loans.tsx
+msgid "Who had it"
+msgstr "У кого було"
+
 #: src/components/lending/lend-sheet.tsx
 msgid "Who is it going to?"
 msgstr "Кому воно іде?"
@@ -30134,6 +31352,7 @@ msgid "Why?"
 msgstr "Чому?"
 
 #: src/components/places/room-size.tsx
+#: src/map/floor-plan/panel.tsx
 #: src/map/size.tsx
 msgid "Width"
 msgstr "Ширина"
@@ -30211,6 +31430,10 @@ msgstr "з секретами"
 msgid "With someone"
 msgstr "У когось"
 
+#: src/components/location-position.tsx
+msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
+msgstr "Коли «Підказати, де я» увімкнено, додавання обирає цю локацію, коли ви тут. Місцеположення телефона порівнюється на самому телефоні й ніколи не надсилається. Це бачать лише власники й адміністратори."
+
 #: src/components/export/export-sheet.tsx
 msgid "with the inventory PDF"
 msgstr "з PDF-інвентарем"
@@ -30271,6 +31494,18 @@ msgstr "Працює офлайн. Претензія залишається в 
 #: src/components/setup-code-help.tsx
 msgid "Works only until setup is finished. It replaces the old code and lifts the lockout on wrong codes. It needs the database owner's login: Compose's migrate service has it, and under Helm the pod that runs backups."
 msgstr "Працює лише до завершення налаштування. Він замінює старий код і знімає блокування за неправильні коди. Йому потрібен вхід власника бази даних: його має сервіс migrate у Compose, а під Helm — под, що запускає резервні копії."
+
+#: src/native/label-panel.tsx
+msgid "Write and verify"
+msgstr "Записати й перевірити"
+
+#: src/native/label-panel.tsx
+msgid "Write NFC tag"
+msgstr "Записати NFC-мітку"
+
+#: src/native/label-panel.tsx
+msgid "Writing was interrupted. Inspect the tag again to verify what it holds."
+msgstr "Запис перервано. Перевірте мітку ще раз, щоб дізнатися її вміст."
 
 #: src/components/ops/ops-words.ts
 msgid "Wrong password"
@@ -30404,6 +31639,10 @@ msgstr "Ви втрачаєте доступ до {name}. Додане вами 
 msgid "You lose this admin area straight away. Your own locations and things stay. Another admin can make you one again."
 msgstr "Ви одразу втрачаєте цю адміністративну зону. Ваші локації та речі залишаться. Інший адміністратор може зробити вас адміністратором знову."
 
+#: src/native/main.tsx
+msgid "You no longer have write permission in that box’s location."
+msgstr "Ви більше не маєте дозволу на запис у розташуванні цієї коробки."
+
 #: src/routes/auth/email-change.tsx
 msgid "You opened a link to change the email address you sign in with. Confirm it here."
 msgstr "Ви відкрили посилання, щоб змінити адресу електронної пошти, з якою входите. Підтвердіть її тут."
@@ -30423,6 +31662,11 @@ msgstr "Ви володієте цими локаціями. Спершу пер
 #: src/components/change-email.tsx
 msgid "You sign in with <0>{current}</0>. To change it, we send a link to that address first, then one to the new address."
 msgstr "Ви входите з <0>{current}</0>. Щоб змінити її, ми спершу надсилаємо посилання на цю адресу, а потім — на нову."
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "You still have {0} capture(s) saved on this iPhone. They stay locked to this account and will not sync under another account or server."
+msgstr "На цьому iPhone досі збережено {0} запис(ів). Вони залишаться прив’язаними до цього облікового запису й не синхронізуються з іншим обліковим записом або сервером."
 
 #: src/components/inbox/labels.ts
 msgid "You were removed from that location."
@@ -30596,6 +31840,10 @@ msgstr "Ваш експорт готовий"
 msgid "Your insurance report is ready"
 msgstr "Ваш страховий звіт готовий"
 
+#: src/native/capture-form.tsx
+msgid "Your iPhone storage is full. Free up space and try again."
+msgstr "Сховище iPhone заповнене. Звільніть місце та спробуйте ще раз."
+
 #: src/components/ai/settings-page.tsx
 msgid "Your key"
 msgstr "Ваш ключ"
@@ -30611,6 +31859,7 @@ msgstr "Ваше посилання"
 
 #: src/components/hints/hint-copy.ts
 #: src/routes/_app/lending.tsx
+#: src/routes/_app/settings.index.tsx
 msgid "Your locations"
 msgstr "Ваші локації"
 
@@ -30659,6 +31908,10 @@ msgstr "Ваш власний Kept створює тут PDF. У цій демо
 msgid "Your own key is for <0>{personal}</0>, your private threads, and questions that span owners."
 msgstr "Ваш власний ключ призначений для <0>{personal}</0>, ваших приватних ланцюжків і питань, які охоплюють власників."
 
+#: src/components/ai/settings-page.tsx
+msgid "Your own key is for your private threads and questions that span owners."
+msgstr "Ваш власний ключ призначений для ваших приватних ланцюжків і питань, які охоплюють власників."
+
 #: src/components/change-email.tsx
 #: src/components/ops/reauth-sheet.tsx
 #: src/components/sign-in-security.household.tsx
@@ -30691,6 +31944,10 @@ msgstr "Ваш сервер не відповів"
 #: src/components/webhooks/edit.tsx
 msgid "Your server's address. Kept sends a signed POST there."
 msgstr "Адреса вашого сервера. Kept надсилає туди підписаний POST."
+
+#: src/native/main.tsx
+msgid "Your session ended. Sign in again to see your pending captures."
+msgstr "Вашу сесію завершено. Увійдіть знову, щоб побачити очікувані записи."
 
 #: src/components/page.tsx
 msgid "Your session ended. Sign in again."
@@ -30734,572 +31991,3 @@ msgstr "Наблизити"
 #: src/map/map-view.tsx
 msgid "Zoom out"
 msgstr "Віддалити"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Sign-in length"
-msgstr "Тривалість входу"
-
-#: src/routes/_app/admin.status.tsx
-msgid "Renewed as it is used."
-msgstr "Подовжується під час використання."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Renewed as it is used. <0/> has no effect over HTTPS."
-msgstr "Подовжується під час використання. <0/> не діє через HTTPS."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Over plain HTTP, not renewed. <0/> makes it longer."
-msgstr "Через звичайний HTTP не подовжується. <0/> збільшує тривалість."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Over plain HTTP, set by <0/>. Renewed as it is used."
-msgstr "Через звичайний HTTP, задано в <0/>. Подовжується під час використання."
-
-#: src/routes/_app/admin.status.tsx
-msgid "{h, plural, one {# hour} other {# hours}}"
-msgstr "{h, plural, one {# година} few {# години} many {# годин} other {# години}}"
-
-#: src/components/export/export-sheet.tsx
-msgid "<0>{hiddenName}</0> is hidden, so it isn't in this file. To export it, choose it under Export a location."
-msgstr "<0>{hiddenName}</0> приховано, тому її немає в цьому файлі. Щоб експортувати її, виберіть її в розділі «Експортувати локацію»."
-
-#: src/routes/_app/loc.$id.tsx
-msgid "<0>{name}</0> is hidden from your menu, Home, lists and search. This link still opens it."
-msgstr "<0>{name}</0> приховано з вашого меню, «Головної», списків і пошуку. Це посилання все одно її відкриває."
-
-#: src/components/ai/call-detail.tsx
-msgid "<0>{payer}</0>'s personal key"
-msgstr "Особистий ключ <0>{payer}</0>"
-
-#: src/components/hide-personal.tsx
-msgid "<0>{personal}</0> is showing because it's your only location. It hides again when you have another."
-msgstr "<0>{personal}</0> показано, бо це ваша єдина локація. Її знову буде приховано, коли у вас з’явиться інша."
-
-#: src/components/hide-personal.tsx
-msgid "<0>{personal}</0> is your only location, so it stays. Add or join another first."
-msgstr "<0>{personal}</0> — ваша єдина локація, тому вона залишається. Спочатку додайте іншу або приєднайтеся до іншої."
-
-#: src/components/hide-personal.tsx
-msgid "Hide <0>{personal}</0>"
-msgstr "Приховати <0>{personal}</0>"
-
-#: src/components/hide-personal.tsx
-msgid "It leaves the menu, Home, lists and search, for you only. Nothing in it changes, a link to it still opens it, and its reminders still reach you. Show it again here any time."
-msgstr "Вона зникне з меню, «Головної», списків і пошуку лише для вас. У ній нічого не зміниться, посилання на неї все одно її відкриватиме, а її нагадування й далі надходитимуть вам. Показати її знову можна тут будь-коли."
-
-#: src/routes/_app/loc.$id.tsx
-msgid "Show it again"
-msgstr "Показати знову"
-
-#: src/components/ai/key-scope.tsx
-msgid "This key pays for all of <0>{ownerName}</0>'s homes: <1>{list}</1>."
-msgstr "Цей ключ оплачує всі домівки <0>{ownerName}</0>: <1>{list}</1>."
-
-#: src/components/ai/key-scope.tsx
-msgid "Used for your private threads, questions that span owners, <0>{personal}</0>, and a location you own and use alone that has no account key."
-msgstr "Використовується для ваших приватних ланцюжків, питань, які охоплюють власників, <0>{personal}</0> та локації, якою ви володієте й користуєтеся самі та яка не має ключа облікового запису."
-
-#: src/components/ai/settings-page.tsx
-msgid "Your own key is for your private threads and questions that span owners."
-msgstr "Ваш власний ключ призначений для ваших приватних ланцюжків і питань, які охоплюють власників."
-
-#: src/components/import/labels.ts
-msgid "{count, plural, one {# link keeps its Homebox title: Kept couldn't get one from Paperless.} other {# links keep their Homebox titles: Kept couldn't get them from Paperless.}}"
-msgstr "{count, plural, one {# посилання зберігає назву з Homebox: Kept не зміг отримати її з Paperless.} few {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} many {# посилань зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.} other {# посилання зберігають назви з Homebox: Kept не зміг отримати їх із Paperless.}}"
-
-#: src/routes/signin/index.tsx
-msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Here, use your password or an email link."
-msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Тут скористайтеся паролем або посиланням з електронного листа."
-
-#: src/routes/signin/index.tsx
-msgid "The link opens at <0/> and signs you in there, not on this address. Can't reach it from here? Use your password."
-msgstr "Посилання відкривається на <0/> і виконує вхід там, а не на цій адресі. Не можете дістатися туди звідси? Скористайтеся паролем."
-
-#: src/routes/signin/index.tsx
-msgid "The link opens at <0/>. Set the new password there, then sign in here with it."
-msgstr "Посилання відкривається на <0/>. Задайте новий пароль там, а потім увійдіть із ним тут."
-
-#: src/components/sign-in-security.household.tsx
-msgid "Passkeys work only at <0/>, because browsers tie a passkey to one address. Add one there."
-msgstr "Ключі доступу працюють лише на <0/>, бо браузери прив’язують ключ доступу до однієї адреси. Додайте його там."
-
-#: src/components/sign-in-methods.tsx
-msgid "To link one, go to <0/>: outside sign-ins come back to that address."
-msgstr "Щоб прив’язати спосіб входу, перейдіть на <0/>: зовнішні входи повертаються на цю адресу."
-
-#: src/routes/_app/admin.status.tsx
-msgid "Addresses"
-msgstr "Адреси"
-
-#: src/routes/_app/admin.status.tsx
-msgid "The main address. <0/> adds more."
-msgstr "Основна адреса. <0/> додає інші."
-
-#: src/routes/_app/admin.status.tsx
-msgid "The main address, where links, mail and passkeys stay. Also, set by <0/>:"
-msgstr "Основна адреса, до якої прив’язані посилання, пошта й ключі доступу. Також задано в <0/>:"
-
-#: src/components/languages.tsx
-msgid "Find a language"
-msgstr "Знайти мову"
-
-#: src/components/places/trash-contents-dialog.tsx
-msgid "{compartments, plural, one {Its # compartment goes to the trash with it, and comes back with it on Restore.} other {Its # compartments go to the trash with it, and come back with it on Restore.}}"
-msgstr "{compartments, plural, one {Його # відділення потрапить до кошика разом із ним і повернеться разом із ним під час відновлення.} few {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} many {Його # відділень потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.} other {Його # відділення потраплять до кошика разом із ним і повернуться разом із ним під час відновлення.}}"
-
-#. placeholder {0}: place.name
-#: src/components/places/trash-contents-dialog.tsx
-msgid "<0>{0}</0> and its compartments hold {inside}. What should happen to them?"
-msgstr "Усередині <0>{0}</0> та його відділень — {inside}. Що з ними зробити?"
-
-#: src/components/places/trash-contents-dialog.tsx
-msgid "Only {placeName} and its compartments go to the trash."
-msgstr "До кошика потраплять лише {placeName} та його відділення."
-
-#: src/components/places/rack.tsx
-#: src/map/rack-card.tsx
-msgid "Rack"
-msgstr "Стійка"
-
-#: src/components/places/rack.tsx
-#: src/map/rack-card.tsx
-msgid "Rear"
-msgstr "Зад"
-
-#: src/components/things/overview.tsx
-#: src/assistant/confirm-card.tsx
-msgid "In the rack"
-msgstr "У стійці"
-
-#: src/components/places/rack.tsx
-#: src/components/things/overview.tsx
-#: src/assistant/confirm-card.tsx
-msgid "Full depth"
-msgstr "На всю глибину"
-
-#: src/components/things/overview.tsx
-#: src/assistant/confirm-card.tsx
-msgid "Rear, half depth"
-msgstr "Ззаду, на пів глибини"
-
-#: src/components/things/overview.tsx
-#: src/assistant/confirm-card.tsx
-msgid "Front, half depth"
-msgstr "Спереду, на пів глибини"
-
-#: src/components/places/rack.tsx
-#: src/components/things/overview.tsx
-msgid "Beside the rails (0U)"
-msgstr "Поруч із рейками (0U)"
-
-#: src/components/places/rack.tsx
-#: src/components/things/overview.tsx
-#: src/assistant/confirm-card.tsx
-msgid "Not placed yet"
-msgstr "Ще не розміщено"
-
-#: src/components/places/rack.tsx
-#: src/components/things/overview.tsx
-msgid "Place it"
-msgstr "Розмістити"
-
-#: src/components/places/furniture.tsx
-msgid "{units, plural, one {#U on a wall} other {#U on a wall}}"
-msgstr "{units, plural, one {Настінна стійка, #U} few {Настінна стійка, #U} many {Настінна стійка, #U} other {Настінна стійка, #U}}"
-
-#: src/components/places/furniture.tsx
-msgid "{units, plural, one {10-inch rack, #U} other {10-inch rack, #U}}"
-msgstr "{units, plural, one {Стійка 10 дюймів, #U} few {Стійка 10 дюймів, #U} many {Стійка 10 дюймів, #U} other {Стійка 10 дюймів, #U}}"
-
-#: src/components/places/furniture.tsx
-msgid "{units, plural, one {19-inch rack, #U} other {19-inch rack, #U}}"
-msgstr "{units, plural, one {Стійка 19 дюймів, #U} few {Стійка 19 дюймів, #U} many {Стійка 19 дюймів, #U} other {Стійка 19 дюймів, #U}}"
-
-#: src/components/places/furniture.tsx
-msgctxt "rack"
-msgid "Units"
-msgstr "Юніти"
-
-#: src/components/places/furniture.tsx
-msgid "How many rack units (U) high."
-msgstr "Скільки юнітів (U) заввишки."
-
-#: src/components/places/furniture.tsx
-msgid "Numbered from"
-msgstr "Нумерація від"
-
-#: src/components/places/furniture.tsx
-msgid "The bottom"
-msgstr "Знизу"
-
-#: src/components/places/furniture.tsx
-msgid "The top"
-msgstr "Згори"
-
-#: src/components/places/rack.tsx
-#: src/map/rack-card.tsx
-msgid "{units, plural, one {# unit, U1 at the top} other {# units, U1 at the top}}"
-msgstr "{units, plural, one {# юніт, U1 згори} few {# юніти, U1 згори} many {# юнітів, U1 згори} other {# юніта, U1 згори}}"
-
-#: src/components/places/rack.tsx
-#: src/map/rack-card.tsx
-msgid "{units, plural, one {# unit, U1 at the bottom} other {# units, U1 at the bottom}}"
-msgstr "{units, plural, one {# юніт, U1 знизу} few {# юніти, U1 знизу} many {# юнітів, U1 знизу} other {# юніта, U1 знизу}}"
-
-#: src/components/places/rack.tsx
-msgid "{u} is taken by {name} at the rear."
-msgstr "{u} зайнято: {name}, ззаду."
-
-#: src/components/places/rack.tsx
-msgid "{u} is taken by {name} at the front."
-msgstr "{u} зайнято: {name}, спереду."
-
-#: src/components/places/rack.tsx
-msgid "{units, plural, one {It doesn't fit: the rack is # unit high.} other {It doesn't fit: the rack is # units high.}}"
-msgstr "{units, plural, one {Не вміщується: стійка заввишки # юніт.} few {Не вміщується: стійка заввишки # юніти.} many {Не вміщується: стійка заввишки # юнітів.} other {Не вміщується: стійка заввишки # юніта.}}"
-
-#: src/components/places/rack.tsx
-msgid "Gear with no height sits beside the rails."
-msgstr "Обладнання без висоти кріпиться поруч із рейками."
-
-#: src/components/places/rack.tsx
-msgid "Half units only: 1, 1.5, 2 …"
-msgstr "Лише половинки юніта, як-от 1, 1,5 або 2."
-
-#: src/components/places/rack.tsx
-msgid "Seen from"
-msgstr "Вигляд"
-
-#: src/components/places/rack.tsx
-msgid "Half depth"
-msgstr "На пів глибини"
-
-#: src/components/places/rack.tsx
-msgid "Placed {name}"
-msgstr "Розміщено: {name}"
-
-#: src/components/places/rack.tsx
-msgid "Took {name} off its unit"
-msgstr "Знято з юніта: {name}"
-
-#: src/components/places/rack.tsx
-msgid "{name} in {rackName}"
-msgstr "{name} у {rackName}"
-
-#: src/components/places/rack.tsx
-msgid "Starts at"
-msgstr "Починається з"
-
-#: src/components/places/rack.tsx
-msgid "Its top unit, as the rack numbers them."
-msgstr "Його верхній юніт за нумерацією стійки."
-
-#: src/components/places/rack.tsx
-msgid "Its lowest unit, as the rack numbers them."
-msgstr "Його нижній юніт за нумерацією стійки."
-
-#: src/components/places/rack.tsx
-msgid "In rack units, halves allowed. 0 sits beside the rails."
-msgstr "У юнітах, можна половинки. 0 означає поруч із рейками."
-
-#: src/components/places/rack.tsx
-msgid "Faces"
-msgstr "Сторона"
-
-#: src/components/places/rack.tsx
-msgid "Take it off its unit"
-msgstr "Зняти з юніта"
-
-#: src/assistant/confirm-card.tsx
-msgid "Rack units"
-msgstr "Юніти стійки"
-
-#: src/components/connections/home-assistant.tsx
-msgid "This request has ended. Start again from Home Assistant."
-msgstr "Цей запит завершився. Почніть знову в Home Assistant."
-
-#: src/components/connections/home-assistant.tsx
-msgid "Declined. Home Assistant gets nothing."
-msgstr "Відхилено. Home Assistant нічого не отримає."
-
-#: src/components/connections/home-assistant.tsx
-msgid "Home Assistant asks to connect"
-msgstr "Home Assistant просить під’єднатися"
-
-#: src/components/connections/home-assistant.tsx
-msgid "Code <0>{code}</0>. Check that Home Assistant shows the same."
-msgstr "Код <0>{code}</0>. Перевірте, що Home Assistant показує той самий."
-
-#: src/components/connections/home-assistant.tsx
-msgid "Decline"
-msgstr "Відхилити"
-
-#: src/components/connections/token-create.tsx
-msgid "Connect Home Assistant"
-msgstr "Під’єднати Home Assistant"
-
-#: src/components/connections/token-create.tsx
-msgid "Home Assistant reads Kept as you, in the locations you pick, and gets its token by itself: there is nothing to copy. Revoke it here any time."
-msgstr "Home Assistant читає Kept від вашого імені, у вибраних вами локаціях, і сам отримує свій токен: копіювати нічого не треба. Відкличте його тут будь-коли."
-
-#: src/components/connections/token-create.tsx
-msgid "Home Assistant is connected"
-msgstr "Home Assistant під’єднано"
-
-#: src/components/connections/token-create.tsx
-msgid "Home Assistant finishes setting up on its own. The token is listed here as Home Assistant."
-msgstr "Home Assistant сам завершить налаштування. Токен показано тут як Home Assistant."
-
-#: src/assistant/confirm-card.tsx
-#: src/components/lending/thing-loans.tsx
-msgid "Came back damaged"
-msgstr "Повернулося пошкодженим"
-
-#: src/components/history/labels.ts
-msgid "Came back damaged from {person}"
-msgstr "Повернулося від {person} пошкодженим"
-
-#: src/components/lending/taken-back-by.tsx
-msgid "Given back by"
-msgstr "Хто повернув"
-
-#: src/components/lending/thing-loans.tsx
-msgid "given back by <0>{taker}</0>"
-msgstr "повернув(-ла) <0>{taker}</0>"
-
-#: src/components/lending/thing-loans.tsx
-msgid "Not back yet"
-msgstr "Ще не повернуто"
-
-#: src/components/lending/thing-loans.tsx
-msgid "since {from}"
-msgstr "з {from}"
-
-#: src/assistant/confirm-card.tsx
-#: src/components/lending/taken-back-by.tsx
-msgid "Taken back by"
-msgstr "Хто прийняв"
-
-#: src/components/lending/thing-loans.tsx
-msgid "taken back by <0>{taker}</0>"
-msgstr "прийняв(-ла) <0>{taker}</0>"
-
-#: src/components/lending/thing-loans.tsx
-msgid "Who had it"
-msgstr "У кого було"
-
-#: src/components/location-position.tsx
-#: src/components/history/labels.ts
-msgid "Position"
-msgstr "Місцеположення"
-
-#: src/components/location-position.tsx
-msgid "With Suggest where I am on, Capture picks this location when you're here. Your phone's position is compared on the phone and never sent. Only owners and admins see this."
-msgstr "Коли «Підказати, де я» увімкнено, додавання обирає цю локацію, коли ви тут. Місцеположення телефона порівнюється на самому телефоні й ніколи не надсилається. Це бачать лише власники й адміністратори."
-
-#: src/components/location-position.tsx
-msgid "Latitude"
-msgstr "Широта"
-
-#: src/components/location-position.tsx
-msgid "Longitude"
-msgstr "Довгота"
-
-#: src/components/location-position.tsx
-msgid "Enter a number from {from} to {to}."
-msgstr "Введіть число від {from} до {to}."
-
-#: src/components/location-position.tsx
-msgid "Use where I am now"
-msgstr "Використати, де я зараз"
-
-#: src/components/location-position.tsx
-msgid "Couldn't read where you are. Try again, or type it."
-msgstr "Не вдалося визначити, де ви. Спробуйте ще раз або введіть вручну."
-
-#: src/components/location-position.tsx
-msgid "Open in maps"
-msgstr "Відкрити на мапі"
-
-#: src/components/location-position.tsx
-msgid "Remove position"
-msgstr "Прибрати місцеположення"
-
-#: src/components/location-position.tsx
-msgid "Position removed"
-msgstr "Місцеположення прибрано"
-
-#: src/assistant/confirm-card.tsx
-msgid "{w} × {d}"
-msgstr "{w} × {d}"
-
-#: src/map/card.tsx
-msgid "On the wall, {hangs} up"
-msgstr "На стіні, на висоті {hangs}"
-
-#: src/components/places/room-size.tsx
-msgid "Enter feet and inches, like {example}."
-msgstr "Введіть фути й дюйми, як-от {example}."
-
-#: src/map/map-view.tsx
-msgid "<0>{room}</0>, from the plan, not added, {w} by {d}"
-msgstr "<0>{room}</0>, з плану, не додана, {w} на {d}"
-
-#: src/map/size.tsx
-msgid "Enter inches, like {example}."
-msgstr "Введіть дюйми, як-от {example}."
-
-#: src/map/floor-plan/panel.tsx
-msgid "Scale from the doors, taken as {door} wide: check one room"
-msgstr "Масштаб за дверима, взятими за {door} завширшки: перевірте одну кімнату"
-
-#: src/map/floor-plan/panel.tsx
-msgid "Under {smallest}: too small for the map."
-msgstr "Менше ніж {smallest}: замало для мапи."
-
-#: src/components/display-prefs.tsx
-msgid "Couldn't change the units"
-msgstr "Не вдалося змінити одиниці"
-
-#: src/components/display-prefs.tsx
-msgid "Units"
-msgstr "Одиниці"
-
-#: src/components/display-prefs.tsx
-msgid "Sizes on the map, label sizes, fuel use and a new vehicle’s odometer. What you’ve saved stays as it is."
-msgstr "Розміри на мапі, розміри етикеток, витрати пального й одометр нового транспорту. Збережене лишається як є."
-
-#: src/components/display-prefs.tsx
-msgid "Metric"
-msgstr "Метрична"
-
-#: src/components/display-prefs.tsx
-msgid "Imperial"
-msgstr "Імперська"
-
-#: src/components/things/meters-section.tsx
-msgid "Change unit"
-msgstr "Змінити одиницю"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Unit changed to {toLabel}"
-msgstr "Одиницю змінено на {toLabel}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "{n, plural, one {# reading converted} other {# readings converted}}"
-msgstr "{n, plural, one {Перераховано # показник} few {Перераховано # показники} many {Перераховано # показників} other {Перераховано # показника}}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Couldn't change the unit"
-msgstr "Не вдалося змінити одиницю"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "From {fromLabel} to {toLabel}"
-msgstr "З {fromLabel} на {toLabel}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "What to change"
-msgstr "Що змінити"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Convert the readings"
-msgstr "Перерахувати показники"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Every reading, the replacement offset, the daily limit and the schedules on this odometer change to {toLabel}."
-msgstr "Кожен показник, зсув після заміни, денний ліміт і графіки цього одометра перераховуються в {toLabel}."
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Relabel only"
-msgstr "Лише перейменувати"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "The readings were always in {toLabel}. Every value stays as it is."
-msgstr "Показники завжди були в {toLabel}. Кожне значення лишається як є."
-
-#: src/components/vehicles/change-unit.tsx
-msgid "New unit"
-msgstr "Нова одиниця"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Only the unit's name changes. The readings stay as they are."
-msgstr "Змінюється лише назва одиниці. Показники лишаються як є."
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Latest reading: {0} {fromLabel} becomes {1} {toLabel}"
-msgstr "Останній показник: {0} {fromLabel} стає {1} {toLabel}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "{0, plural, one {# reading changes} other {# readings change}}"
-msgstr "{0, plural, one {Зміниться # показник} few {Зміняться # показники} many {Зміниться # показників} other {Зміниться # показника}}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Replacement offset: {0} becomes {1}"
-msgstr "Зсув після заміни: {0} стає {1}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "Daily limit: {0} becomes {1}"
-msgstr "Денний ліміт: {0} стає {1}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "{0, plural, one {# schedule on it changes} other {# schedules on it change}}"
-msgstr "{0, plural, one {Зміниться # графік на ньому} few {Зміняться # графіки на ньому} many {Зміниться # графіків на ньому} other {Зміниться # графіка на ньому}}"
-
-#: src/components/vehicles/change-unit.tsx
-msgid "It goes in the history, and you can undo it."
-msgstr "Зміна потрапить в історію, і її можна скасувати."
-
-#: src/components/places/room-size.tsx
-msgid "A room is at least {min} across."
-msgstr "Кімната має бути щонайменше {min} завширшки."
-
-#: src/components/places/room-size.tsx
-msgid "A room is at most {max} across."
-msgstr "Кімната має бути щонайбільше {max} завширшки."
-
-#: src/components/labels/stock-picker.tsx
-msgid "{a} × {b} in"
-msgstr "{a} × {b} дюйма"
-
-#: src/components/labels/stock-picker.tsx
-msgid "{width} in tape"
-msgstr "Стрічка {width} дюйма"
-
-#: src/components/inbox/reading-review.tsx
-msgid "The photo shows {seenUnit}, and this odometer counts {unit}. {0} {seenUnit} is {1} {unit}."
-msgstr "На фото {seenUnit}, а цей одометр рахує в {unit}. {0} {seenUnit} — це {1} {unit}."
-
-#: src/components/inbox/reading-review.tsx
-msgid "Use {0} {unit}"
-msgstr "Використати {0} {unit}"
-
-#: src/components/history/labels.ts
-msgid "Readings converted"
-msgstr "Перераховані показники"
-
-#: src/components/history/labels.ts
-msgid "Meter unit changed"
-msgstr "Одиницю лічильника змінено"
-
-#: src/map/labels.ts
-msgid "Water purifier"
-msgstr "Очищувач води"
-
-#: src/map/size.tsx
-msgctxt "how many shelves"
-msgid "Shelves"
-msgstr "Полиці"
-
-#: src/components/counts/counts-list.tsx
-#: src/components/scan/session/session-screen.tsx
-msgid "Counts are off"
-msgstr "Підрахунки вимкнено"
-
-#: src/components/counts/counts-list.tsx
-#: src/components/scan/session/session-screen.tsx
-msgid "An owner or admin turns them on in a location's What to track."
-msgstr "Власник або адміністратор вмикає їх у розділі «Що відстежувати» локації."
-
-#: src/components/counts/counts-list.tsx
-msgid "Counts are off here: this lists the box checks."
-msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
