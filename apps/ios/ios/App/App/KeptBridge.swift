@@ -257,6 +257,17 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         }
     }
 
+    private func waitForBrowserPresentation(in anchor: UIWindow) async throws {
+        // The Apple authorization sheet can finish before UIKit reactivates Kept's window.
+        for _ in 0..<30 {
+            guard let scene = anchor.windowScene else { throw KeptNativeError.signInFailed }
+            if scene.activationState == .foregroundActive, anchor.isKeyWindow { return }
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+        NativeAuthDiagnostics.log.error("Kept window did not reactivate for browser sign-in")
+        throw KeptNativeError.signInFailed
+    }
+
     private func randomToken() throws -> String {
         var bytes = Data(count: 32)
         let status = bytes.withUnsafeMutableBytes { buffer in
@@ -323,29 +334,31 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         start?.queryItems = [URLQueryItem(name: "appleToken", value: apple.appleToken)]
         guard let url = start?.url else { throw KeptNativeError.invalidServer }
 
-        let callback: URL = try await withCheckedThrowingContinuation { continuation in
+        try await waitForBrowserPresentation(in: window)
+        let callback = try await BrowserAuthentication.waitForCallback(startError: KeptNativeError.signInFailed) { complete in
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "kept-nfc") { callback, error in
                 if let callback {
                     NativeAuthDiagnostics.log.notice("Browser callback delivered")
-                    continuation.resume(returning: callback)
+                    complete(.success(callback))
                 } else {
                     if let browserError = error as? ASWebAuthenticationSessionError {
                         NativeAuthDiagnostics.log.notice("Browser callback ended with code \(browserError.code.rawValue, privacy: .public)")
                     } else {
                         NativeAuthDiagnostics.log.error("Browser callback missing")
                     }
-                    continuation.resume(throwing: error ?? KeptNativeError.signInFailed)
+                    complete(.failure(error ?? KeptNativeError.signInFailed))
                 }
             }
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = true
             browser = session
-            if session.start() {
+            let started = session.start()
+            if started {
                 NativeAuthDiagnostics.log.notice("Browser session started")
             } else {
                 NativeAuthDiagnostics.log.error("Browser session could not start")
-                continuation.resume(throwing: KeptNativeError.signInFailed)
             }
+            return started
         }
         guard let answer = URLComponents(url: callback, resolvingAgainstBaseURL: false),
               answer.scheme == "kept-nfc", answer.host == "auth", answer.path == "/callback",
