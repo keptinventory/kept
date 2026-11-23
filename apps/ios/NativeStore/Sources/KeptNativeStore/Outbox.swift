@@ -36,16 +36,46 @@ public struct OutboxEntry: Codable, Equatable {
     public let failure: String?
 }
 
-public enum OutboxError: LocalizedError {
-    case invalid, storage, missing
+public struct StorageStats: Codable, Equatable {
+    public let pendingCount: Int
+    public let pendingBytes: Int
+    public let cacheBytes: Int
+
+    public init(pendingCount: Int, pendingBytes: Int, cacheBytes: Int) {
+        self.pendingCount = pendingCount
+        self.pendingBytes = pendingBytes
+        self.cacheBytes = cacheBytes
+    }
+}
+
+public enum OutboxError: LocalizedError, Equatable {
+    case invalid, storage, storageFull, missing
 
     public var errorDescription: String? {
         switch self {
         case .invalid: return "This capture or file could not be saved."
         case .storage: return "Kept could not save on this iPhone. Check available storage and try again."
+        case .storageFull: return "Your iPhone storage is full. Free up space and try again."
         case .missing: return "A pending original is missing. Review this capture before trying again."
         }
     }
+}
+
+/// Maps POSIX / Cocoa disk-full errors and SQLITE_FULL into `OutboxError.storageFull`,
+/// preserving `.invalid` and `.missing` and turning other storage failures into `.storage`.
+public func mapStorageError(_ error: Error) -> OutboxError {
+    if let outbox = error as? OutboxError { return outbox }
+    var current: NSError? = error as NSError
+    while let ns = current {
+        if ns.domain == NSCocoaErrorDomain && ns.code == CocoaError.fileWriteOutOfSpace.rawValue {
+            return .storageFull
+        }
+        if ns.domain == NSPOSIXErrorDomain && ns.code == Int(ENOSPC) {
+            return .storageFull
+        }
+        current = ns.userInfo[NSUnderlyingErrorKey] as? NSError
+    }
+    return .storage
 }
 
 /// SQLite is the queue of record. The manifest allows an interrupted file-to-SQLite commit to
@@ -57,27 +87,34 @@ public final class Outbox {
     private let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
     private let perFileLimit = 25 * 1024 * 1024
     private let chunkLimit = 256 * 1024
+    private let cacheQuotaBytes = 32 * 1024 * 1024
 
     public init(root: URL) throws {
         self.root = root
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        #if os(iOS)
-        try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: root.path)
-        var privateRoot = root
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try privateRoot.setResourceValues(values)
-        #endif
+        do {
+            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+            #if os(iOS)
+            try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: root.path)
+            var privateRoot = root
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try privateRoot.setResourceValues(values)
+            #endif
+        } catch {
+            throw mapStorageError(error)
+        }
 
         var handle: OpaquePointer?
-        guard sqlite3_open_v2(
+        let openResult = sqlite3_open_v2(
             root.appendingPathComponent("outbox.sqlite").path, &handle,
-            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nil
-        ) == SQLITE_OK, let handle else {
+            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nil,
+        )
+        guard openResult == SQLITE_OK, let handle else {
             sqlite3_close(handle)
-            throw OutboxError.storage
+            throw openResult == SQLITE_FULL ? OutboxError.storageFull : OutboxError.storage
         }
         db = handle
+        try sql("PRAGMA busy_timeout = 5000")
         try sql("PRAGMA journal_mode = WAL")
         try sql("PRAGMA synchronous = FULL")
         try sql("""
@@ -96,6 +133,14 @@ public final class Outbox {
                 contents TEXT NOT NULL
             )
             """)
+        try sql("""
+            CREATE TABLE IF NOT EXISTS kv (
+                context TEXT NOT NULL,
+                key TEXT NOT NULL,
+                value TEXT NOT NULL,
+                PRIMARY KEY (context, key)
+            )
+            """)
         try repair()
     }
 
@@ -106,24 +151,28 @@ public final class Outbox {
               data.count <= chunkLimit, offset <= perFileLimit - data.count
         else { throw OutboxError.invalid }
         let folder = try captureFolder(context: context, id: draft, staged: true)
-        try fs.createDirectory(at: folder, withIntermediateDirectories: true)
-        let path = folder.appendingPathComponent(file.lowercased())
-        if !fs.fileExists(atPath: path.path) {
-            guard offset == 0, fs.createFile(atPath: path.path, contents: nil) else {
-                throw OutboxError.invalid
+        do {
+            try fs.createDirectory(at: folder, withIntermediateDirectories: true)
+            let path = folder.appendingPathComponent(file.lowercased())
+            if !fs.fileExists(atPath: path.path) {
+                guard offset == 0, fs.createFile(atPath: path.path, contents: nil) else {
+                    throw OutboxError.invalid
+                }
             }
+            let original = try FileHandle(forUpdating: path)
+            defer { try? original.close() }
+            let end = try original.seekToEnd()
+            // A retry may follow an interrupted bridge answer. Accept identical bytes at that offset.
+            if end >= UInt64(offset + data.count) {
+                try original.seek(toOffset: UInt64(offset))
+                guard try original.read(upToCount: data.count) == data else { throw OutboxError.invalid }
+                return
+            }
+            guard end == UInt64(offset) else { throw OutboxError.invalid }
+            try original.write(contentsOf: data)
+        } catch {
+            throw mapStorageError(error)
         }
-        let original = try FileHandle(forUpdating: path)
-        defer { try? original.close() }
-        let end = try original.seekToEnd()
-        // A retry may follow an interrupted bridge answer. Accept identical bytes at that offset.
-        if end >= UInt64(offset + data.count) {
-            try original.seek(toOffset: UInt64(offset))
-            guard try original.read(upToCount: data.count) == data else { throw OutboxError.invalid }
-            return
-        }
-        guard end == UInt64(offset) else { throw OutboxError.invalid }
-        try original.write(contentsOf: data)
     }
 
     public func commit(
@@ -143,32 +192,56 @@ public final class Outbox {
             return capture
         }
 
-        try fs.createDirectory(at: stage, withIntermediateDirectories: true)
+        do {
+            try fs.createDirectory(at: stage, withIntermediateDirectories: true)
+        } catch {
+            throw mapStorageError(error)
+        }
         let originals = try files.map { file in
             guard UUID(uuidString: file.id) != nil, (1...perFileLimit).contains(file.bytes),
                   file.name.utf8.count <= 512, file.mime.utf8.count <= 120,
                   ["photo", "document"].contains(file.role)
             else { throw OutboxError.invalid }
             let url = stage.appendingPathComponent(file.id.lowercased())
-            let handle = try FileHandle(forUpdating: url)
-            defer { try? handle.close() }
-            guard try handle.seekToEnd() == UInt64(file.bytes) else { throw OutboxError.missing }
-            try handle.synchronize()
-            try handle.seek(toOffset: 0)
-            var hasher = SHA256()
-            while let bytes = try handle.read(upToCount: chunkLimit), !bytes.isEmpty {
-                hasher.update(data: bytes)
+            guard fs.fileExists(atPath: url.path) else { throw OutboxError.missing }
+            let handle: FileHandle
+            do {
+                handle = try FileHandle(forUpdating: url)
+            } catch {
+                throw mapStorageError(error)
             }
-            let hash = hasher.finalize().map { String(format: "%02x", $0) }.joined()
-            return PendingOriginal(file: file, sha256: hash)
+            defer { try? handle.close() }
+            let length: UInt64
+            do {
+                length = try handle.seekToEnd()
+            } catch {
+                throw mapStorageError(error)
+            }
+            guard length == UInt64(file.bytes) else { throw OutboxError.missing }
+            do {
+                try handle.synchronize()
+                try handle.seek(toOffset: 0)
+                var hasher = SHA256()
+                while let bytes = try handle.read(upToCount: chunkLimit), !bytes.isEmpty {
+                    hasher.update(data: bytes)
+                }
+                let hash = hasher.finalize().map { String(format: "%02x", $0) }.joined()
+                return PendingOriginal(file: file, sha256: hash)
+            } catch {
+                throw mapStorageError(error)
+            }
         }
         let capture = PendingCapture(id: id.lowercased(), context: context, payload: payload, takenAt: takenAt, files: originals)
         let manifest = stage.appendingPathComponent("capture.json")
-        try JSONEncoder().encode(capture).write(to: manifest, options: .atomic)
-        let handle = try FileHandle(forUpdating: manifest)
-        try handle.synchronize()
-        try handle.close()
-        try fs.moveItem(at: stage, to: final)
+        do {
+            try JSONEncoder().encode(capture).write(to: manifest, options: .atomic)
+            let handle = try FileHandle(forUpdating: manifest)
+            defer { try? handle.close() }
+            try handle.synchronize()
+            try fs.moveItem(at: stage, to: final)
+        } catch {
+            throw mapStorageError(error)
+        }
         try insert(capture)
         return capture
     }
@@ -193,7 +266,7 @@ public final class Outbox {
             "SELECT manifest FROM captures WHERE context = ? AND id = ? AND completed = 0",
             [context, draft.lowercased()]
         ) { row in try decode(try string(row, 0)) }
-        guard let original = captures.first?.files.first(where: { $0.file.id == file }) else {
+        guard let original = captures.first?.files.first(where: { $0.file.id.lowercased() == file.lowercased() }) else {
             throw OutboxError.missing
         }
         let url = folder.appendingPathComponent(file.lowercased())
@@ -202,8 +275,51 @@ public final class Outbox {
     }
 
     public func failed(context: String, id: String, reason: String) throws {
+        guard UUID(uuidString: id) != nil else { throw OutboxError.invalid }
         try sql("UPDATE captures SET failure = ? WHERE context = ? AND id = ? AND completed = 0",
                 [reason, context, id.lowercased()])
+    }
+
+    public func clearFailure(context: String, id: String) throws {
+        guard UUID(uuidString: id) != nil else { throw OutboxError.invalid }
+        try sql("UPDATE captures SET failure = NULL WHERE context = ? AND id = ? AND completed = 0",
+                [context, id.lowercased()])
+    }
+
+    public func retarget(context: String, id: String, payload: String) throws -> PendingCapture {
+        guard !payload.isEmpty, payload.utf8.count <= 12_000, UUID(uuidString: id) != nil
+        else { throw OutboxError.invalid }
+        let normalizedId = id.lowercased()
+        let existing = try query(
+            "SELECT manifest FROM captures WHERE context = ? AND id = ? AND completed = 0",
+            [context, normalizedId]
+        ) { row in try decode(try string(row, 0)) }.first
+        guard let existing else { throw OutboxError.missing }
+        let final = try captureFolder(context: context, id: normalizedId, staged: false)
+        guard matches(existing, folder: final) else { throw OutboxError.missing }
+
+        let updated = PendingCapture(
+            id: existing.id,
+            context: existing.context,
+            payload: payload,
+            takenAt: existing.takenAt,
+            files: existing.files
+        )
+        let manifest = final.appendingPathComponent("capture.json")
+        do {
+            try JSONEncoder().encode(updated).write(to: manifest, options: .atomic)
+            let handle = try FileHandle(forUpdating: manifest)
+            defer { try? handle.close() }
+            try handle.synchronize()
+        } catch {
+            throw mapStorageError(error)
+        }
+        let encoded = String(decoding: try JSONEncoder().encode(updated), as: UTF8.self)
+        try sql(
+            "UPDATE captures SET manifest = ?, failure = NULL WHERE context = ? AND id = ? AND completed = 0",
+            [encoded, context, normalizedId]
+        )
+        return updated
     }
 
     public func complete(context: String, id: String) throws {
@@ -225,7 +341,8 @@ public final class Outbox {
     }
 
     public func saveCache(context: String, contents: String) throws {
-        guard contents.utf8.count <= 32 * 1024 * 1024 else { throw OutboxError.storage }
+        guard !context.isEmpty, context.utf8.count <= 1024 else { throw OutboxError.invalid }
+        guard contents.utf8.count <= cacheQuotaBytes else { throw OutboxError.storage }
         try sql("""
             INSERT INTO cache (context, contents) VALUES (?, ?)
             ON CONFLICT (context) DO UPDATE SET contents = EXCLUDED.contents
@@ -234,6 +351,47 @@ public final class Outbox {
 
     public func clearCache(context: String) throws {
         try sql("DELETE FROM cache WHERE context = ?", [context])
+    }
+
+    public func readValue(context: String, key: String) throws -> String? {
+        guard !context.isEmpty, context.utf8.count <= 1024,
+              !key.isEmpty, key.utf8.count <= 256
+        else { throw OutboxError.invalid }
+        return try query("SELECT value FROM kv WHERE context = ? AND key = ?", [context, key]) { row in
+            try string(row, 0)
+        }.first
+    }
+
+    public func saveValue(context: String, key: String, value: String) throws {
+        guard !context.isEmpty, context.utf8.count <= 1024,
+              !key.isEmpty, key.utf8.count <= 256,
+              value.utf8.count <= 65_536
+        else { throw OutboxError.invalid }
+        try sql("""
+            INSERT INTO kv (context, key, value) VALUES (?, ?, ?)
+            ON CONFLICT (context, key) DO UPDATE SET value = EXCLUDED.value
+            """, [context, key, value])
+    }
+
+    public func deleteValue(context: String, key: String) throws {
+        guard !context.isEmpty, context.utf8.count <= 1024,
+              !key.isEmpty, key.utf8.count <= 256
+        else { throw OutboxError.invalid }
+        try sql("DELETE FROM kv WHERE context = ? AND key = ?", [context, key])
+    }
+
+    public func stats(context: String) throws -> StorageStats {
+        let entries = try pending(context: context)
+        let pendingBytes = entries.reduce(0) { sum, entry in
+            sum + entry.capture.files.reduce(0) { $0 + $1.file.bytes }
+        }
+        let cacheBytes = try query(
+            "SELECT COALESCE(length(CAST(contents AS BLOB)), 0) FROM cache WHERE context = ?",
+            [context]
+        ) { row in
+            Int(sqlite3_column_int64(row, 0))
+        }.first ?? 0
+        return StorageStats(pendingCount: entries.count, pendingBytes: pendingBytes, cacheBytes: cacheBytes)
     }
 
     private func repair() throws {
@@ -299,12 +457,16 @@ public final class Outbox {
 
     private func query<T>(_ sql: String, _ values: [String], map: (OpaquePointer) throws -> T) throws -> [T] {
         var statement: OpaquePointer?
-        guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK, let statement
-        else { throw OutboxError.storage }
+        let prepStatus = sqlite3_prepare_v2(db, sql, -1, &statement, nil)
+        guard prepStatus == SQLITE_OK, let statement else {
+            throw prepStatus == SQLITE_FULL ? OutboxError.storageFull : OutboxError.storage
+        }
         defer { sqlite3_finalize(statement) }
         for (index, value) in values.enumerated() {
-            guard sqlite3_bind_text(statement, Int32(index + 1), value, -1, transient) == SQLITE_OK
-            else { throw OutboxError.storage }
+            let bindStatus = sqlite3_bind_text(statement, Int32(index + 1), value, -1, transient)
+            guard bindStatus == SQLITE_OK else {
+                throw bindStatus == SQLITE_FULL ? OutboxError.storageFull : OutboxError.storage
+            }
         }
         var result: [T] = []
         var status = sqlite3_step(statement)
@@ -312,7 +474,9 @@ public final class Outbox {
             result.append(try map(statement))
             status = sqlite3_step(statement)
         }
-        guard status == SQLITE_DONE else { throw OutboxError.storage }
+        guard status == SQLITE_DONE else {
+            throw status == SQLITE_FULL ? OutboxError.storageFull : OutboxError.storage
+        }
         return result
     }
 

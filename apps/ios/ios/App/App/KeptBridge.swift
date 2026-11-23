@@ -217,6 +217,20 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
             .replacingOccurrences(of: "=", with: "")
     }
 
+    private func extractSessionCookie(from response: HTTPURLResponse, origin: URL) -> String? {
+        if let headers = response.allHeaderFields as? [String: String] {
+            let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: origin)
+            if let chosen = cookies.first(where: { $0.name.contains("session") }) ?? cookies.first {
+                return "\(chosen.name)=\(chosen.value)"
+            }
+        }
+        guard let setCookie = response.value(forHTTPHeaderField: "Set-Cookie"),
+              let first = setCookie.split(separator: ";", maxSplits: 1).first,
+              first.split(separator: "=", maxSplits: 1).count == 2
+        else { return nil }
+        return String(first)
+    }
+
     func connect(origin: URL, window: UIWindow) async throws -> KeptConnection {
         guard browser == nil else { throw KeptNativeError.busy }
         self.window = window
@@ -252,14 +266,11 @@ final class NativeSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         let (data, response) = try await KeptHTTP.send(request)
         struct Context: Decodable { let account: String; let epoch: String }
         guard response.statusCode == 200,
-              let setCookie = response.value(forHTTPHeaderField: "Set-Cookie"),
-              let cookie = setCookie.split(separator: ";", maxSplits: 1).first,
-              cookie.split(separator: "=", maxSplits: 1).count == 2
+              let cookie = extractSessionCookie(from: response, origin: origin)
         else { throw KeptNativeError.signInFailed }
         let context = try JSONDecoder().decode(Context.self, from: data)
-        return KeptConnection(origin: origin, account: context.account, epoch: context.epoch, cookie: String(cookie))
+        return KeptConnection(origin: origin, account: context.account, epoch: context.epoch, cookie: cookie)
     }
-
 }
 
 actor NativeOutbox {
@@ -281,12 +292,21 @@ final class KeptPreview: NSObject, QLPreviewControllerDataSource, QLPreviewContr
     private var url: URL?
 
     func present(_ file: URL, from controller: UIViewController) {
-        cleanup()
-        url = file
-        let preview = QLPreviewController()
-        preview.dataSource = self
-        preview.delegate = self
-        controller.present(preview, animated: true)
+        let show = {
+            self.cleanup()
+            self.url = file
+            let preview = QLPreviewController()
+            preview.dataSource = self
+            preview.delegate = self
+            controller.present(preview, animated: true)
+        }
+        if controller.presentedViewController is QLPreviewController {
+            controller.dismiss(animated: false, completion: show)
+        } else if controller.presentedViewController == nil {
+            show()
+        } else {
+            try? FileManager.default.removeItem(at: file.deletingLastPathComponent())
+        }
     }
 
     func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
@@ -319,10 +339,15 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "outbox", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "uploadOriginal", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "scanTag", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startFind", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "continueFind", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "finishFind", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "cancelTag", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "matchFeedback", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "nonMatchFeedback", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takeLink", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise)
     ]
     @MainActor private lazy var signIn = NativeSignIn()
     private let store = NativeOutbox()
@@ -330,14 +355,34 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     @MainActor private let match = KeptMatchFeedback()
     @MainActor private lazy var preview = KeptPreview()
 
+    private static let mimeExtensions = [
+        "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/heic": "heic",
+        "image/heif": "heif", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
+        "video/mp4": "mp4", "video/quicktime": "mov"
+    ]
+
     override func load() {
-        NotificationCenter.default.addObserver(self, selector: #selector(linkAvailable), name: KeptLinks.notification, object: nil)
+        let center = NotificationCenter.default
+        center.addObserver(self, selector: #selector(linkAvailable), name: KeptLinks.notification, object: nil)
+        center.addObserver(self, selector: #selector(appWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+        center.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     deinit { NotificationCenter.default.removeObserver(self) }
 
     @objc private func linkAvailable() {
         notifyListeners("keptLink", data: [:])
+    }
+
+    @objc private func appWillResignActive() {
+        Task { @MainActor in
+            self.nfc?.interruptForBackground()
+            self.notifyListeners("appState", data: ["active": false])
+        }
+    }
+
+    @objc private func appDidBecomeActive() {
+        notifyListeners("appState", data: ["active": true])
     }
 
     @objc func takeLink(_ call: CAPPluginCall) {
@@ -432,9 +477,20 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                     guard let id = call.getString("id"), let reason = call.getString("reason"), reason.count <= 100
                     else { throw KeptNativeError.invalidRequest }
                     try store.failed(context: context, id: id, reason: reason)
+                case "clearFailure":
+                    guard let id = call.getString("id") else { throw KeptNativeError.invalidRequest }
+                    try store.clearFailure(context: context, id: id)
+                case "retarget":
+                    guard let id = call.getString("id"), let payload = call.getString("payload")
+                    else { throw KeptNativeError.invalidRequest }
+                    let updated = try store.retarget(context: context, id: id, payload: payload)
+                    return ["data": String(decoding: try JSONEncoder().encode(updated), as: UTF8.self)]
                 case "complete":
                     guard let id = call.getString("id") else { throw KeptNativeError.invalidRequest }
                     try store.complete(context: context, id: id)
+                case "stats":
+                    let stats = try store.stats(context: context)
+                    return ["data": String(decoding: try JSONEncoder().encode(stats), as: UTF8.self)]
                 case "cached":
                     if let contents = try store.cache(context: context) { return ["data": contents] }
                 case "saveCache":
@@ -442,6 +498,16 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                     try store.saveCache(context: context, contents: contents)
                 case "clearCache":
                     try store.clearCache(context: context)
+                case "getValue":
+                    guard let key = call.getString("key") else { throw KeptNativeError.invalidRequest }
+                    if let value = try store.readValue(context: context, key: key) { return ["data": value] }
+                case "setValue":
+                    guard let key = call.getString("key"), let value = call.getString("data")
+                    else { throw KeptNativeError.invalidRequest }
+                    try store.saveValue(context: context, key: key, value: value)
+                case "deleteValue":
+                    guard let key = call.getString("key") else { throw KeptNativeError.invalidRequest }
+                    try store.deleteValue(context: context, key: key)
                 default:
                     throw KeptNativeError.invalidRequest
                 }
@@ -482,11 +548,9 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             switch call.getString("mode") {
             case "read": mode = .read
             case "inspect", "write":
-                guard let raw = call.getString("url"), let url = URL(string: raw),
-                      url.scheme == "https", url.scheme == connection.origin.scheme,
-                      url.host == connection.origin.host, url.port == connection.origin.port,
-                      url.user == nil, url.password == nil, url.query == nil, url.fragment == nil,
-                      url.path.hasPrefix("/l/"), url.pathComponents.count == 3
+                guard let raw = call.getString("url"),
+                      case .approved = NFCLabelValidation.validate(urlText: raw, expectedOrigin: connection.origin),
+                      let url = URL(string: raw)
                 else { throw KeptNativeError.invalidRequest }
                 if call.getString("mode") == "inspect" { mode = .inspect(url) }
                 else {
@@ -506,6 +570,42 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    @objc func startFind(_ call: CAPPluginCall) {
+        run(call) {
+            _ = try self.requireConnection(call)
+            guard self.nfc == nil else { call.resolve(["status": "busy"]); return }
+            let messages = call.getObject("messages")?.compactMapValues { $0 as? String } ?? [:]
+            self.nfc = KeptNFC(
+                mode: .find,
+                messages: messages,
+                onEvent: { [weak self] event in
+                    self?.notifyListeners("nfcFind", data: event)
+                },
+                result: { [weak self] answer in
+                    self?.nfc = nil
+                    call.resolve(answer)
+                }
+            )
+            self.nfc?.start()
+        }
+    }
+
+    @objc func continueFind(_ call: CAPPluginCall) {
+        run(call) {
+            _ = try self.requireConnection(call)
+            self.nfc?.continuePolling(alertMessage: call.getString("message"))
+            call.resolve()
+        }
+    }
+
+    @objc func finishFind(_ call: CAPPluginCall) {
+        run(call) {
+            _ = try self.requireConnection(call)
+            self.nfc?.finishFind(alertMessage: call.getString("message"))
+            call.resolve()
+        }
+    }
+
     @objc func cancelTag(_ call: CAPPluginCall) {
         run(call) {
             self.nfc?.cancel()
@@ -516,7 +616,15 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     @objc func matchFeedback(_ call: CAPPluginCall) {
         run(call) {
             _ = try self.requireConnection(call)
-            self.match.play()
+            self.match.playMatch(announcement: call.getString("announcement"))
+            call.resolve()
+        }
+    }
+
+    @objc func nonMatchFeedback(_ call: CAPPluginCall) {
+        run(call) {
+            _ = try self.requireConnection(call)
+            self.match.playNonMatch(announcement: call.getString("announcement"))
             call.resolve()
         }
     }
@@ -524,19 +632,16 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     @objc func openMedia(_ call: CAPPluginCall) {
         run(call) {
             let connection = try self.requireConnection(call)
-            guard let thing = call.getString("thing"), UUID(uuidString: thing) != nil,
-                  let file = call.getString("file"), UUID(uuidString: file) != nil,
-                  let controller = self.bridge?.viewController
-            else { throw KeptNativeError.invalidRequest }
-            let mimeExtensions = [
-                "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/heic": "heic",
-                "image/heif": "heif", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
-                "video/mp4": "mp4", "video/quicktime": "mov"
-            ]
-            guard let mime = call.getString("mime"), let ext = mimeExtensions[mime] else {
+            let thing = call.getString("thing")
+            if let thing, !thing.isEmpty, UUID(uuidString: thing) == nil {
                 throw KeptNativeError.invalidRequest
             }
-            var request = try KeptHTTP.request(connection.origin, path: "/api/v1/files/\(file)/url?thingId=\(thing)",
+            guard let file = call.getString("file"), UUID(uuidString: file) != nil,
+                  let controller = self.bridge?.viewController,
+                  let mime = call.getString("mime"), let ext = Self.mimeExtensions[mime]
+            else { throw KeptNativeError.invalidRequest }
+            let query = thing.flatMap { $0.isEmpty ? nil : "?thingId=\($0)" } ?? ""
+            var request = try KeptHTTP.request(connection.origin, path: "/api/v1/files/\(file)/url\(query)",
                                                method: "POST", connection: connection)
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = Data(#"{"variant":"original"}"#.utf8)
@@ -563,6 +668,35 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             call.resolve()
         }
     }
+
+    @objc func openPendingMedia(_ call: CAPPluginCall) {
+        run(call) {
+            let connection = try self.requireConnection(call)
+            guard let id = call.getString("id"), UUID(uuidString: id) != nil,
+                  let file = call.getString("file"), UUID(uuidString: file) != nil,
+                  let controller = self.bridge?.viewController
+            else { throw KeptNativeError.invalidRequest }
+            let (sourceURL, original) = try await self.store.use {
+                try $0.original(context: connection.id, draft: id, file: file)
+            }
+            guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
+            let ext = Self.mimeExtensions[original.file.mime] ?? "dat"
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-preview-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
+                                                    attributes: [.protectionKey: FileProtectionType.complete])
+            let target = folder.appendingPathComponent("Kept pending.\(ext)")
+            do {
+                try FileManager.default.copyItem(at: sourceURL, to: target)
+                try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
+                self.preview.present(target, from: controller)
+            } catch {
+                try? FileManager.default.removeItem(at: folder)
+                throw error
+            }
+            call.resolve()
+        }
+    }
+
     func requireConnection(_ call: CAPPluginCall) throws -> KeptConnection {
         guard let context = call.getString("context"),
               let connection = try KeptKeychain.read(), connection.id == context
@@ -573,6 +707,9 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     func run(_ call: CAPPluginCall, operation: @escaping @MainActor () async throws -> Void) {
         Task { @MainActor in
             do { try await operation() }
+            catch let error as OutboxError where error == .storageFull {
+                call.reject(error.localizedDescription, "storage_full", error)
+            }
             catch let error as URLError { call.reject("Could not connect to Kept.", "network", error) }
             catch { call.reject(error.localizedDescription) }
         }
