@@ -16,6 +16,8 @@ This contract applies to the bundled iPhone app using the existing Kept server, 
 
   Verify the version, that the supported list contains 2, and that both context fields match. Check on the configured origin before the first upload or capture mutation. Keep the result for that attempt only. Treat missing route (404), non-contract response (including an HTML fallback), or missing supported version as recoverable server incompatibility. Retain the queued record, its request key and original files and retry negotiation when service returns or the server is upgraded. An already authenticated phone still negotiates.
 
+  A pre-negotiation native server may answer 401 on the missing route because its context hook runs before the 404. On capability 401, check `GET /api/v1/me` with the same session and context before prompting for sign-in. An authenticated 200 on `/me` means recoverable incompatibility. A 401 there requires re-authentication. A network error, rate limit or server failure remains retryable.
+
 ## Replay and confirmation
 
 - Upload with `PUT /api/v1/files/:fileId` using the existing upload query and headers, including native context and `X-Kept-Sha256`. On HTTP 200/201 use the returned canonical `id` and verify `sha256` and `bytes`; on deduplication the returned ID can differ from the requested ID. Keep upload identities stable across retries.

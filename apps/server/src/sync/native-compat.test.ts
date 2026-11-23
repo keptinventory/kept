@@ -141,7 +141,10 @@ it('keeps a native capture out of a rolled-back ledger and replays it with all o
       expect((await old.inject({ url: '/api/v1/me', headers })).statusCode).toBe(200);
     }
     const incompatible = await old.inject({ url: capabilityUrl, headers });
-    expect(incompatible.statusCode, incompatible.body).toBe(404);
+    // Pre-native builds return 404. Builds with the old context hook can mask the route as 401
+    // even though /me verifies that the original session and context are still valid.
+    const statuses = process.env.KEPT_TEST_ROLLBACK_SERVER ? [401, 404] : [404];
+    expect(statuses, incompatible.body).toContain(incompatible.statusCode);
     expect(NativeCaptureCapabilitiesSchema.safeParse(incompatible.json()).success).toBe(false);
 
     // The prior strict schema accepts an ordinary v1 capture and rejects the added flag.
