@@ -95,6 +95,10 @@ export type PlatformMedia = {
     connection: Connection,
     input: { heldContext: string; id: string; file: string },
   ): Promise<void>;
+  exportHeld(
+    connection: Connection,
+    input: { heldContext: string; id: string; metadata: string },
+  ): Promise<void>;
 };
 
 export type PlatformLifecycle = {
@@ -286,6 +290,9 @@ export const capacitorAdapters: PlatformAdapters = {
     },
     openHeld(connection, input) {
       return native.openHeldMedia({ context: connection.id, ...input });
+    },
+    exportHeld(connection, input) {
+      return native.exportHeldCapture({ context: connection.id, ...input });
     },
   },
   lifecycle: {

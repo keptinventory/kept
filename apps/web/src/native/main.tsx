@@ -37,6 +37,8 @@ import {
   getCompletions,
   getOutboxStats,
   heldCaptureExport,
+  isAuthRefusal,
+  isRestoreEpochMismatch,
   listHeldCaptures,
   type PendingCapture,
   retargetCapture,
@@ -112,8 +114,12 @@ function Batches({
       })
       .catch((error: unknown) => {
         if (!live) return;
-        if (error instanceof ApiError && error.status === 401) {
+        if (isAuthRefusal(error)) {
           onAuthError?.('expired');
+          return;
+        }
+        if (isRestoreEpochMismatch(error)) {
+          onAuthError?.('restored');
           return;
         }
         setStatus(t`Connect to Kept to review recent batches.`);
@@ -135,8 +141,12 @@ function Batches({
         ),
       );
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (isAuthRefusal(error)) {
         onAuthError?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        onAuthError?.('restored');
         return;
       }
       setStatus(t`Connect to Kept to review recent batches.`);
@@ -296,15 +306,13 @@ export function Inventory({
           }
         } catch (error) {
           if (!mounted.current) return;
-          if (error instanceof ApiError) {
-            if (error.status === 401 || error.status === 403) {
-              onSignOut('expired');
-              return;
-            }
-            if (error.status === 409 && error.hint?.includes('restored')) {
-              onSignOut('restored');
-              return;
-            }
+          if (isAuthRefusal(error) || (error instanceof ApiError && error.status === 403)) {
+            onSignOut('expired');
+            return;
+          }
+          if (isRestoreEpochMismatch(error)) {
+            onSignOut('restored');
+            return;
           }
           setOnline(false);
           setStatus(
@@ -402,8 +410,12 @@ export function Inventory({
         })
         .catch((error: unknown) => {
           if (!current) return;
-          if (error instanceof ApiError && error.status === 401) {
+          if (isAuthRefusal(error)) {
             onSignOut('expired');
+            return;
+          }
+          if (isRestoreEpochMismatch(error)) {
+            onSignOut('restored');
             return;
           }
           if (error instanceof ApiError && error.status === 0) setCachedSearch(true);
@@ -437,11 +449,11 @@ export function Inventory({
           setStatus(t`Could not sync this capture. Review the error below.`);
         }
       } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
+        if (isAuthRefusal(error)) {
           onSignOut('expired');
           return;
         }
-        if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
+        if (isRestoreEpochMismatch(error)) {
           onSignOut('restored');
           return;
         }
@@ -491,15 +503,18 @@ export function Inventory({
     await refreshPendingState();
   }
 
-  function exportHeld(entry: PendingCapture) {
-    const data = heldCaptureExport(entry);
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `kept-held-${entry.capture.id}.json`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  async function exportHeld(entry: PendingCapture) {
+    const data = heldCaptureExport(entry, cache);
+    const metadata = JSON.stringify(data, null, 2);
+    try {
+      await adapters.media.exportHeld(connection, {
+        heldContext: entry.capture.context ?? '',
+        id: entry.capture.id,
+        metadata,
+      });
+    } catch {
+      setStatus(t`Could not open this held original.`);
+    }
   }
 
   async function confirmDiscard(entry: PendingCapture) {
@@ -738,8 +753,8 @@ export function Inventory({
             <ul className="grid gap-2">
               {held.map((entry) => {
                 const fields = draftFields(entry.capture);
-                const boxName =
-                  cache?.things.find((item) => item.id === fields.boxId)?.name ?? t`Box`;
+                const cachedBoxName = cache?.things.find((item) => item.id === fields.boxId)?.name;
+                const boxName = cachedBoxName ?? `${t`Box`} (${fields.boxId})`;
                 return (
                   <li
                     key={`${entry.capture.context ?? ''}:${entry.capture.id}`}
@@ -762,7 +777,8 @@ export function Inventory({
                     </p>
                     {entry.capture.files.map(({ file, sha256 }) => (
                       <p key={file.id} className="break-all text-ink-2">
-                        <bdi>{file.name}</bdi> · SHA-256 <bdi className="ltr">{sha256}</bdi>
+                        <bdi>{file.name}</bdi> ({formatBytes(file.bytes)}) · SHA-256{' '}
+                        <bdi className="ltr">{sha256}</bdi>
                       </p>
                     ))}
                     <div className="flex flex-wrap gap-2">
@@ -784,7 +800,11 @@ export function Inventory({
                           {t`Preview ${isolate(file.name)}`}
                         </Button>
                       ))}
-                      <Button size="small" variant="secondary" onPress={() => exportHeld(entry)}>
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        onPress={() => void exportHeld(entry)}
+                      >
                         <Trans>Export details</Trans>
                       </Button>
                       <Button

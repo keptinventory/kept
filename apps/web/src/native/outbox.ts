@@ -9,6 +9,7 @@ import { capturePaths } from '@/api/capture/paths';
 import { ApiError } from '@/api/client';
 import { inventoryPaths, qs } from '@/api/inventory/paths';
 import type { AttachmentView, Page } from '@/api/inventory/types';
+import { paths } from '@/api/paths';
 import { capacitorAdapters, type PlatformAdapters } from './adapters';
 import type { Capture, Connection, OriginalMeta, PendingCapture, StorageStats } from './bridge';
 
@@ -72,6 +73,21 @@ export type CaptureCapabilities = {
   epoch: string;
 };
 
+export function isRestoreEpochMismatch(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status === 409 &&
+    (error.details.reason === 'restore_epoch_mismatch' || Boolean(error.hint?.includes('restored')))
+  );
+}
+
+export function isAuthRefusal(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    (error.status === 401 || error.code === 'mfa_required' || error.code === 'two_factor_required')
+  );
+}
+
 /**
  * Negotiate capture compatibility before any upload or capture mutation (contract v1).
  * A missing/older endpoint is a recoverable hold: queue, identity and originals stay put.
@@ -84,12 +100,34 @@ export async function ensureCaptureCompatible(
   try {
     caps = await adapters.transport.request<unknown>(connection, captureCapabilitiesPath);
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
-    if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
-      throw error;
+    if (error instanceof ApiError) {
+      if (error.status === 0 || error.status === 429 || error.status >= 500) throw error;
+      if (isRestoreEpochMismatch(error)) throw error;
+      if (error.status === 401) {
+        // A pre-negotiation native server may answer 401 on the missing route because its
+        // context hook runs before 404. Probe /api/v1/me with the same session and context.
+        try {
+          await adapters.transport.request<unknown>(connection, paths.me);
+          throw new ReplayError('compatibility_hold');
+        } catch (probeError) {
+          if (probeError instanceof ReplayError) throw probeError;
+          if (
+            probeError instanceof ApiError &&
+            (probeError.status === 0 ||
+              probeError.status === 429 ||
+              probeError.status >= 500 ||
+              isAuthRefusal(probeError) ||
+              probeError.status === 403 ||
+              isRestoreEpochMismatch(probeError))
+          ) {
+            throw probeError;
+          }
+          throw error;
+        }
+      }
+      if (isAuthRefusal(error)) throw error;
     }
-    if (error instanceof ApiError && error.status >= 500) throw error;
-    // 404/405 from an older server, or an unparseable non-contract body.
+    // 404/405 from an older server, or an unparseable non-contract body (e.g. HTML fallback).
     throw new ReplayError('compatibility_hold');
   }
   const valid =
@@ -311,10 +349,8 @@ export async function syncOutbox(
       await replayCapture(connection, entry.capture, adapters);
       count++;
     } catch (error) {
-      if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
-      if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
-        throw error;
-      }
+      if (error instanceof ApiError && error.status === 0) throw error;
+      if (isAuthRefusal(error) || isRestoreEpochMismatch(error)) throw error;
       const reason = classifyFailure(error);
       await adapters.outbox.failed(connection, entry.capture.id, reason);
       if (error instanceof ApiError && (error.status >= 500 || error.status === 429)) {
@@ -338,10 +374,8 @@ export async function retryCapture(
     await replayCapture(connection, entry.capture, adapters);
     return true;
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 0 || error.status === 401)) throw error;
-    if (error instanceof ApiError && error.status === 409 && error.hint?.includes('restored')) {
-      throw error;
-    }
+    if (error instanceof ApiError && error.status === 0) throw error;
+    if (isAuthRefusal(error) || isRestoreEpochMismatch(error)) throw error;
     await adapters.outbox.failed(connection, id, classifyFailure(error));
     return false;
   }
@@ -406,13 +440,27 @@ export async function discardHeldCapture(
 }
 
 /** Metadata + integrity hashes for one held capture, safe to share for manual recovery. */
-export function heldCaptureExport(entry: PendingCapture) {
+export function heldCaptureExport(
+  entry: PendingCapture,
+  cache?: {
+    things: readonly { id: string; name: string | null }[];
+    locations: readonly { id: string; name: string }[];
+  },
+) {
   const fields = draftFields(entry.capture);
+  const boxName = cache?.things.find((item) => item.id === fields.boxId)?.name ?? undefined;
+  const locationName =
+    cache?.locations.find((loc) => loc.id === fields.locationId)?.name ?? undefined;
   return {
     captureId: entry.capture.id,
     takenAt: entry.capture.takenAt,
     heldContext: entry.capture.context ?? null,
-    destination: { boxId: fields.boxId, locationId: fields.locationId },
+    destination: {
+      boxId: fields.boxId,
+      ...(boxName ? { boxName } : {}),
+      locationId: fields.locationId,
+      ...(locationName ? { locationName } : {}),
+    },
     name: fields.name,
     ...(fields.note ? { note: fields.note } : {}),
     ...(fields.quantity ? { quantity: fields.quantity } : {}),
@@ -426,7 +474,8 @@ export function heldCaptureExport(entry: PendingCapture) {
       bytes: file.bytes,
       sha256,
     })),
-    note: 'Automatic replay is paused because this capture predates a server restore. Verify the SHA-256 hashes before importing the originals elsewhere.',
+    recoveryNotice:
+      'Automatic replay is paused because this capture predates a server restore. Verify the SHA-256 hashes before importing the originals elsewhere.',
   };
 }
 

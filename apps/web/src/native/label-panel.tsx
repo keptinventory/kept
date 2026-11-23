@@ -1,7 +1,6 @@
 import { newId } from '@kept/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApiError } from '@/api/client';
 import { appDetect } from '@/camera/scanner';
 import { useErrorText } from '@/components/page';
 import type { Read } from '@/components/scan/resolve';
@@ -23,6 +22,7 @@ import {
   type ScanCandidate,
   type Target,
 } from './labels';
+import { isAuthRefusal, isRestoreEpochMismatch } from './outbox';
 
 export type LabelBox = {
   id: string;
@@ -221,8 +221,12 @@ export function LabelPanel({
     try {
       await operation();
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (isAuthRefusal(error)) {
         onAuthError?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        onAuthError?.('restored');
         return;
       }
       if (live.current) setStatus(errorText(error));
@@ -316,7 +320,7 @@ export function LabelPanel({
         findGeneration.current === generation;
       const remove = await adapters.nfc.onFindReading((event: FindTagEvent) => {
         if (!isCurrent()) return;
-        if (event.sessionId && event.sessionId !== sessionId) return;
+        if (event.sessionId !== sessionId) return;
         if (event.status === 'repeated') {
           setStatus(t`Same tag scanned again. Move to another box.`);
           return;
@@ -341,8 +345,15 @@ export function LabelPanel({
             })
             .catch((error: unknown) => {
               if (!isCurrent()) return;
-              if (error instanceof ApiError && error.status === 401) {
+              if (isAuthRefusal(error)) {
                 onAuthError?.('expired');
+                invalidateFindSession();
+                void adapters.nfc.cancelTag(sessionId).catch(() => {});
+                return;
+              }
+              if (isRestoreEpochMismatch(error)) {
+                onAuthError?.('restored');
+                invalidateFindSession();
                 void adapters.nfc.cancelTag(sessionId).catch(() => {});
                 return;
               }
@@ -563,6 +574,7 @@ export function LabelPanel({
                 onPress={() => {
                   const sessionId = findSessionId.current ?? undefined;
                   invalidateFindSession();
+                  setStatus(t`Scan cancelled.`);
                   void adapters.nfc.cancelTag(sessionId).catch(() => {});
                 }}
               >

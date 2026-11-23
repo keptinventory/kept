@@ -107,6 +107,12 @@ type NativeKept = {
     id: string;
     file: string;
   }): Promise<void>;
+  exportHeldCapture(input: {
+    context: string;
+    heldContext: string;
+    id: string;
+    metadata: string;
+  }): Promise<void>;
   addListener(event: 'keptLink', callback: () => void): Promise<PluginListenerHandle>;
   addListener(
     event: 'nfcFind',

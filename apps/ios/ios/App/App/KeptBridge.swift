@@ -343,11 +343,13 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "takeLink", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openMedia", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openPendingMedia", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "openHeldMedia", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "openHeldMedia", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "exportHeldCapture", returnType: CAPPluginReturnPromise)
     ]
     @MainActor private lazy var signIn = NativeSignIn()
     private let store = NativeOutbox()
     @MainActor private var nfc: KeptNFC?
+    @MainActor private var findGate = NFCFindSessionGate()
     @MainActor private let match = KeptMatchFeedback()
     @MainActor private lazy var preview = KeptPreview()
 
@@ -587,8 +589,14 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         run(call) {
             _ = try self.requireConnection(call)
             guard self.nfc == nil else { call.resolve(["status": "busy"]); return }
-            guard let sessionId = call.getString("sessionId"), !sessionId.isEmpty, sessionId.count <= 64
-            else { throw KeptNativeError.invalidRequest }
+            guard let sessionId = call.getString("sessionId"), self.findGate.begin(sessionId)
+            else {
+                if self.findGate.activeSessionId != nil {
+                    call.resolve(["status": "busy"])
+                    return
+                }
+                throw KeptNativeError.invalidRequest
+            }
             let messages = call.getObject("messages")?.compactMapValues { $0 as? String } ?? [:]
             self.nfc = KeptNFC(
                 mode: .find,
@@ -599,6 +607,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                 },
                 result: { [weak self] answer in
                     self?.nfc = nil
+                    self?.findGate.end(sessionId: sessionId)
                     call.resolve(answer)
                 }
             )
@@ -606,16 +615,22 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    /// True only when the call targets the live Find session (or carries no identity, legacy).
-    @MainActor private func isCurrentFind(_ call: CAPPluginCall) -> Bool {
+    /// Requires a matching non-empty session identity before continuing or finishing Find.
+    @MainActor private func isCurrentFindCommand(_ call: CAPPluginCall) -> Bool {
+        let sessionId = call.getString("sessionId")
+        return findGate.acceptsCommand(sessionId: sessionId) && nfc?.sessionId == sessionId
+    }
+
+    /// Requires a matching session identity when one is supplied, while allowing non-Find scans to cancel.
+    @MainActor private func canCancelTag(_ call: CAPPluginCall) -> Bool {
         guard let sessionId = call.getString("sessionId") else { return true }
-        return nfc?.sessionId == sessionId
+        return findGate.acceptsCancel(sessionId: sessionId) && nfc?.sessionId == sessionId
     }
 
     @objc func continueFind(_ call: CAPPluginCall) {
         run(call) {
             _ = try self.requireConnection(call)
-            guard self.isCurrentFind(call) else { call.resolve(); return }
+            guard self.isCurrentFindCommand(call) else { call.resolve(); return }
             self.nfc?.continuePolling(alertMessage: call.getString("message"))
             call.resolve()
         }
@@ -624,7 +639,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
     @objc func finishFind(_ call: CAPPluginCall) {
         run(call) {
             _ = try self.requireConnection(call)
-            guard self.isCurrentFind(call) else { call.resolve(); return }
+            guard self.isCurrentFindCommand(call) else { call.resolve(); return }
             self.nfc?.finishFind(alertMessage: call.getString("message"))
             call.resolve()
         }
@@ -632,7 +647,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
 
     @objc func cancelTag(_ call: CAPPluginCall) {
         run(call) {
-            guard self.isCurrentFind(call) else { call.resolve(); return }
+            guard self.canCancelTag(call) else { call.resolve(); return }
             self.nfc?.cancel()
             call.resolve()
         }
@@ -744,6 +759,94 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                 try FileManager.default.copyItem(at: sourceURL, to: target)
                 try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
                 try self.preview.present(target, from: controller)
+            } catch {
+                try? FileManager.default.removeItem(at: folder)
+                throw error
+            }
+            call.resolve()
+        }
+    }
+
+    private static func sanitizedExportFilename(_ rawName: String, mime: String, index: Int) -> String {
+        let extFromName = URL(fileURLWithPath: rawName).pathExtension
+        let safeExt: String
+        if !extFromName.isEmpty, extFromName.count <= 10,
+           extFromName.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) }) {
+            safeExt = extFromName.lowercased()
+        } else {
+            safeExt = Self.mimeExtensions[mime] ?? "dat"
+        }
+        let stemRaw = URL(fileURLWithPath: rawName).deletingPathExtension().lastPathComponent
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "._-"))
+        let stemClean = stemRaw
+            .components(separatedBy: allowed.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: "_")
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        let base = stemClean.isEmpty ? "original" : String(stemClean.prefix(64))
+        return "\(index + 1)-\(base).\(safeExt)"
+    }
+
+    @objc func exportHeldCapture(_ call: CAPPluginCall) {
+        run(call) {
+            let connection = try self.requireConnection(call)
+            guard let heldContext = call.getString("heldContext"),
+                  Outbox.isHeldContext(heldContext, current: connection.id),
+                  let id = call.getString("id"), UUID(uuidString: id) != nil,
+                  let metadata = call.getString("metadata"),
+                  !metadata.isEmpty, metadata.utf8.count <= 65_536
+            else { throw KeptNativeError.invalidRequest }
+            guard let controller = self.bridge?.viewController,
+                  controller.viewIfLoaded?.window != nil,
+                  controller.presentedViewController == nil
+            else { throw KeptNativeError.previewUnavailable }
+
+            let normalizedId = id.lowercased()
+            let originals = try await self.store.use { store -> [(URL, PendingOriginal)] in
+                let heldEntries = try store.pending(context: heldContext)
+                guard let entry = heldEntries.first(where: { $0.capture.id == normalizedId }) else {
+                    throw OutboxError.missing
+                }
+                return try entry.capture.files.map { item in
+                    try store.original(context: heldContext, draft: normalizedId, file: item.file.id)
+                }
+            }
+            guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
+
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-export-\(UUID())", isDirectory: true)
+            try FileManager.default.createDirectory(
+                at: folder,
+                withIntermediateDirectories: true,
+                attributes: [.protectionKey: FileProtectionType.complete]
+            )
+            do {
+                let metadataURL = folder.appendingPathComponent("kept-held-\(normalizedId).json")
+                try Data(metadata.utf8).write(to: metadataURL, options: .atomic)
+                try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: metadataURL.path)
+
+                var exportedURLs: [URL] = [metadataURL]
+                for (index, (sourceURL, original)) in originals.enumerated() {
+                    let filename = Self.sanitizedExportFilename(original.file.name, mime: original.file.mime, index: index)
+                    let targetURL = folder.appendingPathComponent(filename)
+                    try FileManager.default.copyItem(at: sourceURL, to: targetURL)
+                    try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: targetURL.path)
+                    exportedURLs.append(targetURL)
+                }
+
+                let activity = UIActivityViewController(activityItems: exportedURLs, applicationActivities: nil)
+                if let popover = activity.popoverPresentationController {
+                    popover.sourceView = controller.view
+                    popover.sourceRect = CGRect(
+                        x: controller.view.bounds.midX,
+                        y: controller.view.bounds.midY,
+                        width: 1,
+                        height: 1
+                    )
+                }
+                activity.completionWithItemsHandler = { _, _, _, _ in
+                    try? FileManager.default.removeItem(at: folder)
+                }
+                controller.present(activity, animated: true)
             } catch {
                 try? FileManager.default.removeItem(at: folder)
                 throw error

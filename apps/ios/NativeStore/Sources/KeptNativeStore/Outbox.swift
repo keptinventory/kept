@@ -348,7 +348,6 @@ public final class Outbox {
     }
 
     private func finish(context: String, id: String, state: CompletionState) throws {
-        let folder = try captureFolder(context: context, id: id, staged: false)
         try sql("""
             INSERT INTO completions (context, id, state) VALUES (?, ?, ?)
             ON CONFLICT (context, id) DO UPDATE SET state = EXCLUDED.state
@@ -356,6 +355,11 @@ public final class Outbox {
         // Record confirmation durably before removing file bytes. Repair never reopens a
         // completed capture even if the app stops before file cleanup finishes.
         try sql("UPDATE captures SET completed = 1 WHERE context = ? AND id = ?", [context, id.lowercased()])
+        try cleanupCompleted(context: context, id: id)
+    }
+
+    private func cleanupCompleted(context: String, id: String) throws {
+        let folder = try captureFolder(context: context, id: id, staged: false)
         if fs.fileExists(atPath: folder.path) {
             do { try fs.removeItem(at: folder) }
             catch { return }
@@ -384,7 +388,9 @@ public final class Outbox {
         guard candidate != current else { return false }
         let held = candidate.split(separator: "|", omittingEmptySubsequences: false)
         let active = current.split(separator: "|", omittingEmptySubsequences: false)
-        guard held.count == 3, active.count == 3 else { return false }
+        guard held.count == 3, active.count == 3,
+              !held[0].isEmpty, !held[1].isEmpty, !held[2].isEmpty, !active[2].isEmpty
+        else { return false }
         return held[0] == active[0] && held[1] == active[1] && held[2] != active[2]
     }
 
@@ -481,7 +487,7 @@ public final class Outbox {
         let completed = try query("SELECT context, id FROM captures WHERE completed = 1", []) { row in
             (try string(row, 0), try string(row, 1))
         }
-        for (context, id) in completed { try complete(context: context, id: id) }
+        for (context, id) in completed { try cleanupCompleted(context: context, id: id) }
     }
 
     private func insert(_ capture: PendingCapture) throws {

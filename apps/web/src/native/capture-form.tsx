@@ -74,15 +74,22 @@ export function CaptureForm({
     quantity !== '' && (!AMOUNT_STRING.test(quantity) || Number(quantity) <= 0);
 
   const pendingById = new Map(pending.map((entry) => [entry.capture.id, entry]));
-  const batchPendingCount = batchEntryIds.filter((id) => pendingById.has(id)).length;
+  const batchPendingCount = batchEntryIds.filter((id) => {
+    const entry = pendingById.get(id);
+    return Boolean(entry && !entry.failure);
+  }).length;
   const batchFailedCount = batchEntryIds.filter((id) =>
     Boolean(pendingById.get(id)?.failure),
   ).length;
   // Truthful sync state: an entry counts as synced only with an explicit durable
   // `synced` completion (server confirmed record + attachments). Disappearing
   // from the pending queue — discard, failure cleanup, refresh races — never does.
-  const batchSyncedCount = batchEntryIds.filter((id) => completions[id] === 'synced').length;
-  const batchDiscardedCount = batchEntryIds.filter((id) => completions[id] === 'discarded').length;
+  const batchSyncedCount = batchEntryIds.filter(
+    (id) => !pendingById.has(id) && completions[id] === 'synced',
+  ).length;
+  const batchDiscardedCount = batchEntryIds.filter(
+    (id) => !pendingById.has(id) && completions[id] === 'discarded',
+  ).length;
 
   function choose(source: FileList | null, role: SelectedOriginal['role']) {
     if (!source) return;

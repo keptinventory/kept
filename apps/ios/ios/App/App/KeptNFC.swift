@@ -129,33 +129,39 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
         }
         processing = true
         session.connect(to: tag) { [weak self] error in
-            guard let self, self.result != nil else { return }
-            if error != nil {
-                self.handleTagReadFailure(in: session)
-                return
-            }
-            tag.queryNDEFStatus { [weak self] status, capacity, error in
+            DispatchQueue.main.async {
                 guard let self, self.result != nil else { return }
                 if error != nil {
                     self.handleTagReadFailure(in: session)
                     return
                 }
-                guard status != .notSupported else {
-                    if case .find = self.mode {
-                        self.event(["status": "unsupported"])
-                    } else {
-                        self.finish("unsupported")
+                tag.queryNDEFStatus { [weak self] status, capacity, error in
+                    DispatchQueue.main.async {
+                        guard let self, self.result != nil else { return }
+                        if error != nil {
+                            self.handleTagReadFailure(in: session)
+                            return
+                        }
+                        guard status != .notSupported else {
+                            if case .find = self.mode {
+                                self.event(["status": "unsupported"])
+                            } else {
+                                self.finish("unsupported")
+                            }
+                            return
+                        }
+                        tag.readNDEF { [weak self] message, error in
+                            DispatchQueue.main.async {
+                                guard let self, self.result != nil else { return }
+                                let code = (error as? NFCReaderError)?.code
+                                guard error == nil || code == .ndefReaderSessionErrorZeroLengthMessage else {
+                                    self.handleTagReadFailure(in: session)
+                                    return
+                                }
+                                self.read(tag, in: session, message: message, writable: status == .readWrite, capacity: capacity)
+                            }
+                        }
                     }
-                    return
-                }
-                tag.readNDEF { [weak self] message, error in
-                    guard let self, self.result != nil else { return }
-                    let code = (error as? NFCReaderError)?.code
-                    guard error == nil || code == .ndefReaderSessionErrorZeroLengthMessage else {
-                        self.handleTagReadFailure(in: session)
-                        return
-                    }
-                    self.read(tag, in: session, message: message, writable: status == .readWrite, capacity: capacity)
                 }
             }
         }
@@ -231,35 +237,39 @@ final class KeptNFC: NSObject, NFCNDEFReaderSessionDelegate {
             let intended = NFCNDEFMessage(records: [payload])
             guard intended.length <= capacity else { finish("too_small"); return }
             tag.writeNDEF(intended) { [weak self] error in
-                guard let self, self.result != nil else { return }
-                guard error == nil else { self.finish("write_unverified"); return }
-                tag.readNDEF { [weak self] actual, error in
+                DispatchQueue.main.async {
                     guard let self, self.result != nil else { return }
-                    guard error == nil, let actual else {
-                        self.finish("write_unverified")
-                        return
+                    guard error == nil else { self.finish("write_unverified"); return }
+                    tag.readNDEF { [weak self] actual, error in
+                        DispatchQueue.main.async {
+                            guard let self, self.result != nil else { return }
+                            guard error == nil, let actual else {
+                                self.finish("write_unverified")
+                                return
+                            }
+                            let actualSnapshots = actual.records.map {
+                                NDEFRecordSnapshot(
+                                    typeNameFormat: $0.typeNameFormat.rawValue,
+                                    type: $0.type,
+                                    identifier: $0.identifier,
+                                    payload: $0.payload
+                                )
+                            }
+                            let intendedSnapshots = intended.records.map {
+                                NDEFRecordSnapshot(
+                                    typeNameFormat: $0.typeNameFormat.rawValue,
+                                    type: $0.type,
+                                    identifier: $0.identifier,
+                                    payload: $0.payload
+                                )
+                            }
+                            guard NDEFRecordSnapshot.fingerprint(actualSnapshots) == NDEFRecordSnapshot.fingerprint(intendedSnapshots) else {
+                                self.finish("write_unverified")
+                                return
+                            }
+                            self.finish("written")
+                        }
                     }
-                    let actualSnapshots = actual.records.map {
-                        NDEFRecordSnapshot(
-                            typeNameFormat: $0.typeNameFormat.rawValue,
-                            type: $0.type,
-                            identifier: $0.identifier,
-                            payload: $0.payload
-                        )
-                    }
-                    let intendedSnapshots = intended.records.map {
-                        NDEFRecordSnapshot(
-                            typeNameFormat: $0.typeNameFormat.rawValue,
-                            type: $0.type,
-                            identifier: $0.identifier,
-                            payload: $0.payload
-                        )
-                    }
-                    guard NDEFRecordSnapshot.fingerprint(actualSnapshots) == NDEFRecordSnapshot.fingerprint(intendedSnapshots) else {
-                        self.finish("write_unverified")
-                        return
-                    }
-                    self.finish("written")
                 }
             }
         }

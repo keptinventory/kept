@@ -21,7 +21,7 @@ import {
 } from './inventory';
 import type { LabelBox } from './label-panel';
 import type { Target } from './labels';
-import { draftFields, type PendingCapture } from './outbox';
+import { draftFields, isAuthRefusal, isRestoreEpochMismatch, type PendingCapture } from './outbox';
 
 export type OpenBox = Destination & LabelBox;
 
@@ -89,8 +89,12 @@ function SuggestionForm({
         );
       }
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (isAuthRefusal(error)) {
         onAuthError?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        onAuthError?.('restored');
         return;
       }
       setStatus(errorText(error));
@@ -117,8 +121,12 @@ function SuggestionForm({
       setExtraSuggestions([]);
       onChanged();
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (isAuthRefusal(error)) {
         onAuthError?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        onAuthError?.('restored');
         return;
       }
       setStatus(errorText(error));
@@ -256,15 +264,15 @@ export function RecordScreen({
     }
     function failed(error: unknown) {
       if (!current) return;
+      if (isAuthRefusal(error)) {
+        authErrorRef.current?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        authErrorRef.current?.('restored');
+        return;
+      }
       if (error instanceof ApiError) {
-        if (error.status === 401) {
-          authErrorRef.current?.('expired');
-          return;
-        }
-        if (error.status === 409 && error.hint?.includes('restored')) {
-          authErrorRef.current?.('restored');
-          return;
-        }
         if ([403, 404, 409].includes(error.status)) {
           setDetail(undefined);
           setPlace(undefined);
@@ -324,8 +332,12 @@ export function RecordScreen({
         mime: attachment.file.mime,
       });
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (isAuthRefusal(error)) {
         onAuthError?.('expired');
+        return;
+      }
+      if (isRestoreEpochMismatch(error)) {
+        onAuthError?.('restored');
         return;
       }
       setStatus(errorText(error));

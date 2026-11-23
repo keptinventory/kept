@@ -121,3 +121,35 @@ public enum FindOutcome: String, Codable, Equatable {
     case unavailable
     case repeated
 }
+
+/// Tracks the single active continuous Find session and rejects stale or empty session commands.
+public struct NFCFindSessionGate: Equatable {
+    public private(set) var activeSessionId: String?
+
+    public init() {}
+
+    public mutating func begin(_ sessionId: String) -> Bool {
+        guard activeSessionId == nil, !sessionId.isEmpty, sessionId.count <= 64 else {
+            return false
+        }
+        activeSessionId = sessionId
+        return true
+    }
+
+    public func acceptsCommand(sessionId: String?) -> Bool {
+        guard let sessionId, !sessionId.isEmpty, let activeSessionId else { return false }
+        return sessionId == activeSessionId
+    }
+
+    public func acceptsCancel(sessionId: String?) -> Bool {
+        guard let sessionId else { return true }
+        guard !sessionId.isEmpty, let activeSessionId else { return false }
+        return sessionId == activeSessionId
+    }
+
+    public mutating func end(sessionId: String? = nil) {
+        if sessionId == nil || sessionId == activeSessionId {
+            activeSessionId = nil
+        }
+    }
+}
