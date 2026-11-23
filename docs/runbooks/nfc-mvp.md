@@ -175,6 +175,15 @@ On macOS, keep the Docker configuration that supplies your Compose plugin
 available to the test. If your development services use a separate Compose
 project name, pass it in `COMPOSE_PROJECT_NAME`.
 
+Run the portable export drill separately. It imports a seeded location into a
+populated server with conflicting codes and into a fresh server. It checks old
+label URLs, newly issued codes and legacy aliases, and preservation of the
+capture's AI review-only policy.
+
+```sh
+pnpm exec vitest run --project @kept/server apps/server/test/portability/round-trip.test.ts
+```
+
 ## Automated verification
 
 The [gate record](../mvp1/status.md) tracks G0–G6. The
@@ -206,6 +215,7 @@ type, and observed behavior for each test.
 
 | Scenario | Physical test |
 | --- | --- |
+| Sign-in and session | On the signed phone build, complete browser sign-in, MFA and consent. Verify the app returns to the signed-in view and a native session appears in Kept's active sessions. Reopen the app after a force-quit and verify session access. |
 | Manual capture | Add “Holiday decorations” with notes, two photos and a PDF. Reopen and view the originals. |
 | AI independence | Save while AI is disabled or unavailable, then enable a mock provider and edit a suggestion before accepting it. |
 | NFC and QR | Scan both identifiers for the same box. Test an inaccessible, retired, malformed, and foreign-origin identifier. |

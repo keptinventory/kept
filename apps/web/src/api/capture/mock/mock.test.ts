@@ -54,6 +54,12 @@ describe('the capture mock', () => {
     expect(missing).toEqual([]);
   });
 
+  it('rejects capability checks from a browser session without native sync context', async () => {
+    const response = await mock.fetch(capturePaths.nativeCaptureCapabilities);
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({ code: 'validation' });
+  });
+
   it('the inbox: "Mine" by default, chip counts per kind, and one fixture item of each kind', async () => {
     const mine = await api.inbox();
     expect(mine.items.every((i) => i.createdBy.displayName === 'Ibrahim')).toBe(true);

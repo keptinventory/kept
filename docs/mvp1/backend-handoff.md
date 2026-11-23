@@ -10,9 +10,10 @@ November 22, 2026 · [Gate record](status.md) · [Integration contract v1](integ
 | Independent audit baseline | `45761cb6425a739b3fef9660bae7dae9d9fdac35` |
 | Starting checkout and fork main | `b45ddce90137f1dfc4ae537487ade77370c7515a` |
 | Integration branch | `integration/mvp1` |
-| Tested code before this evidence-only commit | `efa7b1ecebb559f2811c8acb577d3a15e92c0c6b` |
+| Backend integration evidence | `efa7b1ecebb559f2811c8acb577d3a15e92c0c6b` |
+| Consolidated `main` evidence | `8712109476b92ea8c2261d67916d99c11559f9ec` |
 
-The working branch began clean. The newer starting commit guarded native presentation and Find lifecycle and the two backend defects were still present. The iOS owner contributed implementation and regression commits directly on the shared task branch. The earlier `feat/ios-nfc-mvp` worktree contains historical alternate versions. The integrated series builds on the native implementation already in the fork's main branch. The workspace lockfile required no regeneration.
+The working branch began clean. The starting commit guarded native presentation and Find lifecycle while the two backend defects were still present. The iOS owner contributed implementation and regression commits on the shared task branch. The fork's consolidated `main` includes those changes and the original `feat/ios-nfc-mvp` history. The backend integration required no lockfile regeneration.
 
 ## Defect disposition
 
@@ -27,6 +28,8 @@ The backend changes cover `apps/server/src/auth/native.ts`, `sync/`, `capture/se
 
 ## Executed checks
 
+### Initial integration at `efa7b1ec`
+
 | Check | Result |
 | --- | --- |
 | Focused server | **124 passed** across native auth, capture, extraction, sync, scan and route audit coverage. The rollback scenario used the compiled `8d890f96` server. |
@@ -37,6 +40,18 @@ The backend changes cover `apps/server/src/auth/native.ts`, `sync/`, `capture/se
 | Native | 14 Swift package tests passed. The local iOS Simulator app compiled unsigned and with an ad hoc signature verified by `codesign`. The local generic iOS build compiled with signing disabled. |
 
 Local tools were Node 24.22.3, pnpm 11.23.0 and Xcode 27.2 on macOS arm64. The development database image supplied PostgreSQL 18.6 and pgvector 0.8.6. The native and web test fixtures used dummy accounts and originals. Playwright and HTTP injection exercise real routing and permissions. The native web tests use platform doubles and Swift tests exercise the on-disk store. The physical held-preview and NFC workflows still require device evidence.
+
+### Consolidated `main` at `87121094`
+
+The local checks passed 69 focused server tests, 59 focused web tests and 16 Swift tests. Workspace typecheck, lint, the bundled iOS UI build and the real Restic/PostgreSQL drill with local original storage also passed.
+
+### Follow-up verification
+
+The merged database job found that the portable export registry omitted `things.capture_review_only`. The follow-up carries it as the optional `captureReviewOnly` boolean in portable archives. Older archives use the existing database default. The regression exercises the real export and import jobs on both populated and fresh PostgreSQL instances and verifies that a review-only record stays review-only. [Registry check](../../apps/server/src/exports/registry.test.ts) · [Round-trip check](../../apps/server/test/portability/round-trip.test.ts).
+
+The hosted web unit job found that the browser mock lacked a handler for native capture capabilities. The follow-up mock rejects a browser session without native sync context. Successful negotiation is covered by the native adapter and real server tests. [Browser mock check](../../apps/web/src/api/capture/mock/mock.test.ts) · [Server auth check](../../apps/server/src/auth/native.test.ts).
+
+Local verification of the follow-up on top of `87121094` passed 51 native auth, sync and shared tests, 46 export and import tests, and 72 browser mock, native adapter and offline tests. The rollback test used the compiled `8d890f96` server. Workspace typecheck, changed-file Biome and the server build passed.
 
 ## Repeat the evidence
 
@@ -92,7 +107,9 @@ The restore test uses its fast fake by default. The real run used **Restic 0.20.
 
 ## Hosted checks and environment
 
-The dedicated workflow builds and tests the bundled UI on Linux and runs Swift tests and an unsigned simulator compile on macOS. Both jobs passed in the fork at `29e8e286` and at the tested code revision `efa7b1ec`. The upstream general CI has no runs in this fork and uses main pushes, pull requests and explicit triggers. This task branch invokes the dedicated focused workflow. [Workflow](../../.github/workflows/mvp1-ios.yml) · [First run](https://github.com/e3742526/kept-nfc/actions/runs/45106111841) · [Run for the tested revision](https://github.com/e3742526/kept-nfc/actions/runs/45106797376).
+The dedicated workflow builds and tests the bundled UI on Linux and runs Swift tests and an unsigned simulator compile on macOS. Both jobs passed at `efa7b1ec` and on consolidated `main` at `87121094`. The fork also ran its documentation and general CI workflows for that merge. [Workflow](../../.github/workflows/mvp1-ios.yml) · [Integration iOS run](https://github.com/e3742526/kept-nfc/actions/runs/45106797376) · [Main iOS run](https://github.com/e3742526/kept-nfc/actions/runs/45111286747) · [Main documentation run](https://github.com/e3742526/kept-nfc/actions/runs/45111286755) · [Main general CI run](https://github.com/e3742526/kept-nfc/actions/runs/45111286721).
+
+On `87121094`, the hosted general workflow failed. The database and web unit jobs found the registry and mock omissions fixed in the local follow-up. They also reported native separator literals and a vehicle mock maintenance-estimate assertion. The desktop passkey test timed out on the two-factor page after password sign-in. [Database shard](https://github.com/e3742526/kept-nfc/actions/runs/45111286721/job/137484025518) · [Web unit job](https://github.com/e3742526/kept-nfc/actions/runs/45111286721/job/137484025434) · [Browser shard](https://github.com/e3742526/kept-nfc/actions/runs/45111286721/job/137484025565).
 
 The earlier tested revision could prompt for sign-in when a pre-negotiation server masked its missing capability route as 401. The later native candidate implements the authenticated `/me` probe and covers the fallback in adapter tests. [iOS handoff](ios-handoff.md).
 

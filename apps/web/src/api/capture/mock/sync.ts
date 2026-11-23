@@ -354,6 +354,20 @@ export function syncRoutes(state: MockState): MockRoute[] {
   return [
     route('GET', p.syncSnapshot, () => sessionGate(state) ?? snapshot()),
 
+    // The browser mock has no native sync context. Native adapter tests cover negotiation.
+    route(
+      'GET',
+      p.nativeCaptureCapabilities,
+      () =>
+        sessionGate(state) ??
+        err(
+          400,
+          'validation',
+          'The request is not valid.',
+          'Both native sync context headers are required.',
+        ),
+    ),
+
     route('POST', p.syncOps, ({ body }) => {
       const gate = sessionGate(state);
       if (gate) return gate;

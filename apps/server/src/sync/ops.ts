@@ -27,13 +27,13 @@ import { HANDLERS, registerSyncReplayers } from './handlers/index.js';
 import {
   batchRefusal,
   inOpsWindow,
-  isNativeCapture,
   LEDGER_KEY,
   madeIds,
   PAYLOAD_WINDOW,
   type PayloadWindow,
   parsedPayload,
   requestHash,
+  usesNativeCaptureVersion,
 } from './payload.js';
 
 // POST /api/v1/sync/ops (D17, D35, D36, D112, D148, D156,
@@ -43,8 +43,9 @@ import {
 // phone sends exactly the wire fields); answer `{results: SyncOpResult[]}`, one per op, in order.
 //
 // 1. Versions (D148), for the whole batch before anything is applied: an op below the oldest
-//    payload version this server upgrades is 409 `client_outdated` {minPayloadVersion}; one above
-//    its own is 409 `server_outdated`. The phone keeps its queue either way.
+//    payload version is 409 `client_outdated` {minPayloadVersion}. An unsupported newer version
+//    is 409 `server_outdated`. Native capture v2 is negotiated separately and requires native
+//    account and restore context. Clients keep their queue on a version refusal.
 // 2. Then each op, in order, in its own scoped transaction, as the caller:
 //    a. the ledger (`sync_ops`, 0035): the same key with the same `request_hash` answers the
 //       stored result (a replay creates nothing, audits nothing); the same key with another body
@@ -54,7 +55,8 @@ import {
 //       (90 days back, 1 ahead), else `invalid`; `taken_at` clamped to the receipt (D112);
 //    c. `dependsOn`: a parent dropped in this batch, or earlier (the ledger), drops it as
 //       `parent_dropped`;
-//    d. the payload, upgraded (`upgradePayload`) then validated with its schema, else `invalid`;
+//    d. the payload, validated after ordinary version upgrades or directly for native v2,
+//       else `invalid`;
 //    e. the location: one the caller writes; a viewer's op is `not_permitted`. One they can't
 //       see is `location_revoked` when they were a member of it (D210: removed, left or expired;
 //       kept.was_member_of(), 0055, answers only that boolean about the caller, so an op queued
@@ -226,6 +228,7 @@ async function applyOne(
   const drop = (reason: DropReason): SyncOpResult => ({ ...base, outcome: 'dropped', reason });
   // A key the ledger can't hold is answered, never recorded (there is nothing to replay).
   if (!LEDGER_KEY.test(item.idempotencyKey)) return drop('invalid');
+  const usesNativeVersion = usesNativeCaptureVersion(item);
   const hash = requestHash(item);
   const now = opts.now();
 
@@ -240,7 +243,7 @@ async function applyOne(
       // A phone updated after sending a v1 review capture may still need the original result.
       if (
         prior.payload_version === PAYLOAD_VERSION &&
-        isNativeCapture(item) &&
+        usesNativeVersion &&
         prior.request_hash === requestHash({ ...item, payloadVersion: PAYLOAD_VERSION }) &&
         parsedPayload(item.op, item.payloadVersion, item.payload, opts.window)
       ) {
@@ -264,7 +267,7 @@ async function applyOne(
           (await isVisible(client, locationId)) ? locationId : null,
           item.op,
           // Record the version used to validate the operation.
-          isNativeCapture(item) ? item.payloadVersion : PAYLOAD_VERSION,
+          usesNativeVersion ? item.payloadVersion : PAYLOAD_VERSION,
           item.clientVersion,
           takenAt,
           hash,
@@ -376,7 +379,7 @@ export async function syncOpsRoutes(app: KeptApp, deps: InventoryDeps): Promise<
     '/api/v1/sync/ops',
     { schema: { body: SyncOpsRequestSchema, response: { 200: SyncOpsResponseSchema } } },
     (req) => {
-      if (req.body.ops.some(isNativeCapture)) requireNativeContext(req);
+      if (req.body.ops.some(usesNativeCaptureVersion)) requireNativeContext(req);
       return applyOps(
         { pools: deps.pools, jobs: deps.jobs, files: deps.files, log: req.log },
         requireScope(req),

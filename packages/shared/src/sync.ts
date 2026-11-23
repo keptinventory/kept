@@ -3,10 +3,11 @@
  * D175). The phone's queue items and the server's `POST /api/v1/sync/ops`
  * parse with these schemas, and the snapshot rows are typed here once for both sides.
  *
- * Payloads are versioned (D148). The server takes `MIN_PAYLOAD_VERSION`…`PAYLOAD_VERSION`,
- * upgrades older payloads with `upgradePayload`, then validates with the op's schema. Below the
- * window the whole batch is 409 `client_outdated`; above it (a server rollback) 409
- * `server_outdated`. Nothing in a refused batch is applied, and the phone keeps its queue.
+ * Ordinary sync uses versions from `MIN_PAYLOAD_VERSION` through `PAYLOAD_VERSION` (D148).
+ * The server upgrades older payloads with `upgradePayload` before schema validation. Native
+ * `create_thing` v2 is negotiated separately and validated at its own version. A batch containing
+ * an out-of-window version that the server cannot accept gets 409 `client_outdated` or
+ * `server_outdated` before any op is applied. The client keeps its queue.
  *
  * Queue ops skip `row_version` and follow D35 ("latest wins, visibly"), except readings and
  * label claims, which the server orders itself (D112).
@@ -423,10 +424,9 @@ export function parseOpPayload<K extends OpKind>(op: K, payload: unknown) {
 }
 
 /**
- * One queued op (camelCased for the API). `payload` stays `unknown` here: it is validated
- * with the op's schema only after `upgradePayload`. `dependsOn` lists the idempotency keys of
- * earlier ops this one needs (a thing created in an area created offline); if any was dropped,
- * this one is dropped as `parent_dropped`.
+ * One queued op (camelCased for the API). The server validates `payload` after checking its
+ * version. `dependsOn` lists the idempotency keys of earlier ops this one needs, such as the
+ * creation of an area offline. If any dependency was dropped, this op is `parent_dropped`.
  */
 export const QueueItemSchema = z.strictObject({
   clientVersion: z.string().min(1).max(40),
@@ -473,7 +473,7 @@ export type SyncOpsResponse = { results: SyncOpResult[] };
 
 export type PayloadVersionStatus = 'ok' | 'client_outdated' | 'server_outdated';
 
-/** Where a payload version falls against this build's window. */
+/** Where a payload version falls against this build's ordinary sync window. */
 export function payloadVersionStatus(version: number): PayloadVersionStatus {
   if (version < MIN_PAYLOAD_VERSION) return 'client_outdated';
   if (version > PAYLOAD_VERSION) return 'server_outdated';
@@ -487,7 +487,7 @@ export type UpgraderTable = Readonly<
   Partial<Record<OpKind, Readonly<Record<number, PayloadUpgrader>>>>
 >;
 
-/** v1 is the first payload version, so there is nothing to upgrade yet. */
+/** v1 is the first ordinary sync version, so there is nothing to upgrade yet. */
 export const UPGRADERS: UpgraderTable = Object.freeze({});
 
 export class PayloadVersionError extends Error {
@@ -501,10 +501,9 @@ export class PayloadVersionError extends Error {
 }
 
 /**
- * Runs the upgraders from `version` up to `PAYLOAD_VERSION`, one step at a time. A current
- * payload is returned as is. The window check (`payloadVersionStatus`) comes first, on the
- * whole batch; this throws `PayloadVersionError` for a missing step or a version ahead of this
- * build, which the server treats as a bug, not as a client error.
+ * Runs the ordinary sync upgraders from `version` to `PAYLOAD_VERSION`, one step at a time.
+ * A current payload is returned as is. Call after checking the batch's versions. A missing
+ * upgrade step or a version ahead of the ordinary window throws `PayloadVersionError`.
  */
 export function upgradePayload(
   op: OpKind,

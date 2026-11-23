@@ -247,6 +247,14 @@ beforeAll(async () => {
       [ibrahim.userId],
     )
   )[0]?.id as string;
+  const [reviewOnlyThing] = await own<{ id: string }>(
+    db,
+    `UPDATE public.things SET capture_review_only = true
+      WHERE id = (SELECT id FROM public.things WHERE location_id = $1 AND deleted_at IS NULL
+                   ORDER BY id LIMIT 1)
+      RETURNING id`,
+    [home],
+  );
 
   // Ibrahim exports Home with its secrets, through the export's own service and job.
   const exportId = await withScope(db.pools.app, ibrahim, async (tx, client) => {
@@ -280,6 +288,9 @@ beforeAll(async () => {
   archive = { file, bytes: (await stat(file)).size, sha256: hash.digest('hex'), dir };
 
   source = await project(db, ibrahim, home);
+  expect(source.get('things')?.find((row) => row.id === reviewOnlyThing?.id)).toMatchObject({
+    captureReviewOnly: true,
+  });
   // The history as exported.
   const runId = await stageKeptRun(
     db,
@@ -381,6 +392,13 @@ describe('export → import round trip', () => {
         [target, c.code],
       );
       expect(back.get(legacy?.thing_id ?? ''), String(c.code)).toBe(c.thingId);
+      const reassigned = imported
+        .get('codes')
+        ?.find(
+          (row) =>
+            row.thingId === legacy?.thing_id && row.state === 'assigned' && row.code !== c.code,
+        );
+      expect(reassigned, String(c.code)).toBeDefined();
     }
 
     expect(await secretsOf(db, alfred, target, back)).toEqual(

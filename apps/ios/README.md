@@ -49,8 +49,7 @@ node scripts/check-licences.mjs
 ### 2. Build Bundled Assets & Sync iOS Project
 
 ```sh
-# Build the standalone iOS web bundle (apps/web/dist-ios) and copy into ios/App/App/public
-pnpm --filter @kept/web build:ios
+# Build the standalone iOS web bundle (apps/web/dist-ios) and copy it into ios/App/App/public
 pnpm --filter @kept/ios sync
 
 # Open Xcode project

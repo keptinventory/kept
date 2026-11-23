@@ -25,29 +25,29 @@ import { AppError } from '../http/errors.js';
 
 const DAY_MS = 86_400_000;
 
-/** The payload versions this server takes, and how it brings older ones up (D148). */
+/** The ordinary sync payload window and its upgraders (D148). */
 export type PayloadWindow = {
   /** The oldest version still upgraded on arrival; below it the batch is `client_outdated`. */
   min: number;
   upgraders: UpgraderTable;
 };
 
-/** The build's own window. Above `PAYLOAD_VERSION` is always `server_outdated`. */
+/** The build's ordinary window, ending at `PAYLOAD_VERSION`. */
 export const PAYLOAD_WINDOW: PayloadWindow = Object.freeze({
   min: MIN_PAYLOAD_VERSION,
   upgraders: UPGRADERS,
 });
 
-export function isNativeCapture(item: Pick<QueueItem, 'op' | 'payloadVersion'>): boolean {
+/** Identifies the native v2 envelope. `parsedPayload` checks the required review flag. */
+export function usesNativeCaptureVersion(item: Pick<QueueItem, 'op' | 'payloadVersion'>): boolean {
   return item.payloadVersion === NATIVE_CAPTURE_PAYLOAD_VERSION && item.op === 'create_thing';
 }
 
 /**
- * The whole batch's refusal, or null: any op below the window is 409 `client_outdated`
- * `{minPayloadVersion}` ("Update Kept to finish syncing"), any above it 409 `server_outdated`
- * ("Kept on the server is older than this app; ask your admin"). Nothing of a refused batch is
- * applied, and the phone keeps its queue. An old op wins over a new one in the same batch: the
- * phone can fix that by updating.
+ * Refuse the entire batch if any op is too old (`client_outdated`, with `minPayloadVersion`)
+ * or uses an unsupported newer version (`server_outdated`, with `payloadVersion`). The
+ * separately negotiated native capture version may exceed the ordinary window. If both
+ * errors apply, report `client_outdated` first. The client keeps its queue on either 409.
  */
 export function batchRefusal(
   ops: readonly Pick<QueueItem, 'op' | 'payloadVersion'>[],
@@ -58,7 +58,7 @@ export function batchRefusal(
       minPayloadVersion: window.min,
     });
   }
-  if (ops.some((o) => o.payloadVersion > PAYLOAD_VERSION && !isNativeCapture(o))) {
+  if (ops.some((op) => op.payloadVersion > PAYLOAD_VERSION && !usesNativeCaptureVersion(op))) {
     return new AppError(ErrorCode.server_outdated, 409, undefined, {
       payloadVersion: PAYLOAD_VERSION,
     });
@@ -66,14 +66,14 @@ export function batchRefusal(
   return null;
 }
 
-/** The op's payload at this build's version, validated with its schema; null when it isn't one. */
+/** Upgrade and validate an ordinary payload, or validate native capture v2 directly. */
 export function parsedPayload<K extends OpKind>(
   op: K,
   payloadVersion: number,
   payload: unknown,
   window: PayloadWindow = PAYLOAD_WINDOW,
 ): OpPayload<K> | null {
-  if (isNativeCapture({ op, payloadVersion })) {
+  if (usesNativeCaptureVersion({ op, payloadVersion })) {
     const parsed = CreateThingPayload.safeParse(payload);
     return parsed.success && parsed.data.reviewSuggestions === true
       ? (parsed.data as OpPayload<K>)
@@ -144,8 +144,8 @@ function canonical(value: unknown): string {
 /**
  * The op's `request_hash` in the ledger: what it asks for, as sent. The client version is left
  * out (an app update between two sends of one op is still the same op), and `dependsOn` counts as
- * a set. The phone re-sends an unanswered op unchanged (a `sent` op is never upgraded), so a
- * replay hashes the same; a different body under the same key is `idempotency_mismatch`.
+ * a set. An unchanged replay hashes to the same value. The ledger also checks whether a v2
+ * native capture matches the same request previously sent in a v1 envelope.
  */
 export function requestHash(item: QueueItem): string {
   return createHash('sha256')

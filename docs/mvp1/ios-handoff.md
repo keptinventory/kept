@@ -61,19 +61,14 @@ Verified on tested code + tests commit `3d6e58a3`:
 | `xcodebuild … -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build` | **BUILD SUCCEEDED** | Unsigned generic iOS device compile verification |
 | `xcodebuild … -destination 'generic/platform=iOS' build` (signed) | **Failed (team/profile missing)** | Fails with `Signing for "App" requires a development team` |
 
-## Physical-device gate (not executed — do not treat MVP1 as fully qualified)
+## Physical-device checkpoint
 
-A signed physical-device build could not be produced: an **iPhone 17 Pro** running **iOS 27.2.1** is connected and an Apple Development certificate exists, but Xcode has **no development team selected in `App.xcodeproj` and no provisioning profile for `info.keptinventory.nfc`** with the Near Field Communication Tag Reading capability. No physical NFC, camera, haptic/audio, Keychain, or device-reboot result is claimed.
+The initial signing check above preceded provisioning. The later signed Kept NFC 1.0 build 2 from `d128abff` installed and launched on an iPhone 17 Pro running iOS 27.2.1. The phone completed browser password and TOTP verification and received the expected consent redirect. The server received no final PKCE exchange at that checkpoint and issued no native session. [G1 device evidence](status.md#g1-device-evidence).
 
-To execute the remaining physical qualification gate:
-1. Select a development team in Xcode for the `App` target (`info.keptinventory.nfc`) with a provisioning profile enabling Near Field Communication Tag Reading.
-2. Start a private HTTPS Kept server (`KEPT_PUBLIC_URL=https://…`) and build/install the signed `App` scheme onto the iPhone.
-3. Run all physical acceptance steps in `docs/runbooks/nfc-mvp.md` (sign-in + MFA; notes + 2 photos + PDF + reopen originals; AI-unavailable save + editable suggestion; tag enrollment/readback + NFC & QR verification; Find Box A scanning B then A with repeated reads, delayed responses, cancel, and timeout/restart; offline save, force-quit, device reboot, reconnect -> 1 server record + matching hashes; session renewal & account/server isolation; disposable restored server label check + held-work review/preview/Share-Sheet export/discard).
-4. Record device model, iOS version, tag type (`NTAG213`/`NTAG215`/`NTAG216`), commit SHA, and observed results in `docs/mvp1/status.md`.
+G1 remains pending. Complete the native session exchange, camera and PDF access, Keychain persistence and outbox durability across force-quit and reboot. Record the tested build and outcomes in the [gate record](status.md) while following the [physical-device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance).
 
 ## Remaining limitations
 
-- Physical-device qualification above remains open; Vitest and simulator runs exercise fake bridges / simulator runtime only.
 - Held-work reconciliation/adoption into a restored server is intentionally unimplemented (bounded review, preview, metadata+originals Share Sheet export, and explicit discard only).
 - End-to-end tests against a real rolled-back/upgraded HTTP server live in the server suite (`apps/server/src/sync/native-compat.test.ts`); phone UI rolled-back/401-probe flows were verified with fake transport doubles.
 - Existing-record editing and production visual retrieval remain follow-on work, unchanged.
