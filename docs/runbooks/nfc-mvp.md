@@ -149,7 +149,7 @@ entries and originals available for retry after an upgrade.
 
 After Kept restores a database, older pending work stays on the phone. Sign
 back in as the same user on the same server to review held entries, preview
-originals, or export the held-entry metadata and hashes. Held entries require
+originals, or share them with the held-entry metadata and hashes. Held entries require
 manual handling. Kept sync has a 90-day window for first submission of UUIDv7
 operation IDs. See the [integration contract](../mvp1/integration-contract.md)
 for the wire behavior.
@@ -213,7 +213,7 @@ type, and observed behavior for each test.
 | Enrollment | Program a writable tag, confirm readback, replace it without changing QR, then try an occupied tag, a read-only tag, a too-small tag, multiple tags, and interruption during a write. |
 | Offline and reconnect | Cache the box, disconnect, save a photo and PDF. Terminate the app and restart the device. Reopen and check the queue, reconnect, and verify one record with matching file hashes. |
 | Isolation | Expire and renew the session, then switch accounts and servers. Verify that only the original context can view or sync its pending capture. |
-| Restore | Sync one capture and leave another pending, then restore the server. Read the original physical tag, re-login as the same owner, and verify held review, original preview and metadata export without replay. Sign in as a different account and check that the held originals are inaccessible. |
+| Restore | Sync one capture and leave another pending, then restore the server. Read the original physical tag, re-login as the same owner, and verify held review, original preview and export without replay. Sign in as a different account and check that the held originals are inaccessible. |
 
 Record physical observations in the gate record. Continue with the
 [production visual retrieval milestone](../mvp1/visual-retrieval-plan.md)

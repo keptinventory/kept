@@ -94,8 +94,8 @@ The restore test uses its fast fake by default. The real run used **Restic 0.20.
 
 The dedicated workflow builds and tests the bundled UI on Linux and runs Swift tests and an unsigned simulator compile on macOS. Both jobs passed in the fork at `29e8e286` and at the tested code revision `efa7b1ec`. The upstream general CI has no runs in this fork and uses main pushes, pull requests and explicit triggers. This task branch invokes the dedicated focused workflow. [Workflow](../../.github/workflows/mvp1-ios.yml) · [First run](https://github.com/e3742526/kept-nfc/actions/runs/45106111841) · [Run for the tested revision](https://github.com/e3742526/kept-nfc/actions/runs/45106797376).
 
-One client-side rollback edge remains with the iOS owner. The pre-negotiation native server can mask a missing capability route as 401, so the integrated client can prompt for sign-in even when its session is valid. The queue and original files remain on the phone. Signing in to the upgraded server as the same user resumes replay. The contract specifies the authenticated `/me` probe that can distinguish this case from genuine session expiry.
+The earlier tested revision could prompt for sign-in when a pre-negotiation server masked its missing capability route as 401. The later native candidate implements the authenticated `/me` probe and covers the fallback in adapter tests. [iOS handoff](ios-handoff.md).
 
-The connected iPhone could not run a signed build. The iOS handoff records Xcode's missing development-team account and NFC provisioning profile. Run the [physical-device checklist](../runbooks/nfc-mvp.md#physical-device-acceptance) after provisioning. The device build above was compile-only. Production deployment and production data were outside this run.
+The later G1 run also signed and launched a Release build on the physical iPhone. See the [gate record](status.md#g1-device-evidence) for verified stages and outstanding device checks. Production deployment and production data were outside the backend handoff.
 
 The next implementation milestone is [production visual retrieval for R10 and R11](visual-retrieval-plan.md).
