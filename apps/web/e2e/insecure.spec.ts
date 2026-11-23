@@ -253,17 +253,21 @@ for (const size of ['phone', 'desktop'] as const) {
         .toBeGreaterThan(0);
 
       await page.goto(`/t/${id}?tab=paperwork`);
-      // The photo is listed with the files: one row with Open, then a second for the PDF.
-      const open = page
-        .getByRole('button', { name: 'Open', exact: true })
+      const openPhoto = page.getByRole('button', { name: 'Open Photo', exact: true }).filter({
+        visible: true,
+      });
+      const openManual = page
+        .getByRole('button', { name: 'Open webcam-manual', exact: true })
         .filter({ visible: true });
-      await expect(open).toHaveCount(1);
+      await expect(openPhoto).toHaveCount(1);
+      await expect(openManual).toHaveCount(0);
       await choose(page, 'Add a file', {
         name: 'webcam-manual.pdf',
         mimeType: 'application/pdf',
         buffer: PDF,
       });
-      await expect(open).toHaveCount(2);
+      await expect(openManual).toHaveCount(1);
+      await expect(openPhoto).toHaveCount(1);
       await expect(toast(page, /Couldn't upload/)).toHaveCount(0);
     });
 
