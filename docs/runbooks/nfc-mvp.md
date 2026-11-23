@@ -9,7 +9,8 @@ records and permissions.
 
 1. Follow [local setup](../../CONTRIBUTING.md#set-up) with Node 24, the pinned pnpm,
    and the development Compose services. Start with a disposable database and file
-   store. Run `pnpm --filter @kept/server kept migrate` to apply migration 0179.
+   store. Run `pnpm --filter @kept/server kept migrate` to apply the native
+   capture migrations through 0181.
    Build the ordinary web app because the iPhone's system sign-in window opens
    the server's existing web sign-in and MFA pages.
 
@@ -26,7 +27,8 @@ records and permissions.
 
    ```sh
    xcodebuild -project apps/ios/ios/App/App.xcodeproj -scheme App \
-     -destination 'generic/platform=iOS Simulator' CODE_SIGN_IDENTITY=- build
+     -configuration Debug -destination 'generic/platform=iOS Simulator' \
+     CODE_SIGN_IDENTITY=- build
    ```
 
 3. For physical testing, select your development team in Xcode and use a bundle
@@ -57,9 +59,11 @@ and review items.
 When the AI module and a vision provider are available, Kept can suggest a
 description from the first photo. Open the entry and choose **Check AI
 suggestions** to edit and accept the suggestion or keep the description
-already saved. A PDF is attached as a document, and it stays out of image
-extraction. Existing web capture behavior and text-semantic search continue to
-use their own options.
+already saved. Browser re-analysis of a review-only record creates another
+suggestion for review. It preserves the manual record, aliases and containment
+and keeps automatic multi-item expansion disabled for that record. A PDF is
+attached as a document and stays out of image extraction. Ordinary browser
+capture and text-semantic search keep their existing options.
 
 ## NFC and QR labels
 
@@ -139,18 +143,27 @@ files saved on the phone. Kept uses a new request key for the corrected destinat
 
 Pending entries belong to the original server, user and restore epoch.
 Signing in again as the same user on the same server can resume ordinary pending
-work after a session expires. After Kept restores a database, older pending
-work stays on the phone and is held from replay. The MVP does not include
-automatic reconciliation of entries from before a restore. Kept sync also has
-a 90-day window for first submission of UUIDv7 operation IDs.
+work after a session expires. Every replay checks the server's capture
+capabilities before uploading files. An incompatible server leaves pending
+entries and originals available for retry after an upgrade.
+
+After Kept restores a database, older pending work stays on the phone. Sign
+back in as the same user on the same server to review held entries, preview
+originals, or export the held-entry metadata and hashes. Held entries require
+manual handling. Kept sync has a 90-day window for first submission of UUIDv7
+operation IDs. See the [integration contract](../mvp1/integration-contract.md)
+for the wire behavior.
 
 The [backup and restore runbook](backup-restore.md) applies. Use the supported
 Kept restore command for a local-storage installation so the server rotates
 the restore epoch. The focused drill used real Restic and PostgreSQL 18 in a
-disposable database. It obtained a native PKCE session, uploaded two original
-photos and a PDF, verified the signed downloads, and restored the box, notes,
-SHA-256 hashes, and old label URL. It also checked that stale-epoch uploads
-and capture replays were refused.
+disposable database with Kept's local blob store and a local Restic repository.
+It used a native PKCE session to upload two original photos and a PDF, then
+verified restored containment, notes, attachment roles, original lengths and
+SHA-256 hashes, and the existing label URL. A fresh native exchange on the
+restored app confirmed epoch rotation. The restored app refused stale-epoch
+capability checks, uploads and queued writes. Object-store installations
+require an independent original recovery drill.
 
 ```sh
 KEPT_TEST_RESTIC=1 KEPT_RESTIC_BIN="$(command -v restic)" \
@@ -164,31 +177,26 @@ project name, pass it in `COMPOSE_PROJECT_NAME`.
 
 ## Automated verification
 
-The phone-sized Playwright MFA test completed the password and authenticator-code
-sign-in, consent, PKCE exchange, and revocation against the development server.
-The signed iPhone simulator build launched and displayed the connection screen.
-An unsigned iPhone build compiled successfully. The native tests covered cached
-label resolution, Find feedback, protected outbox files, and recovery from an
-interrupted commit. A separate client check used a Node HTTP adapter against
-the live development server and verified MFA, capture and replay, original
-downloads, label resolution, and account and restore-epoch checks. Four existing
-phone-sized web tests passed for capture, cached search, QR resolution, and
-viewer permissions. The local-storage restore test passed with real Restic.
+The [gate record](../mvp1/status.md) tracks G0–G6. The
+[backend handoff](../mvp1/backend-handoff.md) records the tested revision,
+GitHub job outcomes, rollback builds, test environment and device evidence.
 
 ```sh
 pnpm typecheck
 pnpm lint
 bash scripts/ci-local.sh --only drift,licences
+pnpm --filter '@kept/server...' build
+pnpm --filter @kept/web build
+pnpm --filter @kept/web build:ios
 swift test --package-path apps/ios/NativeStore
 KEPT_E2E_INSTANCES=signIn pnpm --filter @kept/web e2e e2e/native-auth.spec.ts --project=phone
 pnpm exec vitest run --project @kept/web apps/web/src/native \
   apps/web/src/components/scan/iphone-labels.test.ts apps/web/src/offline/sync-engine.test.ts \
-  apps/web/src/pwa/pwa.test.tsx
+  apps/web/src/offline/extras.test.ts apps/web/src/pwa/pwa.test.tsx
 pnpm exec vitest run --project @kept/server apps/server/src/auth/native.test.ts \
   apps/server/src/capture/capture.test.ts apps/server/src/sync/ops.test.ts \
-  apps/server/src/scan/scan.test.ts
-pnpm exec vitest run --project @kept/server apps/server/src/extraction/extraction.test.ts \
-  -t 'named box capture'
+  apps/server/src/sync/native-compat.test.ts apps/server/src/sync/ordering.test.ts \
+  apps/server/src/extraction/extraction.test.ts apps/server/src/scan/scan.test.ts
 ```
 
 ## Physical-device acceptance
@@ -205,8 +213,8 @@ type, and observed behavior for each test.
 | Enrollment | Program a writable tag, confirm readback, replace it without changing QR, then try an occupied tag, a read-only tag, a too-small tag, multiple tags, and interruption during a write. |
 | Offline and reconnect | Cache the box, disconnect, save a photo and PDF. Terminate the app and restart the device. Reopen and check the queue, reconnect, and verify one record with matching file hashes. |
 | Isolation | Expire and renew the session, then switch accounts and servers. Verify that only the original context can view or sync its pending capture. |
+| Restore | Sync one capture and leave another pending, then restore the server. Read the original physical tag, re-login as the same owner, and verify held review, original preview and metadata export without replay. Sign in as a different account and check that the held originals are inaccessible. |
 
-No physical NFC result was recorded in the automated checks described here.
-The [visual feasibility experiment](../../scripts/visual-retrieval/README.md)
-is a separate local measurement. It leaves larger-dataset evaluation,
-confidence thresholds and production authorization integration for follow-on work.
+Record physical observations in the gate record. Continue with the
+[production visual retrieval milestone](../mvp1/visual-retrieval-plan.md)
+for R10 and R11.
