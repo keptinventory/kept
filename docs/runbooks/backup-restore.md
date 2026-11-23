@@ -1,10 +1,8 @@
 # Backups (restic) and restore
 
-**Status (2026-10-07):** built in step 8 (D64, D66, D144, D159). Every command below is
-read from `apps/server/src/cli/index.ts` as it stands. The tests run on an in-memory fake restic
-(`bash scripts/ci-local.sh`'s `backup` step); the real binary was exercised once by hand
-(directory, S3 on RustFS, SFTP) and runs the same tests
-under `KEPT_TEST_RESTIC=1`, which no recorded run has done yet. The public versions are the docs
+The backup tests use an in-memory fake Restic by default. Set `KEPT_TEST_RESTIC=1` to use
+the real binary. See the [NFC restore drill](nfc-mvp.md#offline-and-recovery) for the selected
+real-Restic PostgreSQL check and its optional R2 variant. The public versions are the docs
 site's "Backups", "Restore and the drill" and "Read your inventory with restic alone" pages
 (`apps/docs/src/content/docs/admin/`); keep them in step. The monthly drill and the full restore
 with its swap are in [restore-drill.md](restore-drill.md).
@@ -34,8 +32,9 @@ password and deduplicated:
   (`KEPT_BACKUP_KEEP_DAILY`, `_WEEKLY`, `_MONTHLY`; the alpha's `KEPT_BACKUP_KEEP` is read as the
   daily count for one release); `pre_upgrade` keeps its last 3. A suspiciously small backup is
   taken but prunes nothing that night.
-- **With S3 file storage** the files stay in the bucket, not the snapshot (D144): turn on bucket
-  versioning. Kept checks it on every run and alerts while it is off.
+- **With S3 file storage** the files stay in the bucket. Keep an independent copy of the objects,
+  preserving their keys, and test restoring that copy into an empty destination. Enable bucket
+  versioning where the provider supports it. Kept checks S3 versioning on each backup run.
 - **Not in the backup:** `KEPT_SECRET_KEY`, `KEPT_AUTH_SECRET` and retired keys. They are in the
   recovery kit (`kept admin recovery-kit`); without them a restore brings back everything except
   secret values and AI keys.

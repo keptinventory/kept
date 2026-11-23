@@ -162,8 +162,7 @@ It used a native PKCE session to upload two original photos and a PDF, then
 verified restored containment, notes, attachment roles, original lengths and
 SHA-256 hashes, and the existing label URL. A fresh native exchange on the
 restored app confirmed epoch rotation. The restored app refused stale-epoch
-capability checks, uploads and queued writes. Object-store installations
-require an independent original recovery drill.
+capability checks, uploads and queued writes.
 
 ```sh
 KEPT_TEST_RESTIC=1 KEPT_RESTIC_BIN="$(command -v restic)" \
@@ -174,6 +173,22 @@ KEPT_TEST_RESTIC=1 KEPT_RESTIC_BIN="$(command -v restic)" \
 On macOS, keep the Docker configuration that supplies your Compose plugin
 available to the test. If your development services use a separate Compose
 project name, pass it in `COMPOSE_PROJECT_NAME`.
+
+For the Cloudflare R2 variant, create two empty private scratch buckets named
+`kept-mvp1-drill-<12 lowercase hex digits>-source` and
+`kept-mvp1-drill-<same digits>-recovered`. Make the following variables available
+in the process environment, then run the same focused real-Restic command.
+
+| Variable | Value |
+| --- | --- |
+| `KEPT_TEST_R2_SOURCE_BUCKET` | Scratch source bucket |
+| `KEPT_TEST_R2_DESTINATION_BUCKET` | Paired scratch recovery bucket |
+| `KEPT_TEST_R2_ENDPOINT` | The account's R2 S3 endpoint |
+| `KEPT_TEST_R2_ACCESS_KEY_ID` and `KEPT_TEST_R2_SECRET_ACCESS_KEY` | Temporary R2 credentials scoped to both scratch buckets |
+
+The fixture deletes its source objects after backing them up. It restores the
+independent object backup before verifying the database and files together.
+Empty and remove both scratch buckets when the run ends, then revoke the token.
 
 Run the portable export drill separately. It imports a seeded location into a
 populated server with conflicting codes and into a fresh server. It checks old

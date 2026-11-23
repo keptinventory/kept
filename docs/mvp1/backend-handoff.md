@@ -103,7 +103,13 @@ KEPT_TEST_RESTIC=1 KEPT_RESTIC_BIN="$(command -v restic)" \
   -t 'restores the NFC inventory capture'
 ```
 
-The restore test uses its fast fake by default. The real run used **Restic 0.20.0**, **PostgreSQL 18.6** and its matching dump tools in development Compose, scratch local blob directories and a scratch local Restic repository. It exercised the supported restore implementation and started a real Fastify app against the empty-then-restored database. On the restored app it verified a new epoch on PKCE re-login, original photo/PDF lengths and SHA-256 over authorized downloads, correct attachment roles, notes and containment, resolution of the old label URL, and rejection of old-context capability checks, uploads and pending capture mutations before ledger insertion. The scenario also tested missing and trashed destinations, and denied outsider label/media access. External object-store originals require independent recovery evidence.
+The restore test uses its fast fake by default. The real run used **Restic 0.20.0**, **PostgreSQL 18.6** and its matching dump tools in development Compose, scratch local blob directories and a scratch local Restic repository. It exercised the supported restore implementation and started a real Fastify app against the empty-then-restored database. On the restored app it verified a new epoch on PKCE re-login, original photo/PDF lengths and SHA-256 over authorized downloads, correct attachment roles, notes and containment, resolution of the old label URL, and rejection of old-context capability checks, uploads and pending capture mutations before ledger insertion. The scenario also tested missing and trashed destinations, and denied outsider label/media access.
+
+### Cloudflare R2 recovery on November 23, 2026
+
+The focused real-Restic test passed in both storage modes on `19427e2b` with the R2 test extension. The R2 run used PostgreSQL 18.6, Restic 0.20.0, and two new private scratch buckets. The Kept snapshot had no `/blobs` tree. Restoring the database into a new database with an empty R2 destination reported missing files, as expected.
+
+A separate encrypted Restic repository held 13 referenced blobs copied from R2. The drill removed the staging files and the source objects, recovered the archive into the second bucket, and restored Kept into another empty database. It verified authorized signed downloads of two photos and a PDF against their original lengths and SHA-256 hashes, attachment roles, containment, the old label URL, epoch rotation and stale-context rejection. Both scratch buckets were emptied and deleted. This verifies independent object recovery for the fixture. A deployed system still needs its own recurring object backup and retention settings. [Repeat the drill](../runbooks/nfc-mvp.md#offline-and-recovery).
 
 ## Hosted checks and environment
 

@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
-import { chmod, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { KEPT_VERSION, NATIVE_CAPTURE_PAYLOAD_VERSION, newId } from '@kept/shared';
@@ -23,7 +23,8 @@ import { builtinType, createLocation, createThing, type Loc, own } from '../../t
 import type { AlertDeps } from '../alerts/alerts.js';
 import { withScope } from '../db/scope.js';
 import { systemJobs } from '../jobs/system.js';
-import { originalKey } from '../storage/blob-store.js';
+import { assertBlobKey, originalKey } from '../storage/blob-store.js';
+import { S3BlobStore } from '../storage/s3.js';
 import { backupCron } from './config.js';
 import { EXPORT_SKIPPED, runExport } from './export.js';
 import { legacyRuns } from './legacy.js';
@@ -40,6 +41,7 @@ import {
 import {
   BACKUP_LOCK_KEY,
   BackupRunningError,
+  bucketVersioningOf,
   readBackupStatus,
   runSnapshot,
   type SnapshotDeps,
@@ -65,6 +67,38 @@ import { LocalDirTarget } from './target.js';
 const SUPERUSER_URL = 'postgres://postgres:postgres@localhost:5452/postgres';
 const PASSWORD = 'a backup password, long enough';
 const REAL = process.env.KEPT_TEST_RESTIC === '1';
+
+function r2DrillStores() {
+  const source = process.env.KEPT_TEST_R2_SOURCE_BUCKET;
+  const destination = process.env.KEPT_TEST_R2_DESTINATION_BUCKET;
+  if (!source && !destination) return null;
+  const endpoint = process.env.KEPT_TEST_R2_ENDPOINT;
+  const accessKeyId = process.env.KEPT_TEST_R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.KEPT_TEST_R2_SECRET_ACCESS_KEY;
+  if (
+    !REAL ||
+    !source ||
+    !/^kept-mvp1-drill-[0-9a-f]{12}-source$/.test(source) ||
+    destination !== source.replace(/-source$/, '-recovered') ||
+    !endpoint ||
+    !/^https:\/\/[0-9a-f]{32}\.r2\.cloudflarestorage\.com$/.test(endpoint) ||
+    !accessKeyId ||
+    !secretAccessKey
+  ) {
+    throw new Error('The R2 drill needs real Restic and paired disposable R2 buckets.');
+  }
+  const open = (bucket: string) =>
+    new S3BlobStore({
+      bucket,
+      endpoint,
+      region: 'auto',
+      forcePathStyle: true,
+      credentials: { accessKeyId, secretAccessKey },
+    });
+  return { source: open(source), destination: open(destination) };
+}
+
+const r2Drill = r2DrillStores();
 
 vi.setConfig({ testTimeout: 300_000, hookTimeout: 180_000 });
 
@@ -170,7 +204,7 @@ beforeAll(async () => {
   db = await testDb();
   await db.reset();
   files = await testFiles();
-  t = await peopleApp(db, { files });
+  t = await peopleApp(db, { files: { ...files, blobs: r2Drill?.source ?? files.blobs } });
   ibrahim = await person(t, db, 'ibrahim');
   garage = await createLocation(t, db, ibrahim, 'household', 'Garage');
   for (const name of ['Drill', 'Ladder', 'Toolbox'])
@@ -184,13 +218,15 @@ beforeAll(async () => {
     );
     return rows[0]?.n ?? 0;
   });
+  scratch = await mkdtemp(path.join(tmpdir(), 'kept-backup-'));
   pgt = await testPgTools(major);
   process.stderr.write(`backup.test.ts: using ${pgt.how}${REAL ? ', real restic' : ''}\n`);
-  scratch = await mkdtemp(path.join(tmpdir(), 'kept-backup-'));
 });
 
 afterAll(async () => {
   await t.app.close();
+  r2Drill?.source.destroy();
+  r2Drill?.destination.destroy();
   await files.cleanup();
   await rm(scratch, { recursive: true, force: true });
   await superuser(async (c) => {
@@ -696,6 +732,65 @@ async function alphaRun(target: LocalDirTarget): Promise<string> {
   return id;
 }
 
+async function readDrillOriginal(app: TestApp, url: string) {
+  if (r2Drill) {
+    const file = await fetch(url, { redirect: 'error' });
+    expect(file.status).toBe(200);
+    return { bytes: Buffer.from(await file.arrayBuffer()), mime: file.headers.get('content-type') };
+  }
+  const file = await app.app.inject({ url });
+  expect(file.statusCode).toBe(200);
+  return { bytes: file.rawPayload, mime: file.headers['content-type'] };
+}
+
+async function recoverR2DrillBlobs(stores: NonNullable<typeof r2Drill>, restic: Restic) {
+  const objects = await asOwner(db, referencedBlobs);
+  const originalMimes = await asOwner(db, async (client) => {
+    const { rows } = await client.query<{ key: string; mime: string }>(
+      'SELECT storage_key AS key, mime FROM public.files',
+    );
+    return new Map(rows.map(({ key, mime }) => [key, mime]));
+  });
+  const staging = path.join(scratch, 'r2-archive-staging');
+  const bytesByKey = new Map<string, number>();
+  for (const object of objects) {
+    const key = assertBlobKey(object.key);
+    const file = path.join(staging, 'objects', key);
+    await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+    const copy = await blobToFile(stores.source, key, file);
+    if (object.sha256) expect(copy.sha256).toBe(object.sha256);
+    bytesByKey.set(key, copy.bytes);
+  }
+  const repo = {
+    location: path.join(scratch, 'r2-originals-restic'),
+    env: { RESTIC_PASSWORD: randomBytes(32).toString('base64url') },
+    description: 'disposable independent blob backup',
+  };
+  await restic.init(repo);
+  const { snapshotId } = await restic.backup(repo, {
+    paths: ['objects'],
+    cwd: staging,
+    tags: ['r2-drill'],
+  });
+  await rm(staging, { recursive: true });
+
+  // Simulate loss of the uploaded objects after the independent backup has completed.
+  for (const { key } of objects) {
+    await stores.source.delete(key);
+    expect(await stores.source.exists(key)).toBe(false);
+    expect(await stores.destination.exists(key)).toBe(false);
+  }
+  const recovered = path.join(scratch, 'r2-archive-recovered');
+  await restic.restore(repo, snapshotId, { target: recovered });
+  for (const [key, bytes] of bytesByKey) {
+    await stores.destination.put(key, path.join(recovered, 'objects', key), {
+      contentType: originalMimes.get(key) ?? 'image/jpeg',
+      bytes,
+    });
+  }
+  process.stderr.write(`R2 drill: independently recovered ${objects.length} referenced blobs.\n`);
+}
+
 it('restores the NFC inventory capture with its QR URL and byte-identical originals', async () => {
   const box = await createThing(t, ibrahim, garage, {
     name: 'Holiday box',
@@ -843,11 +938,10 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
       body: { variant: 'original' },
     });
     expect(link.statusCode, link.body).toBe(200);
-    const file = await t.app.inject({ url: link.json<{ url: string }>().url });
-    expect(file.statusCode).toBe(200);
-    expect(file.headers['content-type']).toBe(original.mime);
-    expect(file.rawPayload.length).toBe(original.bytes.length);
-    expect(sha256(file.rawPayload)).toBe(sha256(original.bytes));
+    const file = await readDrillOriginal(t, link.json<{ url: string }>().url);
+    expect(file.mime).toBe(original.mime);
+    expect(file.bytes.length).toBe(original.bytes.length);
+    expect(sha256(file.bytes)).toBe(sha256(original.bytes));
   }
 
   const outsider = await person(t, db, 'bruce');
@@ -862,10 +956,43 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
 
   const restic = REAL ? realRestic() : new FakeRestic();
   const target = path.join(scratch, 'native-mvp');
-  const backup = await runSnapshot(depsFor(restic, target), { kind: 'nightly' });
+  const snapshotDeps = r2Drill
+    ? depsFor(restic, target, {
+        storage: 's3',
+        blobs: r2Drill.source,
+        bucketVersioning: () => bucketVersioningOf(r2Drill.source),
+      })
+    : depsFor(restic, target);
+  const backup = await runSnapshot(snapshotDeps, { kind: 'nightly' });
   expect(backup.status).toBe('ok');
+  const repo = {
+    location: path.join(target, 'restic'),
+    env: { RESTIC_PASSWORD: PASSWORD },
+    description: '',
+  };
+  if (r2Drill) {
+    const nodes = await restic.ls(repo, String(backup.snapshotId));
+    expect(nodes.some(({ path: name }) => name === '/blobs' || name.startsWith('/blobs/'))).toBe(
+      false,
+    );
+    const missing = await runResticRestore({
+      ownerUrl: await emptyDatabase('r2_missing'),
+      restic,
+      repo,
+      snapshot: String(backup.snapshotId),
+      blobs: r2Drill.destination,
+      pgTools: pgt.tools,
+      tmpDir: files.tmpDir,
+    });
+    expect(restoreVerified(missing)).toBe(false);
+    expect(missing.filesBad).toEqual(
+      expect.arrayContaining(originals.map(({ fileId }) => originalKey(garage.id, fileId))),
+    );
+    await recoverR2DrillBlobs(r2Drill, restic);
+  }
   const ownerUrl = await emptyDatabase('native_mvp');
   const restored = await testFiles();
+  const restoredBlobs = r2Drill?.destination ?? restored.blobs;
   const restoredUrls = { ...db.urls, owner: ownerUrl };
   function poolFor(role: 'app' | 'auth' | 'system') {
     const url = new URL(db.urls[role]);
@@ -880,22 +1007,21 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
     const report = await runResticRestore({
       ownerUrl,
       restic,
-      repo: {
-        location: path.join(target, 'restic'),
-        env: { RESTIC_PASSWORD: PASSWORD },
-        description: '',
-      },
+      repo,
       snapshot: String(backup.snapshotId),
-      blobs: restored.blobs,
+      blobs: restoredBlobs,
       pgTools: pgt.tools,
       tmpDir: restored.tmpDir,
     });
     expect(restoreVerified(report)).toBe(true);
     for (const original of originals) {
-      const stored = await hashBlob(restored.blobs, originalKey(garage.id, original.fileId));
+      const stored = await hashBlob(restoredBlobs, originalKey(garage.id, original.fileId));
       expect(stored.sha256).toBe(sha256(original.bytes));
     }
-    const recovered = await testApp(restoredDb, { publicUrl: t.publicUrl, files: restored });
+    const recovered = await testApp(restoredDb, {
+      publicUrl: t.publicUrl,
+      files: { ...restored, blobs: restoredBlobs },
+    });
     restoredApp = recovered;
     const renewed = await connect(recovered);
     expect(renewed.account).toBe(account);
@@ -957,10 +1083,10 @@ it('restores the NFC inventory capture with its QR URL and byte-identical origin
         },
       );
       expect(link.statusCode, link.body).toBe(200);
-      const file = await recovered.app.inject({ url: link.json<{ url: string }>().url });
-      expect(file.statusCode, file.body).toBe(200);
-      expect(file.rawPayload.length).toBe(original.bytes.length);
-      expect(sha256(file.rawPayload)).toBe(sha256(original.bytes));
+      const file = await readDrillOriginal(recovered, link.json<{ url: string }>().url);
+      expect(file.mime).toBe(original.mime);
+      expect(file.bytes.length).toBe(original.bytes.length);
+      expect(sha256(file.bytes)).toBe(sha256(original.bytes));
     }
     await withScope(pools.app, { userId: account, mfa: false }, async (_tx, client) => {
       const record = await client.query(
