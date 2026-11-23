@@ -1,0 +1,30 @@
+@import "../styles/index.css";
+@source "../";
+
+.kept-phone {
+  max-inline-size: 42rem;
+  min-block-size: 100dvb;
+  margin-inline: auto;
+  padding-block: max(1rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-bottom));
+  padding-inline: 1.25rem;
+}
+
+.kept-phone input,
+.kept-phone textarea {
+  font-size: 1rem;
+}
+
+.kept-phone button {
+  min-block-size: 2.75rem;
+}
+
+.kept-phone .kept-phone-row {
+  inline-size: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface);
+  text-align: start;
+  overflow-wrap: anywhere;
+}

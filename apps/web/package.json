@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/check-bundle.mjs",
+    "build:ios": "vite build --config vite.ios.ts",
     "preview": "vite preview",
     "build:demo": "VITE_KEPT_DEMO=1 vite build --outDir dist-demo",
     "preview:demo": "vite preview --outDir dist-demo",
@@ -19,6 +20,7 @@
     "check:logical-css": "node ../../scripts/check-logical-css.mjs"
   },
   "dependencies": {
+    "@capacitor/core": "8.6.2",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@fontsource/ibm-plex-sans": "5.3.0",
     "@fontsource/ibm-plex-sans-arabic": "5.3.0",

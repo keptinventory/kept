@@ -1,0 +1,8 @@
+{
+  "appId": "info.keptinventory.nfc",
+  "appName": "Kept NFC",
+  "webDir": "../web/dist-ios",
+  "ios": {
+    "preferredContentMode": "mobile"
+  }
+}
