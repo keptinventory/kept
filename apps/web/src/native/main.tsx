@@ -17,7 +17,12 @@ import { isolate } from '@/lib/bidi';
 import { sep, useBytes } from '@/lib/format';
 import { watchSystemTheme } from '@/lib/prefs';
 import { NativePlatformProvider, usePlatform } from './adapters';
-import type { CompletionState, Connection, StorageStats } from './bridge';
+import {
+  type CompletionState,
+  type Connection,
+  isSignInCancelled,
+  type StorageStats,
+} from './bridge';
 import { CaptureForm, NewBoxForm } from './capture-form';
 import {
   type InventoryCache,
@@ -222,6 +227,7 @@ export function Inventory({
   const [savedFindTarget, setSavedFindTarget] = useState<PersistedFindTarget>();
   const [retargetingId, setRetargetingId] = useState<string>();
   const [retargetBoxId, setRetargetBoxId] = useState<string | null>(null);
+  const [openingPendingMedia, setOpeningPendingMedia] = useState<string>();
   const [query, setQuery] = useState('');
   const [found, setFound] = useState<SearchResponse>();
   const [cachedSearch, setCachedSearch] = useState(false);
@@ -530,6 +536,19 @@ export function Inventory({
     await refreshPendingState();
   }
 
+  async function openPendingOriginal(id: string, file: string) {
+    if (openingPendingMedia !== undefined) return;
+    setOpeningPendingMedia(`${id}:${file}`);
+    setStatus('');
+    try {
+      await adapters.media.openPending(connection, { id, file });
+    } catch {
+      if (mounted.current) setStatus(t`Could not open this pending original.`);
+    } finally {
+      if (mounted.current) setOpeningPendingMedia(undefined);
+    }
+  }
+
   async function handleSignOut() {
     if (pending.length > 0) {
       const ok = await confirm({
@@ -665,6 +684,28 @@ export function Inventory({
                       )}
                     </p>
                     {entry.failure && <p className="text-danger">{failureText(entry.failure)}</p>}
+                    {entry.capture.files.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {entry.capture.files.map(({ file }) => {
+                          const key = `${entry.capture.id}:${file.id}`;
+                          return (
+                            <Button
+                              key={file.id}
+                              size="small"
+                              variant="secondary"
+                              className="max-w-full [overflow-wrap:anywhere]"
+                              isPending={openingPendingMedia === key}
+                              isDisabled={
+                                openingPendingMedia !== undefined && openingPendingMedia !== key
+                              }
+                              onPress={() => void openPendingOriginal(entry.capture.id, file.id)}
+                            >
+                              {t`Preview ${isolate(file.name)}`}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    )}
                     {retargetingId === entry.capture.id ? (
                       <div className="grid gap-2">
                         <Select
@@ -1030,8 +1071,12 @@ export function KeptPhone() {
       const next = await adapters.credentials.connect(address);
       setConnection(next);
       setAddress(next.origin);
-    } catch {
-      setStatus(t`Could not connect to Kept. Check the server address and try again.`);
+    } catch (error) {
+      setStatus(
+        isSignInCancelled(error)
+          ? t`Sign-in cancelled.`
+          : t`Could not connect to Kept. Check the server address and try again.`,
+      );
     } finally {
       setBusy(false);
     }

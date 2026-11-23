@@ -447,7 +447,13 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                   let window = self.bridge?.viewController?.view.window
             else { throw KeptNativeError.invalidServer }
             let origin = try KeptHTTP.origin(address)
-            let connection = try await self.signIn.connect(origin: origin, window: window)
+            let connection: KeptConnection
+            do {
+                connection = try await self.signIn.connect(origin: origin, window: window)
+            } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+                call.reject("Sign-in cancelled.", "sign_in_cancelled")
+                return
+            }
             do {
                 try KeptKeychain.write(connection)
             } catch {
@@ -770,18 +776,22 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
                   let file = call.getString("file"), UUID(uuidString: file) != nil,
                   let controller = self.bridge?.viewController
             else { throw KeptNativeError.invalidRequest }
-            let (sourceURL, original) = try await self.store.use {
-                try $0.original(context: connection.id, draft: id, file: file)
-            }
-            guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
-            let ext = Self.mimeExtensions[original.file.mime] ?? "dat"
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent("kept-preview-\(UUID())", isDirectory: true)
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
-                                                    attributes: [.protectionKey: FileProtectionType.complete])
-            let target = folder.appendingPathComponent("Kept pending.\(ext)")
             do {
-                try FileManager.default.copyItem(at: sourceURL, to: target)
-                try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
+                // Copy on the outbox actor so sync completion or discard cannot remove the source mid-copy.
+                let target = try await self.store.use { outbox in
+                    let (sourceURL, original) = try outbox.original(context: connection.id, draft: id, file: file)
+                    let ext = Self.mimeExtensions[original.file.mime] ?? "dat"
+                    let target = folder.appendingPathComponent("Kept pending.\(ext)")
+                    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true,
+                                                            attributes: [.protectionKey: FileProtectionType.complete])
+                    try FileManager.default.copyItem(at: sourceURL, to: target)
+                    guard try target.resourceValues(forKeys: [.fileSizeKey]).fileSize == original.file.bytes
+                    else { throw OutboxError.missing }
+                    try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
+                    return target
+                }
+                guard try KeptKeychain.read() == connection else { throw KeptNativeError.missingSession }
                 try self.preview.present(target, from: controller)
             } catch {
                 try? FileManager.default.removeItem(at: folder)

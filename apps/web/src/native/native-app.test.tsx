@@ -1,5 +1,5 @@
 import { I18nProvider } from '@lingui/react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { capturePaths } from '@/api/capture/paths';
@@ -800,6 +800,116 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
 }
 
 describe('KeptPhone mobile workflows', () => {
+  it('keeps the address and allows retry after the browser sign-in sheet is cancelled', async () => {
+    const env = createFakeEnvironment();
+    const connect = vi
+      .spyOn(env.adapters.credentials, 'connect')
+      .mockRejectedValueOnce({ code: 'sign_in_cancelled' })
+      .mockRejectedValueOnce({ code: 'network' });
+    const user = userEvent.setup();
+    env.renderApp();
+
+    const address = 'https://kept.example.com';
+    const serverField = await screen.findByLabelText('Kept server address');
+    await user.type(serverField, address);
+    const signIn = screen.getByRole('button', { name: 'Sign in' });
+    await user.click(signIn);
+    expect(await screen.findByRole('status')).toHaveTextContent('Sign-in cancelled.');
+    expect(serverField).toHaveValue(address);
+    expect(signIn).toBeEnabled();
+
+    await user.click(signIn);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Could not connect to Kept. Check the server address and try again.',
+    );
+
+    await user.click(signIn);
+    expect(await screen.findByRole('button', { name: /Winter Box/i })).toBeInTheDocument();
+    expect(connect).toHaveBeenCalledTimes(3);
+    expect(connect).toHaveBeenLastCalledWith(address);
+  });
+
+  it('previews ordinary pending originals from the outbox after relaunch', async () => {
+    const connection: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: connection });
+    const captureId = '66666666-6666-7666-8666-666666666666';
+    const photoId = '55555555-5555-7555-8555-555555555555';
+    const pdfId = '77777777-7777-7777-8777-777777777777';
+    env.seedPending(
+      {
+        capture: {
+          id: captureId,
+          context: connection.id,
+          payload: JSON.stringify({ boxId: env.boxId, name: 'Saved ornaments' }),
+          takenAt: '2026-11-22T20:00:00Z',
+          files: [
+            {
+              file: { id: photoId, name: 'saved.jpg', mime: 'image/jpeg', role: 'photo', bytes: 9 },
+              sha256: 'f'.repeat(64),
+            },
+            {
+              file: {
+                id: pdfId,
+                name: 'saved.pdf',
+                mime: 'application/pdf',
+                role: 'document',
+                bytes: 8,
+              },
+              sha256: 'e'.repeat(64),
+            },
+          ],
+        },
+      },
+      connection.id,
+    );
+    env.setOnline(false);
+    const initial = env.renderApp();
+    await screen.findByRole('region', { name: 'Pending captures' });
+    initial.unmount();
+    env.renderApp();
+
+    const user = userEvent.setup();
+    const outbox = within(await screen.findByRole('region', { name: 'Pending captures' }));
+    const photo = outbox.getByRole('button', { name: /Preview.*saved\.jpg/ });
+    const pdf = outbox.getByRole('button', { name: /Preview.*saved\.pdf/ });
+    await waitFor(() => expect(photo).toBeEnabled());
+    const preview = vi
+      .spyOn(env.adapters.media, 'openPending')
+      .mockRejectedValueOnce(new Error('Missing original'));
+    await user.click(photo);
+    expect(await screen.findByText('Could not open this pending original.')).toBeInTheDocument();
+    expect(outbox.getByText('Saved ornaments')).toBeInTheDocument();
+    expect(preview).toHaveBeenNthCalledWith(1, connection, { id: captureId, file: photoId });
+
+    await user.click(pdf);
+    expect(preview).toHaveBeenNthCalledWith(2, connection, { id: captureId, file: pdfId });
+    expect(env.events.openedHeld).toHaveLength(0);
+
+    const sync = Promise.withResolvers<void>();
+    env.setOnline(true);
+    const waitForServer = vi.fn(async () => {
+      await sync.promise;
+      throw new ApiError(0, 'offline', 'Offline');
+    });
+    env.setMeHandler(waitForServer);
+    const retry = outbox.getByRole('button', { name: 'Retry' });
+    const discard = outbox.getByRole('button', { name: 'Discard' });
+    await user.click(outbox.getByRole('button', { name: 'Retry sync' }));
+    await waitFor(() => expect(waitForServer).toHaveBeenCalledTimes(1));
+    expect(retry).toBeDisabled();
+    expect(discard).toBeDisabled();
+    await user.click(photo);
+    expect(preview).toHaveBeenNthCalledWith(3, connection, { id: captureId, file: photoId });
+    await act(async () => sync.resolve());
+    await waitFor(() => expect(retry).toBeEnabled());
+    expect(discard).toBeEnabled();
+  });
+
   it('supports login, offline capture of photo+PDF, pending preview, sync, remote open, and AI review', async () => {
     const env = createFakeEnvironment();
     const user = userEvent.setup();

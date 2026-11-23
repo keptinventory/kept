@@ -29402,6 +29402,10 @@ msgstr "Seguir escaneando"
 msgid "Could not connect to Kept. Check the server address and try again."
 msgstr "No se pudo conectar con Kept. Revisa la dirección del servidor e inténtalo de nuevo."
 
+#: src/native/main.tsx
+msgid "Sign-in cancelled."
+msgstr "Se canceló el inicio de sesión."
+
 #: src/native/capture-form.tsx
 msgid "Could not create the box. Check your connection and selected location."
 msgstr "No se pudo crear la caja. Revisa tu conexión y la ubicación seleccionada."
@@ -29960,6 +29964,10 @@ msgstr "Estas capturas se guardaron antes de que se restaurara este servidor Kep
 #: src/native/main.tsx
 msgid "Could not open this held original."
 msgstr "No se pudo abrir este original retenido."
+
+#: src/native/main.tsx
+msgid "Could not open this pending original."
+msgstr "No se pudo abrir este archivo original pendiente."
 
 #: src/native/main.tsx
 msgid "Preview {0}"

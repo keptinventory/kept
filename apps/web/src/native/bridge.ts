@@ -126,6 +126,12 @@ type NativeKept = {
 
 export const native = registerPlugin<NativeKept>('KeptNative');
 
+export function isSignInCancelled(error: unknown): boolean {
+  return Boolean(
+    error && typeof error === 'object' && 'code' in error && error.code === 'sign_in_cancelled',
+  );
+}
+
 export function networkError(error: unknown): never {
   if (error && typeof error === 'object' && 'code' in error) {
     if (error.code === 'network') {

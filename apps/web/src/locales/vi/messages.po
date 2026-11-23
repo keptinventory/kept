@@ -21450,6 +21450,10 @@ msgstr "Tiếp tục quét"
 msgid "Could not connect to Kept. Check the server address and try again."
 msgstr "Không thể kết nối với Kept. Hãy kiểm tra địa chỉ máy chủ và thử lại."
 
+#: src/native/main.tsx
+msgid "Sign-in cancelled."
+msgstr "Đã hủy đăng nhập."
+
 #: src/native/capture-form.tsx
 msgid "Could not create the box. Check your connection and selected location."
 msgstr "Không thể tạo hộp. Hãy kiểm tra kết nối và vị trí đã chọn."
@@ -22008,6 +22012,10 @@ msgstr "Các bản ghi này đã được lưu trước khi máy chủ Kept này
 #: src/native/main.tsx
 msgid "Could not open this held original."
 msgstr "Không thể mở bản gốc đang giữ này."
+
+#: src/native/main.tsx
+msgid "Could not open this pending original."
+msgstr "Không thể mở tệp gốc đang chờ đồng bộ này."
 
 #: src/native/main.tsx
 msgid "Preview {0}"

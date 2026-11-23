@@ -5,7 +5,7 @@
   "type": "module",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "sync": "pnpm --filter @kept/web build:ios && cap sync ios",
+    "sync": "\"$npm_execpath\" --filter @kept/web build:ios && cap sync ios",
     "open": "cap open ios"
   },
   "dependencies": {

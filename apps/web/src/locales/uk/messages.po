@@ -31385,6 +31385,10 @@ msgstr "Продовжити сканування"
 msgid "Could not connect to Kept. Check the server address and try again."
 msgstr "Не вдалося підключитися до Kept. Перевірте адресу сервера та спробуйте ще раз."
 
+#: src/native/main.tsx
+msgid "Sign-in cancelled."
+msgstr "Вхід скасовано."
+
 #: src/native/capture-form.tsx
 msgid "Could not create the box. Check your connection and selected location."
 msgstr "Не вдалося створити коробку. Перевірте з’єднання та вибране розташування."
@@ -31943,6 +31947,10 @@ msgstr "Ці записи було збережено до відновленн�
 #: src/native/main.tsx
 msgid "Could not open this held original."
 msgstr "Не вдалося відкрити цей утримуваний оригінал."
+
+#: src/native/main.tsx
+msgid "Could not open this pending original."
+msgstr "Не вдалося відкрити цей оригінал, що очікує синхронізації."
 
 #: src/native/main.tsx
 msgid "Preview {0}"

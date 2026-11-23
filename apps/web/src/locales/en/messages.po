@@ -29402,6 +29402,10 @@ msgstr "Continue scanning"
 msgid "Could not connect to Kept. Check the server address and try again."
 msgstr "Could not connect to Kept. Check the server address and try again."
 
+#: src/native/main.tsx
+msgid "Sign-in cancelled."
+msgstr "Sign-in cancelled."
+
 #: src/native/capture-form.tsx
 msgid "Could not create the box. Check your connection and selected location."
 msgstr "Could not create the box. Check your connection and selected location."
@@ -29960,6 +29964,10 @@ msgstr "These captures were saved before this Kept server was restored, so autom
 #: src/native/main.tsx
 msgid "Could not open this held original."
 msgstr "Could not open this held original."
+
+#: src/native/main.tsx
+msgid "Could not open this pending original."
+msgstr "Could not open this pending original."
 
 #: src/native/main.tsx
 msgid "Preview {0}"
