@@ -260,10 +260,10 @@ export function LabelPanel({
   function startContinuousFind() {
     return run(async () => {
       alreadyAlerted.current = false;
-      setFinding(true);
       setFindPausedState(null);
+      let sessionActive = false;
       const remove = await adapters.nfc.onFindReading((event: FindTagEvent) => {
-        if (!live.current) return;
+        if (!sessionActive || !live.current) return;
         if (event.status === 'repeated') {
           setStatus(t`Same tag scanned again. Move to another box.`);
           return;
@@ -281,9 +281,12 @@ export function LabelPanel({
         }
         if (event.status === 'read' && event.url) {
           void resolveLabel(connection, cache, event.url, 'nfc', undefined, false, adapters)
-            .then((resolved) => handleFindResult(resolved, true))
+            .then((resolved) => {
+              // The server may answer after this NFC session ends or another one starts.
+              if (sessionActive) return handleFindResult(resolved, true);
+            })
             .catch((error: unknown) => {
-              if (!live.current) return;
+              if (!sessionActive || !live.current) return;
               if (error instanceof ApiError && error.status === 401) {
                 onAuthError?.('expired');
                 void adapters.nfc.cancelTag().catch(() => {});
@@ -297,6 +300,9 @@ export function LabelPanel({
       });
 
       try {
+        if (!live.current) return;
+        sessionActive = true;
+        setFinding(true);
         const terminal = await adapters.nfc.startFind(connection, { messages });
         if (!live.current) return;
         if (terminal.status === 'matched') {
@@ -312,7 +318,8 @@ export function LabelPanel({
           setStatus(nfcStatus(terminal));
         }
       } finally {
-        setFinding(false);
+        sessionActive = false;
+        if (live.current) setFinding(false);
         await remove();
       }
     });

@@ -1,7 +1,7 @@
 import { I18nProvider } from '@lingui/react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { capturePaths } from '@/api/capture/paths';
 import { ApiError } from '@/api/client';
 import { paths } from '@/api/paths';
@@ -839,11 +839,27 @@ describe('KeptPhone mobile workflows', () => {
     expect(env.events.nonMatches).toHaveLength(1);
     env.setOnline(true);
 
-    // Timeout preserves target across restart.
+    // A label lookup can finish after Core NFC has already timed out.
+    let finishLookup = () => {};
+    const lookupDelay = new Promise<void>((resolve) => {
+      finishLookup = resolve;
+    });
+    const request = env.adapters.transport.request;
+    const slowLookup = vi
+      .spyOn(env.adapters.transport, 'request')
+      .mockImplementation(async (connection, path, options) => {
+        if (path === capturePaths.scanResolve) await lookupDelay;
+        return request(connection, path, options);
+      });
     act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
       env.endFindSession('timeout');
     });
     expect(await screen.findByRole('button', { name: 'Continue scanning' })).toBeInTheDocument();
+    await act(async () => finishLookup());
+    expect(env.events.matches).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Continue scanning' })).toBeInTheDocument();
+    slowLookup.mockRestore();
 
     view.unmount();
     env.renderApp();

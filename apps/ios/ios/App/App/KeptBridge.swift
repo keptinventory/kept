@@ -30,7 +30,7 @@ struct KeptConnection: Codable, Equatable {
 }
 
 enum KeptNativeError: LocalizedError {
-    case invalidServer, missingSession, invalidRequest, signInFailed, busy, keychain, storage
+    case invalidServer, missingSession, invalidRequest, signInFailed, busy, keychain, storage, previewUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -41,6 +41,7 @@ enum KeptNativeError: LocalizedError {
         case .busy: return "Finish the current sign-in and try again."
         case .keychain: return "The iPhone could not save or read the session in Keychain."
         case .storage: return "Kept could not save on this iPhone. Check available storage and try again."
+        case .previewUnavailable: return "Kept could not open this preview. Close any open sheet and try again."
         }
     }
 }
@@ -291,22 +292,16 @@ actor NativeOutbox {
 final class KeptPreview: NSObject, QLPreviewControllerDataSource, QLPreviewControllerDelegate {
     private var url: URL?
 
-    func present(_ file: URL, from controller: UIViewController) {
-        let show = {
-            self.cleanup()
-            self.url = file
-            let preview = QLPreviewController()
-            preview.dataSource = self
-            preview.delegate = self
-            controller.present(preview, animated: true)
+    func present(_ file: URL, from controller: UIViewController) throws {
+        guard controller.viewIfLoaded?.window != nil, controller.presentedViewController == nil else {
+            throw KeptNativeError.previewUnavailable
         }
-        if controller.presentedViewController is QLPreviewController {
-            controller.dismiss(animated: false, completion: show)
-        } else if controller.presentedViewController == nil {
-            show()
-        } else {
-            try? FileManager.default.removeItem(at: file.deletingLastPathComponent())
-        }
+        cleanup()
+        url = file
+        let preview = QLPreviewController()
+        preview.dataSource = self
+        preview.delegate = self
+        controller.present(preview, animated: true)
     }
 
     func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
@@ -662,7 +657,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             do {
                 try FileManager.default.moveItem(at: downloaded, to: target)
                 try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
-                self.preview.present(target, from: controller)
+                try self.preview.present(target, from: controller)
             } catch {
                 try? FileManager.default.removeItem(at: folder)
                 throw error
@@ -690,7 +685,7 @@ final class KeptBridge: CAPPlugin, CAPBridgedPlugin {
             do {
                 try FileManager.default.copyItem(at: sourceURL, to: target)
                 try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: target.path)
-                self.preview.present(target, from: controller)
+                try self.preview.present(target, from: controller)
             } catch {
                 try? FileManager.default.removeItem(at: folder)
                 throw error
