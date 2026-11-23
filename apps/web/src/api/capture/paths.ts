@@ -17,6 +17,7 @@ export const capturePaths = {
   // ----- sync ----------------
   syncSnapshot: `${V1}/sync/snapshot`,
   syncOps: `${V1}/sync/ops`,
+  nativeCaptureCapabilities: `${V1}/native/capture-capabilities`,
 
   // ----- capture -----------
   captures: `${V1}/captures`,
@@ -110,6 +111,7 @@ type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export const CAPTURE_METHODS: Record<keyof typeof capturePaths, readonly Method[]> = {
   syncSnapshot: ['GET'],
   syncOps: ['POST'],
+  nativeCaptureCapabilities: ['GET'],
   captures: ['POST'],
   captureBatches: ['GET'],
   captureBatchUndo: ['POST'],

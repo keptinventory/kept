@@ -1,5 +1,9 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { newId } from '@kept/shared';
+import {
+  NATIVE_CAPTURE_PAYLOAD_VERSION,
+  NativeCaptureCapabilitiesSchema,
+  newId,
+} from '@kept/shared';
 import { makeSignature } from 'better-auth/crypto';
 import type { FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -7,7 +11,7 @@ import type pg from 'pg';
 import { z } from 'zod';
 import { auditAccountEvent } from '../accounts/account-audit.js';
 import type { KeptApp } from '../http/app.js';
-import { conflict, forbidden, invalid, unauthenticated } from '../http/errors.js';
+import { AppError, forbidden, invalid, unauthenticated } from '../http/errors.js';
 import type { Auth } from './auth.js';
 import { assertFromThisSite, authHeaders, reserveTokenAttempt } from './http.js';
 
@@ -52,13 +56,11 @@ async function nativeSyncEpoch(db: AuthQuery): Promise<string> {
   return rows[0].value;
 }
 
-/** Stock inventory routes keep their normal auth and RLS. Native work asserts its own context
- * on each request so a restored database or a changed session cannot accept a queued write. */
-export async function nativeContextHook(req: FastifyRequest): Promise<void> {
-  const account = req.headers['x-kept-native-account'];
-  const epoch = req.headers['x-kept-native-epoch'];
-  if (account === undefined && epoch === undefined) return;
-  const parsed = NativeContext.safeParse({ account, epoch });
+export function requireNativeContext(req: FastifyRequest): z.infer<typeof NativeContext> {
+  const parsed = NativeContext.safeParse({
+    account: req.headers['x-kept-native-account'],
+    epoch: req.headers['x-kept-native-epoch'],
+  });
   if (!parsed.success) throw invalid('Both native sync context headers are required.');
   if (
     req.authSession?.userId !== parsed.data.account ||
@@ -66,9 +68,23 @@ export async function nativeContextHook(req: FastifyRequest): Promise<void> {
   ) {
     throw unauthenticated();
   }
-  if ((await nativeSyncEpoch(req.server.pools.auth)) !== parsed.data.epoch) {
-    throw conflict(
+  return parsed.data;
+}
+
+/** Check native context before dispatch. Stock inventory routes keep their usual auth and RLS. */
+export async function nativeContextHook(req: FastifyRequest): Promise<void> {
+  if (
+    req.headers['x-kept-native-account'] === undefined &&
+    req.headers['x-kept-native-epoch'] === undefined
+  )
+    return;
+  const { epoch } = requireNativeContext(req);
+  if ((await nativeSyncEpoch(req.server.pools.auth)) !== epoch) {
+    throw new AppError(
+      'conflict',
+      409,
       'This Kept was restored or replaced. Review the pending captures before syncing.',
+      { reason: 'restore_epoch_mismatch' },
     );
   }
 }
@@ -208,6 +224,20 @@ export async function nativeAuthRoutes(app: KeptApp, auth: Auth, publicUrl: stri
         .redirect(`kept-nfc://auth/callback?${new URLSearchParams({ code, state })}`, 303);
     });
   });
+
+  app.get(
+    '/api/v1/native/capture-capabilities',
+    { schema: { hide: true, response: { 200: NativeCaptureCapabilitiesSchema } } },
+    async (req, reply) => {
+      const context = requireNativeContext(req);
+      reply.header('cache-control', 'no-store');
+      return {
+        contractVersion: 1 as const,
+        capturePayloadVersions: [NATIVE_CAPTURE_PAYLOAD_VERSION],
+        ...context,
+      };
+    },
+  );
 
   app.post(
     '/api/v1/native/exchange',

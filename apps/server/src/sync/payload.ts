@@ -1,9 +1,11 @@
 import { createHash } from 'node:crypto';
 import {
+  CreateThingPayload,
   ErrorCode,
   idTimestamp,
   isV7,
   MIN_PAYLOAD_VERSION,
+  NATIVE_CAPTURE_PAYLOAD_VERSION,
   type OpKind,
   type OpPayload,
   PAYLOAD_VERSION,
@@ -36,6 +38,10 @@ export const PAYLOAD_WINDOW: PayloadWindow = Object.freeze({
   upgraders: UPGRADERS,
 });
 
+export function isNativeCapture(item: Pick<QueueItem, 'op' | 'payloadVersion'>): boolean {
+  return item.payloadVersion === NATIVE_CAPTURE_PAYLOAD_VERSION && item.op === 'create_thing';
+}
+
 /**
  * The whole batch's refusal, or null: any op below the window is 409 `client_outdated`
  * `{minPayloadVersion}` ("Update Kept to finish syncing"), any above it 409 `server_outdated`
@@ -44,7 +50,7 @@ export const PAYLOAD_WINDOW: PayloadWindow = Object.freeze({
  * phone can fix that by updating.
  */
 export function batchRefusal(
-  ops: readonly Pick<QueueItem, 'payloadVersion'>[],
+  ops: readonly Pick<QueueItem, 'op' | 'payloadVersion'>[],
   window: PayloadWindow = PAYLOAD_WINDOW,
 ): AppError | null {
   if (ops.some((o) => o.payloadVersion < window.min)) {
@@ -52,7 +58,7 @@ export function batchRefusal(
       minPayloadVersion: window.min,
     });
   }
-  if (ops.some((o) => o.payloadVersion > PAYLOAD_VERSION)) {
+  if (ops.some((o) => o.payloadVersion > PAYLOAD_VERSION && !isNativeCapture(o))) {
     return new AppError(ErrorCode.server_outdated, 409, undefined, {
       payloadVersion: PAYLOAD_VERSION,
     });
@@ -67,6 +73,12 @@ export function parsedPayload<K extends OpKind>(
   payload: unknown,
   window: PayloadWindow = PAYLOAD_WINDOW,
 ): OpPayload<K> | null {
+  if (isNativeCapture({ op, payloadVersion })) {
+    const parsed = CreateThingPayload.safeParse(payload);
+    return parsed.success && parsed.data.reviewSuggestions === true
+      ? (parsed.data as OpPayload<K>)
+      : null;
+  }
   let current: unknown;
   try {
     current = upgradePayload(op, payloadVersion, payload, window.upgraders);

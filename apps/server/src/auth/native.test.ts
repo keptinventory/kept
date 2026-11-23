@@ -145,6 +145,33 @@ describe('Kept for iPhone sign-in', () => {
     expect((await test.app.inject({ url: '/api/v1/locations', headers })).statusCode).toBe(409);
   });
 
+  it('negotiates capture for an already authenticated session with the matching context', async () => {
+    const response = await exchange(await grant());
+    expect(response.statusCode, response.body).toBe(200);
+    const { account, epoch } = response.json<{ account: string; epoch: string }>();
+    const cookie = jar(response);
+    const url = '/api/v1/native/capture-capabilities';
+    const headers = { cookie, 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
+    const capability = await test.app.inject({ url, headers });
+    expect(capability.statusCode, capability.body).toBe(200);
+    expect(capability.headers['cache-control']).toBe('no-store');
+    expect(capability.json()).toEqual({
+      contractVersion: 1,
+      capturePayloadVersions: [2],
+      account,
+      epoch,
+    });
+    expect((await test.app.inject({ url, headers: { cookie } })).statusCode).toBe(400);
+    const other = await signUp(test.auth, 'alfred@kept.test');
+    expect(
+      (await test.app.inject({ url, headers: { ...headers, cookie: other.cookie } })).statusCode,
+    ).toBe(401);
+    await resetNativeSyncEpoch(db.pools.auth);
+    const stale = await test.app.inject({ url, headers });
+    expect(stale.statusCode).toBe(409);
+    expect(stale.json()).toMatchObject({ code: 'conflict', reason: 'restore_epoch_mismatch' });
+  });
+
   it('rejects an expired grant and an expired native session', async () => {
     const expiredGrant = await grant();
     await db.pools.auth.query(

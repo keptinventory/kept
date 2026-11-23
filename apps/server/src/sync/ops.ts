@@ -14,6 +14,7 @@ import type { FastifyBaseLogger } from 'fastify';
 import type pg from 'pg';
 import { z } from 'zod';
 import { requireScope } from '../auth/http.js';
+import { requireNativeContext } from '../auth/native.js';
 import type { Pools } from '../db/pools.js';
 import { type Scope, ScopeError, withScope } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
@@ -26,6 +27,7 @@ import { HANDLERS, registerSyncReplayers } from './handlers/index.js';
 import {
   batchRefusal,
   inOpsWindow,
+  isNativeCapture,
   LEDGER_KEY,
   madeIds,
   PAYLOAD_WINDOW,
@@ -125,11 +127,15 @@ function refusalOf(err: unknown): DropReason | null {
   return 'invalid';
 }
 
-type Ledger = { request_hash: string; outcome: string; result: SyncOpResult };
+type Ledger = {
+  request_hash: string;
+  payload_version: number;
+  result: SyncOpResult;
+};
 
 async function ledgerRow(client: pg.ClientBase, key: string): Promise<Ledger | null> {
   const { rows } = await client.query<Ledger>(
-    `SELECT request_hash, outcome, result FROM public.sync_ops
+    `SELECT request_hash, payload_version, result FROM public.sync_ops
       WHERE user_id = kept.current_user_id() AND idempotency_key = $1`,
     [key],
   );
@@ -229,7 +235,19 @@ async function applyOne(
       `kept.sync_ops:${scope.userId}:${item.idempotencyKey}`,
     ]);
     const prior = await ledgerRow(client, item.idempotencyKey);
-    if (prior) return prior.request_hash === hash ? prior.result : drop('idempotency_mismatch');
+    if (prior) {
+      if (prior.request_hash === hash) return prior.result;
+      // A phone updated after sending a v1 review capture may still need the original result.
+      if (
+        prior.payload_version === PAYLOAD_VERSION &&
+        isNativeCapture(item) &&
+        prior.request_hash === requestHash({ ...item, payloadVersion: PAYLOAD_VERSION }) &&
+        parsedPayload(item.op, item.payloadVersion, item.payload, opts.window)
+      ) {
+        return prior.result;
+      }
+      return drop('idempotency_mismatch');
+    }
 
     const locationId = item.locationId.toLowerCase();
     const takenAt = new Date(Math.min(Date.parse(item.takenAt), now));
@@ -245,8 +263,8 @@ async function applyOne(
           item.clientId.toLowerCase(),
           (await isVisible(client, locationId)) ? locationId : null,
           item.op,
-          // What it was applied as: every op of an accepted batch is brought up to this build's.
-          PAYLOAD_VERSION,
+          // Record the version used to validate the operation.
+          isNativeCapture(item) ? item.payloadVersion : PAYLOAD_VERSION,
           item.clientVersion,
           takenAt,
           hash,
@@ -357,12 +375,14 @@ export async function syncOpsRoutes(app: KeptApp, deps: InventoryDeps): Promise<
   app.post(
     '/api/v1/sync/ops',
     { schema: { body: SyncOpsRequestSchema, response: { 200: SyncOpsResponseSchema } } },
-    (req) =>
-      applyOps(
+    (req) => {
+      if (req.body.ops.some(isNativeCapture)) requireNativeContext(req);
+      return applyOps(
         { pools: deps.pools, jobs: deps.jobs, files: deps.files, log: req.log },
         requireScope(req),
         req.id,
         req.body,
-      ),
+      );
+    },
   );
 }

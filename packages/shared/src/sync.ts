@@ -24,10 +24,19 @@ import { SHORT_CODE } from './short-code.js';
 import { TAG_LIMITS } from './tags.js';
 import { AMOUNT_STRING } from './type-fields.js';
 
-/** The payload schema this build writes and reads (D148). */
+/** The general sync payload schema this build writes and reads (D148). */
 export const PAYLOAD_VERSION = 1;
 /** The oldest payload this build still upgrades on arrival (D148: current and previous). */
 export const MIN_PAYLOAD_VERSION = 1;
+
+/** Negotiated separately so a native capture cannot be parsed as an ordinary v1 operation on rollback. */
+export const NATIVE_CAPTURE_PAYLOAD_VERSION = 2;
+export const NativeCaptureCapabilitiesSchema = z.object({
+  contractVersion: z.literal(1),
+  capturePayloadVersions: z.array(z.number().int().positive()),
+  account: z.uuid(),
+  epoch: z.uuid(),
+});
 
 export const OP_KINDS = [
   'create_thing',

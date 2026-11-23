@@ -1,4 +1,4 @@
-import { newId, randomShortCode } from '@kept/shared';
+import { NATIVE_CAPTURE_PAYLOAD_VERSION, newId, randomShortCode } from '@kept/shared';
 import type { FastifyBaseLogger } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { TestApp } from '../../test/app.js';
@@ -123,11 +123,21 @@ describe('POST /api/v1/sync/ops', () => {
     const item = captureOp(home.id, { unplaced: true });
     const res = await syncOps(t, louis, [
       captureOp(home.id, { unplaced: true }),
-      { ...item, payloadVersion: 2 },
+      { ...item, payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION + 1 },
     ]);
     expect(res.statusCode).toBe(409);
     expect(res.json()).toMatchObject({ code: 'server_outdated' });
     expect(await thingOf(item.payload.id)).toBeUndefined();
+    const seen = op(
+      'mark_seen',
+      home.id,
+      { thingId: item.clientId },
+      {
+        payloadVersion: NATIVE_CAPTURE_PAYLOAD_VERSION,
+      },
+    );
+    expect((await syncOps(t, louis, [seen])).json()).toMatchObject({ code: 'server_outdated' });
+    expect(await ledger(seen.idempotencyKey)).toEqual([]);
   });
 
   it('refuses a batch with a field the phone never sends: the schema is strict', async () => {
