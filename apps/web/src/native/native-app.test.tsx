@@ -149,6 +149,9 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
   let findListener: ((reading: FindTagEvent) => void) | null = null;
   let resolveFind: ((value: TagReading & { sessionId?: string }) => void) | null = null;
   let currentFindSession: string | null = null;
+  let capabilitiesOverride: ((conn: Connection) => unknown) | null = null;
+  let meOverride: ((conn: Connection) => unknown) | null = null;
+  const appStateListeners = new Set<(state: { active: boolean }) => void>();
   const scanSequence: TagReading[] = [];
   const completionsByContext = new Map<string, Map<string, 'synced' | 'discarded'>>();
   const getCompletions = (ctx: string) => {
@@ -162,7 +165,14 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     if (candidate === current) return false;
     const a = candidate.split('|');
     const b = current.split('|');
-    return a.length === 3 && b.length === 3 && a[0] === b[0] && a[1] === b[1] && a[2] !== b[2];
+    return (
+      a.length === 3 &&
+      b.length === 3 &&
+      Boolean(a[0] && a[1] && a[2] && b[2]) &&
+      a[0] === b[0] &&
+      a[1] === b[1] &&
+      a[2] !== b[2]
+    );
   };
 
   const events = {
@@ -175,6 +185,8 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     finishCalls: [] as Array<string | undefined>,
     finishSessions: [] as Array<string | undefined>,
     openedHeld: [] as Array<{ heldContext: string; id: string; file: string }>,
+    exportedHeld: [] as Array<{ heldContext: string; id: string; metadata: string }>,
+    uploadedFiles: [] as Array<{ id: string; file: string; location: string }>,
     disconnected: 0,
   };
 
@@ -224,7 +236,8 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       ): Promise<T> {
         if (!online) throw new ApiError(0, 'offline', 'Offline');
 
-        if (path === '/api/v1/native/capture-capabilities') {
+        if (path === capturePaths.nativeCaptureCapabilities) {
+          if (capabilitiesOverride) return capabilitiesOverride(_conn) as T;
           return {
             contractVersion: 1,
             capturePayloadVersions: [2],
@@ -233,6 +246,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
           } as T;
         }
         if (path === paths.me) {
+          if (meOverride) return meOverride(_conn) as T;
           return { id: 'ibrahim', email: 'ibrahim@kept.test' } as T;
         }
         if (path.startsWith(capturePaths.syncSnapshot)) {
@@ -516,6 +530,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       },
       async uploadOriginal(conn, input) {
         if (!online) throw new ApiError(0, 'offline', 'Offline');
+        events.uploadedFiles.push({ id: input.id, file: input.file, location: input.location });
         const entry = getQueue(conn.id).find((q) => q.capture.id === input.id);
         const orig = entry?.capture.files.find((f) => f.file.id === input.file);
         if (!orig) throw new Error('Missing staged original');
@@ -694,6 +709,9 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       async openHeld(_conn, input) {
         events.openedHeld.push(input);
       },
+      async exportHeld(_conn, input) {
+        events.exportedHeld.push(input);
+      },
     },
     lifecycle: {
       async takeLink() {
@@ -702,8 +720,11 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       async onLink() {
         return () => {};
       },
-      async onAppStateChange() {
-        return () => {};
+      async onAppStateChange(callback) {
+        appStateListeners.add(callback);
+        return () => {
+          appStateListeners.delete(callback);
+        };
       },
     },
   };
@@ -750,6 +771,26 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     },
     seedPending: (entry: PendingCapture, ctx: string) => {
       getQueue(ctx).push(entry);
+    },
+    clearQueueWithoutCompletion: (ctx: string) => {
+      outboxByContext.set(ctx, []);
+    },
+    getCurrentFindSession: () => currentFindSession,
+    emitRawFindReading: (event: FindTagEvent) => {
+      findListener?.(event);
+    },
+    emitAppState: (active: boolean) => {
+      if (!active && resolveFind) {
+        resolveFind({ status: 'interrupted', sessionId: currentFindSession ?? undefined });
+        resolveFind = null;
+      }
+      for (const listener of appStateListeners) listener({ active });
+    },
+    setCapabilitiesHandler: (handler: ((conn: Connection) => unknown) | null) => {
+      capabilitiesOverride = handler;
+    },
+    setMeHandler: (handler: ((conn: Connection) => unknown) | null) => {
+      meOverride = handler;
     },
     completionsFor: (ctx: string) => Object.fromEntries(getCompletions(ctx)),
     setConnection: (conn: Connection | null) => {
@@ -1047,7 +1088,220 @@ describe('KeptPhone mobile workflows', () => {
     expect(screen.queryByText(/Synced:/)).not.toBeInTheDocument();
   });
 
-  it('shows held pre-restore work for review, preview and discard only', async () => {
+  it('ignores delayed Find resolutions across timeout, cancellation, and backgrounding, and treats ambiguous reads as unresolved', async () => {
+    const conn: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: conn });
+    const user = userEvent.setup();
+    env.renderApp();
+
+    await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
+    await user.click(await screen.findByRole('button', { name: 'Find this box' }));
+
+    // 1. Audit scenario: Start session A -> scan target -> delay response -> A times out ->
+    // start session B -> complete A's delayed response WHILE B is active -> B stays active!
+    let resolveDelayedA = () => {};
+    let delayedPromiseA = new Promise<void>((resolve) => {
+      resolveDelayedA = resolve;
+    });
+    const baseRequest = env.adapters.transport.request;
+    let delayScan = true;
+    const scanSpy = vi
+      .spyOn(env.adapters.transport, 'request')
+      .mockImplementation(async (c, path, opts) => {
+        if (path === capturePaths.scanResolve && delayScan) {
+          await delayedPromiseA;
+        }
+        return baseRequest(c, path, opts);
+      });
+
+    await user.click(screen.getByRole('button', { name: 'Scan NFC tag' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument(),
+    );
+    const sessionA = env.getCurrentFindSession();
+    expect(sessionA).toEqual(expect.any(String));
+
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
+      env.endFindSession('timeout');
+    });
+    expect(await screen.findByRole('button', { name: 'Continue scanning' })).toBeInTheDocument();
+
+    delayScan = false;
+    await user.click(screen.getByRole('button', { name: 'Continue scanning' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument(),
+    );
+    const sessionB = env.getCurrentFindSession();
+    expect(sessionB).toEqual(expect.any(String));
+    expect(sessionB).not.toBe(sessionA);
+
+    // Resolve session A's delayed lookup and also emit stale session-A and sessionless events while B runs.
+    await act(async () => {
+      resolveDelayedA();
+      await Promise.resolve();
+    });
+    act(() => {
+      if (sessionA) {
+        env.emitRawFindReading({
+          status: 'read',
+          sessionId: sessionA,
+          url: 'https://kept.example.com/l/7KQ4MZ',
+        });
+      }
+      env.emitRawFindReading({
+        status: 'read',
+        url: 'https://kept.example.com/l/7KQ4MZ',
+      });
+    });
+
+    expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Open box' })).not.toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(0);
+    expect(env.events.finishCalls).toHaveLength(0);
+
+    // 2. Ambiguous Find reading remains unresolved (never a target match or non-match feedback).
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/AMBIG1' });
+    });
+    expect(await screen.findByText(/cannot confirm whether it is this box/i)).toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(0);
+    expect(env.events.nonMatches).toHaveLength(0);
+    expect(env.events.continueSessions.at(-1)).toBe(sessionB);
+    expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument();
+
+    // 3. Cancellation with in-flight delayed response also leaves next session C active.
+    delayScan = true;
+    let resolveDelayedB = () => {};
+    delayedPromiseA = new Promise<void>((resolve) => {
+      resolveDelayedB = resolve;
+    });
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
+    });
+    await user.click(screen.getByRole('button', { name: 'Stop scanning' }));
+    expect(await screen.findByText('Scan cancelled.')).toBeInTheDocument();
+
+    delayScan = false;
+    await user.click(screen.getByRole('button', { name: 'Scan NFC tag' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument(),
+    );
+    const sessionC = env.getCurrentFindSession();
+    expect(sessionC).not.toBe(sessionB);
+
+    await act(async () => {
+      resolveDelayedB();
+      await Promise.resolve();
+    });
+    expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(0);
+
+    // 4. App backgrounding invalidates session C and drops its delayed lookup.
+    delayScan = true;
+    let resolveDelayedC = () => {};
+    delayedPromiseA = new Promise<void>((resolve) => {
+      resolveDelayedC = resolve;
+    });
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
+      env.emitAppState(false);
+    });
+    expect(await screen.findByRole('button', { name: 'Continue scanning' })).toBeInTheDocument();
+    await act(async () => {
+      resolveDelayedC();
+      await Promise.resolve();
+    });
+    expect(env.events.matches).toHaveLength(0);
+
+    // 5. Fresh session D finally matches its own valid reading.
+    delayScan = false;
+    scanSpy.mockRestore();
+    await user.click(screen.getByRole('button', { name: 'Continue scanning' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument(),
+    );
+    const sessionD = env.getCurrentFindSession();
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
+    });
+    expect(await screen.findByRole('button', { name: 'Open box' })).toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(1);
+    expect(env.events.finishSessions.at(-1)).toBe(sessionD);
+  });
+
+  it('keeps batch sync counts truthful across failed sync, async disappearance, and verified completion', async () => {
+    const conn: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: conn });
+    const user = userEvent.setup();
+    env.renderApp();
+
+    await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
+    await user.click(await screen.findByRole('button', { name: 'Add to this box' }));
+
+    // 1. Failed sync while form is open -> Needs attention: 1, never Synced or Saved on device.
+    env.setForceDrop('target_trashed');
+    await user.type(screen.getByLabelText('Description'), 'Failed batch item');
+    await user.click(screen.getByRole('button', { name: 'Save to box' }));
+    expect(await screen.findByText(/Needs attention: 1/)).toBeInTheDocument();
+    expect(screen.queryByText(/Synced:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Saved on device:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Syncing:/)).not.toBeInTheDocument();
+
+    // 2. Async queue disappearance without a `synced` completion never becomes Synced.
+    env.setForceDrop(null);
+    env.setOnline(false);
+    await user.type(screen.getByLabelText('Description'), 'Disappear offline item');
+    await user.click(screen.getByRole('button', { name: 'Save to box' }));
+    expect(await screen.findByText(/Saved on device: 1/)).toBeInTheDocument();
+
+    env.clearQueueWithoutCompletion(conn.id);
+    env.setOnline(true);
+    await user.type(screen.getByLabelText('Description'), 'Verified item');
+
+    // Delay attachment verification on the third entry to confirm Synced waits for verification.
+    let resolveAttachments = () => {};
+    const attachmentGate = new Promise<void>((resolve) => {
+      resolveAttachments = resolve;
+    });
+    const baseRequest = env.adapters.transport.request;
+    const spy = vi
+      .spyOn(env.adapters.transport, 'request')
+      .mockImplementation(async (c, path, opts) => {
+        if (path.includes('/attachments')) await attachmentGate;
+        return baseRequest(c, path, opts);
+      });
+
+    const photo = new File(['jpegbytes'], 'item.jpg', { type: 'image/jpeg' });
+    const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    const photoInput = fileInputs.item(1);
+    if (!photoInput) throw new Error('Expected photo input');
+    await user.upload(photoInput, photo);
+    await user.click(screen.getByRole('button', { name: 'Save to box' }));
+
+    expect(screen.getByText('Entries in this batch: 3')).toBeInTheDocument();
+    expect(screen.queryByText(/Synced:/)).not.toBeInTheDocument();
+
+    await act(async () => {
+      resolveAttachments();
+      await Promise.resolve();
+    });
+    expect(await screen.findByText(/Synced: 1/)).toBeInTheDocument();
+    expect(screen.queryByText(/Saved on device:/)).not.toBeInTheDocument();
+    spy.mockRestore();
+  });
+
+  it('shows held pre-restore work only for matching origin and canonical account, with export and discard', async () => {
     const conn: Connection = {
       id: 'https://kept.example.com|ibrahim|epoch-1',
       origin: 'https://kept.example.com',
@@ -1086,12 +1340,69 @@ describe('KeptPhone mobile workflows', () => {
       },
       'https://kept.example.com|ibrahim|epoch-0',
     );
+    // Cross-account and cross-server captures must never be exposed.
+    env.seedHeld(
+      {
+        capture: {
+          id: '77777777-7777-7777-8777-777777777777',
+          context: 'https://kept.example.com|alfred|epoch-0',
+          payload: JSON.stringify({
+            locationId: '33333333-3333-7333-8333-333333333333',
+            boxId: env.boxId,
+            name: 'Alfred secret item',
+            version: 1,
+          }),
+          takenAt: '2026-11-20T20:00:00Z',
+          files: [],
+        },
+      },
+      'https://kept.example.com|alfred|epoch-0',
+    );
+    env.seedHeld(
+      {
+        capture: {
+          id: '88888888-8888-7888-8888-888888888888',
+          context: 'https://other.example.com|ibrahim|epoch-0',
+          payload: JSON.stringify({
+            locationId: '33333333-3333-7333-8333-333333333333',
+            boxId: env.boxId,
+            name: 'Other server item',
+            version: 1,
+          }),
+          takenAt: '2026-11-20T20:00:00Z',
+          files: [],
+        },
+      },
+      'https://other.example.com|ibrahim|epoch-0',
+    );
+
     env.renderApp();
     expect(await screen.findByText(/Held captures: 1/)).toBeInTheDocument();
     expect(screen.getByText('Held ornaments')).toBeInTheDocument();
+    expect(screen.getByText(/From before the restore/)).toBeInTheDocument();
+    expect(screen.getByText('f'.repeat(64))).toBeInTheDocument();
     expect(screen.getByText(/automatic replay is paused/i)).toBeInTheDocument();
+    expect(screen.queryByText('Alfred secret item')).not.toBeInTheDocument();
+    expect(screen.queryByText('Other server item')).not.toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: /Preview/ }));
     expect(env.events.openedHeld).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: 'Export details' }));
+    expect(env.events.exportedHeld).toHaveLength(1);
+    const exportedJson = JSON.parse(env.events.exportedHeld[0]?.metadata ?? '{}') as {
+      name?: string;
+      note?: string;
+      recoveryNotice?: string;
+      destination?: { boxName?: string };
+      files?: Array<{ sha256: string }>;
+    };
+    expect(exportedJson.name).toBe('Held ornaments');
+    expect(exportedJson.note).toBe('From before the restore');
+    expect(exportedJson.recoveryNotice).toMatch(/Automatic replay is paused/i);
+    expect(exportedJson.destination?.boxName).toBe('Winter Box');
+    expect(exportedJson.files?.[0]?.sha256).toBe('f'.repeat(64));
+
     await user.click(screen.getByRole('button', { name: 'Discard' }));
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
     const heldDiscard = screen.getAllByRole('button', { name: 'Discard' });
@@ -1101,6 +1412,71 @@ describe('KeptPhone mobile workflows', () => {
     await waitFor(() => {
       expect(screen.queryByText(/Held captures:/)).not.toBeInTheDocument();
     });
+  });
+
+  it('keeps an authenticated phone signed in on a pre-negotiation server 401 and retries after upgrade', async () => {
+    const conn: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: conn });
+    const user = userEvent.setup();
+    let upgraded = false;
+    env.setCapabilitiesHandler(() => {
+      if (!upgraded) throw new ApiError(401, 'unauthenticated', 'Unauthenticated');
+      return {
+        contractVersion: 1,
+        capturePayloadVersions: [2],
+        account: conn.account,
+        epoch: conn.epoch,
+      };
+    });
+    env.seedPending(
+      {
+        capture: {
+          id: '99999999-9999-7999-8999-999999999999',
+          payload: JSON.stringify({
+            locationId: '33333333-3333-7333-8333-333333333333',
+            boxId: env.boxId,
+            batchId: '99999999-9999-7999-8999-999999999999',
+            name: 'Hold for upgrade',
+            version: 1,
+          }),
+          takenAt: '2026-11-22T20:00:00Z',
+          files: [
+            {
+              file: {
+                id: 'aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa',
+                name: 'photo.jpg',
+                mime: 'image/jpeg',
+                role: 'photo',
+                bytes: 10,
+              },
+              sha256: 'a'.repeat(64),
+            },
+          ],
+        },
+      },
+      conn.id,
+    );
+
+    env.renderApp();
+    expect(
+      await screen.findByText(/This Kept server is older and cannot accept this capture yet/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Hold for upgrade')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Kept server address')).not.toBeInTheDocument();
+    expect(env.events.uploadedFiles).toHaveLength(0);
+
+    // Upgrade server and retry manually.
+    upgraded = true;
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Pending captures')).not.toBeInTheDocument();
+    });
+    expect(env.events.uploadedFiles).toHaveLength(1);
   });
 
   it('renders Arabic RTL with logical CSS only', async () => {

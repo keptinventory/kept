@@ -182,6 +182,27 @@ final class OutboxTests: XCTestCase {
         XCTAssertTrue(try reopened.completions(context: "other|account|epoch").isEmpty)
     }
 
+    func testRepairPreservesDiscardedCompletionState() throws {
+        let root = try scratch()
+        let saved = try preparedCapture(in: root)
+        let accountFolder = root.appendingPathComponent(digest(Data(context.utf8)))
+        let final = accountFolder.appendingPathComponent(saved.id)
+        let outbox = try Outbox(root: root)
+        try outbox.discard(context: context, id: saved.id)
+        // Simulate a crash after recording `.discarded` and `completed = 1`, before folder/row cleanup.
+        try FileManager.default.createDirectory(at: final, withIntermediateDirectories: true)
+        var db: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(root.appendingPathComponent("outbox.sqlite").path, &db), SQLITE_OK)
+        let stmtSql = "INSERT OR REPLACE INTO captures (id, context, manifest, completed) VALUES ('\(saved.id)', '\(context)', '{}', 1)"
+        XCTAssertEqual(sqlite3_exec(db, stmtSql, nil, nil, nil), SQLITE_OK)
+        sqlite3_close(db)
+
+        let restarted = try Outbox(root: root)
+        XCTAssertTrue(try restarted.pending(context: context).isEmpty)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: final.path))
+        XCTAssertEqual(try restarted.completions(context: context)[saved.id], .discarded)
+    }
+
     func testHeldDiscoveryRequiresSameOriginAndAccountWithOlderEpoch() throws {
         let root = try scratch()
         let oldContext = "https://kept.example.com|account|epoch-old"
@@ -190,6 +211,9 @@ final class OutboxTests: XCTestCase {
         XCTAssertFalse(Outbox.isHeldContext(current, current: current))
         XCTAssertFalse(Outbox.isHeldContext("https://kept.example.com|other|epoch-old", current: current))
         XCTAssertFalse(Outbox.isHeldContext("https://other.example.com|account|epoch-old", current: current))
+        XCTAssertFalse(Outbox.isHeldContext("|account|epoch-old", current: current))
+        XCTAssertFalse(Outbox.isHeldContext("https://kept.example.com||epoch-old", current: current))
+        XCTAssertFalse(Outbox.isHeldContext("https://kept.example.com|account|", current: current))
         XCTAssertFalse(Outbox.isHeldContext("not-a-context", current: current))
 
         // Seed a capture under the old epoch, then read held work as the new session.

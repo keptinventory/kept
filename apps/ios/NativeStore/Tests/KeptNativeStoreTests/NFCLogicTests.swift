@@ -79,4 +79,35 @@ final class NFCLogicTests: XCTestCase {
         XCTAssertNotEqual(NDEFRecordSnapshot.fingerprint([r1]), NDEFRecordSnapshot.fingerprint([r2]))
         XCTAssertEqual(NDEFRecordSnapshot.fingerprint([]).count, 64)
     }
+
+    func testFindSessionGateRejectsStaleAndEmptySessions() {
+        var gate = NFCFindSessionGate()
+        XCTAssertFalse(gate.begin(""))
+        XCTAssertFalse(gate.begin(String(repeating: "a", count: 65)))
+        XCTAssertTrue(gate.acceptsCancel(sessionId: nil))
+        XCTAssertFalse(gate.acceptsCommand(sessionId: nil))
+
+        XCTAssertTrue(gate.begin("session-a"))
+        XCTAssertEqual(gate.activeSessionId, "session-a")
+        XCTAssertFalse(gate.begin("session-b"))
+
+        XCTAssertTrue(gate.acceptsCommand(sessionId: "session-a"))
+        XCTAssertFalse(gate.acceptsCommand(sessionId: "session-b"))
+        XCTAssertFalse(gate.acceptsCommand(sessionId: nil))
+        XCTAssertFalse(gate.acceptsCommand(sessionId: ""))
+
+        XCTAssertTrue(gate.acceptsCancel(sessionId: "session-a"))
+        XCTAssertFalse(gate.acceptsCancel(sessionId: "session-b"))
+        XCTAssertTrue(gate.acceptsCancel(sessionId: nil))
+
+        gate.end(sessionId: "session-b")
+        XCTAssertEqual(gate.activeSessionId, "session-a")
+
+        gate.end(sessionId: "session-a")
+        XCTAssertNil(gate.activeSessionId)
+        XCTAssertFalse(gate.acceptsCommand(sessionId: "session-a"))
+
+        XCTAssertTrue(gate.begin("session-b"))
+        XCTAssertEqual(gate.activeSessionId, "session-b")
+    }
 }
