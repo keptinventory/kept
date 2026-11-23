@@ -526,6 +526,7 @@ export function useSummary() {
       'me.notification_preferences': () => t`Changed notification settings`,
       'me.notifications': () => t`Changed which notifications arrive`,
       'me.preferences': () => t`Changed preferences`,
+      'session.native_connected': () => t`Connected Kept for iPhone`,
       'session.revoke': () => t`Signed out a session`,
       'passkey.rename': () => t`Renamed a passkey`,
       'passkey.remove': () => t`Removed a passkey`,

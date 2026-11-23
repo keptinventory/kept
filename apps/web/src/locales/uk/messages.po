@@ -31303,3 +31303,607 @@ msgstr "Власник або адміністратор вмикає їх у р
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
+
+#: src/native/record.tsx
+msgid "Add to this box"
+msgstr "Додати до цієї коробки"
+
+#: src/native/capture-form.tsx
+msgid "Adding to box"
+msgstr "Додавання до коробки"
+
+#: src/native/record.tsx
+msgid "AI suggestions are still waiting. Your entry is saved."
+msgstr "Пропозиції ШІ ще очікуються. Ваш запис збережено."
+
+#: src/native/main.tsx
+msgid "An attached file exceeds the server upload limit."
+msgstr "Прикріплений файл перевищує обмеження сервера."
+
+#: src/native/main.tsx
+msgid "An attached file format is not supported by Kept."
+msgstr "Kept не підтримує формат одного з прикріплених файлів."
+
+#: src/native/main.tsx
+msgid "An uploaded file did not match its saved checksum. Retry or review the capture."
+msgstr "Завантажений файл не збігається зі збереженою контрольною сумою. Повторіть спробу або перевірте запис."
+
+#: src/native/capture-form.tsx
+msgid "Attach PDF"
+msgstr "Прикріпити PDF"
+
+#: src/native/capture-form.tsx
+msgid "Box name"
+msgstr "Назва коробки"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/main.tsx
+msgid "Cached inventory from {0}"
+msgstr "Кешований інвентар від {0}"
+
+#: src/native/main.tsx
+msgid "Change box"
+msgstr "Змінити коробку"
+
+#: src/native/record.tsx
+msgid "Check AI suggestions"
+msgstr "Перевірити пропозиції ШІ"
+
+#: src/native/capture-form.tsx
+msgid "Choose up to 20 files, each no larger than 25 MB."
+msgstr "Виберіть до 20 файлів розміром не більше 25 МБ кожен."
+
+#: src/native/label-panel.tsx
+msgid "Clear target"
+msgstr "Очистити ціль"
+
+#: src/native/label-panel.tsx
+msgid "Close camera"
+msgstr "Закрити камеру"
+
+#: src/native/main.tsx
+msgid "Connect to Kept to review recent batches."
+msgstr "Підключіться до Kept, щоб переглянути останні партії."
+
+#: src/native/main.tsx
+msgid "Connect to your inventory"
+msgstr "Підключитися до вашого інвентарю"
+
+#: src/native/label-panel.tsx
+msgid "Connect to your Kept server over HTTPS to enroll NFC tags."
+msgstr "Підключіться до сервера Kept через HTTPS, щоб записати NFC-мітки."
+
+#: src/native/main.tsx
+msgid "Continue finding"
+msgstr "Продовжити пошук"
+
+#: src/native/label-panel.tsx
+msgid "Continue scanning"
+msgstr "Продовжити сканування"
+
+#: src/native/main.tsx
+msgid "Could not connect to Kept. Check the server address and try again."
+msgstr "Не вдалося підключитися до Kept. Перевірте адресу сервера та спробуйте ще раз."
+
+#: src/native/capture-form.tsx
+msgid "Could not create the box. Check your connection and selected location."
+msgstr "Не вдалося створити коробку. Перевірте з’єднання та вибране розташування."
+
+#: src/native/main.tsx
+msgid "Could not search Kept. Try again."
+msgstr "Не вдалося виконати пошук у Kept. Спробуйте ще раз."
+
+#: src/native/main.tsx
+msgid "Could not sign out."
+msgstr "Не вдалося вийти з облікового запису."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture automatically. Retry or review it."
+msgstr "Не вдалося автоматично синхронізувати цей запис. Повторіть спробу або перегляньте його."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture. Review the error below."
+msgstr "Не вдалося синхронізувати цей запис. Перевірте помилку нижче."
+
+#: src/native/main.tsx
+msgid "Could not sync. Pending captures are still on this iPhone."
+msgstr "Не вдалося синхронізувати. Незавершені записи залишаються на цьому iPhone."
+
+#: src/native/main.tsx
+msgid "Could not update the destination box."
+msgstr "Не вдалося оновити цільову коробку."
+
+#: src/native/capture-form.tsx
+msgid "Create a box"
+msgstr "Створити коробку"
+
+#: src/native/capture-form.tsx
+#: src/native/main.tsx
+msgid "Create box"
+msgstr "Створити коробку"
+
+#. placeholder {0}: isolate(existingOwner)
+#: src/native/label-panel.tsx
+msgid "Currently linked to: {0}"
+msgstr "Зараз прив’язано до: {0}"
+
+#: src/native/main.tsx
+msgid "Destination box"
+msgstr "Цільова коробка"
+
+#. placeholder {0}: isolate(fields.name)
+#: src/native/main.tsx
+msgid "Discard {0}?"
+msgstr "Видалити {0}?"
+
+#: src/native/capture-form.tsx
+msgid "Enter a quantity greater than zero."
+msgstr "Введіть кількість більшу за нуль."
+
+#. placeholder {0}: batchEntryIds.length
+#: src/native/capture-form.tsx
+msgid "Entries in this batch: {0}"
+msgstr "Записів у цій партії: {0}"
+
+#. placeholder {0}: entry.capture.files.length
+#: src/native/main.tsx
+msgid "Files: {0}"
+msgstr "Файли: {0}"
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Find this box"
+msgstr "Знайти цю коробку"
+
+#: src/native/label-panel.tsx
+msgid "Finish the current NFC scan and try again."
+msgstr "Завершіть поточне сканування NFC та спробуйте ще раз."
+
+#. placeholder {0}: isolate(box.name)
+#: src/native/label-panel.tsx
+msgid "Found {0}."
+msgstr "Знайдено {0}."
+
+#: src/native/label-panel.tsx
+msgid "Found box."
+msgstr "Коробку знайдено."
+
+#: src/native/label-panel.tsx
+msgid "Hold steady against the tag and try again."
+msgstr "Тримайте нерухомо біля мітки та спробуйте ще раз."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone close to one tag at a time."
+msgstr "Підносьте верхню частину iPhone до однієї мітки за раз."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone near one NFC tag."
+msgstr "Піднесіть верхню частину iPhone до однієї NFC-мітки."
+
+#: src/native/capture-form.tsx
+msgid "Holiday decorations"
+msgstr "Святкові прикраси"
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "Identify a label"
+msgstr "Розпізнати мітку"
+
+#: src/native/label-panel.tsx
+msgid "Inspect NFC tag"
+msgstr "Перевірити NFC-мітку"
+
+#: src/native/record.tsx
+msgid "Keep my description"
+msgstr "Залишити мій опис"
+
+#: src/native/main.tsx
+msgid "Kept could not read the saved session."
+msgstr "Kept не зміг прочитати збережену сесію."
+
+#: src/native/capture-form.tsx
+msgid "Kept could not save on this iPhone. Check available storage and try again."
+msgstr "Kept не зміг зберегти дані на цьому iPhone. Перевірте вільне місце та спробуйте ще раз."
+
+#: src/native/label-panel.tsx
+msgid "Kept QR label"
+msgstr "QR-мітка Kept"
+
+#: src/native/main.tsx
+msgid "Kept server address"
+msgstr "Адреса сервера Kept"
+
+#: src/native/label-panel.tsx
+msgid "Kept tag verified."
+msgstr "Мітку Kept перевірено."
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Label code:"
+msgstr "Код мітки:"
+
+#: src/native/main.tsx
+msgid "Move and retry"
+msgstr "Перемістити та повторити"
+
+#: src/native/label-panel.tsx
+msgid "Move other tags away and scan one tag."
+msgstr "Приберіть інші мітки й проскануйте лише одну."
+
+#: src/native/label-panel.tsx
+msgid "Multiple records match this code. Choose one to open."
+msgstr "Кілька записів відповідають цьому коду. Виберіть один для відкриття."
+
+#: src/native/capture-form.tsx
+msgid "Needs attention: {batchFailedCount}"
+msgstr "Потребує уваги: {batchFailedCount}"
+
+#: src/native/label-panel.tsx
+msgid "NFC is unavailable on this device."
+msgstr "NFC недоступний на цьому пристрої."
+
+#: src/native/main.tsx
+msgid "No boxes yet."
+msgstr "Коробок ще немає."
+
+#: src/native/record.tsx
+msgid "No cached contents."
+msgstr "Немає кешованого вмісту."
+
+#: src/native/main.tsx
+msgid "No capture batches yet."
+msgstr "Партій записів ще немає."
+
+#: src/native/main.tsx
+msgid "No matching inventory."
+msgstr "Відповідних записів не знайдено."
+
+#: src/native/label-panel.tsx
+msgid "Not a Kept label."
+msgstr "Це не мітка Kept."
+
+#: src/native/main.tsx
+msgid "Nothing in this batch needs review."
+msgstr "У цій партії немає нічого для перевірки."
+
+#: src/native/main.tsx
+msgid "Offline. Changes stay on this iPhone until Kept is reachable."
+msgstr "Офлайн. Зміни зберігаються на цьому iPhone, доки Kept знову не буде доступний."
+
+#: src/native/main.tsx
+msgid "Only part of your inventory is cached."
+msgstr "Кешовано лише частину вашого інвентарю."
+
+#: src/native/label-panel.tsx
+msgid "Open box"
+msgstr "Відкрити коробку"
+
+#: src/native/label-panel.tsx
+msgid "Open label"
+msgstr "Відкрити мітку"
+
+#: src/native/record.tsx
+msgid "Opening inventory…"
+msgstr "Відкриття інвентарю…"
+
+#: src/native/label-panel.tsx
+msgid "Overwrite NFC tag"
+msgstr "Перезаписати NFC-мітку"
+
+#: src/native/capture-form.tsx
+msgid "PDF document"
+msgstr "Документ PDF"
+
+#: src/native/main.tsx
+msgid "Pending captures"
+msgstr "Очікувані записи"
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "Pending captures: {0}"
+msgstr "Очікувані записи: {0}"
+
+#. placeholder {0}: pending.length
+#. placeholder {1}: formatBytes(stats.pendingBytes)
+#: src/native/main.tsx
+msgid "Pending captures: {0} ({1})"
+msgstr "Очікувані записи: {0} ({1})"
+
+#: src/native/record.tsx
+msgid "Pending in this box"
+msgstr "Очікує в цій коробці"
+
+#: src/native/record.tsx
+msgid "Photograph"
+msgstr "Фотографія"
+
+#: src/native/record.tsx
+msgid "Photographs and documents"
+msgstr "Фотографії та документи"
+
+#: src/native/record.tsx
+msgid "QR and NFC label"
+msgstr "Мітка QR та NFC"
+
+#: src/native/capture-form.tsx
+msgid "Quantity (optional)"
+msgstr "Кількість (необов’язково)"
+
+#. placeholder {0}: row.quantity
+#: src/native/record.tsx
+msgid "Quantity: {0}"
+msgstr "Кількість: {0}"
+
+#: src/native/main.tsx
+msgid "Recent capture batches"
+msgstr "Останні партії записів"
+
+#: src/native/main.tsx
+msgid "Resumable Find target"
+msgstr "Збережена ціль пошуку"
+
+#: src/native/main.tsx
+msgid "Retry sync"
+msgstr "Повторити синхронізацію"
+
+#: src/native/label-panel.tsx
+msgid "Same tag scanned again. Move to another box."
+msgstr "Ту саму мітку відскановано знову. Перейдіть до іншої коробки."
+
+#: src/native/capture-form.tsx
+msgid "Save to box"
+msgstr "Зберегти до коробки"
+
+#: src/native/main.tsx
+msgid "Saved Find target"
+msgstr "Збережена ціль пошуку"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Saved on device"
+msgstr "Збережено на пристрої"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device: {batchPendingCount}"
+msgstr "Збережено на пристрої: {batchPendingCount}"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device."
+msgstr "Збережено на пристрої."
+
+#. placeholder {0}: batch.count
+#: src/native/main.tsx
+msgid "Saved: {0}"
+msgstr "Збережено: {0}"
+
+#: src/native/label-panel.tsx
+msgid "Scan cancelled."
+msgstr "Сканування скасовано."
+
+#: src/native/label-panel.tsx
+msgid "Scan NFC tag"
+msgstr "Сканувати NFC-мітку"
+
+#: src/native/label-panel.tsx
+msgid "Scan QR code"
+msgstr "Сканувати QR-код"
+
+#: src/native/label-panel.tsx
+msgid "Scanning…"
+msgstr "Сканування…"
+
+#: src/native/main.tsx
+msgid "Search inventory"
+msgstr "Пошук в інвентарі"
+
+#: src/native/main.tsx
+msgid "Search results"
+msgstr "Результати пошуку"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/record.tsx
+msgid "Showing cached details from {0}"
+msgstr "Показано кешовані дані від {0}"
+
+#: src/native/main.tsx
+msgid "Sign out with unsynced captures?"
+msgstr "Вийти попри несинхронізовані записи?"
+
+#: src/native/main.tsx
+msgid "Signed out on this iPhone. Kept could not revoke the server session while offline."
+msgstr "Вихід виконано на цьому iPhone. Kept не зміг відкликати сесію сервера в офлайні."
+
+#: src/native/main.tsx
+msgid "Stay signed in"
+msgstr "Залишитися в системі"
+
+#: src/native/label-panel.tsx
+msgid "Stop scanning"
+msgstr "Зупинити сканування"
+
+#: src/native/record.tsx
+msgid "Suggested description"
+msgstr "Запропонований опис"
+
+#. placeholder {0}: 1
+#: src/native/main.tsx
+msgid "Synced entries: {0}"
+msgstr "Синхронізовано записів: {0}"
+
+#: src/native/main.tsx
+msgid "Synced entries: {count}"
+msgstr "Синхронізовано записів: {count}"
+
+#: src/native/capture-form.tsx
+msgid "Synced: {batchSyncedCount}"
+msgstr "Синхронізовано: {batchSyncedCount}"
+
+#: src/native/capture-form.tsx
+msgid "Syncing: {batchPendingCount}"
+msgstr "Синхронізація: {batchPendingCount}"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Syncing…"
+msgstr "Синхронізація…"
+
+#: src/native/label-panel.tsx
+msgid "That code matches multiple items, not this box."
+msgstr "Цей код відповідає кільком речам, а не цій коробці."
+
+#. placeholder {0}: isolate(other)
+#: src/native/label-panel.tsx
+msgid "That is {0}, not this box. Scan another tag."
+msgstr "Це {0}, а не ця коробка. Проскануйте іншу мітку."
+
+#: src/native/main.tsx
+msgid "The destination box is missing or in Trash. Move this capture to another box or discard it."
+msgstr "Цільова коробка відсутня або у кошику. Перемістіть цей запис до іншої коробки або видаліть його."
+
+#: src/native/main.tsx
+msgid "The entry was created, but an attachment could not be verified yet. Retry to confirm."
+msgstr "Запис створено, але вкладення ще не вдалося перевірити. Повторіть спробу для підтвердження."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Tap Continue scanning to keep looking."
+msgstr "Сканування NFC перервано. Натисніть «Продовжити сканування», щоб шукати далі."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Try again."
+msgstr "Сканування NFC перервано. Спробуйте ще раз."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Tap Continue scanning to keep looking for this box."
+msgstr "Час сканування вичерпано. Натисніть «Продовжити сканування», щоб шукати далі."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Try again."
+msgstr "Час сканування вичерпано. Спробуйте ще раз."
+
+#: src/native/label-panel.tsx
+msgid "The server could not confirm this box’s label. Reopen the box and try again."
+msgstr "Сервер не зміг підтвердити мітку цієї коробки. Відкрийте коробку знову та спробуйте ще раз."
+
+#: src/native/record.tsx
+msgid "There are no AI suggestions to review. Your entry is saved."
+msgstr "Немає пропозицій ШІ для перегляду. Ваш запис збережено."
+
+#: src/native/label-panel.tsx
+msgid "This is a different label. Scan another tag."
+msgstr "Це інша мітка. Проскануйте іншу мітку."
+
+#: src/native/main.tsx
+msgid "This Kept was restored or replaced. Pending captures from the previous server state are held for review."
+msgstr "Цей сервер Kept було відновлено або замінено. Попередні несинхронізовані записи утримано для перевірки."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline, so it is not confirmed as a different box."
+msgstr "Не вдалося перевірити цю мітку офлайн, тому не підтверджено, що це інша коробка."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline."
+msgstr "Не вдалося перевірити цю мітку офлайн."
+
+#: src/native/label-panel.tsx
+msgid "This label has not been assigned."
+msgstr "Цю мітку ще не призначено."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This label is unavailable in your Kept."
+msgstr "Ця мітка недоступна у вашому Kept."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is blank."
+msgstr "Ця NFC-мітка порожня."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is read-only. Try another tag."
+msgstr "Ця NFC-мітка доступна лише для читання. Спробуйте іншу."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is too small for the label URL."
+msgstr "Ця NFC-мітка замала для URL-адреси мітки."
+
+#: src/native/label-panel.tsx
+msgid "This tag already contains the verified Kept label."
+msgstr "Ця мітка вже містить перевірену мітку Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag already holds information. Writing will replace its contents."
+msgstr "Ця мітка вже містить дані. Запис замінить її вміст."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This tag belongs to a different Kept server."
+msgstr "Ця мітка належить іншому серверу Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not contain a Kept label URL."
+msgstr "Ця мітка не містить URL-адреси мітки Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not support NDEF."
+msgstr "Ця мітка не підтримує NDEF."
+
+#: src/native/label-panel.tsx
+msgid "This tag has changed. Inspect it again before writing."
+msgstr "Ця мітка змінилася. Перевірте її знову перед записом."
+
+#: src/native/label-panel.tsx
+msgid "This tag is blank and ready to write."
+msgstr "Ця мітка порожня й готова до запису."
+
+#: src/native/main.tsx
+msgid "This unsynced capture and its saved photos or documents on this iPhone will be deleted."
+msgstr "Цей несинхронізований запис і збережені на цьому iPhone фото чи документи буде видалено."
+
+#: src/native/record.tsx
+msgid "Use this description"
+msgstr "Використати цей опис"
+
+#: src/native/label-panel.tsx
+msgid "Verify tag now"
+msgstr "Перевірити мітку зараз"
+
+#: src/native/record.tsx
+msgid "View QR label"
+msgstr "Переглянути QR-мітку"
+
+#: src/native/label-panel.tsx
+msgid "Write and verify"
+msgstr "Записати й перевірити"
+
+#: src/native/label-panel.tsx
+msgid "Write NFC tag"
+msgstr "Записати NFC-мітку"
+
+#: src/native/label-panel.tsx
+msgid "Writing was interrupted. Inspect the tag again to verify what it holds."
+msgstr "Запис перервано. Перевірте мітку ще раз, щоб дізнатися її вміст."
+
+#: src/native/main.tsx
+msgid "You no longer have write permission in that box’s location."
+msgstr "Ви більше не маєте дозволу на запис у розташуванні цієї коробки."
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "You still have {0} capture(s) saved on this iPhone. They stay locked to this account and will not sync under another account or server."
+msgstr "На цьому iPhone досі збережено {0} запис(ів). Вони залишаться прив’язаними до цього облікового запису й не синхронізуються з іншим обліковим записом або сервером."
+
+#: src/native/capture-form.tsx
+msgid "Your iPhone storage is full. Free up space and try again."
+msgstr "Сховище iPhone заповнене. Звільніть місце та спробуйте ще раз."
+
+#: src/native/main.tsx
+msgid "Your session ended. Sign in again to see your pending captures."
+msgstr "Вашу сесію завершено. Увійдіть знову, щоб побачити очікувані записи."
+
+msgid "Connected Kept for iPhone"
+msgstr "Kept для iPhone підключено"
+
+msgid "Entries saved in this batch: {saved}"
+msgstr "Збережено в цьому пакеті: {saved}"
+
+msgid "Found {name}."
+msgstr "Знайдено {name}."

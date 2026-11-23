@@ -37,6 +37,7 @@ export function limiterKey(
     | 'sign-up-existing'
     | 'reset-code-ip'
     | 'token-ip'
+    | 'native-token-ip'
     | 'magic-link-address'
     | 'password-reset-address'
     | 'setup-code'

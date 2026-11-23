@@ -1,19 +1,30 @@
 import { spawn } from 'node:child_process';
+import { createHash, randomBytes } from 'node:crypto';
 import { chmod, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { KEPT_VERSION, newId } from '@kept/shared';
+import { KEPT_VERSION, newId, PAYLOAD_VERSION } from '@kept/shared';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest';
-import type { TestApp } from '../../test/app.js';
+import { jar, type TestApp } from '../../test/app.js';
 import { type TestDb, testDb } from '../../test/db.js';
-import { sha256, type TestFiles, testFiles, uniqueJpeg, upload } from '../../test/files.js';
-import { type Person, peopleApp, person } from '../../test/people.js';
+import {
+  fixture,
+  sha256,
+  type TestFiles,
+  testFiles,
+  uniqueJpeg,
+  upload,
+} from '../../test/files.js';
+import { call, type Person, peopleApp, person } from '../../test/people.js';
 import { type TestPgTools, testPgTools } from '../../test/pg-tools.js';
 import { asOwner } from '../../test/tenancy.js';
-import { createLocation, createThing, type Loc } from '../../test/things.js';
+import { builtinType, createLocation, createThing, type Loc } from '../../test/things.js';
 import type { AlertDeps } from '../alerts/alerts.js';
+import { withScope } from '../db/scope.js';
 import { systemJobs } from '../jobs/system.js';
+import { resolveScan } from '../scan/resolve.js';
+import { originalKey } from '../storage/blob-store.js';
 import { backupCron } from './config.js';
 import { EXPORT_SKIPPED, runExport } from './export.js';
 import { legacyRuns } from './legacy.js';
@@ -21,6 +32,7 @@ import {
   blobToFile,
   countRows,
   extensionsOf,
+  hashBlob,
   hashFile,
   ownedTables,
   parseManifest,
@@ -37,7 +49,7 @@ import type { PgTools } from './pg-tools.js';
 import { FakeRestic } from './restic/fake.js';
 import type { Restic } from './restic/restic.js';
 import { ResticCli } from './restic/run.js';
-import { RestoreError, runRestore } from './restore.js';
+import { RestoreError, restoreVerified, runResticRestore, runRestore } from './restore.js';
 import type { ResolvedBackupSettings } from './settings.js';
 import { LocalDirTarget } from './target.js';
 
@@ -684,6 +696,217 @@ async function alphaRun(target: LocalDirTarget): Promise<string> {
   await rm(work, { recursive: true, force: true });
   return id;
 }
+
+it('restores the NFC inventory capture with its QR URL and byte-identical originals', async () => {
+  const box = await createThing(t, ibrahim, garage, {
+    name: 'Holiday box',
+    typeId: await builtinType(db, 'box_bin'),
+  });
+  const verifier = randomBytes(32).toString('base64url');
+  const approval = await t.app.inject({
+    method: 'POST',
+    url: '/native/connect',
+    headers: {
+      origin: t.publicUrl,
+      cookie: ibrahim.cookie,
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+    payload: new URLSearchParams({
+      challenge: createHash('sha256').update(verifier).digest('base64url'),
+      state: randomBytes(32).toString('base64url'),
+    }).toString(),
+  });
+  expect(approval.statusCode, approval.body).toBe(303);
+  const code = new URL(String(approval.headers.location)).searchParams.get('code');
+  const exchange = await call(t, '/api/v1/native/exchange', { body: { code, verifier } });
+  expect(exchange.statusCode, exchange.body).toBe(200);
+  const { account, epoch } = exchange.json<{ account: string; epoch: string }>();
+  expect(account).toBe(ibrahim.userId);
+  const native = { cookie: jar(exchange) };
+  const headers = { 'x-kept-native-account': account, 'x-kept-native-epoch': epoch };
+  const staleHeaders = { ...headers, 'x-kept-native-epoch': newId() };
+  const originals = [
+    {
+      bytes: await uniqueJpeg(),
+      fileId: newId(),
+      role: 'photo',
+      cls: 'evidence',
+      mime: 'image/jpeg',
+    },
+    {
+      bytes: await uniqueJpeg(),
+      fileId: newId(),
+      role: 'photo',
+      cls: 'evidence',
+      mime: 'image/jpeg',
+    },
+    {
+      bytes: await fixture('doc.pdf'),
+      fileId: newId(),
+      role: 'document',
+      cls: 'document',
+      mime: 'application/pdf',
+    },
+  ];
+  const pdf = originals[2];
+  if (!pdf) throw new Error('Missing PDF fixture');
+  const staleUpload = await upload(t, native, garage.id, pdf.bytes, {
+    id: pdf.fileId,
+    cls: pdf.cls,
+    contentType: pdf.mime,
+    headers: staleHeaders,
+  });
+  expect(staleUpload.statusCode, staleUpload.body).toBe(409);
+  for (const original of originals) {
+    const opts = { id: original.fileId, cls: original.cls, contentType: original.mime, headers };
+    const first = await upload(t, native, garage.id, original.bytes, opts);
+    expect(first.statusCode, first.body).toBe(201);
+    const retry = await upload(t, native, garage.id, original.bytes, opts);
+    expect(retry.statusCode, retry.body).toBe(200);
+    expect(retry.json()).toMatchObject({ id: original.fileId, sha256: sha256(original.bytes) });
+  }
+  const captureId = newId();
+  const operation = {
+    clientVersion: KEPT_VERSION,
+    payloadVersion: PAYLOAD_VERSION,
+    clientId: captureId,
+    idempotencyKey: captureId,
+    locationId: garage.id,
+    op: 'create_thing',
+    takenAt: new Date().toISOString(),
+    payload: {
+      id: captureId,
+      target: { containerId: box.id },
+      mode: 'thing',
+      name: 'Holiday decorations',
+      note: 'Red and gold',
+      batchId: newId(),
+      reviewSuggestions: true,
+      files: originals.map(({ fileId, role, bytes }) => ({
+        fileId,
+        role,
+        sha256: sha256(bytes),
+      })),
+    },
+  };
+  const sync = (item: typeof operation, context = headers) =>
+    call(t, '/api/v1/sync/ops', {
+      as: native,
+      body: { clientVersion: KEPT_VERSION, ops: [item] },
+      headers: context,
+    });
+  const staleSync = await sync(operation, staleHeaders);
+  expect(staleSync.statusCode, staleSync.body).toBe(409);
+
+  const missingDestination = {
+    ...operation,
+    payload: { ...operation.payload, target: { containerId: newId() } },
+  };
+  expect((await sync(missingDestination)).json()).toMatchObject({
+    results: [{ outcome: 'dropped', reason: 'target_missing' }],
+  });
+  expect((await sync(operation)).json()).toMatchObject({
+    results: [{ outcome: 'dropped', reason: 'idempotency_mismatch' }],
+  });
+  const corrected = { ...operation, idempotencyKey: newId() };
+  const first = await sync(corrected);
+  expect(first.statusCode, first.body).toBe(200);
+  expect(first.json()).toMatchObject({
+    results: [{ outcome: 'applied', entity: { id: captureId } }],
+  });
+  expect((await sync(corrected)).json()).toEqual(first.json());
+
+  for (const original of originals) {
+    const link = await call(t, `/api/v1/files/${original.fileId}/url?thingId=${captureId}`, {
+      as: native,
+      headers,
+      body: { variant: 'original' },
+    });
+    expect(link.statusCode, link.body).toBe(200);
+    const file = await t.app.inject({ url: link.json<{ url: string }>().url });
+    expect(file.statusCode).toBe(200);
+    expect(file.headers['content-type']).toBe(original.mime);
+    expect(sha256(file.rawPayload)).toBe(sha256(original.bytes));
+  }
+
+  const outsider = await person(t, db, 'bruce');
+  const label = `https://kept.example.com/l/${box.shortCode}`;
+  const denied = await call(t, '/api/v1/scan/resolve', { as: outsider, body: { text: label } });
+  expect(denied.json()).toEqual({ outcome: 'not_in_your_kept' });
+  const deniedMedia = await call(t, `/api/v1/files/${originals[0]?.fileId}/url`, {
+    as: outsider,
+    body: { variant: 'original' },
+  });
+  expect(deniedMedia.statusCode).toBe(404);
+
+  const restic = REAL ? realRestic() : new FakeRestic();
+  const target = path.join(scratch, 'native-mvp');
+  const backup = await runSnapshot(depsFor(restic, target), { kind: 'nightly' });
+  expect(backup.status).toBe('ok');
+  const ownerUrl = await emptyDatabase('native_mvp');
+  const restored = await testFiles();
+  const appUrl = new URL(ownerUrl);
+  appUrl.username = 'kept_app';
+  appUrl.password = 'kept_app';
+  const restoredPool = new pg.Pool({ connectionString: appUrl.href });
+  const restoredOwner = new pg.Client({ connectionString: ownerUrl });
+  try {
+    const report = await runResticRestore({
+      ownerUrl,
+      restic,
+      repo: {
+        location: path.join(target, 'restic'),
+        env: { RESTIC_PASSWORD: PASSWORD },
+        description: '',
+      },
+      snapshot: String(backup.snapshotId),
+      blobs: restored.blobs,
+      pgTools: pgt.tools,
+      tmpDir: restored.tmpDir,
+    });
+    expect(restoreVerified(report)).toBe(true);
+    for (const original of originals) {
+      const stored = await hashBlob(restored.blobs, originalKey(garage.id, original.fileId));
+      expect(stored.sha256).toBe(sha256(original.bytes));
+    }
+    await restoredOwner.connect();
+    const restoredEpoch = await restoredOwner.query(
+      "SELECT value FROM auth.verification WHERE id = 'kept-native-sync-epoch'",
+    );
+    expect(restoredEpoch.rows).toHaveLength(1);
+    expect(restoredEpoch.rows).not.toEqual([{ value: epoch }]);
+
+    await withScope(restoredPool, { userId: ibrahim.userId, mfa: false }, async (_tx, client) => {
+      const resolved = await resolveScan(
+        client,
+        { text: label },
+        { lookupEnabled: async () => false },
+      );
+      expect(resolved).toMatchObject({
+        outcome: 'open',
+        target: { kind: 'thing', id: box.id, locationId: garage.id },
+      });
+      const record = await client.query(
+        'SELECT container_id, name, notes FROM public.things WHERE id = $1',
+        [captureId],
+      );
+      expect(record.rows).toEqual([
+        { container_id: box.id, name: 'Holiday decorations', notes: 'Red and gold' },
+      ]);
+      const attachments = await client.query(
+        'SELECT file_id, role FROM public.attachments WHERE thing_id = $1 ORDER BY sort',
+        [captureId],
+      );
+      expect(attachments.rows).toEqual(
+        originals.map(({ fileId, role }) => ({ file_id: fileId, role })),
+      );
+    });
+  } finally {
+    await restoredOwner.end().catch(() => {});
+    await restoredPool.end();
+    await restored.cleanup();
+  }
+});
 
 describe('the alpha runs (--legacy)', () => {
   it('are listed and restore into an empty database with every row and file', async () => {

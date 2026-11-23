@@ -6,6 +6,7 @@ import {
 } from '@kept/shared';
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   char,
   check,
   customType,
@@ -66,6 +67,7 @@ export const extractions = pgTable(
     /** PLAN (D266): the floor plan this reads; set at insert only. */
     floorPlanId: uuid('floor_plan_id'),
     mode: mode.col().notNull(),
+    reviewOnly: boolean('review_only').notNull().default(false),
     attempt: integer('attempt').notNull().default(1),
     status: status.col().notNull().default('queued'),
     statusReason: text('status_reason'),

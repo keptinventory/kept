@@ -29,8 +29,8 @@ import { LinkButton, Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
-import { appHref, mainAddressElsewhere, publicOrigin, underIngress } from '@/lib/base-path';
-import { nextSearch } from '@/lib/next';
+import { mainAddressElsewhere, publicOrigin, underIngress } from '@/lib/base-path';
+import { finishSignIn, nextSearch } from '@/lib/next';
 import { expectedOriginOf } from '@/lib/origin-mismatch';
 
 /** `next`, the `error` a failed "Sign in with <name>" comes back with (step 6, T22), and `via`:
@@ -105,7 +105,7 @@ function SignInPage() {
     await qc.invalidateQueries({ queryKey: keys.me });
     // `next` may carry a #fragment (an invite link), so it goes to history as a whole href.
     // The browser's history knows no basepath: under Home Assistant ingress, the prefix (D273).
-    router.history.push(appHref(next ?? '/'));
+    finishSignIn(next, (href) => router.history.push(href));
   };
   const describe = (e: unknown) => {
     setMismatch(expectedOriginOf(e));

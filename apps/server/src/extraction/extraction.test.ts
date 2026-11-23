@@ -18,6 +18,7 @@ import {
 import {
   builtinType,
   createLocation,
+  createThing,
   eventsOf,
   type Json,
   type Loc,
@@ -233,6 +234,56 @@ const thingAnswer = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('THING', () => {
+  it('keeps a named box capture as entered until the owner edits and accepts the AI suggestion', async () => {
+    const box = await createThing(t, ibrahim, home, {
+      name: 'Tools box',
+      typeId: await builtinType(db, 'box_bin'),
+    });
+    const fileId = await up(ibrahim);
+    const { key } = await keyOf(fileId, 'thing');
+    answers[key] = { output: thingAnswer(), usage: { input: 500, output: 100 } };
+    const saved = await capture(ibrahim, {
+      target: { containerId: box.id },
+      name: 'Tools',
+      note: 'Check the top tray',
+      files: [{ fileId, role: 'photo' }],
+      reviewSuggestions: true,
+    });
+    const id = saved.thing?.id;
+    const read = () =>
+      own(
+        db,
+        'SELECT name, notes, container_id, review_state, model FROM public.things WHERE id = $1',
+        [id],
+      );
+    const recorded = {
+      name: 'Tools',
+      notes: 'Check the top tray',
+      container_id: box.id,
+      review_state: 'confirmed',
+      model: null,
+    };
+    expect(await read()).toEqual([recorded]);
+
+    const result = await run(ibrahim, saved.extraction.id);
+    expect(result.status).toBe('succeeded');
+    expect(await read()).toEqual([recorded]);
+    const [review] = await inbox(id as string);
+    expect(review?.payload.suggestions).toMatchObject([{ field: 'name', value: 'Cordless drill' }]);
+    const [row] = await own<{ row_version: number }>(
+      db,
+      'SELECT row_version FROM public.inbox_items WHERE id = $1',
+      [review?.id],
+    );
+    const response = await call(t, `/api/v1/inbox/${review?.id}/accept`, {
+      as: ibrahim,
+      body: { reject: ['name'], set: { name: 'Drill and accessories' } },
+      headers: { 'if-match': String(row?.row_version) },
+    });
+    expect(response.statusCode, response.body).toBe(200);
+    expect(await read()).toEqual([{ ...recorded, name: 'Drill and accessories' }]);
+  });
+
   it('fills in a draft, suggests the serial, and writes one audit and one ledger row', async () => {
     const fileId = await up(louis);
     const out = await capture(louis, { files: [{ fileId, role: 'photo' }] });

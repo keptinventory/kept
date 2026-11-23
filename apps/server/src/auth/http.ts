@@ -317,12 +317,13 @@ export async function reserveTokenAttempt(
   authPool: pg.Pool,
   headers: Headers,
   reply: FastifyReply,
+  kind: 'token-ip' | 'native-token-ip' = 'token-ip',
 ): Promise<void> {
   const ip = requestClientIp(headers);
   if (!ip) throw invalid('The client address could not be determined.');
   const decision = await reserveInWindow(
     authPool,
-    limiterKey('token-ip', ip),
+    limiterKey(kind, ip),
     TOKEN_ATTEMPTS_PER_IP_PER_HOUR,
     3600,
   );

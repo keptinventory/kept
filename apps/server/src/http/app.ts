@@ -25,6 +25,7 @@ import {
   sessionHook,
 } from '../auth/http.js';
 import { meSessionRoutes } from '../auth/me.js';
+import { nativeAuthRoutes, nativeContextHook } from '../auth/native.js';
 import { signInSecurityRoutes } from '../auth/sign-in-security.js';
 import type { Env } from '../config/env.js';
 import type { SecretKeys } from '../crypto/keyring.js';
@@ -271,6 +272,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
       ...(opts.onScope ? { onScope: opts.onScope } : {}),
     }),
   );
+  if (auth) app.addHook('onRequest', nativeContextHook);
 
   const filesFrom = await fileOrigin(opts.files ?? null, opts.env.KEPT_PUBLIC_URL);
   await app.register(helmet, {
@@ -391,6 +393,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     const publicUrl = opts.env.KEPT_PUBLIC_URL;
     const mailer = opts.mailer ?? logMailer(app.log);
     const jobs = opts.jobs ?? null;
+    await nativeAuthRoutes(app, auth, publicUrl);
     await authRoutes(app, {
       auth,
       pools: opts.pools,

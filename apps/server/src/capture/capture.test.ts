@@ -326,6 +326,45 @@ describe('POST /api/v1/captures', () => {
     ]);
   });
 
+  it('saves a named entry with original photos and a PDF together inside the selected box', async () => {
+    const typeId = await builtinType(db, 'box_bin');
+    const box = (await createThing(t, ibrahim, home, { name: 'Holiday box', typeId })).id;
+    const first = await up(ibrahim, home, await uniqueJpeg(), 'evidence');
+    const second = await up(ibrahim, home, await uniqueJpeg(), 'evidence');
+    const pdf = await fixture('doc.pdf');
+    const document = await up(ibrahim, home, pdf, 'document');
+    const captureBody = body(home, {
+      target: { containerId: box },
+      name: 'Holiday decorations',
+      note: 'Red and gold',
+      quantity: '2',
+      files: [photo(document, 'document'), photo(first), photo(second)],
+    });
+    const key = newId();
+    ok(await capture(ibrahim, captureBody, key), 201);
+    const replay = await capture(ibrahim, captureBody, key);
+    expect(replay.headers[REPLAYED_HEADER]).toBe('true');
+    expect(
+      await own(db, 'SELECT container_id, name, notes, quantity FROM public.things WHERE id = $1', [
+        captureBody.id,
+      ]),
+    ).toEqual([
+      { container_id: box, name: 'Holiday decorations', notes: 'Red and gold', quantity: '2.000' },
+    ]);
+    const attached = await own<{ file_id: string; role: string; sha256: string }>(
+      db,
+      `SELECT a.file_id, a.role, f.sha256 FROM public.attachments a
+        JOIN public.files f ON f.id = a.file_id WHERE a.thing_id = $1 ORDER BY a.sort`,
+      [captureBody.id],
+    );
+    expect(attached.map(({ file_id, role }) => [file_id, role])).toEqual([
+      [first, 'photo'],
+      [second, 'photo'],
+      [document, 'document'],
+    ]);
+    expect(attached.at(-1)?.sha256).toBe(sha256(pdf));
+  });
+
   it('files two receipt pages under one draft purchase, with one receipt inbox item', async () => {
     const page1 = await up(ibrahim, home, await uniqueJpeg(), 'evidence');
     const page2 = await up(ibrahim, home, await uniqueJpeg(), 'evidence');

@@ -80,7 +80,7 @@ describe('the service worker routes', () => {
       expect(isAuthenticatedPath(p)).toBe(false);
   });
 
-  it('keeps icon chunks at runtime, and never answers /api, /f or /share with the shell', () => {
+  it('keeps icon chunks at runtime and leaves server-handled navigations to the server', () => {
     expect(isIconChunk('/assets/icons/drill-abc.js')).toBe(true);
     expect(isIconChunk('/assets/icons/DynamicIcon-abc.js')).toBe(true);
     expect(isIconChunk('/assets/index-abc.js')).toBe(false);
@@ -89,7 +89,9 @@ describe('the service worker routes', () => {
     expect(isHouseholdChunk('/assets/household/household-sections-abc.js')).toBe(true);
     expect(isHouseholdChunk('/assets/household-sections-abc.js')).toBe(false);
     const denied = (p: string) => NAVIGATE_FALLBACK_DENYLIST.some((r) => r.test(p));
-    expect(['/api/v1/me', '/f/abc', '/share'].every(denied)).toBe(true);
+    expect(
+      ['/api/v1/me', '/f/abc', '/share', '/native/connect?challenge=example'].every(denied),
+    ).toBe(true);
     expect(['/', '/things/1', '/capture'].some(denied)).toBe(false);
   });
 });

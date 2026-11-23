@@ -131,6 +131,8 @@ export const CreateThingPayload = z.strictObject({
   pageOf: uuid.optional(),
   /** RECEIPT and READING modes' "Note (optional)": text kept with the capture, never a name. */
   note: z.string().trim().min(1).max(500).optional(),
+  /** A named box capture keeps image interpretations in the review inbox. */
+  reviewSuggestions: z.literal(true).optional(),
   meterId: uuid.optional(),
   barcode: z.string().trim().min(1).max(64).optional(),
   /** A serial number or asset tag read by the scanner (a GS1 code's serial, a Code 39 tag). */

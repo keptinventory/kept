@@ -42,6 +42,11 @@ export function isRuntimeCachedChunk(pathname: string): boolean {
   return isIconChunk(pathname) || isLocaleChunk(pathname) || isHouseholdChunk(pathname);
 }
 
-/** Navigations the precached shell must never answer: the API, files, the share target, and the
- * image's third-party notices (D151), a server file the version footer opens. */
-export const NAVIGATE_FALLBACK_DENYLIST = [/^\/api\//, /^\/f\//, /^\/share/, /^\/notices\.txt$/];
+/** The shell leaves API, files, the share target, notices, and iPhone consent to the server. */
+export const NAVIGATE_FALLBACK_DENYLIST = [
+  /^\/api\//,
+  /^\/f\//,
+  /^\/share/,
+  /^\/notices\.txt$/,
+  /^\/native\/connect(?:\?|$)/,
+];

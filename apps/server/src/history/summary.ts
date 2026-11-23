@@ -353,6 +353,7 @@ const ENGLISH: Record<SummaryKey, Sentence> = {
   'me.notification_preferences': () => 'Changed notification settings',
   'me.notifications': () => 'Changed which notifications arrive',
   'me.preferences': () => 'Changed preferences',
+  'session.native_connected': () => 'Connected Kept for iPhone',
   'session.revoke': () => 'Signed out a session',
   'passkey.rename': () => 'Renamed a passkey',
   'passkey.remove': () => 'Removed a passkey',

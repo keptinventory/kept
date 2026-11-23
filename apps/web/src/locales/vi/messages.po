@@ -21368,3 +21368,607 @@ msgstr "Chủ sở hữu hoặc quản trị viên bật nó trong mục Theo d�
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Kiểm kê đang tắt ở đây: danh sách này hiện các lần kiểm tra hộp."
+
+#: src/native/record.tsx
+msgid "Add to this box"
+msgstr "Thêm vào hộp này"
+
+#: src/native/capture-form.tsx
+msgid "Adding to box"
+msgstr "Đang thêm vào hộp"
+
+#: src/native/record.tsx
+msgid "AI suggestions are still waiting. Your entry is saved."
+msgstr "Gợi ý AI vẫn đang chờ. Mục của bạn đã được lưu."
+
+#: src/native/main.tsx
+msgid "An attached file exceeds the server upload limit."
+msgstr "Tệp đính kèm vượt quá giới hạn tải lên của máy chủ."
+
+#: src/native/main.tsx
+msgid "An attached file format is not supported by Kept."
+msgstr "Kept không hỗ trợ định dạng của tệp đính kèm."
+
+#: src/native/main.tsx
+msgid "An uploaded file did not match its saved checksum. Retry or review the capture."
+msgstr "Tệp đã tải lên không khớp với mã kiểm tra đã lưu. Thử lại hoặc xem lại mục đã lưu."
+
+#: src/native/capture-form.tsx
+msgid "Attach PDF"
+msgstr "Đính kèm PDF"
+
+#: src/native/capture-form.tsx
+msgid "Box name"
+msgstr "Tên hộp"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/main.tsx
+msgid "Cached inventory from {0}"
+msgstr "Kho lưu tạm từ {0}"
+
+#: src/native/main.tsx
+msgid "Change box"
+msgstr "Đổi hộp"
+
+#: src/native/record.tsx
+msgid "Check AI suggestions"
+msgstr "Kiểm tra gợi ý AI"
+
+#: src/native/capture-form.tsx
+msgid "Choose up to 20 files, each no larger than 25 MB."
+msgstr "Chọn tối đa 20 tệp, mỗi tệp không quá 25 MB."
+
+#: src/native/label-panel.tsx
+msgid "Clear target"
+msgstr "Xóa mục tiêu"
+
+#: src/native/label-panel.tsx
+msgid "Close camera"
+msgstr "Đóng máy ảnh"
+
+#: src/native/main.tsx
+msgid "Connect to Kept to review recent batches."
+msgstr "Kết nối với Kept để xem lại các lô gần đây."
+
+#: src/native/main.tsx
+msgid "Connect to your inventory"
+msgstr "Kết nối với kho của bạn"
+
+#: src/native/label-panel.tsx
+msgid "Connect to your Kept server over HTTPS to enroll NFC tags."
+msgstr "Kết nối với máy chủ Kept qua HTTPS để ghi thẻ NFC."
+
+#: src/native/main.tsx
+msgid "Continue finding"
+msgstr "Tiếp tục tìm"
+
+#: src/native/label-panel.tsx
+msgid "Continue scanning"
+msgstr "Tiếp tục quét"
+
+#: src/native/main.tsx
+msgid "Could not connect to Kept. Check the server address and try again."
+msgstr "Không thể kết nối với Kept. Hãy kiểm tra địa chỉ máy chủ và thử lại."
+
+#: src/native/capture-form.tsx
+msgid "Could not create the box. Check your connection and selected location."
+msgstr "Không thể tạo hộp. Hãy kiểm tra kết nối và vị trí đã chọn."
+
+#: src/native/main.tsx
+msgid "Could not search Kept. Try again."
+msgstr "Không thể tìm kiếm trong Kept. Hãy thử lại."
+
+#: src/native/main.tsx
+msgid "Could not sign out."
+msgstr "Không thể đăng xuất."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture automatically. Retry or review it."
+msgstr "Không thể tự động đồng bộ mục này. Hãy thử lại hoặc kiểm tra."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture. Review the error below."
+msgstr "Không thể đồng bộ mục này. Hãy xem lỗi bên dưới."
+
+#: src/native/main.tsx
+msgid "Could not sync. Pending captures are still on this iPhone."
+msgstr "Không thể đồng bộ. Các mục chờ vẫn được lưu trên iPhone này."
+
+#: src/native/main.tsx
+msgid "Could not update the destination box."
+msgstr "Không thể cập nhật hộp đích."
+
+#: src/native/capture-form.tsx
+msgid "Create a box"
+msgstr "Tạo hộp"
+
+#: src/native/capture-form.tsx
+#: src/native/main.tsx
+msgid "Create box"
+msgstr "Tạo hộp"
+
+#. placeholder {0}: isolate(existingOwner)
+#: src/native/label-panel.tsx
+msgid "Currently linked to: {0}"
+msgstr "Hiện đang liên kết với: {0}"
+
+#: src/native/main.tsx
+msgid "Destination box"
+msgstr "Hộp đích"
+
+#. placeholder {0}: isolate(fields.name)
+#: src/native/main.tsx
+msgid "Discard {0}?"
+msgstr "Hủy bỏ {0}?"
+
+#: src/native/capture-form.tsx
+msgid "Enter a quantity greater than zero."
+msgstr "Nhập số lượng lớn hơn 0."
+
+#. placeholder {0}: batchEntryIds.length
+#: src/native/capture-form.tsx
+msgid "Entries in this batch: {0}"
+msgstr "Mục trong lô này: {0}"
+
+#. placeholder {0}: entry.capture.files.length
+#: src/native/main.tsx
+msgid "Files: {0}"
+msgstr "Tệp: {0}"
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Find this box"
+msgstr "Tìm hộp này"
+
+#: src/native/label-panel.tsx
+msgid "Finish the current NFC scan and try again."
+msgstr "Hoàn tất lần quét NFC hiện tại và thử lại."
+
+#. placeholder {0}: isolate(box.name)
+#: src/native/label-panel.tsx
+msgid "Found {0}."
+msgstr "Đã tìm thấy {0}."
+
+#: src/native/label-panel.tsx
+msgid "Found box."
+msgstr "Đã tìm thấy hộp."
+
+#: src/native/label-panel.tsx
+msgid "Hold steady against the tag and try again."
+msgstr "Giữ yên sát thẻ và thử lại."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone close to one tag at a time."
+msgstr "Đưa phần đầu iPhone lại gần từng thẻ một."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone near one NFC tag."
+msgstr "Đưa phần đầu iPhone lại gần một thẻ NFC."
+
+#: src/native/capture-form.tsx
+msgid "Holiday decorations"
+msgstr "Đồ trang trí lễ hội"
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "Identify a label"
+msgstr "Nhận dạng nhãn"
+
+#: src/native/label-panel.tsx
+msgid "Inspect NFC tag"
+msgstr "Kiểm tra thẻ NFC"
+
+#: src/native/record.tsx
+msgid "Keep my description"
+msgstr "Giữ mô tả của tôi"
+
+#: src/native/main.tsx
+msgid "Kept could not read the saved session."
+msgstr "Kept không thể đọc phiên đã lưu."
+
+#: src/native/capture-form.tsx
+msgid "Kept could not save on this iPhone. Check available storage and try again."
+msgstr "Kept không thể lưu trên iPhone này. Hãy kiểm tra dung lượng trống và thử lại."
+
+#: src/native/label-panel.tsx
+msgid "Kept QR label"
+msgstr "Nhãn QR Kept"
+
+#: src/native/main.tsx
+msgid "Kept server address"
+msgstr "Địa chỉ máy chủ Kept"
+
+#: src/native/label-panel.tsx
+msgid "Kept tag verified."
+msgstr "Đã xác minh thẻ Kept."
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Label code:"
+msgstr "Mã nhãn:"
+
+#: src/native/main.tsx
+msgid "Move and retry"
+msgstr "Chuyển và thử lại"
+
+#: src/native/label-panel.tsx
+msgid "Move other tags away and scan one tag."
+msgstr "Đưa các thẻ khác ra xa và chỉ quét một thẻ."
+
+#: src/native/label-panel.tsx
+msgid "Multiple records match this code. Choose one to open."
+msgstr "Nhiều mục khớp với mã này. Chọn một mục để mở."
+
+#: src/native/capture-form.tsx
+msgid "Needs attention: {batchFailedCount}"
+msgstr "Cần xem lại: {batchFailedCount}"
+
+#: src/native/label-panel.tsx
+msgid "NFC is unavailable on this device."
+msgstr "NFC không khả dụng trên thiết bị này."
+
+#: src/native/main.tsx
+msgid "No boxes yet."
+msgstr "Chưa có hộp nào."
+
+#: src/native/record.tsx
+msgid "No cached contents."
+msgstr "Không có nội dung lưu tạm."
+
+#: src/native/main.tsx
+msgid "No capture batches yet."
+msgstr "Chưa có lô chụp nào."
+
+#: src/native/main.tsx
+msgid "No matching inventory."
+msgstr "Không có mục kho phù hợp."
+
+#: src/native/label-panel.tsx
+msgid "Not a Kept label."
+msgstr "Đây không phải nhãn Kept."
+
+#: src/native/main.tsx
+msgid "Nothing in this batch needs review."
+msgstr "Không có mục nào trong lô này cần duyệt."
+
+#: src/native/main.tsx
+msgid "Offline. Changes stay on this iPhone until Kept is reachable."
+msgstr "Ngoại tuyến. Các thay đổi được giữ trên iPhone này cho đến khi kết nối lại với Kept."
+
+#: src/native/main.tsx
+msgid "Only part of your inventory is cached."
+msgstr "Chỉ một phần kho của bạn được lưu tạm."
+
+#: src/native/label-panel.tsx
+msgid "Open box"
+msgstr "Mở hộp"
+
+#: src/native/label-panel.tsx
+msgid "Open label"
+msgstr "Mở nhãn"
+
+#: src/native/record.tsx
+msgid "Opening inventory…"
+msgstr "Đang mở kho…"
+
+#: src/native/label-panel.tsx
+msgid "Overwrite NFC tag"
+msgstr "Ghi đè thẻ NFC"
+
+#: src/native/capture-form.tsx
+msgid "PDF document"
+msgstr "Tài liệu PDF"
+
+#: src/native/main.tsx
+msgid "Pending captures"
+msgstr "Mục đang chờ đồng bộ"
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "Pending captures: {0}"
+msgstr "Mục đang chờ: {0}"
+
+#. placeholder {0}: pending.length
+#. placeholder {1}: formatBytes(stats.pendingBytes)
+#: src/native/main.tsx
+msgid "Pending captures: {0} ({1})"
+msgstr "Mục đang chờ: {0} ({1})"
+
+#: src/native/record.tsx
+msgid "Pending in this box"
+msgstr "Đang chờ trong hộp này"
+
+#: src/native/record.tsx
+msgid "Photograph"
+msgstr "Ảnh"
+
+#: src/native/record.tsx
+msgid "Photographs and documents"
+msgstr "Ảnh và tài liệu"
+
+#: src/native/record.tsx
+msgid "QR and NFC label"
+msgstr "Nhãn QR và NFC"
+
+#: src/native/capture-form.tsx
+msgid "Quantity (optional)"
+msgstr "Số lượng (tùy chọn)"
+
+#. placeholder {0}: row.quantity
+#: src/native/record.tsx
+msgid "Quantity: {0}"
+msgstr "Số lượng: {0}"
+
+#: src/native/main.tsx
+msgid "Recent capture batches"
+msgstr "Các lô chụp gần đây"
+
+#: src/native/main.tsx
+msgid "Resumable Find target"
+msgstr "Mục tiêu tìm kiếm đã lưu"
+
+#: src/native/main.tsx
+msgid "Retry sync"
+msgstr "Thử đồng bộ lại"
+
+#: src/native/label-panel.tsx
+msgid "Same tag scanned again. Move to another box."
+msgstr "Đã quét lại cùng một thẻ. Hãy chuyển sang hộp khác."
+
+#: src/native/capture-form.tsx
+msgid "Save to box"
+msgstr "Lưu vào hộp"
+
+#: src/native/main.tsx
+msgid "Saved Find target"
+msgstr "Mục tiêu tìm đã lưu"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Saved on device"
+msgstr "Đã lưu trên thiết bị"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device: {batchPendingCount}"
+msgstr "Đã lưu trên thiết bị: {batchPendingCount}"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device."
+msgstr "Đã lưu trên thiết bị."
+
+#. placeholder {0}: batch.count
+#: src/native/main.tsx
+msgid "Saved: {0}"
+msgstr "Đã lưu: {0}"
+
+#: src/native/label-panel.tsx
+msgid "Scan cancelled."
+msgstr "Đã hủy quét."
+
+#: src/native/label-panel.tsx
+msgid "Scan NFC tag"
+msgstr "Quét thẻ NFC"
+
+#: src/native/label-panel.tsx
+msgid "Scan QR code"
+msgstr "Quét mã QR"
+
+#: src/native/label-panel.tsx
+msgid "Scanning…"
+msgstr "Đang quét…"
+
+#: src/native/main.tsx
+msgid "Search inventory"
+msgstr "Tìm trong kho"
+
+#: src/native/main.tsx
+msgid "Search results"
+msgstr "Kết quả tìm kiếm"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/record.tsx
+msgid "Showing cached details from {0}"
+msgstr "Đang hiển thị chi tiết lưu tạm từ {0}"
+
+#: src/native/main.tsx
+msgid "Sign out with unsynced captures?"
+msgstr "Đăng xuất khi vẫn còn mục chưa đồng bộ?"
+
+#: src/native/main.tsx
+msgid "Signed out on this iPhone. Kept could not revoke the server session while offline."
+msgstr "Đã đăng xuất trên iPhone này. Kept không thể thu hồi phiên máy chủ khi ngoại tuyến."
+
+#: src/native/main.tsx
+msgid "Stay signed in"
+msgstr "Giữ đăng nhập"
+
+#: src/native/label-panel.tsx
+msgid "Stop scanning"
+msgstr "Dừng quét"
+
+#: src/native/record.tsx
+msgid "Suggested description"
+msgstr "Mô tả gợi ý"
+
+#. placeholder {0}: 1
+#: src/native/main.tsx
+msgid "Synced entries: {0}"
+msgstr "Mục đã đồng bộ: {0}"
+
+#: src/native/main.tsx
+msgid "Synced entries: {count}"
+msgstr "Mục đã đồng bộ: {count}"
+
+#: src/native/capture-form.tsx
+msgid "Synced: {batchSyncedCount}"
+msgstr "Đã đồng bộ: {batchSyncedCount}"
+
+#: src/native/capture-form.tsx
+msgid "Syncing: {batchPendingCount}"
+msgstr "Đang đồng bộ: {batchPendingCount}"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Syncing…"
+msgstr "Đang đồng bộ…"
+
+#: src/native/label-panel.tsx
+msgid "That code matches multiple items, not this box."
+msgstr "Mã này khớp với nhiều đồ vật, không phải hộp này."
+
+#. placeholder {0}: isolate(other)
+#: src/native/label-panel.tsx
+msgid "That is {0}, not this box. Scan another tag."
+msgstr "Đây là {0}, không phải hộp này. Hãy quét thẻ khác."
+
+#: src/native/main.tsx
+msgid "The destination box is missing or in Trash. Move this capture to another box or discard it."
+msgstr "Hộp đích bị thiếu hoặc nằm trong thùng rác. Hãy chuyển mục này sang hộp khác hoặc hủy bỏ."
+
+#: src/native/main.tsx
+msgid "The entry was created, but an attachment could not be verified yet. Retry to confirm."
+msgstr "Mục đã được tạo nhưng chưa xác minh được tệp đính kèm. Hãy thử lại để xác nhận."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Tap Continue scanning to keep looking."
+msgstr "Quá trình quét NFC bị gián đoạn. Nhấn Tiếp tục quét để tiếp tục tìm."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Try again."
+msgstr "Quá trình quét NFC bị gián đoạn. Hãy thử lại."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Tap Continue scanning to keep looking for this box."
+msgstr "Quét đã hết thời gian. Nhấn Tiếp tục quét để tiếp tục tìm hộp này."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Try again."
+msgstr "Quét đã hết thời gian. Hãy thử lại."
+
+#: src/native/label-panel.tsx
+msgid "The server could not confirm this box’s label. Reopen the box and try again."
+msgstr "Máy chủ không thể xác nhận nhãn của hộp này. Hãy mở lại hộp và thử lại."
+
+#: src/native/record.tsx
+msgid "There are no AI suggestions to review. Your entry is saved."
+msgstr "Không có gợi ý AI nào để xem lại. Mục của bạn đã được lưu."
+
+#: src/native/label-panel.tsx
+msgid "This is a different label. Scan another tag."
+msgstr "Đây là nhãn khác. Hãy quét thẻ khác."
+
+#: src/native/main.tsx
+msgid "This Kept was restored or replaced. Pending captures from the previous server state are held for review."
+msgstr "Máy chủ Kept này đã được khôi phục hoặc thay thế. Các mục đang chờ từ trạng thái trước được giữ lại để kiểm tra."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline, so it is not confirmed as a different box."
+msgstr "Không thể kiểm tra nhãn này khi ngoại tuyến nên chưa xác nhận đây là hộp khác."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline."
+msgstr "Không thể kiểm tra nhãn này khi ngoại tuyến."
+
+#: src/native/label-panel.tsx
+msgid "This label has not been assigned."
+msgstr "Nhãn này chưa được gán."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This label is unavailable in your Kept."
+msgstr "Nhãn này không khả dụng trong Kept của bạn."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is blank."
+msgstr "Thẻ NFC này đang trống."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is read-only. Try another tag."
+msgstr "Thẻ NFC này chỉ đọc. Hãy thử thẻ khác."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is too small for the label URL."
+msgstr "Thẻ NFC này quá nhỏ cho URL của nhãn."
+
+#: src/native/label-panel.tsx
+msgid "This tag already contains the verified Kept label."
+msgstr "Thẻ này đã chứa nhãn Kept đã xác minh."
+
+#: src/native/label-panel.tsx
+msgid "This tag already holds information. Writing will replace its contents."
+msgstr "Thẻ này đã có dữ liệu. Việc ghi sẽ thay thế nội dung hiện có."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This tag belongs to a different Kept server."
+msgstr "Thẻ này thuộc về một máy chủ Kept khác."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not contain a Kept label URL."
+msgstr "Thẻ này không chứa URL nhãn Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not support NDEF."
+msgstr "Thẻ này không hỗ trợ NDEF."
+
+#: src/native/label-panel.tsx
+msgid "This tag has changed. Inspect it again before writing."
+msgstr "Thẻ này đã thay đổi. Hãy kiểm tra lại trước khi ghi."
+
+#: src/native/label-panel.tsx
+msgid "This tag is blank and ready to write."
+msgstr "Thẻ này trống và sẵn sàng để ghi."
+
+#: src/native/main.tsx
+msgid "This unsynced capture and its saved photos or documents on this iPhone will be deleted."
+msgstr "Mục chưa đồng bộ này cùng ảnh hoặc tài liệu đã lưu trên iPhone này sẽ bị xóa."
+
+#: src/native/record.tsx
+msgid "Use this description"
+msgstr "Dùng mô tả này"
+
+#: src/native/label-panel.tsx
+msgid "Verify tag now"
+msgstr "Xác minh thẻ ngay"
+
+#: src/native/record.tsx
+msgid "View QR label"
+msgstr "Xem nhãn QR"
+
+#: src/native/label-panel.tsx
+msgid "Write and verify"
+msgstr "Ghi và xác minh"
+
+#: src/native/label-panel.tsx
+msgid "Write NFC tag"
+msgstr "Ghi thẻ NFC"
+
+#: src/native/label-panel.tsx
+msgid "Writing was interrupted. Inspect the tag again to verify what it holds."
+msgstr "Quá trình ghi bị gián đoạn. Hãy kiểm tra lại thẻ để xác nhận nội dung."
+
+#: src/native/main.tsx
+msgid "You no longer have write permission in that box’s location."
+msgstr "Bạn không còn quyền ghi ở vị trí của hộp đó."
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "You still have {0} capture(s) saved on this iPhone. They stay locked to this account and will not sync under another account or server."
+msgstr "Bạn vẫn còn {0} mục đã lưu trên iPhone này. Chúng được khóa với tài khoản này và sẽ không đồng bộ dưới tài khoản hoặc máy chủ khác."
+
+#: src/native/capture-form.tsx
+msgid "Your iPhone storage is full. Free up space and try again."
+msgstr "Bộ nhớ iPhone đã đầy. Hãy giải phóng dung lượng và thử lại."
+
+#: src/native/main.tsx
+msgid "Your session ended. Sign in again to see your pending captures."
+msgstr "Phiên của bạn đã kết thúc. Hãy đăng nhập lại để xem các mục đang chờ."
+
+msgid "Connected Kept for iPhone"
+msgstr "Đã kết nối Kept cho iPhone"
+
+msgid "Entries saved in this batch: {saved}"
+msgstr "Số mục đã lưu trong đợt này: {saved}"
+
+msgid "Found {name}."
+msgstr "Đã tìm thấy {name}."

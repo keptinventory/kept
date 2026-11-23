@@ -10,6 +10,7 @@ import { safeErrorForLog } from './errors.js';
 // nor the invite token the web page puts in the preview and accept paths.
 
 const SENSITIVE_PARAM = /token|secret|password|passwd|code|key|signature|sig|auth/i;
+const REDACT_QUERY = new Set(['challenge', 'state', 'next']);
 
 /** Paths that carry a token as a segment: the invite preview and accept routes (task 20), a
  * signed file URL, whose whole path is its token (Q16; security review #11), a claim pack's
@@ -32,7 +33,10 @@ export function redactUrl(raw: string): string {
       try {
         decoded = decodeURIComponent(name);
       } catch {}
-      return eq !== -1 && SENSITIVE_PARAM.test(decoded) ? `${name}=[redacted]` : pair;
+      // Sign-in's "next" can carry another query, including an iPhone handshake.
+      return eq !== -1 && (SENSITIVE_PARAM.test(decoded) || REDACT_QUERY.has(decoded.toLowerCase()))
+        ? `${name}=[redacted]`
+        : pair;
     })
     .join('&');
   return `${url.slice(0, q)}?${query}`;

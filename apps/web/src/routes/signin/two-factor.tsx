@@ -23,8 +23,8 @@ import { KeyIcon } from '@/components/icons';
 import { Notice, useErrorText } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
-import { appHref, mainAddressElsewhere } from '@/lib/base-path';
-import { nextSearch } from '@/lib/next';
+import { mainAddressElsewhere } from '@/lib/base-path';
+import { finishSignIn, nextSearch } from '@/lib/next';
 
 export const Route = createFileRoute('/signin/two-factor')({
   validateSearch: nextSearch,
@@ -47,7 +47,7 @@ function TwoFactorPage() {
     await qc.invalidateQueries({ queryKey: keys.me });
     // `next` may carry a #fragment (an invite link), so it goes to history as a whole href.
     // The browser's history knows no basepath: under Home Assistant ingress, the prefix (D273).
-    router.history.push(appHref(next ?? '/'));
+    finishSignIn(next, (href) => router.history.push(href));
   };
   const describe = (e: unknown) => {
     if (isApiError(e) && e.code === 'rate_limited')

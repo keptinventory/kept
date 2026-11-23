@@ -260,6 +260,7 @@ export const AUDIT_ACTIONS = [
   'service_record.delete',
   'service_record.draft',
   'service_record.update',
+  'session.native_connected',
   'session.revoke',
   'share_link.create',
   'sign_in.unlink',

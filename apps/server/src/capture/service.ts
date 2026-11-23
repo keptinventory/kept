@@ -274,6 +274,7 @@ type ExtractionTarget = {
   floorPlanId?: string;
   /** A photo read again: its next attempt (1 by default). */
   attempt?: number;
+  reviewOnly?: boolean;
 };
 
 /**
@@ -291,8 +292,8 @@ export async function queueExtraction(
   await ctx.client.query(
     `INSERT INTO public.extractions (id, location_id, attachment_id, thing_id, purchase_id,
                                      meter_id, room_capture_id, floor_plan_id, mode, requested_by,
-                                     status, status_reason, attempt)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $12, $8, kept.current_user_id(), $9, $10, $11)`,
+                                     status, status_reason, attempt, review_only)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $12, $8, kept.current_user_id(), $9, $10, $11, $13)`,
     [
       id,
       t.locationId,
@@ -306,6 +307,7 @@ export async function queueExtraction(
       ai === 'on' ? null : NO_PROVIDER,
       t.attempt ?? 1,
       t.floorPlanId ?? null,
+      t.reviewOnly ?? false,
     ],
   );
   if (ai === 'on') {
@@ -377,16 +379,15 @@ export async function openInboxItem(
 }
 
 /** The capture's file ids, checked against the mode's role. */
-function filesOf(input: CaptureInput): string[] {
+function checkFileRoles(input: CaptureInput): void {
   const role = ROLE_BY_MODE[input.mode];
   for (const f of input.files) {
-    if (f.role && f.role !== role) {
+    if (f.role && f.role !== role && !(input.mode === 'thing' && f.role === 'document')) {
       throw invalid(`files: a ${input.mode} capture's files are ${role} attachments.`);
     }
   }
   const ids = input.files.map((f) => f.fileId.toLowerCase());
   if (new Set(ids).size !== ids.length) throw invalid('files: each file once.');
-  return ids;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -406,12 +407,19 @@ export async function capture(
   const role = await requireRole(client, locationId, 'things.edit');
 
   // 2. What (D19): at least one file or a name; the evidence modes need a photo.
-  filesOf(input);
-  const fileIds = await dedupedFileIds(client, locationId, input.files);
+  checkFileRoles(input);
+  const photos = input.files.filter((file) => file.role !== 'document');
+  const documents = input.files.filter((file) => file.role === 'document');
+  const fileIds = await dedupedFileIds(client, locationId, photos);
+  const documentIds = await dedupedFileIds(client, locationId, documents);
+  const allFileIds = [...fileIds, ...documentIds];
+  if (new Set(allFileIds).size !== allFileIds.length) {
+    throw invalid('files: an original cannot be both a photo and a document.');
+  }
   const name = input.name?.trim() || null;
   // Quick add: a new thing from a template may come with neither; its name is the template's.
   const fromTemplate = !!input.templateId && !input.attachToThingId;
-  if (fileIds.length === 0 && !name && !fromTemplate) {
+  if (allFileIds.length === 0 && !name && !fromTemplate) {
     throw invalid('A capture needs a photo or a name.');
   }
   if ((input.mode === 'receipt' || input.mode === 'reading') && fileIds.length === 0) {
@@ -425,9 +433,12 @@ export async function capture(
     throw invalid('readingValue is for reading captures.');
   }
   if (input.meterId && input.mode !== 'reading') throw invalid('meterId is for readings.');
+  if (input.reviewSuggestions && (input.mode !== 'thing' || !name || input.attachToThingId)) {
+    throw invalid('Review-only suggestions are for new, named thing captures.');
+  }
   if (input.codes && input.mode !== 'room') throw invalid('codes are for room captures.');
   if (input.mode === 'room') checkRoomInput(input, fileIds.length);
-  await requireUsableFiles(client, locationId, fileIds);
+  await requireUsableFiles(client, locationId, allFileIds);
 
   // 3. Where: the location's Unplaced area (D118), a place, or a container the caller can see.
   const target =
@@ -436,7 +447,7 @@ export async function capture(
       : await targetOf(client, locationId, input.target);
 
   const ai = fileIds.length > 0 ? await aiCaptureState(tx, client, locationId, role) : 'off';
-  const base = { mode: input.mode, batch_id: batchId, file_ids: fileIds };
+  const base = { mode: input.mode, batch_id: batchId, file_ids: allFileIds };
 
   switch (input.mode) {
     case 'room':
@@ -460,6 +471,11 @@ export async function capture(
       'photo',
       fileIds,
     );
+    if (documentIds.length) {
+      attachments.push(
+        ...(await attachFiles(client, locationId, { thingId: thing.id }, 'document', documentIds)),
+      );
+    }
     await audited(tx, {
       locationId,
       actor: actorOf(scope),
@@ -521,6 +537,9 @@ export async function capture(
   );
   const eventId = undoableEventIds(tx).at(-1);
   const attachments = await attachFiles(client, locationId, { thingId: id }, 'photo', fileIds);
+  if (documentIds.length) {
+    await attachFiles(client, locationId, { thingId: id }, 'document', documentIds);
+  }
   const result: CaptureResult = {};
   // A blank label scanned during capture (D43): claimed for the new thing, whose code it becomes
   // (labels/claim.ts). Claimed first elsewhere: a `label_claim` inbox item; not claimable at all:
@@ -533,7 +552,13 @@ export async function capture(
   if (ai !== 'off' && first) {
     result.extraction = await queueExtraction(
       ctx,
-      { locationId, attachmentId: first, mode: input.mode, thingId: id },
+      {
+        locationId,
+        attachmentId: first,
+        mode: input.mode,
+        thingId: id,
+        reviewOnly: input.reviewSuggestions ?? false,
+      },
       ai,
     );
   }

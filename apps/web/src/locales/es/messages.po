@@ -29320,3 +29320,607 @@ msgstr "Un propietario o administrador los activa en «Qué seguir» de una ubic
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Los conteos están desactivados aquí: esta lista muestra las revisiones de caja."
+
+#: src/native/record.tsx
+msgid "Add to this box"
+msgstr "Añadir a esta caja"
+
+#: src/native/capture-form.tsx
+msgid "Adding to box"
+msgstr "Añadiendo a la caja"
+
+#: src/native/record.tsx
+msgid "AI suggestions are still waiting. Your entry is saved."
+msgstr "Las sugerencias de IA siguen pendientes. Tu entrada está guardada."
+
+#: src/native/main.tsx
+msgid "An attached file exceeds the server upload limit."
+msgstr "Un archivo adjunto supera el límite de subida del servidor."
+
+#: src/native/main.tsx
+msgid "An attached file format is not supported by Kept."
+msgstr "Kept no admite el formato de uno de los archivos adjuntos."
+
+#: src/native/main.tsx
+msgid "An uploaded file did not match its saved checksum. Retry or review the capture."
+msgstr "Un archivo subido no coincidió con su suma de comprobación guardada. Vuelve a intentarlo o revisa la captura."
+
+#: src/native/capture-form.tsx
+msgid "Attach PDF"
+msgstr "Adjuntar PDF"
+
+#: src/native/capture-form.tsx
+msgid "Box name"
+msgstr "Nombre de la caja"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/main.tsx
+msgid "Cached inventory from {0}"
+msgstr "Inventario en caché del {0}"
+
+#: src/native/main.tsx
+msgid "Change box"
+msgstr "Cambiar caja"
+
+#: src/native/record.tsx
+msgid "Check AI suggestions"
+msgstr "Comprobar sugerencias de IA"
+
+#: src/native/capture-form.tsx
+msgid "Choose up to 20 files, each no larger than 25 MB."
+msgstr "Elige hasta 20 archivos de no más de 25 MB cada uno."
+
+#: src/native/label-panel.tsx
+msgid "Clear target"
+msgstr "Borrar objetivo"
+
+#: src/native/label-panel.tsx
+msgid "Close camera"
+msgstr "Cerrar cámara"
+
+#: src/native/main.tsx
+msgid "Connect to Kept to review recent batches."
+msgstr "Conéctate a Kept para revisar los lotes recientes."
+
+#: src/native/main.tsx
+msgid "Connect to your inventory"
+msgstr "Conectar con tu inventario"
+
+#: src/native/label-panel.tsx
+msgid "Connect to your Kept server over HTTPS to enroll NFC tags."
+msgstr "Conéctate a tu servidor Kept por HTTPS para registrar etiquetas NFC."
+
+#: src/native/main.tsx
+msgid "Continue finding"
+msgstr "Seguir buscando"
+
+#: src/native/label-panel.tsx
+msgid "Continue scanning"
+msgstr "Seguir escaneando"
+
+#: src/native/main.tsx
+msgid "Could not connect to Kept. Check the server address and try again."
+msgstr "No se pudo conectar con Kept. Revisa la dirección del servidor e inténtalo de nuevo."
+
+#: src/native/capture-form.tsx
+msgid "Could not create the box. Check your connection and selected location."
+msgstr "No se pudo crear la caja. Revisa tu conexión y la ubicación seleccionada."
+
+#: src/native/main.tsx
+msgid "Could not search Kept. Try again."
+msgstr "No se pudo buscar en Kept. Inténtalo de nuevo."
+
+#: src/native/main.tsx
+msgid "Could not sign out."
+msgstr "No se pudo cerrar la sesión."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture automatically. Retry or review it."
+msgstr "No se pudo sincronizar esta captura automáticamente. Vuelve a intentarlo o revísala."
+
+#: src/native/main.tsx
+msgid "Could not sync this capture. Review the error below."
+msgstr "No se pudo sincronizar esta captura. Revisa el error de abajo."
+
+#: src/native/main.tsx
+msgid "Could not sync. Pending captures are still on this iPhone."
+msgstr "No se pudo sincronizar. Las capturas pendientes siguen en este iPhone."
+
+#: src/native/main.tsx
+msgid "Could not update the destination box."
+msgstr "No se pudo actualizar la caja de destino."
+
+#: src/native/capture-form.tsx
+msgid "Create a box"
+msgstr "Crear una caja"
+
+#: src/native/capture-form.tsx
+#: src/native/main.tsx
+msgid "Create box"
+msgstr "Crear caja"
+
+#. placeholder {0}: isolate(existingOwner)
+#: src/native/label-panel.tsx
+msgid "Currently linked to: {0}"
+msgstr "Vinculada actualmente a: {0}"
+
+#: src/native/main.tsx
+msgid "Destination box"
+msgstr "Caja de destino"
+
+#. placeholder {0}: isolate(fields.name)
+#: src/native/main.tsx
+msgid "Discard {0}?"
+msgstr "¿Descartar {0}?"
+
+#: src/native/capture-form.tsx
+msgid "Enter a quantity greater than zero."
+msgstr "Introduce una cantidad mayor que cero."
+
+#. placeholder {0}: batchEntryIds.length
+#: src/native/capture-form.tsx
+msgid "Entries in this batch: {0}"
+msgstr "Entradas en este lote: {0}"
+
+#. placeholder {0}: entry.capture.files.length
+#: src/native/main.tsx
+msgid "Files: {0}"
+msgstr "Archivos: {0}"
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Find this box"
+msgstr "Encontrar esta caja"
+
+#: src/native/label-panel.tsx
+msgid "Finish the current NFC scan and try again."
+msgstr "Termina el escaneo NFC actual e inténtalo de nuevo."
+
+#. placeholder {0}: isolate(box.name)
+#: src/native/label-panel.tsx
+msgid "Found {0}."
+msgstr "Se encontró {0}."
+
+#: src/native/label-panel.tsx
+msgid "Found box."
+msgstr "Caja encontrada."
+
+#: src/native/label-panel.tsx
+msgid "Hold steady against the tag and try again."
+msgstr "Mantén el teléfono firme junto a la etiqueta e inténtalo de nuevo."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone close to one tag at a time."
+msgstr "Acerca la parte superior del iPhone a una sola etiqueta cada vez."
+
+#: src/native/label-panel.tsx
+msgid "Hold the top of your iPhone near one NFC tag."
+msgstr "Acerca la parte superior del iPhone a una etiqueta NFC."
+
+#: src/native/capture-form.tsx
+msgid "Holiday decorations"
+msgstr "Decoración festiva"
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "Identify a label"
+msgstr "Identificar una etiqueta"
+
+#: src/native/label-panel.tsx
+msgid "Inspect NFC tag"
+msgstr "Inspeccionar etiqueta NFC"
+
+#: src/native/record.tsx
+msgid "Keep my description"
+msgstr "Mantener mi descripción"
+
+#: src/native/main.tsx
+msgid "Kept could not read the saved session."
+msgstr "Kept no pudo leer la sesión guardada."
+
+#: src/native/capture-form.tsx
+msgid "Kept could not save on this iPhone. Check available storage and try again."
+msgstr "Kept no pudo guardar en este iPhone. Comprueba el almacenamiento disponible e inténtalo de nuevo."
+
+#: src/native/label-panel.tsx
+msgid "Kept QR label"
+msgstr "Etiqueta QR de Kept"
+
+#: src/native/main.tsx
+msgid "Kept server address"
+msgstr "Dirección del servidor Kept"
+
+#: src/native/label-panel.tsx
+msgid "Kept tag verified."
+msgstr "Etiqueta de Kept verificada."
+
+#: src/native/label-panel.tsx
+#: src/native/record.tsx
+msgid "Label code:"
+msgstr "Código de etiqueta:"
+
+#: src/native/main.tsx
+msgid "Move and retry"
+msgstr "Mover y reintentar"
+
+#: src/native/label-panel.tsx
+msgid "Move other tags away and scan one tag."
+msgstr "Aparta las demás etiquetas y escanea una sola."
+
+#: src/native/label-panel.tsx
+msgid "Multiple records match this code. Choose one to open."
+msgstr "Varios registros coinciden con este código. Elige uno para abrir."
+
+#: src/native/capture-form.tsx
+msgid "Needs attention: {batchFailedCount}"
+msgstr "Requiere atención: {batchFailedCount}"
+
+#: src/native/label-panel.tsx
+msgid "NFC is unavailable on this device."
+msgstr "NFC no está disponible en este dispositivo."
+
+#: src/native/main.tsx
+msgid "No boxes yet."
+msgstr "Aún no hay cajas."
+
+#: src/native/record.tsx
+msgid "No cached contents."
+msgstr "No hay contenido en caché."
+
+#: src/native/main.tsx
+msgid "No capture batches yet."
+msgstr "Aún no hay lotes de captura."
+
+#: src/native/main.tsx
+msgid "No matching inventory."
+msgstr "No hay coincidencias en el inventario."
+
+#: src/native/label-panel.tsx
+msgid "Not a Kept label."
+msgstr "No es una etiqueta de Kept."
+
+#: src/native/main.tsx
+msgid "Nothing in this batch needs review."
+msgstr "Nada en este lote necesita revisión."
+
+#: src/native/main.tsx
+msgid "Offline. Changes stay on this iPhone until Kept is reachable."
+msgstr "Sin conexión. Los cambios permanecen en este iPhone hasta que Kept esté disponible."
+
+#: src/native/main.tsx
+msgid "Only part of your inventory is cached."
+msgstr "Solo una parte de tu inventario está en caché."
+
+#: src/native/label-panel.tsx
+msgid "Open box"
+msgstr "Abrir caja"
+
+#: src/native/label-panel.tsx
+msgid "Open label"
+msgstr "Abrir etiqueta"
+
+#: src/native/record.tsx
+msgid "Opening inventory…"
+msgstr "Abriendo inventario…"
+
+#: src/native/label-panel.tsx
+msgid "Overwrite NFC tag"
+msgstr "Sobrescribir etiqueta NFC"
+
+#: src/native/capture-form.tsx
+msgid "PDF document"
+msgstr "Documento PDF"
+
+#: src/native/main.tsx
+msgid "Pending captures"
+msgstr "Capturas pendientes"
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "Pending captures: {0}"
+msgstr "Capturas pendientes: {0}"
+
+#. placeholder {0}: pending.length
+#. placeholder {1}: formatBytes(stats.pendingBytes)
+#: src/native/main.tsx
+msgid "Pending captures: {0} ({1})"
+msgstr "Capturas pendientes: {0} ({1})"
+
+#: src/native/record.tsx
+msgid "Pending in this box"
+msgstr "Pendiente en esta caja"
+
+#: src/native/record.tsx
+msgid "Photograph"
+msgstr "Fotografía"
+
+#: src/native/record.tsx
+msgid "Photographs and documents"
+msgstr "Fotografías y documentos"
+
+#: src/native/record.tsx
+msgid "QR and NFC label"
+msgstr "Etiqueta QR y NFC"
+
+#: src/native/capture-form.tsx
+msgid "Quantity (optional)"
+msgstr "Cantidad (opcional)"
+
+#. placeholder {0}: row.quantity
+#: src/native/record.tsx
+msgid "Quantity: {0}"
+msgstr "Cantidad: {0}"
+
+#: src/native/main.tsx
+msgid "Recent capture batches"
+msgstr "Lotes de captura recientes"
+
+#: src/native/main.tsx
+msgid "Resumable Find target"
+msgstr "Objetivo de búsqueda guardado"
+
+#: src/native/main.tsx
+msgid "Retry sync"
+msgstr "Reintentar sincronización"
+
+#: src/native/label-panel.tsx
+msgid "Same tag scanned again. Move to another box."
+msgstr "Se volvió a escanear la misma etiqueta. Pasa a otra caja."
+
+#: src/native/capture-form.tsx
+msgid "Save to box"
+msgstr "Guardar en la caja"
+
+#: src/native/main.tsx
+msgid "Saved Find target"
+msgstr "Objetivo de búsqueda guardado"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Saved on device"
+msgstr "Guardado en el dispositivo"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device: {batchPendingCount}"
+msgstr "Guardado en el dispositivo: {batchPendingCount}"
+
+#: src/native/capture-form.tsx
+msgid "Saved on device."
+msgstr "Guardado en el dispositivo."
+
+#. placeholder {0}: batch.count
+#: src/native/main.tsx
+msgid "Saved: {0}"
+msgstr "Guardados: {0}"
+
+#: src/native/label-panel.tsx
+msgid "Scan cancelled."
+msgstr "Escaneo cancelado."
+
+#: src/native/label-panel.tsx
+msgid "Scan NFC tag"
+msgstr "Escanear etiqueta NFC"
+
+#: src/native/label-panel.tsx
+msgid "Scan QR code"
+msgstr "Escanear código QR"
+
+#: src/native/label-panel.tsx
+msgid "Scanning…"
+msgstr "Escaneando…"
+
+#: src/native/main.tsx
+msgid "Search inventory"
+msgstr "Buscar en el inventario"
+
+#: src/native/main.tsx
+msgid "Search results"
+msgstr "Resultados de búsqueda"
+
+#. placeholder {0}: new Date(cache.asOf).toLocaleString()
+#: src/native/record.tsx
+msgid "Showing cached details from {0}"
+msgstr "Mostrando detalles en caché del {0}"
+
+#: src/native/main.tsx
+msgid "Sign out with unsynced captures?"
+msgstr "¿Cerrar sesión con capturas sin sincronizar?"
+
+#: src/native/main.tsx
+msgid "Signed out on this iPhone. Kept could not revoke the server session while offline."
+msgstr "Sesión cerrada en este iPhone. Kept no pudo revocar la sesión del servidor sin conexión."
+
+#: src/native/main.tsx
+msgid "Stay signed in"
+msgstr "Mantener sesión"
+
+#: src/native/label-panel.tsx
+msgid "Stop scanning"
+msgstr "Detener escaneo"
+
+#: src/native/record.tsx
+msgid "Suggested description"
+msgstr "Descripción sugerida"
+
+#. placeholder {0}: 1
+#: src/native/main.tsx
+msgid "Synced entries: {0}"
+msgstr "Entradas sincronizadas: {0}"
+
+#: src/native/main.tsx
+msgid "Synced entries: {count}"
+msgstr "Entradas sincronizadas: {count}"
+
+#: src/native/capture-form.tsx
+msgid "Synced: {batchSyncedCount}"
+msgstr "Sincronizados: {batchSyncedCount}"
+
+#: src/native/capture-form.tsx
+msgid "Syncing: {batchPendingCount}"
+msgstr "Sincronizando: {batchPendingCount}"
+
+#: src/native/main.tsx
+#: src/native/record.tsx
+msgid "Syncing…"
+msgstr "Sincronizando…"
+
+#: src/native/label-panel.tsx
+msgid "That code matches multiple items, not this box."
+msgstr "Ese código coincide con varios objetos, no con esta caja."
+
+#. placeholder {0}: isolate(other)
+#: src/native/label-panel.tsx
+msgid "That is {0}, not this box. Scan another tag."
+msgstr "Eso es {0}, no esta caja. Escanea otra etiqueta."
+
+#: src/native/main.tsx
+msgid "The destination box is missing or in Trash. Move this capture to another box or discard it."
+msgstr "Falta la caja de destino o está en la papelera. Mueve esta captura a otra caja o descártala."
+
+#: src/native/main.tsx
+msgid "The entry was created, but an attachment could not be verified yet. Retry to confirm."
+msgstr "Se creó la entrada, pero aún no se pudo verificar un adjunto. Reintenta para confirmar."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Tap Continue scanning to keep looking."
+msgstr "Se interrumpió el escaneo NFC. Pulsa Seguir escaneando para continuar buscando."
+
+#: src/native/label-panel.tsx
+msgid "The NFC scan was interrupted. Try again."
+msgstr "Se interrumpió el escaneo NFC. Inténtalo de nuevo."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Tap Continue scanning to keep looking for this box."
+msgstr "Se agotó el tiempo de escaneo. Pulsa Seguir escaneando para seguir buscando esta caja."
+
+#: src/native/label-panel.tsx
+msgid "The scan timed out. Try again."
+msgstr "Se agotó el tiempo de escaneo. Inténtalo de nuevo."
+
+#: src/native/label-panel.tsx
+msgid "The server could not confirm this box’s label. Reopen the box and try again."
+msgstr "El servidor no pudo confirmar la etiqueta de esta caja. Vuelve a abrir la caja e inténtalo de nuevo."
+
+#: src/native/record.tsx
+msgid "There are no AI suggestions to review. Your entry is saved."
+msgstr "No hay sugerencias de IA para revisar. Tu entrada está guardada."
+
+#: src/native/label-panel.tsx
+msgid "This is a different label. Scan another tag."
+msgstr "Esta es otra etiqueta. Escanea otra etiqueta."
+
+#: src/native/main.tsx
+msgid "This Kept was restored or replaced. Pending captures from the previous server state are held for review."
+msgstr "Este Kept fue restaurado o reemplazado. Las capturas pendientes del estado anterior del servidor quedan retenidas para revisión."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline, so it is not confirmed as a different box."
+msgstr "No se pudo comprobar esta etiqueta sin conexión, así que no se confirma que sea otra caja."
+
+#: src/native/label-panel.tsx
+msgid "This label could not be checked offline."
+msgstr "No se pudo comprobar esta etiqueta sin conexión."
+
+#: src/native/label-panel.tsx
+msgid "This label has not been assigned."
+msgstr "Esta etiqueta aún no ha sido asignada."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This label is unavailable in your Kept."
+msgstr "Esta etiqueta no está disponible en tu Kept."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is blank."
+msgstr "Esta etiqueta NFC está vacía."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is read-only. Try another tag."
+msgstr "Esta etiqueta NFC es de solo lectura. Prueba con otra."
+
+#: src/native/label-panel.tsx
+msgid "This NFC tag is too small for the label URL."
+msgstr "Esta etiqueta NFC es demasiado pequeña para la URL de la etiqueta."
+
+#: src/native/label-panel.tsx
+msgid "This tag already contains the verified Kept label."
+msgstr "Esta etiqueta ya contiene la etiqueta Kept verificada."
+
+#: src/native/label-panel.tsx
+msgid "This tag already holds information. Writing will replace its contents."
+msgstr "Esta etiqueta ya contiene información. Al escribir se reemplazará su contenido."
+
+#: src/native/label-panel.tsx
+#: src/native/main.tsx
+msgid "This tag belongs to a different Kept server."
+msgstr "Esta etiqueta pertenece a otro servidor Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not contain a Kept label URL."
+msgstr "Esta etiqueta no contiene una URL de etiqueta Kept."
+
+#: src/native/label-panel.tsx
+msgid "This tag does not support NDEF."
+msgstr "Esta etiqueta no admite NDEF."
+
+#: src/native/label-panel.tsx
+msgid "This tag has changed. Inspect it again before writing."
+msgstr "Esta etiqueta ha cambiado. Inspecciónala de nuevo antes de escribir."
+
+#: src/native/label-panel.tsx
+msgid "This tag is blank and ready to write."
+msgstr "Esta etiqueta está vacía y lista para escribir."
+
+#: src/native/main.tsx
+msgid "This unsynced capture and its saved photos or documents on this iPhone will be deleted."
+msgstr "Se eliminarán esta captura sin sincronizar y las fotos o documentos guardados en este iPhone."
+
+#: src/native/record.tsx
+msgid "Use this description"
+msgstr "Usar esta descripción"
+
+#: src/native/label-panel.tsx
+msgid "Verify tag now"
+msgstr "Verificar etiqueta ahora"
+
+#: src/native/record.tsx
+msgid "View QR label"
+msgstr "Ver etiqueta QR"
+
+#: src/native/label-panel.tsx
+msgid "Write and verify"
+msgstr "Escribir y verificar"
+
+#: src/native/label-panel.tsx
+msgid "Write NFC tag"
+msgstr "Escribir etiqueta NFC"
+
+#: src/native/label-panel.tsx
+msgid "Writing was interrupted. Inspect the tag again to verify what it holds."
+msgstr "Se interrumpió la escritura. Inspecciona la etiqueta de nuevo para verificar su contenido."
+
+#: src/native/main.tsx
+msgid "You no longer have write permission in that box’s location."
+msgstr "Ya no tienes permiso de escritura en la ubicación de esa caja."
+
+#. placeholder {0}: pending.length
+#: src/native/main.tsx
+msgid "You still have {0} capture(s) saved on this iPhone. They stay locked to this account and will not sync under another account or server."
+msgstr "Aún tienes {0} captura(s) guardada(s) en este iPhone. Permanecerán vinculadas a esta cuenta y no se sincronizarán con otra cuenta ni otro servidor."
+
+#: src/native/capture-form.tsx
+msgid "Your iPhone storage is full. Free up space and try again."
+msgstr "El almacenamiento de tu iPhone está lleno. Libera espacio e inténtalo de nuevo."
+
+#: src/native/main.tsx
+msgid "Your session ended. Sign in again to see your pending captures."
+msgstr "Tu sesión ha terminado. Inicia sesión de nuevo para ver tus capturas pendientes."
+
+msgid "Connected Kept for iPhone"
+msgstr "Kept para iPhone conectado"
+
+msgid "Entries saved in this batch: {saved}"
+msgstr "Registros guardados en este lote: {saved}"
+
+msgid "Found {name}."
+msgstr "Se encontró {name}."

@@ -76,6 +76,7 @@ export type ExtractionRow = {
   /** PLAN (D266): the floor plan read; its result goes there, never into a draft. */
   floor_plan_id?: string | null;
   mode: ExtractionMode;
+  review_only?: boolean;
   attempt: number;
   status: string;
   requested_by: string;
@@ -325,6 +326,28 @@ async function applyToThing(
   const out: ApplyResult = { applied: {}, suggestions: [], inbox: [] };
   const thing = await lockThing(client, thingId);
   if (!thing) return out;
+  if (ex.review_only && mode === 'thing') {
+    const name = (fields as ThingFields).name;
+    if (name && normalize(name.value) !== normalize(thing.name ?? '')) {
+      out.suggestions.push({
+        field: 'name',
+        value: name.value,
+        confidence: name.confidence,
+        source: { extractionId: ex.id, attachmentId: sentAttachmentId },
+      });
+      out.inbox.push(
+        await upsertInbox(client, {
+          locationId: thing.location_id,
+          kind: 'draft',
+          thingId: thing.id,
+          extractionId: ex.id,
+          batchId: thing.capture_batch_id,
+          payload: { suggestions: out.suggestions },
+        }),
+      );
+    }
+    return out;
+  }
   const before = (await readImage(client, thing.id)) as ThingImage;
   const status: Record<string, FieldState> = { ...(thing.field_status ?? {}) };
   const sets = new Map<string, unknown>();

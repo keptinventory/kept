@@ -1,0 +1,5 @@
+open-clip-torch==3.2.0
+torch==2.8.0
+torchvision==0.23.0
+scikit-image==0.25.2
+pillow==13.0.0

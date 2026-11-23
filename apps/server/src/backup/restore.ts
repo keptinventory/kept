@@ -4,6 +4,7 @@ import path from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { audited } from '../audit/audited.js';
+import { resetNativeSyncEpoch } from '../auth/native.js';
 import * as schema from '../db/schema/index.js';
 import type { Tx } from '../db/scope.js';
 import type { BlobStore } from '../storage/blob-store.js';
@@ -290,6 +291,7 @@ async function restoreCore(o: CoreOptions): Promise<RestoreReport> {
     // The restore, in the restored database's own audit.
     await client.query('BEGIN');
     try {
+      await resetNativeSyncEpoch(client);
       await audited(drizzle(client, { schema }) as unknown as Tx, {
         locationId: null,
         ownerAccountId: null,

@@ -29,6 +29,8 @@ const db = await testDb();
 
 /** Non-GET routes that write no audit row, and why. */
 const ALLOWLIST: Record<string, string> = {
+  'POST /native/connect':
+    'issues an expiring one-time sign-in code after browser approval; exchanging it creates and audits the new device session',
   'POST /api/v1/auth/*':
     "Better Auth's own endpoints (sign-in and -out, passkeys, 2FA, password reset): authentication, not a change to Kept's data; the security notices they trigger are mailed",
   'POST /api/v1/auth/magic-link/verify':

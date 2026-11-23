@@ -120,7 +120,7 @@ export class RetryExtraction extends Error {
 
 const EXTRACTION_COLUMNS = `e.id, e.location_id, e.attachment_id, e.thing_id, e.purchase_id,
   e.meter_id, e.service_record_id, e.floor_plan_id, e.mode, e.attempt, e.status, e.requested_by,
-  e.created_at`;
+  e.created_at, e.review_only`;
 
 type Claimed = {
   ex: ExtractionRow;
@@ -527,7 +527,7 @@ async function runOne(
   let result: CallResult<Extracted<ExtractionMode>> | { status: 'no_provider' };
   let sent: { attachmentIds: string[]; fromDisplay: boolean[] };
   // Several things in one THING photo (D230): asked for only when the admin turned it on.
-  const many = mode === 'thing' && (await multiItemOn(deps.pools));
+  const many = mode === 'thing' && !ex.review_only && (await multiItemOn(deps.pools));
   let image: ImageInput | undefined;
   try {
     if (!deps.files) throw new Error('extraction: the worker has no file storage');
@@ -707,7 +707,7 @@ async function runOne(
     });
     const applyCtx = { tx, client, scope, requestId: job?.id ?? ex.id };
     const applied = await apply(applyCtx, ex, checked, sent);
-    if ((checked.mode === 'thing' || checked.mode === 'label') && ex.thing_id) {
+    if (!ex.review_only && (checked.mode === 'thing' || checked.mode === 'label') && ex.thing_id) {
       const serial = applied.suggestions.find((s) => s.field === 'serial');
       const { rows: t } = await client.query<{ capture_batch_id: string | null }>(
         'SELECT capture_batch_id FROM public.things WHERE id = $1',
