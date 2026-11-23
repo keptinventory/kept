@@ -446,6 +446,7 @@ export function useSummary() {
       'instance.rotate_key': () => t`Encryption key replaced`,
       'instance.drop_key': () => t`Old encryption key removed`,
       'instance.embeddings_source': () => t`Semantic search source changed`,
+      'visual_search.reindex': () => t`Visual search indexing requested`,
       'instance.recovery_kit_download': () => t`Recovery kit downloaded`,
       'instance.recovery_kit_acknowledge': () => t`Recovery kit noted as kept`,
       'instance.update_check': () => t`Checked for updates`,

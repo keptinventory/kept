@@ -336,6 +336,14 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.embedding_store(uuid,text,jsonb)': APP_AND_SYSTEM,
   'kept.semantic_thing_ids(text,vector,uuid,integer)': APP_ONLY,
   'kept.embedding_status_instance()': APP_ONLY,
+  'kept.visual_locations(uuid[])': APP_ONLY,
+  'kept.visual_sources(uuid[],uuid)': APP_ONLY,
+  'kept.visual_coverage(uuid[],text)': APP_ONLY,
+  'kept.visual_backlog(uuid,text,integer)': APP_ONLY,
+  'kept.visual_current(uuid,uuid,uuid,text,text)': APP_ONLY,
+  'kept.visual_store(uuid,uuid,uuid,text,text,vector)': APP_ONLY,
+  'kept.visual_matches(uuid[],text,vector,real,integer)': APP_ONLY,
+  'kept.visual_attachment_changed()': OWNER_ONLY,
   // (0099) The backfill's mark (kept_system's alone since S4) and live locations; the editor's
   // job's one-thing backlog row.
   'kept.embedding_mark(uuid,text,text,integer,text,timestamp with time zone)': SYSTEM_ONLY,

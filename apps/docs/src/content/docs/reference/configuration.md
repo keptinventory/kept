@@ -93,6 +93,7 @@ The Compose file passes the common ones through from `.env`; the rest go in a
 | `KEPT_VAPID_SUBJECT` |  | web push: who push services contact, an `https:` URL or `mailto:` address; default `KEPT_PUBLIC_URL` when https, else `mailto:` the `KEPT_SMTP_FROM` address, else push is unavailable |
 | `KEPT_EMBEDDINGS` | `provider` | `provider`, `local`, `off`: where search's embeddings come from; `local` is refused unless the local model's runtime is installed (D207) |
 | `KEPT_EMBEDDINGS_DIR` |  | the local embedding model's files, only read when `KEPT_EMBEDDINGS=local`; default `<KEPT_DATA_DIR>/models` |
+| `KEPT_VISUAL_ENCODER_URL` |  | opt-in whole-image search; an `http://127.0.0.1:<port>` OpenCLIP sidecar in the same network namespace as the server and worker; unset disables visual inference |
 | `KEPT_OIDC_ISSUER` |  | OIDC sign-in: the issuer URL exactly as its discovery document states it; set, OIDC is on (needs `KEPT_OIDC_CLIENT_ID`) |
 | `KEPT_OIDC_CLIENT_ID` |  | OIDC sign-in: the client id |
 | `KEPT_OIDC_CLIENT_SECRET` |  | OIDC sign-in: the client secret (a confidential client); never logged |

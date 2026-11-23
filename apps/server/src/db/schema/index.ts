@@ -40,5 +40,6 @@ export * from './tenancy.js';
 export * from './things.js';
 export * from './tokens.js';
 export * from './user.js';
+export * from './visual-search.js';
 export * from './warranties.js';
 export * from './webhooks.js';

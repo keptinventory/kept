@@ -27,6 +27,7 @@ import { captureRoom, checkRoomInput } from '../room/capture.js';
 import { applyTemplate } from '../templates/service.js';
 import { type Ctx, insertThing, requireRole, targetOf, writableThing } from '../things/service.js';
 import { rowsOf, type ThingRow } from '../things/view.js';
+import { enqueueVisualIndex } from '../visual-search/job.js';
 
 // The capture service (D17, D18, D19, D34, D36, D117, D140, D175).
 // The one implementation behind `POST /api/v1/captures` and the sync
@@ -471,6 +472,7 @@ export async function capture(
       'photo',
       fileIds,
     );
+    if (!scope.tokenId) await enqueueVisualIndex(ctx.jobs, client, attachments);
     if (documentIds.length) {
       attachments.push(
         ...(await attachFiles(client, locationId, { thingId: thing.id }, 'document', documentIds)),
@@ -542,6 +544,7 @@ export async function capture(
   );
   const eventId = undoableEventIds(tx).at(-1);
   const attachments = await attachFiles(client, locationId, { thingId: id }, 'photo', fileIds);
+  if (named !== null && !scope.tokenId) await enqueueVisualIndex(ctx.jobs, client, attachments);
   if (documentIds.length) {
     await attachFiles(client, locationId, { thingId: id }, 'document', documentIds);
   }

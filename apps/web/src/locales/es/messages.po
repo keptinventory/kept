@@ -29968,3 +29968,68 @@ msgstr "Vista previa de {0}"
 #: src/native/main.tsx
 msgid "Export details"
 msgstr "Exportar detalles"
+
+#. placeholder {0}: fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)
+#: src/components/search/visual-search.tsx
+msgid "Choose a photo up to {0} MB."
+msgstr "Elige una foto de hasta {0} MB."
+
+#: src/components/search/visual-search.tsx
+msgid "Find in photos"
+msgstr "Buscar en fotos"
+
+#: src/components/search/visual-search.tsx
+msgid "Loading photo…"
+msgstr "Cargando foto…"
+
+#: src/components/search/visual-search.tsx
+msgid "No close photo match. Try different words or a clearer photo."
+msgstr "No hay fotos similares. Prueba con otras palabras o una foto más clara."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo indexing is incomplete."
+msgstr "La indexación de fotos está incompleta."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo search is unavailable."
+msgstr "La búsqueda de fotos no está disponible."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo unavailable"
+msgstr "Foto no disponible"
+
+#: src/components/search/visual-search.tsx
+msgid "Possible photo matches"
+msgstr "Posibles coincidencias de fotos"
+
+#: src/components/search/visual-search.tsx
+msgid "Recorded location"
+msgstr "Ubicación registrada"
+
+#: src/components/search/visual-search.tsx
+msgid "Search photos"
+msgstr "Búsqueda en fotos"
+
+#: src/components/search/visual-search.tsx
+msgid "Search with a photo"
+msgstr "Buscar con una foto"
+
+#: src/components/search/visual-search.tsx
+msgid "Searching photos…"
+msgstr "Buscando en las fotos…"
+
+#: src/components/search/visual-search.tsx
+msgid "Several recorded locations may match."
+msgstr "Varias ubicaciones registradas podrían coincidir."
+
+#: src/components/search/visual-search.tsx
+msgid "Stored photo"
+msgstr "Foto guardada"
+
+#: src/components/search/visual-search.tsx
+msgid "View stored photo"
+msgstr "Ver foto guardada"
+
+#: src/components/history/labels.ts
+msgid "Visual search indexing requested"
+msgstr "Se solicitó la indexación para la búsqueda visual"

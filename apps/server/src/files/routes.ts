@@ -12,6 +12,7 @@ import { scopedRead, scopedWrite } from '../http/write.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { ImageLimiter } from '../storage/derivatives.js';
+import { enqueueVisualIndex } from '../visual-search/job.js';
 import {
   type AttachmentOwner,
   createAttachment,
@@ -290,9 +291,8 @@ export async function fileRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
     { schema: { body: CreateAttachmentBody, response: { 201: AttachmentViewSchema } } },
     (req, reply) => {
       const id = req.body.id ? assertClientId(req.body.id) : newId();
-      return scopedWrite(pools, req, reply, async (tx, client, scope) => ({
-        status: 201,
-        body: await createAttachment(
+      return scopedWrite(pools, req, reply, async (tx, client, scope) => {
+        const attachment = await createAttachment(
           tx,
           client,
           files,
@@ -300,8 +300,22 @@ export async function fileRoutes(app: KeptApp, deps: InventoryDeps): Promise<voi
           scope.userId,
           { ...req.body, id },
           req.id,
-        ),
-      }));
+        );
+        if (
+          !scope.tokenId &&
+          'thingId' in req.body.subject &&
+          req.body.role === 'photo' &&
+          req.body.fileId
+        ) {
+          await enqueueVisualIndex(
+            deps.jobs,
+            client,
+            [id],
+            deps.visualProvider === undefined ? undefined : deps.visualProvider !== null,
+          );
+        }
+        return { status: 201, body: attachment };
+      });
     },
   );
 

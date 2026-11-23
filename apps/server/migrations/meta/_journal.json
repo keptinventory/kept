@@ -1275,6 +1275,20 @@
       "when": 1795404044173,
       "tag": "0181_backfill_thing_capture_review_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 182,
+      "version": "7",
+      "when": 1795420798605,
+      "tag": "0182_visual_embeddings",
+      "breakpoints": true
+    },
+    {
+      "idx": 183,
+      "version": "7",
+      "when": 1795420800022,
+      "tag": "0183_visual_search_doors",
+      "breakpoints": true
     }
   ]
 }

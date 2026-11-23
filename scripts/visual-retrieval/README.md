@@ -91,3 +91,61 @@ deletion in cross-household retrieval tests before serving any private image res
 
 [OpenCLIP model and inference](https://github.com/mlfoundations/open_clip),
 [pinned weights](https://huggingface.co/laion/CLIP-ViT-B-32-laion2B-s34B-b79K/tree/1a25a446712ba5ee05982a381eed697ef9b435cf).
+
+## Opt-in local encoder
+
+Use the Python 3.12 environment and local checkpoint from the setup above. Start the sidecar as
+a separate process in the same network namespace as the Kept server and worker. It listens on
+IPv4 loopback only, verifies the checkpoint SHA-256 and pinned inference package versions at
+startup, and uses the CPU. Keep port 8798 private.
+
+```sh
+.tmp/kept-visual/venv/bin/python scripts/visual-retrieval/serve.py \
+  --weights .tmp/kept-visual/open_clip_model.safetensors
+```
+
+Set `KEPT_VISUAL_ENCODER_URL=http://127.0.0.1:8798` in the environments that start Kept's server
+and worker. With the variable unset, visual inference is disabled. Kept checks that the sidecar
+serves its expected generation before sending either kind of input. The sidecar decodes and
+encodes requests in memory. Weight downloads are a separate setup step.
+
+Generation `openclip-vit-b-32-laion2b-s34b-b79k-1a25a446-224-v1` uses the checkpoint above and
+the OpenCLIP 3.2.0 ViT-B/32 tokenizer and encoders. Kept bounds source images to 20 megapixels,
+auto-orients them, scales them to fit within 1024 × 1024 without enlargement, flattens
+transparency against white and transcodes to JPEG at quality 85. The sidecar validates the JPEG
+and its dimensions, decodes to RGB, resizes the short edge to 224 with bicubic interpolation,
+center crops to 224 × 224, and applies the OpenCLIP RGB normalization constants. Each encoder
+returns a normalized 512-dimensional vector. Both the backend and the sidecar validate sizes,
+and the backend checks the generation, dimension, and norm before using a response.
+
+## Real encoder smoke with independent image exposures
+
+The [Columbia Object Image Library (COIL-20)](https://www.cs.columbia.edu/CAVE/software/softlib/coil-20.php)
+contains distinct exposures of objects on a turntable. The smoke run uses five gallery frames
+from 0°, separate query frames captured at 30–50°, and similar toy vehicles and cups assigned to
+separate fixture boxes. The fixture names and box labels omit the visible objects. The script
+reads a local ZIP and verifies its SHA-256. The ZIP and generated fixtures stay out of Git.
+
+```sh
+curl -fL -o .tmp/kept-visual/coil-20-proc.zip \
+  https://www.cs.columbia.edu/CAVE/databases/SLAM_coil-20_coil-100/coil-20/coil-20-proc.zip
+.tmp/kept-visual/venv/bin/python scripts/visual-retrieval/check-sidecar.py \
+  --coil-archive .tmp/kept-visual/coil-20-proc.zip \
+  --output .tmp/kept-visual/sidecar-smoke.json \
+  --fixture-dir .tmp/kept-visual/coil-fixtures
+```
+
+The November 23, 2026 run used the provisional text cutoff of 0.20, photo cutoff of 0.58, and
+an ambiguity margin of 0.035. The sidecar started in 3.15 s and encoded the five gallery images
+in 200 ms over loopback. Its process used approximately 589 MiB resident memory after the run.
+
+| Query type | Recall@1 | Recall@5 | False positives on absent objects | Median / maximum encode over loopback |
+| --- | ---: | ---: | ---: | ---: |
+| Caption-omitted words | 5/6 | 6/6 | 0/2 | 14.01 / 45.40 ms |
+| Separate photo exposure | 5/5 | 5/5 | 1/2 | 20.12 / 20.76 ms |
+
+The absent cat figurine matched the rubber duck at 0.630. The handle-less cup text query ranked
+the other cup first. The corpus is a five-object, single-background turntable smoke test. The
+provisional cutoffs and measured timings still need held-out household qualification. This
+command measures the local inference interface. Kept's authorized search, indexing coverage and
+attachment lifecycle are exercised separately by server tests.

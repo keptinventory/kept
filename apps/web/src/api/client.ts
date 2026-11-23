@@ -120,6 +120,8 @@ export async function toApiError(res: Response): Promise<ApiError> {
 export type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
+  /** A bounded binary upload, sent with the Blob's media type. */
+  rawBody?: Blob;
   headers?: Record<string, string>;
   signal?: AbortSignal;
 };
@@ -172,7 +174,10 @@ async function send<T>(path: string, opts: RequestOptions): Promise<{ body: T; r
     credentials: 'include',
     headers,
   };
-  if (opts.body !== undefined) {
+  if (opts.rawBody) {
+    if (opts.rawBody.type) headers['content-type'] = opts.rawBody.type;
+    init.body = opts.rawBody;
+  } else if (opts.body !== undefined) {
     headers['content-type'] = 'application/json';
     init.body = JSON.stringify(opts.body);
   }

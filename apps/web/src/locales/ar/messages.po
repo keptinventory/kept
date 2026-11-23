@@ -29968,3 +29968,68 @@ msgstr "معاينة {0}"
 #: src/native/main.tsx
 msgid "Export details"
 msgstr "تصدير التفاصيل"
+
+#. placeholder {0}: fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)
+#: src/components/search/visual-search.tsx
+msgid "Choose a photo up to {0} MB."
+msgstr "اختر صورة حجمها {0} ميغابايت أو أقل."
+
+#: src/components/search/visual-search.tsx
+msgid "Find in photos"
+msgstr "ابحث في الصور"
+
+#: src/components/search/visual-search.tsx
+msgid "Loading photo…"
+msgstr "جارٍ تحميل الصورة…"
+
+#: src/components/search/visual-search.tsx
+msgid "No close photo match. Try different words or a clearer photo."
+msgstr "لا توجد صور قريبة من طلبك. جرّب كلمات أخرى أو صورة أوضح."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo indexing is incomplete."
+msgstr "لم تكتمل فهرسة الصور."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo search is unavailable."
+msgstr "البحث في الصور غير متاح."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo unavailable"
+msgstr "الصورة غير متاحة"
+
+#: src/components/search/visual-search.tsx
+msgid "Possible photo matches"
+msgstr "نتائج محتملة من الصور"
+
+#: src/components/search/visual-search.tsx
+msgid "Recorded location"
+msgstr "المكان المسجّل"
+
+#: src/components/search/visual-search.tsx
+msgid "Search photos"
+msgstr "البحث في الصور"
+
+#: src/components/search/visual-search.tsx
+msgid "Search with a photo"
+msgstr "ابحث باستخدام صورة"
+
+#: src/components/search/visual-search.tsx
+msgid "Searching photos…"
+msgstr "جارٍ البحث في الصور…"
+
+#: src/components/search/visual-search.tsx
+msgid "Several recorded locations may match."
+msgstr "قد تتطابق عدة أماكن مسجّلة."
+
+#: src/components/search/visual-search.tsx
+msgid "Stored photo"
+msgstr "الصورة المحفوظة"
+
+#: src/components/search/visual-search.tsx
+msgid "View stored photo"
+msgstr "اعرض الصورة المحفوظة"
+
+#: src/components/history/labels.ts
+msgid "Visual search indexing requested"
+msgstr "طُلبت فهرسة البحث في الصور"

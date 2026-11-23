@@ -177,6 +177,13 @@ export async function fillInventory(
      VALUES ($1, $2, $3, 'photo', $4)`,
     [t.locationId, file, thing, t.userId],
   );
+  await c.query(
+    `INSERT INTO public.visual_embeddings
+       (attachment_id, location_id, file_id, content_hash, generation, state, embedding)
+     SELECT a.id, a.location_id, a.file_id, $3, 'visual-probe', 'ready', $4::vector
+       FROM public.attachments a WHERE a.file_id = $1 AND a.thing_id = $2`,
+    [file, thing, sha, JSON.stringify([1, ...Array<number>(511).fill(0)])],
+  );
   // The same file as the purchase's receipt: what kept.thing_receipt_file() serves.
   await c.query(
     `INSERT INTO public.attachments (location_id, file_id, purchase_id, role, created_by)

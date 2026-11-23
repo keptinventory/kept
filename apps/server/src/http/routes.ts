@@ -68,6 +68,8 @@ import { typeRoutes } from '../types/routes.js';
 import { undoRoutes } from '../undo/routes.js';
 import { updateRoutes } from '../updates/routes.js';
 import { vehicleRoutes } from '../vehicles/routes.js';
+import type { VisualProvider } from '../visual-search/provider.js';
+import { visualSearchRoutes } from '../visual-search/routes.js';
 import { warrantyRoutes } from '../warranties/routes.js';
 import { webhookRoutes } from '../webhooks/routes.js';
 import type { AppEnv, KeptApp } from './app.js';
@@ -95,6 +97,7 @@ export type InventoryDeps = {
   jobs: JobQueue | null;
   /** File storage (storage/); null when the app serves no files (tests that don't need it). */
   files: FileStorage | null;
+  visualProvider?: VisualProvider | null;
   /** The keyring for secret values (crypto/keyring.ts, T19); absent: those routes answer 503. */
   secretKeys?: SecretKeys | null;
   /** Step 3's AI layer (ai/routes.ts AiDeps); absent: AI routes answer as if no provider were
@@ -128,6 +131,7 @@ export const INVENTORY_ROUTE_MODULES = [
   fileRoutes,
   secretRoutes,
   searchRoutes,
+  visualSearchRoutes,
   trashRoutes,
   historyRoutes,
   homeRoutes,

@@ -104,6 +104,7 @@ export const JOB_POLICIES = {
   'assistant-turn': { retryLimit: 1, retryDelay: 5, retryBackoff: false, expireInSeconds: 200 },
   // A thing's embedding: one provider request, like an extraction's.
   'embed-thing': { retryLimit: 3, retryDelay: 30, retryBackoff: true, expireInSeconds: 90 },
+  'visual-index': { retryLimit: 2, retryDelay: 30, retryBackoff: true, expireInSeconds: 90 },
   // Hourly and on demand: the backlog of things without a current vector, in batches.
   'embed-backfill': { retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 3600 },
   // A write's fan-out to the location's webhooks: rows and jobs only, no HTTP.

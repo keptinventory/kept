@@ -273,6 +273,7 @@ describe('policies and schedules', () => {
       'enrich-aliases',
       'assistant-turn',
       'embed-thing',
+      'visual-index',
     ]);
     expect(JOB_POLICIES.report).toEqual({
       retryLimit: 0,

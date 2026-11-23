@@ -498,6 +498,7 @@ describe('activity', () => {
       'instance.rotate_key': 'Encryption key replaced',
       'instance.drop_key': 'Old encryption key removed',
       'instance.embeddings_source': 'Semantic search source changed',
+      'visual_search.reindex': 'Visual search indexing requested',
       'instance.recovery_kit_download': 'Recovery kit downloaded',
       'instance.recovery_kit_acknowledge': 'Recovery kit noted as kept',
       'instance.update_check': 'Checked for updates',

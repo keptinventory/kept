@@ -29968,3 +29968,68 @@ msgstr "Preview {0}"
 #: src/native/main.tsx
 msgid "Export details"
 msgstr "Export details"
+
+#. placeholder {0}: fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)
+#: src/components/search/visual-search.tsx
+msgid "Choose a photo up to {0} MB."
+msgstr "Choose a photo up to {0} MB."
+
+#: src/components/search/visual-search.tsx
+msgid "Find in photos"
+msgstr "Find in photos"
+
+#: src/components/search/visual-search.tsx
+msgid "Loading photo…"
+msgstr "Loading photo…"
+
+#: src/components/search/visual-search.tsx
+msgid "No close photo match. Try different words or a clearer photo."
+msgstr "No close photo match. Try different words or a clearer photo."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo indexing is incomplete."
+msgstr "Photo indexing is incomplete."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo search is unavailable."
+msgstr "Photo search is unavailable."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo unavailable"
+msgstr "Photo unavailable"
+
+#: src/components/search/visual-search.tsx
+msgid "Possible photo matches"
+msgstr "Possible photo matches"
+
+#: src/components/search/visual-search.tsx
+msgid "Recorded location"
+msgstr "Recorded location"
+
+#: src/components/search/visual-search.tsx
+msgid "Search photos"
+msgstr "Search photos"
+
+#: src/components/search/visual-search.tsx
+msgid "Search with a photo"
+msgstr "Search with a photo"
+
+#: src/components/search/visual-search.tsx
+msgid "Searching photos…"
+msgstr "Searching photos…"
+
+#: src/components/search/visual-search.tsx
+msgid "Several recorded locations may match."
+msgstr "Several recorded locations may match."
+
+#: src/components/search/visual-search.tsx
+msgid "Stored photo"
+msgstr "Stored photo"
+
+#: src/components/search/visual-search.tsx
+msgid "View stored photo"
+msgstr "View stored photo"
+
+#: src/components/history/labels.ts
+msgid "Visual search indexing requested"
+msgstr "Visual search indexing requested"

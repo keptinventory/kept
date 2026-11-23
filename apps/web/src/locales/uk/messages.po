@@ -31951,3 +31951,68 @@ msgstr "Перегляд {0}"
 #: src/native/main.tsx
 msgid "Export details"
 msgstr "Експортувати деталі"
+
+#. placeholder {0}: fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)
+#: src/components/search/visual-search.tsx
+msgid "Choose a photo up to {0} MB."
+msgstr "Виберіть фото розміром до {0} МБ."
+
+#: src/components/search/visual-search.tsx
+msgid "Find in photos"
+msgstr "Знайти на фото"
+
+#: src/components/search/visual-search.tsx
+msgid "Loading photo…"
+msgstr "Завантаження фото…"
+
+#: src/components/search/visual-search.tsx
+msgid "No close photo match. Try different words or a clearer photo."
+msgstr "Схожих фото немає. Спробуйте інші слова або чіткіше фото."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo indexing is incomplete."
+msgstr "Індексування фото ще не завершено."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo search is unavailable."
+msgstr "Пошук за фото недоступний."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo unavailable"
+msgstr "Фото недоступне"
+
+#: src/components/search/visual-search.tsx
+msgid "Possible photo matches"
+msgstr "Можливі збіги за фото"
+
+#: src/components/search/visual-search.tsx
+msgid "Recorded location"
+msgstr "Записане місце"
+
+#: src/components/search/visual-search.tsx
+msgid "Search photos"
+msgstr "Пошук на фото"
+
+#: src/components/search/visual-search.tsx
+msgid "Search with a photo"
+msgstr "Шукати за фото"
+
+#: src/components/search/visual-search.tsx
+msgid "Searching photos…"
+msgstr "Пошук на фото…"
+
+#: src/components/search/visual-search.tsx
+msgid "Several recorded locations may match."
+msgstr "Можливі збіги в кількох записаних місцях."
+
+#: src/components/search/visual-search.tsx
+msgid "Stored photo"
+msgstr "Збережене фото"
+
+#: src/components/search/visual-search.tsx
+msgid "View stored photo"
+msgstr "Переглянути збережене фото"
+
+#: src/components/history/labels.ts
+msgid "Visual search indexing requested"
+msgstr "Запитано індексування для візуального пошуку"

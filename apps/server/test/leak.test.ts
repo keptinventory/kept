@@ -106,6 +106,7 @@ const DEFINER_ONLY_TABLES: Record<string, string> = {
   thing_embeddings:
     'vectors are derived from things; only the kept.embedding_* and kept.semantic_* doors touch them (0076)',
   embedding_state: "a location's index progress; only the kept.embedding_* doors touch it (0076)",
+  visual_embeddings: 'whole-image vectors are only reachable through scoped visual-search doors',
 };
 
 /** Tables whose own id is the scope. */
@@ -445,6 +446,14 @@ const FUNCTIONS: Record<string, { roles: string[]; definer: boolean }> = {
   'kept.embedding_store(uuid,text,jsonb)': { roles: BOTH, definer: true },
   'kept.semantic_thing_ids(text,vector,uuid,integer)': { roles: APP, definer: true },
   'kept.embedding_status_instance()': { roles: APP, definer: true },
+  'kept.visual_locations(uuid[])': { roles: APP, definer: true },
+  'kept.visual_sources(uuid[],uuid)': { roles: APP, definer: false },
+  'kept.visual_coverage(uuid[],text)': { roles: APP, definer: true },
+  'kept.visual_backlog(uuid,text,integer)': { roles: APP, definer: true },
+  'kept.visual_current(uuid,uuid,uuid,text,text)': { roles: APP, definer: true },
+  'kept.visual_store(uuid,uuid,uuid,text,text,vector)': { roles: APP, definer: true },
+  'kept.visual_matches(uuid[],text,vector,real,integer)': { roles: APP, definer: true },
+  'kept.visual_attachment_changed()': { roles: NOBODY, definer: true },
   // (0099) The backfill's mark, kept_system's alone (security review S4), and the live locations
   // it visits; the editor's job's backlog row for its one thing.
   'kept.embedding_mark(uuid,text,text,integer,text,timestamp with time zone)': {
@@ -932,6 +941,7 @@ describe('catalogue', () => {
       'embedding_state',
       'thing_embeddings',
       'token_rate_windows',
+      'visual_embeddings',
     ]);
   });
 
@@ -1778,6 +1788,8 @@ type Ids = Record<
   | 'type'
   | 'pin'
   | 'file'
+  | 'visualAttachment'
+  | 'visualHash'
   | 'person'
   | 'tag'
   | 'tag2'
@@ -1808,6 +1820,14 @@ async function victimIds(t: Tenant, label: string): Promise<Ids> {
     file: await one('SELECT file_id AS id FROM public.attachments WHERE location_id = $1 LIMIT 1', [
       t.locationId,
     ]),
+    visualAttachment: await one(
+      'SELECT attachment_id AS id FROM public.visual_embeddings WHERE location_id = $1 LIMIT 1',
+      [t.locationId],
+    ),
+    visualHash: await one(
+      'SELECT content_hash AS id FROM public.visual_embeddings WHERE location_id = $1 LIMIT 1',
+      [t.locationId],
+    ),
     person: await one('SELECT id FROM public.people WHERE display_name = $1', [`${label} person`]),
     tag: await one('SELECT id FROM public.tags WHERE name = $1', [`${label} tag`]),
     tag2: await one('SELECT id FROM public.tags WHERE name = $1', [`${label} other tag`]),
@@ -2252,6 +2272,42 @@ const PROBES: Probe[] = [
     sql: `SELECT * FROM kept.semantic_thing_ids('provider:openai:probe', '[1,0,0]', $1, 10)`,
     args: (_i, t) => [t.locationId],
     viewer: 'rows',
+  },
+  {
+    name: 'visual_locations',
+    sql: 'SELECT * FROM kept.visual_locations(ARRAY[$1::uuid])',
+    args: (_i, t) => [t.locationId],
+    viewer: 'empty',
+  },
+  {
+    name: 'visual_coverage',
+    sql: `SELECT * FROM kept.visual_coverage(ARRAY[$1::uuid], 'visual-probe') WHERE ready + pending + failed > 0`,
+    args: (_i, t) => [t.locationId],
+    viewer: 'empty',
+  },
+  {
+    name: 'visual_backlog',
+    sql: `SELECT * FROM kept.visual_backlog($1, 'visual-new-model', 10)`,
+    args: (_i, t) => [t.locationId],
+    viewer: 'empty',
+  },
+  {
+    name: 'visual_current',
+    sql: `SELECT kept.visual_current($1, $2, $3, $4, 'visual-probe') AS v`,
+    args: (i, t) => [i.visualAttachment, t.locationId, i.file, i.visualHash],
+    viewer: 'false',
+  },
+  {
+    name: 'visual_store',
+    sql: `SELECT kept.visual_store($1, $2, $3, $4, 'visual-probe', NULL) AS v`,
+    args: (i, t) => [i.visualAttachment, t.locationId, i.file, i.visualHash],
+    viewer: 'false',
+  },
+  {
+    name: 'visual_matches',
+    sql: `SELECT * FROM kept.visual_matches(ARRAY[$1::uuid], 'visual-probe', $2::vector, 0.2, 10)`,
+    args: (_i, t) => [t.locationId, JSON.stringify([1, ...Array<number>(511).fill(0)])],
+    viewer: 'empty',
   },
   // (0099) The editor's job's row for one thing: a viewer sees its text, as the backlog's.
   {

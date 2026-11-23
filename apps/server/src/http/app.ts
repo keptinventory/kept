@@ -55,6 +55,7 @@ import { derivativeKey, type FileStorage } from '../storage/blob-store.js';
 import { TOKEN_SECURITY_SCHEMES, tokenSecurityTransform } from '../tokens/openapi.js';
 import { clientNamesFrom } from '../tokens/service.js';
 import { bearerHook } from '../tokens/verify.js';
+import type { VisualProvider } from '../visual-search/provider.js';
 import { LIBRARY_STYLE_HASHES } from './csp-styles.js';
 import { toErrorReply } from './errors.js';
 import { type BuildInfo, healthRoutes } from './health.js';
@@ -128,6 +129,7 @@ export type AppOptions = {
   isSignupOpen?: () => Promise<boolean>;
   /** File storage for step 2's file routes (storage/). Omit for an app that serves no files. */
   files?: FileStorage | null;
+  visualProvider?: VisualProvider | null;
   /** The keyring for secret values (crypto/keyring.ts). Omit for an app that stores none. */
   secretKeys?: SecretKeys | null;
   /** 1.4 (D231): where the mailbox routes sign in; omit for imapflow (tests pass a fake). */
@@ -367,6 +369,7 @@ export async function buildApp(opts: AppOptions): Promise<KeptApp> {
     log: app.log,
     jobs: opts.jobs ?? null,
     files: opts.files ?? null,
+    ...(opts.visualProvider === undefined ? {} : { visualProvider: opts.visualProvider }),
     secretKeys: opts.secretKeys ?? null,
     mailSource: opts.mailSource ?? null,
     ai: opts.ai ?? null,

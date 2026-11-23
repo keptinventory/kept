@@ -323,6 +323,7 @@ export const AUDIT_ACTIONS = [
   'vendor.delete',
   'vendor.merge',
   'vendor.update',
+  'visual_search.reindex',
   'warranty.create',
   'warranty.delete',
   'warranty.update',

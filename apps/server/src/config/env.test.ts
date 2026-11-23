@@ -965,6 +965,14 @@ describe('embeddings and OIDC (S6.7)', () => {
     expect(env.KEPT_EMBEDDINGS).toBe('local');
   });
 
+  it('recognizes an optional local visual encoder without changing text embeddings', async () => {
+    expect((await load({ KEPT_VISUAL_ENCODER_URL: '' })).KEPT_VISUAL_ENCODER_URL).toBeUndefined();
+    expect(await load({ KEPT_VISUAL_ENCODER_URL: 'http://127.0.0.1:8798' })).toMatchObject({
+      KEPT_VISUAL_ENCODER_URL: 'http://127.0.0.1:8798',
+      KEPT_EMBEDDINGS: 'provider',
+    });
+  });
+
   it('reads the OIDC settings, with their defaults, and keeps the client secret hidden', async () => {
     const none = await load({});
     expect(none.KEPT_OIDC_ISSUER).toBeUndefined();

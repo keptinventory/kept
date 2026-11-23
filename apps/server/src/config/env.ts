@@ -506,6 +506,12 @@ const schema = z.object({
     .describe(
       "the local embedding model's files, only read when `KEPT_EMBEDDINGS=local`; default `<KEPT_DATA_DIR>/models`",
     ),
+  KEPT_VISUAL_ENCODER_URL: z
+    .string()
+    .optional()
+    .describe(
+      'opt-in whole-image search; an `http://127.0.0.1:<port>` OpenCLIP sidecar in the same network namespace as the server and worker; unset disables visual inference',
+    ),
   // Generic OIDC sign-in, configured here and read at boot.
   // Unset issuer: no OIDC. Discovery goes through the SSRF guard.
   KEPT_OIDC_ISSUER: httpUrl()

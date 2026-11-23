@@ -22016,3 +22016,68 @@ msgstr "Xem trước {0}"
 #: src/native/main.tsx
 msgid "Export details"
 msgstr "Xuất chi tiết"
+
+#. placeholder {0}: fmt.num(VISUAL_IMAGE_MAX_BYTES / 1024 ** 2)
+#: src/components/search/visual-search.tsx
+msgid "Choose a photo up to {0} MB."
+msgstr "Chọn ảnh có dung lượng tối đa {0} MB."
+
+#: src/components/search/visual-search.tsx
+msgid "Find in photos"
+msgstr "Tìm trong ảnh"
+
+#: src/components/search/visual-search.tsx
+msgid "Loading photo…"
+msgstr "Đang tải ảnh…"
+
+#: src/components/search/visual-search.tsx
+msgid "No close photo match. Try different words or a clearer photo."
+msgstr "Không có ảnh gần khớp. Hãy thử cách diễn đạt khác hoặc ảnh rõ hơn."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo indexing is incomplete."
+msgstr "Ảnh chưa được lập chỉ mục đầy đủ."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo search is unavailable."
+msgstr "Tính năng tìm kiếm ảnh hiện không khả dụng."
+
+#: src/components/search/visual-search.tsx
+msgid "Photo unavailable"
+msgstr "Không có ảnh"
+
+#: src/components/search/visual-search.tsx
+msgid "Possible photo matches"
+msgstr "Ảnh có thể trùng khớp"
+
+#: src/components/search/visual-search.tsx
+msgid "Recorded location"
+msgstr "Vị trí đã ghi nhận"
+
+#: src/components/search/visual-search.tsx
+msgid "Search photos"
+msgstr "Tìm kiếm ảnh"
+
+#: src/components/search/visual-search.tsx
+msgid "Search with a photo"
+msgstr "Tìm bằng ảnh"
+
+#: src/components/search/visual-search.tsx
+msgid "Searching photos…"
+msgstr "Đang tìm trong ảnh…"
+
+#: src/components/search/visual-search.tsx
+msgid "Several recorded locations may match."
+msgstr "Có thể có nhiều vị trí đã ghi nhận phù hợp."
+
+#: src/components/search/visual-search.tsx
+msgid "Stored photo"
+msgstr "Ảnh đã lưu"
+
+#: src/components/search/visual-search.tsx
+msgid "View stored photo"
+msgstr "Xem ảnh đã lưu"
+
+#: src/components/history/labels.ts
+msgid "Visual search indexing requested"
+msgstr "Đã yêu cầu lập chỉ mục tìm kiếm hình ảnh"

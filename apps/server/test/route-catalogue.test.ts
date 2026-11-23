@@ -45,6 +45,12 @@ const ALLOWLIST: Record<string, string> = {
     'read-only: answers what a move would copy and who would lose sight of the things, counting the copies inside a savepoint it always rolls back; the move itself is audited (thing.move)',
   'POST /api/v1/files/:id/url':
     'read-only: signs a five-minute URL for a file the caller may already see and changes nothing; the upload, attachments and "delete original" are audited',
+  'POST /api/v1/visual-search':
+    'read-only: ranks currently visible photo evidence and records no query or inventory change',
+  'POST /api/v1/visual-search/input':
+    'encodes a query photo in memory into a session-bound vector with a 15-minute lifetime; no asset or durable state is created',
+  'DELETE /api/v1/visual-search/input/:id':
+    'forgets an in-memory query vector; no inventory change or durable state is written',
   'POST /api/v1/me/passkeys/confirm':
     "records that the caller confirmed it's them, for their own session, one passkey and five minutes; nothing changes until the passkey is added, which is audited (passkey.add, in the Better Auth mount)",
   'POST /api/v1/me/two-factor/set-up-again':

@@ -41,6 +41,7 @@ export type TestAppOptions = {
   onRoute?: Parameters<typeof buildApp>[0]['onRoute'];
   /** File storage for the file routes; omitted, they answer 503. */
   files?: Parameters<typeof buildApp>[0]['files'];
+  visualProvider?: Parameters<typeof buildApp>[0]['visualProvider'];
   /** The keyring for the secret routes; omitted, they answer 503. */
   secretKeys?: Parameters<typeof buildApp>[0]['secretKeys'];
   /** 1.4: a fake mailbox for the mailbox routes; omitted, they would reach for imapflow. */
@@ -112,6 +113,7 @@ export async function testApp(db: TestDb, opts: TestAppOptions = {}): Promise<Te
     ...(opts.isSignupOpen ? { isSignupOpen: opts.isSignupOpen } : {}),
     ...(opts.onRoute ? { onRoute: opts.onRoute } : {}),
     ...(opts.files ? { files: opts.files } : {}),
+    ...(opts.visualProvider === undefined ? {} : { visualProvider: opts.visualProvider }),
     ...(opts.secretKeys ? { secretKeys: opts.secretKeys } : {}),
     ...(opts.mailSource ? { mailSource: opts.mailSource } : {}),
     ...(opts.logger ? { logger: opts.logger } : {}),

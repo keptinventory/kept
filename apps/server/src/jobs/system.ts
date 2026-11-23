@@ -26,6 +26,7 @@ import { expireMemberships, notifyOwnerNewMember } from '../locations/membership
 import type { Mailer } from '../mail/mailer.js';
 import type { ChannelSenders } from '../reminders/channel.js';
 import type { FileStorage } from '../storage/blob-store.js';
+import { visualIndexJobs } from '../visual-search/job.js';
 import { defineJob, type JobDefinition } from './boss.js';
 import { captureJobs } from './capture.js';
 import { householdJobs } from './household.js';
@@ -250,6 +251,7 @@ export function systemJobs(deps: SystemJobDeps): JobDefinition[] {
     ...portabilityJobs(deps),
     // The assistant, embeddings and webhooks (jobs/step6.ts).
     ...step6Jobs(deps),
+    ...visualIndexJobs(deps),
     // The operations watch, the backup check and the update check (jobs/operations.ts).
     ...operationsJobs(deps),
     defineJob({

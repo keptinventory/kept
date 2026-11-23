@@ -640,6 +640,7 @@ export const NOT_EXPORTED: Readonly<Record<string, string>> = Object.freeze({
   brand_logos: 'a cached logo, fetched again from the brand',
   embedding_state: 'derived: the semantic search index',
   thing_embeddings: 'derived: the semantic search index',
+  visual_embeddings: 'derived: the whole-image search index, rebuilt from authorized originals',
   export_runs: "this server's bookkeeping",
   report_runs: "this server's bookkeeping",
   report_schedules: "each member's own scheduled reports on this server",

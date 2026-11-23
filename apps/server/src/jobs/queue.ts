@@ -52,6 +52,7 @@ export const TENANT_REQUEST_QUEUES = [
   // in the asker's or editor's scope.
   'assistant-turn',
   'embed-thing',
+  'visual-index',
 ] as const;
 export type TenantRequestQueue = (typeof TENANT_REQUEST_QUEUES)[number];
 

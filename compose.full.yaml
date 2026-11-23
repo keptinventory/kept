@@ -233,6 +233,7 @@ services:
       # Semantic search (D207), generic OIDC sign-in (D127) and Google sign-in
       # (1.2, D226): empty values fall back to the defaults.
       KEPT_EMBEDDINGS: ${KEPT_EMBEDDINGS:-}
+      KEPT_VISUAL_ENCODER_URL: ${KEPT_VISUAL_ENCODER_URL:-}
       KEPT_OIDC_ISSUER: ${KEPT_OIDC_ISSUER:-}
       KEPT_OIDC_CLIENT_ID: ${KEPT_OIDC_CLIENT_ID:-}
       KEPT_OIDC_CLIENT_SECRET: ${KEPT_OIDC_CLIENT_SECRET:-}

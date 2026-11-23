@@ -13,7 +13,7 @@
  */
 import { Trans, useLingui } from '@lingui/react/macro';
 import { createFileRoute } from '@tanstack/react-router';
-import { useMe } from '@/api/queries';
+import { useAllLocations, useMe } from '@/api/queries';
 import { useCanSeeMoney, useFilterRegistry } from '@/components/filters/registry';
 import { FilterStrip } from '@/components/filters/strip';
 import type { FilterDef } from '@/components/filters/types';
@@ -25,6 +25,7 @@ import { useRecentSearches } from '@/components/search/recent';
 import { SearchResults } from '@/components/search/results';
 import { SavedViews } from '@/components/search/saved-views';
 import { searchSearch } from '@/components/search/search-url';
+import { VisualSearch } from '@/components/search/visual-search';
 import { ShareSearch } from '@/components/sharelinks/share-search';
 import { isNot, useListState } from '@/lib/url-state';
 
@@ -47,6 +48,15 @@ function SearchPage() {
   const priceSet = !!(list.filters.priceMin?.length || list.filters.priceMax?.length);
   const showPrice = useCanSeeMoney() || priceSet;
   const locations = list.filters.location ?? [];
+  const allLocations = useAllLocations();
+  const visualLocations =
+    locations.length === 0
+      ? undefined
+      : isNot(list, 'location')
+        ? (allLocations.data
+            ?.filter((location) => !locations.includes(location.id))
+            .map(({ id }) => id) ?? [])
+        : locations;
   const filters: FilterDef[] = [
     // A place belongs to one location: choosing locations drops the places.
     { ...f.location(), clears: ['place'] },
@@ -82,6 +92,8 @@ function SearchPage() {
           }}
         />
       </div>
+
+      <VisualSearch text={list.q.trim()} locationIds={visualLocations} userId={me.data?.user.id} />
 
       {!list.q && recent.length ? (
         // biome-ignore lint/a11y/useSemanticElements: a row of shortcut buttons

@@ -177,6 +177,8 @@ jobs:
 # `- {name: KEPT_EXTRA_ADDRESSES, value: "https://kept-lan.example.org"}` for other exact addresses
 # this Kept answers on, comma-separated, on the same scheme as the public URL. Your ingress must
 # route them too.
+# To opt in to visual search, set KEPT_VISUAL_ENCODER_URL to an HTTP loopback origin only when
+# a compatible OpenCLIP sidecar runs in the same Pod as the server and worker.
 extraEnv: []
 # More envFrom sources for Kept's containers.
 extraEnvFrom: []

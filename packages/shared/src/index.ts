@@ -54,4 +54,5 @@ export * from './type-fields.js';
 export * from './user-agent.js';
 export * from './vehicles.js';
 export * from './vin.js';
+export * from './visual-search.js';
 export * from './webhooks.js';
