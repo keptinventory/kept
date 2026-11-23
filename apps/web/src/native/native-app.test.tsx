@@ -147,8 +147,23 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
   const uploadedFiles = new Map<string, { sha256: string; bytes: number; mime: string }>();
 
   let findListener: ((reading: FindTagEvent) => void) | null = null;
-  let resolveFind: ((value: TagReading) => void) | null = null;
+  let resolveFind: ((value: TagReading & { sessionId?: string }) => void) | null = null;
+  let currentFindSession: string | null = null;
   const scanSequence: TagReading[] = [];
+  const completionsByContext = new Map<string, Map<string, 'synced' | 'discarded'>>();
+  const getCompletions = (ctx: string) => {
+    const existing = completionsByContext.get(ctx);
+    if (existing) return existing;
+    const next = new Map<string, 'synced' | 'discarded'>();
+    completionsByContext.set(ctx, next);
+    return next;
+  };
+  const isHeld = (candidate: string, current: string) => {
+    if (candidate === current) return false;
+    const a = candidate.split('|');
+    const b = current.split('|');
+    return a.length === 3 && b.length === 3 && a[0] === b[0] && a[1] === b[1] && a[2] !== b[2];
+  };
 
   const events = {
     matches: [] as string[],
@@ -156,7 +171,10 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
     openedRemote: [] as Array<{ thing?: string; file: string; mime: string }>,
     openedPending: [] as Array<{ id: string; file: string }>,
     continueCalls: [] as Array<string | undefined>,
+    continueSessions: [] as Array<string | undefined>,
     finishCalls: [] as Array<string | undefined>,
+    finishSessions: [] as Array<string | undefined>,
+    openedHeld: [] as Array<{ heldContext: string; id: string; file: string }>,
     disconnected: 0,
   };
 
@@ -206,6 +224,14 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       ): Promise<T> {
         if (!online) throw new ApiError(0, 'offline', 'Offline');
 
+        if (path === '/api/v1/native/capture-capabilities') {
+          return {
+            contractVersion: 1,
+            capturePayloadVersions: [2],
+            account: _conn.account,
+            epoch: _conn.epoch,
+          } as T;
+        }
         if (path === paths.me) {
           return { id: 'ibrahim', email: 'ibrahim@kept.test' } as T;
         }
@@ -289,6 +315,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
         if (path === capturePaths.syncOps) {
           const body = options?.body as {
             ops: Array<{
+              clientId: string;
               idempotencyKey: string;
               payload: {
                 id: string;
@@ -303,7 +330,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
           const results = body.ops.map((op) => {
             if (forceDropReason) {
               return {
-                clientId: op.idempotencyKey,
+                clientId: op.clientId,
                 idempotencyKey: op.idempotencyKey,
                 outcome: 'dropped',
                 reason: forceDropReason,
@@ -390,7 +417,7 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
               }),
             );
             return {
-              clientId: op.idempotencyKey,
+              clientId: op.clientId,
               idempotencyKey: op.idempotencyKey,
               outcome: 'applied',
               entity: { type: 'thing', id: createdId, shortCode: '4CD5EF' },
@@ -549,9 +576,38 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
         return updated;
       },
       async complete(conn, id) {
+        getCompletions(conn.id).set(id, 'synced');
         outboxByContext.set(
           conn.id,
           getQueue(conn.id).filter((e) => e.capture.id !== id),
+        );
+      },
+      async discard(conn, id) {
+        getCompletions(conn.id).set(id, 'discarded');
+        outboxByContext.set(
+          conn.id,
+          getQueue(conn.id).filter((e) => e.capture.id !== id),
+        );
+      },
+      async completions(conn) {
+        return Object.fromEntries(getCompletions(conn.id));
+      },
+      async listHeld(conn) {
+        const held: PendingCapture[] = [];
+        for (const [ctx, queue] of outboxByContext) {
+          if (!isHeld(ctx, conn.id)) continue;
+          for (const entry of queue) {
+            held.push({ ...entry, capture: { ...entry.capture, context: ctx } });
+          }
+        }
+        return held;
+      },
+      async discardHeld(conn, heldContext, id) {
+        if (!isHeld(heldContext, conn.id)) throw new Error('not held');
+        getCompletions(heldContext).set(id, 'discarded');
+        outboxByContext.set(
+          heldContext,
+          getQueue(heldContext).filter((e) => e.capture.id !== id),
         );
       },
       async stats(conn) {
@@ -588,23 +644,29 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       async scanTag() {
         return scanSequence.shift() ?? { status: 'cancelled' };
       },
-      startFind() {
-        return new Promise<TagReading>((resolve) => {
+      startFind(_conn, input) {
+        currentFindSession = input.sessionId;
+        return new Promise<TagReading & { sessionId?: string }>((resolve) => {
           resolveFind = resolve;
         });
       },
-      async continueFind(conn, message) {
+      async continueFind(conn, sessionId, message) {
         void conn;
         events.continueCalls.push(message);
+        events.continueSessions.push(sessionId);
       },
-      async finishFind(conn, message) {
+      async finishFind(conn, sessionId, message) {
         void conn;
         events.finishCalls.push(message);
-        resolveFind?.({ status: 'matched' });
+        events.finishSessions.push(sessionId);
+        // Native guard: a stale finish must not terminate a newer session.
+        if (sessionId !== currentFindSession) return;
+        resolveFind?.({ status: 'matched', sessionId });
         resolveFind = null;
       },
-      async cancelTag() {
-        resolveFind?.({ status: 'cancelled' });
+      async cancelTag(sessionId) {
+        if (sessionId && currentFindSession && sessionId !== currentFindSession) return;
+        resolveFind?.({ status: 'cancelled', sessionId: currentFindSession ?? undefined });
         resolveFind = null;
       },
       async onFindReading(callback) {
@@ -628,6 +690,9 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       },
       async openPending(_conn, input) {
         events.openedPending.push(input);
+      },
+      async openHeld(_conn, input) {
+        events.openedHeld.push(input);
       },
     },
     lifecycle: {
@@ -674,12 +739,19 @@ function createFakeEnvironment(opts: FakeEnvOptions = {}) {
       scanSequence.push(...readings);
     },
     emitFindReading: (event: FindTagEvent) => {
-      findListener?.(event);
+      findListener?.({ sessionId: currentFindSession ?? undefined, ...event });
     },
     endFindSession: (status: string) => {
-      resolveFind?.({ status });
+      resolveFind?.({ status, sessionId: currentFindSession ?? undefined });
       resolveFind = null;
     },
+    seedHeld: (entry: PendingCapture, heldContext: string) => {
+      getQueue(heldContext).push(entry);
+    },
+    seedPending: (entry: PendingCapture, ctx: string) => {
+      getQueue(ctx).push(entry);
+    },
+    completionsFor: (ctx: string) => Object.fromEntries(getCompletions(ctx)),
     setConnection: (conn: Connection | null) => {
       currentConnection = conn;
     },
@@ -861,6 +933,30 @@ describe('KeptPhone mobile workflows', () => {
     expect(screen.getByRole('button', { name: 'Continue scanning' })).toBeInTheDocument();
     slowLookup.mockRestore();
 
+    // Session B (restart after timeout) stays active until its own valid result:
+    // A's late answer must not finish it, and a non-match keeps it scanning.
+    const finishesBeforeB = env.events.finishCalls.length;
+    await user.click(screen.getByRole('button', { name: 'Continue scanning' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument(),
+    );
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/9AB2CD' });
+    });
+    expect(await screen.findByText(/not this box/)).toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Stop scanning' })).toBeInTheDocument();
+    act(() => {
+      env.emitFindReading({ status: 'read', url: 'https://kept.example.com/l/7KQ4MZ' });
+    });
+    expect(await screen.findByRole('button', { name: 'Open box' })).toBeInTheDocument();
+    expect(env.events.matches).toHaveLength(1);
+    expect(env.events.finishCalls.length).toBe(finishesBeforeB + 1);
+    // Finish and the preceding continue belong to the same (B) session, distinct
+    // from session A's continue calls recorded before the timeout.
+    expect(env.events.finishSessions.at(-1)).toBe(env.events.continueSessions.at(-1));
+    expect(env.events.finishSessions.at(-1)).not.toBe(env.events.continueSessions[0]);
+
     view.unmount();
     env.renderApp();
     expect(await screen.findByText('Resumable Find target')).toBeInTheDocument();
@@ -870,7 +966,7 @@ describe('KeptPhone mobile workflows', () => {
     await user.type(screen.getByLabelText('Type the code'), '7KQ4MZ');
     await user.click(screen.getByRole('button', { name: 'Open label' }));
     expect(await screen.findByRole('button', { name: 'Open box' })).toBeInTheDocument();
-    expect(env.events.matches).toHaveLength(1);
+    expect(env.events.matches).toHaveLength(2);
   });
 
   it('handles storage exhaustion, action-required retargeting, and safe sign-out confirmation', async () => {
@@ -918,6 +1014,92 @@ describe('KeptPhone mobile workflows', () => {
     await user.click(screen.getByRole('button', { name: 'Move and retry' }));
     await waitFor(() => {
       expect(screen.queryByLabelText('Pending captures')).not.toBeInTheDocument();
+    });
+  });
+
+  it('never counts a discarded offline capture as synced, and recovers held work', async () => {
+    const conn: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: conn });
+    const user = userEvent.setup();
+    env.renderApp();
+
+    await user.click(await screen.findByRole('button', { name: /Winter Box/i }));
+    await user.click(await screen.findByRole('button', { name: 'Add to this box' }));
+    env.setOnline(false);
+    await user.type(screen.getByLabelText('Description'), 'Offline discard me');
+    await user.click(screen.getByRole('button', { name: 'Save to box' }));
+    expect(await screen.findByText('Saved on device.')).toBeInTheDocument();
+    expect(await screen.findByText(/Saved on device: 1/)).toBeInTheDocument();
+
+    // Discard through the pending-work panel while the capture form stays open.
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+    const discardButtons = screen.getAllByRole('button', { name: 'Discard' });
+    const confirmDiscard = discardButtons.at(-1);
+    if (!confirmDiscard) throw new Error('Expected a discard confirmation');
+    await user.click(confirmDiscard);
+    expect(await screen.findByText(/Discarded: 1/)).toBeInTheDocument();
+    expect(screen.queryByText(/Synced:/)).not.toBeInTheDocument();
+  });
+
+  it('shows held pre-restore work for review, preview and discard only', async () => {
+    const conn: Connection = {
+      id: 'https://kept.example.com|ibrahim|epoch-1',
+      origin: 'https://kept.example.com',
+      account: 'ibrahim',
+      epoch: 'epoch-1',
+    };
+    const env = createFakeEnvironment({ initialConnection: conn });
+    const user = userEvent.setup();
+    // Held (pre-restore) work for the same origin+account is reviewable, not replayed.
+    env.seedHeld(
+      {
+        capture: {
+          id: '66666666-6666-7666-8666-666666666666',
+          context: 'https://kept.example.com|ibrahim|epoch-0',
+          payload: JSON.stringify({
+            locationId: '33333333-3333-7333-8333-333333333333',
+            boxId: env.boxId,
+            name: 'Held ornaments',
+            note: 'From before the restore',
+            version: 1,
+          }),
+          takenAt: '2026-11-20T20:00:00Z',
+          files: [
+            {
+              file: {
+                id: '55555555-5555-7555-8555-555555555555',
+                name: 'held.jpg',
+                mime: 'image/jpeg',
+                role: 'photo',
+                bytes: 9,
+              },
+              sha256: 'f'.repeat(64),
+            },
+          ],
+        },
+      },
+      'https://kept.example.com|ibrahim|epoch-0',
+    );
+    env.renderApp();
+    expect(await screen.findByText(/Held captures: 1/)).toBeInTheDocument();
+    expect(screen.getByText('Held ornaments')).toBeInTheDocument();
+    expect(screen.getByText(/automatic replay is paused/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Preview/ }));
+    expect(env.events.openedHeld).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+    const heldDiscard = screen.getAllByRole('button', { name: 'Discard' });
+    const confirmHeldDiscard = heldDiscard.at(-1);
+    if (!confirmHeldDiscard) throw new Error('Expected a discard confirmation');
+    await user.click(confirmHeldDiscard);
+    await waitFor(() => {
+      expect(screen.queryByText(/Held captures:/)).not.toBeInTheDocument();
     });
   });
 

@@ -6,8 +6,11 @@ import { inventoryPaths } from '@/api/inventory/paths';
 import { capacitorAdapters, type PlatformAdapters } from './adapters';
 import { type Capture, type Connection, type PendingCapture, StorageFullError } from './bridge';
 import {
+  captureCapabilitiesPath,
   discardCapture,
   draftFields,
+  heldCaptureExport,
+  isCompatibilityFailure,
   replayCapture,
   retargetCapture,
   retryCapture,
@@ -26,15 +29,30 @@ function makeInMemoryAdapters(
   overrides: {
     request?: PlatformAdapters['transport']['request'];
     uploadOriginal?: PlatformAdapters['transport']['uploadOriginal'];
+    capabilities?: () => unknown;
   } = {},
 ) {
   const staged = new Map<string, string>();
   const captures = new Map<string, PendingCapture>();
+  const completionStates = new Map<string, 'synced' | 'discarded'>();
 
+  const delegateRequest = overrides.request ?? vi.fn();
   const adapters: PlatformAdapters = {
     ...capacitorAdapters,
     transport: {
-      request: overrides.request ?? vi.fn(),
+      // Contract v1 negotiation is answered by the fake server by default.
+      request: async (conn: Connection, path: string, options?: unknown) => {
+        if (path === captureCapabilitiesPath) {
+          if (overrides.capabilities) return overrides.capabilities();
+          return {
+            contractVersion: 1,
+            capturePayloadVersions: [2],
+            account: conn.account,
+            epoch: conn.epoch,
+          };
+        }
+        return delegateRequest(conn, path, options);
+      },
       uploadOriginal: overrides.uploadOriginal ?? vi.fn(),
     },
     outbox: {
@@ -77,8 +95,20 @@ function makeInMemoryAdapters(
         return next;
       },
       async complete(_conn, id) {
+        completionStates.set(id, 'synced');
         captures.delete(id);
       },
+      async discard(_conn, id) {
+        completionStates.set(id, 'discarded');
+        captures.delete(id);
+      },
+      async completions() {
+        return Object.fromEntries(completionStates);
+      },
+      async listHeld() {
+        return [];
+      },
+      async discardHeld() {},
       async stats() {
         const pendingBytes = [...captures.values()].reduce(
           (sum, entry) => sum + entry.capture.files.reduce((s, f) => s + f.file.bytes, 0),
@@ -89,7 +119,7 @@ function makeInMemoryAdapters(
     },
   };
 
-  return { adapters, staged, captures };
+  return { adapters, staged, captures, completionStates };
 }
 
 describe('native outbox staging and replay', () => {
@@ -188,6 +218,7 @@ describe('native outbox staging and replay', () => {
           opts?.body as
             | {
                 ops?: Array<{
+                  idempotencyKey?: string;
                   payload: { files: Array<{ fileId: string }>; reviewSuggestions?: boolean };
                 }>;
               }
@@ -199,7 +230,7 @@ describe('native outbox staging and replay', () => {
           results: [
             {
               clientId: captureId,
-              idempotencyKey: captureId,
+              idempotencyKey: op?.idempotencyKey ?? captureId,
               outcome: 'applied',
               entity: { type: 'thing', id: captureId },
             },
@@ -361,18 +392,22 @@ describe('native outbox staging and replay', () => {
           },
         ],
       })
-      .mockResolvedValueOnce({
-        results: [
-          {
-            clientId: captureId,
-            idempotencyKey: captureId,
-            outcome: 'applied',
-            entity: { type: 'thing', id: captureId },
-          },
-        ],
+      .mockImplementationOnce(async (_conn: unknown, _path: string, opts?: { body?: unknown }) => {
+        const op = (opts?.body as { ops?: Array<{ idempotencyKey?: string }> } | undefined)
+          ?.ops?.[0];
+        return {
+          results: [
+            {
+              clientId: captureId,
+              idempotencyKey: op?.idempotencyKey ?? captureId,
+              outcome: 'applied',
+              entity: { type: 'thing', id: captureId },
+            },
+          ],
+        };
       });
 
-    const { adapters, captures } = makeInMemoryAdapters({ request });
+    const { adapters, captures, completionStates } = makeInMemoryAdapters({ request });
     captures.set(captureId, { capture });
 
     await expect(syncOutbox(connection, adapters)).rejects.toMatchObject({ status: 401 });
@@ -413,10 +448,120 @@ describe('native outbox staging and replay', () => {
       },
     });
     expect(captures.has(captureId)).toBe(false);
+    expect(completionStates.get(captureId)).toBe('synced');
 
-    // Discard removes pending item.
+    // Discard removes the pending item but is recorded as discarded, never synced.
+    completionStates.delete(captureId);
     captures.set(captureId, { capture, failure: 'target_missing' });
     await discardCapture(connection, captureId, adapters);
     expect(captures.has(captureId)).toBe(false);
+    expect(completionStates.get(captureId)).toBe('discarded');
+    expect(await adapters.outbox.completions(connection)).toEqual({
+      [captureId]: 'discarded',
+    });
+  });
+
+  it('holds captures on a rolled-back server, then retries after upgrade (contract v1)', async () => {
+    const captureId = newId();
+    const capture: Capture = {
+      id: captureId,
+      takenAt: '2026-11-22T20:00:00Z',
+      payload: JSON.stringify({
+        locationId: newId(),
+        boxId: newId(),
+        name: 'Rolled back',
+        batchId: newId(),
+        version: 1,
+      }),
+      files: [],
+    };
+    let upgraded = false;
+    const syncRequest = vi
+      .fn()
+      .mockImplementation(async (_c: unknown, _p: string, opts?: { body?: unknown }) => {
+        const op = (
+          opts?.body as
+            | { ops?: Array<{ idempotencyKey?: string; payloadVersion?: number }> }
+            | undefined
+        )?.ops?.[0];
+        expect(op?.payloadVersion).toBe(2);
+        return {
+          results: [
+            {
+              clientId: captureId,
+              idempotencyKey: op?.idempotencyKey ?? captureId,
+              outcome: 'applied',
+              entity: { type: 'thing', id: captureId },
+            },
+          ],
+        };
+      });
+    const { adapters, captures, completionStates } = makeInMemoryAdapters({
+      request: syncRequest,
+      capabilities: () => {
+        if (!upgraded) throw new ApiError(404, 'not_found', 'Not found');
+        return {
+          contractVersion: 1,
+          capturePayloadVersions: [2],
+          account: connection.account,
+          epoch: connection.epoch,
+        };
+      },
+    });
+    captures.set(captureId, { capture });
+
+    // Older server without the negotiation endpoint: recoverable hold, no mutation sent.
+    expect(await syncOutbox(connection, adapters)).toBe(0);
+    expect(captures.get(captureId)?.failure).toBe('compatibility_hold');
+    expect(syncRequest).not.toHaveBeenCalled();
+    const heldEntry = captures.get(captureId);
+    if (!heldEntry) throw new Error('Expected the held capture to stay on the device');
+    expect(draftFields(heldEntry.capture).name).toBe('Rolled back');
+
+    // Passive sync does not loop on a held capture.
+    expect(await syncOutbox(connection, adapters)).toBe(0);
+    expect(syncRequest).not.toHaveBeenCalled();
+
+    // After upgrade, manual retry succeeds with the original identity intact.
+    upgraded = true;
+    expect(await retryCapture(connection, captureId, adapters)).toBe(true);
+    expect(captures.has(captureId)).toBe(false);
+    expect(completionStates.get(captureId)).toBe('synced');
+  });
+
+  it('classifies strict-schema rejection as a hold and keeps reviewSuggestions', async () => {
+    const strict = new ApiError(400, 'validation', 'Unrecognized key: reviewSuggestions', {
+      serverCode: 'validation',
+    });
+    expect(isCompatibilityFailure(strict)).toBe(true);
+    expect(isCompatibilityFailure(new ApiError(409, 'server_outdated', 'Server outdated'))).toBe(
+      true,
+    );
+    expect(isCompatibilityFailure(new ApiError(400, 'validation', 'Name is required'))).toBe(false);
+
+    const exported = heldCaptureExport({
+      capture: {
+        id: newId(),
+        context: 'https://kept.example.com|user-1|epoch-0',
+        takenAt: '2026-11-22T20:00:00Z',
+        payload: JSON.stringify({
+          locationId: newId(),
+          boxId: newId(),
+          name: 'Held entry',
+          note: 'Fragile',
+          version: 1,
+        }),
+        files: [
+          {
+            file: { id: newId(), name: 'a.jpg', mime: 'image/jpeg', role: 'photo', bytes: 3 },
+            sha256: 'e'.repeat(64),
+          },
+        ],
+      },
+      failure: 'compatibility_hold',
+    });
+    expect(exported.name).toBe('Held entry');
+    expect(exported.files[0]?.sha256).toBe('e'.repeat(64));
+    expect(exported.destination.boxId).toEqual(expect.any(String));
   });
 });

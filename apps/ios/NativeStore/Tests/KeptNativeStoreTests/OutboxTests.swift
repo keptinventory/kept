@@ -166,6 +166,58 @@ final class OutboxTests: XCTestCase {
         XCTAssertNil(try reopened.readValue(context: context, key: "findTarget"))
     }
 
+    func testCompletionsDistinguishSyncedFromDiscardedAcrossReopen() throws {
+        let root = try scratch()
+        let synced = try preparedCapture(in: root)
+        let discarded = try preparedCapture(in: root)
+        let outbox = try Outbox(root: root)
+        try outbox.complete(context: context, id: synced.id)
+        try outbox.discard(context: context, id: discarded.id)
+        XCTAssertTrue(try outbox.pending(context: context).isEmpty)
+
+        let reopened = try Outbox(root: root)
+        let states = try reopened.completions(context: context)
+        XCTAssertEqual(states[synced.id], .synced)
+        XCTAssertEqual(states[discarded.id], .discarded)
+        XCTAssertTrue(try reopened.completions(context: "other|account|epoch").isEmpty)
+    }
+
+    func testHeldDiscoveryRequiresSameOriginAndAccountWithOlderEpoch() throws {
+        let root = try scratch()
+        let oldContext = "https://kept.example.com|account|epoch-old"
+        let current = "https://kept.example.com|account|epoch-new"
+        XCTAssertTrue(Outbox.isHeldContext(oldContext, current: current))
+        XCTAssertFalse(Outbox.isHeldContext(current, current: current))
+        XCTAssertFalse(Outbox.isHeldContext("https://kept.example.com|other|epoch-old", current: current))
+        XCTAssertFalse(Outbox.isHeldContext("https://other.example.com|account|epoch-old", current: current))
+        XCTAssertFalse(Outbox.isHeldContext("not-a-context", current: current))
+
+        // Seed a capture under the old epoch, then read held work as the new session.
+        let outbox = try Outbox(root: root)
+        let id = UUID().uuidString.lowercased()
+        let file = StagedOriginal(id: UUID().uuidString.lowercased(), name: "held.jpg",
+                                  mime: "image/jpeg", role: "photo", bytes: 6)
+        try outbox.stage(context: oldContext, draft: id, file: file.id, offset: 0, data: Data("%PDF-1".utf8))
+        let held = try outbox.commit(context: oldContext, id: id, payload: #"{"name":"Held"}"#,
+                                     takenAt: takenAt, files: [file])
+        // A capture under the current context itself is ordinary pending work, never held.
+        let currentId = UUID().uuidString.lowercased()
+        let currentFile = StagedOriginal(id: UUID().uuidString.lowercased(), name: "now.jpg",
+                                         mime: "image/jpeg", role: "photo", bytes: 6)
+        try outbox.stage(context: current, draft: currentId, file: currentFile.id, offset: 0, data: Data("%PDF-1".utf8))
+        let currentCapture = try outbox.commit(context: current, id: currentId, payload: #"{"name":"Now"}"#,
+                                               takenAt: takenAt, files: [currentFile])
+        XCTAssertEqual(try outbox.heldEntries(current: current).map(\.capture), [held])
+        XCTAssertEqual(try outbox.heldEntries(current: "https://kept.example.com|other|epoch-new"), [])
+        XCTAssertEqual(try outbox.heldEntries(current: "https://other.example.com|account|epoch-new"), [])
+        XCTAssertEqual(try outbox.pending(context: current).map(\.capture), [currentCapture])
+        let original = try outbox.original(context: oldContext, draft: held.id, file: file.id)
+        XCTAssertEqual(try Data(contentsOf: original.0), Data("%PDF-1".utf8))
+        try outbox.discard(context: oldContext, id: held.id)
+        XCTAssertTrue(try outbox.heldEntries(current: current).isEmpty)
+        XCTAssertEqual(try outbox.completions(context: oldContext)[held.id], .discarded)
+    }
+
     func testStorageFullMappingDetectsDiskFullErrors() {
         let cocoa = NSError(domain: NSCocoaErrorDomain, code: CocoaError.fileWriteOutOfSpace.rawValue)
         XCTAssertEqual(mapStorageError(cocoa), .storageFull)
