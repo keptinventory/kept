@@ -489,7 +489,7 @@ export async function capture(
     const result: CaptureResult = {};
     // D175: a label photo "+ photo to this thing" fills its brand, model and serial.
     const first = attachments[0];
-    if (ai !== 'off' && input.mode === 'label' && first) {
+    if (ai !== 'off' && input.mode === 'label' && first && !thing.capture_review_only) {
       result.extraction = await queueExtraction(
         ctx,
         { locationId, attachmentId: first, mode: 'label', thingId: thing.id },
@@ -530,9 +530,14 @@ export async function capture(
     {
       draft: named === null,
       captureBatchId: batchId,
+      captureReviewOnly: input.reviewSuggestions ?? false,
       fieldStatus: name ? { name: { state: 'manual' } } : {},
       idChecked: true,
-      audit: { action: 'thing.capture', after: base, undoableUntil: until },
+      audit: {
+        action: 'thing.capture',
+        after: { ...base, ...(input.reviewSuggestions ? { capture_review_only: true } : {}) },
+        undoableUntil: until,
+      },
     },
   );
   const eventId = undoableEventIds(tx).at(-1);

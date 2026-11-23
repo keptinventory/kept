@@ -29,8 +29,8 @@ import { EXTRACT_JOB } from './job.js';
 //
 // POST /api/v1/things/:id/extract {attachmentId?, mode?} → 202 {extractionId}
 //   Explicit only (D19): the attachment's live or succeeded attempt becomes `superseded`, a
-//   new attempt (attempt + 1) is queued, and its result replaces the draft's extracted fields
-//   (apply.ts puts back what the superseded one applied first). Needs `ai.capture` and the
+//   new attempt (attempt + 1) is queued. A review-only thing keeps suggestions in the inbox;
+//   otherwise apply.ts puts back what the superseded attempt applied first. Needs `ai.capture` and the
 //   `ai_capture` module (409 `ai_unavailable` otherwise). Audited `thing.reextract`.
 // POST /api/v1/purchases/:id/extract → 202 {extractionId}
 //   The same for a receipt. Its first page owns the extraction (the
@@ -143,7 +143,14 @@ export async function requestExtraction(
   if (!(await aiCaptureOn(tx, client, thing.location_id, thing.role))) {
     throw new AppError('ai_unavailable', 409);
   }
-  const target = await targetOf(client, thing.id, body);
+  if (thing.capture_review_only && body.mode && body.mode !== 'thing') {
+    throw invalid('This capture can only be analyzed for review.');
+  }
+  const target = await targetOf(
+    client,
+    thing.id,
+    thing.capture_review_only ? { ...body, mode: 'thing' } : body,
+  );
   const { rows: prior } = await client.query<{ id: string; attempt: number; status: string }>(
     `SELECT id, attempt, status FROM public.extractions
       WHERE attachment_id = $1 ORDER BY attempt DESC FOR UPDATE`,
@@ -163,8 +170,8 @@ export async function requestExtraction(
   const id = newId();
   await client.query(
     `INSERT INTO public.extractions (id, location_id, attachment_id, thing_id, meter_id, mode,
-                                     attempt, requested_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id())`,
+                                     attempt, requested_by, review_only)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, kept.current_user_id(), $8)`,
     [
       id,
       thing.location_id,
@@ -173,6 +180,7 @@ export async function requestExtraction(
       target.meterId,
       target.mode,
       attempt,
+      thing.capture_review_only,
     ],
   );
   await deps.jobs?.sendTenant(client, EXTRACT_JOB, { extractionId: id });

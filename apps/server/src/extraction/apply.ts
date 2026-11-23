@@ -326,8 +326,8 @@ async function applyToThing(
   const out: ApplyResult = { applied: {}, suggestions: [], inbox: [] };
   const thing = await lockThing(client, thingId);
   if (!thing) return out;
-  if (ex.review_only && mode === 'thing') {
-    const name = (fields as ThingFields).name;
+  if (ex.review_only) {
+    const name = mode === 'thing' ? (fields as ThingFields).name : undefined;
     if (name && normalize(name.value) !== normalize(thing.name ?? '')) {
       out.suggestions.push({
         field: 'name',

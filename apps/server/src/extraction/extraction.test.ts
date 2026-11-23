@@ -420,6 +420,68 @@ describe('several things in one photo (1.4)', () => {
     ],
   });
 
+  it('keeps browser re-analysis of a native capture review-only with multi-item enabled', async () => {
+    await setMulti(true);
+    const box = await createThing(t, ibrahim, home, {
+      name: 'Workshop box',
+      typeId: await builtinType(db, 'box_bin'),
+    });
+    const batchId = newId();
+    const fileId = await up(ibrahim, await bigJpeg());
+    const secondId = await up(ibrahim, await bigJpeg());
+    const saved = await capture(ibrahim, {
+      target: { containerId: box.id },
+      batchId,
+      name: 'Hand tools',
+      note: 'Keep in the tray',
+      quantity: '1',
+      reviewSuggestions: true,
+      files: [fileId, secondId].map((id) => ({ fileId: id, role: 'photo' })),
+    });
+    const thingId = saved.thing?.id as string;
+    const inventory = () =>
+      own(
+        db,
+        `SELECT id, name, notes, quantity, place_id, container_id, type_id, brand_id,
+                model, colour, serial, aliases, field_status, review_state
+           FROM public.things WHERE capture_batch_id = $1 ORDER BY id`,
+        [batchId],
+      );
+    const original = await inventory();
+    expect(original).toMatchObject([{ id: thingId, name: 'Hand tools', container_id: box.id }]);
+    for (const photo of [fileId, secondId]) {
+      const { key } = await keyOf(photo, 'thing');
+      const many = manyAnswer();
+      answers[key] = {
+        output: {
+          objects: [
+            { ...thingAnswer({ serial: undefined }).objects[0], ...many.objects[0] },
+            ...many.objects.slice(1),
+          ],
+        },
+      };
+    }
+    expect((await run(ibrahim, saved.extraction.id)).status).toBe('succeeded');
+    expect(await inventory()).toEqual(original);
+
+    const [second] = await own<{ id: string }>(
+      db,
+      'SELECT id FROM public.attachments WHERE thing_id = $1 AND file_id = $2',
+      [thingId, secondId],
+    );
+    for (const body of [{}, { attachmentId: second?.id }]) {
+      const response = await call(t, `/api/v1/things/${thingId}/extract`, { as: ibrahim, body });
+      expect(response.statusCode, response.body).toBe(202);
+      const { extractionId } = response.json<{ extractionId: string }>();
+      expect((await run(ibrahim, extractionId)).status).toBe('succeeded');
+      expect(await inventory()).toEqual(original);
+      expect((await extraction(extractionId))?.applied).toEqual({});
+      expect((await inbox(thingId))[0]?.payload.suggestions).toMatchObject([
+        { field: 'name', value: 'Cordless drill', source: { extractionId } },
+      ]);
+    }
+  });
+
   it('turned on, makes a draft per extra object in the same batch, each with its own picture', async () => {
     await setMulti(true);
     const fileId = await up(louis, await bigJpeg());

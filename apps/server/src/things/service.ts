@@ -98,10 +98,11 @@ export type LiveThing = {
   quantity: string;
   row_version: number;
   has_meters: boolean;
+  capture_review_only: boolean;
 };
 
 const LIVE_COLUMNS = `t.id, t.location_id, t.type_id, t.place_id, t.container_id, t.name,
-            t.quantity::text AS quantity, t.row_version,
+            t.quantity::text AS quantity, t.row_version, t.capture_review_only,
             EXISTS (SELECT 1 FROM public.meters m WHERE m.thing_id = t.id) AS has_meters`;
 
 /** A live (not trashed) thing the caller can see. */
@@ -312,6 +313,7 @@ export type CaptureExtras = {
   /** `things.created_via` (default `app`). */
   createdVia?: 'app' | 'import';
   captureBatchId?: string;
+  captureReviewOnly?: boolean;
   fieldStatus?: Record<string, unknown>;
   /** The caller checked the client id already (a sync op's 90-day window). */
   idChecked?: boolean;
@@ -435,9 +437,9 @@ export async function insertThing(
                                 brand_id, model, serial, barcode, colour, condition, notes,
                                 aliases, belongs_to_person_id, purchase_line_id, manual_url,
                                 expires_on, expiry_lead_days, custom, created_via, review_state,
-                                field_status, capture_batch_id, acquired_from)
+                                field_status, capture_batch_id, acquired_from, capture_review_only)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
-             $19, $20, $21, $25, $22, $23, $24, $26)`,
+             $19, $20, $21, $25, $22, $23, $24, $26, $27)`,
     [
       id,
       locationId,
@@ -465,6 +467,7 @@ export async function insertThing(
       extras.captureBatchId?.toLowerCase() ?? null,
       extras.createdVia ?? 'app',
       body.acquiredFrom ?? null,
+      extras.captureReviewOnly ?? false,
     ],
   );
   if (body.tagIds?.length) await setTags(client, locationId, id, body.tagIds);

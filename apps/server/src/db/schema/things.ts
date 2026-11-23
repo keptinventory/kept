@@ -115,6 +115,8 @@ export const things = pgTable(
     /** The capture session it came from: the inbox groups by it and batch undo
      * trashes it. Set at insert only. */
     captureBatchId: uuid('capture_batch_id'),
+    /** Image analysis stays in review even when the first photo or its attempts are removed. */
+    captureReviewOnly: boolean('capture_review_only').notNull().default(false),
     /** The survivor this thing was merged into (D36); set only by kept.merge_things(),
      * alongside `deleted_at`. */
     mergedIntoId: uuid('merged_into_id').references((): AnyPgColumn => things.id, {

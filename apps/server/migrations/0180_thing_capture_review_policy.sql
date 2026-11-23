@@ -1,0 +1,1 @@
+ALTER TABLE "things" ADD COLUMN "capture_review_only" boolean DEFAULT false NOT NULL;
