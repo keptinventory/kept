@@ -21368,3 +21368,23 @@ msgstr "Chủ sở hữu hoặc quản trị viên bật nó trong mục Theo d�
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Kiểm kê đang tắt ở đây: danh sách này hiện các lần kiểm tra hộp."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "Mã QR chứa"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "Liên kết"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Camera của mọi điện thoại đều mở được."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "Chỉ mã"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "Mã QR nhỏ hơn. Quét bằng trình quét của Kept."
