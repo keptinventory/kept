@@ -125,6 +125,66 @@ describe('purchase lines on things', () => {
     ).toEqual([]);
   });
 
+  // #583 (0179): splitting a moved thing copies its line into a new row of the new location.
+  it("lets a split part keep its source's line after a move, and nothing else (42501)", async () => {
+    const flat = await ownerTx(db, (c) => insertLocation(c, a, { name: 'Flat' }));
+    const { line } = await purchaseLine(a.locationId);
+    const theirs = await purchaseLine(b.locationId);
+    const phone = await thing(a, a.userId, line);
+    const stayed = await thing(a, a.userId, line);
+    const flatMember = await seedUser(db, 'flat-member');
+    await addMember(db, flat.locationId, flatMember, 'member');
+    await ownerTx(db, (c) =>
+      c.query('UPDATE public.things SET location_id = $1, place_id = $2 WHERE id = $3', [
+        flat.locationId,
+        flat.unplacedId,
+        phone,
+      ]),
+    );
+    const plain = await thing(flat, a.userId);
+    const insert = (
+      userId: string,
+      at: { locationId: string; unplacedId: string },
+      lineId: string,
+      splitFrom: string | null,
+    ) =>
+      q(
+        as(userId),
+        `INSERT INTO public.things (id, location_id, place_id, name, purchase_line_id, split_from_id)
+         VALUES ($1, $2, $3, 'Phone', $4, $5) RETURNING id`,
+        [newId(), at.locationId, at.unplacedId, lineId, splitFrom],
+      );
+    const refused = { code: '42501', constraint: 'things_purchase_line' };
+
+    // A part of the moved phone, in the flat, by someone who can't see the home's line.
+    const [part] = await insert(flatMember, flat, line, phone);
+    expect(part).toBeTruthy();
+    for (const userId of [flatMember, a.userId]) {
+      // No split source: the home's line is still refused in the flat.
+      expect(await pgError(insert(userId, flat, line, null))).toMatchObject(refused);
+      // A source with the line, but in another location.
+      expect(await pgError(insert(userId, flat, line, stayed))).toMatchObject(refused);
+      // A source in the flat, without that line.
+      expect(await pgError(insert(userId, flat, line, plain))).toMatchObject(refused);
+      // Another line than the source's.
+      expect(await pgError(insert(userId, flat, theirs.line, phone))).toMatchObject(refused);
+    }
+    // Another tenant naming the phone, which it can't see, in its own location.
+    expect(await pgError(insert(b.userId, b, line, phone))).toMatchObject(refused);
+    // Only an insert: setting the line again later is a change, checked as before.
+    await q(as(a.userId), 'UPDATE public.things SET purchase_line_id = NULL WHERE id = $1', [
+      (part as { id: string }).id,
+    ]);
+    expect(
+      await pgError(
+        q(as(a.userId), 'UPDATE public.things SET purchase_line_id = $2 WHERE id = $1', [
+          (part as { id: string }).id,
+          line,
+        ]),
+      ),
+    ).toMatchObject(refused);
+  });
+
   it('clears the link when the line is deleted', async () => {
     const { purchase, line } = await purchaseLine(a.locationId);
     const phone = await thing(a, a.userId, line);
