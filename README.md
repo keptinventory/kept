@@ -129,8 +129,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
 - **Paperless-ngx.** Link documents instead of copying them; the start of a word finds one, and a
   Homebox import takes its links' titles from Paperless
   ([Paperless](https://keptinventory.info/users/paperless/)).
-- **Install.** Pick how you run Kept (Docker Compose, Kubernetes, from source or Home Assistant)
-  and follow its steps on one page ([install](https://keptinventory.info/install/)).
+- **Install.** Pick how you run Kept (Docker Compose, Kubernetes, from source, Proxmox VE, Unraid
+  or Home Assistant) and follow its steps on one page ([install](https://keptinventory.info/install/)).
 - **Backups you can read.** Nightly restic backups to a directory, S3 or SFTP, each with a copy
   that opens in a browser without Kept; imports from Homebox (a past import can be repaired) and
   CSV, full exports.
@@ -178,8 +178,13 @@ The camera, installing the app, push and location need HTTPS. Caddy, with a cert
   <a href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkeptinventory%2Fkept"><img alt="Add Kept to Home Assistant" src="https://img.shields.io/badge/add%20Kept%20to-Home%20Assistant-18BCF2?style=for-the-badge&labelColor=55524C&logo=homeassistant&logoColor=white"></a>
 
   Sensors and the calendar come from the separate integration ([Works with](#works-with)).
+- **Unraid:** one container from Community Applications, Kept with its own database in the
+  appdata folder ([install on Unraid](https://keptinventory.info/install/unraid/)).
 - **Kubernetes:** the Helm chart, `oci://ghcr.io/keptinventory/charts/kept`, signed and published
   with each release ([install on Kubernetes](https://keptinventory.info/install/kubernetes/)).
+- **Proxmox VE:** an unprivileged Debian 13 container with Kept in it, without Docker, from one
+  command in the host's shell ([install on Proxmox VE](https://keptinventory.info/install/proxmox/)):
+  `bash -c "$(curl -fsSL https://raw.githubusercontent.com/keptinventory/kept/v1.14.7/deploy/proxmox/kept.sh)"`
 - **Verify the image:** `cosign verify --key cosign.pub <image>:<version>`, with `cosign.pub` from
   this repository ([verifying a release](https://keptinventory.info/admin/verify-release/)).
 - **Backups:** nightly, encrypted, to a directory, S3 or SFTP

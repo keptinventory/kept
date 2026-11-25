@@ -8,6 +8,8 @@
 # One image for every role (KEPT_ROLE = all · web · worker) and for the one-shot `kept migrate`.
 # `--target ha` builds the Home Assistant app's image instead (D272, at the end of this file): Kept
 # with its own Postgres 18 and pgvector, published as ghcr.io/keptinventory/kept-ha.
+# `--target unraid` builds the same without Home Assistant, settings from the environment, for
+# Unraid and a plain `docker run`: ghcr.io/keptinventory/kept-unraid.
 # It runs as uid 10001 (user `kept`) with a read-only root filesystem: the only writable paths are
 # /data (local file storage), /config (first-boot keys, D193), /owner (the database owner's
 # password, which Compose's bootstrap writes and only migrate mounts) and /tmp.
@@ -202,8 +204,9 @@ RUN dpkg --purge --force-depends perl libperl5.36 perl-modules-5.36 \
 # postgresql-client-common to 294 and the unpinned client-common no longer matched common 293, so
 # client-common is now pinned with the client in os-base). Perl and locales come back as their
 # dependencies. postgresql-common is installed first and told to make no cluster: the app's start
-# script makes its own under /data (docker/ha/kept-ha-start), and nothing may live outside /data.
-FROM os-base AS ha-os
+# script makes its own under /data (docker/one-container.sh), and nothing may live outside /data.
+# `db-os` is that OS; `ha-os` and `unraid-os` add their start scripts.
+FROM os-base AS db-os
 RUN apt-get update \
  && apt-get install -y --no-install-recommends postgresql-common=294.pgdg12+2 \
  && sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
@@ -214,10 +217,18 @@ RUN apt-get update \
  && test -f /usr/share/postgresql/18/extension/vector.control \
  && test ! -e /var/lib/postgresql/18/main \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
-# The start and backup scripts and the options reader (docker/ha/). Root runs them: the start
-# script drops to `postgres` for the database and to 10001 for Kept.
+
+# The start and backup scripts, the steps they share and the options reader (docker/ha/). Root runs
+# them: the start script drops to `postgres` for the database and to 10001 for Kept.
+FROM db-os AS ha-os
 COPY --chmod=0755 docker/ha/kept-ha-start docker/ha/kept-ha-backup /usr/local/bin/
 COPY --chmod=0644 docker/ha/options.mjs /usr/local/lib/kept-ha/options.mjs
+COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-ha/one-container.sh
+
+# The Unraid image's: its start script, the same steps and the same dump on stop.
+FROM db-os AS unraid-os
+COPY --chmod=0755 docker/unraid/kept-unraid-start docker/ha/kept-ha-backup /usr/local/bin/
+COPY --chmod=0644 docker/one-container.sh /usr/local/lib/kept-unraid/one-container.sh
 
 # ---------------------------------------------------------------------------------------------
 # Third-party notices (D151): generated from this architecture's own pruned
@@ -322,6 +333,90 @@ COPY --from=ha-notices /THIRD-PARTY-NOTICES.txt ./THIRD-PARTY-NOTICES.txt
 USER 0:0
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/kept-ha-start"]
+
+# ---------------------------------------------------------------------------------------------
+# The Unraid image: `docker buildx build --target unraid`, published as
+# ghcr.io/keptinventory/kept-unraid with the same tags as kept (X.Y.Z, and X.Y and X for the
+# newest release of a line): Unraid's template (unraid/kept.xml) follows the major version. The
+# Home Assistant app without Home Assistant: Kept, Postgres 18 and pgvector in one container, its
+# settings from the environment (KEPT_PUBLIC_URL required), everything that lasts under /data, keys
+# generated there on the first start, a dump to /data/backup on every stop. The start script runs
+# as root, owns /data's folders for Postgres and 10001 on each start (Unraid's appdata is usually
+# 99:100), and runs Postgres as `postgres` and Kept as 10001 (docker/unraid/kept-unraid-start).
+# /app is the Home Assistant image's, notices included: the two OSes hold the same packages.
+FROM scratch AS unraid
+COPY --from=unraid-os / /
+
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+
+LABEL org.opencontainers.image.title="Kept for Unraid" \
+      org.opencontainers.image.description="Kept, a home inventory you can self-host, with its own database in one container" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.source="${SOURCE}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.version="${VERSION}"
+
+# As the Home Assistant image's, without KEPT_HA.
+ENV NODE_ENV=production \
+    KEPT_VERSION="${VERSION}" \
+    KEPT_REVISION="${REVISION}" \
+    KEPT_SOURCE_URL="${SOURCE}${REVISION:+/tree/${REVISION}}" \
+    KEPT_CONFIG_DIR=/data/config \
+    KEPT_DATA_DIR=/data/kept \
+    KEPT_RESTIC_BIN=/usr/local/bin/restic \
+    HOME=/tmp \
+    PATH=/usr/lib/postgresql/18/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /app
+COPY --from=ha /app /app
+COPY docker/healthcheck.mjs ./docker/healthcheck.mjs
+
+# Root: the start script owns the processes. Without --init it is PID 1 and handles the stop
+# signal itself.
+USER 0:0
+VOLUME ["/data"]
+EXPOSE 8080
+# The first start makes the database and runs every migration: a longer start period than kept's.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+  CMD ["node", "/app/docker/healthcheck.mjs"]
+ENTRYPOINT ["/usr/local/bin/kept-unraid-start"]
+
+# ---------------------------------------------------------------------------------------------
+# The release tarball, kept-<version>-linux-<x64|arm64>.tar.gz, for an install without Docker
+# (deploy/proxmox/): the runtime's /app tree under kept/, from the same stages and with the same
+# files, plus kept/release.env, the version, commit and source the runtime sets as ENV, and the
+# Node version it was built with (the installer checks it against its own). Built by
+# scripts/release/tarball.sh as `--target app-tarball --output type=tar`. The notices are the
+# image's: they also list the image's OS packages, which the tarball doesn't ship (the installer
+# installs Node, Postgres and restic itself).
+FROM ${NODE_IMAGE} AS app-release-env
+ARG VERSION=0.0.0-dev
+ARG REVISION=
+ARG SOURCE=https://github.com/keptinventory/kept
+RUN printf 'KEPT_VERSION=%s\nKEPT_REVISION=%s\nKEPT_SOURCE_URL=%s\nKEPT_NODE_VERSION=%s\n' \
+      "$VERSION" "$REVISION" "${SOURCE}${REVISION:+/tree/${REVISION}}" "$(node -p process.versions.node)" \
+      >/release.env
+
+FROM scratch AS app-tarball
+COPY --from=prod-deps /src/node_modules /kept/node_modules
+COPY --from=prod-deps /src/apps/server/node_modules /kept/apps/server/node_modules
+COPY --from=prod-deps /src/packages/shared/node_modules /kept/packages/shared/node_modules
+COPY --from=prod-deps /src/packages/mcp/node_modules /kept/packages/mcp/node_modules
+COPY --from=build /src/package.json /kept/package.json
+COPY --from=build /src/apps/server/package.json /kept/apps/server/package.json
+COPY --from=build /src/apps/server/dist /kept/apps/server/dist
+COPY --from=build /src/apps/server/assets /kept/apps/server/assets
+COPY --from=build /src/apps/server/migrations /kept/apps/server/migrations
+COPY --from=build /src/packages/shared/package.json /kept/packages/shared/package.json
+COPY --from=build /src/packages/shared/dist /kept/packages/shared/dist
+COPY --from=build /src/packages/mcp/package.json /kept/packages/mcp/package.json
+COPY --from=build /src/packages/mcp/dist /kept/packages/mcp/dist
+COPY --from=build /src/apps/web/dist /kept/apps/web/dist
+COPY LICENSE /kept/LICENSE
+COPY --from=notices /THIRD-PARTY-NOTICES.txt /kept/THIRD-PARTY-NOTICES.txt
+COPY --from=app-release-env /release.env /kept/release.env
 
 # ---------------------------------------------------------------------------------------------
 FROM scratch AS runtime

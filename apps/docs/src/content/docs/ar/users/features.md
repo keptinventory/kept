@@ -84,7 +84,7 @@ description: "كل ما يفعله Kept، في قائمة واحدة: الجرد
 
 ## تشغيله
 
-- **[تثبيت Kept](/ar/install/)**: اختر كيف تشغّل Kept (Docker Compose أو Kubernetes أو من الشيفرة المصدرية أو Home Assistant) واتبع خطواته في صفحة واحدة.
+- **[تثبيت Kept](/ar/install/)**: اختر كيف تشغّل Kept (Docker Compose أو Kubernetes أو من الشيفرة المصدرية أو Proxmox VE أو Unraid أو Home Assistant) واتبع خطواته في صفحة واحدة.
 - **[النسخ الاحتياطي](/ar/admin/backups/)**: ليلي، مشفَّر، إلى دليل، S3 أو SFTP، لكلٍّ نسخة
   [تُفتح بدون Kept](/ar/admin/read-with-restic/).
 - **[ما يحتاجه](/ar/install/hardware/)**: حاوية واحدة و Postgres؛ مُجرَّب على ١ جيجابايت ذاكرة و

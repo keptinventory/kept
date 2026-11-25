@@ -80,7 +80,7 @@ describe('the choice in the address', () => {
     expect(pathFromHash('#')).toBeNull();
     expect(pathFromHash('#updates')).toBeNull();
     expect(pathFromHash('#%E0%A4%A')).toBeNull();
-    expect(isPathId('unraid')).toBe(false);
+    expect(isPathId('truenas')).toBe(false);
   });
 });
 
@@ -168,6 +168,20 @@ describe('the commands', () => {
   });
 });
 
+describe('the Proxmox VE commands', () => {
+  it('are the host script’s own and its guide’s, at the release compose.yaml runs', () => {
+    const script = repo('deploy/proxmox/kept.sh');
+    expect(script).toContain(`#   ${commands.proxmox.install}`);
+    expect(script).toContain(`KEPT_VERSION=${RELEASE}`);
+    const guide = docs('install/proxmox.md');
+    for (const line of Object.values(commands.proxmox)) expect(guide).toContain(line);
+    // The update command the container gets, and the files the first run points at.
+    const inside = repo('deploy/proxmox/kept-install.sh');
+    expect(inside).toContain('>/usr/bin/update');
+    expect(inside).toContain('CREDS=/root/kept.creds');
+  });
+});
+
 describe('what Kept prints', () => {
   it('is what `kept init` prints', () => {
     const init = repo('apps/server/src/cli/init.ts');
@@ -206,6 +220,23 @@ describe('what Kept prints', () => {
     );
   });
 
+  it('is what the Unraid image logs at start, and its recovery kit as the Unraid guide says', () => {
+    const lib = repo('docker/one-container.sh');
+    expect(lib).toContain('log() { printf \'app: %s\\n\' "$*"; }');
+    expect(repo('docker/unraid/kept-unraid-start')).toContain('log "Kept is at $KEPT_PUBLIC_URL"');
+    expect(printed.unraid).toBe('app: Kept is at http://tower.local:8080');
+    expect(
+      docs('install/unraid.md')
+        .split('\n')
+        .map((line) => line.trim()),
+    ).toContain(commands.unraid.recoveryKit);
+    expect(repo('unraid/kept.xml')).toContain('Target="KEPT_PUBLIC_URL"');
+  });
+
+  it('is what the Proxmox VE script prints at the end', () => {
+    expect(repo('deploy/proxmox/kept.sh')).toContain(`say "${printed.proxmox}"`);
+  });
+
   it('is what the Home Assistant app logs at start', () => {
     const options = repo('docker/ha/options.mjs');
     expect(options).toContain(
@@ -215,5 +246,37 @@ describe('what Kept prints', () => {
     expect(printed.homeAssistant.startsWith('Kept is at http://homeassistant.local:8080 ')).toBe(
       true,
     );
+  });
+});
+
+describe('the Unraid and Proxmox VE guides', () => {
+  const page = (lang: Lang, file: string) =>
+    docs(lang === 'en' ? `install/${file}` : `${lang}/install/${file}`);
+
+  // One figure everywhere (install/hardware.md has the measurements behind it): about 500 MB,
+  // 1 GB for imports and backups. Arabic writes its own digits.
+  it('give Unraid one memory figure: the template, the guide and the install page', () => {
+    expect(repo('unraid/kept.xml')).toContain(
+      '<Requires>About 500 MB of free memory, 1 GB for imports and backups.',
+    );
+    for (const lang of LANGS) {
+      const [mb, gb] = lang === 'ar' ? ['٥٠٠', '١'] : ['500', '1'];
+      const need = sections(pageOf(lang)).find(([id]) => id === 'unraid')?.[1] ?? '';
+      for (const [where, text] of [
+        ['unraid.md', page(lang, 'unraid.md')],
+        ['index.mdx', need],
+      ]) {
+        expect(text, `${lang} ${where}`).toMatch(new RegExp(`${mb} (MB|Mo|МБ|ميغابايت)`));
+        expect(text, `${lang} ${where}`).toMatch(new RegExp(`${gb} (GB|Go|ГБ|جيجابايت)`));
+        expect(text, `${lang} ${where}`).not.toMatch(/(300|٣٠٠) (MB|Mo|МБ|ميغابايت)/);
+      }
+    }
+  });
+
+  // Until the real-host checklist has run: the caution goes with that sign-off, not before.
+  it('keep the Proxmox VE guide’s "not yet tested on a real host" caution in every language', () => {
+    for (const lang of LANGS) {
+      expect(page(lang, 'proxmox.md'), lang).toMatch(/^:::caution\[[^\]]+\]$/m);
+    }
   });
 });

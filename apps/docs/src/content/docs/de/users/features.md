@@ -111,7 +111,7 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 ## Betrieb
 
 - **[Kept installieren](/de/install/)**: wähle, wie du Kept betreibst (Docker Compose, Kubernetes,
-  aus dem Quellcode oder Home Assistant), und folge seinen Schritten auf einer Seite.
+  aus dem Quellcode, Proxmox VE, Unraid oder Home Assistant), und folge seinen Schritten auf einer Seite.
 - **[Backups](/de/admin/backups/)**: nächtlich, verschlüsselt, in ein Verzeichnis, S3 oder SFTP, jeweils mit einer
   Kopie, die [ohne Kept geöffnet werden kann](/de/admin/read-with-restic/).
 - **[Was es braucht](/de/install/hardware/)**: ein Container und Postgres; getestet mit 1 GB RAM und einem CPU-Kern.

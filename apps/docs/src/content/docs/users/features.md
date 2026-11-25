@@ -116,8 +116,8 @@ a location turns them on in **Location settings → What to track**
 
 ## Running it
 
-- **[Install Kept](/install/)**: pick how you run it (Docker Compose, Kubernetes, from source or
-  Home Assistant) and follow its steps on one page.
+- **[Install Kept](/install/)**: pick how you run it (Docker Compose, Kubernetes, from source,
+  Proxmox VE, Unraid or Home Assistant) and follow its steps on one page.
 - **[Backups](/admin/backups/)**: nightly, encrypted, to a directory, S3 or SFTP, each with a copy
   that [opens without Kept](/admin/read-with-restic/).
 - **[What it needs](/install/hardware/)**: one container and Postgres; tested on 1 GB of RAM and

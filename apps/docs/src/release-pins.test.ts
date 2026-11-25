@@ -25,8 +25,9 @@ function pages(dir: string): string[] {
   });
 }
 
-// Raw download URLs only: an image tag in prose can be history (upgrades: the image moved in 1.8.0).
-const PIN = /keptinventory\/kept\/v(\d+\.\d+\.\d+)\//g;
+// Raw download URLs and release files only: an image tag in prose can be history (upgrades: the
+// image moved in 1.8.0).
+const PIN = /keptinventory\/kept\/(?:releases\/download\/)?v(\d+\.\d+\.\d+)\//g;
 
 /** `file: version` for each pin in `files` that isn't the release, and how many pins there are. */
 function stalePins(files: string[]) {

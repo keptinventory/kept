@@ -116,7 +116,7 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 ## L'exploitation
 
 - **[Installer Kept](/fr/install/)** : choisissez comment vous faites tourner Kept (Docker Compose,
-  Kubernetes, depuis les sources ou Home Assistant) et suivez ses étapes sur une seule page.
+  Kubernetes, depuis les sources, Proxmox VE, Unraid ou Home Assistant) et suivez ses étapes sur une seule page.
 - **[Sauvegardes](/fr/admin/backups/)** : quotidiennes, chiffrées, vers un répertoire, S3 ou SFTP,
   chacune avec une copie qui [s'ouvre sans Kept](/fr/admin/read-with-restic/).
 - **[Ce qu'il faut](/fr/install/hardware/)** : un conteneur et Postgres ; testé avec 1 Go de RAM et un

@@ -1,6 +1,6 @@
 ---
 title: Installa Kept
-description: Scegli come esegui Kept, con Docker Compose, Kubernetes, dal codice sorgente o come app di Home Assistant, e segui i passi di quella strada, con una verifica dopo ognuno.
+description: Scegli come esegui Kept, con Docker Compose, Kubernetes, dal codice sorgente, su Proxmox VE, su Unraid o come app di Home Assistant, e segui i passi di quella strada, con una verifica dopo ognuno.
 sidebar:
   order: 0
   label: Inizia da qui
@@ -184,6 +184,52 @@ Su Windows, esegui questi comandi in WSL. Lo stesso `compose.yaml` di una releas
 intero: [Installa con Docker Compose](/it/install/compose/).
 
 </InstallPath>
+<InstallPath id="proxmox">
+
+<Need>
+Proxmox VE 8 o 9 su amd64, e la shell dell’host come root. Il container riceve di default 2
+core, 2 GB di memoria e 8 GB di disco. Non ancora provato su un vero host Proxmox VE: tratta la
+prima installazione come una prova.
+</Need>
+
+<Steps>
+
+1. **Esegui lo script** nella shell dell’host Proxmox VE. Scegli **Default**, controlla le
+   impostazioni e il comando `pct create` che mostra, e conferma.
+
+   <Code code={commands.proxmox.install} lang="sh" />
+
+   <See>
+   Dopo qualche minuto, questa riga, con sotto l’indirizzo da aprire:
+
+   <Code code={printed.proxmox} lang="text" />
+   </See>
+
+2. **Trova il codice di configurazione.** È nel container, in `/root/kept.creds`.
+
+   <Code code={commands.proxmox.creds} lang="sh" />
+
+   <See>
+   Una riga che inizia con `Setup code:`.
+   </See>
+
+   Apri l’indirizzo, inserisci il codice e crea il primo account: diventa l’admin dell’istanza.
+
+3. **Conserva le chiavi.** Stampa il kit di recupero e conservalo in un posto diverso da questo
+   server.
+
+   <Code code={commands.proxmox.recoveryKit} lang="sh" />
+
+   <See>
+   Un testo che inizia con `KEPT RECOVERY KIT`.
+   </See>
+
+</Steps>
+
+`<CTID>` è l’ID del container, che lo script stampa. Leggerlo prima, i valori predefiniti, gli
+aggiornamenti, i backup e la rimozione: [Installare su Proxmox VE](/it/install/proxmox/).
+
+</InstallPath>
 <InstallPath id="home-assistant">
 
 <Need>
@@ -222,6 +268,45 @@ Home Assistant Container né Core. Una macchina `aarch64` o `amd64`, come un Ras
 
 L’indirizzo di Kept, https e i backup:
 [Installa come app di Home Assistant](/it/install/home-assistant/).
+
+</InstallPath>
+<InstallPath id="unraid">
+
+<Need>
+Unraid con la scheda **Apps** (Community Applications) e circa 500 MB di memoria libera (1 GB per
+importazioni e backup). Nessun terminale.
+</Need>
+
+<Steps>
+
+1. **Installa.** In **Apps**, cerca **Kept**, poi **Install**.
+
+2. **Imposta l’indirizzo di Kept**, come `http://tower.local:8080`, poi **Apply**. Usa un nome
+   invece di un indirizzo IP: le etichette stampate lo riportano.
+
+   <See>
+   Nella scheda **Docker**, l’icona di Kept, **Logs**: l’indirizzo di Kept e il codice di
+   configurazione.
+
+   <Code code={printed.unraid} lang="text" />
+
+   <Code code={printed.setupCode} lang="text" />
+   </See>
+
+3. **Configura.** L’icona di Kept, **WebUI**: **Inserisci il codice di configurazione**, poi crea il
+   primo account.
+
+4. **Conserva le chiavi.** L’icona di Kept, **Console**, poi:
+
+   <Code code={commands.unraid.recoveryKit} lang="sh" />
+
+   <See>
+   Un testo che inizia con `KEPT RECOVERY KIT`. Conservalo altrove, non su questo server.
+   </See>
+
+</Steps>
+
+La cartella appdata, i backup e gli aggiornamenti: [Installare su Unraid](/it/install/unraid/).
 
 </InstallPath>
 </InstallPicker>
@@ -286,8 +371,11 @@ Tutto il resto: [Risoluzione dei problemi](/it/admin/troubleshooting/).
 
 - **Kubernetes:** ogni release pubblica un chart con la stessa versione, e le sue migrazioni girano
   in un Job prima che la nuova versione serva.
+- **Proxmox VE:** `update` nella console del container. Chiede prima e torna indietro se la nuova
+  versione non parte.
 - **Home Assistant:** Home Assistant propone l’aggiornamento. Attiva
   **Mantieni il backup dell'ultima versione** nella sua finestra di aggiornamento.
+- **Unraid:** la scheda **Docker** propone l’aggiornamento: **apply update**.
 
 Con una destinazione di backup impostata, Kept fa uno snapshot prima di migrare.
 [Aggiornamenti e rollback](/it/admin/upgrades/).
