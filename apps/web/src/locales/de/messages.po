@@ -29320,3 +29320,7 @@ msgstr "Ein Eigentümer oder Admin schaltet sie unter „Was erfasst wird“ ein
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Zählungen sind hier aus: Diese Liste zeigt die Kistenchecks."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Zählungen sind dort aus"

@@ -31303,3 +31303,7 @@ msgstr "Власник або адміністратор вмикає їх у р
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Підрахунки там вимкнено"

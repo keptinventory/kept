@@ -29320,3 +29320,7 @@ msgstr "يفعّله المالك أو المشرف من «ما الذي تتا�
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "العدّ متوقف هنا: تعرض هذه القائمة فحوص الصناديق."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "العدّ متوقف هناك"

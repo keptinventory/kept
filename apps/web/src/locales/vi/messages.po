@@ -18602,13 +18602,13 @@ msgid "Every count is kept"
 msgstr "Mọi lần kiểm kê đều được giữ lại"
 
 msgid "Counts lists each count and box check: what was found, what was missing, and what changed since the last one."
-msgstr "Kiểm kê liệt kê từng lần kiểm kê và lần kiểm tra thùng: những gì đã tìm thấy, những gì còn thiếu, và những gì đã thay đổi kể từ lần trước."
+msgstr "Kiểm kê liệt kê từng lần kiểm kê và lần kiểm tra hộp: những gì đã tìm thấy, những gì còn thiếu, và những gì đã thay đổi kể từ lần trước."
 
 msgid "{a} of {b} found"
 msgstr "{a} trên {b} đã tìm thấy"
 
 msgid "Box check of {name}"
-msgstr "Kiểm tra thùng của {name}"
+msgstr "Kiểm tra hộp của {name}"
 
 msgid "by <0>{0}</0>"
 msgstr "bởi <0>{0}</0>"
@@ -18722,7 +18722,7 @@ msgid "Stop counting regularly"
 msgstr "Ngừng kiểm kê định kỳ"
 
 msgid "Box checks"
-msgstr "Kiểm tra thùng"
+msgstr "Kiểm tra hộp"
 
 msgid "Had missing"
 msgstr "Có đồ thiếu"
@@ -21368,3 +21368,7 @@ msgstr "Chủ sở hữu hoặc quản trị viên bật nó trong mục Theo d�
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Kiểm kê đang tắt ở đây: danh sách này hiện các lần kiểm tra hộp."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Kiểm kê đang tắt ở đó"

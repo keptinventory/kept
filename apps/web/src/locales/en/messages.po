@@ -29320,3 +29320,7 @@ msgstr "An owner or admin turns them on in a location's What to track."
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Counts are off here: this lists the box checks."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Counts are off there"
