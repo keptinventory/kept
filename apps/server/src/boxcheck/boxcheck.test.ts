@@ -275,4 +275,30 @@ describe('POST /api/v1/things/:id/box-check', () => {
     ).toEqual(answer(await call(t, `/api/v1/things/${random}/box-checks`, { as: ibrahim })));
     expect(await rowOf(theirs.torch.id)).toMatchObject({ container_id: theirs.box.id });
   });
+
+  // #583: a box moved to another of the account's locations keeps its contents' purchase lines
+  // in the first (D115); "found 2 of 3" there splits with the same line.
+  it('splits "found 2 of 3" in a box moved to another location of the same account', async () => {
+    const shed = await createLocation(t, db, ibrahim, 'household', 'Shed');
+    await join(db, shed.id, louis.userId, 'member');
+    const p = await packedBox(home, ibrahim);
+    ok(
+      await call(t, '/api/v1/things/move', {
+        as: ibrahim,
+        body: { thingIds: [p.box.id], to: { placeId: shed.unplacedId } },
+      }),
+    );
+    const res = await check(louis, p.box.id, {
+      lines: [{ thingId: p.cables.id, expectedQty: '3', foundQty: '2' }],
+    });
+    expect(res.statusCode, res.body).toBe(200);
+    const part = (res.json() as { split: { newId: string }[] }).split[0]?.newId as string;
+    expect(await rowOf(p.cables.id)).toMatchObject({ quantity: '2.000', purchase_line_id: p.line });
+    expect(await rowOf(part)).toMatchObject({
+      quantity: '1.000',
+      location_uncertain: true,
+      purchase_line_id: p.line,
+      container_id: p.box.id,
+    });
+  });
 });

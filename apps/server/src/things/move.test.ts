@@ -509,6 +509,72 @@ describe('POST /api/v1/things/move across locations', () => {
   });
 });
 
+// #583: a thing bought in one location and moved to another of the same account keeps its
+// purchase line in the first (D115). Splitting it there used to be refused by the line guard,
+// answered as "This isn't here any more".
+describe('splitting a bought thing moved to another location of the same account', () => {
+  const lineOf = async (id: string) =>
+    (
+      await own<{ purchase_line_id: string | null; split_from_id: string | null }>(
+        db,
+        'SELECT purchase_line_id, split_from_id FROM public.things WHERE id = $1',
+        [id],
+      )
+    )[0];
+  const purchaseOf = async (as: Person, id: string) =>
+    ok(await call(t, `/api/v1/things/${id}`, { as })).purchase as {
+      lineDescription: string;
+    } | null;
+
+  it('splits it: the new part keeps the same purchase line', async () => {
+    const made = await createThing(t, ann, home, {
+      name: 'Screws',
+      quantity: 8,
+      purchase: { purchasedOn: '2026-01-01', currency: 'EGP', price: '5' },
+    });
+    const shelf = await place(db, garage, 'Shelf B');
+    ok(await move(ann, { thingIds: [made.id], to: { placeId: shelf } }));
+    const res = await call(t, `/api/v1/things/${made.id}/split`, {
+      as: ann,
+      body: { quantity: 1 },
+    });
+    expect(res.statusCode, res.body).toBe(200);
+    const part = res.json().newId as string;
+    const line = (await lineOf(made.id))?.purchase_line_id;
+    expect(line).toBeTruthy();
+    expect(await lineOf(part)).toEqual({ purchase_line_id: line, split_from_id: made.id });
+    expect(await row(made.id)).toMatchObject({ location_id: garage.id, quantity: '7.000' });
+    expect(await row(part)).toMatchObject({ location_id: garage.id, quantity: '1.000' });
+    // The purchase shows on both.
+    expect((await purchaseOf(ann, made.id))?.lineDescription).toBe('Screws');
+    expect((await purchaseOf(ann, part))?.lineDescription).toBe('Screws');
+  });
+
+  it('moves part of it, by a member of the second location only', async () => {
+    const gus = await person(t, db, 'gus');
+    await join(db, garage.id, gus.userId, 'member');
+    const made = await createThing(t, ann, home, {
+      name: 'Wall plugs',
+      quantity: 6,
+      purchase: { purchasedOn: '2026-01-01', currency: 'EGP', price: '3' },
+    });
+    const bench = await place(db, garage, 'Plug bench');
+    ok(await move(ann, { thingIds: [made.id], to: { placeId: garage.unplacedId } }));
+    const res = await move(gus, { thingIds: [made.id], to: { placeId: bench }, quantity: 2 });
+    expect(res.statusCode, res.body).toBe(200);
+    const [part] = res.json().moved as string[];
+    expect(part).not.toBe(made.id);
+    const line = (await lineOf(made.id))?.purchase_line_id;
+    expect(line).toBeTruthy();
+    expect(await lineOf(part as string)).toEqual({
+      purchase_line_id: line,
+      split_from_id: made.id,
+    });
+    expect(await row(part as string)).toMatchObject({ quantity: '2.000', place_id: bench });
+    expect((await purchaseOf(gus, part as string))?.lineDescription).toBe('Wall plugs');
+  });
+});
+
 describe('moving across owner accounts', () => {
   let phone: Json;
   let foldable: string;

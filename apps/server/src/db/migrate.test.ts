@@ -74,6 +74,7 @@ const KEPT_FUNCTION_EXECUTE: Record<string, string[]> = {
   'kept.guard_currency_enabled()': OWNER_ONLY,
   'kept.guard_meter()': OWNER_ONLY,
   'kept.guard_person_member()': OWNER_ONLY,
+  // 0179 (#583): a split part keeps its source's purchase line after a move.
   'kept.guard_purchase_line_link()': OWNER_ONLY,
   'kept.guard_purchase_vendor()': OWNER_ONLY,
   'kept.guard_secret_field()': OWNER_ONLY,
