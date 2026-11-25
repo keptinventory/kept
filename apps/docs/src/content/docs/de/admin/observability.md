@@ -39,7 +39,7 @@ Token senden (`Authorization: Bearer <token>`); ohne die Variable existiert der 
 | `kept_backup_last_success_timestamp_seconds` | wann das letzte gute Backup abgeschlossen war (0 vor dem ersten) |
 | `kept_backup_last_run_status{status}` | 1 für den Status des zuletzt abgeschlossenen Runs, 0 für die anderen |
 | `kept_disk_used_ratio{volume}` | wie voll die Datenfestplatte und ein Verzeichnis-Backup-Ziel sind |
-| `kept_update_available` | 1, wenn die Update-Prüfung ein neueres Release gesehen hat |
+| `kept_update_available` | 1, wenn die Update-Prüfung ein neueres Release als das laufende gesehen hat |
 
 Kein Label enthält je einen Pfad oder ein Ziel. Wenn eine Datenbank nicht antworten kann, fehlen die Backup-, Festplatten- und Update-Zeilen; der Scrape selbst gelingt trotzdem.
 

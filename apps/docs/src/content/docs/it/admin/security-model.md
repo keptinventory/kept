@@ -165,7 +165,7 @@ policy `nosniff` e `default-src 'none'; sandbox`, e come download a meno che il 
   disattivata. Tracciamento e segnalazione degli errori vanno solo a un collector che imposti
   ([monitoraggio](/it/admin/observability/#tracciamento-e-segnalazione-degli-errori)).
 - **Il controllo aggiornamenti è disattivato per default.** Se attivo, chiede a GitHub l'ultima release una volta al
-  giorno, inviando solo la richiesta ([aggiornamenti](/it/admin/upgrades/#sapere-se-cè-una-nuova-versione)).
+  giorno, e una volta dopo un aggiornamento, inviando solo la richiesta ([aggiornamenti](/it/admin/upgrades/#sapere-se-cè-una-nuova-versione)).
 - **Cosa vede un provider IA**, quando un luogo ne usa uno: le foto come copia ricodificata con EXIF e XMP rimossi
   (Kept rifiuta di inviare un'immagine che li ha ancora), il prompt fisso e le lingue del luogo per l'estrazione, la
   domanda e i risultati degli strumenti che il ruolo di chi chiede consente all'assistente, e i campi descrittivi per la

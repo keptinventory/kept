@@ -116,7 +116,7 @@ Les fichiers stockés sont récupérés via un lien signé de cinq minutes sur u
 - **Rien concernant Kept lui-même.** Il n'y a aucune télémétrie quelconque ; la télémétrie propre à la bibliothèque de connexion est désactivée. Le suivi et le signalement des erreurs ne vont qu'à un collecteur que vous définissez
 ([surveillance](/fr/admin/observability/#suivi-et-rapport-derreurs)).
 - **La vérification de mise à jour est désactivée par défaut.** Activée, elle interroge GitHub pour la dernière version une fois par jour,
-  en n'envoyant que la requête
+  et une fois après une mise à jour, en n'envoyant que la requête
   ([mises à niveau](/fr/admin/upgrades/#savoir-quune-nouvelle-version-existe)).
 - **Ce qu'un fournisseur d'IA voit**, lorsqu'un lieu en utilise un : photos sous forme de copie ré-encodée avec EXIF et XMP supprimés (Kept refuse d'envoyer une image qui les conserve encore), le prompt fixe et les langues du lieu pour l'extraction, la question et les résultats des outils que le rôle de l'utilisateur autorise pour l'assistant, ainsi que les champs descriptifs pour la recherche sémantique. **Jamais de valeurs secrètes**,
   et jamais d'argent pour la recherche. L'enregistrement propre à Kept de chaque appel enregistre les jetons et le coût, jamais le prompt, l'image, la réponse ou la clé. Consultez [fournisseurs d'IA](/fr/users/ai-providers/).

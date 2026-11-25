@@ -43,7 +43,7 @@ token (`Authorization: Bearer <token>`); senza la variabile, il percorso non esi
 | `kept_backup_last_success_timestamp_seconds` | quando è terminato l'ultimo backup valido (0 prima del primo) |
 | `kept_backup_last_run_status{status}` | 1 per lo stato dell'ultima esecuzione completata, 0 per gli altri |
 | `kept_disk_used_ratio{volume}` | quanto sono pieni il disco dei dati e una destinazione di backup su directory |
-| `kept_update_available` | 1 quando il controllo aggiornamenti ha visto un rilascio più recente |
+| `kept_update_available` | 1 quando il controllo aggiornamenti ha visto un rilascio più recente di quello in esecuzione |
 
 Nessuna etichetta contiene mai un percorso o una destinazione. Un database che non risponde lascia fuori le righe
 di backup, disco e aggiornamento; lo scrape stesso riesce comunque.
