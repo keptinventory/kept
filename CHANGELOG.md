@@ -3,6 +3,57 @@
 Kept's releases, newest first. Written by `scripts/changelog.mjs` from the commits' conventional
 subjects when a release is cut (`scripts/release.sh`).
 
+## 1.14.8 (2026-11-25)
+
+### Highlights
+
+- **Turn Counts off.** A location that doesn't count can switch Counts off like Labels or Lending: its menus, reminders and planned counts step aside, box checks stay, and nothing is deleted (#506).
+  <!-- whats-new ![scan](counts.mp4) -->
+- **Two new map shapes.** A shelving unit you size by width, depth, height and shelves, and a water purifier (#485, #443).
+  <!-- whats-new ![map](shapes.mp4) -->
+- **More for personal tokens and MCP.** A token can read and add warranties, look up and add vendors and tags, and change a thing's lifecycle. Every change is in the history, and a new warranty or a lifecycle change can be undone (#522, #524, #526).
+- **Fixes people ran into.** Backups to HTTPS storage such as S3 and R2 no longer hang (#573), taking units off a thing that was moved between locations now works (#583), a customised built-in type keeps its name (#546), and Move to Trash no longer disappears from the selection bar (#543).
+
+### Features
+
+- **counts:** a location can turn Counts off (#541, closes #506) (eb6aa69)
+- **map:** a shelving unit sized by width, depth, height and shelves (#538, closes #485, reported by @erikosvaldsson) (b3916f4)
+- **map:** a water purifier shape (#537, closes #443, reported by @nguyenhuutuananh) (95258d7)
+- **tokens:** read and add a thing's warranties with a personal token (#524) (47c505f)
+- **things:** set where a thing came from when it is created (#523) (1347bfe)
+- **mcp:** change_lifecycle, and a thing's lifecycle route for write tokens (#526, closes #520) (4903bd2)
+- **tokens:** look up and add vendors and tags with a personal token (#522) (7a36f27)
+
+### Fixes
+
+- the 1.14.8 final review (#586) (c0a205b)
+- **things:** a split keeps its purchase after a move (#585, closes #583, reported by @HexagonDot) (0b41ff9)
+- **image:** install ca-certificates so restic can reach HTTPS backup targets (#580, closes #573) (02dab10)
+- **types:** a customised built-in type keeps its name (#560, closes #546, reported by @strausmann) (52a19f0)
+- **updates:** never announce the version already running (#559, closes #552, reported by @strausmann) (6626581)
+- **places:** the tree's header keeps the location's name in whole words (#539, closes #462, reported by @strausmann) (26e7315)
+- **web:** Move to Trash never disappears from the selection bar (#544, closes #543) (702de99)
+- **docker:** pin postgresql-common and postgresql-client-common at 294 (#542) (b91946b)
+- **deps:** glob 14.0.2 and minimatch 11.0.1 for two moderate advisories (#536) (3e56a40)
+- **audit:** brands from extraction and room capture are audited; the last hand-built imports actor; tokenId required (#534, closes #533, reported by @ibrahimroshdy) (9c13f72)
+- **audit:** token-aware actors on the remaining registry paths, and an audited brand for MCP (#530) (ac34d19)
+- **imports:** with money off, a purchase keeps its date and shop and the price stays in the notes (#528) (6e596ee)
+- **mcp:** a purchase's new shop is a store, not a service centre (#529) (212a7d4)
+- **imports:** Homebox purchases keep their date when there is no price (#527) (b1764a7)
+- **mcp:** add_thing records a purchase with no price, as the form does (#525) (9a2c7d1)
+- **tokens:** a new shop or person named over a token is created, not refused by row security (#521) (b9342c0)
+- **imports:** a purchase date with no price still makes a purchase (#519) (6bb1efa)
+- **mcp:** get_thing answers the serial and the shop (#518) (41c984a)
+
+### Documentation
+
+- what Draft means, and finishing a capture in the Inbox (#540, closes #508) (5332606)
+- **release:** the 1.14.7 record (#517) (#517) (282f437)
+
+### Contributors
+
+@ibrahimroshdy, @jessejamesjohnston, @nchornii
+
 ## 1.14.7 (2026-11-10)
 
 ### Highlights

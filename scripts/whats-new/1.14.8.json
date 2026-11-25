@@ -1,37 +1,13 @@
 {
   "media": [
     {
-      "file": "rack.mp4",
-      "path": "/p/01926f00-0000-7000-8000-0000000c0004",
+      "file": "shapes.mp4",
+      "path": "/p/01926f00-0000-7000-8000-0000000c0003",
       "setup": [
         {
           "click": {
             "role": "button",
-            "name": "Room or spot"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Furniture with compartments…"
-          }
-        },
-        {
-          "waitFor": {
-            "role": "dialog",
-            "name": "/^Add furniture to/"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "/Template$/"
-          }
-        },
-        {
-          "click": {
-            "role": "option",
-            "name": "12U on a wall"
+            "name": "Thing"
           }
         },
         {
@@ -42,7 +18,7 @@
               "role": "dialog"
             }
           },
-          "text": "Wall rack"
+          "text": "Water purifier"
         },
         {
           "click": {
@@ -54,18 +30,9 @@
           }
         },
         {
-          "wait": 800
-        },
-        {
-          "click": {
-            "role": "link",
-            "name": "/^Wall rack/"
-          }
-        },
-        {
           "waitFor": {
-            "role": "button",
-            "name": "Thing"
+            "role": "link",
+            "name": "/^Water purifier/"
           }
         },
         {
@@ -82,7 +49,7 @@
               "role": "dialog"
             }
           },
-          "text": "Patch panel"
+          "text": "Pantry shelf"
         },
         {
           "click": {
@@ -96,143 +63,7 @@
         {
           "waitFor": {
             "role": "link",
-            "name": "Patch panel"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Thing"
-          }
-        },
-        {
-          "fill": {
-            "role": "textbox",
-            "name": "Name",
-            "in": {
-              "role": "dialog"
-            }
-          },
-          "text": "Switch"
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Add",
-            "in": {
-              "role": "dialog"
-            }
-          }
-        },
-        {
-          "waitFor": {
-            "role": "link",
-            "name": "Switch"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Thing"
-          }
-        },
-        {
-          "fill": {
-            "role": "textbox",
-            "name": "Name",
-            "in": {
-              "role": "dialog"
-            }
-          },
-          "text": "NAS"
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Add",
-            "in": {
-              "role": "dialog"
-            }
-          }
-        },
-        {
-          "waitFor": {
-            "role": "link",
-            "name": "NAS"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Place it"
-          }
-        },
-        {
-          "waitFor": {
-            "role": "dialog",
-            "name": "/Patch panel/"
-          }
-        },
-        {
-          "fill": {
-            "role": "textbox",
-            "name": "Starts at"
-          },
-          "text": "12"
-        },
-        {
-          "click": {
-            "option": "Half depth"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Save",
-            "in": {
-              "role": "dialog"
-            }
-          }
-        },
-        {
-          "waitFor": {
-            "role": "button",
-            "name": "Change"
-          }
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Place it"
-          }
-        },
-        {
-          "waitFor": {
-            "role": "dialog",
-            "name": "/Switch/"
-          }
-        },
-        {
-          "fill": {
-            "role": "textbox",
-            "name": "Starts at"
-          },
-          "text": "11"
-        },
-        {
-          "click": {
-            "role": "button",
-            "name": "Save",
-            "in": {
-              "role": "dialog"
-            }
-          }
-        },
-        {
-          "waitFor": {
-            "role": "button",
-            "name": "Change",
-            "nth": 1
+            "name": "/^Pantry shelf/"
           }
         },
         {
@@ -246,147 +77,156 @@
           }
         },
         {
+          "click": {
+            "role": "button",
+            "name": "Collapse sidebar"
+          }
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Collapse places"
+          }
+        },
+        {
+          "click": {
+            "text": "Map"
+          }
+        },
+        {
+          "waitFor": {
+            "role": "button",
+            "name": "Arrange"
+          }
+        },
+        {
+          "wait": 1500
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Arrange"
+          }
+        },
+        {
+          "waitFor": {
+            "role": "textbox",
+            "name": "Length"
+          }
+        },
+        {
+          "fill": {
+            "role": "textbox",
+            "name": "Length"
+          },
+          "text": "6"
+        },
+        {
+          "press": "Enter"
+        },
+        {
+          "wait": 500
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Water purifier +"
+          }
+        },
+        {
+          "wait": 800
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Kitchen",
+            "nth": 1
+          }
+        },
+        {
+          "waitFor": {
+            "role": "textbox",
+            "name": "Length"
+          }
+        },
+        {
+          "fill": {
+            "role": "textbox",
+            "name": "Length"
+          },
+          "text": "3"
+        },
+        {
+          "press": "Enter"
+        },
+        {
+          "wait": 500
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Pantry shelf +"
+          }
+        },
+        {
+          "wait": 800
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Close"
+          }
+        },
+        {
+          "wait": 500
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "/^Pantry shelf/",
+            "nth": 1
+          }
+        },
+        {
+          "waitFor": {
+            "role": "textbox",
+            "name": "Shelves"
+          }
+        },
+        {
+          "wait": 1500
+        },
+        {
+          "hover": {
+            "role": "button",
+            "name": "Increase Shelves"
+          }
+        },
+        {
           "wait": 600
         },
         {
-          "scroll": 500
+          "glide": [700, 600]
         }
       ],
       "steps": [
         {
           "click": {
-            "role": "button",
-            "name": "Place it"
-          }
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "waitFor": {
             "role": "textbox",
-            "name": "Height"
+            "name": "Width"
           }
         },
         {
-          "wait": 500
+          "press": "ControlOrMeta+a"
+        },
+        {
+          "type": "120"
+        },
+        {
+          "press": "Enter"
+        },
+        {
+          "wait": 900
         },
         {
           "click": {
@@ -398,17 +238,81 @@
           "press": "ControlOrMeta+a"
         },
         {
-          "type": "2"
+          "type": "210"
         },
+        {
+          "press": "Enter"
+        },
+        {
+          "wait": 900
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Increase Shelves"
+          }
+        },
+        {
+          "wait": 700
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Increase Shelves"
+          }
+        },
+        {
+          "wait": 900
+        },
+        {
+          "glide": [700, 600]
+        }
+      ],
+      "crop": [570, 222, 688, 430]
+    },
+    {
+      "file": "counts.mp4",
+      "path": "/p/01926f00-0000-7000-8000-0000000c0003",
+      "setup": [
+        {
+          "click": {
+            "role": "button",
+            "name": "Collapse sidebar"
+          }
+        },
+        {
+          "click": {
+            "role": "button",
+            "name": "Collapse places"
+          }
+        },
+        {
+          "waitFor": {
+            "role": "button",
+            "name": "/^Count here/"
+          }
+        },
+        {
+          "glide": [1180, 355]
+        },
+        {
+          "scroll": 0
+        },
+        {
+          "wait": 400
+        }
+      ],
+      "steps": [
         {
           "wait": 600
         },
         {
           "click": {
-            "role": "button",
-            "name": "Save",
+            "role": "link",
+            "name": "Home",
             "in": {
-              "role": "dialog"
+              "role": "navigation",
+              "name": "Path"
             }
           }
         },
@@ -473,283 +377,132 @@
           "wait": 5
         },
         {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
-          "wait": 5
-        },
-        {
           "waitFor": {
-            "text": "U1–U2"
-          }
-        },
-        {
-          "wait": 700
-        },
-        {
-          "click": {
-            "option": "Rear"
-          }
-        },
-        {
-          "wait": 1000
-        }
-      ],
-      "crop": [248, 70, 1024, 640],
-      "hold": 1000
-    },
-    {
-      "file": "units.mp4",
-      "path": "/vehicles",
-      "setup": [
-        {
-          "click": {
             "role": "link",
-            "name": "Toyota Corolla"
+            "name": "/^Ground floor/"
           }
         },
         {
           "waitFor": {
-            "role": "button",
-            "name": "Change unit"
-          }
-        },
-        {
-          "wait": 500
-        },
-        {
-          "click": {
             "role": "link",
-            "name": "Settings"
+            "name": "/^What to track/"
           }
-        },
-        {
-          "waitFor": {
-            "role": "radiogroup",
-            "name": "Units"
-          }
-        },
-        {
-          "wait": 500
-        },
-        {
-          "press": "Home"
         },
         {
           "wait": 300
         },
         {
-          "scroll": 214
-        }
-      ],
-      "steps": [
-        {
-          "click": {
-            "option": "Imperial"
-          }
+          "scroll": 5000
         },
         {
-          "wait": 800
+          "wait": 300
         },
         {
           "click": {
             "role": "link",
-            "name": "Vehicles"
+            "name": "/^What to track/"
           }
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
         },
         {
           "waitFor": {
-            "role": "link",
-            "name": "Toyota Corolla"
+            "text": "Counts",
+            "in": {
+              "css": "main"
+            }
           }
+        },
+        {
+          "scroll": 0
+        },
+        {
+          "wait": 600
+        },
+        {
+          "click": {
+            "text": "Counts",
+            "in": {
+              "css": "main"
+            }
+          }
+        },
+        {
+          "wait": 600
+        },
+        {
+          "scroll": 5000
         },
         {
           "wait": 1100
         },
         {
           "click": {
-            "role": "link",
-            "name": "Toyota Corolla"
+            "role": "button",
+            "name": "Save"
           }
         },
         {
           "waitFor": {
-            "role": "button",
-            "name": "Change unit"
+            "text": "Saved"
           }
         },
         {
@@ -757,21 +510,239 @@
         },
         {
           "click": {
-            "role": "button",
-            "name": "Change unit"
+            "role": "link",
+            "name": "Home",
+            "nth": 1
           }
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
         },
         {
           "waitFor": {
-            "role": "dialog",
-            "name": "Change unit"
+            "role": "link",
+            "name": "/^Ground floor/"
           }
         },
         {
-          "wait": 1500
+          "scroll": 0
+        },
+        {
+          "wait": 200
+        },
+        {
+          "click": {
+            "role": "link",
+            "name": "/^Ground floor/"
+          }
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "waitFor": {
+            "role": "link",
+            "name": "/^Kitchen/"
+          }
+        },
+        {
+          "wait": 200
+        },
+        {
+          "click": {
+            "role": "link",
+            "name": "/^Kitchen/"
+          }
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "wait": 5
+        },
+        {
+          "waitFor": {
+            "role": "link",
+            "name": "Fill from photos"
+          }
+        },
+        {
+          "scroll": 0
+        },
+        {
+          "glide": [1180, 355]
         }
       ],
-      "crop": [0, 0, 1280, 800]
+      "crop": [176, 248, 864, 540],
+      "hold": 1600
     }
   ]
 }
