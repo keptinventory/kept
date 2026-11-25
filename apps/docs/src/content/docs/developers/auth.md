@@ -177,6 +177,11 @@ For scripts and Shortcuts: `Authorization: Bearer kpt_<lookup>_<secret>`
   can name a thing's make, shop and tags. A member adds a brand by name for a thing, a vendor or a
   tag; adding to the account's brand list needs an owner or admin. Editing, merging and deleting
   them stay with the app.
+- A token reads a thing's warranties (`GET /api/v1/things/:id/warranties`), lifetime and ended
+  ones included, each document as its details and never a link to its file; a write token adds one
+  (`POST` to the same path). Editing, deleting and claims stay with the app. A write token also
+  changes a thing's lifecycle (`POST /api/v1/things/:id/lifecycle`: sold, given away, lost,
+  archived or back in use), the change the MCP tool `change_lifecycle` makes.
 - 120 reads and 30 writes a minute per token, counted in Postgres (`kept.token_rate_hit()`); a
   429 says when to retry.
 - Its writes are audited as actor `token`, and it can undo only its own changes.
