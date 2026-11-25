@@ -139,6 +139,11 @@ FROM ${NODE_IMAGE} AS os-base
 # Postgres client: a build after Debian publishes the next security update fails here and the pin
 # is bumped, rather than the image quietly changing.
 #
+# ca-certificates gives restic (a Go binary) the system roots it verifies an HTTPS S3 or other
+# remote with; Node bundles its own, but without these every restic request over TLS fails with
+# "x509: certificate signed by unknown authority" and retries without end (#573). Pinned the same
+# way, to bookworm-security's version (read 2026-11-18; architecture `all`).
+#
 # Full Perl (~49 MB installed) comes only from postgresql-client-common, whose /usr/bin/pg_dump,
 # psql, … are Perl wrappers that pick a version. Kept never runs them: the PATH below puts
 # /usr/lib/postgresql/18/bin first. So Perl is purged (perl-base, which Debian requires, stays)
@@ -155,6 +160,7 @@ RUN chmod 0644 /usr/share/keyrings/pgdg.asc \
       postgresql-client-18=18.6-1.pgdg12+2 \
       postgresql-client-common=294.pgdg12+2 \
       openssh-client=1:9.2p1-2+deb12u10 \
+      ca-certificates=20250419~deb12u2 \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/log/apt /var/log/dpkg.log
 
 COPY --from=restic /restic /usr/local/bin/restic
