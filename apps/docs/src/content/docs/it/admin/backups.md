@@ -32,8 +32,8 @@ Le chiavi **non** sono nel backup. Conserva [il kit di ripristino](/it/admin/rec
 
 Imposta una sola destinazione. Meglio un'altra macchina o un altro sito: una directory sullo stesso
 disco dei dati di Kept viene rifiutata, e la pagina di stato avvisa quando la destinazione condivide
-un disco con essi. Gli endpoint S3 di Backblaze B2 e Cloudflare R2 dovrebbero funzionare ma non sono
-stati testati. SFTP fissa la chiave host del server dal file known-hosts e si connette solo se
+un disco con essi. L'endpoint S3 di Cloudflare R2 è già stato usato con Kept;
+quello di Backblaze B2 dovrebbe funzionare ma non è stato testato. SFTP fissa la chiave host del server dal file known-hosts e si connette solo se
 corrisponde.
 
 ## Come attivarlo

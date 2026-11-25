@@ -29,8 +29,8 @@ Die Schlüssel sind **nicht** im Backup. Bewahre [das Wiederherstellungskit](/de
 | Ein SFTP-Server | `KEPT_BACKUP_SFTP` (`sftp:`-Syntax von restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | der Ort, den du angibst |
 
 Setze genau ein Ziel. Bevorzuge einen anderen Rechner oder einen anderen Standort: Ein Verzeichnis auf derselben Festplatte wie Kepts
-Daten wird abgelehnt, und die Statusseite warnt, wenn das Ziel sich eine Festplatte mit ihnen teilt. Die S3-Endpoints von Backblaze B2 und
-Cloudflare R2 sollten funktionieren, wurden aber nicht getestet. SFTP pinnt den Host-Key des Servers aus der known-hosts-Datei und verbindet sich nur, wenn er übereinstimmt.
+Daten wird abgelehnt, und die Statusseite warnt, wenn das Ziel sich eine Festplatte mit ihnen teilt. Der S3-Endpoint von Cloudflare R2
+wurde mit Kept schon genutzt; der von Backblaze B2 sollte funktionieren, wurde aber nicht getestet. SFTP pinnt den Host-Key des Servers aus der known-hosts-Datei und verbindet sich nur, wenn er übereinstimmt.
 
 ## Aktivieren
 

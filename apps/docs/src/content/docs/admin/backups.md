@@ -30,8 +30,8 @@ The keys are **not** in the backup. Keep [the recovery kit](/admin/recovery-kit/
 | An SFTP server | `KEPT_BACKUP_SFTP` (restic's `sftp:` syntax), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | the location you give |
 
 Set one target. Prefer another machine or another site: a directory on the same disk as Kept's
-data is refused, and the status page warns when the target shares a disk with it. Backblaze B2's and
-Cloudflare R2's S3 endpoints are expected to work but haven't been tested. SFTP pins the server's
+data is refused, and the status page warns when the target shares a disk with it. Cloudflare R2's S3
+endpoint has been used with Kept; Backblaze B2's is expected to work but hasn't been tested. SFTP pins the server's
 host key from the known-hosts file and connects only if it matches.
 
 ## Turning it on
