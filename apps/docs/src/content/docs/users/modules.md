@@ -65,7 +65,8 @@ deleted.
 - **The menu follows all your locations.** Under **Tracking**, an entry (Schedules, Lending,
   Paperwork, Consumables, Vehicles, Moving, Insights) shows once its module is on in any of your
   locations. Under **Tools**, **Labels** shows while Labels is on somewhere, and **Counts** while
-  Counts is. Activity, Trash and Notifications are always there.
+  Counts is (**Box checks** once Counts is off everywhere). Activity, Trash and Notifications are
+  always there.
 
 ## Changing it later
 

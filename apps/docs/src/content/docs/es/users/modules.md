@@ -64,7 +64,7 @@ recordatorios se pausan. Volver a activarlo recupera todo, porque no se borró n
 - **El menú sigue a todas tus ubicaciones.** En **Rastreo**, una entrada (Calendarios, Préstamos,
   Documentación, Consumibles, Vehículos, Mudanza, Perspectivas) aparece una vez que su módulo está activo en cualquiera de tus
   ubicaciones. En **Herramientas**, **Etiquetas** aparece mientras Etiquetas esté activo en algún lugar, y **Conteos** mientras
-  Conteos lo esté. Actividad, Papelera y Notificaciones también están siempre ahí.
+  Conteos lo esté (**Revisiones de caja** cuando Conteos está desactivado en todas). Actividad, Papelera y Notificaciones también están siempre ahí.
 
 ## Cambiarlo después
 

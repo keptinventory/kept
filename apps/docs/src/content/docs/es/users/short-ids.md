@@ -72,7 +72,7 @@ Una etiqueta sin código QR (cinta estrecha) se escanea por su ID corto impreso.
 - **Nunca un objeto equivocado.** Kept abre un código solo cuando leyó cada carácter con claridad, dos veces seguidas, y el código es uno de los tuyos. Cuando no está seguro, muestra el código que leyó y lo que abre, y pregunta **¿Es este el código?** antes de abrirlo. Un código que no coincide con ninguna de tus etiquetas no abre nada: **Escanear de nuevo**, o **Escribe el código**.
 - **Solo la impresión de Kept.** Lee el ID corto tal como lo imprime Kept, en su propio tipo de letra. Un código escrito a mano en una etiquetadora, con la fuente de la etiquetadora, puede no leerse: escríbelo en su lugar.
 
-Solo **Escanear** lee códigos impresos. Las sesiones de escaneo, la verificación de caja y la cámara de Capture leen solo códigos QR y códigos de barras.
+Solo **Escanear** lee códigos impresos. Las sesiones de escaneo, la revisión de caja y la cámara de Capture leen solo códigos QR y códigos de barras.
 
 ## Relacionado
 

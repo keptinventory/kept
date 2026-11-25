@@ -71,8 +71,11 @@ Conteos es un módulo, activo en todos los preajustes. Un propietario o administ
 en **Configuración de ubicación → Qué seguir** (**Conteos**). Desactivado en una ubicación, sus
 lugares no tienen **Contar aquí**, **Contar regularmente** ni **Conteos pasados**, sus cajas no
 tienen **Contar esta caja**, sus habitaciones en el mapa no tienen **Contar esta habitación**, e
-**Iniciar una sesión** no ofrece contar allí. **Conteos** en Herramientas desaparece cuando está
-desactivado en todas tus ubicaciones. Los kits no tienen **Revisar este kit**. Los conteos
+**Iniciar una sesión** no ofrece contar allí: la etiqueta de un lugar o de una caja escaneada para
+contar allí dice "Los conteos están desactivados allí". La página de la ubicación tiene
+**Revisiones de caja** donde tenía **Conteos**, y **Conteos** en Herramientas pasa a ser
+**Revisiones de caja** cuando está desactivado en todas tus ubicaciones; las dos abren la lista de
+revisiones de caja. Los kits no tienen **Revisar este kit**. Los conteos
 planificados dejan de enviar recordatorios: se pueden pausar, reanudar o eliminar, pero no
 completar, posponer ni saltar. La **Revisión de caja** se queda, y la lista de conteos de la
 ubicación muestra solo sus revisiones de caja. No se borra nada: al volver a activarlo, cada conteo sigue ahí.
