@@ -29320,3 +29320,7 @@ msgstr "Un propriétaire ou un administrateur les active dans « Ce que vous sui
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Les comptages sont désactivés ici : cette liste montre les vérifications de boîtes."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Les comptages sont désactivés là-bas"

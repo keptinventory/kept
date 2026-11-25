@@ -91,13 +91,14 @@ fonctionne comme avant ([vérifier une version](/fr/admin/verify-release/)).
 
 ### Savoir qu'une nouvelle version existe
 
-Kept peut vérifier les nouvelles versions, et c'est **désactivé par défaut**. Activé, il interroge GitHub une fois par jour pour
-obtenir la dernière version du dépôt à partir duquel son image a été construite, n'envoyant que la requête (pas de
+Kept peut vérifier les nouvelles versions, et c'est **désactivé par défaut**. Activé, il interroge GitHub une fois par jour, et une fois
+après chaque mise à jour, pour obtenir la dernière version du dépôt à partir duquel son image a été construite, n'envoyant que la requête (pas de
 version, pas d'identifiant d'instance). Rien n'est téléchargé ni installé. `KEPT_UPDATE_CHECK=true`
 l'active et le verrouille ; `false` le verrouille en désactivé.
 
 Le commutateur se trouve dans Admin → Sign-up, sous "New versions". Admin → Status indique "Kept X is available"
-lorsqu'une version plus récente existe, et son **Vérifier maintenant** interroge immédiatement.
+lorsqu'une version plus récente existe, et son **Vérifier maintenant** interroge immédiatement. Après une mise à jour, l'avis disparaît
+aussitôt, et Kept interroge de nouveau dans l'heure.
 
 ## L'instantané avant chaque mise à niveau
 

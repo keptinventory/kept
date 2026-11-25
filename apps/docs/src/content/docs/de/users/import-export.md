@@ -35,7 +35,7 @@ Einen Import erneut laufen zu lassen überspringt, was er schon geholt hat, also
 
 Die Spalten, die Kept liest: Name, Menge, Ort, Typ, Marke, Modell, Seriennummer, Barcode, Farbe,
 Zustand, Notizen, Tags, andere Namen, Kaufdatum, Preis, Währung, Laden, Manuallink, der Code eines alten Labels, dein eigener Code, eine Zeilen-ID (damit ein erneuter Import die Zeile überspringt) und die eigenen Felder deiner Typen.
-Kopfzeilen werden in einer von Kepts Sprachen für dich zugeordnet. Tags und andere Namen werden durch Kommas getrennt, ein Preis ist eine Zahl ohne Währungszeichen, und Daten werden in der ganzen Datei einheitlich geschrieben.
+Kopfzeilen werden in einer von Kepts Sprachen für dich zugeordnet. Tags und andere Namen werden durch Kommas getrennt, ein Preis ist eine Zahl ohne Währungszeichen, und Daten werden in der ganzen Datei einheitlich geschrieben. Ein Kaufdatum ergibt einen Kauf, mit seinem Laden und seinem Preis, wenn die Zeile sie hat; ein Preis oder ein Laden ohne Datum bleibt in den Notizen. Wo Geld und Ausgaben aus ist, ergeben Datum und Laden trotzdem den Kauf, und Preis und Währung bleiben in den Notizen.
 
 #### Die Homebox-Tabelle
 
@@ -53,7 +53,7 @@ weglassen würde:
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Eine Garantie ab Kaufdatum, wo Garantien an ist |
 | `HB.warranty_details`, `HB.insured` | Zeilen in den Notizen |
 
-Ein Preis von 0 wird als kein Preis gelesen (Homebox schreibt 0, wenn keiner gesetzt war). Die Standortzeilen, die ein v0.26- oder späteres Tabellenblatt auflistet, werden weggelassen; Orte kommen aus dem Ortspfad jedes Artikels. Eine Tabelle kann keine Fotos, Dateien, Wartung oder Artikel in Artikeln tragen, und eigene Felder werden nur importiert, wenn du sie einem Feld eines Typs zuordnest. Für all das nutze das Export-ZIP.
+Ein Preis von 0 wird als kein Preis gelesen (Homebox schreibt 0, wenn keiner gesetzt war), also kommt ein Artikel mit Kaufdatum und ohne Preis trotzdem mit seinem Kauf: dem Datum und dem Laden. Wo Geld und Ausgaben aus ist, bleibt der ganze Kauf in den Notizen, wie beim Export-ZIP. Die Standortzeilen, die ein v0.26- oder späteres Tabellenblatt auflistet, werden weggelassen; Orte kommen aus dem Ortspfad jedes Artikels. Eine Tabelle kann keine Fotos, Dateien, Wartung oder Artikel in Artikeln tragen, und eigene Felder werden nur importiert, wenn du sie einem Feld eines Typs zuordnest. Für all das nutze das Export-ZIP.
 
 ### Ein Homebox-Export
 
@@ -99,7 +99,7 @@ Was herüberkommt:
 | Locations (nested) | Räume und Plätze, Baum bleibt |
 | Items | Dinge; ein Artikel, der andere hält, wird zur Kiste, nie sein ganzer Typ |
 | Manufacturer, model, serial | Marke, Modell, Seriennummer |
-| Purchase date, shop and price | Ein Kauf mit seinem Laden |
+| Purchase date, shop and price | Ein Kauf mit seinem Laden, und seinem Preis, wenn er einen hat (die 0 von Homebox ist kein Preis). Ein Laden oder ein Preis ohne Datum bleibt in den Notizen |
 | Warranty, lifetime warranty | Eine Garantie |
 | Sold details | Mit Käufer oder Preis (mehr als 0): das Ding endete verkauft, mit Datum, Preis, Käufer und Notizen. Ein reines Verkaufsdatum ist kein Verkauf: das Ding bleibt in Gebrauch, das Datum in den Notizen |
 | Tags | Tags mit ihren Farben (geschachtelte Tags abgeflacht) |

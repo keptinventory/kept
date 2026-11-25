@@ -182,11 +182,12 @@ describe('Counts, a module a location can turn off (#506)', () => {
       const items = list.items as Json[];
       expect(items.map((x) => x.id)).toContain(checkId);
       expect(new Set(items.map((x) => x.kind))).toEqual(new Set(['box_check']));
-      // Asking for counts gets none either.
+      // Asking for counts gets an empty page, not the box checks under another name.
       const counts = ok(
         await call(t, `/api/v1/locations/${home.id}/counts?kind=count`, { as: louis }),
       );
-      expect((counts.items as Json[]).map((x) => x.kind)).not.toContain('count');
+      expect(counts.items).toEqual([]);
+      expect(counts.next_cursor).toBeNull();
       expect((await status(louis, `/api/v1/box-checks/${checkId}`)).status).toBe(200);
     } finally {
       await switchCounts(true);

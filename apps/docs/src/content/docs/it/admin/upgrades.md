@@ -91,13 +91,14 @@ funziona come prima ([Verificare un rilascio](/it/admin/verify-release/)).
 
 ### Sapere se c'è una nuova versione
 
-Kept può controllare le nuove versioni, ed è **disattivato per impostazione predefinita**. Attivo, chiede una volta al giorno a GitHub l'ultima
-release del repository da cui è stata compilata la sua immagine, inviando solo la richiesta (nessuna
+Kept può controllare le nuove versioni, ed è **disattivato per impostazione predefinita**. Attivo, chiede a GitHub una volta al giorno, e una volta dopo ogni
+aggiornamento, l'ultima release del repository da cui è stata compilata la sua immagine, inviando solo la richiesta (nessuna
 versione, nessun identificatore dell'istanza). Non viene scaricato o installato nulla. `KEPT_UPDATE_CHECK=true`
 lo attiva e lo blocca; `false` lo blocca disattivato.
 
 Lo switch è in Admin → Sign-up, sotto "New versions". Admin → Status dice "Kept X is available"
-quando esiste un rilascio più recente, e il suo **Controlla ora** chiede subito.
+quando esiste un rilascio più recente, e il suo **Controlla ora** chiede subito. Dopo un aggiornamento l'avviso sparisce subito, e Kept
+chiede di nuovo entro un'ora.
 
 ## Lo snapshot prima di ogni aggiornamento
 

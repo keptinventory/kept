@@ -45,7 +45,7 @@ variable depuis `.env`.
 | `kept_backup_last_success_timestamp_seconds` | quand la dernière bonne sauvegarde s'est terminée (0 avant la première) |
 | `kept_backup_last_run_status{status}` | 1 pour l'état de la dernière exécution terminée, 0 pour les autres |
 | `kept_disk_used_ratio{volume}` | quel est le taux d'utilisation du disque de données et d'un répertoire cible de sauvegarde |
-| `kept_update_available` | 1 quand la vérification de mise à jour a détecté une version plus récente |
+| `kept_update_available` | 1 quand la vérification de mise à jour a détecté une version plus récente que celle qui tourne |
 
 Aucun libellé ne contient jamais un chemin ou une cible. Une base de données qui ne peut pas répondre
 omet les lignes de sauvegarde, de disque et de mise à jour ; la collecte réussit néanmoins.

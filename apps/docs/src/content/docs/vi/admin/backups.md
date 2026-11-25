@@ -30,8 +30,8 @@ loại bỏ trùng lặp (một đêm không có gì mới gần như không th�
 | Một máy chủ SFTP | `KEPT_BACKUP_SFTP` (cú pháp `sftp:` của restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | đường dẫn bạn cung cấp |
 
 Thiết lập một đích. Nên chọn một máy khác hoặc một nơi khác: một thư mục trên cùng một ổ đĩa với dữ
-liệu của Kept bị từ chối, và trang trạng thái cảnh báo khi đích chia sẻ một ổ đĩa với nó. Các điểm cuối S3 của Backblaze B2 và
-Cloudflare R2 dự kiến sẽ hoạt động nhưng chưa được kiểm tra. SFTP ghim khóa máy chủ từ tệp known-hosts và chỉ kết nối nếu nó khớp.
+liệu của Kept bị từ chối, và trang trạng thái cảnh báo khi đích chia sẻ một ổ đĩa với nó. Điểm cuối S3 của Cloudflare R2
+đã được dùng với Kept; điểm cuối của Backblaze B2 dự kiến sẽ hoạt động nhưng chưa được kiểm tra. SFTP ghim khóa máy chủ từ tệp known-hosts và chỉ kết nối nếu nó khớp.
 
 ## Bật lên
 

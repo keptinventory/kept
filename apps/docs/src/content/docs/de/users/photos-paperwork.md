@@ -37,7 +37,12 @@ die Handbücher eines Zimmers werden gleich benannt.
   gespeichert wird.
 - **Garantien** (Haushaltsversicherung und Vollschutz) zeigen eine Abdeckungsleiste vom Kauf bis zum Enddatum. Ein
   **Schadensfall** dokumentiert eine Reparatur oder Ersatzleistung, und ein Schadensfall, der nichts kostet, zeigt
-  „Garantie hat dir etwas gespart“.
+  „Garantie hat dir etwas gespart“. Ein [persönliches Token](/de/users/mcp-clients/#persönliches-token-erstellen) liest die Garantien
+  eines Gegenstands (`GET /api/v1/things/{id}/warranties`), auch lebenslange und abgelaufene, mit den Angaben zu jedem
+  Dokument, aber nie mit einem Link zu seiner Datei. Eines, das Dinge ändern darf, fügt eine Garantie
+  hinzu (`POST` an dieselbe Adresse) und kann das 7 Tage lang rückgängig machen, solange niemand sie
+  bearbeitet oder einen Schadensfall oder ein Dokument hinzugefügt hat. Bearbeiten, Löschen und
+  Schadensfälle bleiben in der App.
 - **Unterlagen** im Menü sind die eigenen Dokumente des Standorts (der Mietvertrag, die Hausversicherung), und
   **Abgelaufen** listet Gegenstände, Dokumente und Garantien nach Datum auf. Text in PDFs ist durchsuchbar.
 

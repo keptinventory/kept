@@ -89,13 +89,14 @@ hoạt động như trước ([Xác minh bản phát hành](/vi/admin/verify-rel
 
 ### Biết có phiên bản mới
 
-Kept có thể kiểm tra phiên bản mới, và nó **tắt theo mặc định**. Khi bật, nó hỏi GitHub một lần mỗi ngày
-về bản phát hành mới nhất của repository mà image của nó được build từ đó, không gửi gì ngoài yêu cầu (không
+Kept có thể kiểm tra phiên bản mới, và nó **tắt theo mặc định**. Khi bật, nó hỏi GitHub một lần mỗi ngày, và một lần sau mỗi
+lần nâng cấp, về bản phát hành mới nhất của repository mà image của nó được build từ đó, không gửi gì ngoài yêu cầu (không
 có phiên bản, không có định danh instance). Không có gì được tải hoặc cài đặt. `KEPT_UPDATE_CHECK=true`
 bật và khóa nó; `false` khóa tắt nó.
 
 Công tắc nằm trong Admin → Đăng ký, dưới mục "Phiên bản mới". Admin → Trạng thái nói "Kept X có sẵn"
-khi có bản phát hành mới hơn, và **Kiểm tra ngay** của nó hỏi ngay lập tức.
+khi có bản phát hành mới hơn, và **Kiểm tra ngay** của nó hỏi ngay lập tức. Sau khi nâng cấp, thông báo biến mất ngay, và Kept
+hỏi lại trong vòng một giờ.
 
 ## Bản chụp nhanh trước mỗi lần nâng cấp
 

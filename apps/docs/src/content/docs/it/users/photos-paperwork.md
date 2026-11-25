@@ -40,7 +40,11 @@ modo.
   lo disattiva finché non viene salvato di nuovo.
 - **Garanzie** (Household e Complete) mostrano una barra di copertura dall'acquisto alla data di
   fine. Una **richiesta** registra una riparazione o una sostituzione, e una richiesta che non è
-  costata nulla mostra "La garanzia ti ha fatto risparmiare".
+  costata nulla mostra "La garanzia ti ha fatto risparmiare". Un [token personale](/it/users/mcp-clients/#crea-un-token-personale)
+  legge le garanzie di un oggetto (`GET /api/v1/things/{id}/warranties`), comprese quelle a vita e quelle scadute, con i
+  dati di ogni documento ma mai un link al suo file. Uno che può modificare gli oggetti aggiunge una
+  garanzia (`POST` allo stesso indirizzo) e può annullarla per 7 giorni finché nessuno l'ha modificata
+  o le ha aggiunto una richiesta o un documento. Modifica, eliminazione e richieste restano nell'app.
 - **Documenti** nel menu sono i documenti propri del luogo (il contratto d'affitto,
   l'assicurazione della casa) e **In scadenza** elenca oggetti, documenti e garanzie per data. Il
   testo dei PDF è ricercabile.

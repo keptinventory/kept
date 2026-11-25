@@ -38,7 +38,9 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
 
 - **[La carte du lieu](/fr/users/location-map/)** : chaque lieu en 3D, avec les étages, les pièces à leur
   taille réelle (dès 50 cm), les meubles et leurs compartiments, et ce qu'ils contiennent. Part d'un
-  plan si vous en avez un. Tailles en mètres ou en pieds et pouces.
+  plan si vous en avez un. Tailles en mètres ou en pieds et pouces. Parmi ses
+  [formes](/fr/users/map-shapes/), un rayonnage dimensionné par sa largeur, sa profondeur, sa hauteur
+  et ses tablettes, et un purificateur d’eau.
 - **[Le graphe](/fr/users/graph/)** : les emplacements, boîtes et objets d'un lieu, en 2D ou en 3D.
 - **[Identifiants courts et étiquettes](/fr/users/short-ids/)** : un identifiant court et un QR code sur
   chaque boîte ; scannez-en un pour l'ouvrir. Rouleaux pour étiqueteuse ou feuilles de bureau. Module : Étiquettes et QR codes.
@@ -99,7 +101,10 @@ un lieu les active dans **Paramètres du lieu → Ce que vous suivez**
   objet à partir d'une photo ; vous le confirmez.
 - **L'assistant** : posez la question en mots simples ; les modifications attendent votre accord.
 - **[Claude et autres applications d'IA](/fr/users/mcp-clients/)** : un serveur MCP à `/mcp` ; une
-  application connectée reste connectée jusqu'à ce que vous la révoquiez. Module : Connecter ChatGPT ou Claude.
+  application connectée reste connectée jusqu'à ce que vous la révoquiez. Un
+  [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel) lit et ajoute aussi garanties,
+  vendeurs et tags, et change le cycle de vie d'un objet, comme le fait l'outil
+  `change_lifecycle`. Module : Connecter ChatGPT ou Claude.
 
 ## Fonctionne avec
 

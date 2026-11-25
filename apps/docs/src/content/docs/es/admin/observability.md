@@ -34,7 +34,7 @@ Establece `KEPT_METRICS_TOKEN` y `/metrics` sirve texto de Prometheus a las soli
 | `kept_backup_last_success_timestamp_seconds` | cuándo terminó la última copia de seguridad correcta (0 antes de la primera) |
 | `kept_backup_last_run_status{status}` | 1 para el estado de la última ejecución terminada, 0 para las demás |
 | `kept_disk_used_ratio{volume}` | qué tan llenos están el disco de datos y un destino de copia de seguridad de directorio |
-| `kept_update_available` | 1 cuando la comprobación de actualización ha visto una release más nueva |
+| `kept_update_available` | 1 cuando la comprobación de actualización ha visto una release más nueva que la que está en marcha |
 
 Ninguna etiqueta contiene nunca una ruta ni un destino. Una base de datos que no puede responder omite las líneas de copia de seguridad, disco y actualización; el scrape sigue teniendo éxito.
 

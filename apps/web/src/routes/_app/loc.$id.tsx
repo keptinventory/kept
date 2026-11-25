@@ -202,18 +202,16 @@ function LocationBody({ location }: { location: LocationDetail }) {
               <Trans>Incidents</Trans>
             </Link>
           ) : null}
-          {/* 1.14 (#172): every count and box check of the location, everyone's to read, while
-              Counts is on here (#506). */}
-          {access.moduleOn('counts') ? (
-            <Link
-              to="/counts"
-              search={{ 'f.location': location.id }}
-              className={buttonClass('secondary', 'small')}
-            >
-              <QrIcon className="size-4" />
-              <Trans>Counts</Trans>
-            </Link>
-          ) : null}
+          {/* 1.14 (#172): every count and box check of the location, everyone's to read. With
+              Counts off here (#506) the same list holds the box checks, which need no module. */}
+          <Link
+            to="/counts"
+            search={{ 'f.location': location.id }}
+            className={buttonClass('secondary', 'small')}
+          >
+            <QrIcon className="size-4" />
+            {access.moduleOn('counts') ? <Trans>Counts</Trans> : <Trans>Box checks</Trans>}
+          </Link>
           {/* 1.x (D235): move-in and move-out condition reports, everyone's to read. */}
           {location.kind === 'personal' ? null : (
             <Link

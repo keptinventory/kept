@@ -34,7 +34,7 @@ Một container chỉ chạy worker (`KEPT_ROLE=worker`) không phục vụ HTTP
 | `kept_backup_last_success_timestamp_seconds` | khi bản sao lưu tốt gần nhất kết thúc (0 trước lần đầu) |
 | `kept_backup_last_run_status{status}` | 1 cho trạng thái của lần chạy kết thúc gần nhất, 0 cho các cái khác |
 | `kept_disk_used_ratio{volume}` | mức đầy của ổ dữ liệu và mục tiêu sao lưu thư mục |
-| `kept_update_available` | 1 khi kiểm tra cập nhật thấy bản phát hành mới hơn |
+| `kept_update_available` | 1 khi kiểm tra cập nhật thấy bản phát hành mới hơn bản đang chạy |
 
 Không nhãn nào bao giờ giữ đường dẫn hoặc mục tiêu. Cơ sở dữ liệu không trả lời được để các dòng sao lưu, đĩa và cập nhật bên ngoài; việc thu thập (scrape) chính nó vẫn thành công.
 

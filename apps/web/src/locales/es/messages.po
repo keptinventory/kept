@@ -2140,7 +2140,7 @@ msgstr "Cerrar"
 
 #: src/components/boxcheck/box-check-screen.tsx
 msgid "Close box check"
-msgstr "Cerrar verificación de caja"
+msgstr "Cerrar revisión de caja"
 
 #: src/components/scan/scan-screen.tsx
 msgid "Close scanner"
@@ -26108,7 +26108,7 @@ msgstr "Dejar de contar regularmente"
 
 #: src/components/counts/counts-list.tsx
 msgid "Box checks"
-msgstr "Verificaciones de caja"
+msgstr "Revisiones de caja"
 
 #: src/components/counts/counts-list.tsx
 msgid "Had missing"
@@ -26136,7 +26136,7 @@ msgstr "Aún no hay conteos"
 
 #: src/components/counts/counts-list.tsx
 msgid "Count a place or a box from Scan: every count and box check is kept here, with what was found and what was missing."
-msgstr "Cuenta un lugar o una caja desde Escanear: aquí se guardan todos los conteos y verificaciones de caja, con lo que se encontró y lo que faltaba."
+msgstr "Cuenta un lugar o una caja desde Escanear: aquí se guardan todos los conteos y revisiones de caja, con lo que se encontró y lo que faltaba."
 
 #: src/components/counts/counts-list.tsx
 msgid "{missing, plural, one {# missing} other {# missing}}"
@@ -29320,3 +29320,7 @@ msgstr "Un propietario o administrador los activa en «Qué seguir» de una ubic
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Los conteos están desactivados aquí: esta lista muestra las revisiones de caja."
+
+#: src/components/scan/session/session-screen.tsx
+msgid "Counts are off there"
+msgstr "Los conteos están desactivados allí"

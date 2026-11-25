@@ -100,13 +100,14 @@ Der Signaturschlüssel bleibt der gleiche, also funktioniert
 ### Wissen, dass es eine neue Version gibt
 
 Kept kann nach neuen Versionen suchen und ist **standardmäßig aus**. Eingeschaltet fragt es GitHub
-einmal am Tag nach der neuesten Version des Repositorys, aus dem sein Image gebaut wurde, und
+einmal am Tag, und einmal nach jedem Upgrade, nach der neuesten Version des Repositorys, aus dem sein Image gebaut wurde, und
 sendet nichts als die Anfrage (keine Versionsnummer, kein Instanz-Bezeichner). Nichts wird
 heruntergeladen oder installiert. `KEPT_UPDATE_CHECK=true` schaltet es ein und sperrt es ein;
 `false` sperrt es aus.
 
 Der Schalter liegt in Admin → Sign-up, unter "New versions". Admin → Status sagt "Kept X is
-available", wenn eine neuere Version existiert, und **Jetzt prüfen** fragt sofort nach.
+available", wenn eine neuere Version existiert, und **Jetzt prüfen** fragt sofort nach. Nach einem Upgrade verschwindet der Hinweis sofort, und
+Kept fragt innerhalb einer Stunde erneut.
 
 ## Der Snapshot vor jedem Upgrade
 

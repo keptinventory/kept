@@ -25,7 +25,7 @@ Las claves **no** están en la copia de seguridad. Guarda [el kit de recuperaci�
 | Un bucket compatible con S3: AWS, o el endpoint S3 de otro proveedor | `KEPT_BACKUP_S3_BUCKET` y las demás `KEPT_BACKUP_S3_*` | `restic/` bajo `KEPT_BACKUP_S3_PREFIX` |
 | Un servidor SFTP | `KEPT_BACKUP_SFTP` (la sintaxis `sftp:` de restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | la ubicación que das |
 
-Elige un solo destino. Mejor otra máquina u otro sitio: un directorio en el mismo disco que los datos de Kept se rechaza, y la página de estado avisa si el destino comparte disco con ellos. Se espera que los endpoints S3 de Backblaze B2 y Cloudflare R2 funcionen, pero no se han probado. SFTP fija la clave del host del servidor desde el archivo known-hosts y solo se conecta si coincide.
+Elige un solo destino. Mejor otra máquina u otro sitio: un directorio en el mismo disco que los datos de Kept se rechaza, y la página de estado avisa si el destino comparte disco con ellos. El endpoint S3 de Cloudflare R2 ya se ha usado con Kept; se espera que el de Backblaze B2 funcione, pero no se ha probado. SFTP fija la clave del host del servidor desde el archivo known-hosts y solo se conecta si coincide.
 
 ## Activarlo
 

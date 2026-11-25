@@ -37,7 +37,9 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
 
 - **[Mapa de ubicación](/es/users/location-map/)**: cada ubicación en 3D, con pisos, habitaciones a su
   tamaño real (desde 50 cm), muebles y sus compartimentos, y lo que hay dentro. Comienza desde un
-  plano de piso si tienes uno. Tamaños en metros o en pies y pulgadas.
+  plano de piso si tienes uno. Tamaños en metros o en pies y pulgadas. Entre sus
+  [formas](/es/users/map-shapes/) hay una estantería de almacenaje medida por su ancho, fondo, alto
+  y estantes, y un purificador de agua.
 - **[Gráfico](/es/users/graph/)**: los lugares, cajas y objetos de una ubicación en 2D o 3D.
 - **[IDs cortos y etiquetas](/es/users/short-ids/)**: un ID corto y un código QR en cada caja; escanea uno
   para abrirlo. Rolos de etiquetadora o hojas de oficina. Módulo: Etiquetas y códigos QR.
@@ -99,7 +101,9 @@ una ubicación las activa en **Configuración de ubicación → Qué seguir**
   un objeto a partir de una foto; tú lo confirmas.
 - **El asistente**: pregunta con palabras simples; los cambios esperan tu aprobación.
 - **[Claude y otras aplicaciones de IA](/es/users/mcp-clients/):** un servidor MCP en `/mcp`; una aplicación
-  conectada permanece conectada hasta que la revoques. Módulo: Conectar ChatGPT o Claude.
+  conectada permanece conectada hasta que la revoques. Un [token personal](/es/users/mcp-clients/#crea-un-token-personal)
+  también lee y añade garantías, proveedores y etiquetas, y cambia el ciclo de vida de un objeto, como
+  hace la herramienta `change_lifecycle`. Módulo: Conectar ChatGPT o Claude.
 
 ## Funciona con
 

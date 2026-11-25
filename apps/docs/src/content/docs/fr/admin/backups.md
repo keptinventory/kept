@@ -25,7 +25,7 @@ Les clés ne sont **pas** dans la sauvegarde. Conservez [le kit de récupératio
 | Un compartiment compatible S3 : AWS, ou le point de terminaison S3 d'un autre fournisseur | `KEPT_BACKUP_S3_BUCKET` et les autres `KEPT_BACKUP_S3_*` | `restic/` sous `KEPT_BACKUP_S3_PREFIX` |
 | Un serveur SFTP | `KEPT_BACKUP_SFTP` (la syntaxe `sftp:` de restic), `KEPT_BACKUP_SFTP_KEY_FILE`, `KEPT_BACKUP_SFTP_KNOWN_HOSTS` | l'emplacement que vous indiquez |
 
-Définissez une seule cible. Privilégiez une autre machine ou un autre site : un répertoire sur le même disque que les données de Kept est refusé, et la page de statut avertit lorsque la cible partage un disque avec lui. Les points de terminaison S3 de Backblaze B2 et de Cloudflare R2 devraient fonctionner mais n'ont pas été testés. SFTP fige la clé d'hôte du serveur depuis le fichier known-hosts et ne se connecte que si elle correspond.
+Définissez une seule cible. Privilégiez une autre machine ou un autre site : un répertoire sur le même disque que les données de Kept est refusé, et la page de statut avertit lorsque la cible partage un disque avec lui. Le point de terminaison S3 de Cloudflare R2 a déjà servi avec Kept ; celui de Backblaze B2 devrait fonctionner mais n'a pas été testé. SFTP fige la clé d'hôte du serveur depuis le fichier known-hosts et ne se connecte que si elle correspond.
 
 ## L'activer
 

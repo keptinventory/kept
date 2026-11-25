@@ -32,7 +32,7 @@ Ejecutar la misma importación de nuevo omite lo que ya trajo, así que una repe
    - **Emparejar la columna de tipo con tus tipos por nombre**, en cualquiera de los idiomas de Kept; desactivado, el tipo se guarda en las notas.
 4. **Revisar la importación**, lee el informe e importa.
 
-Las columnas que Kept lee: nombre, cantidad, lugar, tipo, marca, modelo, número de serie, código de barras, color, condición, notas, etiquetas, otros nombres, fecha de compra, precio, moneda, tienda, enlace al manual, el código de una etiqueta antigua, tu propio código, un ID de fila (para que una reimportación omita la fila) y los campos propios de tus tipos. Los encabezados en cualquiera de los idiomas de Kept se emparejan solos. Las etiquetas y los otros nombres se separan con comas, un precio es un número sin el signo de moneda, y las fechas se escriben de una sola manera en todo el archivo.
+Las columnas que Kept lee: nombre, cantidad, lugar, tipo, marca, modelo, número de serie, código de barras, color, condición, notas, etiquetas, otros nombres, fecha de compra, precio, moneda, tienda, enlace al manual, el código de una etiqueta antigua, tu propio código, un ID de fila (para que una reimportación omita la fila) y los campos propios de tus tipos. Los encabezados en cualquiera de los idiomas de Kept se emparejan solos. Las etiquetas y los otros nombres se separan con comas, un precio es un número sin el signo de moneda, y las fechas se escriben de una sola manera en todo el archivo. Una fecha de compra crea una compra, con su tienda y su precio cuando la fila los tiene; un precio o una tienda sin fecha se quedan en las notas. Donde Dinero y gastos está desactivado, la fecha y la tienda siguen creando la compra, y el precio y la moneda se quedan en las notas.
 
 #### Hoja de cálculo de Homebox
 
@@ -46,7 +46,7 @@ Todos los Homebox pueden exportar una hoja de cálculo (hasta v0.25: **Herramien
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Una garantía desde la fecha de compra, donde Garantías está activado |
 | `HB.warranty_details`, `HB.insured` | Líneas en las notas |
 
-Un precio de 0 se lee como sin precio (Homebox escribe 0 cuando no se fijó ninguno). Las filas de ubicación que lista una hoja de cálculo de v0.26 o posterior se dejan fuera; los lugares vienen de la ruta de ubicación de cada objeto. Una hoja de cálculo no puede llevar fotos, archivos, mantenimiento u objetos dentro de objetos, y los campos personalizados solo se importan si los emparejas con un campo de un tipo. Para todo eso, usa el ZIP de exportación.
+Un precio de 0 se lee como sin precio (Homebox escribe 0 cuando no se fijó ninguno), así que un objeto con fecha de compra y sin precio llega igualmente con su compra: la fecha y la tienda. Donde Dinero y gastos está desactivado, toda la compra se queda en las notas, como con el ZIP de exportación. Las filas de ubicación que lista una hoja de cálculo de v0.26 o posterior se dejan fuera; los lugares vienen de la ruta de ubicación de cada objeto. Una hoja de cálculo no puede llevar fotos, archivos, mantenimiento u objetos dentro de objetos, y los campos personalizados solo se importan si los emparejas con un campo de un tipo. Para todo eso, usa el ZIP de exportación.
 
 ### Una exportación de Homebox
 
@@ -81,7 +81,7 @@ Qué se trae:
 | Ubicaciones (anidadas) | Habitaciones y puntos, manteniendo el árbol |
 | Objetos | Objetos; un objeto que contiene otros objetos se convierte en una caja, nunca en todo un tipo |
 | Fabricante, modelo, número de serie | Marca, modelo, número de serie |
-| Fecha de compra, tienda y precio | Una compra con su tienda |
+| Fecha de compra, tienda y precio | Una compra con su tienda, y su precio cuando lo tiene (el 0 de Homebox es sin precio). Una tienda o un precio sin fecha se quedan en las notas |
 | Garantía, garantía de por vida | Una garantía |
 | Detalles de venta | Con un comprador o un precio (más de 0): el objeto terminó como vendido, con su fecha, precio, comprador y notas. Una fecha de venta sola no es una venta: el objeto se queda en uso, la fecha en sus notas |
 | Etiquetas | Etiquetas con sus colores (etiquetas anidadas aplanadas) |

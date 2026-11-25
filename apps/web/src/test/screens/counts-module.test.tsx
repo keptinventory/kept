@@ -1,7 +1,9 @@
 /**
  * Counts as a module a location can turn off (#506), against the mock server: with it on, a
  * place's page has Count here and Past counts, a box's menu Count this box, a location's page its
- * Counts link, and Tools has Counts; with it off, none of them shows, and /counts says so.
+ * Counts link, and Tools has Counts; with it off, none of them shows, and /counts says so. A box
+ * check needs no module, so their list stays reachable: Box checks on the location's page, and in
+ * Tools while Counts is off everywhere.
  */
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -58,6 +60,11 @@ describe('Counts off', () => {
     expect(screen.queryByRole('button', { name: /^Past counts/ })).toBeNull();
     expect(within(mainNav()).queryByRole('link', { name: 'Counts' })).toBeNull();
     expect(within(mainNav()).getByRole('link', { name: 'Labels' })).toBeInTheDocument();
+    // A box check needs no module: Tools keeps the way to their list.
+    expect(within(mainNav()).getByRole('link', { name: 'Box checks' })).toHaveAttribute(
+      'href',
+      '/counts',
+    );
   });
 
   it('leaves Count this box out of a box’s menu, and keeps Box check', async () => {
@@ -69,13 +76,18 @@ describe('Counts off', () => {
     expect(screen.getByRole('menuitem', { name: 'Pack into this box' })).toBeInTheDocument();
   });
 
-  it('leaves the Counts link off a location’s page', async () => {
+  it('has Box checks on a location’s page, not Counts', async () => {
     const state = countsOff();
     const home = state.locations.find((l) => l.name === 'Home');
     await renderApp(`/loc/${home?.id}`, { state });
     await findHeading('Home');
     await screen.findByRole('link', { name: 'Incidents' });
     expect(screen.queryByRole('link', { name: 'Counts' })).toBeNull();
+    // Tools has its own Box checks entry; the page's link narrows the list to this location.
+    const hrefs = screen
+      .getAllByRole('link', { name: 'Box checks' })
+      .map((a) => decodeURIComponent(a.getAttribute('href') ?? ''));
+    expect(hrefs).toContain(`/counts?f.location=${home?.id}`);
   });
 
   it('lists the box checks on /counts, and no count, with Back from a box check landing there', async () => {

@@ -178,9 +178,10 @@ superior. La parte de Kept que necesita una herramienta es el nombre bajo **Qué
 app, cada uno en su campo en vez de en las notas: nombre, cuántos, tipo (por nombre, en inglés o
 árabe, o por id), marca (se crea si es nueva), modelo, número de serie, código de barras, color, estado, notas,
 otros nombres, etiquetas (un nombre nuevo crea la etiqueta, para miembros y superiores), de quién es (una persona, se crea si es nueva), el enlace del manual,
-vencimiento y cuántos días antes avisar, el mínimo de un consumible, y los campos propios del tipo por
-clave. `add_thing` también toma a dónde va y la compra (fecha, precio de uno con su moneda,
-y la tienda); `update_thing` también toma de dónde vino, y su compra: la fecha, la tienda,
+vencimiento y cuántos días antes avisar, el mínimo de un consumible, de dónde vino (un regalo, el trabajo) y los campos
+propios del tipo por clave. `add_thing` también toma a dónde va y la compra (fecha, precio de uno
+con su moneda, y la tienda; un precio viene con su moneda o no viene, así que una compra puede ser
+solo una fecha y una tienda); `update_thing` también toma su compra: la fecha, la tienda,
 su línea en el recibo, el precio de uno con su moneda y las notas, cambiando la compra que tiene
 o registrando una, como hace la página del objeto. Un precio necesita Dinero activado y un rol que
 vea dinero, como en la app; un mínimo necesita **Objetos que se te acaban**. Un tipo que Kept no conoce

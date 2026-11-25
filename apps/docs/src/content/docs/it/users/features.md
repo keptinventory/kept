@@ -37,7 +37,9 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
 
 - **[La mappa del luogo](/it/users/location-map/)**: ogni luogo in 3D, con piani, stanze alle loro
   dimensioni reali (da 50 cm), mobili e i loro scomparti, e ciò che c'è dentro. Parte da una
-  pianta se ne hai una. Misure in metri o in piedi e pollici.
+  pianta se ne hai una. Misure in metri o in piedi e pollici. Tra le sue
+  [forme](/it/users/map-shapes/) ci sono uno scaffale dimensionato per larghezza, profondità, altezza
+  e ripiani, e un depuratore d’acqua.
 - **[Il grafo](/it/users/graph/)**: i posti, le scatole e gli oggetti di un luogo in 2D o 3D.
 - **[ID brevi ed etichette](/it/users/short-ids/)**: un ID breve e un codice QR su ogni scatola; scansionane uno per
   aprirla. Rotoli per etichettatrice o fogli da ufficio. Modulo: Etichette e codici QR.
@@ -97,7 +99,9 @@ un luogo le attiva in **Impostazioni del luogo → Cosa monitorare**
   da una foto; tu la confermi.
 - **L'assistente**: chiedi in parole semplici; le modifiche attendono il tuo OK.
 - **[Claude e altre app di IA](/it/users/mcp-clients/)**: un server MCP su `/mcp`; un'app collegata
-  resta collegata finché non la revochi. Modulo: Collega ChatGPT o Claude.
+  resta collegata finché non la revochi. Un [token personale](/it/users/mcp-clients/#crea-un-token-personale)
+  legge e aggiunge anche garanzie, venditori e tag, e cambia il ciclo di vita di un oggetto, come fa lo
+  strumento `change_lifecycle`. Modulo: Collega ChatGPT o Claude.
 
 ## Funziona con
 

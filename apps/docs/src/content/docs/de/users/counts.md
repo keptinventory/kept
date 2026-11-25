@@ -95,8 +95,11 @@ Zählungen sind ein Modul, in jeder Voreinstellung eingeschaltet. Ein Eigentüme
 unter **Standorteinstellungen → Was erfasst wird** (**Zählungen**) aus. Sind sie an einem Standort
 aus, haben seine Orte kein **Hier zählen**, **Regelmäßig zählen** oder **Frühere Zählungen**, seine
 Kisten kein **Diese Kiste zählen**, seine Räume auf der Karte kein **Diesen Raum zählen**, und
-**Sitzung starten** bietet dort kein Zählen an. **Zählungen** unter Werkzeuge verschwindet, sobald
-sie an allen deinen Standorten aus sind. Sets haben kein **Dieses Set prüfen**. Geplante
+**Sitzung starten** bietet dort kein Zählen an: das Etikett eines Orts oder einer Kiste, das dort
+zum Zählen gescannt wird, sagt "Zählungen sind dort aus". Die Seite des Standorts hat
+**Kistenchecks**, wo sie **Zählungen** hatte, und **Zählungen** unter Werkzeuge wird zu
+**Kistenchecks**, sobald sie an allen deinen Standorten aus sind; beide öffnen die Liste der
+Kistenchecks. Sets haben kein **Dieses Set prüfen**. Geplante
 Zählungen erinnern nicht mehr: sie lassen sich pausieren, fortsetzen oder löschen, aber nicht
 erledigen, zurückstellen oder überspringen. Der **Kistencheck** bleibt, und die Zählungsliste des
 Standorts zeigt nur seine Kistenchecks. Nichts wird gelöscht: wieder eingeschaltet, ist jede Zählung wieder da.

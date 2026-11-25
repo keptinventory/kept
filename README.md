@@ -97,7 +97,9 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   you can widen or collapse. Hide your Personal location if you don't use it.
 - **3D map and graph.** Each location in 3D, rooms at their real size, started from a floor plan
   if you have one; its places and things as a graph
-  ([the map](https://keptinventory.info/users/location-map/)).
+  ([the map](https://keptinventory.info/users/location-map/)). Its shapes include a shelving unit
+  sized by width, depth, height and shelves, and a water purifier
+  ([map shapes](https://keptinventory.info/users/map-shapes/)).
 - **Labels and scanning.** Print label sheets with a short ID and a QR code; scan one to open the
   box it is on. Scan sessions count a shelf, pack a box or move a pile in one go; counts can be
   turned off where nobody counts. If the scanner doesn't start, Try again starts it afresh; on a
@@ -123,6 +125,8 @@ Every feature, with its page: [all features](https://keptinventory.info/users/fe
   when you are there.
 - **AI assistant and MCP server.** Ask in plain words; changes wait for your OK. Claude and other
   AI agents connect at `/mcp` and stay connected ([how](https://keptinventory.info/users/mcp-clients/)).
+  A personal token also reads and adds warranties, vendors and tags, and changes a thing's
+  lifecycle.
 - **Home Assistant.** Install Kept as a Home Assistant app; an integration brings what's due into
   dashboards and automations, and the app offers to set it up: no token to copy
   ([Home Assistant](https://keptinventory.info/users/home-assistant/)).

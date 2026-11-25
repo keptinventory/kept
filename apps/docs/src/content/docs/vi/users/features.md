@@ -22,7 +22,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 ## Tìm đồ vật
 
-- **[Bản đồ địa điểm](/vi/users/location-map/)**: mỗi địa điểm trong 3D, với các tầng, phòng kích thước thực (từ 50 cm), đồ gia dụng và ngăn, và đồ vật bên trong. Bắt đầu từ bản mặt bằng nếu bạn có. Kích thước bằng mét hoặc bằng feet và inch.
+- **[Bản đồ địa điểm](/vi/users/location-map/)**: mỗi địa điểm trong 3D, với các tầng, phòng kích thước thực (từ 50 cm), đồ gia dụng và ngăn, và đồ vật bên trong. Bắt đầu từ bản mặt bằng nếu bạn có. Kích thước bằng mét hoặc bằng feet và inch. Trong các [hình dạng](/vi/users/map-shapes/) của nó có tủ kệ đo theo chiều rộng, chiều sâu, chiều cao và số tầng kệ, và máy lọc nước.
 - **[Sơ đồ](/vi/users/graph/)**: vị trí, hộp và đồ vật của một địa điểm trong 2D hoặc 3D.
 - **[ID ngắn và nhãn](/vi/users/short-ids/)**: ID ngắn và mã QR trên mỗi hộp; quét một cái để mở nó. Cuộn máy dán nhãn hoặc giấy in văn phòng. Mô-đun: Nhãn và mã QR.
 - **[Phiên quét](/vi/users/scanning-sessions/)**: đếm một kệ, đóng gói một hộp, di chuyển một đống, lần quét sau lần quét.
@@ -56,7 +56,7 @@ Mọi thứ Kept làm được, mỗi thứ có trang giải thích. Một số 
 
 - **[Nhà cung cấp AI](/vi/users/ai-providers/)**: nhà cung cấp của bạn hoặc không có: OpenAI, Anthropic, Google, OpenRouter, Groq, hoặc máy chủ cục bộ như [Ollama](/vi/admin/ollama/). Chụp tạo bản nháp đồ vật từ ảnh; bạn xác nhận nó.
 - **Trợ lý**: hỏi bằng lời đơn giản; thay đổi chờ sự đồng ý của bạn.
-- **[Claude và các ứng dụng AI khác](/vi/users/mcp-clients/)**: máy chủ MCP tại `/mcp`; một ứng dụng kết nối ở kết nối cho đến khi bạn thu hồi nó. Mô-đun: Kết nối ChatGPT hoặc Claude.
+- **[Claude và các ứng dụng AI khác](/vi/users/mcp-clients/)**: máy chủ MCP tại `/mcp`; một ứng dụng kết nối ở kết nối cho đến khi bạn thu hồi nó. Một [token cá nhân](/vi/users/mcp-clients/#tạo-token-cá-nhân) cũng đọc và thêm bảo hành, nhà cung cấp và thẻ, và đổi vòng đời của đồ vật, như công cụ `change_lifecycle` làm. Mô-đun: Kết nối ChatGPT hoặc Claude.
 
 ## Hoạt động với
 
