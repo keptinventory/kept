@@ -3,6 +3,13 @@
 The app's version is Kept's. Newest first; Kept's full notes:
 <https://github.com/keptinventory/kept/blob/main/CHANGELOG.md>.
 
+## 1.14.8
+
+- Turn Counts off. A location that doesn't count can switch Counts off like Labels or Lending: its menus, reminders and planned counts step aside, box checks stay, and nothing is deleted (#506).
+- Two new map shapes. A shelving unit you size by width, depth, height and shelves, and a water purifier (#485, #443).
+- More for personal tokens and MCP. A token can read and add warranties, look up and add vendors and tags, and change a thing's lifecycle. Every change is in the history, and a new warranty or a lifecycle change can be undone (#522, #524, #526).
+- Fixes people ran into. Backups to HTTPS storage such as S3 and R2 no longer hang (#573), taking units off a thing that was moved between locations now works (#583), a customised built-in type keeps its name (#546), and Move to Trash no longer disappears from the selection bar (#543).
+
 ## 1.14.7
 
 - Home Assistant in one click. Home Assistant finds Kept and asks; someone in Kept allows it with a code. No token to copy (#376).
