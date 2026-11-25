@@ -507,6 +507,58 @@ describe('Counts off (#506)', () => {
     expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
   });
 
+  it('says Counts are off when a place label scanned to count is where they are off', async () => {
+    // Home has Counts off; the garage, another location, has them on, so counting is offered.
+    const GARAGE = '01926f00-0000-7000-8000-00000000e0d1';
+    const store = await phone('member', ['labels']);
+    await store.applySnapshot({
+      asOf: '2026-10-20T10:00:01.000Z',
+      payloadVersion: 1,
+      minPayloadVersion: 1,
+      locations: [
+        ...(await store.locations()),
+        {
+          id: GARAGE,
+          name: 'Garage',
+          kind: 'house',
+          timezone: 'Africa/Cairo',
+          languages: ['en'],
+          role: 'member',
+          effectiveModules: ['labels', 'counts'],
+          unplacedPlaceId: '01926f00-0000-7000-8000-00000000e0d2',
+          suggestRadiusM: 150,
+        },
+      ],
+      types: { hash: 'h', items: [] },
+      changes: {
+        places: [],
+        things: [],
+        codes: [
+          {
+            code: 'K1TCHN',
+            locationId: HOME,
+            thingId: null,
+            placeId: KITCHEN,
+            state: 'assigned',
+            isPrimary: true,
+          },
+        ],
+        legacyCodes: [],
+      },
+      removed: [],
+      revokedLocationIds: [],
+      nextCursor: 'c2',
+      complete: true,
+    });
+    await render({ store });
+    await screen.findByRole('heading', { name: 'Start a session' });
+    expect(await screen.findByRole('radio', { name: /^Count/ })).toBeChecked();
+    fireEvent.click(screen.getByRole('button', { name: 'Scan its label' }));
+    await read(qr('K1TCHN'));
+    expect(await screen.findByText('Counts are off there')).toBeInTheDocument();
+    expect(screen.queryByText('Scan a place or a box')).not.toBeInTheDocument();
+  });
+
   it('tells a viewer there is nothing to do', async () => {
     await render({ store: await phone('viewer', ['labels']) });
     expect(await screen.findByText('Counts are off')).toBeInTheDocument();

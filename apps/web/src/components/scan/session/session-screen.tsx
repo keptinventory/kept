@@ -259,7 +259,15 @@ export function SessionScreen({
       const kindOk = tgt?.kind === 'place' ? mode !== 'pack' : thing?.isContainer === true;
       if (!tgt || !allowed || !kindOk) {
         feel('grey');
-        toast({ title: mode === 'pack' ? t`Scan a box's label` : t`Scan a place or a box` });
+        // A place or a box to count, in a location where Counts is off: say so, not "scan another".
+        const countsOff = mode === 'count' && !!role && kindOk && !countsHere;
+        toast({
+          title: countsOff
+            ? t`Counts are off there`
+            : mode === 'pack'
+              ? t`Scan a box's label`
+              : t`Scan a place or a box`,
+        });
         return null;
       }
       feel('ok');
