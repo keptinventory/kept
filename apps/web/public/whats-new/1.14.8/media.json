@@ -1,0 +1,14 @@
+{
+  "counts.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "counts.webp",
+    "webm": "counts.webm"
+  },
+  "shapes.mp4": {
+    "width": 960,
+    "height": 600,
+    "poster": "shapes.webp",
+    "webm": "shapes.webm"
+  }
+}
