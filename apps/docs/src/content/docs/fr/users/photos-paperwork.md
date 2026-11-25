@@ -39,7 +39,12 @@ logement et les manuels d'une pièce se nomment de la même façon.
   le lieu, le désactive jusqu'à ce qu'il soit enregistré à nouveau.
 - **Garanties** (Foyer et Complète) affichent une barre de couverture de l'achat à la date de fin. Une
   **réclamation** enregistre une réparation ou un remplacement, et une réclamation qui n'a rien coûté affiche
-  "La garantie vous a fait économiser".
+  "La garantie vous a fait économiser". Un [jeton personnel](/fr/users/mcp-clients/#créer-un-jeton-personnel) lit les garanties
+  d'un objet (`GET /api/v1/things/{id}/warranties`), y compris celles à vie et celles terminées, avec les détails de
+  chaque document mais jamais un lien vers son fichier. Un jeton qui peut modifier les objets ajoute une
+  garantie (`POST` à la même adresse), et peut l'annuler pendant 7 jours tant que personne ne l'a
+  modifiée ni ne lui a ajouté une réclamation ou un document. La modification, la suppression et les
+  réclamations restent dans l'application.
 - **Documents** dans le menu sont les documents propres au lieu (le bail, l'assurance habitation), et
   **Échéances proches** liste les articles, les documents et les garanties par date. Le texte des PDF est
   recherchable.
