@@ -18,6 +18,7 @@ traccia: **Dettagli**, **Documenti e garanzie**, **Valore**, **Contatori**, **Pr
   sotto **Campi archiviati** e ritornano se si torna indietro. Proprietari e amministratori modificano un tipo predefinito
   sotto **Impostazioni → account → Tipi** con **Personalizza**, il quale crea una copia dell'account; da
   allora in poi la copia è quella che ogni elenco offre, quindi un tipo personalizzato appare una sola volta.
+  La copia mantiene il nome del tipo integrato, nella lingua di ciascuno, finché qualcuno non la rinomina.
 - **Etichetta**: su un computer, la scheda **Etichetta** accanto ai dettagli mostra l'etichetta così come viene stampata
   (codice QR, ID breve, nome), con **Stampa** e **Scarica** (un PNG). Su un telefono, la riga **Etichetta**
   nei Dettagli la apre. Vedi [ID brevi ed etichette](/it/users/short-ids/).
