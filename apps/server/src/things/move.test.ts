@@ -526,7 +526,6 @@ describe('splitting a bought thing moved to another location of the same account
       lineDescription: string;
     } | null;
 
-  // catalogue: POST /api/v1/things/:id/split
   it('splits it: the new part keeps the same purchase line', async () => {
     const made = await createThing(t, ann, home, {
       name: 'Screws',
@@ -551,7 +550,6 @@ describe('splitting a bought thing moved to another location of the same account
     expect((await purchaseOf(ann, part))?.lineDescription).toBe('Screws');
   });
 
-  // catalogue: POST /api/v1/things/move
   it('moves part of it, by a member of the second location only', async () => {
     const gus = await person(t, db, 'gus');
     await join(db, garage.id, gus.userId, 'member');
