@@ -31303,3 +31303,23 @@ msgstr "Власник або адміністратор вмикає їх у р
 #: src/components/counts/counts-list.tsx
 msgid "Counts are off here: this lists the box checks."
 msgstr "Підрахунки тут вимкнено: цей список показує перевірки коробок."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The QR code holds"
+msgstr "QR-код містить"
+
+#: src/components/labels/stock-picker.tsx
+msgid "The link"
+msgstr "Посилання"
+
+#: src/components/labels/stock-picker.tsx
+msgid "Any phone camera opens it."
+msgstr "Його відкриє камера будь-якого телефона."
+
+#: src/components/labels/stock-picker.tsx
+msgid "The code only"
+msgstr "Лише код"
+
+#: src/components/labels/stock-picker.tsx
+msgid "A smaller QR code. Scan it with Kept’s scanner."
+msgstr "Менший QR-код. Скануйте його сканером Kept."

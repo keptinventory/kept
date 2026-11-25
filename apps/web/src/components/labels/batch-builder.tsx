@@ -20,7 +20,7 @@
  * lands (the labels queries are refreshed, the preview left out), so a print is one dry run when
  * the builder opens and one create.
  */
-import { isSheet, labelStock } from '@kept/shared';
+import { hasQr, isSheet, labelStock } from '@kept/shared';
 import { plural } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -49,7 +49,7 @@ import { LabelCell } from './label-cell';
 import { perPage } from './layout';
 import { useQrEncoder } from './qr';
 import { blankSample, StartCellPicker } from './start-cell';
-import { rememberedStock, StockPicker, useStockText } from './stock-picker';
+import { QrContentPicker, rememberedStock, StockPicker, useStockText } from './stock-picker';
 
 /** Where the builder was opened from (the `/labels` search). */
 export type BatchSource = {
@@ -274,6 +274,7 @@ export function BatchBuilder({
             setStart(1);
           }}
         />
+        {hasQr(stock) ? <QrContentPicker /> : null}
 
         {tooLong.length > 0 ? <TooLong labels={tooLong} /> : null}
         {create.isError ? (

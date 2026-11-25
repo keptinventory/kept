@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { METER_KINDS } from '../db/schema/meters.js';
 import type { KeptApp } from '../http/app.js';
-import { PAGE_DEFAULT, PAGE_MAX, requireIfMatch } from '../http/conventions.js';
+import { optionalIfMatch, PAGE_DEFAULT, PAGE_MAX, requireIfMatch } from '../http/conventions.js';
 import { notFound } from '../http/errors.js';
 import { manyOf, notOf } from '../http/list-filters.js';
 import type { InventoryDeps } from '../http/routes.js';
@@ -178,11 +178,6 @@ const ReplacedResult = z.object({
   event: z.object({ id: z.uuid(), at: z.string(), offset: z.string() }),
   meter: MeterSchema,
 });
-
-/** An If-Match the client may send (the web sends none for readings). */
-function optionalIfMatch(req: FastifyRequest): number | null {
-  return req.headers['if-match'] === undefined ? null : requireIfMatch(req);
-}
 
 export async function meterRoutes(app: KeptApp, deps: InventoryDeps): Promise<void> {
   const { pools } = deps;

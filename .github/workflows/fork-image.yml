@@ -1,0 +1,110 @@
+# A fork's own image: builds the Dockerfile's `runtime` target and pushes it to this repository's
+# GitHub Container Registry, ghcr.io/<owner>/kept, so an install can run it with
+# KEPT_IMAGE=ghcr.io/<owner>/kept:<tag> in its .env. Not the release (release.yml signs, scans and
+# publishes the chart and the Home Assistant image): one unsigned image, for this fork alone.
+#
+# Runs on a push to main or to a feat/* branch, and from the Actions tab ("Run workflow"), where
+# the platforms can be picked. Tags pushed:
+#   :<branch>        the branch's latest build (feat/label-qr → feat-label-qr)
+#   :sha-<commit>    this exact commit, to pin in .env
+#   :latest          main's latest build
+#
+# The version is a prerelease of the patch after upstream's last release (1.14.8-fork.abc1234): it
+# orders after the release the fork is built on and before upstream's next, so neither is offered
+# as a downgrade. Not build metadata (`+fork…`): release_history_version_chk refuses a `+`, and
+# `kept migrate` fails recording the release.
+# KEPT_SOURCE_URL comes from the image's labels: this fork at this commit (AGPL, D147).
+name: fork-image
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms (arm64 builds under emulation: slower)'
+        default: linux/amd64,linux/arm64
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: fork-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    # Only in a fork: upstream publishes through release.yml.
+    if: github.repository != 'keptinventory/kept'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Upstream tags (for the version)
+        # A fork's clone may lack upstream's release tags; the version needs the last one.
+        run: git fetch --tags --quiet https://github.com/keptinventory/kept.git || true
+
+      - name: Names and version
+        id: meta
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          PLATFORMS: ${{ inputs.platforms || 'linux/amd64,linux/arm64' }}
+        run: |
+          owner=$(tr '[:upper:]' '[:lower:]' <<<"$GITHUB_REPOSITORY_OWNER")
+          image="ghcr.io/$owner/kept"
+          short=$(git rev-parse --short=7 HEAD)
+          branch=$(tr '[:upper:]' '[:lower:]' <<<"$REF_NAME" | sed -E 's/[^a-z0-9._-]+/-/g; s/^[.-]+//' | cut -c1-120)
+          base=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo v0.0.0)
+          IFS=. read -r major minor patch <<<"${base#v}"
+          version="$major.$minor.$((patch + 1))-fork.$short"
+          # The database's own rule for a release's version (release_history_version_chk).
+          [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "::error::bad version $version"; exit 1; }
+          tags=(-t "$image:sha-$short" -t "$image:$branch")
+          [[ $REF_NAME == main ]] && tags+=(-t "$image:latest")
+          {
+            echo "image=$image"
+            echo "short=$short"
+            echo "version=$version"
+            echo "platforms=$PLATFORMS"
+            echo "tags=${tags[*]}"
+          } >>"$GITHUB_OUTPUT"
+          echo "### $image" >>"$GITHUB_STEP_SUMMARY"
+          echo "version \`$version\`, tags: \`sha-$short\`, \`$branch\`$([[ $REF_NAME == main ]] && echo ", \`latest\`")" >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Emulation for other architectures
+        if: contains(steps.meta.outputs.platforms, 'arm64')
+        run: docker run --privileged --rm tonistiigi/binfmt:latest --install arm64
+
+      - name: Sign in to GHCR
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Build and push
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          PLATFORMS: ${{ steps.meta.outputs.platforms }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+          SOURCE: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          docker buildx create --use --name fork-image
+          # A fetch the Dockerfile makes (Debian, postgresql.org, the npm registry) can time out,
+          # as in scripts/release/build.sh: up to three attempts; buildx keeps the layers an attempt finished.
+          for attempt in 1 2 3; do
+            # shellcheck disable=SC2086  # TAGS is "-t a -t b"
+            docker buildx build --platform "$PLATFORMS" --target runtime \
+              --build-arg "VERSION=$VERSION" --build-arg "REVISION=$GITHUB_SHA" \
+              --build-arg "SOURCE=$SOURCE" \
+              --cache-from "type=registry,ref=$IMAGE:buildcache" \
+              --cache-to "type=registry,ref=$IMAGE:buildcache,mode=max,ignore-error=true" \
+              $TAGS --push . && exit 0
+            echo "::warning::build attempt $attempt failed"
+            sleep 30
+          done
+          exit 1

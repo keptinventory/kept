@@ -10,19 +10,14 @@ import {
 import type pg from 'pg';
 import { actorOf } from '../audit/actor.js';
 import { audited } from '../audit/audited.js';
-import { lastChangedBy, undoableUntil } from '../audit/undo.js';
+import { requireRowVersion, undoableUntil } from '../audit/undo.js';
 import type { Scope, Tx } from '../db/scope.js';
-import {
-  assertClientId,
-  checkVersion,
-  decodeCursor,
-  encodeCursor,
-  PAGE_DEFAULT,
-} from '../http/conventions.js';
+import { assertClientId, decodeCursor, encodeCursor, PAGE_DEFAULT } from '../http/conventions.js';
 import { AppError, conflict, invalid, notFound } from '../http/errors.js';
 import type { JobQueue } from '../jobs/queue.js';
 import { requireMembership } from '../locations/access.js';
 import { namedOrShown } from '../locations/hidden.js';
+import { todayIn } from '../money/input.js';
 import { gateFor } from '../serialize/gates.js';
 import type { FileStorage } from '../storage/blob-store.js';
 import { requireRole } from '../things/service.js';
@@ -88,17 +83,8 @@ export async function requireCountsFor(
   if (row.kind === 'count') await requireModule(ctx, row.location_id, 'counts', 'write');
 }
 
-/** Today in the location's zone, `YYYY-MM-DD` ("today" is the location's). */
-export async function todayIn(client: pg.ClientBase, locationId: string): Promise<string> {
-  const { rows } = await client.query<{ today: string }>(
-    `SELECT (now() AT TIME ZONE l.timezone)::date::text AS today
-       FROM public.locations l WHERE l.id = $1`,
-    [locationId],
-  );
-  const today = rows[0]?.today;
-  if (!today) throw notFound();
-  return today;
-}
+/** Today in the location's zone, `YYYY-MM-DD` ("today" is the location's): money/input.ts's. */
+export { todayIn };
 
 export type SubjectInput = { thingId: string } | { placeId: string };
 export type Subject = { locationId: string; thingId: string | null; placeId: string | null };
@@ -167,18 +153,6 @@ export async function requireNotDone(client: pg.ClientBase, row: ScheduleRow): P
       'This one-off is done. Undo its completion to open it again, or make it repeat.',
     );
   }
-}
-
-/** 412 (D156) unless the schedule is at `expected`, naming who changed it since. */
-async function requireVersion(
-  client: pg.ClientBase,
-  row: ScheduleRow,
-  expected: number,
-  fields: readonly string[],
-): Promise<void> {
-  if (row.row_version === expected) return;
-  const by = await lastChangedBy(client, row.location_id, { type: 'schedule', id: row.id });
-  checkVersion({ rowVersion: row.row_version }, expected, fields, by ? { displayName: by } : null);
 }
 
 /** The subject's things, for the audit (its history shows the schedule, D45). */
@@ -539,7 +513,7 @@ export async function updateSchedule(
   const fields = (Object.keys(body) as (keyof UpdateScheduleInput)[]).filter(
     (k) => body[k] !== undefined,
   );
-  await requireVersion(client, before, expected, fields);
+  await requireRowVersion(client, 'schedule', before, expected, fields);
   if (fields.length === 0) return scheduleView(client, id);
   const pick = <K extends keyof UpdateScheduleInput, V>(k: K, current: V) =>
     body[k] !== undefined ? (body[k] as V) : current;
@@ -584,7 +558,7 @@ export async function updateSchedule(
 /** DELETE /api/v1/schedules/:id (If-Match) → 204. Hard; undoable (the row comes back). */
 export async function deleteSchedule(ctx: Ctx, id: string, expected: number): Promise<void> {
   const before = await writableSchedule(ctx, id);
-  await requireVersion(ctx.client, before, expected, []);
+  await requireRowVersion(ctx.client, 'schedule', before, expected, []);
   const { rows: completions } = await ctx.client.query<{ service_record_id: string }>(
     'SELECT service_record_id FROM public.service_completions WHERE schedule_id = $1',
     [id],
@@ -628,7 +602,7 @@ export async function snoozeSchedule(
   const { client } = ctx;
   const before = await writableSchedule(ctx, id);
   await requireCountsFor(ctx, before);
-  await requireVersion(client, before, expected, Object.keys(body));
+  await requireRowVersion(client, 'schedule', before, expected, Object.keys(body));
   await requireNotDone(client, before);
   let untilDate: string | null = null;
   let untilValue: string | null = null;
@@ -667,7 +641,7 @@ export async function snoozeSchedule(
 export async function unsnoozeSchedule(ctx: Ctx, id: string, expected: number): Promise<Schedule> {
   const { client } = ctx;
   const before = await writableSchedule(ctx, id);
-  await requireVersion(client, before, expected, ['snoozedUntil']);
+  await requireRowVersion(client, 'schedule', before, expected, ['snoozedUntil']);
   await client.query(
     'UPDATE public.schedules SET snoozed_until = NULL, snoozed_until_value = NULL WHERE id = $1',
     [id],
@@ -685,7 +659,7 @@ export async function skipSchedule(ctx: Ctx, id: string, expected: number): Prom
   const { client } = ctx;
   const before = await writableSchedule(ctx, id);
   await requireCountsFor(ctx, before);
-  await requireVersion(client, before, expected, ['skipNext']);
+  await requireRowVersion(client, 'schedule', before, expected, ['skipNext']);
   if (before.every_months === null && before.every_units === null) {
     throw invalid('A one-off date has no interval to skip; snooze it or change the date.');
   }

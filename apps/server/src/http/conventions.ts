@@ -32,6 +32,11 @@ export function requireIfMatch(req: Pick<FastifyRequest, 'headers'>): number {
   return Number(match[1]);
 }
 
+/** The If-Match row version when the client sent one, else null (writes where it is optional). */
+export function optionalIfMatch(req: Pick<FastifyRequest, 'headers'>): number | null {
+  return req.headers['if-match'] === undefined ? null : requireIfMatch(req);
+}
+
 /** Who made the change a stale write collided with, for the 412 body (the web contract). */
 export type ChangedBy = { displayName: string };
 

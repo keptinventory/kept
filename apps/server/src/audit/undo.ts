@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { Pools } from '../db/pools.js';
 import type { Scope, Tx } from '../db/scope.js';
 import type { KeptApp } from '../http/app.js';
+import { checkVersion } from '../http/conventions.js';
 import { AppError, forbidden, notFound } from '../http/errors.js';
 import { scopedWrite } from '../http/write.js';
 import type { JobQueue } from '../jobs/queue.js';
@@ -207,6 +208,22 @@ export async function lastChangedBy(
     [locationId, entity.type, entity.id, since ?? null],
   );
   return rows[0]?.display_name ?? null;
+}
+
+/**
+ * 412 (D156) unless `row` is still at the version the client started from: names the fields the
+ * request touched and whoever wrote the latest event about the row (lastChangedBy).
+ */
+export async function requireRowVersion(
+  client: pg.ClientBase,
+  entityType: string,
+  row: { id: string; location_id: string; row_version: number },
+  expected: number,
+  fields: readonly string[],
+): Promise<void> {
+  if (row.row_version === expected) return;
+  const by = await lastChangedBy(client, row.location_id, { type: entityType, id: row.id });
+  checkVersion({ rowVersion: row.row_version }, expected, fields, by ? { displayName: by } : null);
 }
 
 /** Fields of `diff` whose `after` no longer matches `current` (deep, as JSON). */

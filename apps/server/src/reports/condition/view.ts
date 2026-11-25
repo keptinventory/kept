@@ -1,6 +1,6 @@
 import type { ConditionReportKind } from '@kept/shared';
 import type { ReportLocale } from '../labels.js';
-import { dirOf, intlLocaleOf, numberingOf, sepOf } from '../locale.js';
+import { dirOf, intlLocaleOf, numberingOf, safeTimeZone, sepOf } from '../locale.js';
 import { type ConditionWords, PDF_WORDS } from '../words/index.js';
 import type { ConditionReportOptions, GatheredCondition, GatheredRoom } from './gather.js';
 
@@ -63,15 +63,6 @@ export type ConditionViewContext = {
   /** Which photos (attachment ids) were written to the job directory. */
   withPhoto: ReadonlySet<string>;
 };
-
-function safeTimeZone(tz: string): string {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: tz });
-    return tz;
-  } catch {
-    return 'UTC';
-  }
-}
 
 /** Builds the template's data from what gatherCondition() read. */
 export function buildConditionView(

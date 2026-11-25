@@ -17,6 +17,7 @@ import {
   intlLocaleOf,
   numberingOf,
   pathSeparatorOf,
+  safeTimeZone,
   sepOf,
 } from '../reports/locale.js';
 import { addDecimal } from '../reports/view.js';
@@ -425,15 +426,6 @@ export type InsuranceView = {
   moneyNote: string;
   places: { key: string; path: string[]; totals: string[]; things: InsuranceViewThing[] }[];
 };
-
-function safeTimeZone(tz: string): string {
-  try {
-    new Intl.DateTimeFormat('en', { timeZone: tz });
-    return tz;
-  } catch {
-    return 'UTC';
-  }
-}
 
 export type InsuranceViewContext = {
   /** KEPT_PUBLIC_URL without a trailing slash: the footer's host and the links into Kept. */
