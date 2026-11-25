@@ -31,7 +31,7 @@ Chạy lại cùng một lần nhập bỏ qua những gì đã đưa vào, nên
    - **Khớp cột loại với các loại của bạn theo tên**, bằng bất kỳ ngôn ngữ nào của Kept; tắt, loại được giữ trong ghi chú.
 4. **Kiểm tra lần nhập**, đọc báo cáo, và nhập.
 
-Các cột Kept đọc được: tên, số lượng, vị trí, loại, thương hiệu, mẫu, số seri, mã vạch, màu, tình trạng, ghi chú, thẻ, tên khác, ngày mua, giá, tiền tệ, cửa hàng, liên kết hướng dẫn sử dụng, mã nhãn cũ của bạn, mã của bạn, ID hàng (để nhập lại bỏ qua hàng), và các trường riêng của các loại. Tiêu đề bằng bất kỳ ngôn ngữ nào của Kept đều được khớp cho bạn. Thẻ và tên khác được phân tách bằng dấu phẩy, giá là số không có ký hiệu tiền tệ, và ngày viết một cách xuyên suốt cả tệp.
+Các cột Kept đọc được: tên, số lượng, vị trí, loại, thương hiệu, mẫu, số seri, mã vạch, màu, tình trạng, ghi chú, thẻ, tên khác, ngày mua, giá, tiền tệ, cửa hàng, liên kết hướng dẫn sử dụng, mã nhãn cũ của bạn, mã của bạn, ID hàng (để nhập lại bỏ qua hàng), và các trường riêng của các loại. Tiêu đề bằng bất kỳ ngôn ngữ nào của Kept đều được khớp cho bạn. Thẻ và tên khác được phân tách bằng dấu phẩy, giá là số không có ký hiệu tiền tệ, và ngày viết một cách xuyên suốt cả tệp. Ngày mua tạo một lần mua, với cửa hàng và giá của nó khi hàng có chúng; giá hoặc cửa hàng không có ngày thì ở lại trong ghi chú. Ở nơi Tiền và chi tiêu tắt, ngày và cửa hàng vẫn tạo lần mua, còn giá và tiền tệ ở lại trong ghi chú.
 
 #### Bảng tính của Homebox
 
@@ -47,7 +47,7 @@ Mọi Homebox đều có thể xuất bảng tính (lên đến v0.25: **Công c
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Bảo hành từ ngày mua, nơi Bảo hành bật |
 | `HB.warranty_details`, `HB.insured` | Dòng trong ghi chú |
 
-Giá 0 được đọc như không có giá (Homebox viết 0 khi chưa đặt). Các hàng vị trí mà bảng tính v0.26 hoặc mới hơn liệt kê bị bỏ qua; vị trí đến từ đường dẫn vị trí của mỗi mục. Bảng tính không mang được ảnh, tệp, bảo trì hoặc mục trong mục, và trường tùy chỉnh chỉ nhập nếu bạn khớp chúng với trường của loại. Để tất cả những đó, dùng tệp ZIP xuất.
+Giá 0 được đọc như không có giá (Homebox viết 0 khi chưa đặt), nên một mục có ngày mua mà không có giá vẫn vào cùng lần mua của nó: ngày và cửa hàng. Ở nơi Tiền và chi tiêu tắt, cả lần mua ở lại trong ghi chú, như với tệp ZIP xuất. Các hàng vị trí mà bảng tính v0.26 hoặc mới hơn liệt kê bị bỏ qua; vị trí đến từ đường dẫn vị trí của mỗi mục. Bảng tính không mang được ảnh, tệp, bảo trì hoặc mục trong mục, và trường tùy chỉnh chỉ nhập nếu bạn khớp chúng với trường của loại. Để tất cả những đó, dùng tệp ZIP xuất.
 
 ### Một bản xuất Homebox
 
@@ -87,7 +87,7 @@ Bước kiểm tra liệt kê mọi mục cần xem, mỗi cái với chuyện g
 | Vị trí (lồng nhau) | Phòng và chỗ, giữ cây |
 | Mục | Đồ vật; mục chứa mục khác thành hộp, không phải toàn bộ loại |
 | Nhà sản xuất, mẫu, số seri | Thương hiệu, mẫu, số seri |
-| Ngày mua, cửa hàng và giá | Một lần mua với cửa hàng của nó |
+| Ngày mua, cửa hàng và giá | Một lần mua với cửa hàng của nó, và giá của nó khi có (số 0 của Homebox là không có giá). Cửa hàng hoặc giá không có ngày thì ở lại trong ghi chú |
 | Bảo hành, bảo hành trọn đời | Một bảo hành |
 | Chi tiết bán | Có người mua hoặc giá (lớn hơn 0): đồ vật kết thúc là đã bán, với ngày, giá, người mua và ghi chú. Chỉ ngày bán không phải là bán: đồ vật ở lại đang dùng, ngày trong ghi chú |
 | Thẻ | Thẻ với màu (thẻ lồng gọn làm phẳng) |

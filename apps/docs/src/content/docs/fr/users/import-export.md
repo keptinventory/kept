@@ -30,7 +30,7 @@ Lancer à nouveau la même importation saute ce qu'elle a déjà fait entrer, de
    - **Associer la colonne type à vos types par leur nom**, dans n'importe laquelle des langues de Kept ; désactivé, le type est conservé dans les notes.
 4. **Vérifier l'import**, lire le rapport, et importer.
 
-Les colonnes que Kept lit : nom, quantité, emplacement, type, marque, modèle, numéro de série, code-barres, couleur, état, notes, étiquettes, autres noms, date d'achat, prix, devise, boutique, lien vers le manuel, le code d'une ancienne étiquette, votre propre code, un identifiant de ligne (ainsi une réimportation saute la ligne), et les champs propres à vos types. Les en-têtes dans n'importe laquelle des langues de Kept sont associés pour vous. Les étiquettes et les autres noms sont séparés par des virgules, un prix est un nombre sans le signe de devise, et les dates s'écrivent d'une seule manière dans tout le fichier.
+Les colonnes que Kept lit : nom, quantité, emplacement, type, marque, modèle, numéro de série, code-barres, couleur, état, notes, étiquettes, autres noms, date d'achat, prix, devise, boutique, lien vers le manuel, le code d'une ancienne étiquette, votre propre code, un identifiant de ligne (ainsi une réimportation saute la ligne), et les champs propres à vos types. Les en-têtes dans n'importe laquelle des langues de Kept sont associés pour vous. Les étiquettes et les autres noms sont séparés par des virgules, un prix est un nombre sans le signe de devise, et les dates s'écrivent d'une seule manière dans tout le fichier. Une date d'achat crée un achat, avec sa boutique et son prix quand la ligne les a ; un prix ou une boutique sans date reste dans les notes. Là où Argent et dépenses est désactivé, la date et la boutique créent quand même l'achat, et le prix et la devise restent dans les notes.
 
 #### Le tableur de Homebox
 
@@ -44,7 +44,7 @@ Chaque Homebox peut exporter un tableur (jusqu'à la v0.25 : **Outils → Import
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Une garantie à partir de la date d'achat, où Garanties est activé |
 | `HB.warranty_details`, `HB.insured` | Lignes dans les notes |
 
-Un prix de 0 est lu comme pas de prix (Homebox écrit 0 quand aucun n'a été défini). Les lignes de lieu qu'un tableur de la v0.26 ou ultérieur énumère sont laissées de côté ; les emplacements viennent du chemin de lieu de chaque objet. Un tableur ne peut pas transporter de photos, de fichiers, de maintenance ni d'objets dans des objets, et les champs personnalisés ne sont importés que si vous les associez à un champ de type. Pour tout cela, utilisez le fichier ZIP d'export.
+Un prix de 0 est lu comme pas de prix (Homebox écrit 0 quand aucun n'a été défini), donc un objet avec une date d'achat et sans prix arrive quand même avec son achat : la date et la boutique. Là où Argent et dépenses est désactivé, tout l'achat reste dans les notes, comme avec le ZIP d'export. Les lignes de lieu qu'un tableur de la v0.26 ou ultérieur énumère sont laissées de côté ; les emplacements viennent du chemin de lieu de chaque objet. Un tableur ne peut pas transporter de photos, de fichiers, de maintenance ni d'objets dans des objets, et les champs personnalisés ne sont importés que si vous les associez à un champ de type. Pour tout cela, utilisez le fichier ZIP d'export.
 
 ### Un export Homebox
 
@@ -78,7 +78,7 @@ Ce qui passe :
 | Lieux (imbriqués) | Pièces et endroits, en conservant l'arborescence |
 | Objets | Objets ; un objet contenant d'autres objets devient une boîte, jamais tout son type |
 | Fabricant, modèle, numéro de série | Marque, modèle, numéro de série |
-| Date d'achat, boutique et prix | Un achat avec sa boutique |
+| Date d'achat, boutique et prix | Un achat avec sa boutique, et son prix quand il en a un (le 0 de Homebox signifie pas de prix). Une boutique ou un prix sans date reste dans les notes |
 | Garantie, garantie à vie | Une garantie |
 | Détails de vente | Avec un acheteur ou un prix (plus de 0) : l'objet s'est terminé comme vendu, avec sa date, son prix, son acheteur et ses notes. Une date de vente seule n'est pas une vente : l'objet reste en service, la date dans ses notes |
 | Étiquettes | Étiquettes avec leurs couleurs (étiquettes imbriquées aplaties) |

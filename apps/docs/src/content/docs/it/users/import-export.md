@@ -30,7 +30,7 @@ Eseguire di nuovo la stessa importazione salta ciò che ha già portato dentro, 
    - **Associa la colonna tipo ai tuoi tipi per nome**, in qualsiasi lingua di Kept; disattivato, il tipo viene tenuto nelle note.
 4. **Controlla l'importazione**, leggi il report e importa.
 
-Le colonne che Kept legge: nome, quantità, posto, tipo, marca, modello, numero di serie, codice a barre, colore, condizioni, note, tag, altri nomi, data di acquisto, prezzo, valuta, negozio, link al manuale, il codice di una vecchia etichetta, il tuo codice, un ID di riga (così una nuova importazione salta la riga) e i campi dei tuoi tipi. Le intestazioni in qualsiasi lingua di Kept vengono associate per te. Tag e altri nomi sono separati da virgole, un prezzo è un numero senza il simbolo di valuta e le date sono scritte in un solo modo per tutto il file.
+Le colonne che Kept legge: nome, quantità, posto, tipo, marca, modello, numero di serie, codice a barre, colore, condizioni, note, tag, altri nomi, data di acquisto, prezzo, valuta, negozio, link al manuale, il codice di una vecchia etichetta, il tuo codice, un ID di riga (così una nuova importazione salta la riga) e i campi dei tuoi tipi. Le intestazioni in qualsiasi lingua di Kept vengono associate per te. Tag e altri nomi sono separati da virgole, un prezzo è un numero senza il simbolo di valuta e le date sono scritte in un solo modo per tutto il file. Una data di acquisto crea un acquisto, con il suo negozio e il suo prezzo quando la riga li ha; un prezzo o un negozio senza data resta nelle note. Dove Soldi e spese è disattivato, la data e il negozio creano comunque l'acquisto, e il prezzo e la valuta restano nelle note.
 
 #### Il foglio di calcolo di Homebox
 
@@ -44,7 +44,7 @@ Ogni Homebox può esportare un foglio di calcolo (fino alla v0.25: **Strumenti �
 | `HB.warranty_expires`, `HB.lifetime_warranty` | Una garanzia dalla data di acquisto, dove Garanzie è attivo |
 | `HB.warranty_details`, `HB.insured` | Righe nelle note |
 
-Un prezzo di 0 viene letto come nessun prezzo (Homebox scrive 0 quando nessuno era impostato). Le righe di luogo che un foglio di calcolo dalla v0.26 in poi elenca vengono lasciate fuori; i posti vengono dal percorso di luogo di ogni oggetto. Un foglio di calcolo non può trasportare foto, file, manutenzione o oggetti dentro oggetti, e i campi personalizzati vengono importati solo se li associ a un campo di un tipo. Per tutto il resto, usa lo ZIP di esportazione.
+Un prezzo di 0 viene letto come nessun prezzo (Homebox scrive 0 quando nessuno era impostato), quindi un oggetto con una data di acquisto e senza prezzo arriva comunque con il suo acquisto: la data e il negozio. Dove Soldi e spese è disattivato, l'intero acquisto resta nelle note, come con lo ZIP di esportazione. Le righe di luogo che un foglio di calcolo dalla v0.26 in poi elenca vengono lasciate fuori; i posti vengono dal percorso di luogo di ogni oggetto. Un foglio di calcolo non può trasportare foto, file, manutenzione o oggetti dentro oggetti, e i campi personalizzati vengono importati solo se li associ a un campo di un tipo. Per tutto il resto, usa lo ZIP di esportazione.
 
 ### Un'esportazione di Homebox
 
@@ -78,7 +78,7 @@ Cosa passa:
 | Luoghi (annidati) | Stanze e posti, mantenendo l'albero |
 | Articoli | Oggetti; un oggetto che contiene altri diventa una scatola, mai tutto il suo tipo |
 | Produttore, modello, numero di serie | Marca, modello, numero di serie |
-| Data di acquisto, negozio e prezzo | Un acquisto con il suo negozio |
+| Data di acquisto, negozio e prezzo | Un acquisto con il suo negozio, e il suo prezzo quando ne ha uno (lo 0 di Homebox è nessun prezzo). Un negozio o un prezzo senza data resta nelle note |
 | Garanzia, garanzia a vita | Una garanzia |
 | Dettagli venduti | Con un acquirente o un prezzo (più di 0): l'oggetto è finito come venduto, con la sua data, prezzo, acquirente e note. Solo una data di vendita non è una vendita: l'oggetto resta in uso, la data nelle sue note |
 | Tag | Tag con i loro colori (tag annidati appiattiti) |
