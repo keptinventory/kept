@@ -147,8 +147,8 @@ export type NavEntry = {
  * The navigation entries, in order and grouped (D78, as D256 restored it: Locations third, after
  * Home and Inbox): Home and Inbox; then the locations (the sidebar's own list); Tracking
  * (Schedules, Lending, Paperwork, Consumables, Vehicles, Moving, Insights); Tools (Labels,
- * Counts); then Activity, Trash, Notifications, Settings and Help. Those without `to` arrive in
- * later steps. An entry that belongs to a module shows only when the module is on in at least one
+ * Counts, or Box checks while Counts is off everywhere); then Activity, Trash, Notifications,
+ * Settings and Help. Those without `to` arrive in later steps. An entry that belongs to a module shows only when the module is on in at least one
  * of your locations: Vehicles, Labels, Schedules, Lending, Paperwork, Consumables, Insights with
  * Money (1.x, D234), and Moving (1.x, D251). Notifications is core: everyone has it. The Inbox is
  * for members and above: a viewer everywhere has no entry for it.
@@ -231,14 +231,16 @@ export function useNavEntries(): NavEntry[] {
       to: '/labels',
       group: 'tools',
     }),
-    // A module since #506: shown while Counts is on in one of your locations, as Labels is.
-    ...gated(modulesOn.has('counts'), {
+    // A module since #506: Counts while it is on in one of your locations. Off everywhere, the
+    // same list holds the box checks, and a box check needs no module (any location can have
+    // one), so the entry stays, named for what it lists.
+    {
       key: 'counts',
-      label: t`Counts`,
+      label: modulesOn.has('counts') ? t`Counts` : t`Box checks`,
       icon: <QrIcon />,
       to: '/counts',
       group: 'tools',
-    }),
+    },
     {
       key: 'activity',
       label: t`Activity`,
