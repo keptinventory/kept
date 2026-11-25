@@ -254,7 +254,7 @@ export function renderSection(version, date, commits, { highlights, github } = {
   }
   if (github?.contributors.length) {
     // GitHub draws the release page's contributor avatars from these mentions.
-    lines.push('### Contributors', '', github.contributors.map((l) => `@${l}`).join(' · '), '');
+    lines.push('### Contributors', '', github.contributors.map((l) => `@${l}`).join(', '), '');
   }
   return lines.join('\n');
 }

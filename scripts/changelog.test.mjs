@@ -276,7 +276,7 @@ describe('the issues each pull request closes, and the contributors', () => {
     const github = await gatherGitHub(releaseCommits, fakeFetcher());
     const text = renderSection('1.12.4', '2026-10-21', releaseCommits, { github });
     // Reporters are credited on their change's line, not here: contributors wrote the code.
-    expect(text.trimEnd()).toMatch(/### Contributors\n\n@bruce · @ibrahimroshdy · @louis$/);
+    expect(text.trimEnd()).toMatch(/### Contributors\n\n@bruce, @ibrahimroshdy, @louis$/);
     expect(text).not.toMatch(/renovate|dependabot|github-actions/);
   });
 
