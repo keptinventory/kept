@@ -185,9 +185,10 @@ viele, Typ (nach Name, auf Englisch oder Arabisch, oder per ID), Marke (wird neu
 nicht vorhanden), Modell, Seriennummer, Barcode, Farbe, Zustand, Notizen, andere Namen, Tags
 (ein neuer Name erstellt den Tag, ab Mitgliedern aufwärts), wem sie gehört (eine Person, wird neu
 angelegt, falls nicht vorhanden), der Link zum Handbuch, Ablauf und wie viele Tage vorher erinnert
-werden soll, das Minimum eines Verbrauchsguts und die eigenen Felder des Typs nach Schlüssel.
-`add_thing` nimmt außerdem, wo sie hinkommt, und den Kauf (Datum, Preis für eine mit Währung und
-Laden); `update_thing` nimmt außerdem, woher sie kam, und ihren Kauf: das Datum, den Laden, ihre
+werden soll, das Minimum eines Verbrauchsguts, woher sie kam (ein Geschenk, die Arbeit) und die eigenen Felder
+des Typs nach Schlüssel. `add_thing` nimmt außerdem, wo sie hinkommt, und den Kauf (Datum, Preis
+für eine mit Währung und Laden; ein Preis kommt mit seiner Währung oder gar nicht, also kann ein
+Kauf nur ein Datum und ein Laden sein); `update_thing` nimmt außerdem ihren Kauf: das Datum, den Laden, ihre
 Zeile auf der Quittung, den Preis für eine mit Währung und die Notizen, wobei der vorhandene
 Kauf geändert oder ein neuer erfasst wird, wie es die Gegenstand-Seite tut. Ein Preis braucht Geld
 aktiviert und eine Rolle, die Geld sehen kann, wie in der App; ein Minimum braucht **Was zur Neige

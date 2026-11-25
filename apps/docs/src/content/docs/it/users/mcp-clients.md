@@ -177,9 +177,10 @@ superiore. La parte di Kept di cui uno strumento ha bisogno è il nome sotto **C
 ciascuno nel proprio campo anziché nelle note: nome, quantità, tipo (per nome, in inglese o
 arabo, o per id), marca (creata se nuova), modello, numero di serie, codice a barre, colore, condizione, note,
 altri nomi, etichette (un nome nuovo crea l'etichetta, per i membri e oltre), di chi è (una persona, creata se nuova), il link del manuale,
-scadenza e quanti giorni prima ricordare, il minimo di un consumabile e i campi propri del tipo per
-chiave. `add_thing` accetta anche dove va e l'acquisto (data, prezzo di uno con la sua valuta,
-e il negozio); `update_thing` accetta anche da dove viene, e il suo acquisto: la data, il negozio,
+scadenza e quanti giorni prima ricordare, il minimo di un consumabile, da dove viene (un regalo, il lavoro) e i campi
+propri del tipo per chiave. `add_thing` accetta anche dove va e l'acquisto (data, prezzo di uno con
+la sua valuta, e il negozio; un prezzo arriva con la sua valuta o per niente, quindi un acquisto può
+essere solo una data e un negozio); `update_thing` accetta anche il suo acquisto: la data, il negozio,
 la riga sulla ricevuta, il prezzo di uno con la sua valuta e le note, modificando l'acquisto
 che ha o registrandone uno, come fa la pagina dell'oggetto. Un prezzo richiede che Money sia attivo e un ruolo che
 veda il denaro, come nell'app; un minimo richiede **Oggetti che si esauriscono**. Un tipo che Kept non conosce viene
