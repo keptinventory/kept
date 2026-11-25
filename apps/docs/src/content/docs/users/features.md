@@ -36,7 +36,8 @@ a location turns them on in **Location settings → What to track**
 
 - **[The location map](/users/location-map/)**: each location in 3D, with floors, rooms at their
   real size (from 50 cm), furniture and its compartments, and what's inside. Starts from a floor
-  plan if you have one. Sizes in metres or in feet and inches.
+  plan if you have one. Sizes in metres or in feet and inches. Its [shapes](/users/map-shapes/)
+  include a shelving unit sized by its width, depth, height and shelves, and a water purifier.
 - **[The graph](/users/graph/)**: a location's places, boxes and things in 2D or 3D.
 - **[Short IDs and labels](/users/short-ids/)**: a short ID and a QR code on every box; scan one to
   open it. Label-maker rolls or office sheets. Module: Labels and QR codes.
@@ -99,7 +100,9 @@ a location turns them on in **Location settings → What to track**
   from a photo; you confirm it.
 - **The assistant**: ask in plain words; changes wait for your OK.
 - **[Claude and other AI apps](/users/mcp-clients/)**: an MCP server at `/mcp`; a connected app
-  stays connected until you revoke it. Module: Connect ChatGPT or Claude.
+  stays connected until you revoke it. A [personal token](/users/mcp-clients/#make-a-personal-token)
+  also reads and adds warranties, vendors and tags, and changes a thing's lifecycle, as the tool
+  `change_lifecycle` does. Module: Connect ChatGPT or Claude.
 
 ## Works with
 

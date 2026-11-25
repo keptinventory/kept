@@ -36,7 +36,8 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
 ## Dinge finden
 
 - **[Die Standortkarte](/de/users/location-map/)**: jeder Standort in 3D, mit Stockwerken, Räumen in ihrer
-  echten Größe (ab 50 cm), Möbeln und ihren Fächern, und was darin ist. Startet aus einem Grundriss, wenn du einen hast. Größen in Metern oder in Fuß und Zoll.
+  echten Größe (ab 50 cm), Möbeln und ihren Fächern, und was darin ist. Startet aus einem Grundriss, wenn du einen hast. Größen in Metern oder in Fuß und Zoll. Zu ihren [Formen](/de/users/map-shapes/)
+  gehören ein Regal, bemessen nach Breite, Tiefe, Höhe und Regalböden, und eine Wasserfilteranlage.
 - **[Der Graph](/de/users/graph/)**: Orte, Boxen und Dinge eines Standorts in 2D oder 3D.
 - **[Kurz-IDs und Etiketten](/de/users/short-ids/)**: eine Kurz-ID und ein QR-Code auf jeder Box; scanne einen, um
   sie zu öffnen. Etikettenrollen oder Bürobögen. Modul: Etiketten und QR-Codes.
@@ -94,7 +95,9 @@ ein Standort schaltet sie ein unter **Standorteinstellungen → Was erfasst wird
   Ding; du bestätigst es.
 - **Der Assistent**: frag in einfachen Worten; Änderungen warten auf dein OK.
 - **[Claude und andere KI-Apps](/de/users/mcp-clients/)**: ein MCP-Server unter `/mcp`; eine verbundene App
-  bleibt verbunden, bis du sie widerrufst. Modul: ChatGPT oder Claude verbinden.
+  bleibt verbunden, bis du sie widerrufst. Ein [persönliches Token](/de/users/mcp-clients/#persönliches-token-erstellen)
+  liest und ergänzt auch Garantien, Händler und Schlagwörter und ändert den Status eines Gegenstands, wie es
+  das Werkzeug `change_lifecycle` tut. Modul: ChatGPT oder Claude verbinden.
 
 ## Funktioniert mit
 
