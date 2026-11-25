@@ -210,6 +210,7 @@ const TARGET_JOINS = `
 /**
  * GET /api/v1/locations/:id/counts: finished counts and box checks, newest first. With Counts off
  * (#506) it lists the box checks only: a box check is not a count, and this is their one list.
+ * `kind=count` there is an empty page.
  */
 export async function listCounts(
   client: pg.ClientBase,
@@ -218,7 +219,10 @@ export async function listCounts(
   page: PageRequest<[string, string]>,
 ): Promise<z.infer<typeof CountsPageSchema>> {
   await requireVisible(client, locationId);
-  const kind = (await countsAreOn(client, locationId)) ? (query.kind ?? null) : 'box_check';
+  const countsOn = await countsAreOn(client, locationId);
+  // Counts off: asking for counts gets an empty page, never the box checks under that name.
+  if (!countsOn && query.kind === 'count') return { items: [], next_cursor: null };
+  const kind = countsOn ? (query.kind ?? null) : 'box_check';
   const after = page.after;
   if (after && (typeof after[0] !== 'string' || typeof after[1] !== 'string'))
     throw invalid('The cursor is not valid; start again from the first page.');
