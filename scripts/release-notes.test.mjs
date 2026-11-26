@@ -36,7 +36,7 @@ const section = `## 1.4.0 (2026-10-21)
 
 ### Contributors
 
-@bruce · @louis · @talia
+@bruce, @louis, @talia
 `;
 
 // The release record as scripts/release/notes.sh writes it (shortened).
@@ -92,7 +92,7 @@ describe('composeBody', () => {
       "## What's changed\n",
       '<details><summary>Documentation and behind the scenes</summary>',
       '## Upgrade\n',
-      '## Contributors\n\n@bruce · @louis · @talia\n',
+      '## Contributors\n\n@bruce, @louis, @talia\n',
       '**Full changelog**: https://github.com/keptinventory/kept/compare/v1.3.0...v1.4.0',
       '<details><summary>Image, chart and how to verify</summary>',
     ].map((s) => body.indexOf(s));
