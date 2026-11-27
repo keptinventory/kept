@@ -9,7 +9,7 @@ import { useSyncExternalStore } from 'react';
 
 export type ThemePref = 'light' | 'dark' | 'system';
 /** D204: the launch languages. Arabic is the only right-to-left one. */
-export type Locale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+export type Locale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
 /** D143: in Arabic, Western (0123) or Eastern Arabic (٠١٢٣) digits. Other languages are always Western. */
 export type Digits = 'western' | 'eastern';
 /** D203: page content in the readable column (the default) or across the whole space. */
@@ -38,11 +38,22 @@ export const DIGITS_KEY = 'kept.digits';
 export const WIDTH_KEY = 'kept.width';
 export const REGION_KEY = 'kept.region';
 export const DATE_FORMAT_KEY = 'kept.dateFormat';
-export const LOCALES: readonly Locale[] = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
+export const LOCALES: readonly Locale[] = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'];
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);
 }
+
+/**
+ * The languages the server writes its mail, PDFs and readable copies in (the server's mail and
+ * report tables, `mail/messages.ts` and `reports/words/`). A catalogue language the server's
+ * tables don't speak yet reports and exports fall back to English, so the pickers and request
+ * bodies narrow to these.
+ */
+const SERVER_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
+export type ServerLocale = (typeof SERVER_LOCALES)[number];
+export const serverLocale = (locale: Locale): ServerLocale =>
+  (SERVER_LOCALES as readonly string[]).includes(locale) ? (locale as ServerLocale) : 'en';
 
 /** The launch language a BCP 47 tag belongs to (`ar-EG` → `ar`, `fr-CA` → `fr`), or null. */
 export function localeOfTag(tag: string): Locale | null {

@@ -79,6 +79,7 @@ describe('LanguageSelect', () => {
       'Italiano',
       'Українська',
       'Tiếng Việt',
+      '简体中文',
     ]);
     const arabic = screen.getByRole('option', { name: 'العربية' });
     expect(arabic.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');

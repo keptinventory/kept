@@ -39,7 +39,7 @@ import { toast } from '@/components/ui/toast';
 import { canShareFiles, downloadsWork, saveFile, shareFiles } from '@/lib/files';
 import { useLocationName } from '@/lib/labels';
 import { useOnline } from '@/lib/online';
-import { usePrefs } from '@/lib/prefs';
+import { serverLocale, usePrefs } from '@/lib/prefs';
 import { ReportProgress, reportFilenameOf } from './progress';
 
 export type ReportSearch = { loc?: string; incident?: string; things?: string; run?: string };
@@ -205,7 +205,7 @@ function InsuranceForm({
         asOf: day,
         ...(currency ? { reportCurrency: currency } : {}),
         include: { photos },
-        locale: prefs.locale,
+        locale: serverLocale(prefs.locale),
         digits: prefs.digits,
       });
       setRunId(run.id);
