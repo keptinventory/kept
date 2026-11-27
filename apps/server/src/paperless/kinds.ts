@@ -23,6 +23,8 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'гарантії',
       'гарантійний',
       'bảo hành',
+      '保修',
+      '质保',
     ],
   ],
   [
@@ -45,6 +47,10 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'посібник',
       'посібники',
       'hướng dẫn',
+      '说明书',
+      '使用手册',
+      '用户手册',
+      '操作指南',
     ],
   ],
   [
@@ -61,6 +67,7 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'рахунок',
       'рахунки',
       'hóa đơn',
+      '发票',
     ],
   ],
   [
@@ -86,6 +93,8 @@ const WORDS: readonly [PaperlessKind, readonly string[]][] = [
       'квитанції',
       'biên lai',
       'phiếu thu',
+      '收据',
+      '小票',
     ],
   ],
 ];
@@ -100,7 +109,12 @@ const wordsOf = (s: string) =>
     .filter(Boolean)
     .join(' ');
 
-const FOLDED = WORDS.map(([kind, words]) => [kind, words.map((w) => ` ${wordsOf(w)} `)] as const);
+const HAN = /\p{Script=Han}/u;
+
+const FOLDED = WORDS.map(
+  ([kind, words]) =>
+    [kind, words.map((w) => (HAN.test(w) ? wordsOf(w) : ` ${wordsOf(w)} `))] as const,
+);
 
 /** Names that hold a kind's word and mean something else: a checklist, proof of address, a bank
  * account. They're taken out before matching. */

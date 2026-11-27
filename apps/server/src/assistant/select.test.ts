@@ -381,6 +381,15 @@ describe('choosing the tools a step offers', () => {
     expect(offered('Abre una reclamación'.normalize('NFD'))).toContain('open_claim');
   });
 
+  it('matches Simplified Chinese questions without word spaces', () => {
+    expect(offered('把电钻借给 Louis 了')).toContain('lend_thing');
+    expect(offered('洗衣机的说明书和发票在哪')).toContain('find_documents');
+    expect(offered('卧室 4米乘3米')).toContain('create_place');
+    expect(offered('电池库存还剩多少')).toContain('adjust_stock');
+    expect(offered('汽车上次加油和保养记录')).toContain('log_fuel');
+    expect(offered('螺丝刀放在哪里？')).toEqual(offered('Are you working?'));
+  });
+
   it('keeps a tool the thread already used, and one the model asked for and was not offered', () => {
     expect(offered('and the drill?', ['lend_thing'])).toContain('lend_thing');
     expect(offered('and the drill?', ['start_move'])).not.toContain('start_move');

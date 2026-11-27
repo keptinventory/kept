@@ -51,6 +51,7 @@ const LANGUAGE_NAMES: Readonly<Record<string, string>> = Object.freeze({
   it: 'Italian',
   uk: 'Ukrainian',
   vi: 'Vietnamese',
+  zh: 'Simplified Chinese',
 });
 
 export function languageList(codes: readonly string[]): string {

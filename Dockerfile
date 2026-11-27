@@ -370,7 +370,7 @@ COPY --from=prod-deps /src/packages/mcp/node_modules ./packages/mcp/node_modules
 COPY --from=build /src/package.json ./package.json
 COPY --from=build /src/apps/server/package.json ./apps/server/package.json
 COPY --from=build /src/apps/server/dist ./apps/server/dist
-# The inventory report's fonts (D201): eight TTFs the server build converts from the @ibm/plex-*
+# The inventory report's fonts (D201): eleven TTFs the server build converts from the @ibm/plex-*
 # devDependencies, with their OFL texts. dist/ already holds the report's child renderer and
 # Typst template beside the modules that load them (src/reports/render/build-assets.ts).
 COPY --from=build /src/apps/server/assets ./apps/server/assets

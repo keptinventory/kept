@@ -17,6 +17,7 @@ const LANGUAGES: Record<string, string> = {
   it: 'Italian',
   uk: 'Ukrainian',
   vi: 'Vietnamese',
+  zh: 'Simplified Chinese',
 };
 
 export type PromptLocation = { id: string; name: string; role: Role; canWrite: boolean };

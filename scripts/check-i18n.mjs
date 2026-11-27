@@ -13,8 +13,8 @@
 // And it fails when a catalogue holds the same message twice (same msgctxt and msgid): only one
 // translation is compiled, so the other screen shows the wrong word.
 //
-// Every language the app ships (Arabic, English, French, German, Italian, Ukrainian, Vietnamese,
-// Spanish) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
+// Every language the app ships (Arabic, English, French, German, Italian, Simplified Chinese,
+// Spanish, Ukrainian, Vietnamese) must be in the Lingui config, and each must be complete. A translation must also keep its source's shape: the
 // same placeholders ({name}, {0}), the same numbered tags (<0>…</0>) and the same number of ICU
 // plurals, or the message would drop a value or break at runtime. In Ukrainian, whose `one` is also
 // 21, 31 and 101, a plural's `one` branch must keep the number the other branches show.
@@ -55,7 +55,7 @@ export function compareCatalogues(extracted, catalogues, sourceLocale = 'en') {
 }
 
 /** The languages the app ships. Removing one from lingui.config.ts fails the check. */
-export const REQUIRED_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
+export const REQUIRED_LOCALES = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'];
 
 /** Required locales the config doesn't list. */
 export function missingLocales(configLocales) {

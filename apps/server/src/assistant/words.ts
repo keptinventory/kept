@@ -4,13 +4,13 @@
 // isolated with FSI…PDI so it reads correctly inside a right-to-left sentence (lib/bidi.ts's rule
 // on the web).
 
-export type WordsLocale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi';
+export type WordsLocale = 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh';
 
 const FSI = '⁨';
 const PDI = '⁩';
 const iso = (s: string) => `${FSI}${s}${PDI}`;
 
-const LOCALES: readonly WordsLocale[] = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'];
+const LOCALES: readonly WordsLocale[] = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'];
 
 export function wordsLocale(locale: string): WordsLocale {
   const base = locale.slice(0, 2).toLowerCase();
@@ -29,6 +29,7 @@ const VIEWER: Record<WordsLocale, (location: string) => string> = {
   uk: (l) =>
     `Спостерігачі не можуть вносити тут зміни. Запитайте адміністратора локації «${iso(l)}».`,
   vi: (l) => `Người xem không thể thay đổi ở đây. Hãy nhờ một quản trị viên của ${iso(l)}.`,
+  zh: (l) => `访客无法在此进行更改。请联系「${iso(l)}」的管理员。`,
 };
 
 const NO_CHANGES: Record<WordsLocale, string> = {
@@ -40,6 +41,7 @@ const NO_CHANGES: Record<WordsLocale, string> = {
   it: 'Non puoi fare modifiche qui.',
   uk: 'Ви не можете вносити тут зміни.',
   vi: 'Bạn không thể thay đổi ở đây.',
+  zh: '你无法在此进行更改。',
 };
 
 const NO_ANSWER: Record<WordsLocale, string> = {
@@ -51,6 +53,7 @@ const NO_ANSWER: Record<WordsLocale, string> = {
   it: 'Non sono riuscito a completare la risposta. Chiedi di nuovo, magari in modo più preciso.',
   uk: 'Мені не вдалося сформувати повну відповідь. Запитайте ще раз, можливо, конкретніше.',
   vi: 'Tôi không thể hoàn thành câu trả lời đó. Hãy hỏi lại, có thể cụ thể hơn.',
+  zh: '我未能完成该回答。请换个更具体的问题再试一次。',
 };
 
 /** A viewer asked for a change, and the model tried one anyway. */

@@ -100,7 +100,19 @@ describe('readSpan', () => {
   });
 
   it('reads what it formatted, in every language', () => {
-    for (const tag of ['ar', 'ar-u-nu-arab', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi']) {
+    for (const tag of [
+      'ar',
+      'ar-u-nu-arab',
+      'de',
+      'en',
+      'es',
+      'fr',
+      'it',
+      'uk',
+      'vi',
+      'zh',
+      'zh-CN',
+    ]) {
       for (const cm of [50, 381, 1000, 10_000]) {
         const shown = formatSpan(cm, tag, 'imperial');
         const back = readSpan(shown, tag, 'imperial');

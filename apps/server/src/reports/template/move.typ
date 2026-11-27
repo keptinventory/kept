@@ -14,7 +14,7 @@
   paper: rgb("#FFFFFF"), surface: rgb("#FBFAF7"), sunken: rgb("#ECEAE4"), line: rgb("#DEDBD3"),
   ink: rgb("#1C1B19"), ink2: rgb("#55524C"), ink3: rgb("#6B675F"), amber: rgb("#F0B03A"),
 )
-#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic") }
+#let sans = if isrtl { ("IBM Plex Sans Arabic", "IBM Plex Sans", "IBM Plex Sans SC") } else { ("IBM Plex Sans", "IBM Plex Sans Arabic", "IBM Plex Sans SC") }
 #let sfx = (w) => if w == 600 { " SmBld" } else if w == 500 { " Medm" } else { "" }
 #let W(w) = sans.map(f => f + sfx(w))
 

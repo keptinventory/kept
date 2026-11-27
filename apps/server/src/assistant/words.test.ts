@@ -3,13 +3,14 @@ import { noAnswer, viewerRefusal, wordsLocale } from './words.js';
 
 // The assistant's fixed sentences: every interface language has its own.
 
-const ALL = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi'] as const;
+const ALL = ['ar', 'de', 'en', 'es', 'fr', 'it', 'uk', 'vi', 'zh'] as const;
 
 describe('wordsLocale()', () => {
   it.each([
     ['es-MX', 'es'],
     ['uk-UA', 'uk'],
     ['vi', 'vi'],
+    ['zh-CN', 'zh'],
     ['fr-CA', 'fr'],
     ['ar', 'ar'],
     ['pt-BR', 'en'],

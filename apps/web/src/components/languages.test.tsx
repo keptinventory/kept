@@ -79,6 +79,7 @@ describe('LanguageSelect', () => {
       'Italiano',
       'Українська',
       'Tiếng Việt',
+      '简体中文',
     ]);
     const arabic = screen.getByRole('option', { name: 'العربية' });
     expect(arabic.querySelector('[lang="ar"]')).toHaveAttribute('dir', 'rtl');
@@ -109,6 +110,8 @@ describe('LanguageSelect', () => {
     ['espanol', 'Español'],
     ['العربية', 'العربية'],
     ['arabic', 'العربية'],
+    ['中文', '简体中文'],
+    ['chinese', '简体中文'],
   ])('finds "%s" and shows only %s', async (query, name) => {
     const { user } = await renderUI(<Picker />);
     const box = screen.getByRole('combobox');

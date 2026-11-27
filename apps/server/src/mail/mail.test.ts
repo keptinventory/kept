@@ -331,6 +331,7 @@ describe('the message table', () => {
     expect(mailLocale('es-MX')).toBe('es');
     expect(mailLocale('uk-UA')).toBe('uk');
     expect(mailLocale('vi_VN')).toBe('vi');
+    expect(mailLocale('zh-CN')).toBe('zh');
     expect(mailLocale('pt')).toBe('en');
     expect(mailLocale('')).toBe('en');
     expect(mailLocale(null)).toBe('en');
@@ -384,7 +385,7 @@ describe('the message table', () => {
   });
 
   it('writes every language beyond English and Arabic as its own text, never English left in', () => {
-    for (const locale of ['de', 'es', 'fr', 'it', 'uk', 'vi'] as const) {
+    for (const locale of ['de', 'es', 'fr', 'it', 'uk', 'vi', 'zh'] as const) {
       for (const mail of EVERY_MAIL) {
         const en = messageFor(mail, 'en', ctx);
         const m = messageFor(mail, locale, ctx);
@@ -573,6 +574,7 @@ describe('counts in a sentence', () => {
     expect(when('es')).toContain('6 de noviembre de 2026');
     expect(when('uk')).toContain('6 листопада 2026');
     expect(when('vi')).toContain('6 tháng 11, 2026');
+    expect(when('zh')).toContain('2026年11月6日');
   });
 });
 
@@ -675,6 +677,7 @@ describe('renderMail', () => {
       ['it', 'dir="ltr"'],
       ['uk', 'dir="ltr"'],
       ['vi', 'dir="ltr"'],
+      ['zh', 'dir="ltr"'],
     ];
     for (const [locale, dir] of cases) {
       const mail = EVERY_MAIL[0] as MailBody & { url: string };

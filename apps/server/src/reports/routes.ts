@@ -35,7 +35,7 @@ import {
 //   {scope: {locationId} | {accountId},
 //    filters?: {placeIds?, typeIds?, tagIds?, includeEnded?, includeTrashed?},
 //    include?: {photos? = true, qr? = false, money? = true},
-//    locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi', digits?: 'western' | 'eastern'}
+//    locale?: 'ar' | 'de' | 'en' | 'es' | 'fr' | 'it' | 'uk' | 'vi' | 'zh', digits?: 'western' | 'eastern'}
 //   → 202 {id, status: 'queued', expiresAt}; 404 for a scope the caller can't see; 429 past
 //   five an hour (`retryAfter` seconds in the body and the Retry-After header). With `email: true`,
 //   409 `mail_not_configured` on a server without mail, or `no_email_address` for an account with

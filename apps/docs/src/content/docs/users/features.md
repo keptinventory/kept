@@ -80,10 +80,10 @@ a location turns them on in **Location settings → What to track**
   network over plain http, [sign-ins as long as the admin sets](/install/home-network/#staying-on-your-network);
   one Kept on [more than one address](/install/home-network/#more-than-one-address), such as a LAN
   name and a Tailscale name.
-- **Languages**: Arabic (right to left), English, French, German, Italian, Spanish, Ukrainian
-  and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
+- **Languages**: Arabic (right to left), English, French, German, Italian, Simplified Chinese,
+  Spanish, Ukrainian and Vietnamese; type to find yours in the picker, and dates in your region's style, or as you choose.
   Amounts are read as your language writes them. [PDFs](/users/reports/), claim packs and the readable copy
-  come out in your language. The user, admin and install docs are in every language too.
+  come out in your language. The user, admin and install docs are in eight of those languages.
 
 ## On your phone
 

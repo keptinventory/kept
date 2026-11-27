@@ -8,6 +8,7 @@ import { IT } from './it.js';
 import type { PdfWords } from './types.js';
 import { UK } from './uk.js';
 import { VI } from './vi.js';
+import { ZH } from './zh.js';
 
 export type * from './types.js';
 
@@ -22,4 +23,5 @@ export const PDF_WORDS: Readonly<Record<ReportLocale, PdfWords>> = {
   it: IT,
   uk: UK,
   vi: VI,
+  zh: ZH,
 };

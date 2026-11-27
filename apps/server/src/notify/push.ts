@@ -248,6 +248,7 @@ const TEST_PUSH: Record<MailLocale, { title: string; body: string }> = {
   it: { title: 'Kept', body: 'Le notifiche arrivano su questo dispositivo.' },
   uk: { title: 'Kept', body: 'Сповіщення надходять на цей пристрій.' },
   vi: { title: 'Kept', body: 'Thông báo đến được thiết bị này.' },
+  zh: { title: 'Kept', body: '通知已可送达此设备。' },
 };
 
 /** The test send's payload (Settings → Me → Notifications → Test). */

@@ -61,10 +61,14 @@ export function languageSearch<T extends SearchableLanguage>(
   interfaceLanguage: string,
 ): LanguageSearch<T> {
   return languages.map((language) => {
-    const translated = [
-      displayName(language.id, 'en'),
-      displayName(language.id, interfaceLanguage),
-    ].filter((name) => name !== null);
+    const tags = language.id === 'zh' ? ['zh', 'zh-Hans'] : [language.id];
+    const translated = tags
+      .flatMap((tag) => [
+        displayName(tag, 'en'),
+        displayName(tag, language.id),
+        displayName(tag, interfaceLanguage),
+      ])
+      .filter((name): name is string => name !== null);
     const given = translated.length > 0 ? translated : [language.id];
     const folded = [language.name, ...given].map(fold);
     const stems = folded.map(stripPrefixes);
